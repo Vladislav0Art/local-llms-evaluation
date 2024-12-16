@@ -1,0 +1,91 @@
+package org.jsoup.parser;
+
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Tag;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void getName_ReturnsTagName() {
+        Tag tag = new Tag("div");
+        assertEquals("div", tag.getName());
+    }
+
+    @Test
+    public void normalName_ReturnsTagNameInLowerCase() {
+        Tag tag = new Tag("DIV");
+        assertEquals("div", tag.normalName());
+    }
+
+    @Test
+    public void valueOf_TagName_ReturnsTag() {
+        Tag tag = Tag.valueOf("p");
+        assertEquals("p", tag.getName());
+    }
+
+    @Test
+    public void valueOf_TagName_ReturnsNewTag_WhenUnknown() {
+        Tag tag = Tag.valueOf("unknown");
+        assertEquals("unknown", tag.getName());
+    }
+
+    @Test
+    public void valueOf_TagName_ReturnsTag_WithCaseSensitivity() {
+        Tag tag = Tag.valueOf("P");
+        assertEquals("P", tag.getName());
+    }
+
+    @Test
+    public void isBlock_ReturnsTrue_ForBlockTags() {
+        Tag tag = new Tag("p");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void isBlock_ReturnsFalse_ForInlineTags() {
+        Tag tag = new Tag("span");
+        assertFalse(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlock_ReturnsTrue_ForBlockTags() {
+        Tag tag = new Tag("p");
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void formatAsBlock_ReturnsFalse_ForInlineTags() {
+        Tag tag = new Tag("span");
+        assertFalse(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInline_ReturnsTrue_ForInlineTags() {
+        Tag tag = new Tag("span");
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isInline_ReturnsFalse_ForBlockTags() {
+        Tag tag = new Tag("p");
+        assertFalse(tag.isInline());
+    }
+
+    @Test
+    public void isEmpty_ReturnsTrue_ForEmptyTags() {
+        Tag tag = new Tag("img");
+        assertTrue(tag.isEmpty());
+    }
+
+}
