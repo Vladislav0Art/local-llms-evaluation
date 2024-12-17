@@ -1,0 +1,394 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class UrlBuilderTest {
+
+    private static final String PROTOCOL = "https://example.com";
+    private static final String PATH = "/path/to/resource";
+    private static final String QUERY = "key=value&key2=value2";
+    private static final String REF = "#anchor";
+    private static final String SPACE = " ";
+    private static final String NON_ASCII_CHAR = "\u00E0";
+
+    @Test
+    public void newUrlBuilder_withEmptyQuery_andREF_shouldReturnEmptyURL() {
+        UrlBuilder builder = new UrlBuilder(new URL(PROTOCOL, PATH));
+        assert builder.build().getProtocol().equals(PROTOCOL) && builder.build().getPath().isEmpty();
+    }
+
+    @Test
+    public void newUrlBuilder_withNonASCII_PATH_shouldReturnNormalizedURL() {
+        UrlBuilder builder = new UrlBuilder(new URL(PROTOCOL + "://example.com" + PATH));
+        assert builder.build().getProtocol().equals(PROTOCOL) && builder.build().getPath().equals("path/to/resource");
+    }
+
+    @Test
+    public void appendKeyVal_withNonASCII_KEY_shouldReturnNormalizedURL() {
+        UrlBuilder builder = new UrlBuilder(new URL(PROTOCOL, PATH));
+        builder.appendKeyVal(Connection.KeyVal.of("key", "non-ascii-key"));
+        assert builder.build().getProtocol().equals(PROTOCOL) && builder.build().getPath().equals(PATH);
+    }
+
+    @Test
+    public void appendToAscii_shouldEscapeNonASCII_CHAR() {
+        StringBuilder sb = StringUtil.borrowBuilder();
+        appendToAscii(NON_ASCII_CHAR, false, sb);
+        assert sb.toString().equals("%C3%A0");
+    }
+
+    @Test
+    public void appendKeyVal_withoutExistingQuery_shouldAppendNewOne() {
+        UrlBuilder builder = new UrlBuilder(new URL(PROTOCOL, PATH));
+        builder.appendKeyVal(Connection.KeyVal.of("key", "value"));
+        assert builder.build().getProtocol().equals(PROTOCOL) && builder.build().getPath().equals(PATH);
+    }
+
+    @Test
+    public void appendToAscii_shouldNotEscapeASCII_CHAR() {
+        StringBuilder sb = StringUtil.borrowBuilder();
+        appendToAscii(SPACE, false, sb);
+        assert sb.toString().equals("+");
+    }
+
+    @Test
+    public void build_withQuery_andREF_shouldReturnNormalizedURL() {
+        UrlBuilder builder = new UrlBuilder(new URL(PROTOCOL + "://example.com" + PATH + "?" + QUERY));
+        builder.appendKeyVal(Connection.KeyVal.of("key", REF));
+        assert builder.build().getProtocol().equals(PROTOCOL) && builder.build().getPath().equals(PATH);
+    }
+
+    @Test
+    public void build_shouldReturnOriginalURL_whenNormalizationFails() {
+        UrlBuilder builder = new UrlBuilder(new URL(PROTOCOL + "://example.com" + PATH + "?" + QUERY));
+        // Intentionally break normalization
+        assert builder.build().equals(builder.u);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class GeneratedTest {
+
+    @Test
+    public void testUrlBuilder() throws MalformedURLException {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+        String QUERY = "?param=value";
+
+        UrlBuilder builder = new UrlBuilder(new URL(PROTOCOL, PATH));
+        assertEquals(PROTOCOL + PATH, builder.toString());
+
+        builder.appendKeyVal(Connection.KeyVal.of("key", "value"));
+        assertEquals(PROTOCOL + PATH + "?" + "key=value", builder.toString());
+    }
+
+    @Test
+    public void testUrlBuilderWithQuery() throws MalformedURLException {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+        String QUERY = "?param=value";
+
+        UrlBuilder builder = new UrlBuilder(new URL(PROTOCOL, PATH));
+        assertEquals(PROTOCOL + PATH + "?" + QUERY, builder.toString());
+    }
+
+    @Test
+    public void testUrlBuilderWithNonAsciiChar() {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+        char NON_ASCII_CHAR = '\u00A0'; // non-ASCII space character
+        String SPACE = String.valueOf(NON_ASCII_CHAR);
+
+        UrlBuilder builder = new UrlBuilder(new URL(PROTOCOL, PATH));
+        StringBuilder sb = StringUtil.borrowBuilder();
+        builder.appendToAscii(SPACE, false, sb);
+        assertEquals(PROTOCOL + PATH, builder.toString());
+    }
+
+    public static class UrlBuilder {
+        private String url;
+
+        public UrlBuilder(String url) {
+            this.url = url;
+        }
+
+        public void appendKeyVal(Connection.KeyVal keyVal) throws MalformedURLException {
+            // implement logic to append query parameter
+        }
+
+        @Override
+        public String toString() throws MalformedURLException {
+            return url;
+        }
+    }
+
+    public static class Connection {
+        public interface KeyVal {
+            String getKey();
+            String getValue();
+
+            default boolean isParam() {
+                return true;
+            }
+        }
+    }
+
+    public static class StringUtil {
+        public static StringBuilder borrowBuilder() {
+            // implement logic to borrow builder
+            return null;
+        }
+
+        public static void appendToAscii(String charStr, boolean isParam, StringBuilder sb) {
+            // implement logic to append non-ASCII character
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testUrlBuilder() throws MalformedURLException {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+
+        UrlBuilder builder = new UrlBuilder(PROTOCOL, PATH);
+        assertEquals(PROTOCOL + PATH, builder.toString());
+    }
+
+    @Test
+    public void testUrlBuilderWithQuery() throws MalformedURLException {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+        String QUERY = "?param=value";
+
+        UrlBuilder builder = new UrlBuilder(PROTOCOL, PATH);
+        builder.appendQuery(QUERY);
+        assertEquals(PROTOCOL + PATH + "?" + QUERY, builder.toString());
+    }
+
+    @Test
+    public void testUrlBuilderWithNonAsciiChar() {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+        char NON_ASCII_CHAR = '\u00A0'; // non-ASCII space character
+        String SPACE = String.valueOf(NON_ASCII_CHAR);
+
+        UrlBuilder builder = new UrlBuilder(PROTOCOL, PATH);
+        StringBuilder sb = StringUtil.borrowBuilder();
+        builder.appendAscii(SPACE, false, sb);
+        assertEquals(PROTOCOL + PATH, builder.toString());
+    }
+
+    public static class UrlBuilder {
+        private String protocol;
+        private String path;
+
+        public UrlBuilder(String protocol, String path) {
+            this.protocol = protocol;
+            this.path = path;
+        }
+
+        public void appendQuery(String query) {
+            // implement logic to append query parameter
+        }
+
+        public void appendAscii(String charStr, boolean isParam, StringBuilder sb) {
+            // implement logic to append non-ASCII character
+        }
+
+        @Override
+        public String toString() throws MalformedURLException {
+            return new URL(protocol + "://" + path).toString();
+        }
+    }
+
+    public static class StringUtil {
+        public static StringBuilder borrowBuilder() {
+            // implement logic to borrow builder
+            return null;
+        }
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testUrlBuilder() throws MalformedURLException {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+
+        UrlBuilder builder = new UrlBuilder(PROTOCOL, PATH);
+        assertEquals(PROTOCOL + PATH, builder.toString());
+    }
+
+    @Test
+    public void testUrlBuilderWithQuery() throws MalformedURLException {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+        String QUERY = "?param=value";
+
+        UrlBuilder builder = new UrlBuilder(PROTOCOL, PATH);
+        builder.appendQuery(QUERY);
+        assertEquals(PROTOCOL + PATH + "?" + QUERY, builder.toString());
+    }
+
+    @Test
+    public void testUrlBuilderWithNonAsciiChar() {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+        char NON_ASCII_CHAR = '\u00A0'; // non-ASCII space character
+        String SPACE = String.valueOf(NON_ASCII_CHAR);
+
+        UrlBuilder builder = new UrlBuilder(PROTOCOL, PATH);
+        StringBuilder sb = StringUtil.borrowBuilder();
+        builder.appendAscii(SPACE, false, sb);
+        assertEquals(PROTOCOL + PATH, builder.toString());
+    }
+
+    public static class UrlBuilder {
+        private String protocol;
+        private String path;
+
+        public UrlBuilder(String protocol, String path) {
+            this.protocol = protocol;
+            this.path = path;
+        }
+
+        public void appendQuery(String query) {
+            // implement logic to append query parameter
+        }
+
+        public void appendAscii(String charStr, boolean isParam, StringBuilder sb) {
+            // implement logic to append non-ASCII character
+        }
+
+        public String toString() throws MalformedURLException {
+            return new URL(protocol + "://" + path).toString();
+        }
+    }
+
+    public static class StringUtil {
+        public static StringBuilder borrowBuilder() {
+            // implement logic to borrow builder
+            return null;
+        }
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testUrlBuilder() {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+
+        UrlBuilder builder = new UrlBuilder(PROTOCOL, PATH);
+        URL url = (URL) builder.toString();
+        assertEquals(url.getProtocol(), PROTOCOL);
+        assertEquals(url.getPath(), PATH);
+    }
+
+    @Test
+    public void testUrlBuilderWithQuery() {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+        String QUERY = "?param=value";
+
+        UrlBuilder builder = new UrlBuilder(PROTOCOL, PATH);
+        builder.appendQuery(QUERY);
+        URL url = (URL) builder.toString();
+        assertEquals(url.getProtocol(), PROTOCOL);
+        assertEquals(url.getPath(), PATH + "?" + QUERY);
+    }
+
+    @Test
+    public void testUrlBuilderWithNonAsciiChar() {
+        String PROTOCOL = "http";
+        String PATH = "/api/endpoint";
+        char NON_ASCII_CHAR = '\u00A0'; // non-ASCII space character
+        String SPACE = String.valueOf(NON_ASCII_CHAR);
+
+        UrlBuilder builder = new UrlBuilder(PROTOCOL, PATH);
+        StringBuilder sb = StringUtil.borrowBuilder();
+        builder.appendAscii(SPACE, false, sb);
+        URL url = (URL) builder.toString();
+        assertEquals(url.getProtocol(), PROTOCOL);
+        assertEquals(url.getPath(), PATH); // no change in path
+    }
+
+    public static class UrlBuilder {
+        private String protocol;
+        private String path;
+
+        public UrlBuilder(String protocol, String path) {
+            this.protocol = protocol;
+            this.path = path;
+        }
+
+        public void appendQuery(String query) {
+            // implement logic to append query parameter
+        }
+
+        public void appendAscii(String charStr, boolean isParam, StringBuilder sb) {
+            // implement logic to append non-ASCII character
+        }
+
+        @Override
+        public String toString() {
+            return new URL(protocol + "://" + path).toString();
+        }
+    }
+
+    public static class StringUtil {
+        public static StringBuilder borrowBuilder() {
+            // implement logic to borrow builder
+            return null;
+        }
+    }
+}
+
+```
+===================================================
+

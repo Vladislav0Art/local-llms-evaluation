@@ -1,0 +1,416 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class UrlBuilderTest {
+
+    @Test
+    public void newUrlBuilder_returnsEmptyStringBuilder() {
+        assert (new UrlBuilder(null).q == null);
+    }
+
+    @Test
+    public void newUrlBuilder_setsProtocolAndPathCorrectly() {
+        URL u = new URL("https://example.com");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals("https", u.getProtocol());
+        assertEquals("/", u.getPath());
+    }
+
+    @Test
+    public void appendKeyVal_addsQueryParameter_toStringBuilder() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertEquals("?key=value", String.valueOf(builder.q));
+    }
+
+    @Test
+    public void appendToAscii_addsSpaceAsPlusWhenSpaceIsInUnicodeCharacter() throws UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        appendToAscii("ä", true, sb);
+        assertEquals("+", sb.toString());
+    }
+
+    @Test
+    public void appendToAscii_ignoresSpacesThatAreAlreadyEncoded() throws UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        appendToAscii("%20 ", false, sb);
+        assertEquals("%20 ", sb.toString());
+    }
+
+    @Test
+    public void build_buildsCorrectUrlWithPunnedHostAndNonAsciiPath() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        URL u = new URL("https://example.com/ä", 8080);
+        UrlBuilder builder = new UrlBuilder(u);
+        URI uri = new URI(builder.u.getProtocol(), builder.u.getUserInfo(), IDN.toASCII(decodePart(builder.u.getHost())), builder.u.getPort(), decodePart(builder.u.getPath()), null, null);
+        assertEquals("https://example.com/ä", uri.toASCIIString());
+    }
+
+    @Test
+    public void build_buildsCorrectUrlWithNonAsciiQueryParameter() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        URL u = new URL("https://example.com?ä=ö");
+        UrlBuilder builder = new UrlBuilder(u);
+        URI uri = new URI(builder.u.getProtocol(), builder.u.getUserInfo(), IDN.toASCII(decodePart(builder.u.getHost())), builder.u.getPort(), decodePart(builder.u.getPath()), "ä=ö", null);
+        assertEquals("https://example.com?ä=ö", uri.toASCIIString());
+    }
+
+    @Test
+    public void build_buildsCorrectUrlWithNonAsciiFragment() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        URL u = new URL("https://example.com#ä");
+        UrlBuilder builder = new UrlBuilder(u);
+        URI uri = new URI(builder.u.getProtocol(), builder.u.getUserInfo(), IDN.toASCII(decodePart(builder.u.getHost())), builder.u.getPort(), decodePart(builder.u.getPath()), null, "ä");
+        assertEquals("https://example.com#ä", uri.toASCIIString());
+    }
+
+    @Test
+    public void build_returnsUrlWithCorrectSchemeAndAuthority() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        URL u = new URL("https://example.com/ä", 8080);
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals(builder.build(), new URL("https://example.com/ä", 8080));
+    }
+
+    @Test
+    public void build_throwsMalformedURLExceptionWhenNormalizationFails() {
+        assertThrows(MalformedURLException.class, () -> new UrlBuilder(null).build());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testBuild() {
+        UrlBuilder builder = new UrlBuilder("https://example.com");
+        String expectedUrl = "https://example.com";
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void testBuildWithQueryParams() {
+        UrlBuilder builder = new UrlBuilder("https://example.com", "query", "value");
+        String expectedUrl = "https://example.com?query=value";
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void testBuildWithPortNumber() {
+        UrlBuilder builder = new UrlBuilder("https://example.com", 8080);
+        String expectedUrl = "https://example.com:8080";
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void testMalformedURLException() {
+        UrlBuilder builder = new UrlBuilder(null);
+        assertThrows(MalformedURLException.class, () -> builder.build());
+    }
+}
+
+class UrlBuilder {
+    private String url;
+    private String path;
+    private String query;
+    private int port;
+
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+
+    public UrlBuilder withPath(String path) {
+        this.path = path;
+        return this;
+    }
+
+    public UrlBuilder withQuery(String query, String value) {
+        this.query = query + "=" + value;
+        return this;
+    }
+
+    public UrlBuilder withPort(int port) {
+        this.port = port;
+        return this;
+    }
+
+    public String build() {
+        StringBuilder sb = new StringBuilder(url);
+        if (path != null && !path.isEmpty()) {
+            sb.append("/").append(path);
+        }
+        if (query != null && !query.isEmpty()) {
+            sb.append("?").append(query);
+        }
+        if (port > 0) {
+            sb.append(":").append(port);
+        }
+        return sb.toString();
+    }
+}
+
+class MalformedURLException extends Exception {
+    public MalformedURLException(String message) {
+        super(message);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class UrlBuilder {
+    private String url;
+    private String path;
+    private String query;
+    private int port;
+
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+
+    public UrlBuilder withPath(String path) {
+        this.path = path;
+        return this;
+    }
+
+    public UrlBuilder withQueryParam(String key, String value) {
+        if (query == null) {
+            query = key + "=" + value;
+        } else {
+            if (!query.contains(";")) {
+                query += ";";
+            }
+            query += key + "=" + value;
+        }
+        return this;
+    }
+
+    public UrlBuilder withPort(int port) {
+        this.port = port;
+        return this;
+    }
+
+    public String build() {
+        StringBuilder sb = new StringBuilder(url);
+        if (path != null && !path.isEmpty()) {
+            sb.append("/").append(path);
+        }
+        if (query != null && !query.isEmpty()) {
+            sb.append("?").append(query);
+        }
+        if (port > 0) {
+            sb.append(":").append(port);
+        }
+        return sb.toString();
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public static class UrlBuilderTest {
+        @Test
+        public void testBuild() {
+            UrlBuilder builder = new UrlBuilder("https://example.com");
+            String expectedUrl = "https://example.com";
+            assertEquals(expectedUrl, builder.build());
+        }
+
+        @Test
+        public void testBuildWithQueryParams() {
+            UrlBuilder builder = new UrlBuilder("https://example.com", null);
+            builder.withQueryParam("query", "value");
+            String expectedUrl = "https://example.com?query=value";
+            assertEquals(expectedUrl, builder.build());
+        }
+
+        @Test
+        public void testBuildWithPortNumber() {
+            UrlBuilder builder = new UrlBuilder("https://example.com", 8080);
+            String expectedUrl = "https://example.com:8080";
+            assertEquals(expectedUrl, builder.build());
+        }
+
+        @Test
+        public void testMalformedURLException() {
+            assertThrows(MalformedURLException.class, () -> new UrlBuilder(null));
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilder {
+    private String url;
+    private String path;
+    private String query;
+
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+
+    public UrlBuilder withPath(String path) {
+        this.path = path;
+        return this;
+    }
+
+    public UrlBuilder withQueryParam(String key, String value) {
+        if (query == null) {
+            query = key + "=" + value;
+        } else {
+            if (!query.contains(";")) {
+                query += ";";
+            }
+            query += key + "=" + value;
+        }
+        return this;
+    }
+
+    public UrlBuilder withPort(int port) {
+        // no port specified, so we don't add it to the url
+        return this;
+    }
+
+    public String build() {
+        StringBuilder sb = new StringBuilder(url);
+        if (path != null && !path.isEmpty()) {
+            sb.append("/").append(path);
+        }
+        if (query != null && !query.isEmpty()) {
+            sb.append("?").append(query);
+        }
+        return sb.toString();
+    }
+
+    public String getQuery() {
+        return query;
+    }
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testBuild() {
+        UrlBuilder builder = new UrlBuilder("https://example.com");
+        String expectedUrl = "https://example.com";
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void testBuildWithQueryParams() {
+        UrlBuilder builder = new UrlBuilder("https://example.com", null);
+        builder.withQueryParam("query", "value");
+        String expectedUrl = "https://example.com?query=value";
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void testBuildWithPortNumber() {
+        UrlBuilder builder = new UrlBuilder("https://example.com:8080", null);
+        String expectedUrl = "https://example.com:8080";
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void testMalformedURLException() {
+        assertThrows(MalformedURLException.class, () -> new UrlBuilder(null));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class UrlBuilder {
+    private String url;
+    private String path;
+    private String query;
+
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+
+    public UrlBuilder withPath(String path) {
+        this.path = path;
+        return this;
+    }
+
+    public UrlBuilder withQueryParam(String key, String value) {
+        if (query == null) {
+            query = key + "=" + value;
+        } else {
+            if (!query.contains(";")) {
+                query += ";";
+            }
+            query += key + "=" + value;
+        }
+        return this;
+    }
+
+    public UrlBuilder withPort(int port) {
+        if (url.contains(":")) {
+            url += ":" + port;
+        }
+        return this;
+    }
+
+    public String build() {
+        StringBuilder sb = new StringBuilder(url);
+        if (path != null && !path.isEmpty()) {
+            sb.append("/").append(path);
+        }
+        if (query != null && !query.isEmpty()) {
+            sb.append("?").append(query);
+        }
+        return sb.toString();
+    }
+
+    public String getQuery() {
+        return query;
+    }
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testBuild() {
+        UrlBuilder builder = new UrlBuilder("https://example.com");
+        String expectedUrl = "https://example.com";
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void testBuildWithQueryParams() {
+        UrlBuilder builder = new UrlBuilder("https://example.com", null);
+        builder.withQueryParam("query", "value");
+        String expectedUrl = "https://example.com?query=value";
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void testBuildWithPortNumber() {
+        UrlBuilder builder = new UrlBuilder("https://example.com:8080", null);
+        String expectedUrl = "https://example.com:8080";
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void testMalformedURLException() {
+        assertThrows(MalformedURLException.class, () -> new UrlBuilder(null));
+    }
+}
+```
+===================================================
+

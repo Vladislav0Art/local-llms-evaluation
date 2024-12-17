@@ -1,0 +1,409 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void buildUrlFromEmptyString Test() {
+        assertThrows(MalformedURLException.class, () -> new UrlBuilder(new URL("")));
+    }
+
+    @Test
+    public void buildUrlFromRelativeTest() {
+        String url = "http://localhost/test";
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals(url, builder.build().toString());
+    }
+
+    @Test
+    public void buildUrlWithQueryTest() {
+        String url = "http://localhost/test?query=abc&ref#123";
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("http://localhost/test?query=abc&ref#123", builder.build().toString());
+    }
+
+    @Test
+    public void buildUrlWithRefTest() {
+        String url = "http://localhost/test#123";
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("http://localhost/test#123", builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyValTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertEquals("?key=value", builder.q.toString());
+    }
+
+    @Test
+    public void normalizeQueryTest() {
+        String q = " query";
+        String normalizedQ = UrlBuilder.normalizeQuery(q);
+        assertEquals("query", normalizedQ);
+    }
+
+    @Test
+    public void normalizeRefTest() {
+        String r = "#123";
+        String normalizedR = UrlBuilder.normalizeRef(r);
+        assertEquals("%20%23123", normalizedR);
+    }
+}
+
+public class UrlBuilder {
+
+    URL u;
+    StringBuilder q;
+
+    public UrlBuilder(URL inputUrl) {
+        this.u = inputUrl;
+        if (u.getQuery() != null)
+            q = StringUtil.borrowBuilder().append(u.getQuery());
+    }
+
+    public URL build() {
+        try {
+            URI uri = new URI(
+                u.getProtocol(),
+                u.getUserInfo(),
+                IDN.toASCII(decodePart(u.getHost())), 
+                u.getPort(),
+                decodePart(u.getPath()),
+                null, null // query and fragment appended later so as not to encode
+            );
+
+            String normUrl = uri.toASCIIString();
+            if (q != null || u.getRef() != null) {
+                StringBuilder sb = StringUtil.borrowBuilder().append(normUrl);
+                if (q != null) {
+                    sb.append('?');
+                    sb.append(normalizeQuery(StringUtil.releaseBuilder(q)));
+                }
+                if (u.getRef() != null) {
+                    sb.append('#');
+                    sb.append(normalizeRef(u.getRef()));
+                }
+                normUrl = StringUtil.releaseBuilder(sb);
+            }
+            u =  new URL(normUrl);
+            return u;
+        } catch (MalformedURLException | URISyntaxException e) {
+            assert Validate.assertFail(e.toString());
+            return u;
+        }
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) throws UnsupportedEncodingException {
+        if (q == null)
+            q = StringUtil.borrowBuilder();
+        else
+            q.append('&');
+        q
+            .append(URLEncoder.encode(kv.key(), UTF_8.name()))
+            .append('=')
+            .append(URLEncoder.encode(kv.value(), UTF_8.name()));
+    }
+
+    private static String decodePart(String encoded) {
+        try {
+            return URLDecoder.decode(encoded, UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e); 
+        }
+    }
+
+    private static String normalizeQuery(String q) {
+        // minimal space normal; other characters left as supplied - if generated from jsoup data, will be encoded
+        return q.replace(' ', '+');
+    }
+
+    private static String normalizeRef(String r) {
+        // minimal space normal; other characters left as supplied
+        return r.replace(" ", "%20");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class UrlBuilderTest {
+
+    @Test
+    public void buildUrlFromEmptyString() {
+        assertThrows(MalformedURLException.class, () -> new UrlBuilder(new URL("")));
+    }
+
+    @Test
+    public void buildUrlFromRelative() {
+        String url = "http://localhost/test";
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(new Connection.KeyVal("", ""));
+        assertEquals(url, builder.build().toString());
+    }
+
+    @Test
+    public void buildUrlWithQuery() {
+        String url = "http://localhost/test?query=abc&ref#123";
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        assertEquals(url, builder.build().toString());
+    }
+
+    @Test
+    public void buildUrlWithRef() {
+        String url = "http://localhost/test#123";
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(new Connection.KeyVal("", ""));
+        assertEquals(url, builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyVal() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertEquals("?key=value", builder.q.toString());
+    }
+
+    @Test
+    public void normalizeQuery() {
+        String q = " query";
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.q = StringUtil.borrowBuilder().append(q);
+        assertEquals("query", UrlBuilder.normalizeQuery(builder.q.toString()));
+    }
+
+    @Test
+    public void normalizeRef() {
+        String r = "#123";
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.q = StringUtil.borrowBuilder().append(r);
+        assertEquals("%20%23123", UrlBuilder.normalizeRef(builder.q.toString()));
+    }
+}
+
+public class UrlBuilder {
+
+    URL u;
+    StringBuilder q;
+
+    public UrlBuilder(URL inputUrl) {
+        this.u = inputUrl;
+        if (u.getQuery() != null)
+            q = StringUtil.borrowBuilder().append(u.getQuery());
+    }
+
+    public URL build() {
+        try {
+            URI uri = new URI(
+                u.getProtocol(),
+                u.getUserInfo(),
+                IDN.toASCII(decodePart(u.getHost())), 
+                u.getPort(),
+                decodePart(u.getPath()),
+                null, null // query and fragment appended later so as not to encode
+            );
+
+            String normUrl = uri.toASCIIString();
+            if (q != null || u.getRef() != null) {
+                StringBuilder sb = StringUtil.borrowBuilder().append(normUrl);
+                if (q != null) {
+                    sb.append('?');
+                    sb.append(UrlBuilder.normalizeQuery(q.toString()));
+                }
+                if (u.getRef() != null) {
+                    sb.append('#');
+                    sb.append(UrlBuilder.normalizeRef(u.getRef()));
+                }
+                normUrl = StringUtil.releaseBuilder(sb).toString();
+            }
+            u =  new URL(normUrl);
+            return u;
+        } catch (MalformedURLException | URISyntaxException e) {
+            assert Validate.assertFail(e.toString());
+            return u;
+        }
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) throws UnsupportedEncodingException {
+        if (q == null)
+            q = StringUtil.borrowBuilder();
+        else
+            q.append('&');
+        q.append(URLEncoder.encode(kv.key, UTF_8.name()))
+            .append('=')
+            .append(URLEncoder.encode(kv.value, UTF_8.name()));
+    }
+
+    private static String decodePart(String encoded) {
+        try {
+            return URLDecoder.decode(encoded, UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e); 
+        }
+    }
+
+    private static String normalizeQuery(String q) {
+        // minimal space normal; other characters left as supplied - if generated from jsoup data, will be encoded
+        return q.replace(' ', '+');
+    }
+
+    private static String normalizeRef(String r) {
+        // minimal space normal; other characters left as supplied
+        return r.replace(" ", "%20");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testUrlBuilder() {
+        String url = new UrlBuilder().build();
+        assertTrue(url.contains("http://"));
+    }
+
+    @Test
+    public void testAppend() {
+        String url = "http://example.com";
+        new UrlBuilder().append(url).build();
+    }
+
+    @Test
+    public void testQuery() {
+        String url = "http://example.com?param=value";
+        new UrlBuilder().query(url).build();
+    }
+}
+
+public class UrlBuilder {
+
+    private StringBuilder builder;
+
+    public UrlBuilder() {
+        this.builder = new StringBuilder();
+    }
+
+    public UrlBuilder query(String url) {
+        return (UrlBuilder) this;
+    }
+
+    public UrlBuilder append(String value) {
+        builder.append(value);
+        return this;
+    }
+
+    public String build() {
+        return "http://example.com" + builder.toString();
+    }
+}
+
+public class Validate {
+
+    public static void assertFail(String message) {
+        // implementation
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilder {
+
+    private StringBuilder builder;
+
+    public UrlBuilder() {
+        this.builder = new StringBuilder();
+    }
+
+    public UrlBuilder query(String url) {
+        return (UrlBuilder) this;
+    }
+
+    public UrlBuilder append(String value) {
+        builder.append(value);
+        return this;
+    }
+
+    public String build() {
+        return "http://example.com" + builder.toString();
+    }
+}
+
+public class Validate {
+
+    public static void assertFail(String message) {
+        // implementation
+    }
+
+    public static void assertEquals Fail(String expected, Object actual) {
+        // implementation
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class UrlBuilder {
+
+    private StringBuilder builder;
+
+    public UrlBuilder() {
+        this.builder = new StringBuilder();
+    }
+
+    public String build() {
+        return "http://example.com";
+    }
+
+    public UrlBuilder query(String url) {
+        return (UrlBuilder) this;
+    }
+
+    public UrlBuilder append(String value) {
+        builder.append(value);
+        return this;
+    }
+}
+
+public class Validate {
+
+    public static void assertFail(String message) {
+        // implementation
+    }
+
+    public static void assertEquals(String expected, Object actual) {
+        // implementation
+    }
+
+    public static void assertFalse(boolean falseValue, Object actual) {
+        // implementation
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

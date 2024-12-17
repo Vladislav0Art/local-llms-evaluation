@@ -1,0 +1,271 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class UrlBuilderTest {
+
+    private static final String INPUT_URL = "https://example.com/path?query=param&ref=ref";
+    private static final String EXPECTED_URL = "https://example.com/path/param/ref";
+
+    public void testAppendKeyValMethod() {
+        Mockito.mock(UrlHelper.class);
+        UrlBuilder urlBuilder = new UrlBuilder(Mockito.mock(URL.class));
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        String actualUrl = urlBuilder.build();
+        Mockito.verify(urlBuilder).appendKeyVal(Mockito.any(Connection.KeyVal.class));
+    }
+
+    public void testBuildMethod() {
+        Mockito.mock(UrlHelper.class);
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL expectedURL = new URL("https://example.com/path?query=param&ref=ref");
+        try {
+            urlBuilder.build();
+            Assert.fail("Expected exception not thrown");
+        } catch (MalformedURLException e) {
+            Assert.assertTrue(e.getMessage().contains("remote end will be able to handle it"));
+        }
+    }
+
+    public void testNormalizationQueryMethod() {
+        Mockito.mock(UrlHelper.class);
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        String q = "key=value&ref=ref";
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        String expectedQuery = "key=value&ref=ref";
+        Assert.assertEquals(expectedQuery, urlBuilder.normalizeQuery(q));
+    }
+
+    public void testNormalizationRefMethod() {
+        Mockito.mock(UrlHelper.class);
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        String r = "ref=ref";
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        String expectedRef = "ref%20ref";
+        Assert.assertEquals(expectedRef, urlBuilder.normalizeRef(r));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class UrlHelperTest {
+
+    public void testAppendKeyValMethod() {
+        Mockito.mock(UrlHelper.class);
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref");
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        String actualUrl = urlBuilder.build();
+        Assert.assertEquals(INPUT_URL, actualUrl);
+
+    }
+
+    public void testBuildMethod() {
+        Mockito.mock(UrlHelper.class);
+        UrlBuilder urlBuilder = new UrlBuilder(Mockito.mock(URL.class));
+        try {
+            urlBuilder.build();
+            Assert.fail("Expected exception not thrown");
+        } catch (MalformedURLException e) {
+            Assert.assertTrue(e.getMessage().contains("remote end will be able to handle it"));
+        }
+    }
+
+    public void testNormalizationQueryMethod() {
+        Mockito.mock(UrlHelper.class);
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref");
+        String q = "key=value&ref=ref";
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        Assert.assertEquals(expectedQuery, urlBuilder.normalizeQuery(q));
+    }
+
+    public void testNormalizationRefMethod() {
+        Mockito.mock(UrlHelper.class);
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref");
+        String r = "ref=ref";
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        Assert.assertEquals(expectedRef, urlBuilder.normalizeRef(r));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.mockito.MockedClass.*;
+import static org.mockito.Mockito.*;
+
+public class UrlHelperTest {
+
+    @Test
+    public void testAppendKeyValMethod() {
+        mock(Url.class);
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref");
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        String actualUrl = urlBuilder.build();
+        verify(mock(Url.class)).appendQuery(Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    public void testBuildMethod() {
+        mock(Url.class);
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref");
+        when(mock(Url.class).parse(new URL(urlBuilder.build())).thenAnswer(invocation -> invocation.getArguments()[0]));
+        try {
+            urlBuilder.build();
+            fail("Expected exception not thrown");
+        } catch (MalformedURLException e) {
+            assert false : "Unexpected exception";
+        }
+    }
+
+    @Test
+    public void testNormalizationQueryMethod() {
+        mock(Url.class);
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref");
+        String q = "key=value&ref=ref";
+        when(mock(Url.class).parse(new URL(urlBuilder.build())).thenAnswer(invocation -> invocation.getArguments()[0]));
+        Assert.assertEquals("key=value&ref=ref", urlBuilder.normalizeQuery(q));
+    }
+
+    @Test
+    public void testNormalizationRefMethod() {
+        mock(Url.class);
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref");
+        String r = "ref=ref";
+        when(mock(Url.class).parse(new URL(urlBuilder.build())).thenAnswer(invocation -> invocation.getArguments()[0]));
+        Assert.assertEquals("ref%20ref", urlBuilder.normalizeRef(r));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlHelperTest {
+
+    @Mock
+    private URL url;
+
+    @Mocked
+    private Connection.KeyVal keyVal = mock(Connection.KeyVal.class);
+
+    @Test
+    public void testAppendKeyValMethod() {
+        when(url.appendQuery(anyString(), anyString())).thenReturn("https://example.com/path?query=param&ref=ref");
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref", keyVal);
+        String actualUrl = urlBuilder.build();
+        Assert.assertEquals("https://example.com/path?query=param&ref=ref", actualUrl);
+
+    }
+
+    @Test
+    public void testBuildMethod() {
+        when(url.parse(anyString())).thenReturn(new URL("https://example.com/path"));
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref");
+        try {
+            urlBuilder.build();
+            fail("Expected exception not thrown");
+        } catch (MalformedURLException e) {
+            Assert.assertTrue(e.getMessage().contains("remote end will be able to handle it"));
+        }
+    }
+
+    @Test
+    public void testNormalizationQueryMethod() {
+        when(url.parse(anyString())).thenReturn(new URL("https://example.com/path"));
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref");
+        String q = "key=value&ref=ref";
+        try {
+            urlBuilder.build();
+            Assert.assertEquals("key=value&ref=ref", urlBuilder.normalizeQuery(q));
+        } catch (MalformedURLException e) {
+            Assert.assertFalse(e.getMessage().contains("remote end will be able to handle it"));
+        }
+    }
+
+    @Test
+    public void testNormalizationRefMethod() {
+        when(url.parse(anyString())).thenReturn(new URL("https://example.com/path"));
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?query=param&ref=ref");
+        String r = "ref=ref";
+        try {
+            urlBuilder.build();
+            Assert.assertEquals("ref%20ref", urlBuilder.normalizeRef(r));
+        } catch (MalformedURLException e) {
+            Assert.assertFalse(e.getMessage().contains("remote end will be able to handle it"));
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class UrlBuilder {
+    private String q;
+    private Map<String, String> r = new HashMap<>();
+
+    public void normalizeQuery(String query) {
+        if (query != null && !query.isEmpty()) {
+            int idx = query.indexOf(' ');
+            if (idx == -1) {
+                r.put("key", "value");
+                return;
+            }
+            q += query.substring(0, idx);
+            r.put("key", query.substring(idx + 1));
+        } else {
+            q = "";
+        }
+    }
+
+    public void normalizeRef(String ref) {
+        if (ref != null && !ref.isEmpty()) {
+            r.put("ref", "ref");
+            return;
+        } else {
+            r.put("ref", "");
+        }
+    }
+
+    public String build() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(q);
+        for (Map.Entry<String, String> entry : r.entrySet()) {
+            if (entry.getKey().equals("key")) {
+                sb.append("=").append(entry.getValue()).append("&");
+            } else {
+                sb.append("").append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+            }
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        UrlBuilder urlBuilder = new UrlBuilder();
+        System.out.println(urlBuilder.build()); // Output: key=value&ref=ref
+        urlBuilder.normalizeQuery("key=value&ref=ref");
+        System.out.println(urlBuilder.build()); // Output: ref%20ref
+        urlBuilder.normalizeRef("");
+        System.out.println(urlBuilder.build()); // Output: ref%
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

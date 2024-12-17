@@ -1,0 +1,23 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Collections;
+
+public class GeneratedSetComment_throwsNullPointerExceptionWhenPathIsNull {
+
+    @Test
+    public void setComment_throwsNullPointerExceptionWhenPathIsNull() {
+        // Given
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+
+        // When & Then
+        assertThrows(NullPointerException.class, () -> commentsConfig.setComment(null, "line1", "line2"));
+    }
+
+}

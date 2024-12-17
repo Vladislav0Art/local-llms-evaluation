@@ -1,0 +1,399 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.helper;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import org.jsoup.Connection.KeyVal;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void createUrlBuilderWithValidUrl() {
+        URL url = new URL("https://example.com/path?a=1&b=2#fragment");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder.u);
+    }
+
+    @Test
+    public void createUrlBuilderWithNullQuery() {
+        URL url = new URL("https://example.com/path?query=value#fragment");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNull(builder.q);
+    }
+
+    @Test
+    public void buildUrlWithoutQueryAndFragment() throws Exception {
+        String expectedUrl = "https://example.com/path";
+        UrlBuilder builder = new UrlBuilder(new URL(expectedUrl));
+        assertEquals(expectedUrl, builder.u.toString());
+    }
+
+    @Test
+    public void buildUrlWithQuery() throws Exception {
+        String expectedUrl = "https://example.com/path?a=1&b=2";
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path?query=value#fragment"));
+        assertEquals(expectedUrl, builder.u.toString());
+    }
+
+    @Test
+    public void buildUrlWithFragment() throws Exception {
+        String expectedUrl = "https://example.com/path?a=1&b=2#fragment";
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path?query=value"));
+        assertEquals(expectedUrl, builder.u.toString());
+    }
+
+    @Test
+    public void buildUrlWithInvalidProtocol() throws Exception {
+        String expectedError = "Invalid protocol: https";
+        try {
+            UrlBuilder builder = new UrlBuilder(new URL("invalid.protocol://example.com/path"));
+            fail(expectedError);
+        } catch (MalformedURLException e) {
+            assertEquals(expectedError, e.getMessage());
+        }
+    }
+
+    @Test
+    public void appendKeyVal() throws Exception {
+        String expectedQuery = "key=1&value=2";
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        Connection.KeyVal[] kvArray = {{Connection.KeyVal.KEY, "key"}, {Connection.KeyVal.VALUE, "value"}};
+        for (Connection.KeyVal kv : kvArray) {
+            builder.appendKeyVal(kv);
+        }
+        assertEquals(expectedQuery, String.format("%s?%s", builder.u.getProtocol(), builder.q.toString()));
+    }
+
+    @Test
+    public void appendToAsciiWithNonASCIICharacter() throws Exception {
+        StringBuilder expectedStringBuilder = new StringBuilder().append("+");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        String s = "ä";
+        UrlBuilder.appendToAscii(s, false, builder.q);
+        assertEquals(expectedStringBuilder.toString(), String.format("%s%s", String.format("%c", (char) 196), builder.q.toString()));
+    }
+
+    @Test
+    public void appendToAsciiWithWhitespace() throws Exception {
+        StringBuilder expectedStringBuilder = new StringBuilder().append("+");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        String s = " ";
+        UrlBuilder.appendToAscii(s, true, builder.q);
+        assertEquals(expectedStringBuilder.toString(), String.format("%s%s", String.format("%c", (char) 32), builder.q.toString()));
+    }
+
+    @Test
+    public void appendToAsciiWithInvalidCharacter() throws Exception {
+        StringBuilder expectedStringBuilder = new StringBuilder().append("+");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        String s = "\u0001";
+        UrlBuilder.appendToAscii(s, false, builder.q);
+        assertEquals(expectedStringBuilder.toString(), String.format("%s%s", String.format("%c", (char) 1), builder.q.toString()));
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.jsoup.helper;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import org.jsoup.Connection.KeyVal;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void createUrlBuilderWithValidUrl() {
+        URL url = new URL("https://example.com/path?a=1&b=2#fragment");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder.u);
+    }
+
+    @Test
+    public void createUrlBuilderWithNullQuery() {
+        URL url = new URL("https://example.com/path?query=value#fragment");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNull(builder.q);
+    }
+
+    @Test
+    public void buildUrlWithoutQueryAndFragment() throws Exception {
+        String expectedUrl = "https://example.com/path";
+        UrlBuilder builder = new UrlBuilder(new URL(expectedUrl));
+        assertEquals(expectedUrl, builder.u.toString());
+    }
+
+    @Test
+    public void buildUrlWithQuery() throws Exception {
+        String expectedUrl = "https://example.com/path?a=1&b=2";
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path?query=value#fragment"));
+        assertEquals(expectedUrl, builder.u.toString());
+    }
+
+    @Test
+    public void buildUrlWithFragment() throws Exception {
+        String expectedUrl = "https://example.com/path?a=1&b=2#fragment";
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path?query=value#other"));
+        assertEquals(expectedUrl, builder.u.toString());
+    }
+
+    @Test
+    public void appendToAscii() {
+        String s = "test";
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        builder.appendToAscii(s, false, sb);
+        assertEquals(s, sb.toString());
+    }
+
+    @Test
+    public void appendToAsciiTrue() {
+        String s = "test";
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        builder.appendToAscii(s, true, sb);
+        assertEquals(s, sb.toString());
+    }
+}
+
+public class UrlBuilder {
+
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public void appendToAscii(String s, boolean escapeChar, StringBuilder sb) {
+        if (escapeChar) {
+            // implement escaping logic
+        } else {
+            sb.append(s);
+        }
+    }
+
+    public String toString() {
+        return url.toString();
+    }
+}
+
+public class KeyVal {
+
+    private int code;
+
+    public KeyVal(int code) {
+        this.code = code;
+    }
+
+    @Override
+    public String toString() {
+        return Integer.toString(code);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class UrlBuilder {
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public void appendToAscii(String s, boolean escapeChar, StringBuilder sb) {
+        if (escapeChar) {
+            // implement escaping logic
+        } else {
+            sb.append(s);
+        }
+    }
+
+    public String toString() {
+        return url.toString();
+    }
+
+    public URL getU() {
+        return url;
+    }
+
+    public void setQ(String q) {
+        this.url.getQuery().put("q", q);
+    }
+
+    public String getQ() {
+        return url.getQuery().get("q");
+    }
+}
+
+public class KeyVal {
+
+    private int code;
+
+    public KeyVal(int code) {
+        this.code = code;
+    }
+
+    @Override
+    public String toString() {
+        return Integer.toString(code);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilder {
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public String getU() {
+        return url.toString();
+    }
+
+    public String getQuery() throws URISyntaxException, MalformedURLException {
+        URI uri = new URI(url.getProtocol(), url.getHost(), url.getPath(), null);
+        if (uri.getQuery() != null && !uri.getQuery().isEmpty()) {
+            return uri.getQuery();
+        } else {
+            return "";
+        }
+    }
+
+    public String getFragment() throws URISyntaxException, MalformedURLException {
+        URI uri = new URI(url.getProtocol(), url.getHost(), url.getPath(), url.getFragment());
+        if (uri.getFragment() != null) {
+            return uri.getFragment();
+        } else {
+            return "";
+        }
+    }
+
+    public void appendToAscii(String s, boolean escapeChar, StringBuilder sb) throws UnsupportedEncodingException {
+        if (escapeChar) {
+            String encoded = URLEncoder.encode(s, StandardCharsets.UTF_8.toString());
+            sb.append(encoded);
+        } else {
+            sb.append(s);
+        }
+    }
+
+    public void setQ(String q) throws UnsupportedEncodingException {
+        StringBuilder query = new StringBuilder(url.getQuery());
+        query.append("&q=").append(q);
+        url.setQuery(query.toString());
+    }
+
+    public String getQ() throws UnsupportedEncodingException {
+        return URLEncoder.encode(url.getQuery(), StandardCharsets.UTF_8.toString());
+    }
+}
+
+public class KeyVal {
+
+    private int code;
+
+    public KeyVal(int code) {
+        this.code = code;
+    }
+
+    @Override
+    public String toString() {
+        return Integer.toString(code);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class UrlBuilderTest {
+
+    @Test
+    public void createUrlBuilderWithValidUrl() throws URISyntaxException, MalformedURLException {
+        URL url = new URL("https://example.com/path?a=1&b=2#fragment");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertEquals(builder.getU(), "https://example.com/path?a=1&b=2#fragment");
+    }
+
+    @Test
+    public void createUrlBuilderWithValidQuery() throws URISyntaxException, MalformedURLException {
+        URL url = new URL("https://example.com/path?a=1&b=2#fragment");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertEquals(builder.getQ(), "a=1&b=2");
+    }
+
+    @Test
+    public void createUrlBuilderWithValidFragment() throws URISyntaxException, MalformedURLException {
+        URL url = new URL("https://example.com/path?a=1&b=2#fragment");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertEquals(builder.getFragment(), "fragment");
+    }
+
+    @Test
+    public void appendToAsciiWorksCorrectly() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        StringBuilder sb = new StringBuilder();
+        builder.appendToAscii("Hello World", true, sb);
+        assertEquals(sb.toString(), "Hello%20World");
+    }
+
+    @Test
+    public void setQWorksCorrectly() throws UnsupportedEncodingException {
+        URL url = new URL("https://example.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.setQ("New Value");
+        assertEquals(builder.getQ(), "a=1&b=2&q=New%20Value");
+    }
+
+    @Test
+    public void getQWorksCorrectly() throws UnsupportedEncodingException {
+        URL url = new URL("https://example.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.setQ("New Value");
+        assertEquals(builder.getQ(), "a=1&b=2&q=New%20Value");
+    }
+
+    @Test
+    public void testKeyVal() {
+        KeyVal keyVal = new KeyVal(123);
+        assertEquals(keyVal.toString(), "123");
+    }
+}
+```
+===================================================
+

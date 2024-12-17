@@ -1,0 +1,39 @@
+package leetcode.medium;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedCalculateSpans_PriceArray_EmptyReturnEmptyArray {
+
+    private final OnlineStockSpan stockSpan = new OnlineStockSpan();
+    @Mock
+    private List<Integer> mockList;
+
+    public void setMockList(List<Integer> mockList) {
+        this.mockList = mockList;
+    }
+
+    @Test
+    public void calculateSpans_PriceArray_EmptyReturnEmptyArray() {
+        // arrange
+        int[] prices = new int[0];
+        when(stockSpan.prices).thenReturn(prices);
+
+        // act
+        int[] result = stockSpan.calculateSpans(prices);
+
+        // assert
+        assertNull(result);
+    }
+
+}

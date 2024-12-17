@@ -1,0 +1,459 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.nodes.CommentNode;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class CommentTest {
+
+    @Test
+    public void testCommentConstructor() {
+        Comment comment = new Comment("This is a comment.");
+        Assert.assertEquals("#comment", comment.nodeName());
+        Assert.assertEquals("", comment.getData());
+    }
+
+    @Test
+    public void testCommentToString() {
+        Comment comment = new Comment("This is a comment.");
+        String expected = "<!--\nThis is a comment.—>\n";
+        Assert.assertEquals(expected, comment.toString());
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        String data = "This is an XML Declaration.";
+        Comment comment = new Comment(data);
+        Assert.assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclaration() {
+        String data = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n\n<html>\n</html>";
+        Comment comment = new Comment(data);
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        Assert.assertNotNull(decl);
+    }
+
+    @Test
+    public void testCommentIsXmlDeclaration() {
+        String data = "This is an XML Declaration.";
+        Comment comment = new Comment(data);
+        Assert.assertTrue(comment.isXmlDeclaration());
+        Assert.assertFalse(comment.asXmlDeclaration().isXmlDeclaration());
+    }
+
+    @Test
+    public void testCommentSetData() {
+        String data = "";
+        Comment comment = new Comment(data);
+        comment.setData("This is a comment.");
+        Assert.assertEquals("", comment.getData());
+        Assert.assertEquals(0, comment.value.length());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.nodes.CommentNode;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import javax.annotation.Nullable;
+import java.io.IOException;
+
+public class Comment {
+    private String value;
+
+    public Comment(String data) {
+        this.value = data;
+    }
+
+    @Override
+    public String nodeName() {
+        return "#comment";
+    }
+
+    public String getData() {
+        return value;
+    }
+
+    public void setData(String data) {
+        this.value = data;
+    }
+}
+
+public class CommentNodeUtils {
+    public static CommentNode parser(Document document, ParseSettings settings) throws IOException {
+        // parse the comment string into a Document object
+        return document.body().child(0);
+    }
+
+    public static CommentNode asXmlDeclaration(String data) {
+        // use the HTML parser to get the XML declaration
+        return parser(new Parser().settings(settings).parseInput("<![CDATA[\n" + data + "\n]]>").body());
+    }
+}
+
+public class XmlDeclaration {
+    private Comment comment;
+    private String content;
+
+    public XmlDeclaration(Comment comment, String content) {
+        this.comment = comment;
+        this.content = content;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
+        XmlDeclaration that = (XmlDeclaration) obj;
+
+        // compare comment and content
+        return comment.equals(that.comment) && content.equals(that.content);
+    }
+
+    @Override
+    public int hashCode() {
+        int prime = 31;
+        int result = 1;
+
+        if (content == null)
+            result = 0;
+        else {
+            content = content.toLowerCase();
+            char[] chars = content.toCharArray();
+            for (char c : chars)
+                result = prime * result + Character.hashCode(c);
+        }
+
+        return prime * result;
+    }
+}
+
+public class CommentTest {
+
+    @Test
+    public void testCommentConstructor() {
+        Comment comment = new Comment("This is a comment.");
+        Assert.assertEquals("#comment", comment.nodeName());
+        Assert.assertEquals("", comment.getData());
+    }
+
+    @Test
+    public void testCommentToString() {
+        Comment comment = new Comment("This is a comment.");
+        String expected = "<!--\nThis is a comment.—>\n";
+        Assert.assertEquals(expected, comment.toString());
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        String data = "This is an XML Declaration.";
+        Comment comment = new Comment(data);
+        Assert.assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclaration() {
+        String data = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n" +
+                "\n" +
+                "   <html>\n" +
+                "       <head>\n" +
+                "           <title>Test</title>\n" +
+                "       </head>\n" +
+                "   </html>\n";
+        CommentNode comment = CommentNodeUtils.parser(new Parser().settings(new ParseSettings()).parseInput(data), null);
+        XmlDeclaration xmlDecl = new CommentNodeUtils.XmlDeclaration(comment, data);
+        Assert.assertNotNull(xmlDecl);
+    }
+
+    @Test
+    public void testCommentIsXmlDeclaration() {
+        String data = "This is an XML Declaration.";
+        Comment comment = new Comment(data);
+        Assert.assertTrue(comment.isXmlDeclaration());
+        Assert.assertFalse(new CommentNodeUtils.Comment().asXmlDeclaration("This is a comment."));
+    }
+
+    @Test
+    public void testCommentSetData() {
+        String data = "";
+        Comment comment = new Comment(data);
+        comment.setData("This is a comment.");
+        Assert.assertEquals("", comment.getData());
+        Assert.assertEquals(0, comment.value.length());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.nodes.CommentNode;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+
+public class Comment {
+    public String nodeName() {
+        return "#comment";
+    }
+
+    public void setData(String data) {
+        this.value = data;
+    }
+}
+
+public class CommentNodeUtils {
+    public static CommentNode parser(Document document, ParseSettings settings) throws IOException {
+        // parse the comment string into a Document object
+        return document.body().child(0);
+    }
+
+    public static CommentNode asXmlDeclaration(String data) {
+        // use the HTML parser to get the XML declaration
+        return parser(new Parser().settings(settings).parseInput("<![CDATA[\n" + data + "\n]]>").body());
+    }
+}
+
+public class XmlDeclaration {
+    private String content;
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+}
+
+public class CommentTest {
+
+    @Test
+    public void testCommentConstructor() {
+        Comment comment = new Comment("This is a comment.");
+        Assert.assertEquals("#comment", comment.nodeName());
+        Assert.assertEquals("", comment.getData());
+    }
+
+    @Test
+    public void testCommentToString() {
+        Comment comment = new Comment("This is a comment.");
+        String expected = "<!--\nThis is a comment.—>\n";
+        Assert.assertEquals(expected, comment.toString());
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        String data = "This is an XML Declaration.";
+        Comment comment = new Comment(data);
+        Assert.assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclaration() {
+        String data = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
+                "\n" +
+                "   <html>\n" +
+                "       <head>\n" +
+                "           <title>Test</title>\n" +
+                "       </head>\n" +
+                "   </html>\n";
+        CommentNode comment = CommentNodeUtils.parser(new Parser().settings(new ParseSettings()).parseInput(data), null);
+        XmlDeclaration xmlDecl = new CommentNodeUtils.XmlDeclaration(comment, data);
+        Assert.assertNotNull(xmlDecl);
+    }
+
+    @Test
+    public void testCommentIsXmlDeclaration() {
+        String data = "This is an XML Declaration.";
+        Comment comment = new Comment(data);
+        Assert.assertTrue(comment.isXmlDeclaration());
+        Assert.assertEquals("This is an XML Declaration.", comment.getContent());
+    }
+
+    @Test
+    public void testCommentSetData() {
+        String data = "";
+        Comment comment = new Comment(data);
+        comment.setData("This is a comment.");
+        Assert.assertEquals("", comment.getData());
+        Assert.assertEquals(0, comment.value.length());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Main {
+    // ...
+
+    private void generateXmlDeclaration(CommentNode comment) {
+        XmlDeclaration xmlDecl = new CommentNodeUtils.XmlDeclaration(comment, "This is an XML Declaration.");
+        Assert.assertNotNull(xmlDecl);
+        Assert.assertEquals("This is an XML Declaration.", xmlDecl.getContent());
+    }
+
+    public void testGenerateXmlDeclaration() {
+        // Test case 1
+        String input = "<example>";
+        CommentNode comment = new CommentNodeUtils.CommentNode(input);
+        generateXmlDeclaration(comment);
+
+        // Test case 2
+        input = "This is an example";
+        comment = new CommentNodeUtils.CommentNode(input);
+        generateXmlDeclaration(comment);
+
+        // Test case 3
+        input = "<example>";
+        comment = new CommentNodeUtils.CommentNode(input);
+        try {
+            generateXmlDeclaration(comment);
+        } catch (Exception e) {
+            fail("Test case 1 failed");
+        }
+
+        // Test case 4
+        input = "";
+        comment = new CommentNodeUtils.CommentNode(input);
+        try {
+            generateXmlDeclaration(comment);
+        } catch (Exception e) {
+            fail("Test case 2 failed");
+        }
+    }
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        main.testGenerateXmlDeclaration();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+I can provide a Java code that generates XML declarations for comments in a file.
+
+Here's a simple implementation:
+
+```java
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class Main {
+    private String filePath;
+    private int indentSize = 4;
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public CommentNode generateXmlDeclaration() {
+        XmlDeclaration xmlDecl = new XmlDeclaration();
+
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.write(xmlDecl.getContent());
+        } catch (IOException e) {
+            fail("Error generating XML declaration: " + e.getMessage());
+        }
+
+        return xmlDecl;
+    }
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        main.setFilePath("example.xml");
+
+        CommentNode comment = new CommentNodeUtils.CommentNode("This is a comment", 1, true);
+        XmlDeclaration xmlDecl = main.generateXmlDeclaration();
+
+        System.out.println(xmlDecl.getContent());
+    }
+}
+
+class XmlDeclaration implements ToString {
+    private String content;
+
+    public XmlDeclaration() {}
+
+    @Override
+    public String toString() {
+        return "<!--" + java.util.Arrays.toString(this.content) + "-->";
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getContent() {
+        return content;
+    }
+}
+
+class CommentNodeUtils {
+    public static CommentNode commentNode(String text, int level, boolean appendComment) throws Exception {
+        CommentNode commentNode = new CommentNode(text);
+        if (appendComment && level > 0) {
+            commentNode.addIndent(indentSize);
+            commentNode.append(new XmlDeclaration());
+        }
+        return commentNode;
+    }
+
+    public static class CommentNode implements ToString {
+        private String text;
+        private int indentLevel;
+        private boolean appendComment;
+
+        public CommentNode(String text, int level, boolean appendComment) {
+            this.text = text;
+            this.indentLevel = level;
+            this.appendComment = appendComment;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            if (appendComment) {
+                for (int i = 0; i < indentLevel; i++) {
+                    sb.append(" ");
+                }
+            }
+            sb.append("<!--").append(text).append("-->");
+            return sb.toString();
+        }
+
+        public void addIndent(int size) {
+            String indentation = new java.util.StringJoiner(".", " ", "    ").toString().substring(0, size);
+            System.out.print(indentation);
+        }
+
+        public void append(XmlDeclaration xmlDecl) {
+            System.out.println(xmlDecl.getContent());
+        }
+    }
+}
+```
+
+This code creates a simple XML declaration generator for comments in an input file. It uses the `XmlDeclaration` class to create the declaration and adds it to the comment node if necessary. The generated XML is written to the specified file.
+
+In the `main` method, we set up the input file path and generate the XML declaration using our function. We then print out the generated XML declaration.
+===================================================
+
+
+====================== Iteration #6 ======================

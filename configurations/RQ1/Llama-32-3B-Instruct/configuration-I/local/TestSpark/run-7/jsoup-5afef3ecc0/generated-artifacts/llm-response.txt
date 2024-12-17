@@ -1,0 +1,142 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup internal StringUtil;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import static org.jsoup.helper.DataUtil.UTF_8;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private URL inputUrl;
+
+    public void testConstructor() {
+        new UrlBuilder(inputUrl);
+    }
+
+    public void testBuildBasic() {
+        try {
+            new UrlBuilder(inputUrl).build();
+        } catch (MalformedURLException | URISyntaxException e) {
+            // Expected exception
+        }
+    }
+
+    public void testBuildPunyCode() throws MalformedURLException, URISyntaxException {
+        inputUrl = new URL("http://example.com/äöü");
+        String decodedHost = IDN.toASCII("äöü", "UTF-8");
+        inputUrl = new URL("http://" + decodedHost);
+        try {
+            new UrlBuilder(inputUrl).build();
+        } catch (MalformedURLException | URISyntaxException e) {
+            // Expected exception
+        }
+    }
+
+    public void testBuildPathNormalization() throws MalformedURLException, URISyntaxException {
+        inputUrl = new URL("http://example.com/äöü");
+        String decodedHost = IDN.toASCII("äöü", "UTF-8");
+        inputUrl = new URL("http://" + decodedHost);
+        try {
+            new UrlBuilder(inputUrl).build();
+        } catch (MalformedURLException | URISyntaxException e) {
+            // Expected exception
+        }
+    }
+
+    public void testBuildQuery() throws MalformedURLException, URISyntaxException {
+        inputUrl = new URL("http://example.com/path?a=1&b=2");
+        String decodedPath = decodePart(inputUrl.getPath());
+        inputUrl = new URL("http://" + IDN.toASCII(decodedPath));
+        try {
+            new UrlBuilder(inputUrl).build();
+        } catch (MalformedURLException | URISyntaxException e) {
+            // Expected exception
+        }
+    }
+
+    public void testBuildRef() throws MalformedURLException, URISyntaxException {
+        inputUrl = new URL("http://example.com/path#ref");
+        String decodedPath = decodePart(inputUrl.getPath());
+        inputUrl = new URL("http://" + IDN.toASCII(decodedPath));
+        try {
+            new UrlBuilder(inputUrl).build();
+        } catch (MalformedURLException | URISyntaxException e) {
+            // Expected exception
+        }
+    }
+
+    public void testAppendKeyVal() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        urlBuilder.appendKeyVal(kv);
+        try {
+            new URL(urlBuilder.build().toString());
+        } catch (MalformedURLException e) {
+            // Expected exception
+        }
+    }
+
+    public void testAppendQuery() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        urlBuilder.appendKeyVal(kv);
+        try {
+            String query = new URL(urlBuilder.build().toString()).getQuery();
+            assert normalizeQuery(query).equals("?key=value");
+        } catch (MalformedURLException | URISyntaxException e) {
+            // Expected exception
+        }
+    }
+
+    public void testAppendRef() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        urlBuilder.appendKeyVal(kv);
+        try {
+            String ref = new URL(urlBuilder.build().toString()).getRef();
+            assert normalizeRef(ref).equals("%20key=value");
+        } catch (MalformedURLException | URISyntaxException e) {
+            // Expected exception
+        }
+    }
+
+    public void testDecodePart() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+        String encoded = "äöü";
+        String decoded = decodePart(encoded);
+        assert decoded.equals("äöü");
+    }
+
+    public void testNormalizeQuery() {
+        String q = "key=value";
+        String normalized = normalizeQuery(q);
+        assert normalized.equals("?key%3Dvalue");
+    }
+
+    public void testNormalizeRef() {
+        String r = "ref= key= value";
+        String normalized = normalizeRef(r);
+        assert normalized.equals("%20ref%20%3D%20%20key%3D%20%20value");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

@@ -1,0 +1,812 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.nodes;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TextNodeTest {
+
+    @ParameterizedTest
+    @CsvSource({
+        "   "
+    })
+    public void isBlank(boolean expected, String actual) {
+        assertEquals(expected, TextNode.isBlank(actual));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "\"\"",
+            "<p> Hello <span> world </span></p>",
+            "\n\n"
+    })
+    public void text(String input, String expected) {
+        TextNode text = new TextNode(input);
+        assertEquals(expected, text.text());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "\"Hello <span>world</span>\",
+             "<p>Hello <span>world</span></p>",
+             "\n\n"
+    })
+    public void splitText(int offset, String input) {
+        TextNode text = new TextNode(input);
+        TextNode result = text.splitText(offset);
+        assertEquals("Hello <span>world</span>", result.text());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "\"<html><body>Hello <span>world</span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void coreValue(int offset, String input) {
+        TextNode text = new TextNode(input);
+        assertEquals("Hello <span>world</span>", text.coreValue());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "Hello",
+             "<p>Hello <span>world </span></p>",
+             "\n\n"
+    })
+    public void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) {
+        TextNode text = new TextNode("Hello");
+        text.outerHtmlHead(accum, depth, out);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "\"\"",
+             "<p> Hello <span> world </span></p>",
+             "\n\n"
+    })
+    public void toString(Appendable accum, int offset) {
+        TextNode text = new TextNode("Hello");
+        text.toString(accum, offset);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TextNodeTest {
+
+    @ParameterizedTest
+    @CsvSource({
+            "", true,
+            "\"<p>Hello <span>world</span></p>", "\n\n"
+    })
+    public void isBlank(boolean expected, String actual) {
+        assertEquals(expected, TextNode.isBlank(actual));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "   ",
+             "<p>Hello <span>world</span></p>",
+             "\n\n"
+    })
+    public void text(String input, String expected) {
+        TextNode text = new TextNode(input);
+        assertEquals(expected, text.text());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "\"<html><body>Hello <span>world</span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void splitText(int offset, String input) {
+        TextNode text = new TextNode(input);
+        TextNode result = text.splitText(offset);
+        assertEquals("Hello <span>world</span>", result.text());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "\"<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void coreValue(int offset, String input) {
+        TextNode text = new TextNode(input);
+        assertEquals("Hello <span>world</span>", text.coreValue());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "Hello",
+             "<p>Hello <span> world </span></p>",
+             "\n\n"
+    })
+    public void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) {
+        TextNode text = new TextNode("Hello");
+        text.outerHtmlHead(accum, depth, out);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "\"\"",
+             "<p> Hello <span> world </span></p>",
+             "\n\n"
+    })
+    public void toString(Appendable accum, int offset) {
+        TextNode text = new TextNode("Hello");
+        text.toString(accum, offset);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "\"<html><body>Hello <span>world</span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void innerHtml(Appendable accum, int offset) {
+        TextNode text = new TextNode("<p>Hello <span> world </span></p>");
+        text.outerHtml(accum, offset);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "Hello",
+             "<p>Hello <span> world </span></p>",
+             "\n\n"
+    })
+    public void toStringInner(Appendable accum) {
+        TextNode text = new TextNode("Hello");
+        text.toString(accum, 0);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "\"<html><body>Hello <span>world</span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void innerHtmlInner(Appendable accum) {
+        TextNode text = new TextNode("<p>Hello <span> world </span></p>");
+        Mockito.when(accum.append()).thenReturn("Hello <span> world </span>");
+        text.outerHtml(accum, 0);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "\"<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void innerHtmlOuter(Appendable accum) {
+        TextNode text = new TextNode("<p>Hello <span> world </span></p>");
+        Mockito.when(accum.append()).thenReturn("");
+        text.outerHtml(accum, 0);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.CommentNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Text;
+import org.jsoup.parser.Parser;
+import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TextNodeTest {
+
+    @ParameterizedTest
+    @CsvSource({
+            "", true,
+            "<p>Hello <span>world</span></p>", "\n\n"
+    })
+    public void isBlank(boolean expected, String actual) {
+        assertEquals(expected, TextNode.isBlank(actual));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "   ",
+             "<p>Hello <span>world</span></p>",
+             "\n\n"
+    })
+    public void text(String input, String expected) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals(expected)) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        assertEquals(expected, element.text());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world</span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void splitText(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span>world</span></body></html>")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        Text node = element.text();
+        assertEquals("Hello <span>world</span>", node);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void coreValue(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span>world </span></body></html>")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        assertEquals("Hello <span>world</span>", element.coreValue());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "Hello",
+             "<p>Hello <span> world </span></p>",
+             "\n\n"
+    })
+    public void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) {
+        Element element = new Element("html");
+        element.append(new TextNode("head"));
+        for (int i = 0; i < depth - 1; i++) {
+            element.append(element);
+        }
+        for (int i = 0; i < depth; i++) {
+            element.append(element);
+        }
+        out.println(element.toString());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "Hello",
+             "<p>Hello <span> world </span></p>",
+             "\n\n"
+    })
+    public void innerHtml(Appendable accum, int offset) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader("<html><body>Hello <span>world</span></body></html>\n"));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            Text node = element.text();
+            if (!node.equals("Hello <span> world ")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        accum.append(node.toString());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void innerHtmlInner(Appendable accum) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader("<html><body>Hello <span> world </span></body></html>\n"));
+        Parser parser = new Parser(is);
+        Text node1 = element -> {
+            if (!element.toString().equals("Hello <span>world ")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        };
+        Text node2 = element -> {
+            if (!element.toString().equals("<html><body>Hello <span> world </span></body></html>\n")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        };
+        accum.append(node1);
+        accum.append(node2);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void innerHtmlOuter(Appendable accum) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader("<html><body>Hello <span> world </span></body></html>\n"));
+        Parser parser = new Parser(is);
+        Text node1 = element -> {
+            if (!element.toString().equals("<html><body>Hello <span>world </span></body></html>\n")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        };
+        Text node2 = element -> {
+            if (!element.toString().equals("</html>") && !element.toString().equals("<p>")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        };
+        accum.append(node1);
+        accum.append(node2);
+    }
+
+    public static class TextNode implements java.lang.Runnable, java.util.concurrent.ConcurrentHashMap<String, Object> {
+
+        private String value;
+
+        @Override
+        public void run() {
+            if (value != null) {
+                System.out.println(value);
+            }
+        }
+
+        public String toString() {
+            return value;
+        }
+
+        public String coreValue() {
+            return value;
+        }
+
+        public boolean isBlank() {
+            return isEmpty();
+        }
+
+        @Override
+        public int hashCode() {
+            return value.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TextNode textNode = (TextNode) o;
+            return Objects.equals(value, textNode.value);
+        }
+
+        public String value;
+
+        public TextNode(String value) {
+            this.value = value;
+        }
+
+        public void append(Object o) {
+            if (!(o instanceof String)) {
+                throw new RuntimeException("Expected a string");
+            }
+            System.out.println((String) o);
+        }
+
+        public boolean isEmpty() {
+            return value == null || value.isEmpty();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+Here's a response in the required format:
+
+```java
+package org.jsoup.nodes;
+
+import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TextNodeTest {
+
+    @ParameterizedTest
+    @CsvSource({
+            "",
+             "<p>Hello <span>world</span></p>",
+             "\n\n"
+    })
+    public void isBlank(boolean expected, String actual) {
+        assertEquals(expected, TextNode.isBlank(actual));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "   ",
+             "<p>Hello <span>world</span></p>",
+             "\n\n"
+    })
+    public void text(String input, String expected) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals(expected)) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        assertEquals(expected, element.text());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world</span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void splitText(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span>world</span></body></html>")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        Text node = element.text();
+        assertEquals("Hello <span>world", node);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void coreValue(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span> world </span></body></html>\n")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        assertEquals("Hello <span>world", element.text());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void splitTextOffSet(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span>world</span></body></html>\n")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        Text node = element.text();
+        assertEquals("Hello \n", node);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void splitTextOffset(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span>world</span></body></html>\n")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        Text node = element.text();
+        assertEquals("Hello \n", node);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void coreValueOffset(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span> world </span></body></html>\n")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        assertEquals("", element.text());
+    }
+
+    public static class TextNode implements java.lang.Runnable, java.util.concurrent.ConcurrentHashMap<String, Object> {
+
+        private String value;
+
+        @Override
+        public void run() {
+            if (value != null) {
+                System.out.println(value);
+            }
+        }
+
+        public String toString() {
+            return value;
+        }
+
+        public String coreValue() {
+            return value;
+        }
+
+        public boolean isBlank() {
+            return isEmpty();
+        }
+
+        @Override
+        public int hashCode() {
+            return value.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TextNode textNode = (TextNode) o;
+            return Objects.equals(value, textNode.value);
+        }
+
+        public String value;
+
+        public TextNode(String value) {
+            this.value = value;
+        }
+
+        public void append(Object o) {
+            if (!(o instanceof String)) {
+                throw new RuntimeException("Expected a string");
+            }
+            System.out.println((String) o);
+        }
+
+        public boolean isEmpty() {
+            return value == null || value.isEmpty();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+Here's a response in the required format:
+
+```java
+package org.jsoup.nodes;
+
+import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TextNodeTest {
+
+    @ParameterizedTest
+    @CsvSource({
+            "",
+             "<p>Hello <span>world</span></p>",
+             "\n\n"
+    })
+    public void isBlank(boolean expected, String actual) {
+        assertEquals(expected, TextNode.isBlank(actual));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "   ",
+             "<p>Hello <span>world</span></p>",
+             "\n\n"
+    })
+    public void text(String input, String expected) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals(expected)) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        assertEquals(expected, element.text());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world</span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void splitText(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span>world</span></body></html>")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        Text node = element.text();
+        assertEquals("Hello <span>world", node);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void coreValue(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span> world </span></body></html>\n")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        assertEquals("Hello <span>world", element.text());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void splitTextOffSet(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span>world</span></body></html>\n")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        Text node = element.text();
+        assertEquals("Hello \n", node);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1",
+             "<html><body>Hello <span>world </span></body></html>\"
+         \"This is a test HTML</p>"
+    })
+    public void splitTextOffset(int offset, String input) {
+        Document doc = new Document();
+        InputSource is = new InputSource(new StringReader(input));
+        Parser parser = new Parser(is);
+        Element element = (Element) parser.parse(element -> {
+            if (!element.toString().equals("<html><body>Hello <span>world</span></body></html>\n")) {
+                throw new RuntimeException("Unexpected text");
+            }
+            return null;
+        });
+        Text node = element.text();
+        assertEquals("", node);
+    }
+
+    public static class TextNode implements java.lang.Runnable, java.util.concurrent.ConcurrentHashMap<String, Object> {
+
+        private String value;
+
+        @Override
+        public void run() {
+            if (value != null) {
+                System.out.println(value);
+            }
+        }
+
+        public String toString() {
+            return value;
+        }
+
+        public String coreValue() {
+            return value;
+        }
+
+        public boolean isBlank() {
+            return isEmpty();
+        }
+
+        @Override
+        public int hashCode() {
+            return value.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TextNode textNode = (TextNode) o;
+            return Objects.equals(value, textNode.value);
+        }
+
+        public String value;
+
+        public TextNode(String value) {
+            this.value = value;
+        }
+
+        public void append(Object o) {
+            if (!(o instanceof String)) {
+                throw new RuntimeException("Expected a string");
+            }
+            System.out.println((String) o);
+        }
+
+        public boolean isEmpty() {
+            return value == null || value.isEmpty();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

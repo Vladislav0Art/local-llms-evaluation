@@ -1,0 +1,86 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class GeneratedTest {
+
+    @Test
+    public void testCommentNode() {
+        String data = "# This is a comment";
+        Element comment = new Document().nodeByValue(data);
+        assertNotNull(comment);
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        String data = "# This is a comment";
+        Comment comment = new Comment(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void testsetData() {
+        String data = "# This is a comment";
+        Comment comment = new Comment(data);
+        comment.setData("New value");
+        assertNotNull(comment);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        String htmlString = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
+        Document doc = new Document();
+        Element comment = new Comment(htmlString);
+        assertNotNull(comment);
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        String xml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
+        Element element = new Document().nodeByValue(xml);
+        assertNotNull(element);
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        String xml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
+        Element element = new Document().nodeByValue(xml);
+        assertTrue(element.is.XmlDeclaration());
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        String xml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
+        Element element = new Document().nodeByValue(xml);
+        assertTrue(element.is.XmlDeclaration());
+    }
+
+    public static class Comment {
+        private String data;
+
+        public Comment(String data) {
+            this.data = data;
+        }
+
+        @Override
+        public String toString() {
+            return "# " + data;
+        }
+
+        public String getData() {
+            return data;
+        }
+    }
+
+    public static class Document {
+        public Element nodeByValue(String value) {
+            // implementation of the method to find an element by its string value
+            // this is a simplified example, you might need to use a real DOM parser library for this
+            return new Element("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html><head></head><body></body></html>");
+        }
+    }
+
+}

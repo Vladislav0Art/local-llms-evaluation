@@ -1,0 +1,366 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.URL;
+import java.util.Map;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void newUrlBuilder_fromInputUrl() {
+        URL inputUrl = new URL("https://example.com/path?a=1&b=2#ref");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertNotNull(builder.u);
+    }
+
+    @Test
+    public void build_url_withoutQueryAndRef() {
+        URL inputUrl = new URL("https://example.com/path");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals(inputUrl, builder.build());
+    }
+
+    @Test
+    public void build_url_withQueryAndNoRef() {
+        URL inputUrl = new URL("https://example.com/path?a=1&b=2#ref");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals(inputUrl, builder.build());
+    }
+
+    @Test
+    public void build_url_withQueryAndRef() {
+        URL inputUrl = new URL("https://example.com/path?a=1&b=2#ref");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertNotNull(builder.u.getRef());
+        assertEquals(inputUrl, builder.build());
+    }
+
+    @Test
+    public void build_url_withQueryAndRef_correctlyEncoded() {
+        URL inputUrl = new URL("https://example.com/path?a=1&b=2#ref");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        String expected = "https%3A//example.com/path%3Fa%3D1%26b%3D2%23ref";
+        assertEquals(expected, builder.u.toURI().toASCIIString());
+    }
+
+    @Test
+    public void appendKeyVal_withValidKeyAndValue() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        builder.appendKeyVal(kv);
+        assertNotNull(builder.q);
+        assertEquals("key=value", builder.q.toString());
+    }
+
+    @Test
+    public void appendKeyVal_withInvalidEncoding() {
+        try {
+            Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+            UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+            builder.appendKeyVal(kv);
+            fail("Expected UnsupportedEncodingException");
+        } catch (UnsupportedEncodingException e) {}
+    }
+
+    @Test
+    public void decodePart_validEncoding() {
+        String encoded = "%20";
+        assertEquals(encoded, UrlBuilder.decodePart(encoded));
+    }
+
+    @Test
+    public void normalizeQuery_minimalSpaceNormalization() {
+        String q = "key  value";
+        assertEquals("key%20value", UrlBuilder.normalizeQuery(q));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return key + "=" + value;
+        }
+    }
+}
+
+public class UrlBuilderTest {
+
+    public static void main(String[] args) {
+        // Test appendKeyVal with valid key and value
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        builder.appendKeyVal(kv);
+        assertNotNull(builder.q);
+        assertEquals("key=value", builder.q.toString());
+
+        // Test appendKeyVal with invalid encoding
+        try {
+            kv = new Connection.KeyVal("key", "value");
+            builder = new UrlBuilder(new URL("https://example.com/path"));
+            builder.appendKeyVal(kv);
+            fail("Expected UnsupportedEncodingException");
+        } catch (UnsupportedEncodingException e) {}
+    }
+}
+
+public class UrlBuilder {
+
+    private String q;
+
+    public void appendKeyVal(Connection.KeyVal kv) {
+        if (q == null) {
+            q = "";
+        }
+        q += kv.toString() + "&";
+    }
+
+    public String getQ() {
+        return q;
+    }
+
+    // Remove the following method to avoid private access error
+    private static String decodePart(String encoded) {
+        // implementation
+    }
+
+    private static String normalizeQuery(String q) {
+        // implementation
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return key + "=" + value;
+        }
+    }
+}
+
+public class UrlBuilder {
+
+    private URL u;
+    private java.util.Map<String, String> q;
+
+    public UrlBuilder(URL u) {
+        this.u = u;
+        this.q = new java.util.HashMap<>();
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {
+        if (q == null) {
+            q = new java.util.HashMap<>();
+        }
+        q.put(kv.key, kv.value);
+    }
+
+    private static String decodePart(String encoded) throws java.io.UnsupportedEncodingException {
+        return new java.net.URLDecoder().decode(encoded);
+    }
+
+    public URL getURL() {
+        StringBuilder sb = new StringBuilder(u.getProtocol());
+        sb.append("://");
+        sb.append(decodePart(u.getHost()));
+        if (u.getPort() != -1) {
+            sb.append(":").append(u.getPort());
+        }
+        sb.append(u.getPath());
+
+        java.util.Map<String, String> query = u.getQuery();
+        for (String key : query.keySet()) {
+            sb.append("?");
+            sb.append(decodePart(key)).append("=").append(decodePart(query.get(key)));
+        }
+
+        if (u.getRef() != null) {
+            sb.append("#").append(decodePart(u.getRef()));
+        }
+        return new URL(sb.toString());
+    }
+
+    public String getQuery() {
+        StringBuilder sb = new StringBuilder();
+        for (java.util.Map.Entry<String, String> entry : q.entrySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(entry.getKey()).append("=").append(decodePart(entry.getValue()));
+        }
+        return sb.toString();
+    }
+
+    public void setURL(URL u) {
+        this.u = u;
+    }
+
+    public static UrlBuilder fromInputUrl(URL inputUrl) {
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        // remove the following line
+        // builder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        return builder;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return key + "=" + value;
+        }
+    }
+}
+
+public class UrlBuilderTest {
+
+    public static void main(String[] args) throws java.io.UnsupportedEncodingException {
+        // Test appendKeyVal with valid key and value
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = UrlBuilder.fromInputUrl(new URL("https://example.com/path"));
+        assertNotNull(builder.getQ());
+        assertEquals("key=value", builder.getQ());
+
+        // Test appendKeyVal with invalid encoding
+        try {
+            kv = new Connection.KeyVal("key", "value");
+            builder = UrlBuilder.fromInputUrl(new URL("https://example.com/path"));
+            fail("Expected UnsupportedEncodingException");
+        } catch (UnsupportedEncodingException e) {}
+    }
+}
+
+public class UrlBuilder {
+
+    private String q;
+
+    public static UrlBuilder fromInputUrl(URL inputUrl) {
+        return new UrlBuilder(inputUrl);
+    }
+
+    public UrlBuilder appendKeyVal(Connection.KeyVal kv) throws java.io.UnsupportedEncodingException {
+        if (q == null) {
+            q = "";
+        }
+        q += kv.toString() + "&";
+        return this;
+    }
+
+    public String getQ() {
+        return q;
+    }
+
+    public URL getURL() {
+        // implementation
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return key + "=" + value;
+        }
+    }
+}
+
+public class UrlBuilder {
+
+    private java.util.HashMap<String, String> q;
+
+    public UrlBuilder(URL u) {
+        this.q = new java.util.HashMap<>();
+    }
+
+    public UrlBuilder appendKeyVal(Connection.KeyVal kv) {
+        if (q == null) {
+            q = new java.util.HashMap<>();
+        }
+        q.put(kv.key, kv.value);
+        return this;
+    }
+
+    public String getQuery() {
+        StringBuilder sb = new StringBuilder();
+        for (java.util.Map.Entry<String, String> entry : q.entrySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+        return sb.toString();
+    }
+
+    public URL getURL() throws java.net.URISyntaxException {
+        String query = getQuery();
+        String path = new URL(new URI("http://example.com").resolve("/").toURI()).getPath();
+        if (path.isEmpty()) {
+            path = "";
+        }
+        return new URL("http://" + new URL(getURL()).getHost() + path);
+    }
+
+    public static UrlBuilder fromInputUrl(URL inputUrl) {
+        return new UrlBuilder(inputUrl);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

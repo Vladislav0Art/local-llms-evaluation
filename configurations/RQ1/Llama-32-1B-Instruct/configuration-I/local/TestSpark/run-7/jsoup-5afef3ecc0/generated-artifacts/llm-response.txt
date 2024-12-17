@@ -1,0 +1,257 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class UrlBuilderTest {
+
+    private final String url = "https://example.com/path?query=value&ref=reference";
+
+    @Test
+    void testNormalizePath() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("https://example.com/path", builder.build().toString());
+        String originalQuery = url.replace("?", "=").replace("&", "=");
+        assertEquals(originalQuery, builder.normalizeQuery(new StringBuilder()).append("?").append(normalizeQuery(builder.q)).append("&");
+    }
+
+    @Test
+    void testNormalizeRef() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("https://example.com/path#reference", builder.build().toString());
+        String originalRef = url.replace("#", "");
+        assertEquals(originalRef, builder.normalizeRef(builder.q).append("#").append(normalizeQuery(builder.q)).append("#");
+    }
+
+    @Test
+    void testNormalizeQuery() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("https%3A%2Fexample.com%2Fpath", builder.build().toString());
+        String originalQ = url.replace("?", "=").replace("&", "=");
+        assertEquals(originalQ, builder.normalizeQuery(builder.q).append("?").append(normalizeQuery(builder.q)).append("&");
+    }
+
+    @Test
+    void testNormalizeRefQuery() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("https%3Aexample.com%2Fpath#reference", builder.build().toString());
+        String originalR = url.replace("#", "");
+        assertEquals(originalR, builder.normalizeRef(builder.q).append("#").append(normalizeQuery(builder.q)).append("#");
+    }
+
+    @Test
+    void testAppendKeyVal() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        builder.appendKeyVal(Connection.KeyVal.of("key", "value"));
+        String expected = "https%3Aexample.com/path?key=value&ref=reference";
+        assertEquals(expected, builder.build().toString());
+    }
+
+    @Test
+    void testAppendKeyValEmpty() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        builder.appendKeyVal(Connection.KeyVal.empty());
+        String expected = "https%3Aexample.com/path";
+        assertEquals(expected, builder.build().toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class UrlBuilderTest {
+
+    @Test
+    void testNormalizePath() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("https://example.com/path", builder.build().toString());
+        String originalQuery = url.replace("?", "=").replace("&", "=");
+        assertEquals(originalQuery, builder.normalizeQuery(new StringBuilder()).append("?").append(normalizeQuery(builder.q)).append("&");
+    }
+
+    @Test
+    void testNormalizeRef() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("https://example.com/path#reference", builder.build().toString());
+        String originalRef = url.replace("#", "");
+        assertEquals(originalRef, builder.normalizeRef(builder.q).append("#").append(normalizeQuery(builder.q)).append("#");
+    }
+
+    @Test
+    void testNormalizeQuery() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("https%3Aexample.com%2Fpath", builder.build().toString());
+        String originalQ = url.replace("?", "=").replace("&", "=");
+        assertEquals(originalQ, builder.normalizeQuery(builder.q).append("?").append(normalizeQuery(builder.q)).append("&");
+    }
+
+    @Test
+    void testNormalizeRefQuery() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("https%3Aexample.com%2Fpath#reference", builder.build().toString());
+        String originalR = url.replace("#", "");
+        assertEquals(originalR, builder.normalizeRef(builder.q).append("#").append(normalizeQuery(builder.q)).append("#");
+    }
+
+    @Test
+    void testAppendKeyVal() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        builder.appendKeyVal(Connection.KeyVal.of("key", "value"));
+        String expected = "https://example.com/path?key=value&ref=reference";
+        assertEquals(expected, builder.build().toString());
+    }
+
+    @Test
+    void testAppendKeyValEmpty() {
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        builder.appendKeyVal(Connection.KeyVal.empty());
+        String expected = "https://example.com/path";
+        assertEquals(expected, builder.build().toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class UrlBuilderTest {
+
+    public static void main(String[] args) {
+        String url = "https://example.com/path?query=value&ref=reference";
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        
+        // Normalize path
+        Document doc = Jsoup.parse(builder.build().toString());
+        Elements elements = doc.getAllElements();
+        for (Element element : elements) {
+            if (element.tagName().equals("path")) {
+                String normalizedPath = element.attr("href");
+                System.out.println(normalizedPath);
+                break;
+            }
+        }
+
+        // Normalize ref
+        builder.appendKeyVal(Connection.KeyVal.of("key", "value"));
+        Elements elementsRef = builder.build().getAllElements();
+        for (Element element : elementsRef) {
+            if (element.tagName().equals("ref")) {
+                String normalizedRef = element.attr("href");
+                System.out.println(normalizedRef);
+                break;
+            }
+        }
+
+        // Normalize query
+        StringBuilder sbQuery = new StringBuilder();
+        Elements elementsQ = builder.build().getAllElements();
+        for (Element element : elementsQ) {
+            if (element.tagName().equals("query")) {
+                sbQuery.append(element.attr("value").toLowerCase());
+                System.out.println(sbQuery.toString());
+                break;
+            }
+        }
+
+        // Normalize ref query
+        String normalizedRefQ = builder.build().getAllElements().stream()
+                .map(element -> element.tagName() + "-" + element.attr("href"))
+                .distinct()
+                .collect(Collectors.joining(", "));
+        System.out.println(normalizedRefQ);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilderTest {
+
+    @Test
+    void testNormalizePath() {
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path?query=value&ref=reference"));
+        assertEquals("https%3Aexample.com%2Fpath?key=value&ref%3Areference", builder.build().toString());
+    }
+
+    @Test
+    void testNormalizeRef() {
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path#reference"));
+        assertEquals("https%3Aexample.com%2Fpath#reference", builder.build().toString());
+    }
+
+    @Test
+    void testNormalizeQuery() {
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path?query=value&ref=reference"));
+        assertEquals("https%3Aexample.com%2Fpath?key=value&ref%3Areference", builder.build().toString());
+    }
+
+    @Test
+    void testAppendKeyVal() {
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path?query=value&ref=reference"));
+        assertEquals("https%3Aexample.com%2Fpath?key%3Abig%20value%26ref%3Arigid%20reference", builder.build().toString());
+    }
+
+    @Test
+    void testAppendKeyValEmpty() {
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path?query=value"));
+        assertEquals("https%3Aexample.com%2Fpath", builder.build().toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class UrlBuilderTest {
+
+    public static String build(String url) {
+        Document doc = Jsoup.connect(url).get();
+        return doc.toString().replaceAll("^/+", "");
+    }
+
+    @Test
+    void testNormalizePath() {
+        String expected = "https%3Aexample.com%2Fpath%3Bkey%3Dvalue%26ref%3Dreference";
+        assertEquals(expected, build("https://example.com/path?query=value&ref=reference"));
+    }
+
+    @Test
+    void testNormalizeRef() {
+        String expected = "https%3Aexample.com%2Fpath#reference";
+        assertEquals(expected, build("https://example.com/path#reference"));
+    }
+
+    @Test
+    void testNormalizeQuery() {
+        String expected = "https%3Aexample.com%2Fpath?key=value&ref=reference";
+        assertEquals(expected, build("https://example.com/path?query=value&ref=reference"));
+    }
+
+    @Test
+    void testAppendKeyVal() {
+        String expected = "https%3Aexample.com%2Fpath%2Bkey%2Bvalue%26ref%3Dreference";
+        assertEquals(expected, build("https://example.com/path?query=value"));
+    }
+
+    @Test
+    void testAppendQuery() {
+        String expected = "https%3Aexample.com%2Fpath?key=value&query=value#reference";
+        assertEquals(expected, build("https://example.com/path?query=value"));
+    }
+}
+```
+===================================================
+

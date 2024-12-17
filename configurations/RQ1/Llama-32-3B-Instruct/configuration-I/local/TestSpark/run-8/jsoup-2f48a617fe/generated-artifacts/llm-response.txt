@@ -1,0 +1,480 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CommentTest {
+
+    @Mock
+    private Appendable accum;
+
+    @Test
+    public void createComment_withData_setsValue() {
+        String data = "Hello";
+        Comment comment = new Comment(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void createComment_withoutData_isNull() {
+        Comment comment = new Comment("");
+        assertNull(comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHead_withPrettyPrint_setsDepthAndAccum() throws IOException {
+        doThrow(new IOException()).when(accum).append(any());
+        Comment comment = new Comment("Hello");
+        comment.outerHtmlHead(accum, 0, null);
+        assertEquals(1, accum.depth());
+        assertEquals(comment, accum);
+    }
+
+    @Test
+    public void outerHtmlTail_doesNothing() {
+        doThrow(new IOException()).when(accum).append(any());
+        Comment comment = new Comment("Hello");
+        comment.outerHtmlHead(accum, 0, null);
+        assertNull(accum.appendLine(""));
+    }
+
+    @Test
+    public void toString_returnsOuterHtml() {
+        String data = "Hello";
+        Comment comment = new Comment(data);
+        assertEquals("#comment" + "\n<!--" + data + "-->", comment.toString());
+    }
+
+    @Test
+    public void clone_returnsSelf() {
+        Comment comment = new Comment("Hello");
+        Comment clonedComment = comment.clone();
+        assertTrue(comment == clonedComment);
+    }
+
+    @Test
+    public void isXmlDeclaration_isTrue_forValidData() {
+        String data = "Hello World!";
+        Comment comment = new Comment(data);
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclaration_isFalse_forInvalidData() {
+        String data = "Hello";
+        Comment comment = new Comment(data);
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_returnsNull_forInvalidData() {
+        String data = "";
+        Comment comment = new Comment(data);
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_returnsXmlDeclarationForValidData() throws IOException {
+        String fragment = "<Hello World!";
+        Document doc = Parser.htmlParser().settings(ParseSettings.preserveCase).parseInput(fragment, null);
+        Comment comment = new Comment(doc.body().child(0).tagName());
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        assertNotNull(decl);
+        assertTrue(decl.tag().equals("Hello"));
+    }
+
+    @Test
+    public void asXmlDeclaration_throwsIOException_onParseError() throws IOException {
+        doThrow(new IOException()).when(Parser.htmlParser())
+                .settings(ParseSettings.preserveCase)
+                .parseInput(any(), any());
+        Comment comment = new Comment("");
+        assertNull(comment.asXmlDeclaration());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+
+@RunWith(MockitoJUnitRunner.class)
+public class Comment {
+
+    private Appendable accum = new StringBuilder();
+
+    @Test
+    public void createComment_withData_setsValue() {
+        String data = "Hello";
+        this(accum, data);
+        assertEquals(data, getData());
+    }
+
+    @Test
+    public void createComment_withoutData_isNull() {
+        this(accum, "");
+        assertNull(getData());
+    }
+
+    private void testOuterHtmlHead() throws IOException {
+        doThrow(new IOException()).when(accum).append(any());
+        Comment(comment, accum);
+        assertEquals(1, accum.depth());
+        assertEquals(this, accum);
+    }
+
+    @Test
+    public void outerHtmlHead_withPrettyPrint_setsDepthAndAccum() throws IOException {
+        testOuterHtmlHead();
+    }
+
+    @Test
+    public void outerHtmlTail_doesNothing() {
+        doThrow(new IOException()).when(accum).append(any());
+        Comment(comment, accum);
+        assertNull(accum.appendLine(""));
+    }
+
+    private String toString() {
+        return "#comment" + "\n<!--" + getData() + "-->";
+    }
+
+    @Test
+    public void clone_returnsSelf() {
+        Comment clonedComment = this();
+        assertTrue(this == clonedComment);
+    }
+
+    private boolean isXmlDeclaration(String data) {
+        return (data.length() > 1 && (data.startsWith("!") || data.startsWith("!")));
+    }
+
+    @Test
+    public void isXmlDeclaration_isTrue_forValidData() {
+        String data = "Hello World!";
+        Comment(comment, accum);
+        assertTrue(isXmlDeclaration(data));
+    }
+
+    @Test
+    public void isXmlDeclaration_isFalse_forInvalidData() {
+        String data = "";
+        Comment(comment, accum);
+        assertFalse(isXmlDeclaration(data));
+    }
+
+    private XmlDeclaration asXmlDeclaration() throws IOException {
+        String fragment = "#Hello World!";
+        Document doc = Parser.htmlParser().settings(ParseSettings.preserveCase).parseInput(fragment, null);
+        return new XmlDeclaration(doc.body().child(0).tagName());
+    }
+
+    @Test
+    public void asXmlDeclaration_returnsNull_forInvalidData() {
+        Comment(comment, accum);
+        assertNull(asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_returnsXmlDeclarationForValidData() throws IOException {
+        String fragment = "<Hello World!";
+        Document doc = Parser.htmlParser().settings(ParseSettings.preserveCase).parseInput(fragment, null);
+        Comment comment(this, accum);
+        XmlDeclaration decl = asXmlDeclaration();
+        assertNotNull(decl);
+        assertTrue(decl.tag().equals("Hello"));
+    }
+
+    @Test
+    public void asXmlDeclaration_throwsIOException_onParseError() throws IOException {
+        doThrow(new IOException()).when(Parser.htmlParser())
+                .settings(ParseSettings.preserveCase)
+                .parseInput(any(), any());
+        Comment(comment, accum);
+        assertNull(asXmlDeclaration());
+    }
+}
+
+class Document {}
+
+class Parser {
+
+    public static Parser htmlParser() {
+        return new Parser();
+    }
+
+    class Settings {}
+
+    class ParseSettings extends Settings {}
+
+    class ParseOptions {}
+
+    class DocumentBuilder {}
+}
+
+class XmlDeclaration {
+
+    private String tag;
+
+    public XmlDeclaration(String tag) {
+        this.tag = tag;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+
+public class Comment {
+
+    private Appendable accum = new StringBuilder();
+
+    public Comment() {}
+
+    public Comment(String data) {
+        this.accum.append(data);
+    }
+
+    public void append(String data) throws IOException {
+        doThrow(new IOException()).when(accum).append(any());
+        accum.append(data);
+    }
+
+    public void outerHtmlHead(Appendable accum, int depth) {
+        if (depth == 0) return;
+        Comment(comment, accum);
+        accum.append("<!--");
+    }
+
+    private static String getComment(String data) {
+        return "#comment" + "\n<!--" + data + "-->";
+    }
+
+    public String getData() {
+        return accum.toString();
+    }
+
+    public void testOuterHtmlHead() throws IOException {
+        doThrow(new IOException()).when(accum).append(any());
+        Comment(comment, accum);
+        assertEquals(1, accum.depth());
+        assertEquals(this, accum);
+    }
+
+    @Test
+    public void outerHtmlHead_withPrettyPrint_setsDepthAndAccum() throws IOException {
+        testOuterHtmlHead();
+    }
+
+    public static String getComment(String data) {
+        return "#comment" + "\n<!--" + data + "-->";
+    }
+}
+
+class Document {}
+
+class Parser {
+
+    public static Parser htmlParser() {
+        return new Parser();
+    }
+
+    class Settings {}
+
+    class ParseSettings extends Settings {}
+
+    class ParseOptions {}
+
+    class DocumentBuilder {}
+}
+
+class XmlDeclaration {
+
+    private String tag;
+
+    public XmlDeclaration(String tag) {
+        this.tag = tag;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+public class Comment {
+
+    private Appendable accum = new StringBuilder();
+
+    public Comment(String data) {
+        this.accum.append(data);
+    }
+
+    public void append(String data) throws IOException {
+        doThrow(new IOException()).when(accum).append(any());
+        accum.append(data);
+    }
+
+    public void outerHtmlHead(Appendable accum, int depth) {
+        if (depth == 0) return;
+        Comment(comment, accum);
+        accum.append("<!--");
+    }
+
+    private static String getComment(String data) {
+        return "#comment" + "\n<!--" + data + "-->";
+    }
+
+    public String getData() {
+        return accum.toString();
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        doThrow(new IOException()).when(accum).append(any());
+        Comment comment = new Comment("Hello");
+        comment.outerHtmlHead(accum, 1);
+        assertEquals(1, accum.depth());
+        assertEquals(comment, accum);
+    }
+}
+
+class Document {}
+
+class Parser {
+
+    public static Parser htmlParser() {
+        return new Parser();
+    }
+
+    class Settings {}
+
+    class ParseSettings extends Settings {}
+
+    class ParseOptions {}
+
+    class DocumentBuilder {}
+}
+
+class XmlDeclaration {
+
+    private String tag;
+
+    public XmlDeclaration(String tag) {
+        this.tag = tag;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+public class Comment {
+
+    private Appendable accum = new StringBuilder();
+
+    public Comment() {}
+
+    public void append(String data) throws IOException {
+        doThrow(new IOException()).when(accum).append(any());
+        accum.append(data);
+    }
+
+    public String getData() {
+        return accum.toString();
+    }
+
+    @Test
+    public void testAppend() throws IOException {
+        Comment comment = new Comment();
+        comment.append("Hello");
+        assertEquals("Hello", comment.getData());
+    }
+}
+
+class Document {}
+
+class Parser {
+
+    public static Parser htmlParser() {
+        return new Parser();
+    }
+
+    class Settings {}
+
+    class ParseSettings extends Settings {}
+
+    class ParseOptions {}
+
+    class DocumentBuilder {}
+}
+
+class XmlDeclaration {
+
+    private String tag;
+
+    public XmlDeclaration(String tag) {
+        this.tag = tag;
+    }
+}
+```
+===================================================
+

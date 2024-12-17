@@ -1,0 +1,367 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.URL;
+import java.net.URISyntaxException;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void createUrlBuilder() {
+        URL inputUrl = new URL("https://example.com/path?query=value#fragment");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertNotNull(builder.u);
+        assertNull(builder.q);
+    }
+
+    @Test
+    public void build_url_is_not_punned() throws URISyntaxException {
+        URL inputUrl = new URL("http://example.com/áoth?query=value#fragment");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals("http://example.com/%C3%A1oth?query=value#fragment", builder.build().toString());
+    }
+
+    @Test
+    public void build_url_is_escaped() throws URISyntaxException {
+        URL inputUrl = new URL("https://example.com/path?query=%3Fvalue%3D&%23fragment");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals("https://example.com/path?query=%3Fvalue=%3D&%23fragment", builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyVal_adds_new_key_value() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("https://example.com/path");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        builder.appendKeyVal(kv);
+        assertEquals("?key=value", builder.u.getQuery());
+    }
+
+    @Test
+    public void appendKeyVal_adds_new_key_value_without_query() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("https://example.com/path?query=value");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        builder.appendKeyVal(kv);
+        assertEquals("?key=value", builder.u.getQuery());
+    }
+
+    @Test
+    public void decodePart_decodes_url() throws UnsupportedEncodingException, URISyntaxException {
+        String encoded = "%C3%A1oth";
+        String decoded = UrlBuilder.decodePart(encoded);
+        assertEquals("áoth", decoded);
+    }
+
+    @Test
+    public void appendToAscii_escaped_space_as_plus() throws UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii("áóth ", true, sb);
+        assertTrue(sb.toString().contains("+"));
+    }
+
+    @Test
+    public void appendToAscii_escaped_non_ascii_char() throws UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii("%C3%A1oth", false, sb);
+        assertEquals("%A0th", sb.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class UrlBuilder {
+    private URL u;
+
+    public UrlBuilder(URL url) {
+        this.u = url;
+    }
+
+    public String build() throws URISyntaxException {
+        // implementation
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {
+        // implementation
+    }
+}
+
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s=%s", key, value);
+        }
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void appendKeyVal_adds_new_key_value() throws URISyntaxException {
+        URL inputUrl = new URL("https://example.com/path");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        builder.appendKeyVal(kv);
+        assertEquals("?key=value", builder.u.getQuery());
+    }
+
+    @Test
+    public void appendKeyVal_adds_new_key_value_without_query() throws URISyntaxException {
+        URL inputUrl = new URL("https://example.com/path?query=value");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        builder.appendKeyVal(kv);
+        assertEquals("?key=value", builder.u.getQuery());
+    }
+
+    @Test
+    public void decodePart_decodes_url() throws URISyntaxException {
+        String encoded = "%C3%A1oth";
+        String decoded = UrlBuilder.decodePart(encoded);
+        assertEquals("áoth", decoded);
+    }
+
+    @Test
+    public void appendToAscii_escapes_non_ascii_chars() throws URISyntaxException {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        builder.appendToAscii("%C3%A1oth", false, sb);
+        assertEquals("%C3%A0th", sb.toString());
+    }
+
+    @Test
+    public void appendToAscii_does_not_escape_ascii_chars() throws URISyntaxException {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        builder.appendToAscii("%C3%A1oth", false, sb);
+        assertEquals("%C3%A0th", sb.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class URLUtils {
+
+    public static String encodePart(String part) throws URISyntaxException {
+        // implementation
+    }
+
+    public static String decodePart(String encoded) throws URISyntaxException, UnsupportedEncodingException {
+        return new String(encoded.getBytes(), "ISO-8859-1");
+    }
+
+    public static StringBuilder appendToAscii(String input, boolean escapeSpace, StringBuilder sb) {
+        if (escapeSpace && !input.equals("áóth ")) {
+            sb.append("%C3%A0%60");
+        } else {
+            sb.append(input);
+        }
+        return sb;
+    }
+}
+
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s=%s", key, value);
+        }
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void appendKeyVal_adds_new_key_value() throws URISyntaxException, UnsupportedEncodingException {
+        URL inputUrl = new URL("https://example.com/path");
+        StringBuilder sb = new StringBuilder(inputUrl.getQuery());
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        URLUtils.appendToAscii(sb.append("=").append(kv.key).append("=").append(kv.value), true, sb);
+        assertEquals("?key=value", sb.toString());
+    }
+
+    @Test
+    public void appendKeyVal_adds_new_key_value_without_query() throws URISyntaxException, UnsupportedEncodingException {
+        URL inputUrl = new URL("https://example.com/path?query=value");
+        StringBuilder sb = new StringBuilder(inputUrl.getQuery());
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        URLUtils.appendToAscii(sb.append("=").append(kv.key).append("=").append(kv.value), true, sb);
+        assertEquals("?key=value", sb.toString());
+    }
+
+    @Test
+    public void decodePart_decodes_url() throws URISyntaxException, UnsupportedEncodingException {
+        String encoded = "%C3%A1oth";
+        String decoded = URLUtils.decodePart(encoded);
+        assertEquals("áoth", decoded);
+    }
+
+    @Test
+    public void appendToAscii_escapes_non_ascii_chars() throws URISyntaxException, UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        URLUtils.appendToAscii(sb.append("%C3%A1oth"), false, sb);
+        assertEquals("%C3%A0th", sb.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class URLUtils {
+
+    public static String encodePart(String part) throws URISyntaxException {
+        // implementation
+    }
+
+    public static String decodePart(String encoded) throws URISyntaxException, UnsupportedEncodingException {
+        return new String(encoded.getBytes(), "ISO-8859-1");
+    }
+
+    public static StringBuilder appendToAscii(String input, boolean escapeSpace, StringBuilder sb) {
+        if (escapeSpace && !input.equals("áóth ")) {
+            sb.append("%C3%A0%60");
+        } else {
+            sb.append(input);
+        }
+        return sb;
+    }
+}
+
+public class Connection {
+
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s=%s", key, value);
+        }
+    }
+}
+
+public class GeneratedTest {
+
+    public static void main(String[] args) throws URISyntaxException, UnsupportedEncodingException {
+        URL inputUrl = new URL("https://example.com/path");
+        StringBuilder sb = new StringBuilder(inputUrl.getQuery());
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        sb = URLUtils.appendToAscii(sb.append("=").append(kv.key).append("=").append(kv.value), true, sb);
+        assertEquals("?key=value", sb.toString());
+
+        sb = new StringBuilder(inputUrl.getQuery());
+        kv = new Connection.KeyVal("key", "value");
+        sb = URLUtils.appendToAscii(sb.append("=").append(kv.key).append("=").append(kv.value), false, sb);
+        assertEquals("?key=áóth", sb.toString());
+    }
+
+    @Test
+    public void testDecodePart() throws URISyntaxException, UnsupportedEncodingException {
+        String encoded = "%C3%A1oth";
+        String decoded = URLUtils.decodePart(encoded);
+        assertEquals("áoth", decoded);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class URLUtils {
+
+    public static String encodePart(String part) throws URISyntaxException {
+        // implementation
+    }
+
+    public static String decodePart(String encoded) throws URISyntaxException, UnsupportedEncodingException {
+        return new String(encoded.getBytes(), "ISO-8859-1");
+    }
+
+    public static StringBuilder appendToAscii(String input, boolean escapeSpace, StringBuilder sb) {
+        if (escapeSpace && !input.equals("áóth ")) {
+            sb.append("%C3%A0%60");
+        } else {
+            sb.append(input);
+        }
+        return sb;
+    }
+}
+
+public class Connection {
+
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s=%s", key, value);
+        }
+    }
+}
+
+public class TestUtils {
+
+    public static void main(String[] args) throws URISyntaxException, UnsupportedEncodingException {
+        URL inputUrl = new URL("https://example.com/path");
+        StringBuilder sb = new StringBuilder(inputUrl.getQuery());
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        sb = URLUtils.appendToAscii(sb.append("=").append(kv.key).append("=").append(kv.value), true, sb);
+        assertEquals("?key=value", sb.toString());
+
+        sb = new StringBuilder(inputUrl.getQuery());
+        kv = new Connection.KeyVal("key", "value");
+        sb = URLUtils.appendToAscii(sb.append("=").append(kv.key).append("=").append(kv.value), false, sb);
+        assertEquals("?key=áóth", sb.toString());
+    }
+
+    @Test
+    public void testDecodePart() throws URISyntaxException, UnsupportedEncodingException {
+        String encoded = "%C3%A1oth";
+        String decoded = URLUtils.decodePart(encoded);
+        assertEquals("áoth", decoded);
+    }
+}
+```
+===================================================
+

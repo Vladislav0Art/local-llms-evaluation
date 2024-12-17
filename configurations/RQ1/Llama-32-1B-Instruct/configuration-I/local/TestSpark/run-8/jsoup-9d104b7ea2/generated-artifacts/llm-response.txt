@@ -1,0 +1,536 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TextNodeMock implements TextNode, Appendable {
+    private String value;
+
+    @Override
+    public void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        final boolean prettyPrint = out.prettyPrint();
+        final Element parent = parentNode instanceof Element ? ((Element) parentNode) : null;
+        final boolean normaliseWhite = prettyPrint && !Element.preserveWhitespace(parentNode);
+        final boolean trimLikeBlock = parent != null && (parent.tag().isBlock() || parent.tag().formatAsBlock());
+        boolean trimLeading = false, trimTrailing = false;
+
+        if (normaliseWhite) {
+            trimLeading = (trimLikeBlock && siblingIndex == 0) || parentNode instanceof Document;
+            trimTrailing = trimLikeBlock && nextSibling() == null;
+
+            // if this text is just whitespace, and the next node will cause an indent, skip this text:
+            Node next = nextSibling();
+            Node prev = previousSibling();
+            boolean isBlank = isBlank();
+            boolean couldSkip = (next instanceof Element && ((Element) next).shouldIndent(out)) // next will indent
+                || (next instanceof TextNode && (((TextNode) next).isBlank())) // next is blank text, from re-parenting
+                || (prev instanceof Element && ((Element) prev).isBlock())
+                ;
+            if (couldSkip && isBlank) return;
+
+            if (
+                (siblingIndex == 0 && parent != null && parent.tag().formatAsBlock() && !isBlank) ||
+                (out.outline() && siblingNodes().size() > 0 && !isBlank) ||
+                (siblingIndex > 0 && isNode(prev, "br")) // special case wrap on inline <br> - doesn't make sense as a block tag
+            )
+                indent(accum, depth, out);
+        }
+
+        Entities.escape(accum, coreValue(), out, false, normaliseWhite, trimLeading, trimTrailing);
+    }
+
+    @Override
+    public void outerHtmlTail(Appendable accum, int depth, Document.OutputSettings out) throws IOException {}
+
+    @Override
+    public String toString() {
+        return outerHtml();
+    }
+
+    private TextNode clone() {
+        return (TextNode) super.clone();
+    }
+
+    /**
+     * Create a new TextNode from HTML encoded (aka escaped) data.
+     * @param encodedText Text containing encoded HTML (e.g. {@code &lt;})
+     * @return TextNode containing unencoded data (e.g. {@code <})
+     */
+    public static TextNode createFromEncoded(String encodedText) {
+        String text = Entities.unescape(encodedText);
+        return new TextNode(text);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class TextNodeTest {
+    private TextNode mockTextNode;
+
+    @Before
+    public void setUp() {
+        mockTextNode = new TextNodeMock();
+    }
+
+    /**
+     * Test if a text node is blank -- that is, empty or only whitespace (including newlines).
+     * @return true if this document is empty or only whitespace, false if it contains any text content.
+     */
+    public void testIsBlank() {
+        // Arrange
+        String text = mockTextNode.text("   ");
+        Document doc = mockTextNode;
+
+        // Act
+        boolean result = doc.isBlank();
+
+        // Assert
+        assert result;
+    }
+
+    /**
+     * Test if a new TextNode can be created from HTML encoded data.
+     */
+    public void testCreateFromEncoded() {
+        // Arrange
+        String encodedText = "Hello, World!";
+        Document document = mockTextNode;
+
+        // Act
+        TextNode newText = document.createFromEncoded(encodedText);
+
+        // Assert
+        assert newText != null;
+    }
+
+    /**
+     * Test if the toString method returns a valid HTML string.
+     */
+    public void testToString() {
+        // Arrange
+        String text = mockTextNode.toString();
+
+        // Act
+        Document document = mockTextNode;
+
+        // Assert
+        assert !text.isEmpty();
+    }
+}
+
+public class TextNodeMock implements TextNode, Appendable {
+    private String value;
+
+    @Override
+    public void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        final boolean prettyPrint = out.prettyPrint();
+        final Element parent = parentNode instanceof Element ? ((Element) parentNode) : null;
+        final boolean normaliseWhite = prettyPrint && !Element.preserveWhitespace(parentNode);
+        final boolean trimLikeBlock = parent != null && (parent.tag().isBlock() || parent.tag().formatAsBlock());
+        boolean trimLeading = false, trimTrailing = false;
+
+        if (normaliseWhite) {
+            trimLeading = (trimLikeBlock && siblingIndex == 0) || parentNode instanceof Document;
+            trimTrailing = trimLikeBlock && nextSibling() == null;
+
+            // if this text is just whitespace, and the next node will cause an indent, skip this text:
+            Node next = nextSibling();
+            Node prev = previousSibling();
+            boolean isBlank = isBlank();
+            boolean couldSkip = (next instanceof Element && ((Element) next).shouldIndent(out)) // next will indent
+                    || (next instanceof TextNode && (((TextNode) next).isBlank())) // next is blank text, from re-parenting
+                    || (prev instanceof Element && ((Element) prev).isBlock())
+                    ;
+            if (couldSkip && isBlank) return;
+
+            if (
+                    (siblingIndex == 0 && parent != null && parent.tag().formatAsBlock() && !isBlank) ||
+                            (out.outline() && siblingNodes().size() > 0 && !isBlank) ||
+                            (siblingIndex > 0 && isNode(prev, "br")) // special case wrap on inline <br> - doesn't make sense as a block tag
+                    )
+                indent(accum, depth, out);
+        }
+
+        Entities.escape(accum, coreValue(), out, false, normaliseWhite, trimLeading, trimTrailing);
+    }
+
+    @Override
+    public void outerHtmlTail(Appendable accum, int depth, Document.OutputSettings out) throws IOException {}
+
+    @Override
+    public String toString() {
+        return outerHtml();
+    }
+
+    private TextNode clone() {
+        return (TextNode) super.clone();
+    }
+
+    /**
+     * Create a new TextNode from HTML encoded (aka escaped) data.
+     * @param encodedText Text containing encoded HTML (e.g. {@code &lt;})
+     * @return TextNode containing unencoded data (e.g. {@code <})
+     */
+    public static TextNode createFromEncoded(String encodedText) {
+        String text = Entities.unescape(encodedText);
+        return new TextNode(text);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class TextNodesTest {
+    private Document document;
+
+    @Before
+    public void setUp() {
+        document = mockDocument();
+    }
+
+    /**
+     * Test if a text node is blank -- that is, empty or only whitespace (including newlines).
+     */
+    public void testIsBlank() {
+        // Act
+        TextNode textNode = document.getTextNode("   ");
+
+        // Assert
+        assert textNode.isBlank();
+    }
+
+    /**
+     * Test creating a new TextNode from HTML encoded data.
+     */
+    public void testCreateFromEncoded() {
+        // Arrange
+        String encodedText = "Hello, World!";
+        document = mockDocument();
+
+        // Act
+        TextNode newText = document.createFromEncoded(encodedText);
+
+        // Assert
+        assert newText != null;
+        assert !newText.getText().isEmpty();
+    }
+
+    /**
+     * Test that toString returns a valid HTML string.
+     */
+    public void testToString() {
+        // Arrange
+        String text = document.getText();
+
+        // Act
+        Document document = mockDocument();
+
+        // Assert
+        assert !text.isEmpty();
+        assert document.toString().contains("<p>");
+    }
+
+    private Document mockDocument() {
+        Document doc = new Document("Test HTML");
+        doc.appendText("Hello, World!");
+        return doc;
+    }
+}
+
+class Document {
+    private String html;
+
+    public Document(String html) {
+        this.html = html;
+    }
+
+    @Override
+    public String toString() {
+        return html;
+    }
+
+    public String appendText(String text) {
+        this.html += text + "</p>";
+        return this.html;
+    }
+}
+
+class DocumentOutputSettings implements Appendable.Document.OutputSettings {
+    private boolean prettyPrint;
+
+    public boolean getPrettyPrint() {
+        return prettyPrint;
+    }
+
+    public void setPrettyPrint(boolean prettyPrint) {
+        this.prettyPrint = prettyPrint;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.util.List;
+
+public class TextNodeListTest {
+    private Document document;
+
+    @Before
+    public void setUp() {
+        document = mockDocument();
+    }
+
+    /**
+     * Test if a text node list can be created from HTML encoded data.
+     */
+    public void testCreateFromEncoded() {
+        // Arrange
+        String encodedText = "Hello, World!";
+
+        // Act
+        List<TextNode> textNodes = document.createFromEncoded(encodedText);
+
+        // Assert
+        assert !textNodes.isEmpty();
+        for (TextNode node : textNodes) {
+            assert !node.isBlank();
+        }
+    }
+
+    /**
+     * Test that appending elements to a TextNodeList returns the correct order.
+     */
+    public void testAppend() {
+        // Arrange
+        Document document = mockDocument();
+        List<TextNode> textNodes = document.getTextNode("Hello, World!");
+
+        // Act
+        textNodes.addAll(document.appendText(" Foo! Bar."));
+
+        // Assert
+        assert !textNodes.isEmpty();
+        for (TextNode node : textNodes) {
+            assert !node.isBlank();
+        }
+    }
+
+    /**
+     * Test that removing elements from a TextNodeList returns the correct order.
+     */
+    public void testRemove() {
+        // Arrange
+        Document document = mockDocument();
+        List<TextNode> textNodes = document.getTextNode("Hello, World!");
+        textNodes.remove(0);
+
+        // Act
+        document.appendText(" Foo! Bar.");
+
+        // Assert
+        assert !textNodes.isEmpty();
+        for (TextNode node : textNodes) {
+            assert !node.isBlank();
+        }
+    }
+
+    private Document mockDocument() {
+        Document doc = new Document("Test HTML");
+        doc.appendText("Hello, World!");
+        return doc;
+    }
+}
+
+class List<T extends TextNode> {
+    private T head;
+
+    public void addAll(T... elements) {
+        while (elements.length > 0) {
+            head = append(head, elements[0]);
+        }
+    }
+
+    private <T extends TextNode> T append(T node, T element) {
+        if (!(element instanceof T)) {
+            throw new RuntimeException("Elements must be of the same type");
+        }
+        return ((List<T>) document).head;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        traverse(node -> builder.append(node).append(" "));
+        return builder.toString();
+    }
+
+    private void traverse(T node) {
+        if (node != null) {
+            for (T child : node.getChildren()) {
+                traverse(child);
+            }
+        }
+    }
+
+    private List<T> children(List<T> parent) {
+        for (T child : parent.getChildren()) {
+            return append(child, new List<>(child));
+        }
+        return new ArrayList<>();
+    }
+
+    private class Document extends DocumentOutputSettings {
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            traverse(node -> builder.append(node).append(" "));
+            return builder.toString();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.util.*;
+
+public class NodeTraversalTest {
+    private Document document;
+
+    @Before
+    public void setUp() {
+        document = mockDocument();
+    }
+
+    /**
+     * Test if a text node list can be created from HTML encoded data.
+     */
+    public void testCreateFromEncoded() {
+        // Arrange
+        String encodedText = "Hello, World! Foo Bar";
+
+        // Act
+        List<TextNode> textNodes = document.createFromEncoded(encodedText);
+
+        // Assert
+        assert !textNodes.isEmpty();
+        for (TextNode node : textNodes) {
+            assert !node.isBlank();
+        }
+    }
+
+    /**
+     * Test that appending elements to a TextNodeList returns the correct order.
+     */
+    public void testAppend() {
+        // Arrange
+        Document document = mockDocument();
+
+        // Act
+        List<TextNode> textNodes = document.getTextNode("Hello, World!");
+        List<TextNode> appendedTextNodes = new ArrayList<>(textNodes);
+        appendedTextNodes.add(0, document.appendText(" Foo! Bar."));
+
+        // Assert
+        assert !appendedTextNodes.isEmpty();
+        for (TextNode node : appendedTextNodes) {
+            assert !node.isBlank();
+        }
+    }
+
+    /**
+     * Test that removing elements from a TextNodeList returns the correct order.
+     */
+    public void testRemove() {
+        // Arrange
+        Document document = mockDocument();
+
+        // Act
+        List<TextNode> textNodes = document.getTextNode("Hello, World!");
+        textNodes.remove(0);
+        List<TextNode> appendedTextNodes = new ArrayList<>(textNodes);
+
+        // Assert
+        assert !appendedTextNodes.isEmpty();
+        for (TextNode node : appendedTextNodes) {
+            assert !node.isBlank();
+        }
+    }
+
+    private Document mockDocument() {
+        Document doc = new Document("Test HTML");
+        doc.appendText("Hello, World!");
+        return doc;
+    }
+
+    private class Document extends DocumentOutputSettings {
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            traverse(node -> builder.append(node).append(" "));
+            return builder.toString();
+        }
+    }
+}
+
+class Node<T> {
+    private T text;
+
+    public T getText() {
+        return text;
+    }
+
+    public void setText(T text) {
+        this.text = text;
+    }
+
+    public List<T> getChildren() {
+        return children(this);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        traverse(node -> builder.append(node).append(" "));
+        return builder.toString();
+    }
+
+    private List<Node<T>> children(Node<T> parent) {
+        for (T child : text) {
+            if (!child.isBlank()) {
+                return append(child, parent);
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void traverse(TraversalConsumer<T> consumer) {
+        if (text != null && !consumer.accept(text)) {
+            throw new RuntimeException("Elements must be of the same type");
+        }
+        for (T child : text) {
+            consumer.accept(child);
+        }
+    }
+
+    private class TraversalConsumer<T> implements Consumer<T> {
+        @Override
+        public void accept(T node) {
+            System.out.println(node.getText());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,540 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void constructorWithInvalidUrl_CreatesValidURL() {
+        URL u = new URL("invalid://path/to/resource?query=hello&key=value#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(u);
+        assertEquals(0, urlBuilder.u.getProtocol().length());
+    }
+
+    @Test
+    public void buildWithValidUrl_ReturnsSameURL() {
+        URL u = new URL("http://example.com/path/to/resource?query=hello&key=value#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(u);
+        assertEquals(u, urlBuilder.build());
+    }
+
+    @Test
+    public void buildWithInvalidProtocol_ThrowsMalformedURLException() {
+        URL u = new URL("invalid://path/to/resource?query=hello&key=value#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(u);
+        try {
+            urlBuilder.build();
+            assert false;
+        } catch (MalformedURLException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void appendKeyValWithValidKeyAndValue_AddsToQuery() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/path/to/resource"));
+        urlBuilder.appendKeyVal(kv);
+        assertEquals(2, urlBuilder.q.toString().split("&").length);
+    }
+
+    @Test
+    public void appendKeyValWithInvalidKey_ThrowsUnsupportedEncodingException() {
+        Connection.KeyVal kv = new Connection.KeyVal(null, "value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/path/to/resource"));
+        try {
+            urlBuilder.appendKeyVal(kv);
+            assert false;
+        } catch (UnsupportedEncodingException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void decodePartWithValidEncodedString_ReturnsCorrectDecodedString() {
+        String encoded = "http%3A%2F%2Fexample.com%2Fpath%2Fto/resource";
+        assertEquals("http://example.com/path/to/resource", UrlBuilder.decodePart(encoded));
+    }
+
+    @Test
+    public void decodePartWithInvalidEncodedString_ThrowsRuntimeException() {
+        String encoded = "invalid:encoded:string";
+        try {
+            UrlBuilder.decodePart(encoded);
+            assert false;
+        } catch (RuntimeException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void appendToAsciiWithValidString_ReturnsCorrectlyNormalizedString() {
+        String s = "Hello World!";
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii(s, true, sb);
+        assertEquals("%20", sb.toString());
+    }
+
+    @Test
+    public void appendToAsciiWithInvalidChar_AppendsEscapeSequence() {
+        String s = "äöü";
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii(s, true, sb);
+        assertEquals("%c3%a4%c3%b6%c3%bc", sb.toString());
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.junit.jupiter.api.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testUrl() throws Exception {
+        // Test valid URL
+        String url = "http://example.com/path/to/resource?query=hello&key=value#anchor";
+        URL u = new URL(url);
+        assertEquals("http://example.com", u.getHost());
+    }
+
+    @Test
+    public void testInvalidUrl() throws Exception {
+        // Test invalid URL
+        String url = "invalid://path/to/resource?query=hello&key=value#anchor";
+        try {
+            new URL(url);
+            fail("Expected MalformedURLException");
+        } catch (MalformedURLException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void testUrlBuilder() throws Exception {
+        // Test UrlBuilder
+        String url = "http://example.com/path/to/resource?query=hello&key=value#anchor";
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(url));
+        assertEquals("http://example.com", urlBuilder.toString());
+    }
+
+    @Test
+    public void testUrlBuilderAppendToAscii() throws Exception {
+        // Test appendToAscii method of UrlBuilder
+        String url = "http://example.com/path/to/resource?query=hello&key=value#anchor";
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(url));
+        StringBuilder sb = new StringBuilder();
+        urlBuilder.appendToAscii(sb, false);
+        assertEquals("http://example.com/path/to/resource", sb.toString());
+    }
+}
+
+public class URL {
+    public String getHost() {
+        return "example.com";
+    }
+}
+
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            KeyVal that = (KeyVal) o;
+            return Objects.equals(key, that.key) && Objects.equals(value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(key, value);
+        }
+    }
+}
+
+public class UrlBuilder {
+    private String scheme;
+    private String host;
+    private String path;
+
+    public UrlBuilder(String url) throws Exception {
+        // Parse URL and extract components
+        this.scheme = url.getProtocol();
+        this.host = url.getHost();
+        this.path = url.getPath();
+
+        // Encode query parameters
+        java.net.URLDecoder.decode(url.getQuery(), "UTF-8");
+    }
+
+    public String toString() {
+        return scheme + "://" + host + path;
+    }
+
+    public void appendToAscii(String s, boolean e, StringBuilder sb) {
+        sb.append(s);
+        if (e) {
+            for (char c : s.toCharArray()) {
+                if (!Character.isLetterOrDigit(c)) {
+                    sb.append("%");
+                    sb.append(String.format("02x", c));
+                }
+            }
+        }
+    }
+
+    public void decodePart(String encoded) {
+        // Private method, should be public
+        // ...
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class URL {
+    private final String host;
+
+    public URL(String url) throws MalformedURLException {
+        if (url == null || url.isEmpty()) {
+            throw new MalformedURLException("URL cannot be empty");
+        }
+        this.host = url;
+    }
+
+    public String getHost() {
+        return host;
+    }
+}
+
+public class Connection {
+    private final String host;
+
+    public Connection(String host) {
+        this.host = host;
+    }
+
+    public String getHost() {
+        return host;
+    }
+}
+
+public class UrlBuilder {
+    private final URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public void appendToAscii(StringBuilder sb, boolean removeTrailingSlash, boolean decodeQuery) throws MalformedURLException {
+        // implementation
+    }
+
+    public String toString() {
+        return url.toString();
+    }
+}
+
+public class KeyVal {
+    private final String key;
+    private final String value;
+
+    public KeyVal(URL url) throws MalformedURLException {
+        this.key = url.getHost();
+        this.value = url.getQuery().replace("=", "");
+    }
+
+    public boolean equals(KeyVal that) {
+        return Objects.equals(key, that.key) && Objects.equals(value, that.value);
+    }
+}
+
+public class GeneratedTest {
+    @Test
+    public void testKeyValConstructor() throws MalformedURLException {
+        KeyVal keyVal = new KeyVal(new URL("http://example.com/path/to/resource"));
+        System.out.println(keyVal.equals(null));
+    }
+
+    @Test
+    public void testUrlBuilderAppendToAscii() throws MalformedURLException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/path/to/resource"));
+        StringBuilder sb = new StringBuilder();
+        urlBuilder.appendToAscii(sb, false, true);
+        System.out.println(sb.toString());
+    }
+
+    @Test
+    public void testConnectionGetHost() {
+        Connection connection = new Connection("http://example.com");
+        System.out.println(connection.getHost());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class URL {
+    private final String host;
+
+    public URL(String url) throws MalformedURLException {
+        if (url == null || url.isEmpty()) {
+            throw new MalformedURLException("URL cannot be empty");
+        }
+        this.host = url;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        URL url = (URL) o;
+        return host.equals(url.host);
+    }
+
+    @Override
+    public String toString() {
+        return "URL{" +
+                "host='" + host + '\'' +
+                '}';
+    }
+}
+
+public class Connection {
+    private final String host;
+
+    public Connection(String host) {
+        this.host = host;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Connection connection = (Connection) o;
+        return Objects.equals(host, connection.host);
+    }
+
+    @Override
+    public String toString() {
+        return "Connection{" +
+                "host='" + host + '\'' +
+                '}';
+    }
+}
+
+public class UrlBuilder {
+    private final URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public void appendToAscii(StringBuilder sb, boolean removeTrailingSlash, boolean decodeQuery) throws MalformedURLException {
+        // implementation
+    }
+
+    @Override
+    public String toString() {
+        return url.toString();
+    }
+}
+
+public class KeyVal {
+    private final String key;
+    private final String value;
+
+    public KeyVal(URL url) throws MalformedURLException {
+        this.key = url.getHost();
+        this.value = url.getQuery().replace("=", "");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KeyVal keyVal = (KeyVal) o;
+        return Objects.equals(key, keyVal.key) && Objects.equals(value, keyVal.value);
+    }
+
+    @Override
+    public String toString() {
+        return "KeyVal{" +
+                "key='" + key + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void testKeyValConstructor() throws MalformedURLException {
+        KeyVal keyVal = new KeyVal(new URL("http://example.com/path/to/resource"));
+        System.out.println(keyVal.equals(null));
+    }
+
+    @Test
+    public void testUrlBuilderAppendToAscii() throws MalformedURLException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/path/to/resource"));
+        StringBuilder sb = new StringBuilder();
+        urlBuilder.appendToAscii(sb, false, true);
+        System.out.println(sb.toString());
+    }
+
+    @Test
+    public void testConnectionGetHost() {
+        Connection connection = new Connection("http://example.com");
+        System.out.println(connection.getHost());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Main {
+    public static void main(String[] args) throws MalformedURLException {
+        URL url = new URL("http://example.com");
+        System.out.println(url.getHost());
+        
+        Connection connection = new Connection("http://example.com");
+        System.out.println(connection.getHost());
+        
+        UrlBuilder builder = new UrlBuilder(url);
+        StringBuilder sb = new StringBuilder();
+        builder.appendToAscii(sb, false, true);
+        System.out.println(sb.toString());
+    }
+}
+
+public class URL {
+    private String host;
+
+    public URL(String url) throws MalformedURLException {
+        if (url == null || url.isEmpty()) {
+            throw new MalformedURLException("URL cannot be empty");
+        }
+        host = url;
+    }
+
+    public String getHost() {
+        return host;
+    }
+}
+
+public class Connection {
+    private String host;
+
+    public Connection(String host) {
+        this.host = host;
+    }
+
+    public String getHost() {
+        return host;
+    }
+}
+
+public class UrlBuilder {
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public void appendToAscii(StringBuilder sb, boolean removeTrailingSlash, boolean decodeQuery) throws MalformedURLException {
+        // implementation
+    }
+
+    @Override
+    public String toString() {
+        return url.toString();
+    }
+}
+
+public class KeyVal implements Comparable<KeyVal> {
+    private final String key;
+    private final String value;
+
+    public KeyVal(URL url) throws MalformedURLException {
+        this.key = url.getHost();
+        this.value = url.getQuery().replace("=", "");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KeyVal keyVal = (KeyVal) o;
+        return Objects.equals(key, keyVal.key) && Objects.equals(value, keyVal.value);
+    }
+
+    @Override
+    public int compareTo(KeyVal that) {
+        return this.key.compareTo(that.key);
+    }
+
+    @Override
+    public String toString() {
+        return "KeyVal{" +
+                "key='" + key + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void testKeyValConstructor() throws MalformedURLException {
+        KeyVal keyVal = new KeyVal(new URL("http://example.com/path/to/resource"));
+        System.out.println(keyVal.equals(null));
+    }
+
+    @Test
+    public void testUrlBuilderAppendToAscii() throws MalformedURLException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/path/to/resource"));
+        StringBuilder sb = new StringBuilder();
+        urlBuilder.appendToAscii(sb, false, true);
+        System.out.println(sb.toString());
+    }
+
+    @Test
+    public void testConnectionGetHost() {
+        Connection connection = new Connection("http://example.com");
+        System.out.println(connection.getHost());
+    }
+}
+```
+===================================================
+

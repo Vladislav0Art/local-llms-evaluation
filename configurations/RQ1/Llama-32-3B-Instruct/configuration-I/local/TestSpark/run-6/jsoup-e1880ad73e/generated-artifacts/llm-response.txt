@@ -1,0 +1,627 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void newUrlBuilder() {
+        URL u = new URL("http://example.com/path");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals(u, builder.u);
+        assertNull(builder.q);
+    }
+
+    @Test
+    public void buildUrl() {
+        URL u = new URL("http://example.com/path?key=value&space+as+plus#anchor");
+        UrlBuilder builder = new UrlBuilder(u);
+        builder.build();
+        URI uri = u.getURI();
+        assertEquals("http://example.com/path", uri.getHost());
+        assertEquals("value", uri.getQuery().getValues().iterator().next());
+    }
+
+    @Test
+    public void buildUrlWithNonAsciiPath() {
+        URL u = new URL("http://example.com/äoth?key=value&space+as+plus#anchor");
+        UrlBuilder builder = new UrlBuilder(u);
+        builder.build();
+        URI uri = u.getURI();
+        assertEquals("äoth", uri.getPath());
+    }
+
+    @Test
+    public void appendKeyVal() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path"));
+        builder.appendKeyVal(kv);
+        assertEquals("key=value", StringUtil.toString(builder.q));
+    }
+
+    @Test
+    public void appendKeyValWithMultipleQuery() {
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path"));
+        builder.appendKeyVal(kv1);
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+        builder.appendKeyVal(kv2);
+        assertEquals("key1=value1&key2=value2", StringUtil.toString(builder.q));
+    }
+
+    @Test
+    public void appendToAscii() {
+        StringBuilder sb = new StringBuilder();
+        String s = "äoth";
+        UrlBuilder.builder.appendToAscii(s, true, sb);
+        assertEquals("%e0th", sb.toString());
+    }
+
+    @Test
+    public void decodePart() {
+        String encoded = "%E0th";
+        assertEquals("äoth", UrlBuilder.decodePart(encoded));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void buildUrlWithInvalidEncoding() {
+        URL u = new URL("http://example.com/path?key=value");
+        UrlBuilder builder = new UrlBuilder(u);
+        builder.build();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class URL {
+    private String scheme;
+    private String userInfo;
+    private String host;
+    private int port;
+    private String path;
+    private String query;
+    private String fragment;
+
+    public URL(String url) {
+        if (url == null || !url.getClass().equals(URL.class)) {
+            throw new IllegalArgumentException("Invalid URL");
+        }
+    }
+
+    // getters and setters
+}
+
+public class URLBuilder {
+    private URL url;
+
+    public static URLBuilder builder() {
+        return new URLBuilder();
+    }
+
+    public String appendToAscii(String s, boolean isQuery, StringBuilder sb) {
+        if (!isQuery) {
+            url = new URL("http://example.com/path");
+            sb.append(url.getScheme());
+            sb.append("://");
+            sb.append(url.getHost());
+            sb.append('/');
+            sb.append(url.getPath());
+        }
+        return sb.toString();
+    }
+
+    public String getURI() {
+        return url.getScheme() + "://" + url.getHost() + "/" + url.getPath() + "?" + url.getQuery() + "#" + url.getFragment();
+    }
+
+    // getters and setters
+}
+
+public class ConnectionKeyVal {
+    private String key;
+    private String value;
+
+    public static ConnectionKeyVal builder() {
+        return new ConnectionKeyVal();
+    }
+
+    public void appendTo(String s, boolean isQuery, StringBuilder sb) {
+        if (!isQuery) {
+            url = new URL("http://example.com/path");
+            sb.append(url.getScheme());
+            sb.append("://");
+            sb.append(url.getHost());
+            sb.append('/');
+            sb.append(url.getPath());
+        }
+        sb.append(key + "=" + value);
+    }
+
+    // getters and setters
+}
+
+public class StringUtil {
+    public static String toString(StringBuilder builder) {
+        return builder.toString();
+    }
+}
+
+class GeneratedTest {
+    @Test
+    public void testURL() {
+        URL url = new URL("http://example.com/path?key=value&key2=value2");
+        assertEquals("http://example.com/path", url.getScheme());
+        assertEquals("//example.com/", url.getHost());
+        assertEquals("/path", url.getPath());
+        assertEquals("key=value&key2=value2", url.getQuery());
+        assertEquals("", url.getFragment());
+    }
+
+    @Test
+    public void testURLBuilder() {
+        URLBuilder builder = UrlBuilder.builder();
+        StringBuilder sb = new StringBuilder();
+        String result = builder.appendToAscii(sb, true, sb);
+        assertEquals("key=value&key2=value2", result);
+    }
+
+    @Test
+    public void testConnectionKeyVal() {
+        ConnectionKeyVal kv1 = ConnectionKeyVal.builder();
+        ConnectionKeyVal kv2 = ConnectionKeyVal.builder();
+        StringBuilder sb = new StringBuilder();
+        String result = kv1.appendTo(sb, true, sb) + "&" + kv2.appendTo(sb, true, sb);
+        assertEquals("key=value&key1=value1", StringUtil.toString(sb));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class URL {
+    private String scheme;
+    private String userInfo;
+    private String host;
+    private int port;
+    private String path;
+    private String query;
+    private String fragment;
+
+    public URL(String url) {
+        String[] parts = url.split(":");
+        if (parts.length == 2 && parts[0].equals("http")) {
+            this.scheme = "http";
+            String[] hostAndPort = parts[1].split("/");
+            this.host = hostAndPort[0];
+            this.port = Integer.parseInt(hostAndPort[1]);
+            parts = url.split("/", 4);
+            if (parts.length == 3) {
+                this.path = "/" + parts[2] + "?" + parts[3];
+            } else {
+                this.path = "/";
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid URL");
+        }
+    }
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public String getUserInfo() {
+        return userInfo;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public String getFragment() {
+        return fragment;
+    }
+}
+
+public class URLBuilder {
+    private URL url;
+
+    public static URLBuilder builder() {
+        return new URLBuilder();
+    }
+
+    public void setScheme(String scheme) {
+        this.url = new URL("http://" + scheme);
+    }
+
+    public void setUserInfo(String userInfo) {
+        this.url = new URL("http://" + userInfo);
+    }
+
+    public void setHost(int host, int port) {
+        url = new URL("http://localhost:" + host + "/" + url.getPath());
+    }
+
+    public void appendToAscii(String s, boolean isQuery, StringBuilder sb) {
+        if (!isQuery) {
+            url = new URL(url.getScheme() + "://" + url.getHost() + "/" + url.getPath());
+        }
+        sb.append(url.getScheme());
+        sb.append("://");
+        sb.append(url.getHost());
+        sb.append('/');
+        sb.append(url.getPath());
+    }
+
+    public String getURI() {
+        return url.getScheme() + "://" + url.getHost() + "/" + url.getPath() + "?" + url.getQuery() + "#" + url.getFragment();
+    }
+}
+
+public class ConnectionKeyVal {
+    private String key;
+    private String value;
+
+    public static ConnectionKeyVal builder() {
+        return new ConnectionKeyVal();
+    }
+
+    public void appendTo(String s, boolean isQuery, StringBuilder sb) {
+        URLBuilder builder = UrlBuilder.builder();
+        builder.setScheme(s);
+        if (isQuery) {
+            sb.append(builder.getURI());
+        } else {
+            sb.append(builder.getScheme());
+            sb.append("://");
+            sb.append(builder.getHost());
+            sb.append('/');
+            sb.append(builder.getPath());
+        }
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}
+
+public class StringUtil {
+    public static String toString(StringBuilder builder) {
+        return builder.toString();
+    }
+}
+
+class GeneratedTest {
+    @Test
+    public void testURL() {
+        URL url = new URL("http://example.com/path?key=value&key2=value2");
+        assertEquals("http", url.getScheme());
+        assertEquals("", url.getUserInfo());
+        assertEquals("example.com", url.getHost());
+        assertEquals(80, url.getPort());
+        assertEquals("/path", url.getPath());
+        assertEquals("key=value&key2=value2", url.getQuery());
+        assertEquals("", url.getFragment());
+    }
+
+    @Test
+    public void testURLBuilder() {
+        URLBuilder builder = UrlBuilder.builder();
+        StringBuilder sb = new StringBuilder();
+        String result = builder.appendToAscii(sb, true, sb);
+        assertEquals("key=value&key2=value2", result);
+    }
+
+    @Test
+    public void testConnectionKeyVal() {
+        ConnectionKeyVal kv1 = ConnectionKeyVal.builder();
+        ConnectionKeyVal kv2 = ConnectionKeyVal.builder();
+        StringBuilder sb = new StringBuilder();
+        String result = kv1.appendTo(sb, true, sb) + "&" + kv2.appendTo(sb, true, sb);
+        assertEquals("key=value&key1=value1", StringUtil.toString(sb));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class URL {
+    private String scheme;
+    private String userInfo;
+    private String host;
+    private int port;
+    private String path;
+    private String query;
+    private String fragment;
+
+    public URL() {}
+
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+
+    public void setUserInfo(String userInfo) {
+        this.userInfo = userInfo;
+    }
+
+    public void setHost(int host, int port) {
+        this.host = Integer.toString(host);
+        this.port = port;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public String getUserInfo() {
+        return userInfo;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return Integer.parseInt(host);
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public String getFragment() {
+        return fragment;
+    }
+}
+
+public class URLBuilder {
+    private String scheme;
+    private String userInfo;
+    private int host;
+    private int port;
+    private String path;
+
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+
+    public void setUserInfo(String userInfo) {
+        this.userInfo = userInfo;
+    }
+
+    public void setHost(int host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    public String getURI() {
+        return scheme + "://" + userInfo + "/" + path;
+    }
+}
+
+public class ConnectionKeyVal {
+    private String key;
+    private String value;
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}
+
+class GeneratedTest {
+    @Test
+    public void testURL() {
+        URL url = new URL();
+        url.setScheme("http");
+        url.setHost(80, 80);
+        url.setPath("/path");
+        url.setQuery("key=value&key2=value2");
+        assertEquals("", url.getUserInfo());
+        assertEquals(Integer.toString(80), url.getHost());
+        assertEquals(80, url.getPort());
+        assertEquals("/path", url.getPath());
+        assertEquals("key=value&key2=value2", url.getQuery());
+        assertEquals("", url.getFragment());
+    }
+
+    @Test
+    public void testURLBuilder() {
+        URLBuilder builder = new URLBuilder();
+        String result = "";
+        builder.setScheme("http");
+        builder.setHost(80, 80);
+        builder.setPath("/path");
+        result += builder.getURI();
+        assertEquals("", result);
+    }
+
+    @Test
+    public void testConnectionKeyVal() {
+        ConnectionKeyVal kv1 = new ConnectionKeyVal();
+        ConnectionKeyVal kv2 = new ConnectionKeyVal();
+        String result = "";
+        kv1.setKey("key");
+        kv1.setValue("value");
+        result += kv2.appendTo(result, true);
+        assertEquals("key=value", StringUtil.toString(result));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class URL {
+    private String scheme;
+    private String userInfo;
+    private int host;
+    private int port;
+    private String path;
+    private String query;
+    private String fragment;
+
+    public URL() {}
+
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+
+    public void setHost(int host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    public void setFragment(String fragment) {
+        this.fragment = fragment;
+    }
+}
+
+public class URLBuilder {
+    private String scheme;
+    private String userInfo;
+    private int host;
+    private int port;
+    private String path;
+
+    public String getURI() {
+        return scheme + "://" + userInfo + "/" + path;
+    }
+
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+
+    public void setHost(int host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+}
+
+public class ConnectionKeyVal {
+    private String key;
+    private String value;
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}
+
+class GeneratedTest {
+    @Test
+    public void testURL() {
+        URL url = new URL();
+        url.setScheme("http");
+        url.setHost(80, 80);
+        url.setPath("/path");
+        url.setQuery("key=value&key2=value2");
+        assertEquals("", url.getUserInfo());
+        assertEquals(Integer.toString(80), url.getHost());
+        assertEquals(80, url.getPort());
+        assertEquals("/path", url.getPath());
+        assertEquals("key=value&key2=value2", url.getQuery());
+        assertEquals("", url.getFragment());
+    }
+
+    @Test
+    public void testURLBuilder() {
+        URLBuilder builder = new URLBuilder();
+        String result = "";
+        builder.setScheme("http");
+        builder.setHost(80, 80);
+        builder.setPath("/path");
+        result += builder.getURI();
+        assertEquals("", result);
+    }
+
+    @Test
+    public void testConnectionKeyVal() {
+        ConnectionKeyVal kv1 = new ConnectionKeyVal();
+        ConnectionKeyVal kv2 = new ConnectionKeyVal();
+        String result = "";
+        kv1.setKey("key");
+        kv1.setValue("value");
+        result += kv2.appendTo(result, true);
+        assertEquals("key=value", StringUtil.toString(result));
+    }
+}
+```
+===================================================
+

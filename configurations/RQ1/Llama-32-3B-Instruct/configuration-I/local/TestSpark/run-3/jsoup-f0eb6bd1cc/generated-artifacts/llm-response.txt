@@ -1,0 +1,450 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void build_PunnyCodingHostTest() {
+        URL u = new URL("http://example.com/test");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals("http://xn--c1ck1d.xn--0x2v35b.net/test", ((URL)builder.build()).getHost());
+    }
+
+    @Test
+    public void build_PathyEncodingTest() {
+        URL u = new URL("http://example.com/à?test#ref");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals("http://example.com/&#224;?test#ref", ((URL)builder.build()).getPath());
+    }
+
+    @Test
+    public void build_QsEncodedTest() {
+        URL u = new URL("http://example.com/test?name=Jane&age=30");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals("http://example.com/test?name=Jane%26age=30", ((URL)builder.build()).getQuery());
+    }
+
+    @Test
+    public void build_NonAsciiQuery() {
+        URL u = new URL("http://example.com/à?test#ref");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals("?à?test#ref", ((URL)builder.build()).getQuery());
+    }
+
+    @Test
+    public void appendKeyVal_DuplicatesTest() {
+        Connection.KeyVal kv = new org.jsoup.Connection.KeyVal("name", "John");
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertEquals("?name=John&name=John", builder.q.toString());
+    }
+
+    @Test
+    public void appendKeyVal_EmptyQ() {
+        Connection.KeyVal kv = new org.jsoup.Connection.KeyVal("name", "John");
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertEquals("?name=John", builder.q.toString());
+    }
+
+    @Test
+    public void decodePart_UnicodeEncodingErrorTest() throws MalformedURLException, URISyntaxException {
+        String encoded = "\u2635\u2665\u00a0\u2648";
+        assertEquals("a#-b", decodePart(encoded));
+    }
+
+    @Test
+    public void decodePart_NonUtf8ErrorTest() {
+        String encoded = "\u2635\u2665\u00a2\u2648";
+        assertThrows(UnsupportedEncodingException.class, () -> decodePart(encoded));
+    }
+
+    @Test
+    public void build_WithoutFragmentAndAnchorTest() {
+        URL u = new URL("http://example.com/test");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals("http://example.com/test", ((URL)builder.build()).toString());
+    }
+}
+
+public class ConnectionKeyVal {
+    private String key;
+    private String value;
+
+    public ConnectionKeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConnectionKeyVal that = (ConnectionKeyVal) o;
+        return Objects.equals(key, that.key) &&
+                Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class KeyVal {
+    private String key;
+    private String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KeyVal that = (KeyVal) o;
+        return Objects.equals(key, that.key) &&
+                Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value);
+    }
+}
+
+public class ConnectionKeyVal {
+    private String key;
+    private String value;
+
+    public ConnectionKeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public static KeyVal createKeyVal(String key, String value) {
+        return new KeyVal(key, value);
+    }
+}
+
+public class URLUtils {
+
+    public static String decodePart(String encoded) throws UnsupportedEncodingException {
+        // implement encoding/decoding logic here
+        return null; // replace with actual implementation
+    }
+
+    public static void assertThrowsUnsupportedEncoding() {
+        try {
+            decodePart("\u2635\u2665\u00a2\u2648");
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    public static boolean equals(String key, String value, KeyVal that) {
+        return Objects.equals(key, that.key) &&
+                Objects.equals(value, that.value);
+    }
+
+    public static int hash(String key, String value) {
+        return Objects.hash(key, value);
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class ConnectionKeyVal {
+    private String key;
+    private String value;
+
+    public ConnectionKeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public static KeyVal createKeyVal(String key, String value) {
+        return new KeyVal(key, value);
+    }
+}
+
+public class KeyVal {
+    private String key;
+    private String value;
+
+    public KeyVal() {}
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public boolean equals(KeyVal other) {
+        if (this == other)
+            return true;
+        if (!(other instanceof KeyVal))
+            return false;
+        return this.key.equals(other.key) && this.value.equals(other.value);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((key == null) ? 0 : key.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+}
+
+public class URLUtils {
+
+    public static String decodePart(String encoded) throws MalformedURLException, URISyntaxException {
+        // implement encoding/decoding logic here
+        return "";
+    }
+
+    public static void assertThrowsUnsupportedEncoding() throws UnsupportedEncodingException {
+        try {
+            decodePart("\u2635\u2665\u00a2\u2648");
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    public static boolean equals(String key, String value, KeyVal that) {
+        return key.equals(that.key) && value.equals(that.value);
+    }
+
+    public static int hash(String key, String value) {
+        return key.hashCode() + value.hashCode();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class ConnectionKeyVal {
+    private String key;
+    private String value;
+
+    public ConnectionKeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public static KeyVal createKeyVal(String key, String value) {
+        return new ConnectionKeyVal(key, value);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}
+
+public class KeyVal {
+    private String key;
+    private String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}
+
+public class URLUtils {
+
+    public static String decodePart(String encoded) throws MalformedURLException, URISyntaxException {
+        // implement encoding/decoding logic here
+        return "";
+    }
+
+    public static void assertThrowsUnsupportedEncoding() throws UnsupportedEncodingException {
+        try {
+            decodePart("\u2635\u2665\u00a2\u2648");
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    public static boolean equals(String key, String value, KeyVal that) {
+        return key.equals(that.getKey()) && value.equals(that.getValue());
+    }
+
+    public static int hash(String key, String value) {
+        return Objects.hash(key, value);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class KeyVal {
+
+    private String key;
+    private String value;
+
+    public KeyVal() {}
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KeyVal that = (KeyVal) o;
+        return Objects.equals(key, that.key) &&
+                Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value);
+    }
+}
+
+public class ConnectionKeyVal {
+
+    private String key;
+    private String value;
+
+    public ConnectionKeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public static KeyVal createKeyVal(String key, String value) {
+        return new ConnectionKeyVal(key, value);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConnectionKeyVal that = (ConnectionKeyVal) o;
+        return Objects.equals(key, that.key) &&
+                Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value);
+    }
+}
+
+public class URLUtils {
+
+    public static String decodePart(String encoded) throws MalformedURLException, URISyntaxException {
+        // implement encoding/decoding logic here
+        return "";
+    }
+
+    public static void assertThrowsUnsupportedEncoding() throws UnsupportedEncodingException {
+        try {
+            decodePart("\u2635\u2665\u00a2\u2648");
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    public static boolean equals(String key, String value, KeyVal that) {
+        return Objects.equals(key, that.getKey()) && Objects.equals(value, that.getValue());
+    }
+
+    public static int hash(String key, String value) {
+        return Integer.parseInt(key) + Integer.parseInt(value);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

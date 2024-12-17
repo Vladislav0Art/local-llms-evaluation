@@ -1,0 +1,542 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TextNodeImpl extends LeafNode {
+    private final String value;
+
+    public TextNodeImpl(String text) {
+        super(text);
+        this.value = StringUtil.normaliseWhitespace(getWholeText());
+    }
+
+    @Override
+    public String nodeName() {
+        return "#text";
+    }
+}
+
+public class TextNodeTests {
+
+    @Test
+    public void testIsBlank() {
+        assertFalse(TextNodeImpl.isBlank("   "));
+        assertFalse(TextNodeImpl.isBlank(""));
+        assertFalse(TextNodeImpl.isBlank(null));
+    }
+
+    @Test
+    public void testText() {
+        assertEquals("", TextNodeImpl.getText());
+        assertEquals("<p>Hello, World!</p>", TextNodeImpl.getText("Hello, World!"));
+    }
+
+    @Test
+    public void testTextSet() {
+        TextNodeImpl text = new TextNodeImpl("   Hello");
+        assertEquals("<p>Hello</p>", text.getText());
+    }
+
+    @Test
+    public void testSplitText() {
+        String originalText = "<hello world";
+        TextNodeImpl text1 = new TextNodeImpl(originalText.substring(0, 2));
+        TextNodeImpl text2 = new TextNodeImpl(originalText.substring(5));
+
+        TextNodeImpl result = TextNode.text(text1).splitText(3);
+        assertEquals("Hello", result.getText());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        // Given a document with a root element
+        Document doc = MockDocument.create();
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = Document.OutputSettings.INDENT_NO_NEWLINE;
+
+        TextNodeImpl node = new TextNodeImpl("<p>Hello, World!</p>");
+        node.outerHtmlHead(accum, depth, out);
+
+        // When the method is called
+        outerHtmlHeadTest(accum.toString(), doc, out);
+
+        // Then the result should have been indented correctly
+        assertEquals("Hello\nWorld!", accum.toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Document doc = MockDocument.create();
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = Document.OutputSettings.INDENT_NO_NEWLINE;
+
+        // When the method is called without a tail node
+        outerHtmlTailTest(accum.toString(), doc, out);
+
+        // Then the result should have been cleared
+        assertEquals("Hello\nWorld!", accum.toString());
+    }
+
+    @Test
+    public void testClone() {
+        TextNodeImpl node = new TextNodeImpl("<p>Hello, World!</p>");
+        TextNode clonedNode = node.clone();
+
+        // When the method is called on a TextNode
+        cloneTest(clonedNode);
+
+        // Then the cloned node should be identical to the original node
+        assertEquals(node, clonedNode);
+    }
+
+    private void outerHtmlHeadTest(String expectedOutput, Document doc, Document.OutputSettings out) {
+        Assert.assertTrue(doc.toString().startsWith(expectedOutput));
+    }
+
+    private void outerHtmlTailTest(String expectedOutput, Document doc, Document.OutputSettings out) {
+        Assert.assertTrue(doc.toString().endsWith(expectedOutput));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Appendable;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+
+public class TextNodeImpl extends LeafNode {
+    private final String value;
+
+    public TextNodeImpl(String text) {
+        super(text);
+        this.value = StringUtil.normaliseWhitespace(getWholeText());
+    }
+
+    @Override
+    public String nodeName() {
+        return "#text";
+    }
+
+    public static Document createDocument() {
+        return MockDocument.create();
+    }
+
+    public static void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) {
+        Document doc = TextNodeImpl.outerHtmlHead(accum, depth, out);
+        // Assuming we have a method to get the output of the document
+        String output = getOutput(doc);
+        System.out.println(output);
+    }
+
+    public static void outerHtmlTail(Appendable accum, int depth, Document.OutputSettings out) {
+        Document doc = TextNodeImpl.outerHtmlTail(accum, depth, out);
+        // Assuming we have a method to get the output of the document
+        String output = getOutput(doc);
+        System.out.println(output);
+    }
+
+    public static boolean clone(TextNode node) {
+        return CloneUtil.clone(node);
+    }
+
+    private static Document getOutput(Document doc) {
+        if (doc == null || !doc.exists()) {
+            return "";
+        }
+        return doc.toString();
+    }
+
+    @Override
+    public void appendTo(Appendable accum) {
+        super.appendTo(accum);
+    }
+
+    @Override
+    public void splitText(int count, Appendable output) {
+        if (output == null || !output.isCharArray()) {
+            throw new IllegalArgumentException("Output must be a string");
+        }
+        int index = 0;
+        for (int i = 1; i < count + 1; i++) {
+            append(output);
+            if (index + i > output.length() - 1) {
+                break;
+            }
+            appendTo(output, index);
+            index += i;
+        }
+    }
+
+    @Override
+    public void outerHtmlAppend(Appendable accum, int depth) {
+        super.outerHtmlAppend(accum, depth);
+    }
+
+    @Override
+    public String toString() {
+        return getWholeText();
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        if (this == super.clone()) {
+            throw new UnsupportedOperationException("clone());
+        }
+        TextNodeImpl result = (TextNodeImpl) super.clone();
+        result.value = StringUtil.normaliseWhitespace(getWholeText());
+        return result;
+    }
+}
+
+class MockDocument extends Document implements DocumentOutput {
+    @Override
+    public String toString() {
+        return "<" + getId() + ">";
+    }
+
+    @Override
+    protected Node getRoot() {
+        return this;
+    }
+
+    @Override
+    public Appendable append(String text) {
+        append(text);
+        return this;
+    }
+
+    @Override
+    public DocumentOutputSettings outputSettings() {
+        return new Document.OutputSettings(INDENT_NO_NEWLINE, OUTLINE_NONE, 1.0F);
+    }
+}
+
+class CloneUtil {
+    public static boolean clone(TextNode node) {
+        // Assuming the clone method of Node is called for each node
+        if (node instanceof TextNodeImpl) {
+            return ((TextNodeImpl) node).clone() != null;
+        } else {
+            return false;
+        }
+    }
+
+    public static String getOutput(Document doc) {
+        // Assuming this method gets the output of the document
+        return "";
+    }
+
+    public static int ID = 1;
+
+    private CloneUtil() {}
+}
+
+class DocumentOutputSettings implements OutputSettings {
+    public final boolean INDENT_NO_NEWLINE;
+    public final int OUTLINE_NONE;
+    public final double DEFAULT_FONT_SIZE;
+
+    public DocumentOutputSettings(boolean indentNoNewline, int outlineNone, double defaultFontSize) {
+        this.INDENT_NO_NEWLINE = indentNoNewline;
+        this.OUTLINE_NONE = outlineNone;
+        this.DEFAULT_FONT_SIZE = defaultFontSize;
+    }
+
+    @Override
+    public void println() {
+        // Implement printing logic here
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class TextNodeImpl extends LeafNode {
+    private final String value;
+
+    public TextNodeImpl(String text) {
+        super(text);
+        this.value = StringUtil.normaliseWhitespace(getWholeText());
+    }
+
+    @Override
+    public String nodeName() {
+        return "#text";
+    }
+
+    public static Document createDocument() {
+        return MockDocument.create();
+    }
+
+    public static void outerHtmlHead(Appendable accum, int depth) {
+        Element root = TextNodeImpl.outerHtmlHead(accum, depth);
+        // Assuming we have a method to get the output of the document
+        String output = getOutput(root);
+        System.out.println(output);
+    }
+
+    public static void outerHtmlTail(Appendable accum, int depth) {
+        Document doc = TextNodeImpl.outerHtmlTail(accum, depth);
+        // Assuming we have a method to get the output of the document
+        String output = getOutput(doc);
+        System.out.println(output);
+    }
+
+    public static boolean clone(TextNode node) {
+        return CloneUtil.clone(node);
+    }
+
+    private static Document getOutput(Element element) {
+        if (element == null || !element.exists()) {
+            return "";
+        }
+        return element.toString();
+    }
+
+    @Override
+    public void appendTo(Appendable accum) {
+        super.appendTo(accum);
+    }
+
+    @Override
+    public void splitText(int count, Appendable output) {
+        if (output == null || !output.isCharArray()) {
+            throw new IllegalArgumentException("Output must be a string");
+        }
+        int index = 0;
+        for (int i = 1; i < count + 1; i++) {
+            append(output);
+            if (index + i > output.length() - 1) {
+                break;
+            }
+            appendTo(output, index);
+            index += i;
+        }
+    }
+
+    @Override
+    public void outerHtmlAppend(Appendable accum, int depth) {
+        super.outerHtmlAppend(accum, depth);
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        if (this == super.clone()) {
+            throw new UnsupportedOperationException("clone());
+        }
+        TextNodeImpl result = (TextNodeImpl) super.clone();
+        result.value = StringUtil.normaliseWhitespace(getWholeText());
+        return result;
+    }
+}
+
+class MockDocument extends Document implements DocumentOutput {
+    @Override
+    public String toString() {
+        return "<" + getId() + ">";
+    }
+
+    @Override
+    protected Element getRoot() {
+        return this;
+    }
+
+    @Override
+    public Appendable append(String text) {
+        append(text);
+        return this;
+    }
+
+    @Override
+    public DocumentOutputSettings outputSettings() {
+        return new Document.OutputSettings(INDENT_NO_NEWLINE, OUTLINE_NONE, 1.0F);
+    }
+}
+
+class CloneUtil {
+    public static boolean clone(TextNode node) {
+        // Assuming the clone method of Node is called for each node
+        if (node instanceof TextNodeImpl) {
+            return ((TextNodeImpl) node).clone() != null;
+        } else {
+            return false;
+        }
+    }
+
+    private static String getOutput(Element element) {
+        // Assuming this method gets the output of the element
+        return "";
+    }
+
+    public static int ID = 1;
+
+    private CloneUtil() {}
+}
+
+class DocumentOutputSettings implements OutputSettings {
+    public final boolean INDENT_NO_NEWLINE;
+    public final int OUTLINE_NONE;
+    public final double DEFAULT_FONT_SIZE;
+
+    public DocumentOutputSettings(boolean indentNoNewline, int outlineNone, double defaultFontSize) {
+        this.INDENT_NO_NEWLINE = indentNoNewline;
+        this.OUTLINE_NONE = outlineNone;
+        this.DEFAULT_FONT_SIZE = defaultFontSize;
+    }
+
+    @Override
+    public void println() {
+        // Implement printing logic here
+        System.out.println();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class TextNodeImpl extends LeafNode {
+    private final String value;
+    private final StringBuilder builder = new StringBuilder();
+
+    public TextNodeImpl(String text) {
+        super(text);
+        this.value = StringUtil.normaliseWhitespace(getWholeText());
+    }
+
+    @Override
+    public String nodeName() {
+        return "#text";
+    }
+
+    public static Document createDocument() {
+        return MockDocument.create();
+    }
+
+    public static void outerHtmlHead(Appendable accum, int depth) {
+        Element root = TextNodeImpl.outerHtmlHead(accum, depth);
+        // Assuming we have a method to get the output of the document
+        String output = getOutput(root);
+        System.out.println(output);
+    }
+
+    public static void outerHtmlTail(Appendable accum, int depth) {
+        Document doc = TextNodeImpl.outerHtmlTail(accum, depth);
+        // Assuming we have a method to get the output of the document
+        String output = getOutput(doc);
+        System.out.println(output);
+    }
+
+    public static boolean clone(TextNode node) {
+        return CloneUtil.clone(node);
+    }
+
+    private static Document getOutput(Element element) {
+        if (element == null || !element.exists()) {
+            return "";
+        }
+        for (Element child : element.children()) {
+            String output = getOutput(child);
+            builder.append(output).append("\n");
+        }
+        return builder.toString();
+    }
+
+    @Override
+    public void appendTo(Appendable accum) {
+        super.appendTo(accum);
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        if (this == super.clone()) {
+            throw new UnsupportedOperationException("clone());
+        }
+        TextNodeImpl result = (TextNodeImpl) super.clone();
+        result.value = value;
+        return result;
+    }
+
+    public static void main(String[] args) {
+        String text = "Hello World!";
+        TextNode node = new TextNodeImpl(text);
+        System.out.println(node.toString());
+
+        TextNode clonedNode = clone(node);
+        System.out.println(clonedNode.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class CloneUtil {
+    public static boolean clone(TextNode node) {
+        // Assuming the clone method of Node is called for each node
+        if (node instanceof TextNodeImpl) {
+            return ((TextNodeImpl) node).clone() != null;
+        } else {
+            return false;
+        }
+    }
+
+    private static String getOutput(Element element) {
+        // Assuming this method gets the output of the element
+        StringBuilder builder = new StringBuilder();
+        for (Element child : element.children()) {
+            String output = getOutput(child);
+            builder.append(output).append("\n");
+        }
+        return builder.toString();
+    }
+
+    public static int ID = 1;
+
+    private CloneUtil() {}
+}
+
+class DocumentOutputSettings implements OutputSettings {
+    public final boolean INDENT_NO_NEWLINE;
+    public final int OUTLINE_NONE;
+    public final double DEFAULT_FONT_SIZE;
+
+    public DocumentOutputSettings(boolean indentNoNewline, int outlineNone, double defaultFontSize) {
+        this.INDENT_NO_NEWLINE = indentNoNewline;
+        this.OUTLINE_NONE = outlineNone;
+        this.DEFAULT_FONT_SIZE = defaultFontSize;
+    }
+
+    @Override
+    public void println() {
+        // Implement printing logic here
+        System.out.println();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

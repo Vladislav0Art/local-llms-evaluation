@@ -1,0 +1,123 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.helper;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import static org.jsoup.helper.DataUtil.UTF_8;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void builder construction_works_test() {
+        URL u = new URL("http://example.com/path?query=value#fragment");
+        UrlBuilder ub = new UrlBuilder(u);
+        assertNotNull(ub.u);
+        assertNull(ub.q);
+    }
+
+    @Test
+    public void build_normalization_punyCoding_host_test() throws MalformedURLException, URISyntaxException {
+        URL u = new URL("http://example.com/path?query=value#fragment");
+        UrlBuilder ub = new UrlBuilder(u);
+        UrlBuilder.UrlBuilderTestHelper.buildNormalizing(ub, "http://example.com/path", "utf-8", 80);
+    }
+
+    @Test
+    public void build_normalization_encoding_path_test() throws MalformedURLException, URISyntaxException {
+        URL u = new URL("http://example.com/path?query=value#fragment");
+        UrlBuilder ub = new UrlBuilder(u);
+        UrlBuilder.UrlBuilderTestHelper.buildNormalizing(ub, "path/àb/cèd", "utf-8", 80);
+    }
+
+    @Test
+    public void build_normalization_encoding_query_test() throws MalformedURLException, URISyntaxException {
+        URL u = new URL("http://example.com/path?query=value#fragment");
+        UrlBuilder ub = new UrlBuilder(u);
+        UrlBuilder.UrlBuilderTestHelper.buildNormalizing(ub, "http://example.com/path", "?query=àb&cèd", 80);
+    }
+
+    @Test
+    public void build_normalization_encoding_fragment_test() throws MalformedURLException, URISyntaxException {
+        URL u = new URL("http://example.com/path?query=value#fragment");
+        UrlBuilder ub = new UrlBuilder(u);
+        UrlBuilder.UrlBuilderTestHelper.buildNormalizing(ub, "path", "#anchoràb", 80);
+    }
+
+    @Test
+    public void append_key_val_encoding_test() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder ub = new UrlBuilder(null);
+        ub.appendKeyVal(kv);
+        assertNotNull(ub.q);
+        assertEquals("key=value", ub.q.toString());
+    }
+
+    @Test
+    public void decode_part_encoding_test() throws UnsupportedEncodingException {
+        String encoded = "http%3A//example.com/path";
+        String decoded = UrlBuilder.decodePart(encoded);
+        assertEquals("http://example.com/path", decoded);
+    }
+
+    @Test
+    public void append_to_ascii_space_as_plus_test() throws UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.UrlBuilderTestHelper.appendToAscii(sb, true, "path/àb/cèd");
+        assertEquals("%20%20%C3%80%C3%82%C3%A9%C3%B4%C3%83%C3%85%C3%86%C3%87", sb.toString());
+    }
+
+    @Test
+    public void append_to_ascii_space_not_as_plus_test() throws UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.UrlBuilderTestHelper.appendToAscii(sb, false, "path/àb/cèd");
+        assertEquals("path/%20%C3%80%C3%82%C3%A9%C3%B4%C3%83%C3%85%C3%86%C3%87", sb.toString());
+    }
+}
+
+class UrlBuilderTestHelper {
+    public static void buildNormalizing(UrlBuilder ub, String path, String uriEncoding, int port) throws MalformedURLException, URISyntaxException {
+        URL u = new URL("http://" + IDN.toASCII(path), null, port);
+        ub.u = u;
+        if (uriEncoding.equals("utf-8")) {
+            URI uri = new URI(
+                u.getProtocol(),
+                u.getUserInfo(),
+                IDN.toASCII(decodePart(u.getHost())), // puny-code
+                u.getPort(),
+                decodePart(u.getPath()),
+                null, null // query and fragment appended later so as not to encode
+            );
+            ub.q = StringUtil.borrowBuilder().append(uri.toASCIIString());
+        }
+    }
+
+    public static void appendToAscii(StringBuilder sb, boolean spaceAsPlus, String s) throws UnsupportedEncodingException {
+        for (int i = 0; i < s.length(); i++) {
+            int c = s.codePointAt(i);
+            if (c == ' ') {
+                sb.append(spaceAsPlus ? '+' : "%20");
+            } else if (c > 127) { // out of ascii range
+                sb.append(URLEncoder.encode(new String(Character.toChars(c)), UTF_8.name()));
+                // ^^ is a bit heavy-handed - if perf critical, we could optimize
+            } else {
+                sb.append((char) c);
+            }
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

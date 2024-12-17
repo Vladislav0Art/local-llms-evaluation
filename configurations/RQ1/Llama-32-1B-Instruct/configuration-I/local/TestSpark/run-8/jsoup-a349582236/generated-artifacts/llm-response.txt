@@ -1,0 +1,446 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class Main {
+
+    private static Map<String, Tag> tags = new HashMap<>();
+
+    @FunctionalInterface
+    interface Tag {
+        void register();
+        boolean isBlock();
+        boolean formatAsBlock();
+        boolean preserveWhitespace();
+        boolean formList();
+        boolean formSubmit();
+    }
+
+    public static void generatePublicClasses() {
+        for (String tagName : blockTags) {
+            Tag tag = new Tag(tagName);
+            register(tag);
+        }
+        for (String tagName : inlineTags) {
+            Tag tag = new Tag(tagName);
+            tag.isBlock = false;
+            tag.formatAsBlock = false;
+            register(tag);
+        }
+
+        // mods:
+        for (String tagName : emptyTags) {
+            Tag tag = tags.get(tagName);
+            Validate.notNull(tag);
+            tag.empty = true;
+        }
+
+        for (String tagName : formatAsInlineTags) {
+            Tag tag = tags.get(tagName);
+            Validate.notNull(tag);
+            tag.formatAsBlock = false;
+        }
+
+        for (String tagName : preserveWhitespaceTags) {
+            Tag tag = tags.get(tagName);
+            Validate.notNull(tag);
+            tag.preserveWhitespace = true;
+        }
+
+        for (String tagName : formListedTags) {
+            Tag tag = tags.get(tagName);
+            Validate.notNull(tag);
+            tag.formList = true;
+        }
+
+        for (String tagName : formSubmitTags) {
+            Tag tag = tags.get(tagName);
+            Validate.notNull(tag);
+            tag.formSubmit = true;
+        }
+    }
+
+    public static void register(Tag tag) {
+        tags.put(tag.tagName, tag);
+    }
+
+    @Test
+    public void testBlockTag() {
+        generatePublicClasses();
+        Tag blockTag = tags.get("b");
+        assertTrue(blockTag.isBlock());
+        assertFalse(blockTag.formatAsBlock());
+        assertTrue(blockTag.preserveWhitespace());
+    }
+
+    @Test
+    public void testInlineTag() {
+        generatePublicClasses();
+        Tag inlineTag = tags.get("i");
+        assertTrue(inlineTag.isBlock());
+        assertFalse(inlineTag.formatAsBlock());
+        assertTrue(inlineTag.preserveWhitespace());
+    }
+
+    @Test
+    public void testEmptyTag() {
+        generatePublicClasses();
+        Tag emptyTag = tags.get("a");
+        assertTrue(emptyTag.empty);
+    }
+
+    @Test
+    public void testFormatInlineTag() {
+        generatePublicClasses();
+        Tag formatInlineTag = tags.get("b");
+        assertTrue(formatInlineTag.formatAsBlock());
+        assertFalse(formatInlineTag.preserveWhitespace());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class TagTest {
+
+    @Test
+    public void testBlockTag() {
+        assertTrue(BlockTag.isBlock());
+    }
+
+    @Test
+    public void testBlockTagNoFormatAsBlock() {
+        assertFalse(BlockTag.formatAsBlock());
+    }
+
+    @Test
+    public void testBlockTagNoPreserveWhitespace() {
+        assertTrue(!BlockTag.preserveWhitespace());
+    }
+
+    @Test
+    public void testBlockTagNoEmpty() {
+        assertTrue(!BlockTag.isEmpty());
+    }
+
+    @Test
+    public void testInlineTag() {
+        assertTrue(InlineTag.isBlock());
+    }
+
+    @Test
+    public void testInlineTagNoFormatAsBlock() {
+        assertFalse(InlineTag.formatAsBlock());
+    }
+
+    @Test
+    public void testInlineTagNoPreserveWhitespace() {
+        assertTrue(!InlineTag.preserveWhitespace());
+    }
+
+    @Test
+    public void testInlineTagNoEmpty() {
+        assertTrue(!InlineTag.isEmpty());
+    }
+
+    @Test
+    public void testEmptyTag() {
+        assertTrue(EmptyTag.isEmpty());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class TagTest {
+
+    public static class BlockTag {
+        private String formatAsBlock = "";
+        private boolean preserveWhitespace = true;
+        private boolean isEmpty() {
+            return !formatAsBlock.isEmpty() && !preserveWhitespace;
+        }
+        
+        public void formatAsBlock(String formatAsBlock) {
+            this.formatAsBlock = formatAsBlock;
+        }
+
+        public boolean isBlock() {
+            return !isEmpty();
+        }
+    }
+
+    public static class InlineTag {
+        private String formatAsBlock = "";
+        private boolean preserveWhitespace = true;
+        private boolean isEmpty() {
+            return !formatAsBlock.isEmpty() && !preserveWhitespace;
+        }
+        
+        public void formatAsBlock(String formatAsBlock) {
+            this.formatAsBlock = formatAsBlock;
+        }
+
+        public boolean isBlock() {
+            return !isEmpty();
+        }
+    }
+
+    @Test
+    public void testBlockTag() {
+        assertTrue(BlockTag.isBlock());
+    }
+
+    @Test
+    public void testBlockTagNoFormatAsBlock() {
+        assertFalse(BlockTag.formatAsBlock("block"));
+    }
+
+    @Test
+    public void testBlockTagNoPreserveWhitespace() {
+        assertTrue(!BlockTag.preserveWhitespace());
+    }
+
+    @Test
+    public void testBlockTagNoEmpty() {
+        assertTrue(!BlockTag.isEmpty());
+    }
+
+    @Test
+    public void testInlineTag() {
+        assertTrue(InlineTag.isBlock());
+    }
+
+    @Test
+    public void testInlineTagNoFormatAsBlock() {
+        assertFalse(InlineTag.formatAsBlock("inline"));
+    }
+
+    @Test
+    public void testInlineTagNoPreserveWhitespace() {
+        assertTrue(!InlineTag.preserveWhitespace());
+    }
+
+    @Test
+    public void testInlineTagNoEmpty() {
+        assertTrue(!InlineTag.isEmpty());
+    }
+
+    @Test
+    public void testEmptyTag() {
+        assertTrue(EmptyTag.isEmpty());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class TagTest {
+
+    public static class BlockTag {
+        private String formatAsBlock = "";
+        private boolean preserveWhitespace = true;
+
+        public void setFormatAsBlock(String formatAsBlock) {
+            this.formatAsBlock = formatAsBlock;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof BlockTag)) return false;
+            BlockTag other = (BlockTag) o;
+            return preserveWhitespace == other.preserveWhitespace && Objects.equals(formatAsBlock, other.formatAsBlock);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(formatAsBlock, preserveWhitespace);
+        }
+    }
+
+    public static class InlineTag {
+        private String formatAsBlock = "";
+        private boolean preserveWhitespace = true;
+
+        public void setFormatAsBlock(String formatAsBlock) {
+            this.formatAsBlock = formatAsBlock;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof InlineTag)) return false;
+            InlineTag other = (InlineTag) o;
+            return preserveWhitespace == other.preserveWhitespace && Objects.equals(formatAsBlock, other.formatAsBlock);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(formatAsBlock, preserveWhitespace);
+        }
+    }
+
+    @Test
+    public void testBlockTag() {
+        assertTrue(BlockTag.isBlock());
+    }
+
+    @Test
+    public void testBlockTagNoFormatAsBlock() {
+        assertFalse(BlockTag.formatAsBlock("block"));
+    }
+
+    @Test
+    public void testBlockTagNoPreserveWhitespace() {
+        assertTrue(!BlockTag.preserveWhitespace());
+    }
+
+    @Test
+    public void testBlockTagNoEmpty() {
+        assertTrue(!BlockTag.isEmpty());
+    }
+
+    @Test
+    public void testInlineTag() {
+        assertTrue(InlineTag.isBlock());
+    }
+
+    @Test
+    public void testInlineTagNoFormatAsBlock() {
+        assertFalse(InlineTag.formatAsBlock("inline"));
+    }
+
+    @Test
+    public void testInlineTagNoPreserveWhitespace() {
+        assertTrue(!InlineTag.preserveWhitespace());
+    }
+
+    @Test
+    public void testInlineTagNoEmpty() {
+        assertTrue(!InlineTag.isEmpty());
+    }
+
+    @Test
+    public void testEmptyTag() {
+        assertTrue(EmptyTag.isEmpty());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class TagTest {
+
+    public static class BlockTag {
+        public String formatAsBlock = "";
+        public boolean preserveWhitespace = true;
+
+        public void setFormatAsBlock(String formatAsBlock) {
+            this.formatAsBlock = formatAsBlock;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof BlockTag)) return false;
+            BlockTag other = (BlockTag) o;
+            return preserveWhitespace == other.preserveWhitespace && Objects.equals(formatAsBlock, other.formatAsBlock);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(formatAsBlock, preserveWhitespace);
+        }
+    }
+
+    public static class InlineTag {
+        public String formatAsBlock = "";
+        public boolean preserveWhitespace = true;
+
+        public void setFormatAsBlock(String formatAsBlock) {
+            this.formatAsBlock = formatAsBlock;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof InlineTag)) return false;
+            InlineTag other = (InlineTag) o;
+            return preserveWhitespace == other.preserveWhitespace && Objects.equals(formatAsBlock, other.formatAsBlock);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(formatAsBlock, preserveWhitespace);
+        }
+    }
+
+    @Test
+    public void testBlockTag_isBlock() {
+        assertTrue(BlockTag.isBlock());
+    }
+
+    @Test
+    public void testBlockTag_formatAsBlock() {
+        assertFalse(BlockTag.formatAsBlock("block"));
+    }
+
+    @Test
+    public void testBlockTag_noFormatAsBlock() {
+        BlockTag tag = new BlockTag();
+        assertEquals(true, tag.formatAsBlock().isEmpty());
+    }
+
+    @Test
+    public void testInlineTag_isBlock() {
+        assertTrue(InlineTag.isBlock());
+    }
+
+    @Test
+    public void testInlineTag_formatAsBlock() {
+        assertFalse(InlineTag.formatAsBlock("inline"));
+    }
+
+    @Test
+    public void testInlineTag_noFormatAsBlock() {
+        InlineTag tag = new InlineTag();
+        assertEquals(true, tag.formatAsBlock().isEmpty());
+    }
+
+    public static class EmptyTag {}
+
+    @Test
+    public void testEmptyTag_isEmpty() {
+        assertTrue(EmptyTag.isEmpty());
+    }
+}
+```
+===================================================
+
