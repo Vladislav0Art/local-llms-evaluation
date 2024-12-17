@@ -1,0 +1,107 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    public TextNode textNode() {
+        return new TextNode("test");
+    }
+
+    @Test
+    public void nodeName_ReturnsCorrectNodeName() {
+        String expected = "text";
+        when(textNode().nodeName()).thenReturn(expected);
+        assertThat(textNode().nodeName(), is(expected));
+    }
+
+    @Test
+    public void text_ReturnsUnencodedText() {
+        String expected = "test";
+        when(textNode().text()).thenReturn(expected);
+        assertThat(textNode().text(), is(expected));
+    }
+
+    @Test
+    public void text_SetsCorrectTextContent() {
+        String expected = "new test";
+        TextNode newNode = textNode().text(expected);
+        assertThat(newNode.text(), is(expected));
+    }
+
+    @Test
+    public void getWholeText_ReturnsUnencodedTextIncludingWhitespace() {
+        String expected = "test   ";
+        when(textNode().getWholeText()).thenReturn(expected);
+        assertThat(textNode().getWholeText(), is(expected));
+    }
+
+    @Test
+    public void isBlank_ReturnsTrueIfEmptyOrWhitespaceOnly() {
+        boolean expected = true;
+        when(textNode().isBlank()).thenReturn(expected);
+        assertThat(textNode().isBlank(), is(expected));
+
+        TextNode newNode = textNode();
+        newNode.text("test");
+        when(newNode.isBlank()).thenReturn(false);
+        assertThat(newNode.isBlank(), is(false));
+    }
+
+    @Test
+    public void splitText_SplitsTextCorrectly() {
+        int offset = 5;
+        String expected = "test";
+        TextNode newTextNode = textNode().splitText(offset);
+        when(newTextNode.getWholeText()).thenReturn(expected);
+
+        assertThat(textNode().splitText(offset).getWholeText(), is(expected));
+    }
+
+    @Test
+    public void clone_ReturnsCorrectClone() {
+        TextNode clone = textNode().clone();
+        assertThat(clone, is(textNode()));
+    }
+
+    @Test
+    public void createFromEncoded_ReturnsCorrectTextNode() {
+        String encodedText = "&lt;test&gt;";
+        when(LeafNode.createFromEncoded(encodedText)).thenReturn(textNode());
+        assertThat(TextNode.createFromEncoded(encodedText), is(textNode()));
+    }
+
+    @Test
+    public void normaliseWhitespace_ReturnsNormalisedWhitespace() {
+        String text = "   ";
+        String expected = "";
+        when(TextNode.normaliseWhitespace(text)).thenReturn(expected);
+        assertThat(TextNode.normaliseWhitespace(text), is(expected));
+    }
+
+    @Test
+    public void stripLeadingWhitespace_ReturnsStripedWhitespace() {
+        String text = "   test";
+        String expected = "test";
+        when(TextNode.stripLeadingWhitespace(text)).thenReturn(expected);
+        assertThat(TextNode.stripLeadingWhitespace(text), is(expected));
+    }
+
+    @Test
+    public void lastCharIsWhitespace_ReturnsLastCharAsWhitespace() {
+        StringBuilder sb = new StringBuilder("test ");
+        boolean expected = true;
+        when(TextNode.lastCharIsWhitespace(sb)).thenReturn(expected);
+        assertThat(TextNode.lastCharIsWhitespace(sb), is(true));
+    }
+
+}

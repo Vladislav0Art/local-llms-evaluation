@@ -1,0 +1,383 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class Comment extends LeafNode {
+    /**
+     * Create a new comment node.
+     * @param data The contents of the comment
+     */
+    public Comment(String data) { this.data = data; }
+
+    /**
+     * Get the contents of the comment.
+     * @return comment content
+     */
+    public String getData() { return data; }
+
+    public Comment setData(String data) { this.data = data; return this; }
+
+    @Override
+    void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<comment>\n");
+        builder.append("  <data>").append(data).append("</data>\n");
+        builder.append("</comment>\n");
+        appendTo(accum, builder.toString(), depth);
+    }
+
+    @Override
+    void outerHtmlTail(Appendable accum, int depth, Document.OutputSettings out) { /* empty */ }
+
+    @Override
+    public String toString() {
+        return "<Comment>" + getData() + "</Comment>";
+    }
+
+    @Override
+    public Comment clone() {
+        return (Comment) super.clone();
+    }
+
+    /**
+     * Check if this comment looks like an XML Declaration.
+     * @return true if it looks like, maybe, it's an XML Declaration.
+     */
+    public boolean isXmlDeclaration() { return data.startsWith("<?xml"); }
+
+    /**
+     * Attempt to cast this comment to an XML Declaration node.
+     * @return an XML declaration if it could be parsed as one, null otherwise.
+     */
+    public @Nullable XmlDeclaration asXmlDeclaration() {
+        String content = getData();
+        if (content.startsWith("<?xml")) { return new XmlDeclaration(content); }
+        return null;
+    }
+
+    private void appendTo(Appendable accum, String content, int depth) throws IOException {
+        if (!depth > 0) { // Only add newline after each line
+            append(accum, "  \n");
+        } else {
+            appendTo(accum, "<comment>\n" + content + "\n</comment>");
+        }
+    }
+
+    private void append(Appendable accum, String content) throws IOException {
+        accum.append(content);
+    }
+}
+
+public class XmlDeclaration extends Comment {
+    /**
+     * Create a new XML declaration node.
+     * @param data The contents of the XML declaration
+     */
+    public XmlDeclaration(String data) { this.data = data; }
+
+    // Overridden methods
+
+    @Override
+    boolean isXmlDeclaration() {
+        return true;
+    }
+
+    @Override
+    @Nullable
+    XmlDeclaration asXmlDeclaration() {
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class CommentTest {
+    
+    private Comment comment;
+
+    /**
+     * Test that comment creation is atomic.
+     */
+    @Test
+    public void testCommentCreationAtomic() {
+        String data = "Example text";
+        comment = new Comment(data);
+    }
+
+    /**
+     * Test that comment data can be set atomically.
+     */
+    @Test
+    public void testCommentDataSetAtomic() {
+        comment.setData("New data");
+        assertEquals("New data", comment.getData());
+    }
+
+    /**
+     * Test that comment toString is atomic.
+     */
+    @Test
+    public void testCommentToStringAtomic() {
+        String data = "Example text";
+        comment = new Comment(data);
+        String actual = comment.toString();
+        assertEquals("<Comment>", actual);
+    }
+
+    /**
+     * Test that comment clone is atomic.
+     */
+    @Test
+    public void testCommentCloneAtomic() {
+        String data = "Example text";
+        comment = new Comment(data);
+        Comment actual = (Comment) comment.clone();
+        assertEquals(data, actual.getData());
+    }
+
+    /**
+     * Test that comment checkXmlDeclaration can handle non-XML declarations.
+     */
+    @Test
+    public void testCommentCheckXmlDeclaration() {
+        String data = "Example text";
+        comment = new Comment(data);
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    /**
+     * Test that comment asXmlDeclaration returns null for non-XML declarations.
+     */
+    @Test
+    public void testCommentAsXmlDeclarationNonXml() {
+        String data = "Example text";
+        comment = new Comment(data);
+        XmlDeclaration xmlDeclaration = (XmlDeclaration) comment.asXmlDeclaration();
+        assertEquals(null, xmlDeclaration);
+    }
+
+    /**
+     * Test that asXmlDeclaration can parse simple XML declarations.
+     */
+    @Test
+    public void testCommentAsXmlDeclarationSimple() {
+        String data = "<!ELEMENT example (#PCDATA)>\n<example>Example text</example>";
+        comment = new Comment(data);
+        XmlDeclaration xmlDeclaration = (XmlDeclaration) comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+    }
+
+    /**
+     * Test that asXmlDeclaration can parse complex XML declarations.
+     */
+    @Test
+    public void testCommentAsXmlDeclarationComplex() {
+        String data = "<!ELEMENT example (#PCDATA)>\n<example>Example text\n  <grandchild>Grandchild</grandchild></example>";
+        comment = new Comment(data);
+        XmlDeclaration xmlDeclaration = (XmlDeclaration) comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class CommentTest {
+
+    private Document doc = new Document();
+
+    /**
+     * Test that comment creation is atomic.
+     */
+    @Test
+    public void testCommentCreationAtomic() {
+        String data = "Example text";
+        doc.appendChild(doc.createElement("comment"));
+        Comment comment = (Comment) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        assertEquals(data, comment.getData());
+    }
+
+    /**
+     * Test that comment data can be set atomically.
+     */
+    @Test
+    public void testCommentDataSetAtomic() {
+        String data = "New data";
+        doc.appendChild(doc.createElement("comment"));
+        comment.setData(data);
+        assertEquals(data, comment.getData());
+    }
+
+    /**
+     * Test that comment toString is atomic.
+     */
+    @Test
+    public void testCommentToStringAtomic() {
+        String data = "Example text";
+        doc.appendChild(doc.createElement("comment"));
+        Comment comment = (Comment) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        assertEquals(data, comment.toString());
+    }
+
+    /**
+     * Test that comment equals is atomic.
+     */
+    @Test
+    public void testCommentEqualsAtomic() {
+        String data = "Example text";
+        doc.appendChild(doc.createElement("comment"));
+        Comment comment1 = (Comment) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        Comment comment2 = (Comment) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        assertEquals(data, comment1.toString());
+        assertEquals(data, comment2.toString());
+    }
+
+    /**
+     * Test that comment notEquals is atomic.
+     */
+    @Test
+    public void testCommentNotEqualsAtomic() {
+        String data = "Example text";
+        doc.appendChild(doc.createElement("comment"));
+        Comment comment1 = (Comment) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        Comment comment2 = (Comment) doc.evaluate("//comment()[2]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        assertEquals(data, comment1.toString());
+        assertEquals(data, comment2.toString());
+    }
+
+    /**
+     * Test that comment isXmlDeclaration is atomic.
+     */
+    @Test
+    public void testCommentIsXmlDeclarationAtomic() {
+        String data = "Example text";
+        doc.appendChild(doc.createElement("comment"));
+        Comment comment = (Comment) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    /**
+     * Test that comment equals not equals is atomic.
+     */
+    @Test
+    public void testCommentEqualsNotEqualsAtomic() {
+        String data = "Example text";
+        doc.appendChild(doc.createElement("comment"));
+        Comment comment1 = (Comment) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        Comment comment2 = (Comment) doc.evaluate("//comment()[2]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        assertEquals(data, comment1.toString());
+        assertEquals(data, comment2.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class CommentTest {
+
+    private static String data = "Example text";
+
+    /**
+     * Test that comment creation is atomic.
+     */
+    @Test
+    public void testCommentCreationAtomic() {
+        doc.appendChild(doc.createElement("comment"));
+        Element comment = (Element) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        assertEquals(data, comment.data());
+    }
+
+    /**
+     * Test that comment data can be set atomically.
+     */
+    @Test
+    public void testCommentDataSetAtomic() {
+        doc.appendChild(doc.createElement("comment"));
+        Element comment = (Element) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        comment.setData(data);
+        assertEquals(data, comment.data());
+    }
+
+    /**
+     * Test that comment toString is atomic.
+     */
+    @Test
+    public void testCommentToStringAtomic() {
+        doc.appendChild(doc.createElement("comment"));
+        Element comment = (Element) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        String output = comment.toString();
+        assertEquals(data, output);
+    }
+
+    /**
+     * Test that comment equals is atomic.
+     */
+    @Test
+    public void testCommentEqualsAtomic() {
+        Element comment1 = (Element) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        Element comment2 = (Element) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        assertEquals(data, comment1.data());
+        assertEquals(data, comment2.data());
+    }
+
+    /**
+     * Test that comment notEquals is atomic.
+     */
+    @Test
+    public void testCommentNotEqualsAtomic() {
+        Element comment1 = (Element) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        Element comment2 = (Element) doc.evaluate("//comment()[2]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        assertEquals(data, comment1.data());
+        assertEquals(data, comment2.data());
+    }
+
+    /**
+     * Test that comment isXmlDeclaration is atomic.
+     */
+    @Test
+    public void testCommentIsXmlDeclarationAtomic() {
+        Element comment = (Element) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        String output = comment.outerHtml();
+        assertEquals(data, output);
+    }
+
+    /**
+     * Test that comment toString is atomic.
+     */
+    @Test
+    public void testCommentToStringAtomic2() {
+        Element comment = (Element) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        String output = comment.outerHtml();
+        assertEquals(data, output);
+    }
+
+    /**
+     * Test that comment equals is atomic.
+     */
+    @Test
+    public void testCommentEqualsAtomic2() {
+        Element comment1 = (Element) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        Element comment2 = (Element) doc.evaluate("//comment()[1]", doc, null, java.util.NamespaceDeclaration.).firstResult();
+        assertEquals(data, comment1.data());
+        assertEquals(data, comment2.data());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================

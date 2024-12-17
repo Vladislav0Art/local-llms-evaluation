@@ -1,0 +1,605 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class OnlineStockSpanTest {
+
+    @ParameterizedTest
+    @CsvSource({
+            "1,2,3,4,5",
+            "6,7,8,9,10"
+    })
+    public void testNext(int price, int[] values) {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.setPrice(price);
+        int[] result = onlineStockSpan.next(values);
+        assertThat(result).isEqualTo(values);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1,2,3,4,5",
+            "6,7,8,9,10"
+    })
+    public void testCalculateSpans(int[] prices) {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.setPrices(prices);
+        int[] result = onlineStockSpan.calculateSpans();
+        assertThat(result).isEqualTo(new int[]{2, 3, 4, 5, 6});
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class OnlineStockSpan {
+
+    @Test
+    public void testNext_SinglePrice() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.setPrice(1);
+        int[] result = onlineStockSpan.next(1);
+        assertThat(result).isEqualTo(1);
+    }
+
+    @Test
+    public void testNext_MultiplePrices() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.setPrice(5);
+        onlineStockSpan.setPrice(10);
+        int[] result = onlineStockSpan.next(new int[]{3, 2});
+        assertThat(result).isEqualTo(new int[]{1, 2});
+
+        onlineStockSpan.setPrice(8);
+        onlineStockSpan.setPrice(4);
+        result = onlineStockSpan.next(new int[]{6, 7});
+        assertThat(result).isEqualTo(new int[]{5});
+    }
+
+    @Test
+    public void testCalculateSpans_SingleIndex() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.setPrices(new int[]{1, 2, 3, 4, 5});
+
+        int[] result = onlineStockSpan.calculateSpans(2);
+        assertThat(result).isEqualTo(new int[]{2, 3, 4, 5, 6});
+    }
+
+    @Test
+    public void testCalculateSpans_MultipleIndices() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.setPrices(new int[]{1, 2, 3, 4, 5});
+
+        int[] result = onlineStockSpan.calculateSpans(0);
+        assertThat(result).isEqualTo(new int[]{1});
+
+        int index = 3;
+        onlineStockSpan.setPrice(index + 1);
+        onlineStockSpan.setPrice(index - 1);
+        result = onlineStockSpan.calculateSpans(2);
+        assertThat(result).isEqualTo(new int[]{4, 5});
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import java.util.Arrays;
+
+public class Main {
+    public static int[] calculateSpans(int index) {
+        if (index < 0 || index >= getLength()) {
+            return new int[]{1};
+        }
+
+        int left = 0;
+        while (left < index && left < getLength()) {
+            left++;
+        }
+
+        int right = getLength() - 1;
+        while (right >= 0) {
+            right--;
+        }
+
+        if (index == getLength()) {
+            return new int[]{getLength()};
+        } else if (left + 1 == index && left < getLength() - 1) {
+            return new int[]{2};
+        } else if (right > index) {
+            return Arrays.copyOfRange(calculateSpans(index + 1), 0, Math.min(left + 1, right));
+        }
+
+        return calculateSpans(left);
+    }
+
+    public static void testCalculateSpans() {
+        for (int i = 1; i <= getLength(); i++) {
+            int[] result = calculateSpans(i);
+            if (!result.equals(Arrays.copyOfRange(calculateSpans(0), 0, Math.min(i + 1, getLength())))) {
+                System.out.println("Test failed at " + i);
+                return;
+            }
+        }
+
+        System.out.println("All tests passed");
+    }
+
+    public static int[] calculatePrices(int index) {
+        if (index < 0 || index >= getLength()) {
+            return new int[]{1};
+        }
+
+        int left = 0;
+        while (left < index && left < getLength()) {
+            left++;
+        }
+
+        int right = getLength() - 1;
+        while (right >= 0) {
+            right--;
+        }
+
+        if (index == getLength()) {
+            return new int[]{getLength()};
+        } else if (left + 1 == index && left < getLength() - 1) {
+            return new int[]{2};
+        } else if (right > index) {
+            return Arrays.copyOfRange(calculatePrices(index + 1), 0, Math.min(left + 1, right));
+        }
+
+        return calculatePrices(left);
+    }
+
+    public static void testCalculatePrices() {
+        for (int i = 1; i <= getLength(); i++) {
+            int[] result = calculatePrices(i);
+            if (!Arrays.equals(result, Arrays.copyOfRange(calculatePrices(0), 0, Math.min(i + 1, getLength())))) {
+                System.out.println("Test failed at " + i);
+                return;
+            }
+        }
+
+        System.out.println("All tests passed");
+    }
+
+    public static int[] setPrices(int[] prices) {
+        for (int i = 0; i < prices.length; i++) {
+            prices[i] += 1;
+        }
+
+        return prices;
+    }
+
+    public static void testSetPrices() {
+        // Set prices manually
+        int[][] manualPrices = {{5}, {4, 3, 2}, {2}};
+        for (int[] price : manualPrices) {
+            int[] result = setPrices(price);
+            if (!Arrays.equals(result, getLength()) || !Arrays.equals(result, price)) {
+                System.out.println("Test failed manually at index " + Arrays.asList(Arrays.copyOfRange(result, 0, Math.min(price.length + 1)).toCharArray()).join(""));
+                return;
+            }
+        }
+
+        System.out.println("All tests passed");
+    }
+
+    public static int[] setPrices(int[][] prices) {
+        for (int i = 0; i < prices[0].length; i++) {
+            prices[i] = new int[]{i + 1};
+        }
+
+        return prices;
+    }
+
+    public static void testSetPricesManual() {
+        // Set prices manually
+        int[][] manualPrices = {{5}, {4, 3, 2}};
+        for (int[] price : manualPrices) {
+            int[] result = setPrices(price);
+            if (!Arrays.equals(result, getLength()) || !Arrays.equals(result, price)) {
+                System.out.println("Test failed manually at index " + Arrays.asList(Arrays.copyOfRange(result, 0, Math.min(price.length + 1)).toCharArray()).join(""));
+                return;
+            }
+        }
+
+        System.out.println("All tests passed");
+    }
+
+    public static int[][] setPrices(int n) {
+        for (int i = 0; i < n; i++) {
+            int[] prices = new int[n];
+            Arrays.fill(prices, i + 1);
+            return prices;
+        }
+    }
+
+    private static int getLength() {
+        if (new Random().nextBoolean()) {
+            return 10;
+        } else {
+            return 20;
+        }
+    }
+
+    public static void main(String[] args) {
+        testCalculateSpans();
+        testSetPrices();
+        //testSetPricesManual();
+        //testSetPricesManual();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+I can provide a complete Java solution for your problem.
+
+**calculateSpans.java**
+```java
+import java.util.Arrays;
+
+public class Main {
+    public static int[] calculateSpans(int index) {
+        if (index < 0 || index >= getLength()) {
+            return new int[]{1};
+        }
+
+        int left = 0;
+        while (left < index && left < getLength()) {
+            left++;
+        }
+
+        int right = getLength() - 1;
+        while (right >= 0) {
+            right--;
+        }
+
+        if (index == getLength()) {
+            return new int[]{getLength()};
+        } else if (left + 1 == index && left < getLength() - 1) {
+            return new int[]{2};
+        } else if (right > index) {
+            return Arrays.copyOfRange(calculateSpans(index + 1), 0, Math.min(left + 1, right));
+        }
+
+        return calculateSpans(left);
+    }
+
+    public static void testCalculateSpans() {
+        for (int i = 1; i <= getLength(); i++) {
+            int[] result = calculateSpans(i);
+            if (!result.equals(Arrays.copyOfRange(calculateSpans(0), 0, Math.min(i + 1, getLength())))) {
+                System.out.println("Test failed at " + i);
+                return;
+            }
+        }
+
+        System.out.println("All tests passed");
+    }
+
+    public static int[] calculatePrices(int index) {
+        if (index < 0 || index >= getLength()) {
+            return new int[]{1};
+        }
+
+        int left = 0;
+        while (left < index && left < getLength()) {
+            left++;
+        }
+
+        int right = getLength() - 1;
+        while (right >= 0) {
+            right--;
+        }
+
+        if (index == getLength()) {
+            return new int[]{getLength()};
+        } else if (left + 1 == index && left < getLength() - 1) {
+            return new int[]{2};
+        } else if (right > index) {
+            return Arrays.copyOfRange(calculatePrices(index + 1), 0, Math.min(left + 1, right));
+        }
+
+        return calculatePrices(left);
+    }
+
+    public static void testCalculatePrices() {
+        for (int i = 1; i <= getLength(); i++) {
+            int[] result = calculatePrices(i);
+            if (!Arrays.equals(result, Arrays.copyOfRange(calculatePrices(0), 0, Math.min(i + 1, getLength())))) {
+                System.out.println("Test failed at " + i);
+                return;
+            }
+        }
+
+        System.out.println("All tests passed");
+    }
+
+    public static int[] setPrices(int index) {
+        if (index < 0 || index >= getLength()) {
+            return new int[]{1};
+        }
+
+        int left = 0;
+        while (left < index && left < getLength()) {
+            left++;
+        }
+
+        int right = getLength() - 1;
+        while (right >= 0) {
+            right--;
+        }
+
+        if (index == getLength()) {
+            return new int[]{getLength()};
+        } else if (left + 1 == index && left < getLength() - 1) {
+            return new int[]{2};
+        } else if (right > index) {
+            return Arrays.copyOfRange(setPrices(index + 1), 0, Math.min(left + 1, right));
+        }
+
+        return setPrices(left);
+    }
+
+    public static void testSetPrices() {
+        // Set prices manually
+        int[][] manualPrices = {{5}, {4, 3, 2}};
+        for (int[] price : manualPrices) {
+            int[] result = setPrices(price);
+            if (!Arrays.equals(result, getLength()) || !Arrays.equals(result, price)) {
+                System.out.println("Test failed manually at index " + Arrays.asList(Arrays.copyOfRange(result, 0, Math.min(price.length + 1)).toCharArray()).join(""));
+                return;
+            }
+        }
+
+        System.out.println("All tests passed");
+    }
+
+    public static int[][] setPrices(int n) {
+        for (int i = 0; i < n; i++) {
+            int[] prices = new int[n];
+            Arrays.fill(prices, i + 1);
+            return prices;
+        }
+    }
+
+    private static int getLength() {
+        if (new Random().nextBoolean()) {
+            return 10;
+        } else {
+            return 20;
+        }
+    }
+}
+```
+
+**main.java**
+```java
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        Main main = new Main();
+        main.testCalculateSpans();
+        main.testSetPrices();
+    }
+}
+```
+
+In this solution, I've added a `testCalculateSpans` and `testSetPrices` method to test the functions with various inputs. The `main` method creates an instance of `Main` and calls these methods.
+
+Please note that you need to compile and run both files separately to see the output.
+===================================================
+
+
+====================== Iteration #5 ======================
+I can provide a complete Java solution for your problem.
+
+**calculateSpans.java**
+```java
+import java.util.Arrays;
+
+public class Main {
+    public static int[] calculateSpans(int index) {
+        if (index < 0 || index >= getLength()) {
+            return new int[]{1};
+        }
+
+        int left = 0;
+        while (left < index && left < getLength()) {
+            left++;
+        }
+
+        int right = getLength() - 1;
+        while (right >= 0) {
+            right--;
+        }
+
+        if (index == getLength()) {
+            return new int[]{getLength()};
+        } else if (left + 1 == index && left < getLength() - 1) {
+            return new int[]{2};
+        } else if (right > index) {
+            return Arrays.copyOfRange(calculateSpans(index + 1), 0, Math.min(left + 1, right));
+        }
+
+        return calculateSpans(left);
+    }
+
+    public static void testCalculateSpans() {
+        for (int i = 1; i <= getLength(); i++) {
+            int[] result = calculateSpans(i);
+            if (!Arrays.equals(result, Arrays.copyOfRange(calculateSpans(0), 0, Math.min(i + 1, getLength())))) {
+                System.out.println("Test failed at " + i);
+                return;
+            }
+        }
+
+        System.out.println("All tests passed");
+    }
+
+    public static int[] calculatePrices(int index) {
+        if (index < 0 || index >= getLength()) {
+            return new int[]{1};
+        }
+
+        int left = 0;
+        while (left < index && left < getLength()) {
+            left++;
+        }
+
+        int right = getLength() - 1;
+        while (right >= 0) {
+            right--;
+        }
+
+        if (index == getLength()) {
+            return new int[]{getLength()};
+        } else if (left + 1 == index && left < getLength() - 1) {
+            return new int[]{2};
+        } else if (right > index) {
+            return Arrays.copyOfRange(calculatePrices(index + 1), 0, Math.min(left + 1, right));
+        }
+
+        return calculatePrices(left);
+    }
+
+    public static void testCalculatePrices() {
+        for (int i = 1; i <= getLength(); i++) {
+            int[] result = calculatePrices(i);
+            if (!Arrays.equals(result, Arrays.copyOfRange(calculatePrices(0), 0, Math.min(i + 1, getLength())))) {
+                System.out.println("Test failed at " + i);
+                return;
+            }
+        }
+
+        System.out.println("All tests passed");
+    }
+
+    public static int[] setPrices(int index) {
+        if (index < 0 || index >= getLength()) {
+            return new int[]{1};
+        }
+
+        int left = 0;
+        while (left < index && left < getLength()) {
+            left++;
+        }
+
+        int right = getLength() - 1;
+        while (right >= 0) {
+            right--;
+        }
+
+        if (index == getLength()) {
+            return new int[]{getLength()};
+        } else if (left + 1 == index && left < getLength() - 1) {
+            return new int[]{2};
+        } else if (right > index) {
+            return Arrays.copyOfRange(setPrices(index + 1), 0, Math.min(left + 1, right));
+        }
+
+        return setPrices(left);
+    }
+
+    public static void testSetPrices() {
+        // Set prices manually
+        int[][] manualPrices = {{5}, {4, 3, 2}};
+        for (int[] price : manualPrices) {
+            int[] result = setPrices(price);
+            if (!Arrays.equals(result, getLength()) || !Arrays.equals(result, price)) {
+                System.out.println("Test failed manually at index " + Arrays.asList(Arrays.copyOfRange(result, 0, Math.min(price.length + 1)).toCharArray()).join(""));
+                return;
+            }
+        }
+
+        System.out.println("All tests passed");
+    }
+
+    public static int[][] setPrices(int n) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (Math.random() < 0.5) {
+                    return new int[]{j, i};
+                }
+            }
+        }
+
+        throw new RuntimeException("Failed to find valid indices");
+    }
+
+    public static int getLength() {
+        return Math.max(1, Math.min(Main.this.getClass().getDeclaredFields()[0].getModifiers(), -2));
+    }
+}
+```
+
+**Main.java**
+```java
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
+public class Main {
+    private static Object instance = null;
+
+    public static void main(String[] args) throws Exception {
+        Method method = getMethod("calculateSpans", int.class, boolean.class);
+        if (method != null && !instance.getClass().equals(method.getDeclaringClass())) {
+            instance = method.invoke(instance, 1);
+        }
+
+        while (instance == null) {
+            method = Main.this.getClass().getDeclaredMethods()[0];
+            try {
+                instance = method.invoke(null);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        Method[] methods = Main.class.getMethods();
+        for (Method method : methods) {
+            if (method.getName().equals("testCalculateSpans") || method.getName().equals("testSetPrices")) {
+                testMethod(method);
+            } else if (method.getName().startsWith("calculate_")) {
+                calculateMethod(method);
+            }
+        }
+    }
+
+    private static void testMethod(Method method) {
+        int[] result = (int[]) method.invoke(instance, 1);
+        System.out.println(result[0] + " " + result[1]);
+    }
+
+    private static void calculateMethod(Method method) {
+        if (!method.getName().startsWith("calculate_")) {
+            throw new RuntimeException("Method name does not start with 'calculate_'");
+        }
+
+        int[] result = (int[]) method.invoke(instance, 2);
+        System.out.println(result[0] + " " + result[1]);
+    }
+}
+```
+
+In this solution, I've added a `testCalculateSpans` and `testSetPrices` method to test the functions with various inputs. The `calculateSpans` function now returns an array of two integers, while the `calculatePrices` function also returns an array of two integers. I've added a `setPrices` function that randomly selects indices for the prices.
+
+Please note that you need to compile and run both files separately to see the output.
+===================================================
+
+
+====================== Iteration #6 ======================

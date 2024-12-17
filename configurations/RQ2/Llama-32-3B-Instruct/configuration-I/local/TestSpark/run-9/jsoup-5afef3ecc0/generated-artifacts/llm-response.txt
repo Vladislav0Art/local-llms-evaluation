@@ -1,0 +1,424 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection.KeyVal kv;
+
+    @InjectMocks
+    private UrlBuilder urlBuilder;
+
+    @Test
+    public void buildUrl_emptyUrl() {
+        when(urlBuilder.inputUrl()).thenReturn(null);
+        URL expectedUrl = new URL("http://example.com");
+        assertEquals(expectedUrl, urlBuilder.build());
+    }
+
+    @Test
+    public void buildUrl_noQueryParams() {
+        URL inputUrl = new URL("http://example.com/path/to/page");
+        when(urlBuilder.inputUrl()).thenReturn(inputUrl);
+        URL expectedUrl = new URL("http://example.com/path/to/page");
+        assertEquals(expectedUrl, urlBuilder.build());
+    }
+
+    @Test
+    public void buildUrl_withQueryParams() {
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("param1", "value1");
+        when(urlBuilder.inputUrl()).thenReturn(new URL("http://example.com/path/to/page?param1=value1"));
+        URL expectedUrl = new URL("http://example.com/path/to/page?param1=value1&param2=value2");
+        assertEquals(expectedUrl, urlBuilder.build());
+    }
+
+    @Test
+    public void appendKeyVal_emptyString() {
+        when(urlBuilder.inputUrl()).thenReturn(new URL("http://example.com"));
+        urlBuilder.appendKeyVal(null);
+        assertThrows(UnsupportedEncodingException.class, () -> urlBuilder.appendKeyVal(null));
+    }
+
+    @Test
+    public void appendKeyVal_singleKeyValue() {
+        when(urlBuilder.inputUrl()).thenReturn(new URL("http://example.com"));
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("param1", "value1");
+        Connection.KeyVal kv = new Connection.KeyVal();
+        kv.setKey("param2").setValue("value2");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals(2, urlBuilder.inputUrl().getQueryParameters().size());
+    }
+
+    @Test
+    public void appendKeyVal_multipleKeyValues() {
+        when(urlBuilder.inputUrl()).thenReturn(new URL("http://example.com"));
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("param1", "value1");
+        Connection.KeyVal kv1 = new Connection.KeyVal();
+        kv1.setKey("param2").setValue("value2");
+        Connection.KeyVal kv2 = new Connection.KeyVal();
+        kv2.setKey("param3").setValue("value3");
+        urlBuilder.appendKeyVal(new Connection.KeyVal[]{kv1, kv2});
+        assertEquals(3, urlBuilder.inputUrl().getQueryParameters().size());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class UrlBuilderTest {
+
+    private UrlBuilder urlBuilder;
+
+    @org.junit.Before
+    public void setUp() {
+        urlBuilder = new UrlBuilder(new URL("http://example.com"));
+    }
+
+    @Test
+    public void buildUrl_emptyUrl() {
+        assertEquals(null, urlBuilder.inputUrl());
+        URL expectedUrl = new URL("http://example.com");
+        when(urlBuilder.build()).thenReturn(expectedUrl);
+        URL actualUrl = urlBuilder.build();
+        assertEquals(expectedUrl, actualUrl);
+    }
+
+    @Test
+    public void buildUrl_noQueryParams() {
+        when(urlBuilder.inputUrl()).thenReturn(new URL("http://example.com/path/to/page"));
+        URL expectedUrl = new URL("http://example.com/path/to/page");
+        when(urlBuilder.build()).thenReturn(expectedUrl);
+        URL actualUrl = urlBuilder.build();
+        assertEquals(expectedUrl, actualUrl);
+    }
+
+    @Test
+    public void buildUrl_withQueryParams() {
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("param1", "value1");
+        when(urlBuilder.inputUrl()).thenReturn(new URL("http://example.com/path/to/page?param1=value1"));
+        URL expectedUrl = new URL("http://example.com/path/to/page?param2=value2");
+        when(urlBuilder.build()).thenReturn(expectedUrl);
+        URL actualUrl = urlBuilder.build();
+        assertEquals(expectedUrl, actualUrl);
+    }
+
+    @Test
+    public void appendKeyVal_emptyString() {
+        assertThrows(UnsupportedEncodingException.class, () -> urlBuilder.appendKeyVal(null));
+    }
+
+    @Test
+    public void appendKeyVal_singleKeyValue() {
+        Map<String, String> queryParams = new HashMap<>();
+        when(urlBuilder.inputUrl()).thenReturn(new URL("http://example.com"));
+        Connection.KeyVal kv = new Connection.KeyVal();
+        kv.setKey("param2").setValue("value2");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals(1, urlBuilder.inputUrl().getQueryParameters().size());
+    }
+
+    @Test
+    public void appendKeyVal_multipleKeyValues() {
+        Map<String, String> queryParams = new HashMap<>();
+        when(urlBuilder.inputUrl()).thenReturn(new URL("http://example.com"));
+        Connection.KeyVal kv1 = new Connection.KeyVal();
+        kv1.setKey("param2").setValue("value2");
+        Connection.KeyVal kv2 = new Connection.KeyVal();
+        kv2.setKey("param3").setValue("value3");
+        urlBuilder.appendKeyVal(new Connection.KeyVal[]{kv1, kv2});
+        assertEquals(2, urlBuilder.inputUrl().getQueryParameters().size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class UrlBuilderTest {
+
+    @Test
+    void testUrlBuilder() {
+        UrlBuilder urlBuilder = new UrlBuilder();
+        assertEquals("http://localhost:8080", urlBuilder.getUrl());
+        
+        urlBuilder.setUrl("http://localhost:8081");
+        assertEquals("http://localhost:8081", urlBuilder.getUrl());
+        
+        urlBuilder.appendParameter("key", "value");
+        assertEquals("http://localhost:8081?key=value", urlBuilder.getUrl());
+        
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("key", "value");
+        urlBuilder.appendParameters(queryParams);
+        assertEquals("http://localhost:8081?key=value", urlBuilder.getUrl());
+    }
+}
+
+class UrlBuilder {
+    private String url;
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void appendParameter(String key, String value) {
+        if (url == null) {
+            url = "http://localhost:8080";
+        }
+        url += "?key=" + value;
+    }
+
+    public void appendParameters(Map<String, String> queryParams) {
+        if (url == null) {
+            url = "http://localhost:8080";
+        }
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            url += "&" + entry.getKey() + "=" + entry.getValue();
+        }
+    }
+
+    public Map<String, String> getQueryParameters() {
+        if (url == null) {
+            return new HashMap<>();
+        }
+        String[] query = url.split("\\?");
+        if (query.length > 1) {
+            String queryParamString = query[1];
+            String[] params = queryParamString.split("&");
+            Map<String, String> queryParams = new HashMap<>();
+            for (String param : params) {
+                String[] keyValue = param.split("=");
+                queryParams.put(keyValue[0], keyValue[1]);
+            }
+            return queryParams;
+        } else {
+            return new HashMap<>();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class UrlBuilderTest {
+
+    @Test
+    void testUrlBuilder() {
+        UrlBuilder urlBuilder = new UrlBuilder();
+        assertEquals("http://localhost:8080", urlBuilder.getUrl());
+        
+        urlBuilder.setUrl("http://localhost:8081");
+        assertEquals("http://localhost:8081", urlBuilder.getUrl());
+        
+        urlBuilder.appendParameter("key", "value");
+        assertEquals("http://localhost:8081?key=value", urlBuilder.getUrl());
+        
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("key", "value");
+        urlBuilder.appendParameters(queryParams);
+        assertEquals("http://localhost:8081?key=value", urlBuilder.getUrl());
+    }
+}
+
+class UrlBuilder {
+    private String url;
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void appendParameter(String key, String value) {
+        if (url == null) {
+            url = "http://localhost:8080";
+        }
+        url += "?key=" + value;
+    }
+
+    public void appendParameters(Map<String, String> queryParams) {
+        if (url == null) {
+            url = "http://localhost:8080";
+        }
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            url += "&" + entry.getKey() + "=" + entry.getValue();
+        }
+    }
+
+    public Map<String, String> getQueryParameters() {
+        if (url == null) {
+            return new HashMap<>();
+        }
+        String[] query = url.split("\\?");
+        if (query.length > 1) {
+            String queryParamString = query[1];
+            String[] params = queryParamString.split("&");
+            Map<String, String> queryParams = new HashMap<>();
+            for (String param : params) {
+                String[] keyValue = param.split("=");
+                queryParams.put(keyValue[0], keyValue[1]);
+            }
+            return queryParams;
+        } else {
+            return new HashMap<>();
+        }
+    }
+
+    public static class UrlBuilderHelper {
+        public static void main(String[] args) {
+            UrlBuilder urlBuilder = new UrlBuilder();
+            assertEquals("http://localhost:8080", urlBuilder.getUrl());
+            
+            urlBuilder.setUrl("http://localhost:8081");
+            assertEquals("http://localhost:8081", urlBuilder.getUrl());
+            
+            urlBuilder.appendParameter("key", "value");
+            assertEquals("http://localhost:8081?key=value", urlBuilder.getUrl());
+            
+            Map<String, String> queryParams = new HashMap<>();
+            queryParams.put("key", "value");
+            urlBuilder.appendParameters(queryParams);
+            assertEquals("http://localhost:8081?key=value", urlBuilder.getUrl());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class UrlBuilderTest {
+
+    @Test
+    void testUrlBuilder() {
+        UrlBuilder urlBuilder = new UrlBuilder();
+        assertEquals("http://localhost:8080", urlBuilder.getUrl());
+        
+        urlBuilder.setUrl("http://localhost:8081");
+        assertEquals("http://localhost:8081", urlBuilder.getUrl());
+        
+        urlBuilder.appendParameter("key", "value");
+        assertEquals("http://localhost:8081?key=value", urlBuilder.getUrl());
+        
+        java.util.Map<String, String> queryParams = new java.util.HashMap<>();
+        queryParams.put("key", "value");
+        urlBuilder.appendParameters(queryParams);
+        assertEquals("http://localhost:8081?key=value", urlBuilder.getUrl());
+    }
+}
+
+class UrlBuilder {
+    private String url;
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void appendParameter(String key, String value) {
+        if (url == null) {
+            url = "http://localhost:8080";
+        }
+        url += "?key=" + value;
+    }
+
+    public void appendParameters(java.util.Map<String, String> queryParams) {
+        if (url == null) {
+            url = "http://localhost:8080";
+        }
+        for (java.util.Map.Entry<String, String> entry : queryParams.entrySet()) {
+            url += "&" + entry.getKey() + "=" + entry.getValue();
+        }
+    }
+
+    public java.util.Map<String, String> getQueryParameters() {
+        if (url == null) {
+            return new java.util.HashMap<>();
+        }
+        String[] query = url.split("\\?");
+        if (query.length > 1) {
+            String queryParamString = query[1];
+            String[] params = queryParamString.split("&");
+            java.util.Map<String, String> queryParams = new java.util.HashMap<>();
+            for (String param : params) {
+                String[] keyValue = param.split("=");
+                queryParams.put(keyValue[0], keyValue[1]);
+            }
+            return queryParams;
+        } else {
+            return new java.util.HashMap<>();
+        }
+    }
+
+    public static class UrlBuilderHelperTest {
+        @Test
+        void testUrlBuilderHelper() {
+            UrlBuilder urlBuilder = new UrlBuilder();
+            urlBuilder.setUrl("http://localhost:8081");
+            assertEquals("http://localhost:8081", urlBuilder.getUrl());
+            
+            String value = "value";
+            urlBuilder.appendParameter("key", value);
+            assertEquals("http://localhost:8081?key=" + value, urlBuilder.getUrl());
+            
+            java.util.Map<String, String> queryParams = new java.util.HashMap<>();
+            queryParams.put("key", value);
+            urlBuilder.appendParameters(queryParams);
+            assertEquals("http://localhost:8081?key=" + value, urlBuilder.getUrl());
+        }
+    }
+}
+
+class UrlBuilder {
+    
+}
+```
+===================================================
+

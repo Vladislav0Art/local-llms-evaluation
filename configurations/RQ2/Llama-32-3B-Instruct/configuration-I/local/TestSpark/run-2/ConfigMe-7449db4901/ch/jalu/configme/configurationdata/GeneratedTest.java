@@ -1,0 +1,120 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Map<String, List<String>> comments;
+
+    public CommentsConfiguration getCommentsConfiguration() {
+        return new CommentsConfiguration(comments);
+    }
+
+    @Test
+    public void constructorShouldCreateNewInstance() {
+        CommentsConfiguration configuration = getCommentsConfiguration();
+        assertNotNull(configuration);
+    }
+
+    @Test
+    public void constructorWithCommentsShouldCreateNewInstanceAndCopyComments() {
+        // Arrange
+        List<String> commentLines1 = new ArrayList<>();
+        List<String> commentLines2 = new ArrayList<>();
+
+        comments.put("path1", commentLines1);
+        comments.put("path2", commentLines2);
+
+        // Act
+        CommentsConfiguration configuration = getCommentsConfiguration();
+
+        // Assert
+        assertNotNull(configuration);
+        assertEquals(commentLines1, configuration.getAllComments().get("path1"));
+        assertEquals(commentLines2, configuration.getAllComments().get("path2"));
+    }
+
+    @Test
+    public void setCommentShouldRegisterNewComment() {
+        // Arrange
+        CommentsConfiguration configuration = getCommentsConfiguration();
+
+        String path = "path1";
+        String commentLine = "comment line";
+
+        // Act
+        configuration.setComment(path, commentLine);
+
+        // Assert
+        verify(comments).put(anyString(), Mockito.any(List.class));
+    }
+
+    @Test
+    public void setCommentShouldRegisterEmptyComment() {
+        // Arrange
+        CommentsConfiguration configuration = getCommentsConfiguration();
+
+        String path = "path1";
+        String commentLine = "";
+
+        // Act
+        configuration.setComment(path, commentLine);
+
+        // Assert
+        verify(comments).put(anyString(), Mockito.any(List.class));
+    }
+
+    @Test
+    public void setCommentShouldOverrideExistingComment() {
+        // Arrange
+        CommentsConfiguration configuration = getCommentsConfiguration();
+        List<String> existingComments = new ArrayList<>();
+
+        String path = "path1";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("comment line");
+
+        comments.put(path, existingComments);
+        configuration.setComment(path, commentLine);
+
+        // Assert
+        verify(comments).put(anyString(), Mockito.any(List.class));
+    }
+
+    @Test
+    public void getAllCommentsShouldReturnUnmodifiableView() {
+        CommentsConfiguration configuration = getCommentsConfiguration();
+        Map<String, List<String>> allComments = configuration.getAllComments();
+
+        assertNotNull(allComments);
+        assertTrue(allComments.containsKey("path1"));
+        assertEquals(0, allComments.get("path1").size());
+    }
+
+    @Test
+    public void getAllCommentsShouldReturnUnmodifiableListForComment() {
+        CommentsConfiguration configuration = getCommentsConfiguration();
+        Map<String, List<String>> allComments = configuration.getAllComments();
+
+        assertNotNull(allComments);
+        assertTrue(allComments.containsKey("path1"));
+        assertEquals(0, allComments.get("path1").size());
+    }
+
+}

@@ -1,0 +1,336 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class Tag implements Cloneable {
+    private final String name;
+    private final ParseSettings settings;
+
+    public Tag(String name, ParseSettings settings) {
+        this.name = name;
+        this.settings = settings;
+    }
+
+    public static boolean equals(Tag t1, Tag t2) {
+        return t1.getName().equals(t2.getName()) && t1.getSettings().equals(t2.getSettings());
+    }
+
+    @Override
+    public String toString() {
+        return "Tag{" +
+                "name='" + name + '\'' +
+                ", settings=" + settings +
+                '}';
+    }
+}
+
+public class TagParser {
+    private final org.jsoup.parser.Parser parser;
+    private static final Mockito mock = Mockito.mock(org.jsoup.parser.Parser.class);
+
+    @Before
+    public void setUp() {
+        parseSettings();
+
+        // Assuming ParseSettings is a custom class with necessary methods
+        when(mock.getSettings()).thenReturn(parseSettings());
+    }
+
+    public Tag valueOf(String tagName, ParseSettings settings) {
+        return (Tag) mock.invoke(parser.valueOf(tagName, settings));
+    }
+
+    public static Tag valueOf(String tagName) {
+        return (Tag) mock.invoke(parser.valueOf(tagName));
+    }
+}
+
+public class ParseSettings {
+    // Custom implementation of ParseSettings
+}
+
+public class TagTest {
+
+    @Test
+    public void testEquals() {
+        TestTag tag1 = new Tag("test", ParseSettings.INSTANCE);
+        TestTag tag2 = new Tag("test", ParseSettings.INSTANCE);
+
+        Assert.assertTrue(Tag.equals(tag1, tag2));
+    }
+
+    @Test
+    public void testToString() {
+        TestTag tag = new Tag("test", ParseSettings.INSTANCE);
+
+        Assert.assertEquals("Tag{name='test', settings=ParseSettings{...})", tag.toString());
+    }
+}
+
+public class TagParserTest {
+
+    @Test
+    public void testValueOf() {
+        // Assume parseSettings is a custom class with necessary methods
+        TestTag tag = new Tag(valueOf("test", ParseSettings.INSTANCE));
+
+        Assert.assertNotNull(tag);
+    }
+
+    @Test
+    public void testValueOfNotFound() {
+        when(mock.invoke(parser.valueOf("test", ParseSettings.INSTANCE))).thenReturn(null);
+
+        // Assume parseSettings is a custom class with necessary methods
+        TestTag tag = new Tag(valueOf("test", ParseSettings.INSTANCE));
+
+        Assert.assertNotNull(tag);
+    }
+}
+
+class TestTag {
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class ParseSettings {
+    public static final String DEFAULT_SETTINGS = "default settings";
+
+    public static Tag parseSettings() {
+        return new TestTag(DEFAULT_SETTINGS);
+    }
+}
+
+class TestTag extends Tag {
+    private final String name;
+
+    public TestTag(String name) {
+        super(name, ParseSettings.parseSettings());
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
+        TestTag testTag = (TestTag) obj;
+
+        return super.equals(testTag);
+    }
+}
+
+public class TagParserTest {
+
+    @Test
+    public void testValueOf() {
+        TestTag tag = new TestTag("test");
+        Assert.assertNotNull(tag);
+    }
+
+    @Test
+    public void testValueOfNotFound() {
+        try {
+            ParseSettings.parseSettings();
+        } catch (Exception e) {
+            // Expect exception to be thrown
+        }
+        TestTag tag = new Tag(valueOf("test", ParseSettings.parseSettings()));
+        Assert.assertNotNull(tag);
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class ParseSettings {
+    public static final String DEFAULT_SETTINGS = "default settings";
+
+    public static Tag parseSettings() {
+        return new TestTag(DEFAULT_SETTINGS);
+    }
+}
+
+class TagParserTest {
+
+    @Test
+    public void testValueOf() {
+        TestTag tag = new TestTag("test");
+        Assert.assertNotNull(tag);
+    }
+
+    @Test
+    public void testValueOfNotFound() {
+        try {
+            ParseSettings.parseSettings();
+        } catch (Exception e) {
+            // Expect exception to be thrown
+        }
+        Tag tag = new Tag(valueOf("test", ParseSettings.parseSettings()));
+        Assert.assertNotNull(tag);
+    }
+
+    public void testParseSettingsSuccess() {
+        Tag tag = new TestTag("test");
+        ParseSettings parseSettings = ParseSettings.parseSettings();
+        tag = new Tag(valueOf("test", parseSettings));
+        Assert.assertNotNull(tag);
+    }
+
+    @Test
+    public void testParseSettingsNotFound() {
+        ParseSettings parseSettings = ParseSettings.parseSettings();
+        try {
+            Tag tag = new TestTag("test");
+            parseSettings.parseSettings();
+        } catch (Exception e) {
+            // Expect exception to be thrown
+        }
+        Assert.assertNotNull(tag);
+    }
+
+    public void testCreateTestTag(String value, ParseSettings parseSettings) {
+        Tag tag = new TestTag(value, parseSettings);
+        Assert.assertNotNull(tag);
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class GeneratedTest {
+
+    public static TestTag createTestTag(String value, ParseSettings parseSettings) {
+        return new TestTag(value, parseSettings);
+    }
+
+    @Test
+    public void testParse() {
+        ParseSettings parseSettings = ParseSettings.parseSettings();
+        TestTag tag = createTestTag("test", parseSettings);
+        Assert.assertNotNull(tag);
+
+        // Rest of the test remains the same
+    }
+}
+
+class TagParserTest extends org.junit.Test {
+
+    private static final String DEFAULT_SETTINGS = ParseSettings.getDefaultSettings();
+
+    @Test
+    public void testParse() {
+        ParseSettings.parseSettings();
+        TestTag tag = createTestTag("test", ParseSettings.getDefaultSettings());
+        Assert.assertNotNull(tag);
+
+        // Rest of the test remains the same
+    }
+}
+
+class ParseSettings {
+
+    private static final ParseSettings DEFAULT_SETTINGS = new ParseSettings();
+
+    public static ParseSettings getDefaultSettings() {
+        return DEFAULT_SETTINGS;
+    }
+
+    public static void parseSettings() {
+        // Implement parse logic here
+    }
+}
+
+class TestTag {
+    private String value;
+
+    public TestTag(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TestTag that = (TestTag) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class TestTag {
+    public static String value;
+
+    public TestTag(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TestTag that = (TestTag) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value == null ? 0 : value.hashCode();
+    }
+}
+
+public class GeneratedTest {
+
+    public static void main(String[] args) throws Exception {
+        TestTag tag1 = new TestTag("test");
+        TestTag tag2 = createTestTag("test", ParseSettings.getDefaultSettings());
+        
+        System.out.println(tag1.equals(tag2));
+
+        Assert.assertNotNull(tag1);
+
+        // Rest of the test remains the same
+    }
+
+    public static TestTag createTestTag(String value, ParseSettings parseSettings) {
+        return new TestTag(value, parseSettings);
+    }
+}
+
+class ParseSettings {
+
+    private static final ParseSettings DEFAULT_SETTINGS = new ParseSettings();
+
+    public static ParseSettings getDefaultSettings() {
+        return DEFAULT_SETTINGS;
+    }
+
+    public static void parseSettings() {
+        // Implement parse logic here
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

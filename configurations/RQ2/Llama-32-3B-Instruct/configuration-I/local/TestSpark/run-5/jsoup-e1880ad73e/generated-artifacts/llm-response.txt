@@ -1,0 +1,339 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.URL;
+import java.util.Base64;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @InjectMocks
+    private UrlBuilder urlBuilder;
+
+    @Mock
+    private Connection connection;
+
+    @Mock
+    private URL inputUrl;
+
+    @Test
+    public void newUrlBuilderFromUrlIsNotNull() {
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildUrlReturnsUrl() {
+        when(connection.getKey()).thenReturn("key");
+        when(connection.getValue()).thenReturn("value");
+
+        URL result = urlBuilder.build();
+        assertNotNull(result);
+
+        // Test if the resulting URL has the correct key-value pair
+        String encodedKey = Base64.getEncoder().encodeToString(connection.getKey());
+        String encodedValue = Base64.getEncoder().encodeToString(connection.getValue());
+
+        assertEquals(encodedKey, new java.net.URL(result).getQuery());
+        assertEquals(encodedValue, new java.net.URL(result).getQuery());
+
+    }
+
+    @Test
+    public void buildUrlReturnsNullWhenConnectionIsNull() {
+        when(connection.getKey()).thenReturn(null);
+        when(connection.getValue()).thenReturn(null);
+
+        assertNull(urlBuilder.build());
+    }
+
+    @Test
+    public void appendKeyValDoesNotThrowExceptionWhenKeyValIsNull() {
+        assertNull(connection.getKey());
+
+        urlBuilder.appendKeyVal(new Connection.KeyVal(null, null));
+    }
+
+    @Test
+    public void appendKeyValThrowsUnsupportedEncodingExceptionWhenEncodingFails() throws UnsupportedEncodingException {
+        when(connection.getKey()).thenReturn("key");
+        when(connection.getValue()).thenReturn("value");
+
+        // Make the encoding fail for testing purposes
+        Base64.getEncoder().encodeToString("key").getBytes()[0] = 10;
+
+        assertTrue(() -> urlBuilder.appendKeyVal(new Connection.KeyVal(null, null))).toThrow(UnsupportedEncodingException.class);
+    }
+
+    @Test
+    public void appendKeyValDoesNotAddDuplicateKeyValuePairs() {
+        when(connection.getKey()).thenReturn("key");
+        when(connection.getValue()).thenReturn("value");
+
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+
+        assertEquals("key=value", new java.net.URL(urlBuilder.build()).getQuery());
+    }
+
+    @Test
+    public void appendKeyValAddsKeyValuePairsWithDifferentKeys() {
+        when(connection.getKey()).thenReturn("key1");
+        when(connection.getValue()).thenReturn("value1");
+
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key2", "value2"));
+
+        assertEquals("key1=value1&key2=value2", new java.net.URL(urlBuilder.build()).getQuery());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.URL;
+import java.util.Base64;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection connection;
+
+    @Mock
+    private URL inputUrl;
+
+    @org.junit.Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void newUrlBuilderFromUrlIsNotNull() {
+        urlBuilder = new UrlBuilder(inputUrl);
+
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildUrlReturnsUrl() {
+        when(connection.getKey()).thenReturn("key");
+        when(connection.getValue()).thenReturn("value");
+
+        URL result = urlBuilder.build();
+        assertNotNull(result);
+
+        // Test if the resulting URL has the correct key-value pair
+        String encodedKey = Base64.getEncoder().encodeToString(connection.getKey());
+        String encodedValue = Base64.getEncoder().encodeToString(connection.getValue());
+
+        assertEquals(encodedKey, new java.net.URL(result).getQuery());
+        assertEquals(encodedValue, new java.net.URL(result).getQuery());
+
+    }
+
+    @Test
+    public void buildUrlReturnsNullWhenConnectionIsNull() {
+        when(connection.getKey()).thenReturn(null);
+        when(connection.getValue()).thenReturn(null);
+
+        assertNull(urlBuilder.build());
+    }
+
+    @Test
+    public void appendKeyValDoesNotThrowExceptionWhenKeyValIsNull() {
+        urlBuilder = new UrlBuilder(inputUrl);
+
+        assertNull(connection.getKey());
+
+        urlBuilder.appendKeyVal(new Connection.KeyVal(null, null));
+    }
+
+    @Test
+    public void appendKeyValThrowsUnsupportedEncodingExceptionWhenEncodingFails() throws UnsupportedEncodingException {
+        when(connection.getKey()).thenReturn("key");
+        when(connection.getValue()).thenReturn("value");
+
+        // Make the encoding fail for testing purposes
+        Base64.getEncoder().encodeToString("key").getBytes()[0] = 10;
+
+        assertTrue(() -> urlBuilder.appendKeyVal(new Connection.KeyVal(null, null))).toThrow(UnsupportedEncodingException.class);
+    }
+
+    @Test
+    public void appendKeyValDoesNotAddDuplicateKeyValuePairs() {
+        urlBuilder = new UrlBuilder(inputUrl);
+
+        when(connection.getKey()).thenReturn("key");
+        when(connection.getValue()).thenReturn("value");
+
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+
+        assertEquals("key=value", new java.net.URL(urlBuilder.build()).getQuery());
+    }
+
+    @Test
+    public void appendKeyValAddsKeyValuePairsWithDifferentKeys() {
+        urlBuilder = new UrlBuilder(inputUrl);
+
+        when(connection.getKey()).thenReturn("key1");
+        when(connection.getValue()).thenReturn("value1");
+
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key2", "value2"));
+
+        assertEquals("key1=value1&key2=value2", new java.net.URL(urlBuilder.build()).getQuery());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.URL;
+import java.util.Base64;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    private UrlBuilder urlBuilder;
+
+    @org.junit.Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    public UrlBuilder getUrlBuilder() {
+        return urlBuilder = new UrlBuilder(inputUrl);
+    }
+
+    @Test
+    public void testNewUrlBuilderFromUrlIsNotNull() {
+        urlBuilder = getUrlBuilder();
+
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void testBuildUrlReturnsUrl() {
+        urlBuilder = getUrlBuilder();
+
+        when(connection.getKey()).thenReturn("key");
+        when(connection.getValue()).thenReturn("value");
+
+        URL result = urlBuilder.build();
+        assertNotNull(result);
+
+        // Test if the resulting URL has the correct key-value pair
+        String encodedKey = Base64.getEncoder().encodeToString(connection.getKey());
+        String encodedValue = Base64.getEncoder().encodeToString(connection.getValue());
+
+        assertEquals(encodedKey, new java.net.URL(result).getQuery());
+        assertEquals(encodedValue, new java.net.URL(result).getQuery());
+
+    }
+
+    @Test
+    public void testBuildUrlReturnsNullWhenConnectionIsNull() {
+        urlBuilder = getUrlBuilder();
+
+        when(connection.getKey()).thenReturn(null);
+        when(connection.getValue()).thenReturn(null);
+
+        assertNull(urlBuilder.build());
+    }
+
+    @Test
+    public void testAppendKeyValDoesNotThrowExceptionWhenKeyValIsNull() {
+        urlBuilder = getUrlBuilder();
+
+        when(connection.getKey()).thenReturn(null);
+        when(connection.getValue()).thenReturn(null);
+
+        urlBuilder.appendKeyVal(new Connection.KeyVal(null, null));
+    }
+
+    @Test
+    public void testAppendKeyValThrowsUnsupportedEncodingExceptionWhenEncodingFails() throws UnsupportedEncodingException {
+        urlBuilder = getUrlBuilder();
+
+        when(connection.getKey()).thenReturn("key");
+        when(connection.getValue()).thenReturn("value");
+
+        // Make the encoding fail for testing purposes
+        Base64.getEncoder().encodeToString("key").getBytes()[0] = 10;
+
+        assertTrue(() -> urlBuilder.appendKeyVal(new Connection.KeyVal(null, null))).toThrow(UnsupportedEncodingException.class);
+    }
+
+    @Test
+    public void testAppendKeyValDoesNotAddDuplicateKeyValuePairs() {
+        urlBuilder = getUrlBuilder();
+
+        when(connection.getKey()).thenReturn("key");
+        when(connection.getValue()).thenReturn("value");
+
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+
+        assertEquals("key=value", new java.net.URL(urlBuilder.build()).getQuery());
+    }
+
+    @Test
+    public void testAppendKeyValAddsKeyValuePairsWithDifferentKeys() {
+        urlBuilder = getUrlBuilder();
+
+        when(connection.getKey()).thenReturn("key1");
+        when(connection.getValue()).thenReturn("value1");
+
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key2", "value2"));
+
+        assertEquals("key1=value1&key2=value2", new java.net.URL(urlBuilder.build()).getQuery());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================

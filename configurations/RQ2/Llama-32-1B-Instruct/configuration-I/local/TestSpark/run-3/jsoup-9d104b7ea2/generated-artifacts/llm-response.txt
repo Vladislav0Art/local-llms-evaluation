@@ -1,0 +1,459 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TextNodeTest {
+
+    private MockTextNode mockTextNode;
+
+    @Test
+    public void testBlankNode() {
+        // Given
+        String input = "   ";
+
+        // When
+        boolean result = mockTextNode.isBlank();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void testSingleWhitespaceNode() {
+        // Given
+        String input = "  ";
+
+        // When
+        TextNode result = mockTextNode.getText();
+
+        // Then
+        assertEquals(input, result.text());
+    }
+
+    @Test
+    public void testMultipleWhitespaceNodes() {
+        // Given
+        String input = "   \n  ";
+
+        // When
+        TextNode result = mockTextNode.getText();
+
+        // Then
+        assertEquals("   \n", result.text());
+    }
+
+    @Test
+    public void testNonBlankTextNode() {
+        // Given
+        String input = "Hello World";
+
+        // When
+        TextNode result = mockTextNode.getText();
+
+        // Then
+        assertNotNull(result);
+        assertTrue(!result.isBlank());
+    }
+
+    @Test
+    public void testSplittingTextAtOffset1() {
+        // Given
+        String input = "HelloWorld";
+        int offset = 4;
+
+        // When
+        TextNode result1 = mockTextNode.splitText(offset);
+        TextNode result2 = mockTextNode.splitText(0);
+
+        // Then
+        assertNotNull(result1);
+        assertEquals("Hello", result1.text());
+        assertTrue(result2.isBlank());
+    }
+
+    @Test
+    public void testSplittingTextAtOffsetZero() {
+        // Given
+        String input = "World";
+
+        // When
+        TextNode result = mockTextNode.splitText(0);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("", result.text());
+    }
+
+    @Mock
+    private Appendable appender;
+
+    @Test
+    public void testOuterHtmlHead() {
+        // Given
+        String input = "<div>Hello</div>";
+
+        // When
+        mockTextNode.outerHtmlHead(appender, 0, Document.OutputSettings.DEFAULT);
+        assertEquals("<div>Hello</div>", mockTextNode.outerHtmlTail(appender, 0, Document.OutputSettings.DEFAULT).text());
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        // Given
+        String input = "<div>Hello</div>";
+
+        // When
+        mockTextNode.outerHtmlHead(appender, 0, Document.OutputSettings.DEFAULT);
+        assertEquals("<div>Hello</div>", mockTextNode.outerHtmlTail(appender, 0, Document.OutputSettings.DEFAULT).text());
+
+        // Then
+        appender.clear();
+    }
+
+    @Test
+    public void testToString() {
+        // Given
+        String input = "<p>Hello World</p>";
+
+        // When
+        TextNode result = mockTextNode.toString();
+
+        // Then
+        assertEquals("<p>Hello World</p>", result);
+    }
+}
+
+class MockTextNode implements TextNode {
+    private Appendable appendable;
+
+    public MockTextNode(Appendable appender) {
+        this.appendable = appender;
+    }
+
+    @Override
+    public String nodeName() {
+        return "MockTextNode";
+    }
+
+    @Override
+    public void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        // do nothing
+    }
+
+    @Override
+    public void outerHtmlTail(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        // do nothing
+    }
+
+    @Override
+    public String toString() {
+        return "MockTextNode";
+    }
+
+    @Override
+    public TextNode clone() {
+        return new MockTextNode(appender);
+    }
+
+    @Override
+    public static TextNode createFromEncoded(String encodedText) {
+        // do nothing
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MockTextNode {
+    private TextNode appender = new TextNode();
+
+    @Test
+    public void testToString() {
+        assertEquals("Hello World", this.toString());
+    }
+}
+
+class TestMockTextNode extends MockTextNode {
+
+    @Override
+    public String toString() {
+        return "Hello World";
+    }
+
+    public static class TextNode {
+        private String data;
+
+        public TextNode(String data) {
+            this.data = data;
+        }
+
+        public void append(String text) {
+            if (this.appender != null && !this.appender.isEmpty()) {
+                this.appender.append(text);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "MockTextNode{" +
+                    "data='" + data + '\'' +
+                    ", appender=" + appender +
+                    '}';
+        }
+    }
+}
+
+class MockTextNodeAppenderTest {
+
+    private TextNode mockText;
+    private TextNode appender;
+
+    @Test
+    public void testAppend() {
+        mockText = new TestMockTextNode();
+        mockText.append("Hello");
+        appender = mockText.appender;
+        appender.append(" World");
+        assertEquals("Hello World", appender.toString());
+    }
+
+    @Test
+    public void testClearAndAppendAgain() {
+        mockText = new TestMockTextNode();
+        mockText.append("Hello");
+        appender = mockText.appender;
+        appender.append(" World");
+        appender.clear();
+        assertEquals("Hello", appender.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.nodes.TextNode;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MockTextNodeTest {
+
+    @Test
+    public void testToString() {
+        assertEquals("Hello World", this.toString());
+    }
+
+    public String toString() {
+        return "MockTextNode{data='Hello World', appender=null}";
+    }
+}
+
+class TestMockTextNode extends MockTextNode {
+    private TextNode appender;
+
+    @Override
+    public void append(String text) {
+        if (this.appender != null && !this.appender.isEmpty()) {
+            this.appender.append(text);
+        }
+    }
+
+    @Test
+    public void testAppend() {
+        TestMockTextNode mockText = new TestMockTextNode();
+        mockText.append("Hello");
+        appender = mockText.appender;
+        appender.append(" World");
+        assertEquals("Hello World", appender.toString());
+    }
+
+    @Test
+    public void testClearAndAppendAgain() {
+        TestMockTextNode mockText = new TestMockTextNode();
+        mockText.append("Hello");
+        appender = mockText.appender;
+        appender.append(" World");
+        appender.clear();
+        assertEquals("Hello", appender.toString());
+    }
+}
+
+class TextNodeAppenderTest {
+
+    public static class MockText {
+        private TextNode text;
+
+        public MockText() {
+            this.text = new TestMockTextNode();
+        }
+
+        public void append(String text) {
+            if (this.text != null && !this.text.isEmpty()) {
+                this.text.append(text);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "MockText{data=null, appender=MockText@...}";
+        }
+    }
+
+    @Test
+    public void testAppend() {
+        MockText mockText = new MockText();
+        mockText.append("Hello");
+        assert mockText.text.data.equals("Hello");
+        mockText.clear();
+        assertEquals("", mockText.text.toString());
+    }
+
+    @Test
+    public void testClearAndAppendAgain() {
+        MockText mockText = new MockText();
+        mockText.append("Hello");
+        assert mockText.text.data.equals("Hello");
+        mockText.clear();
+        assertEquals("Hello", mockText.text.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class TestMockTextNode extends MockTextNode {
+    @Override
+    public void append(String text) {
+        super.append(text);
+    }
+}
+
+public class TextNodeAppenderTest {
+
+    private TestMockTextNode mockText;
+    private String expectedData;
+
+    public TextNodeAppenderTest() {
+        mockText = new TestMockTextNode();
+        expectedData = "Hello";
+    }
+
+    @Test
+    public void appendToEmptyText() {
+        mockText.clear();
+        mockText.append(" World");
+        assertEquals(expectedData, mockText.text.data);
+    }
+
+    @Test
+    public void appendToString() {
+        mockText.append("World");
+        assertEquals(expectedData, mockText.text.data);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class TextNodeAppenderTest {
+
+    public static void main(String[] args) {
+        TestMockTextNode mockText = new TestMockTextNode();
+        expectedData = "Hello";
+        
+        // Append to empty text
+        mockText.clear();
+        mockText.append(" World");
+        assertEquals(expectedData, mockText.text.data);
+        
+        // Append a string to an empty text
+        mockText = new TestMockTextNode();
+        mockText.clear();
+        mockText.append(expectedData);
+        assertEquals(expectedData, mockText.text.data);
+
+        // Append a non-existent child node as text
+        mockText.setChildNode(new String(null)); // This will throw a RuntimeException
+        try {
+            mockText.text.data = expectedData;
+        } catch (RuntimeException e) {
+            // Ignore this exception
+        }
+        
+        // Append to an empty text again
+        mockText = new TestMockTextNode();
+        mockText.clear();
+        mockText.append(" World");
+        assertEquals(expectedData, mockText.text.data);
+    }
+
+}
+
+class MockTextNode extends Node {
+    private String data;
+
+    public void append(String text) {
+        this.data += text;
+    }
+
+    public String text() { return data; }
+    
+    @Override
+    public String toString() {
+        return "MockTextNode{" +
+                "data='" + data + '\'' +
+                '}';
+    }
+
+    public static MockTextNode newNode() {
+        return new MockTextNode();
+    }
+}
+
+class TestMockTextNode extends Node {
+    private String text;
+
+    public void clear() {
+        this.text = null;
+    }
+
+    @Override
+    public String toString() {
+        return "TestMockTextNode{" +
+                "text='" + text + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TestMockTextNode that = (TestMockTextNode) o;
+
+        if (text == null ? !that.text!!.equals(null) : text.equals(that.text)) return true;
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return (text != null ? text.hashCode() : 0);
+    }
+}
+
+class Node {
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

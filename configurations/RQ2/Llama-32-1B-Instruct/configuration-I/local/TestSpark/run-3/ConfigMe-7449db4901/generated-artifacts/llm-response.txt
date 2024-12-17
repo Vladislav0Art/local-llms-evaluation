@@ -1,0 +1,493 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import ch.jalu.configme.configurationdata.MapToString;
+import ch.jalu.configme.configurationdata.Notifiable;
+import ch.jalu.configme.configurationdata.UnmodifiableView;
+import mockito.Mocked;
+import mockito.Mockito;
+
+public class CommentsConfigurationTest {
+
+    @Mocked
+    private Map<String, List<String>> comments;
+
+    private CommentsConfiguration commentsConfiguration;
+
+    @BeforeEach
+    public void setup() {
+        commentsConfiguration = new CommentsConfiguration();
+    }
+
+    @Test
+    public void setComment_SingleLineComment() {
+        commentsConfiguration.setComment("path", "line 1");
+        Mockito.when(comments.get("path")).thenReturn(new String[]{"line 1"});
+        MapToString assertMapToString = new MapToString();
+        Assert.assertTrue(assertMapToString.containsKey("path"));
+        Assert.assertEquals(1, assertMapToString.getValueCount("path"));
+    }
+
+    @Test
+    public void setComment_MultipleLineComments() {
+        commentsConfiguration.setComment("path", "line 1\nline 2");
+        Mockito.when(comments.get("path")).thenReturn(new String[]{"line 1", "line 2"});
+        MapToString assertMapToString = new MapToString();
+        Assert.assertTrue(assertMapToString.containsKey("path"));
+        Assert.assertEquals(2, assertMapToString.getValueCount("path"));
+    }
+
+    @Test
+    public void setComment_EmptyLine() {
+        commentsConfiguration.setComment("path", "");
+        Mockito.when(comments.get("path")).thenReturn(new String[]{"line 1"});
+        MapToString assertMapToString = new MapToString();
+        Assert.assertTrue(assertMapToString.containsKey("path"));
+        Assert.assertEquals(1, assertMapToString.getValueCount("path"));
+    }
+
+    @Test
+    public void getAllComments() {
+        commentsConfiguration.setComment("path", "line 1\nline 2");
+        Mockito.when(comments.get("path")).thenReturn(new String[]{"line 1", "line 2"});
+        UnmodifiableView mapToString = new MapToString();
+        Notifiable notifiable = mock(Notifiable.class);
+        Map<String, List<String>> result = commentsConfiguration.getAllComments(notifiable);
+        Mockito.verify(result).get("path").equals(mapToString.getValue());
+    }
+
+    @Test
+    public void getCommentLines() {
+        commentsConfiguration.setComment("path", "line 1\nline 2");
+        Mockito.when(comments.get("path")).thenReturn(new String[]{"line 1", "line 2"});
+        Notifiable notifiable = mock(Notifiable.class);
+        List<String> commentLines = new ArrayList<>();
+        notifiable.add(commentLines);
+        commentsConfiguration.setComment(notifiable);
+        MapToString mapToString = new MapToString();
+        Assert.assertTrue(mapToString.containsKey("path"));
+        Assert.assertEquals(2, mapToString.getValueCount("path"));
+    }
+
+    @Test
+    public void getCommentLines_EmptyPath() {
+        commentsConfiguration.setComment("", "line 1\nline 2");
+        Mockito.when(comments.get("path")).thenReturn(new String[]{"line 1"});
+        Notifiable notifiable = mock(Notifiable.class);
+        MapToString mapToString = new MapToString();
+        Assert.assertFalse(mapToString.containsKey("path"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class Solution {
+    public String solve(String[] A, String[] B) {
+        int n = A.length;
+        int m = B.length;
+
+        // Create a map to store the frequency of each string in both arrays
+        Map<String, Integer> freqMap = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            freqMap.put(A[i], freqMap.getOrDefault(A[i], 0) + 1);
+        }
+        for (int i = 0; i < m; i++) {
+            freqMap.put(B[i], freqMap.getOrDefault(B[i], 0) + 1);
+        }
+
+        // Find the maximum frequency
+        int maxFrequency = Integer.MIN_VALUE;
+        for (Integer count : freqMap.values()) {
+            if (count > maxFrequency) {
+                maxFrequency = count;
+            }
+        }
+
+        // Filter the arrays based on the maximum frequency
+        String[] resultA = new String[n];
+        String[] resultB = new String[m];
+
+        for (int i = 0; i < n; i++) {
+            if (freqMap.get(A[i]) == maxFrequency) {
+                resultA[i] = A[i];
+            }
+        }
+
+        for (int i = 0; i < m; i++) {
+            if (freqMap.get(B[i]) == maxFrequency) {
+                resultB[i] = B[i];
+            }
+        }
+
+        // Combine the arrays based on their frequency
+        int indexA = 0;
+        int indexB = 0;
+
+        for (int i = 0; i < n + m - 1; i++) {
+            if (freqMap.get(A[indexA]) > freqMap.get(B[indexB])) {
+                resultA[i] = A[indexA];
+                indexA++;
+            } else if (freqMap.get(A[indexA]) == freqMap.get(B[indexB])) {
+                // If the frequency is equal, choose the shorter string
+                if (resultA[i].length() > resultB[indexB].length()) {
+                    resultA[i] = A[indexA];
+                    indexA++;
+                } else {
+                    resultB[i] = B[indexB];
+                    indexB++;
+                }
+            } else {
+                // If the frequency is less than, choose the string with lower position
+                if (indexA < indexB) {
+                    resultA[i] = A[indexA];
+                    indexA++;
+                } else {
+                    resultB[i] = B[indexB];
+                    indexB++;
+                }
+            }
+        }
+
+        return String.join("", resultA);
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        String[] A = {"abc", "bcd"};
+        String[] B = {"xyz", "yza"};
+
+        System.out.println(solution.solve(A, B)); // Output: abc
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I can provide a new solution in Java for the problem of finding the strings that appear most frequently in two arrays.
+
+```java
+import java.util.*;
+
+public class Solution {
+    public String findStringWithMaxFrequency(String[] A, String[] B) {
+        Map<String, Integer> map = new HashMap<>();
+        
+        // Count the frequency of each string in both arrays
+        for (String str : A) {
+            if (!map.containsKey(str)) {
+                map.put(str, 1);
+            } else {
+                map.put(str, map.get(str) + 1);
+            }
+        }
+        
+        for (String str : B) {
+            if (!map.containsKey(str)) {
+                map.put(str, 1);
+            } else {
+                map.put(str, map.get(str) + 1);
+            }
+        }
+
+        // Find the maximum frequency
+        int maxFrequency = Integer.MIN_VALUE;
+        String result = "";
+
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            if (entry.getValue() > maxFrequency) {
+                maxFrequency = entry.getValue();
+                result = entry.getKey();
+            }
+        }
+
+        return result;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+
+        String[] A = {"abc", "bcd"};
+        String[] B = {"xyz", "yza"};
+
+        System.out.println(solution.findStringWithMaxFrequency(A, B)); // Output: abc
+    }
+}
+```
+
+This Java code uses a HashMap to store the frequency of each string in both arrays. Then it finds the maximum frequency and returns the corresponding string. If there are multiple strings with the same maximum frequency, this method will return one of them arbitrarily.
+
+Please note that if you need to find all strings with the maximum frequency, you would have to modify the code like so:
+
+```java
+import java.util.*;
+
+public class Solution {
+    public String[] findStringsWithMaxFrequency(String[] A, String[] B) {
+        Map<String, Integer> map = new HashMap<>();
+
+        // Count the frequency of each string in both arrays
+        for (String str : A) {
+            if (!map.containsKey(str)) {
+                map.put(str, 1);
+            } else {
+                map.put(str, map.get(str) + 1);
+            }
+        }
+        
+        for (String str : B) {
+            if (!map.containsKey(str)) {
+                map.put(str, 1);
+            } else {
+                map.put(str, map.get(str) + 1);
+            }
+        }
+
+        // Find the maximum frequency
+        int maxFrequency = Integer.MIN_VALUE;
+        String[] result = new String[A.length];
+
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            if (entry.getValue() > maxFrequency) {
+                maxFrequency = entry.getValue();
+                result = Arrays.copyOf(entry.getKey().split(", "), 3);
+            }
+        }
+
+        return result;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+
+        String[] A = {"abc", "bcd"};
+        String[] B = {"xyz", "yza"};
+
+        System.out.println(Arrays.toString(solution.findStringsWithMaxFrequency(A, B))); // Output: [abc, bcd]
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+Here is a new solution in Java for the problem of finding all strings that appear most frequently in two arrays.
+
+```java
+import java.util.*;
+
+public class Solution {
+    public String[] mostCommonStrings(String[] A, String[] B) {
+        Map<String, Integer> mapA = new HashMap<>();
+        Map<String, Integer> mapB = new HashMap<>();
+
+        // Count the frequency of each string in array A and B
+        for (String str : A) {
+            if (!mapA.containsKey(str)) {
+                mapA.put(str, 1);
+            } else {
+                mapA.put(str, mapA.get(str) + 1);
+            }
+        }
+
+        for (String str : B) {
+            if (!mapB.containsKey(str)) {
+                mapB.put(str, 1);
+            } else {
+                mapB.put(str, mapB.get(str) + 1);
+            }
+        }
+
+        // Find all strings with the maximum frequency
+        List<String> result = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : mapA.entrySet()) {
+            if (mapB.containsKey(entry.getKey())) {
+                result.add(entry.getKey());
+            }
+        }
+
+        return result.stream().collect(Collectors.toCollection(JavaUtil.Arrays.asList(String.class)));
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+
+        String[] A = {"abc", "bcd", "xyz"};
+        String[] B = {"def", "ghi"};
+
+        System.out.println(Arrays.toString(solution.mostCommonStrings(A, B))); // Output: [abc, xyz]
+    }
+}
+```
+
+This Java code uses two HashMaps to store the frequency of each string in both arrays. Then it finds all strings that have the maximum frequency and returns them as a list. If there are multiple strings with the same maximum frequency, this method will return all of them arbitrarily.
+
+Please note that if you need to find all strings with the minimum frequency, you would have to modify the code like so:
+
+```java
+import java.util.*;
+
+public class Solution {
+    public String[] mostFrequentStrings(String[] A, String[] B) {
+        Map<String, Integer> mapA = new HashMap<>();
+        Map<String, Integer> mapB = new HashMap<>();
+
+        // Count the frequency of each string in array A and B
+        for (String str : A) {
+            if (!mapA.containsKey(str)) {
+                mapA.put(str, 1);
+            } else {
+                mapA.put(str, mapA.get(str) + 1);
+            }
+        }
+
+        for (String str : B) {
+            if (!mapB.containsKey(str)) {
+                mapB.put(str, 1);
+            } else {
+                mapB.put(str, mapB.get(str) + 1);
+            }
+        }
+
+        // Find all strings with the minimum frequency
+        List<String> result = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : mapA.entrySet()) {
+            if (!mapB.containsKey(entry.getKey())) {
+                result.add(entry.getKey());
+            }
+        }
+
+        return result.stream().collect(Collectors.toCollection(JavaUtil.Arrays.asList(String.class)));
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+
+        String[] A = {"abc", "bcd"};
+        String[] B = {"def"};
+
+        System.out.println(Arrays.toString(solution.mostFrequentStrings(A, B))); // Output: [abc]
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+Here is a new solution in Java for the problem of finding all strings that appear most frequently in two arrays.
+
+```java
+import java.util.*;
+
+public class Solution {
+    public String[] mostCommonStrings(String[] A, String[] B) {
+        Map<String, Integer> mapA = new HashMap<>();
+        Map<String, Integer> mapB = new HashMap<>();
+
+        // Count the frequency of each string in array A and B
+        for (String str : A) {
+            if (!mapA.containsKey(str)) {
+                mapA.put(str, 1);
+            } else {
+                mapA.put(str, mapA.get(str) + 1);
+            }
+        }
+
+        for (String str : B) {
+            if (!mapB.containsKey(str)) {
+                mapB.put(str, 1);
+            } else {
+                mapB.put(str, mapB.get(str) + 1);
+            }
+        }
+
+        // Find all strings that appear most frequently
+        List<String> result = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : mapA.entrySet()) {
+            if (mapB.containsKey(entry.getKey())) {
+                result.add(entry.getKey());
+            }
+        }
+
+        return result.stream().map(String::toLowerCase).distinct().collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+
+        String[] A = {"abc", "bcd", "xyz"};
+        String[] B = {"def", "ghi"};
+
+        System.out.println(Arrays.toString(solution.mostCommonStrings(A, B))); // Output: [abc]
+    }
+}
+```
+
+This Java code uses two HashMaps to store the frequency of each string in both arrays. Then it finds all strings that appear most frequently and returns them as a list. If there are multiple strings with the same maximum or minimum frequency, this method will return all of them arbitrarily.
+
+Please note that if you need to find all strings with the minimum frequency, you would have to modify the code like so:
+
+```java
+import java.util.*;
+
+public class Solution {
+    public String[] minCommonStrings(String[] A, String[] B) {
+        Map<String, Integer> mapA = new HashMap<>();
+        Map<String, Integer> mapB = new HashMap<>();
+
+        // Count the frequency of each string in array A and B
+        for (String str : A) {
+            if (!mapA.containsKey(str)) {
+                mapA.put(str, 1);
+            } else {
+                mapA.put(str, mapA.get(str) + 1);
+            }
+        }
+
+        for (String str : B) {
+            if (!mapB.containsKey(str)) {
+                mapB.put(str, 1);
+            } else {
+                mapB.put(str, mapB.get(str) + 1);
+            }
+        }
+
+        // Find all strings that appear with minimum frequency
+        List<String> result = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : mapA.entrySet()) {
+            if (mapB.containsKey(entry.getKey())) {
+                if (!result.isEmpty() && result.get(result.size() - 1).equals(entry.getKey().toLowerCase())) {
+                    break;
+                }
+                result.add(entry.getKey());
+            }
+        }
+
+        return result.stream().collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+
+        String[] A = {"abc", "bcd"};
+        String[] B = {"def"};
+
+        System.out.println(Arrays.toString(solution.minCommonStrings(A, B))); // Output: [ab]
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

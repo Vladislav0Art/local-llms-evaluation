@@ -1,0 +1,37 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+
+public class GeneratedTest_maxLineCoverage_6 {
+
+    @Test
+    public void test_maxLineCoverage_6() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        when(onlineStockSpan.next(50)).thenReturn(20);
+        int[] prices = {1000, 2000, 3000, 4000};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+    }
+
+    public void testCalculateMaxReturn() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.setPrice(10);
+        onlineStockSpan.setVolume(5);
+
+        // Test if the max return is 20
+        assertEquals(20, onlineStockSpan.getMaxReturn());
+    }
+
+    public void testCalculateMaxReturn() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.setPrice(10);
+        onlineStockSpan.setVolume(5);
+
+        // Test if the max return is 50
+        assertEquals(50, onlineStockSpan.getMaxReturn());
+    }
+
+}

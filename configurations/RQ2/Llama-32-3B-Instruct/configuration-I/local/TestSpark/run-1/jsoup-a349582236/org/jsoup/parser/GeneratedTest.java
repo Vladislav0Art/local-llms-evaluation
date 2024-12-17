@@ -1,0 +1,80 @@
+package org.jsoup.parser;
+
+public class GeneratedTest {
+
+    private Tag tag;
+
+    @Test
+    public void getName_EmptyTag_ReturnsEmptyString() {
+        tag = new Tag();
+        assertEquals("", tag.getName());
+    }
+
+    @Test
+    public void normalName_EmptyTag_ReturnsEmptyString() {
+        tag = new Tag();
+        assertEquals("", tag.normalName());
+    }
+
+    @Test
+    public void isBlock_BlockTag_ReturnsTrue() {
+        tag = new Tag("div");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void isInline_InlineTag_ReturnsTrue() {
+        tag = new Tag("span");
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmpty_EmptyTag_ReturnsTrue() {
+        tag = new Tag();
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void formatAsBlock_BlockTag_ReturnsFalse() {
+        tag = new Tag("div");
+        assertFalse(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isSelfClosing_SelfClosingTag_ReturnsTrue() {
+        tag = new Tag("img");
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTag_KnownTag_ReturnsTrue() {
+        tag = Tag.valueOf("p", null);
+        assertTrue(tag.isKnownTag());
+    }
+
+    @Test
+    public void isKnownTag_UnknownTag_ReturnsFalse() {
+        tag = new Tag();
+        assertFalse(Tag.isKnownTag("unknown"));
+    }
+
+    @Test
+    public void isFormListed_FormAssociatedTag_ReturnsTrue() {
+        tag = new Tag("input");
+        assertTrue(tag.isFormListed());
+    }
+
+    @Test
+    public void isFormSubmittable_SubmittableTag_ReturnsTrue() {
+        tag = new Tag("input");
+        assertTrue(tag.isFormSubmittable());
+    }
+
+    @Test
+    public void clone_ClonedTag_ReturnsSameInstance() {
+        tag = new Tag();
+        Tag cloned = (Tag) tag.clone();
+        assertEquals(tag, cloned);
+    }
+
+}

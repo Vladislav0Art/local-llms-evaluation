@@ -1,0 +1,475 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class Comment extends LeafNode {
+    private String data;
+
+    public Comment(String data) {
+        this.data = data;
+    }
+
+    @Override
+    public String nodeName() {
+        return "Comment";
+    }
+
+    @Override
+    public String getData() {
+        return data;
+    }
+
+    public Comment setData(String data) {
+        this.data = data;
+        return this;
+    }
+
+    @Override
+    void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        accum.appendLine();
+        accum.appendTag("Comment", null);
+        accum.appendText(data);
+        if (depth > 0) {
+            accum.appendBreakPoint();
+        }
+    }
+
+    @Override
+    void outerHtmlTail(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        if (depth < 1 || data.isEmpty()) {
+            return;
+        }
+        accum.appendLine();
+        accum.appendTag("Comment", null);
+        accum.appendText(data.substring(0, Math.min(data.length(), 100))); // truncate if needed
+        accum.appendBreakPoint();
+    }
+
+    @Override
+    public String toString() {
+        return "<" + nodeName() + ">" + getData() + "</" + nodeName() + ">";
+    }
+
+    @Override
+    public Comment clone() {
+        return new Comment(data);
+    }
+
+    @Override
+    public boolean isXmlDeclaration() {
+        // This method should be implemented by subclasses to check if they look like an XML Declaration.
+        // For now, assume it's always false.
+        return false;
+    }
+}
+
+public class XmlDeclaration extends Comment {
+    private String type;
+
+    public XmlDeclaration(String data) {
+        super(data);
+        this.type = "xml";
+    }
+
+    @Override
+    public boolean isXmlDeclaration() {
+        return true; // For now, assume it's always true.
+    }
+
+    @Override
+    @Nullable
+    public XmlDeclaration asXmlDeclaration() {
+        if (this.type.equals("xml")) {
+            return this;
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class CommentTest {
+    @Test
+    public void testCommentNodeName() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("Comment", comment.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("Test comment", comment.getData());
+        assertEquals("", comment.getDataAfterXmlDeclaration());
+    }
+
+    @Test
+    public void testSetData() {
+        Comment comment = new Comment("Test comment");
+        comment.setData("New data");
+        assertEquals("Test comment", comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Appendable accum = new StringReader("");
+        Document document = new Document(accum);
+        Comment comment = new Comment("Test content");
+        comment.outerHtmlHead(document, 1, null).appendBreakPoint();
+        assertEquals("<Comment Test content</Comment>", new String(accum.toString()));
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Appendable accum = new StringReader("");
+        Document document = new Document(accum);
+        Comment comment = new Comment("Test content");
+        comment.outerHtmlTail(document, 1, null).appendBreakPoint();
+        assertEquals("<Comment Test content</Comment>", new String(accum.toString()));
+    }
+
+    @Test
+    public void testToString() {
+        Comment comment = new Comment("Test content");
+        assertEquals("<Comment>Test content</Comment>", comment.toString());
+        assertEquals("", comment.toStringAfterXmlDeclaration());
+    }
+
+    @Test
+    public void testClone() {
+        Comment comment = new Comment("Test content");
+        Comment clonedComment = comment.clone();
+        assertEquals(comment, clonedComment);
+        assertEquals(0, clonedComment.getData().length());
+    }
+}
+
+public class XmlDeclarationTest {
+    @Test
+    public void testIsXmlDeclarationTrue() {
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("test");
+        assertTrue(xmlDeclaration.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclarationTrue() {
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("test");
+        assertNotNull(xmlDeclaration.asXmlDeclaration());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Comment {
+    @Override
+    public String nodeName() {
+        return "Comment";
+    }
+
+    @Override
+    public boolean isXmlDeclaration() {
+        // This method should be implemented by subclasses to check if they look like an XML Declaration.
+        // For now, assume it's always false.
+        return false;
+    }
+}
+
+public class XmlDeclaration extends Comment {
+
+    private String type;
+
+    public XmlDeclaration(String data) {
+        super(data);
+        this.type = "xml";
+    }
+
+    @Override
+    @Nullable
+    public XmlDeclaration asXmlDeclaration() {
+        if (this.type.equals("xml")) {
+            return this;
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+}
+
+public class CommentTest {
+    @Test
+    public void testCommentNodeName() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("Comment", comment.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("Test comment", comment.getData().toString());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Appendable accum = new StringReader("");
+        Document document = new Document(accum);
+        Comment comment = new Comment("Test content");
+        comment.outerHtmlHead(document, 1, null).appendBreakPoint();
+        assertEquals("<Comment Test content</Comment>", new String(accum.toString()));
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Appendable accum = new StringReader("");
+        Document document = new Document(accum);
+        Comment comment = new Comment("Test content");
+        comment.outerHtmlTail(document, 1, null).appendBreakPoint();
+        assertEquals("<Comment Test content</Comment>", new String(accum.toString()));
+    }
+
+    @Test
+    public void testToString() {
+        Comment comment = new Comment("Test content");
+        assertEquals("<Comment>Test content</Comment>", comment.toString());
+    }
+
+    @Test
+    public void testClone() {
+        Comment comment = new Comment("Test content");
+        XmlDeclaration xmlDeclaration = new XmlDeclaration(comment.getData().toString());
+        assertEquals(xmlDeclaration, comment.clone());
+    }
+}
+
+public class XmlDeclarationTest {
+    @Test
+    public void testIsXmlDeclarationTrue() {
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("test");
+        assertTrue(xmlDeclaration.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclarationTrue() {
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("test");
+        assertNotNull(xmlDeclaration.asXmlDeclaration());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Comment {
+    @Override
+    public String nodeName() {
+        return "Comment";
+    }
+
+    public String getData() {
+        return this.data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+}
+
+public class XmlDeclaration extends Comment {
+
+    private String type;
+
+    public XmlDeclaration(String data, String type) {
+        super(data);
+        this.type = type;
+    }
+
+    @Override
+    @Nullable
+    public XmlDeclaration asXmlDeclaration() {
+        if (this.type.equals("xml")) {
+            return this;
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+}
+
+public class CommentTest {
+    @Test
+    public void testCommentNodeName() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("Comment", comment.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        Comment comment = new Comment("Test content");
+        assertNotNull(comment.getData());
+        assertEquals("Test content", comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Appendable accum = new StringReader("");
+        Document document = new Document(accum);
+        Comment comment = new Comment("Test content");
+        comment.outerHtmlHead(document, 1, null).appendBreakPoint();
+        assertEquals("<Comment Test content</Comment>", new String(accum.toString()));
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Appendable accum = new StringReader("");
+        Document document = new Document(accum);
+        Comment comment = new Comment("Test content");
+        comment.outerHtmlTail(document, 1, null).appendBreakPoint();
+        assertEquals("<Comment Test content</Comment>", new String(accum.toString()));
+    }
+
+    @Test
+    public void testToString() {
+        Comment comment = new Comment("Test content");
+        assertNotNull(comment.toString());
+        assertEquals("Comment Test content", comment.toString());
+    }
+
+    @Test
+    public void testClone() {
+        Comment comment = new Comment("Test content");
+        XmlDeclaration xmlDeclaration = new XmlDeclaration(comment.getData(), comment.getType());
+        assertNotNull(xmlDeclaration);
+        assertEquals(xmlDeclaration, comment.clone());
+    }
+}
+
+public class XmlDeclarationTest {
+    @Test
+    public void testIsXmlDeclarationTrue() {
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("test", "xml");
+        assertTrue(xmlDeclaration.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclarationTrue() {
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("test", "xml");
+        assertNotNull(xmlDeclaration.asXmlDeclaration());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Comment {
+    private String data;
+
+    public Comment(String data) {
+        this.data = data;
+    }
+
+    @Override
+    public String nodeName() {
+        return "Comment";
+    }
+}
+
+public class XmlDeclaration extends Comment {
+
+    private String type;
+
+    public XmlDeclaration(String data, String type) {
+        super(data);
+        this.type = type;
+    }
+
+    @Nullable
+    public XmlDeclaration asXmlDeclaration() {
+        if (this.type.equals("xml")) {
+            return this;
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    @Nullable
+    public String toString() {
+        StringBuilder builder = new StringBuilder("<Comment");
+        builder.append(": ").append(this.data);
+        if (!this.type.equals("xml")) {
+            builder.append("</Comment>");
+        }
+        return builder.toString();
+    }
+}
+
+public class CommentTest {
+    @Test
+    public void testCommentNodeName() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("Comment", comment.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        Comment comment = new Comment("Test content");
+        assertNotNull(comment.getData());
+        assertEquals("Test content", comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Appendable accum = new StringReader("");
+        Document document = new Document(accum);
+        Comment comment = new Comment("Test content");
+        comment.outerHtmlHead(document, 1, null).appendBreakPoint();
+        assertEquals("<Comment Test content</Comment>", new String(accum.toString()));
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Appendable accum = new StringReader("");
+        Document document = new Document(accum);
+        Comment comment = new Comment("Test content");
+        comment.outerHtmlTail(document, 1, null).appendBreakPoint();
+        assertEquals("<Comment Test content</Comment>", new String(accum.toString()));
+    }
+
+    @Test
+    public void testToString() {
+        Comment comment = new Comment("Test content");
+        assertNotNull(comment.toString());
+        assertEquals("Comment Test content", comment.toString());
+    }
+
+    @Test
+    public void testClone() {
+        Comment comment = new Comment("Test content");
+        XmlDeclaration xmlDeclaration = new XmlDeclaration(comment.getData(), comment.getType());
+        assertNotNull(xmlDeclaration);
+        assertEquals(xmlDeclaration, comment.clone());
+    }
+}
+
+public class XmlDeclarationTest {
+    @Test
+    public void testIsXmlDeclarationTrue() {
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("test", "xml");
+        assertTrue(xmlDeclaration.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclarationTrue() {
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("test", "xml");
+        assertNotNull(xmlDeclaration.asXmlDeclaration());
+    }
+}
+```
+===================================================
+

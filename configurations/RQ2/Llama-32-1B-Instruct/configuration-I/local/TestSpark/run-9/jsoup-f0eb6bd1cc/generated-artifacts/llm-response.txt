@@ -1,0 +1,295 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class UrlBuilderTest {
+
+    private final String inputUrl = "https://example.com";
+    private final String base = "/path/to/base";
+
+    @BeforeEach
+    public void setup() {
+        MockConnection mockConn = new MockConnection();
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+
+        UrlBuilder urlBuilder = new UrlBuilder(mockConn);
+    }
+
+    @Test
+    public void testAppendKeyVal() {
+        urlBuilder.appendKeyVal(kv1);
+        urlBuilder.appendKeyVal(kv2);
+        assertTrue(urlBuilder.build().getQueryParams().containsKey("key1"));
+        assertTrue(urlBuilder.build().getQueryParams().containsKey("key2"));
+        String expected = "key1=value1&key2=value2";
+        assertEquals(expected, urlBuilder.build().getQueryString());
+    }
+
+    @Test
+    public void testAppendKeyVal_0() {
+        urlBuilder.appendKeyVal(kv1);
+        assertTrue(urlBuilder.build().getQueryParams().isEmpty());
+    }
+
+    @Mock
+    private Connection connection;
+
+    @Test
+    public void testAppendKeyVal_ThrowsUnsupportedEncodingExceptionWhenEncodingFailures() {
+        urlBuilder = new UrlBuilder(connection);
+        when(connection.getInputStream()).thenThrow(new UnsupportedEncodingException("encoding failures"));
+        try {
+            urlBuilder.appendKeyVal(kv1);
+        } catch (UnsupportedEncodingException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_ThrowsUnsupportedEncodingExceptionWhenIOExceptionFailures() throws IOException {
+        urlBuilder = new UrlBuilder(connection);
+        when(connection.getInputStream()).thenThrow(new IOException("io failures"));
+        try {
+            urlBuilder.appendKeyVal(kv1);
+        } catch (UnsupportedEncodingException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_NoExceptionWhenEncodingSucceeds() {
+        urlBuilder = new UrlBuilder(connection);
+        when(connection.getInputStream()).thenReturn(new java.io.ByteArrayInputStream());
+        urlBuilder.appendKeyVal(kv1);
+        assertTrue(urlBuilder.build().getQueryParams().containsKey("key1"));
+        assertEquals(expected, urlBuilder.build().getQueryString());
+    }
+
+    @Test
+    public void testAppendKeyVal_NoExceptionWhenIOExceptionSucceeds() throws IOException {
+        urlBuilder = new UrlBuilder(connection);
+        when(connection.getInputStream()).thenReturn(new java.io.ByteArrayInputStream());
+        urlBuilder.appendKeyVal(kv1);
+        assertTrue(urlBuilder.build().getQueryParams().containsKey("key2"));
+        assertEquals(expected, urlBuilder.build().getQueryString());
+    }
+
+    @Test
+    public void testAppendKeyVal_NoExceptionWhenIOExceptionSucceeds_ThrowsUnsupportedEncodingException() throws IOException {
+        urlBuilder = new UrlBuilder(connection);
+        when(connection.getInputStream()).thenReturn(new java.io.ByteArrayInputStream());
+        try {
+            urlBuilder.appendKeyVal(kv1);
+        } catch (UnsupportedEncodingException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testBuild_ThrowsUrlFormatExceptionWhenInputUrlIsInvalid() throws Exception {
+        String invalidUrl = "invalid:https://example.com";
+        urlBuilder = new UrlBuilder(invalidUrl);
+        try {
+            urlBuilder.build();
+            // expected
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testBuild_ThrowsUrlFormatExceptionWhenInputUrlIsNull() throws Exception {
+        String invalidUrl = null;
+        urlBuilder = new UrlBuilder(invalidUrl);
+        try {
+            urlBuilder.build();
+            // expected
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testBuild_ThrowsNullPointerExceptionWhenConnectionIsNull() throws Exception {
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        MockConnection mockConn = new MockConnection();
+        urlBuilder = new UrlBuilder(mockConn);
+        when(mockConn.getInputStream()).thenReturn(null);
+        try {
+            urlBuilder.build();
+            // expected
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testBuild_ThrowsNullPointerExceptionWhenQueryParamsIsEmpty() throws Exception {
+        String inputUrl = "https://example.com";
+        MockConnection mockConn = new MockConnection();
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        urlBuilder = new UrlBuilder(mockConn);
+        when(mockConn.getInputStream()).thenReturn(new java.io.ByteArrayInputStream());
+        urlBuilder.appendKeyVal(kv1);
+        // expected
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+
+public class MockConnectionTest {
+
+    @Test
+    public void testMockConnection() {
+        // Create mock connection
+        MockConnection mockConn = new MockConnection();
+        
+        // Call mock conn's methods
+        assertTrue(mockConn.connect());
+        assertTrue(mockConn.connect());
+        assertTrue(mockConn.connect());
+
+        // Close mock connection
+        mockConn.close();
+        assertTrue(mockConn.disconnect());
+    }
+}
+
+class MockConnection {
+    public boolean connect() {
+        return true;
+    }
+
+    public void disconnect() {
+        return;
+    }
+}
+
+class MockIOException extends IOException {}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+
+public class MockConnectionTest {
+    @Test
+    public void testMockConnection() throws Exception {
+        // Create mock connection
+        MockConnection mockConn = new MockConnection();
+        
+        // Call mock conn's methods
+        assertTrue(mockConn.connect());
+        assertTrue(mockConn.connect());
+        assertTrue(mockConn.disconnect());
+
+        // Close mock connection
+        mockConn.close();
+        assertTrue(mockConn.disconnect());
+    }
+}
+
+class MockConnection {
+    public boolean connect() throws Exception {
+        return true;
+    }
+
+    @Override
+    public void disconnect() throws Exception {
+        throw new Exception("Mock IOException");
+    }
+}
+
+class MockIOException extends Exception {}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+
+public class MockConnectionTest {
+    @Test
+    public void testMockConnection() throws Exception {
+        // Create mock connection
+        MockConnection mockConn = new MockConnection();
+        
+        // Call mock conn's methods
+        assertTrue(mockConn.connect());
+        assertTrue(mockConn.connect());
+        assertTrue(mockConn.disconnect());
+
+        // Close mock connection
+        mockConn.close();
+
+        // Check if disconnect was called
+        Thread.sleep(1000);
+        assertTrue(mockConn.disconnect().equals(Exception.class));
+    }
+}
+
+class MockConnection {
+    public boolean connect() throws Exception {
+        return true;
+    }
+
+    @Override
+    public void disconnect() throws Exception {
+        throw new Exception("Mock IOException");
+    }
+}
+
+class MockIOException extends Exception {}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+
+public class MockConnectionTest {
+    @Test
+    public void testMockConnection() throws Exception {
+        // Create mock connection
+        MockConnection mockConn = new MockConnection();
+        
+        // Call mock conn's methods
+        assertTrue(mockConn.connect());
+        assertTrue(mockConn.disconnect());
+
+        // Check if disconnect was called
+        Thread.sleep(1000);
+        assertTrue(mockConn.disconnect().equals(Exception.class));
+    }
+}
+
+class MockConnection {
+    public boolean connect() throws Exception {
+        return true;
+    }
+
+    @Override
+    public void disconnect() {
+        throw new MockIOException();
+    }
+}
+
+class MockIOException extends IOException {}
+```
+===================================================
+
