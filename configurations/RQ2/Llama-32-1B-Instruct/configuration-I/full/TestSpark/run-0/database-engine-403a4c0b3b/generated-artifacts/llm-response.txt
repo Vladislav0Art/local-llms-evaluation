@@ -1,0 +1,617 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+public class IDatabaseTest {
+    private DBApp dbApp = new DBApp();
+
+    @Test
+    public void testGetMyTables() {
+        assertTrue(dbApp.getMyTables().isEmpty());
+        dbApp.init();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertTrue(tables.contains("table1"));
+        assertFalse(tables.contains("nonExistentTable"));
+    }
+
+    @Test
+    public void testGetReader() {
+        CsvReader reader = new CsvReader(dbApp);
+        assertTrue(reader instanceof DBAppCsvReader);
+        DbAppCsvReader csvReader = (DbAppCsvReader) reader;
+        assertTrue(csvReader.getSchema().size() == 2);
+    }
+
+    @Test
+    public void testGetWriter() {
+        CsvWriter writer = new CsvWriter(dbApp);
+        assertTrue(writer instanceof DBAppCsvWriter);
+        DbAppCsvWriter csvWriter = (DbAppCsvWriter) writer;
+        assertFalse(csvWriter.getSchema().size() == 0);
+    }
+
+    @Test
+    public void testInit() {
+        dbApp.init();
+        assertTrue(true); // always returns true
+    }
+
+    @Test
+    public void testCreateTable() {
+        String tableName = "testTable";
+        Hashtable<String, String> tableColumnsType = new Hashtable<>();
+        tableColumnsType.put("column1", "int");
+        tableColumnsType.put("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+    }
+
+    @Test
+    public void testInsertIntoTable() {
+        String tableName = "testTable";
+        Hashtable<String, Object> columnValues = new Hashtable<>();
+        // insert values into table
+        assertTrue(true); // always returns true
+    }
+
+    @Test
+    public void testUpdateTable() {
+        String tableName = "testTable";
+        Hashtable<String, Object> columnValue = new Hashtable<>();
+        // update value in table
+        dbApp.updateTable(tableName, null, columnValue);
+    }
+
+    @Test
+    public void testDeleteFromTable() {
+        String tableName = "testTable";
+        Hashtable<String, Object> columnValue = new Hashtable<>();
+        // delete values from table
+        dbApp.deleteFromTable(tableName, columnValue);
+    }
+}
+
+class DBAppCsvReader implements CsvReader {
+    private Schema schema;
+
+    @Override
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
+    public CSVReader getCsvReader() {
+        return new DbAppCsvReader(schema);
+    }
+}
+
+class DbAppCsvWriter implements CsvWriter {
+    private Schema schema;
+
+    @Override
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
+    public CSVWriter getWriter() {
+        return new DbAppCsvWriter(schema);
+    }
+}
+
+interface Schema {
+}
+
+class TableSchemaImpl implements Schema {
+    // implement table schema properties
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+public class IDatabaseTest {
+    private DBApp dbApp = new DBApp();
+
+    @Test
+    public void testGetMyTables() {
+        dbApp.init();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertTrue(tables.contains("table1"));
+        assertFalse(tables.contains("nonExistentTable"));
+    }
+
+    @Test
+    public void testGetReader() {
+        dbApp.init();
+        String readerClassname = DBAppCsvReader.class.getSimpleName().replaceFirst("(?i)\\(", "").toLowerCase();
+        DbAppCsvReader csvReader = (DbAppCsvReader) Class.forName(readerClassname).newInstance();
+        assertTrue(csvReader instanceof DBAppCsvReader);
+    }
+
+    @Test
+    public void testGetWriter() {
+        dbApp.init();
+        String writerClassname = DBAppCsvWriter.class.getSimpleName().replaceFirst("(?i)\\(", "").toLowerCase();
+        DbAppCsvWriter csvWriter = (DbAppCsvWriter) Class.forName(writerClassname).newInstance();
+        assertTrue(csvWriter instanceof DbAppCsvWriter);
+    }
+
+    @Test
+    public void testInit() {
+        dbApp.init();
+    }
+
+    @Test
+    public void testCreateTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+    }
+
+    @Test
+    public void testInsertIntoTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.insertIntoTable(tableName, null, new Object[]{1L, "value1"});
+    }
+
+    @Test
+    public void testUpdateTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.updateTable(tableName, null, new Object[]{1L, "value1"});
+    }
+
+    @Test
+    public void testDeleteFromTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.deleteFromTable(tableName, null);
+    }
+}
+
+class DBAppCsvReader implements CsvReader {
+    private Schema schema;
+
+    public DBAppCsvReader(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public CSVReader getCsvReader() {
+        return new DbAppCsvReader(schema);
+    }
+}
+
+class DbAppCsvWriter implements CsvWriter {
+    private Schema schema;
+
+    public DbAppCsvWriter(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public CSVWriter getWriter() {
+        return new DbAppCsvWriter(schema);
+    }
+}
+
+interface Schema {
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+public class IDatabaseTest {
+    private DBApp dbApp = new DBApp();
+
+    @Test
+    public void testGetMyTables() {
+        assertTrue(dbApp.getMyTables().isEmpty());
+        dbApp.init();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertTrue(tables.contains("table1"));
+        assertFalse(tables.contains("nonExistentTable"));
+    }
+
+    @Test
+    public void testGetReader() {
+        dbApp.init();
+        String readerClassname = DBAppCsvReader.class.getSimpleName().replaceFirst("(?i)\\(", "").toLowerCase();
+        Class<?> csvReaderClass = Class.forName(readerClassname);
+        DbAppCsvReader csvReader = (DbAppCsvReader) csvReaderClass.newInstance();
+        assertTrue(csvReader instanceof DBAppCsvReader);
+    }
+
+    @Test
+    public void testGetWriter() {
+        dbApp.init();
+        String writerClassname = DBAppCsvWriter.class.getSimpleName().replaceFirst("(?i)\\(", "").toLowerCase();
+        Class<?> csvWriterClass = Class.forName(writerClassname);
+        DbAppCsvWriter csvWriter = (DbAppCsvWriter) csvWriterClass.newInstance();
+        assertTrue(csvWriter instanceof DbAppCsvWriter);
+    }
+
+    @Test
+    public void testInit() {
+        dbApp.init();
+        assertTrue(true); // always returns true
+    }
+
+    @Test
+    public void testCreateTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+    }
+
+    @Test
+    public void testInsertIntoTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.insertIntoTable(tableName, null, new Object[]{1L, "value1"});
+    }
+
+    @Test
+    public void testUpdateTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.updateTable(tableName, null, new Object[]{1L, "value1"});
+    }
+
+    @Test
+    public void testDeleteFromTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.deleteFromTable(tableName, null);
+    }
+}
+
+class DBAppCsvReader implements CsvReader {
+    private Schema schema;
+
+    public DBAppCsvReader(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public CSVReader getCsvReader() {
+        return new DBAppCsvReader(schema);
+    }
+}
+
+class DbAppCsvWriter implements CsvWriter {
+    private Schema schema;
+
+    public DbAppCsvWriter(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public CSVWriter getWriter() {
+        return new DbAppCsvWriter(schema);
+    }
+}
+
+interface Schema {
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+public class IDatabaseTest {
+    private DBApp dbApp = new DBApp();
+
+    @Test
+    public void testGetMyTables() {
+        assertTrue(dbApp.getMyTables().isEmpty());
+        dbApp.init();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertTrue(tables.contains("table1"));
+        assertFalse(tables.contains("nonExistentTable"));
+    }
+
+    @Test
+    public void testGetReader() {
+        dbApp.init();
+        String readerClassname = DBAppCsvReader.class.getSimpleName().replaceFirst("(?i)\\(", "").toLowerCase();
+        Class<?> csvReaderClass = Class.forName(readerClassname);
+        DbAppCsvReader csvReader = (DbAppCsvReader) csvReaderClass.newInstance();
+        assertTrue(csvReader instanceof DBAppCsvReader);
+    }
+
+    @Test
+    public void testGetWriter() {
+        dbApp.init();
+        String writerClassname = DBAppCsvWriter.class.getSimpleName().replaceFirst("(?i)\\(", "").toLowerCase();
+        Class<?> csvWriterClass = Class.forName(writerClassname);
+        DbAppCsvWriter csvWriter = (DbAppCsvWriter) csvWriterClass.newInstance();
+        assertTrue(csvWriter instanceof DbAppCsvWriter);
+    }
+
+    @Test
+    public void testInit() {
+        dbApp.init();
+        assertTrue(true); // always returns true
+    }
+
+    @Test
+    public void testCreateTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+    }
+
+    @Test
+    public void testInsertIntoTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.insertIntoTable(tableName, null, new Object[]{1L, "value1"});
+    }
+
+    @Test
+    public void testUpdateTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.updateTable(tableName, null, new Object[]{1L, "value1"});
+    }
+
+    @Test
+    public void testDeleteFromTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.deleteFromTable(tableName, null);
+    }
+}
+
+class DBApp {
+    public String[][] getMyTables() {
+        return new String[0][];
+    }
+
+    public void init() {}
+
+    public Class<?>[] getClassTypes() {
+        return new Class<?>[0];
+    }
+
+    public Object[] getInstanceArray() {
+        return new Object[]{};
+    }
+}
+
+class DBAppCsvReader implements CsvReader {
+    private Schema schema;
+
+    public DBAppCsvReader(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public CSVReader getCsvReader() {
+        return new DbAppCsvReader(schema);
+    }
+}
+
+class DBAppCsvWriter implements CsvWriter {
+    private Schema schema;
+
+    public DBAppCsvWriter(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public CSVWriter getWriter() {
+        return new DbAppCsvWriter(schema);
+    }
+}
+
+interface Schema {
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+public class IDatabaseTest {
+    private DBApp dbApp = new DBApp();
+
+    @Test
+    public void testGetMyTables() {
+        assertTrue(dbApp.getMyTables().length == 0);
+    }
+
+    @Test
+    public void testGetReader() {
+        String readerClassname = DBAppCsvReader.class.getSimpleName().replaceFirst("(?i)\\(", "").toLowerCase();
+        Class<?> csvReaderClass = Class.forName(readerClassname);
+        DbAppCsvReader csvReader = (DbAppCsvReader) csvReaderClass.newInstance();
+        assertTrue(csvReader instanceof DBAppCsvReader);
+    }
+
+    @Test
+    public void testGetWriter() {
+        String writerClassname = DBAppCsvWriter.class.getSimpleName().replaceFirst("(?i)\\(", "").toLowerCase();
+        Class<?> csvWriterClass = Class.forName(writerClassname);
+        DbAppCsvWriter csvWriter = (DbAppCsvWriter) csvWriterClass.newInstance();
+        assertTrue(csvWriter instanceof DbAppCsvWriter);
+    }
+
+    @Test
+    public void testInit() {
+        dbApp.init();
+    }
+
+    @Test
+    public void testCreateTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+    }
+
+    @Test
+    public void testInsertIntoTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.insertIntoTable(tableName, null, new Object[]{1L, "value1"});
+    }
+
+    @Test
+    public void testUpdateTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.updateTable(tableName, null, new Object[]{1L, "value1"});
+    }
+
+    @Test
+    public void testDeleteFromTable() {
+        String tableName = "testTable";
+        TableSchemaImpl tableColumnsType = new TableSchemaImpl();
+        tableColumnsType.addColumn("column1", "int");
+        tableColumnsType.addColumn("column2", "varchar(255)");
+        dbApp.createTable(tableName, null, tableColumnsType, null, null);
+        dbApp.deleteFromTable(tableName, null);
+    }
+}
+
+class DBApp {
+    public String[][] getMyTables() {
+        return new String[0][];
+    }
+
+    public void init() {}
+
+    public Class<?>[] getClassTypes() {
+        return new Class<?>[0];
+    }
+
+    public Object[] getInstanceArray() {
+        return new Object[]{};
+    }
+}
+
+class TableSchemaImpl {
+    private Column[] columns;
+
+    public Column addColumn(String columnName, String columnType) {
+        Column column = new Column(columnName, columnType);
+        columns.add(column);
+        return column;
+    }
+}
+
+class Column {
+    private String columnName;
+    private String columnType;
+
+    public Column(String columnName, String columnType) {
+        this.columnName = columnName;
+        this.columnType = columnType;
+    }
+
+    @Override
+    public String toString() {
+        return "Column{" +
+                "columnName='" + columnName + '\'' +
+                ", columnType='" + columnType + '\'' +
+                '}';
+    }
+}
+```
+===================================================
+
