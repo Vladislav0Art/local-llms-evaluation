@@ -1,0 +1,883 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class AttributesImpl implements Attributes, Cloneable {
+    private Map<String, Object> userData;
+    private Map<String, Attribute> attributes;
+
+    @Override
+    public String get(String key) {
+        if (userData == null) {
+            return checkNotNull(attributes.get(key));
+        }
+        return (String) userData.get(key);
+    }
+
+    @Override
+    public String getIgnoreCase(String key) {
+        if (userData == null) {
+            return checkNotNull(attributes.get(key.toUpperCase()));
+        }
+        return (String) userData.get(key.toUpperCase());
+    }
+
+    private Object getUserData(String key) {
+        return userData.getOrDefault(key, null);
+    }
+
+    @Nullable
+    private Object getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    public AttributesImpl add(String key, @Nullable String value) {
+        if (userData == null) {
+            userData = new HashMap<>();
+        }
+        userData.put(key, value);
+        return this;
+    }
+
+    public AttributesImpl put(String key, @Nullable String value) {
+        if (userData != null) {
+            userData.remove(key);
+        }
+        userData.put(key, value);
+        return this;
+    }
+
+    public AttributesImpl putUserData(String key, Object value) {
+        getUserData(key).putValue(value);
+        return this;
+    }
+
+    @Override
+    public void normalize() {
+        attributes.clear();
+    }
+
+    @Override
+    public int size() {
+        if (userData == null) {
+            return 0;
+        }
+        return userData.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        if (userData != null) {
+            return !userData.isEmpty();
+        }
+        return false;
+    }
+
+    @Override
+    public Iterator<Attribute> iterator() {
+        for (Map.Entry<String, Object> entry : userData.entrySet()) {
+            for (Attribute attribute : attributes.values()) {
+                if (attribute.getKey().equals(entry.getKey())) {
+                    yield(attribute);
+                    break;
+                }
+            }
+        }
+        for (Object value : userData.values()) {
+            for (Attribute attribute : attributes.values()) {
+                if (value.equals(attribute.getValue())) {
+                    yield(attribute);
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<Attribute> asList() {
+        return new ArrayList<>(userData.keySet());
+    }
+
+    @Override
+    public Map<String, String> dataset() {
+        return new HashMap<>();
+    }
+
+    @Override
+    public String html(Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Object> entry : userData.entrySet()) {
+            if (!entry.getValue().equals("")) {
+                String value = "";
+                if (entry.getKey().startsWith("data-")) {
+                    value = entry.getKey().substring(6);
+                } else {
+                    value = entry.getValue();
+                }
+                accum.append(String.format("%s={%s}", entry.getKey(), value));
+            }
+        }
+        return "";
+    }
+
+    private static String checkNotNull(Object obj) {
+        if (obj == null) {
+            throw new NullPointerException("Cannot call checkNotNull on null");
+        }
+        return obj.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AttributesImpl that = (AttributesImpl) o;
+        return userData.equals(that.userData);
+    }
+
+    @Override
+    public int hashCode() {
+        return userData.hashCode();
+    }
+
+    private static String internalKey(String key) {
+        return "internal_key_" + key;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class AttributesImpl implements Attributes, Cloneable {
+    private Map<String, Object> userData;
+    private Map<String, Attribute> attributes;
+
+    @Override
+    public String get(String key) {
+        if (userData == null && attributes != null) {
+            return checkNotNull(attributes.get(key));
+        }
+        if (userData == null) {
+            return checkNotNull(attributes.get(key));
+        }
+        return userData.getOrDefault(key, "");
+    }
+
+    @Override
+    public String getIgnoreCase(String key) {
+        if (userData == null || attributes.isEmpty()) {
+            return checkNotNull(attributes.get(key.toUpperCase()));
+        }
+        return checkNotNull(attributes.get(key.toUpperCase()));
+    }
+
+    private Object getUserData(String key) {
+        return userData.getOrDefault(key, null);
+    }
+
+    @Nullable
+    private Attribute getAttribute(String key) {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    public AttributesImpl add(String key, @Nullable String value) {
+        if (userData == null && attributes != null) {
+            return this.add(userData, value);
+        } else if (userData != null) {
+            userData.put(key, value);
+            return this;
+        }
+        for (Attribute attribute : attributes.values()) {
+            attribute.setUserData(value);
+        }
+        return this;
+    }
+
+    public AttributesImpl put(String key, @Nullable String value) {
+        if (userData == null && attributes != null) {
+            for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+                entry.getValue().setUserData(value);
+            }
+            userData = new HashMap<>();
+            userData.put(key, value);
+            return this;
+        } else {
+            getUserData(key).putValue(value);
+            return this;
+        }
+    }
+
+    public AttributesImpl putUserData(String key, Object value) {
+        getUserData(key).putValue(value);
+        return this;
+    }
+
+    @Override
+    public void normalize() {
+        attributes.clear();
+    }
+
+    @Override
+    public int size() {
+        if (userData == null && attributes != null) {
+            return userData.size();
+        }
+        return attributes.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        if (userData != null && attributes != null) {
+            return !attributes.isEmpty() || !userData.isEmpty();
+        } else if (userData == null && attributes == null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public Iterator<Attribute> iterator() {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            for (Attribute attribute : userData.values()) {
+                if (attribute.getKey().equals(entry.getKey())) {
+                    yield(attribute);
+                    break;
+                }
+            }
+        }
+        for (Object value : userData.values()) {
+            for (Attribute attribute : attributes.values()) {
+                if (value.equals(attribute.getValue())) {
+                    yield(attribute);
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<Attribute> asList() {
+        return new ArrayList<>(userData.keySet());
+    }
+
+    @Override
+    public Map<String, String> dataset() {
+        return new HashMap<>();
+    }
+
+    @Override
+    public String html(Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Object> entry : userData.entrySet()) {
+            if (!entry.getValue().equals("")) {
+                String value = "";
+                if (entry.getKey().startsWith("data-")) {
+                    value = entry.getKey().substring(6);
+                } else {
+                    value = entry.getValue();
+                }
+                accum.append(String.format("%s={%s}", entry.getKey(), value));
+            }
+        }
+        return "";
+    }
+
+    private static String checkNotNull(Object obj) {
+        if (obj == null) {
+            throw new NullPointerException("Cannot call checkNotNull on null");
+        }
+        return obj.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AttributesImpl that = (AttributesImpl) o;
+        return userData.equals(that.userData);
+    }
+
+    @Override
+    public int hashCode() {
+        return userData.hashCode();
+    }
+
+    private static String internalKey(String key) {
+        if (attributes == null && userData != null) {
+            return "internal_key_" + key;
+        } else {
+            return attributes.get(key).getKey();
+        }
+    }
+
+    public static Attribute getAttribute(String key, Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                return entry.getValue();
+            }
+        }
+        throw new RuntimeException("Attribute not found: " + key);
+    }
+
+    public static String getAttribute(String key, Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                return String.format("%s={%s}", entry.getKey(), entry.getValue());
+            }
+        }
+        throw new RuntimeException("Attribute not found: " + key);
+    }
+
+    public static void setAttribute(String key, Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                entry.getValue().setUserData(String.format("%s={%s}", entry.getKey(), entry.getValue()));
+                break;
+            }
+        }
+    }
+
+    public static void setAttribute(String key, Object value, Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                entry.getValue().setUserData(value.toString());
+                break;
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        if (userData != null) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                builder.append(String.format("data-%s={%s}", internalKey(entry.getKey()), entry.getValue()));
+            }
+        }
+        return builder.toString();
+    }
+
+    @Override
+    public String toExternalForm() {
+        StringBuilder builder = new StringBuilder();
+        if (userData != null) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                builder.append(String.format("data-%s=%s", internalKey(entry.getKey()), entry.getValue()));
+            }
+        }
+        return builder.toString();
+    }
+
+    public static AttributesImpl parse(ExternalForm externalForm) throws ParseException {
+        // implementation
+    }
+
+    @Override
+    public void removeAttribute(String key, Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                entry.getValue().setUserData("");
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void removeAttribute(String key, Object value, Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                entry.getValue().setUserData("");
+                break;
+            }
+        }
+    }
+
+    @Override
+    public boolean containsKey(String key) {
+        return userData != null && !userData.isEmpty() && internalKey(key).startsWith("internal_key_");
+    }
+
+    @Override
+    public boolean remove(String key, Object value, Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                entry.getValue().setUserData("");
+                break;
+            }
+        }
+        return userData != null && !userData.isEmpty() && internalKey(key).startsWith("internal_key_");
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+        return userData != null && !userData.isEmpty();
+    }
+
+    @Override
+    public Object getValue(String key) {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void add(Affix affix) {
+        // implementation
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        // implementation
+    }
+
+    @Override
+    public int hashCode() {
+        // implementation
+    }
+
+    @Override
+    public String toString() {
+        // implementation
+    }
+}
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import java.util.*;
+
+public class AttributesImpl implements Attributes, Cloneable {
+    private Map<String, Object> userData;
+    private Map<String, Attribute> attributes;
+
+    public AttributesImpl() {
+        this.userData = new HashMap<>();
+        this.attributes = new HashMap<>();
+    }
+
+    @Override
+    public String get(String key) {
+        if (userData == null && attributes != null) {
+            return checkNotNull(attributes.get(key));
+        }
+        if (userData == null) {
+            return checkNotNull(attributes.get(key));
+        }
+        return userData.getOrDefault(key, "");
+    }
+
+    @Override
+    public String getIgnoreCase(String key) {
+        if (userData == null || attributes.isEmpty()) {
+            return checkNotNull(attributes.get(key.toUpperCase()));
+        }
+        return checkNotNull(attributes.get(key.toUpperCase()));
+    }
+
+    private Object checkNotNull(Object obj) {
+        if (obj == null) {
+            throw new NullPointerException("Cannot call checkNotNull on a null object");
+        }
+        return obj;
+    }
+
+    public void addAttribute(String key, Attribute attribute) {
+        attributes.put(key, attribute);
+    }
+
+    @Override
+    public void removeAttribute(String key, Object value, Appendable accum, Document.OutputSettings out) throws IOException {
+        if (userData != null && !userData.isEmpty()) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                String attrKey = internalKey(entry.getKey());
+                if (attrKey.equals(key)) {
+                    attributes.remove(attrKey);
+                    userData.remove(attrKey);
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+        return userData != null && !userData.isEmpty();
+    }
+
+    @Override
+    public void add(Affix affix) {
+        // implementation
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        if (userData != null) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                builder.append(String.format("data-%s=%s", internalKey(entry.getKey()), entry.getValue()));
+            }
+        }
+        return builder.toString();
+    }
+
+    @Override
+    public String toExternalForm() {
+        StringBuilder builder = new StringBuilder();
+        if (userData != null) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                builder.append(String.format("data-%s=%s", internalKey(entry.getKey()), entry.getValue()));
+            }
+        }
+        return builder.toString();
+    }
+
+    private String internalKey(String key) {
+        return "_" + key;
+    }
+
+    public static class Attribute {
+        // implementation
+    }
+
+    @Override
+    public void removeAttribute(String key, Object value, Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                entry.getValue().setUserData("");
+                break;
+            }
+        }
+    }
+
+    @Override
+    public boolean containsKey(String key) {
+        return userData != null && !userData.isEmpty() && internalKey(key).startsWith("_");
+    }
+
+    @Override
+    public boolean remove(String key, Object value, Appendable accum, Document.OutputSettings out) throws IOException {
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            if (entry.getKey().equals(key)) {
+                entry.getValue().setUserData("");
+                break;
+            }
+        }
+        return userData != null && !userData.isEmpty() && internalKey(key).startsWith("_");
+    }
+
+    @Override
+    public void add(Affix affix) {
+        // implementation
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        AttributesImpl that = (AttributesImpl) obj;
+        return userData.equals(that.userData);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        for (Map.Entry<String, Object> entry : userData.entrySet()) {
+            result = (result * prime + internalKey(entry.getKey())..hashCode()) % prime;
+            result = (result * prime + get(internalKey(entry.getKey())).hashCode()) % prime;
+        }
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        if (userData != null) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                builder.append(String.format("data-%s=%s", internalKey(entry.getKey()), entry.getValue()));
+            }
+        }
+        return builder.toString();
+    }
+
+    @Override
+    public void clear() {
+        // implementation
+    }
+
+    private static class Affix implements Cloneable {
+        // implementation
+
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+            // implementation
+            return null;
+        }
+    }
+
+    public static void main(String[] args) throws ParseException, IOException {
+        AttributesImpl attributes = new AttributesImpl();
+        Attribute attribute1 = new Attribute();
+        Attribute attribute2 = new Attribute();
+
+        attributes.addAttribute("key1", attribute1);
+        attributes.addAttribute("_key2", attribute2);
+
+        System.out.println(attributes.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.util.*;
+
+public class Attributes {
+    private Map<String, Object> userData;
+    private Map<String, Attribute> attributes;
+
+    public Attributes() {
+        this.userData = new HashMap<>();
+        this.attributes = new HashMap<>();
+    }
+
+    public String get(String key) {
+        if (userData == null && attributes != null) {
+            return checkNotNull(attributes.get(key));
+        }
+        if (userData == null) {
+            return checkNotNull(attributes.get(key));
+        }
+        return userData.getOrDefault(key, "");
+    }
+
+    public String getIgnoreCase(String key) {
+        if (userData == null || attributes.isEmpty()) {
+            return checkNotNull(attributes.get(key.toUpperCase()));
+        }
+        return checkNotNull(attributes.get(key.toUpperCase()));
+    }
+
+    private Object checkNotNull(Object obj) {
+        if (obj == null) {
+            throw new NullPointerException("Cannot call checkNotNull on a null object");
+        }
+        return obj;
+    }
+
+    public void addAttribute(String key, Attribute attribute) {
+        attributes.put(key, attribute);
+    }
+
+    public void removeAttribute(String key, Object value, Appendable accum, Document.OutputSettings out) throws IOException {
+        if (userData != null && !userData.isEmpty()) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                String attrKey = internalKey(entry.getKey());
+                if (attrKey.equals(key)) {
+                    attributes.remove(attrKey);
+                    userData.remove(attrKey);
+                    break;
+                }
+            }
+        }
+    }
+
+    public boolean containsValue(Object value) {
+        return userData != null && !userData.isEmpty();
+    }
+
+    public void add(Affix affix) {
+        // implementation
+    }
+
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        if (userData != null) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                builder.append(String.format("data-%s=%s", internalKey(entry.getKey()), entry.getValue()));
+            }
+        }
+        return builder.toString();
+    }
+
+    public String toExternalForm() {
+        StringBuilder builder = new StringBuilder();
+        if (userData != null) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                builder.append(String.format("data-%s=%s", internalKey(entry.getKey()), entry.getValue()));
+            }
+        }
+        return builder.toString();
+    }
+
+    private String internalKey(String key) {
+        return "_" + key;
+    }
+
+    public static class Attribute {
+        // implementation
+
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+            // implementation
+            return null;
+        }
+    }
+
+    public static void main(String[] args) throws ParseException, IOException {
+        Attributes attributes = new Attributes();
+        Attribute attribute1 = new Attribute();
+        Attribute attribute2 = new Attribute();
+
+        attributes.addAttribute("key1", attribute1);
+        attributes.addAttribute("_key2", attribute2);
+
+        System.out.println(attributes.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.util.*;
+
+public class AttributesImpl implements Attributes, Cloneable {
+    private Map<String, Object> userData;
+    private Map<String, Attribute> attributes;
+
+    public AttributesImpl() {
+        this.userData = new HashMap<>();
+        this.attributes = new HashMap<>();
+    }
+
+    @Override
+    public String get(String key) {
+        if (userData == null && attributes != null) {
+            return checkNotNull(attributes.get(key));
+        }
+        if (userData == null) {
+            return checkNotNull(attributes.get(key));
+        }
+        return userData.getOrDefault(key, "");
+    }
+
+    @Override
+    public String getIgnoreCase(String key) {
+        if (userData == null || attributes.isEmpty()) {
+            return checkNotNull(attributes.get(key.toUpperCase()));
+        }
+        return checkNotNull(attributes.get(key.toUpperCase()));
+    }
+
+    private Object checkNotNull(Object obj) {
+        if (obj == null) {
+            throw new NullPointerException("Cannot call checkNotNull on a null object");
+        }
+        return obj;
+    }
+
+    public void addAttribute(String key, Attribute attribute) {
+        attributes.put(key, attribute);
+    }
+
+    @Override
+    public void removeAttribute(String key, Object value, Appendable accum, Document.OutputSettings out) throws IOException {
+        if (userData != null && !userData.isEmpty()) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                String attrKey = internalKey(entry.getKey());
+                if (attrKey.equals(key)) {
+                    attributes.remove(attrKey);
+                    userData.remove(attrKey);
+                    break;
+                }
+            }
+        }
+    }
+
+    public boolean containsValue(Object value) {
+        return userData != null && !userData.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        if (userData != null) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                builder.append(String.format("data-%s=%s", internalKey(entry.getKey()), entry.getValue()));
+            }
+        }
+        return builder.toString();
+    }
+
+    @Override
+    public String toExternalForm() {
+        StringBuilder builder = new StringBuilder();
+        if (userData != null) {
+            for (Map.Entry<String, Object> entry : userData.entrySet()) {
+                builder.append(String.format("data-%s=%s", internalKey(entry.getKey()), entry.getValue()));
+            }
+        }
+        return builder.toString();
+    }
+
+    public static class AttributeImpl implements Cloneable {
+        private Map<String, String> value;
+
+        public AttributeImpl() {}
+
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+            // implementation
+            return null;
+        }
+
+        public void setValue(String value) {
+            this.value = new HashMap<>();
+        }
+
+        public String getValue() {
+            return value.get("value");
+        }
+    }
+
+    public static void main(String[] args) throws ParseException, IOException {
+        AttributesImpl attributes = new AttributesImpl();
+        AttributeImpl attribute1 = new AttributeImpl();
+        AttributeImpl attribute2 = new AttributeImpl();
+
+        attributes.addAttribute("_key", attribute1);
+        attributes.addAttribute("_key2", attribute2);
+
+        System.out.println(attributes.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================
