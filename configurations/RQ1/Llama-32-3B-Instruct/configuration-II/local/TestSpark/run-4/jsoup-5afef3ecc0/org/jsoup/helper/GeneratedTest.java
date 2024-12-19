@@ -1,0 +1,102 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    @Test
+    public void urlBuilder_emptyUrl() {
+        UrlBuilder builder = new UrlBuilder(null);
+        assertNull(builder.u);
+        assertTrue(builder.q == null || builder.q.length() == 0);
+    }
+
+    @Test
+    public void urlBuilder_buildUrlWithProtocolAndPort() {
+        URL u = new URL("http://example.com:8080/path/to/resource");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertNotNull(builder.u);
+        assertEquals("http://example.com%3A8080/path/to/resource", builder.u.toString());
+    }
+
+    @Test
+    public void urlBuilder_buildUrlWithQuery() {
+        URL u = new URL("http://example.com/path/to/resource?query=abc");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertNotNull(builder.u);
+        assertEquals("http://example.com/path/to/resource?query=abc", builder.u.toString());
+    }
+
+    @Test
+    public void urlBuilder_buildUrlWithRef() {
+        URL u = new URL("http://example.com/path/to/resource#ref");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertNotNull(builder.u);
+        assertEquals("http://example.com/path/to/resource%3Fref=123456789", builder.u.toString());
+    }
+
+    @Test
+    public void urlBuilder_buildUrlWithNonAsciiPath() {
+        URL u = new URL("http://example.com/äöü/path/to/resource");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertNotNull(builder.u);
+        assertEquals("http://example.com/&#228;&#338;&#252;/path/to/resource", builder.u.toString());
+    }
+
+    @Test
+    public void urlBuilder_buildUrlWithQueryAndRef() {
+        URL u = new URL("http://example.com/path/to/resource?query=abc&ref=123456789");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertNotNull(builder.u);
+        assertEquals("http://example.com/path/to/resource%3Fquery=abc%26ref=123456789", builder.u.toString());
+    }
+
+    @Test
+    public void urlBuilder_appendKeyVal_withEmptyQuery() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertTrue(builder.q.length() > 0);
+    }
+
+    @Test
+    public void urlBuilder_appendKeyVal_withNonEmptyQuery() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path/to/resource?query=abc"));
+        builder.appendKeyVal(kv);
+        assertTrue(builder.q.length() > 0);
+    }
+
+    @Test
+    public void urlBuilder_appendKeyVal_withQueryAndNonEmptyQuery() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path/to/resource?query=abc&query2=def"));
+        builder.appendKeyVal(kv);
+        assertTrue(builder.q.length() > 0);
+    }
+
+    @Test
+    public void urlBuilder_appendKeyVal_withNonAsciiValue() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "äöü");
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertTrue(builder.q.length() > 0);
+    }
+
+    @Test
+    public void urlBuilder_appendKeyVal_withNonAsciiValueAndQuery() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "äöü");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path/to/resource?query=abc"));
+        builder.appendKeyVal(kv);
+        assertTrue(builder.q.length() > 0);
+    }
+
+    @Test
+    public void urlBuilder_decodePart_emptyString() {
+        assertEquals("", UrlBuilder.decodePart(""));
+    }
+
+    @Test
+    public void urlBuilder_decodePart_nonEmptyString() {
+        assertEquals("example", UrlBuilder.decodePart("http%3A%2F%2Fexample.com"));
+    }
+
+}

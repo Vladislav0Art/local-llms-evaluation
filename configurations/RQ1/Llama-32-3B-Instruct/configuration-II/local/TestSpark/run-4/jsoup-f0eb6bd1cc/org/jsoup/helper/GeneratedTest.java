@@ -1,0 +1,101 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildUrlFromEmptyQueryTest() {
+        String inputUrl = "http://test.com";
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(inputUrl));
+        URI uri = urlBuilder.u.getURI();
+        assertTrue(uri.getHost().equals("test.com"));
+    }
+
+    @Test
+    public void buildUrlFromNonAsciiPathTest() {
+        String inputUrl = "http://test.com/test%20path";
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(inputUrl));
+        URI uri = urlBuilder.u.getURI();
+        assertTrue(uri.getHost().equals("test.com"));
+        assertEquals("%20", uri.getPath());
+    }
+
+    @Test
+    public void buildUrlFromNonAsciiQueryTest() {
+        String inputUrl = "http://test.com?query=non-ascii";
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(inputUrl));
+        URI uri = urlBuilder.u.getURI();
+        assertTrue(uri.getHost().equals("test.com"));
+        assertEquals("?query=%3C%C9%C8%97%C4%B7", uri.getQuery());
+    }
+
+    @Test
+    public void buildUrlWithNonAsciiFragmentTest() {
+        String inputUrl = "http://test.com#non-ascii";
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(inputUrl));
+        URI uri = urlBuilder.u.getURI();
+        assertTrue(uri.getHost().equals("test.com"));
+        assertEquals("%23", uri.getFragment());
+    }
+
+    @Test
+    public void buildUrlWithNonAsciiPathAndQueryTest() {
+        String inputUrl = "http://test.com/test%20path?query=non-ascii";
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(inputUrl));
+        URI uri = urlBuilder.u.getURI();
+        assertTrue(uri.getHost().equals("test.com"));
+        assertEquals("%20", uri.getPath());
+        assertEquals("?query=%3C%C9%C8%97%C4%B7", uri.getQuery());
+    }
+
+    @Test
+    public void appendKeyValToQueryTest() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://test.com"));
+        String query = urlBuilder.u.getQuery();
+        assertEquals("key=value", query);
+    }
+
+    @Test
+    public void appendKeyValToQueryWithExistingQueryTest() {
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://test.com?query=value1"));
+        String query = urlBuilder.u.getQuery();
+        assertEquals("key1=value1&key2=value2", query);
+    }
+
+    @Test
+    public void appendKeyValToFragmentTest() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://test.com#fragment"));
+        String fragment = urlBuilder.u.getRef();
+        assertEquals("#fragment", fragment);
+        urlBuilder.appendKeyVal(kv);
+        assertTrue(fragment.contains("%3D%3F"));
+    }
+
+    @Test
+    public void appendKeyValToFragmentWithExistingQueryTest() {
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://test.com#fragment?query=value1"));
+        String fragment = urlBuilder.u.getRef();
+        assertEquals("#fragment", fragment);
+        urlBuilder.appendKeyVal(kv1);
+        assertTrue(fragment.contains("%3D%3F"));
+    }
+
+    @Test
+    public void testDecodePartTest() {
+        String inputUrl = "http://test.com";
+        assertEquals("test.com", UrlBuilder.decodePart(IDN.toASCII(inputUrl.getHost())));
+    }
+
+    @Test
+    public void testDecodePartExceptionTest() {
+        UrlBuilder.decodePart("non-existent-url");
+    }
+
+}

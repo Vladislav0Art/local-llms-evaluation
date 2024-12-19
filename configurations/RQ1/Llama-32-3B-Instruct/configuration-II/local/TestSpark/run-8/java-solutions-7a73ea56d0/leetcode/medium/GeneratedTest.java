@@ -1,0 +1,83 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class GeneratedTest {
+
+    @Test
+    public void next_PricesLessThanZero_GivenZeroRetuned() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        assertEquals(0, solution.next(-1));
+    }
+
+    @Test
+    public void next_PricesEqualToZero_GivenOneRetuned() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        assertEquals(1, solution.next(0));
+    }
+
+    @Test
+    public void next_DifferentPrices_PutInOrderCorrectly() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {3, 2, 6, 5};
+        for (int i = 0; i < prices.length; i++) {
+            if (i == 0)
+                assertEquals(1, solution.next(prices[i]));
+            else
+                assertEquals(solution.next(prices[i - 1]) + 1, solution.next(prices[i]));
+        }
+    }
+
+    @Test
+    public void next_DifferentPrices_MockNextMethod() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        when(solution.next(anyInt())).thenReturn(5);
+        int[] prices = {3, 2, 6, 5};
+        for (int i = 0; i < prices.length; i++) {
+            if (i == 0)
+                assertEquals(1, solution.next(prices[i]));
+            else
+                assertEquals(solution.next(prices[i - 1]) + 1, solution.next(prices[i]));
+        }
+    }
+
+    @Test
+    public void calculateSpans_PricesWithOneElement_GivenArrayCorrect() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {10};
+        int[] result = solution.calculateSpans(prices);
+        assertEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpans_PricesWithTwoElements_GivenArrayCorrect() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {10, 9};
+        int[] result = solution.calculateSpans(prices);
+        assertEquals(new int[]{2, 1}, result);
+    }
+
+    @Test
+    public void calculateSpans_PricesWithMultipleElements_GivenArrayCorrect() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {10, 9, 8, 7};
+        int[] result = solution.calculateSpans(prices);
+        assertArrayEquals(new int[]{2, 1, 1, 1}, result);
+    }
+
+    @Test
+    public void calculateSpans_PricesWithMultipleElements_MockCalculateSpansMethod() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        when(solution.calculateSpans(anyInt[]())).thenReturn(new int[]{2, 1, 1, 1});
+        int[] prices = {10, 9, 8, 7};
+        int[] result = solution.calculateSpans(prices);
+        assertArrayEquals(result, new int[]{2, 1, 1, 1});
+    }
+
+}

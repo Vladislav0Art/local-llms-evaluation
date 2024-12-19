@@ -1,0 +1,148 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void createCommentWithDataIsNotNull() {
+        String data = "This is a comment";
+        Comment comment = new Comment(data);
+        assertNotNull(comment);
+    }
+
+    @Test
+    public void get
+    nodeName Returns #
+
+    comment() {
+        Comment comment = new Comment("data");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getData
+    Returns the
+    core value
+    of the
+
+    comment() {
+        String data = "This is a comment";
+        Comment comment = new Comment(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void setData
+    Sets the
+    core value
+    of the
+
+    comment() {
+        String data = "New data";
+        Comment comment = new Comment("old data");
+        comment.setData(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHead
+
+    IsCalledWhenPrettyPrint() {
+        Appendable accum = mock(Appendable.class);
+        int depth = 0;
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        when(out.prettyPrint()).thenReturn(true);
+        Comment comment = new Comment("data");
+        comment.outerHtmlHead(accum, depth, out);
+        verify(accum).append(anyString());
+    }
+
+    @Test
+    public void outerHtmlTail
+
+    IsNotCalled() {
+        Appendable accum = mock(Appendable.class);
+        int depth = 0;
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        Comment comment = new Comment("data");
+        comment.outerHtmlHead(accum, depth, out);
+        verifyNoMoreInteractions(accum);
+    }
+
+    @Test
+    public void outerHtml
+    Returns the
+    HTML for
+
+    the comment() {
+        Appendable accum = mock(Appendable.class);
+        int depth = 0;
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        Comment comment = new Comment("data");
+        comment.outerHtmlHead(accum, depth, out);
+        assertEquals("<!--data-->", accum.toString());
+    }
+
+    @Test
+    public void clone
+    Returns a new
+    instance of
+
+    the comment() {
+        Comment comment = new Comment("data");
+        Comment clonedComment = comment.clone();
+        assertNotNull(clonedComment);
+        assertEquals(comment, clonedComment);
+    }
+
+    @Test
+    public void isXmlDeclaration
+    Returns false for
+    a normal
+
+    comment() {
+        String data = "This is a comment";
+        Comment comment = new Comment(data);
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclaration
+    Returns true for
+    an XML
+
+    declaration comment() {
+        String data = "!xml version \"1.0\" encoding=\"UTF-8\"";
+        Comment comment = new Comment(data);
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration
+    Returns null
+    when the
+    comment does
+    not contain
+    an XML
+
+    declaration() {
+        String data = "This is a comment";
+        Comment comment = new Comment(data);
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration
+    Returns an
+    xml Declaration
+    instance when
+    the comment
+    contains an
+
+    XML declaration() {
+        String data = "!xml version \"1.0\" encoding=\"UTF-8\"";
+        Comment comment = new Comment(data);
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        assertNotNull(decl);
+    }
+
+}

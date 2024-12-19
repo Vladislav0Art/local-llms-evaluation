@@ -1,0 +1,90 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextZeroPriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int result = onlineStockSpan.next(0);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextIncreasePriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(10);
+        onlineStockSpan.next(20);
+        onlineStockSpan.next(30);
+        int result = onlineStockSpan.next(10);
+        assertEquals(1, result);
+        result = onlineStockSpan.next(15);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void nextDecreasePriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(30);
+        onlineStockSpan.next(20);
+        onlineStockSpan.next(10);
+        int result = onlineStockSpan.next(25);
+        assertEquals(2, result);
+        result = onlineStockSpan.next(15);
+        assertEquals(3, result);
+    }
+
+    @Test
+    public void calculateSpansEmptyArrayTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {};
+        int[] expected = {1};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, result);
+    }
+
+    @Test
+    public void calculateSpansSingleElementArrayTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100};
+        int[] expected = {1};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, result);
+    }
+
+    @Test
+    public void calculateSpansMultipleElementsArrayTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100, 80, 75, 60, 55};
+        int[] expected = {1, 2, 3, 4, 5};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, result);
+    }
+
+    @Test
+    public void calculateSpansDecreasingSequenceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {30, 25, 20, 15};
+        int[] expected = {1, 2, 3, 4};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, result);
+    }
+
+    @Test
+    public void calculateSpansIncreasingSequenceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {30, 35, 40, 45};
+        int[] expected = {1, 2, 3, 4};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, result);
+    }
+
+}

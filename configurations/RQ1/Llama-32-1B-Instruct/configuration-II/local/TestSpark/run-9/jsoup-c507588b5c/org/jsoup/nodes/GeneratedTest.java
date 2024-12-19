@@ -1,0 +1,105 @@
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+
+import java.io.IOException;
+
+import org.jsoup.nodes.Document;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Document document;
+
+    @InjectMocks
+    private TextNode textNode;
+
+    @BeforeClass
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        document = new Document();
+    }
+
+    @Test
+    public void testIsBlank_EmptyText() {
+        assertFalse(textNode.isBlank());
+        assertEquals("", textNode.text(""));
+    }
+
+    @Test
+    public void testIsBlank_OnlyWhitespace() {
+        assertTrue(textNode.isBlank());
+
+        String text = "   Hello World  ";
+        assertEquals("Hello World", textNode.text(text));
+    }
+
+    @Test
+    public void testGetWholeText
+
+    WholeText() {
+        String text = "This is a sample text.";
+        assertEquals(text, textNode.getWholeText());
+    }
+
+    @Test
+    public void testSplitText_Splitting() {
+        String text = "Hello World!";
+        TextNode node = textNode.splitText(7);
+        assertTrue(node != null);
+        assertEquals("World!", node.text());
+    }
+
+    @Test
+    public void testOuterHtmlHead_PrettyPrintTrue() {
+        document.clear();
+        document.append("H1  <p>Some content</p></body><body></body><body>Some more content</body>");
+        textNode.outerHtmlHead(document.getAppendable(), -1, null);
+        assertTrue(document.hasBody());
+    }
+
+    @Test
+    public void testOuterHtmlTail_PrettyPrintTrue() {
+        document.clear();
+        document.append("H1  <p>Some content</p></body><body></body><body>Some more content</body>");
+        textNode.outerHtmlTail(document.getAppendable(), -1, null);
+        assertTrue(document.hasBody());
+    }
+
+    @Test
+    public void testToString_PrettyPrintTrue() {
+        document.clear();
+        document.append("H1  <p>Some content</p></body><body></body><body>Some more content</body>");
+        textNode.outerHtmlHead(document.getAppendable(), -1, null);
+        assertEquals("<p class=\"outer\">Hello World!</p>", textNode.toString());
+    }
+
+    @Test
+    public void testClone_PrettyPrintTrue() {
+        document.clear();
+        document.append("H1  <p>Some content</p></body><body></body><body>Some more content</body>");
+        textNode.outerHtmlHead(document.getAppendable(), -1, null);
+        assertEquals("<h1>Some content</h1>", textNode.clone().toString());
+    }
+
+    @Test
+    public void testGetWholeText_PrettyPrintTrue() {
+        document.clear();
+        document.append("H1  <p>Some content</p></body><body></body><body>Some more content</body>");
+        textNode.outerHtmlHead(document.getAppendable(), -1, null);
+        assertEquals("<h1 class=\"outer\">Hello World!</h1>", textNode.getWholeText());
+    }
+
+}

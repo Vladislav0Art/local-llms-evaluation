@@ -1,0 +1,133 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.jsoup.Connection.KeyVal;
+import org.jsoup.Connection.KeyValPair;
+import org.jsoup.Connection.QueryMap;
+import org.jsoup.Connection.RequestKeyVal;
+import org.jsoup.Connection.RequestQueryMap;
+
+import java.net.MalformedURLException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
+import static org.jsoup.helper.DataUtil.UTF_8;
+
+@RunWith(JUnit4.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection inputUrl;
+
+    @Mock
+    private String encodedHost;
+
+    @Mock
+    private URI uri;
+
+    @Mock
+    private URL decodedUrl;
+
+    @Mock
+    private StringBuilder q;
+
+    public void testBuild() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        when(inputUrl.getProtocol()).thenReturn("http");
+        when(inputUrl.getUserInfo()).thenReturn("");
+        when(inputUrl.getHost()).thenReturn(encodedHost);
+        when(inputUrl.getPort()).thenReturn(80);
+
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals("https://example.com", builder.build().toString());
+    }
+
+    public void testBuildWithQuery() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        when(inputUrl.getProtocol()).thenReturn("http");
+        when(inputUrl.getUserInfo()).thenReturn("");
+        when(inputUrl.getHost()).thenReturn(encodedHost);
+        when(inputUrl.getPort()).thenReturn(80);
+        when(uri.getQuery()).thenReturn("a=1&b=2");
+
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals("https://example.com?%20a%3D1%26%24%62%3D2", builder.build().toString());
+    }
+
+    public void testBuildWithRef() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        when(inputUrl.getProtocol()).thenReturn("http");
+        when(inputUrl.getUserInfo()).thenReturn("");
+        when(inputUrl.getHost()).thenReturn(encodedHost);
+        when(inputUrl.getPort()).thenReturn(80);
+        when(uri.getQuery()).thenReturn(null);
+
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals("https://example.com#test", builder.build().toString());
+    }
+
+    public void testAppendKeyVal() {
+        Connection.KeyVal kv = new KeyVal();
+        kv.key = "key";
+        kv.value = "value";
+
+        UrlBuilder builder = new UrlBuilder(null);
+        String url = builder.build().toString();
+        assertEquals("http://example.com/key=value", url);
+
+        QueryMap query = RequestQueryMap.parse(url);
+        assertEquals("key", query.get("key"));
+        assertEquals("value", query.get("value"));
+    }
+
+    public void testAppendKeyValWithMultiple() {
+        Connection.KeyVal[] kvs = new KeyVal[]{new KeyVal(), new KeyVal()};
+        Arrays.fill(kvs[0].key, 'a');
+        Arrays.fill(kvs[1].key, 'b');
+
+        UrlBuilder builder = new UrlBuilder(null);
+        String url = builder.build().toString();
+        assertEquals("http://example.com/a%3D1&b%3D2", url);
+
+        QueryMap query = RequestQueryMap.parse(url);
+        assertEquals("a=1", query.get("a"));
+        assertEquals("b=2", query.get("b"));
+    }
+
+    public void testDecodePart() {
+        when(encodedHost).thenReturn("%E2%80%A6");
+        String decoded = UrlBuilder.decodePart(encodedHost);
+
+        assertEquals("Â€", decoded);
+    }
+
+    public void testAppendToAsciiSpaceAsPlus() {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii(" ", true, sb);
+
+        assertEquals("+", sb.toString());
+    }
+
+    public void testAppendToAsciiWithSpaceNotAsPlus() {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii(" ", false, sb);
+
+        assertEquals("%20", sb.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

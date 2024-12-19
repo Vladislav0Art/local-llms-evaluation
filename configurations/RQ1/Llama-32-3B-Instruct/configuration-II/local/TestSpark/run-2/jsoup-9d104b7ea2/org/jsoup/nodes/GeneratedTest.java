@@ -1,0 +1,110 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeConstructorTestsText() {
+        // Given a new TextNode
+        TextNode textNode = new TextNode("Hello World");
+
+        // When we call the text() method on it
+        String result = textNode.text();
+
+        // Then the result should be "Hello World"
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void textNodeConstructorTestsBlankText() {
+        // Given a new TextNode with blank text
+        TextNode textNode = new TextNode("");
+
+        // When we call the text() method on it
+        String result = textNode.text();
+
+        // Then the result should be an empty string
+        assertEquals("", result);
+    }
+
+    @Test
+    public void textNodeTextMethodTestsWhitespaceNormalization() {
+        // Given a new TextNode with whitespace normalized text
+        TextNode textNode = new TextNode("   Hello World  ");
+
+        // When we call the text() method on it
+        String result = textNode.text();
+
+        // Then the result should be "Hello World"
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void textNodeTextMethodTestsLeadingWhitespaceRemoval() {
+        // Given a new TextNode with leading whitespace
+        TextNode textNode = new TextNode("^ Hello World ^");
+
+        // When we call the text() method on it
+        String result = textNode.text();
+
+        // Then the result should be "Hello World"
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void textNodeSplitTextTestsOffsetValidation() {
+        TextNode textNode = new TextNode("Hello World");
+
+        when(textNode.coreValue()).thenReturn("Hello World");
+
+        assertFalse(textNode.splitText(0).isBlank());
+
+        assertTrue(textNode.splitText(10).isBlank());
+    }
+
+    @Test
+    public void textNodeSplitTextTestsOffsetRangeValidation() {
+        TextNode textNode = new TextNode("Hello World");
+
+        when(textNode.coreValue()).thenReturn("Hello World");
+
+        assertFalse(textNode.splitText(-1).isBlank());
+
+        assertTrue(textNode.splitText(13).isBlank());
+    }
+
+    @Test
+    public void textNodeSplitTextTestsSplittingSuccess() {
+        // Given a new TextNode to be split
+        TextNode textNode = new TextNode("Hello World");
+
+        when(textNode.coreValue()).thenReturn("Hello World");
+
+        TextNode leftTextNode = textNode.splitText(5);
+
+        assertEquals("Hello", leftTextNode.text());
+
+        TextNode rightTextNode = textNode.splitText(0).splitText(6);
+
+        assertEquals("World", rightTextNode.text());
+    }
+
+    @Test
+    public void textNodeIsBlankTestsBlankString() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void textNodeIsBlankTestsNonBlankString() {
+        TextNode textNode = new TextNode("Hello World");
+        assertFalse(textNode.isBlank());
+    }
+
+}

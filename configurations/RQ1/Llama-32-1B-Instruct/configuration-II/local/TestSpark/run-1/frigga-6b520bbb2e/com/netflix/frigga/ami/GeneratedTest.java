@@ -1,0 +1,82 @@
+package com.netflix.frigga.ami;
+
+public class GeneratedTest {
+
+    private static final Pattern APP_VERSION_PATTERN = Pattern.compile(
+            "([" + NameConstants.NAME_HYPHEN_CHARS
+                    + "]+)-([0-9.a-zA-Z~]+)-(\\w+)(?:[.](\\w+))?(?:\\/([" + NameConstants.NAME_HYPHEN_CHARS + "]+)\\/([0-9]+))?");
+
+    private static AppVersion parseName(String amiName) {
+        return new AppVersion();
+    }
+
+    @Test
+    public void test_parse_name() {
+        String amiName = "subscriberha-1.0.0-586499";
+        AppVersion appVersion = parseName(amiName);
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void test_parse_name_invalid_pattern() {
+        String amiName = "invalid pattern";
+        AppVersion appVersion = parseName(amiName);
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void test_parse_name_build_first() {
+        String amiName = "subscriberha-1.0.0-586499.h150";
+        AppVersion appVersion = parseName(amiName);
+        assertNotNull(appVersion);
+        assertEquals(1, appVersion.buildNumber.length());
+        assertEquals(null, appVersion.commit);
+    }
+
+    @Test
+    public void test_parse_name_build_first_commit() {
+        String amiName = "subscriberha-1.0.0-586499.h150/WE-WAPP-subscriberha";
+        AppVersion appVersion = parseName(amiName);
+        assertNotNull(appVersion);
+        assertEquals(1, appVersion.buildNumber.length());
+        assertEquals(null, appVersion.commit);
+    }
+
+    @Test
+    public void test_parse_name_invalid_build_number() {
+        String amiName = "subscriberha-1.0.0-586499";
+        AppVersion appVersion = parseName(amiName);
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void test_getPackageName() {
+        String appVersion = new AppVersion("package1", "1.0");
+        assertEquals("package1", appVersion.getPackageName());
+    }
+
+    @Test
+    public void test_getVersion() {
+        String appVersion = new AppVersion("package1", "1.0");
+        assertEquals("1.0", appVersion.getVersion());
+    }
+
+    @Test
+    public void test_getBuildJobName() {
+        String appVersion = new AppVersion("package1", "1.0");
+        assertEquals("package1", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void test_getBuildNumber() {
+        String appVersion = new AppVersion("package1", "1.0");
+        assertEquals("1.0", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void test_getCommit() {
+        String appVersion = new AppVersion("package1", "1.0");
+        assertEquals("1.0", appVersion.getCommit());
+    }
+
+}

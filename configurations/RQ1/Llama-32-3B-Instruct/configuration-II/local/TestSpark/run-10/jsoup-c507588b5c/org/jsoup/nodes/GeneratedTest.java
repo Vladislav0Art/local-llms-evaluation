@@ -1,0 +1,146 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.when;
+
+@RunWith(SpringRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private LeafNode parent;
+    @Mock
+    private Appendable accum;
+    @Mock
+    private Document.OutputSettings out;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @After
+    public void tearDown() {
+        // Empty
+    }
+
+    @Test
+    public void createTextNode_MockParentAndTextValue_MockTextNodesShouldBeCreatedWithCorrectValues() {
+        TextNode textNode = new TextNode("Hello, World!");
+        assertNotNull(textNode.parent);
+        assertEquals("Hello, World!", textNode.value);
+    }
+
+    @Test
+    public void nodeName_ReturnsCorrectValue() {
+        TextNode textNode = new TextNode("");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textReturnsNormalisedText() {
+        String text = "   ";
+        TextNode textNode = new TextNode(text);
+        assertEquals(StringUtil.normaliseWhitespace(text), textNode.text());
+    }
+
+    @Test
+    public void text
+
+    SetsCorrectValue() {
+        TextNode textNode = new TextNode("");
+        textNode.text("Hello, World!");
+        assertEquals("Hello, World!", textNode.value);
+    }
+
+    @Test
+    public void isBlank_ReturnsCorrectValue() {
+        String text = "";
+        TextNode textNode = new TextNode(text);
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_CreatesNewTextNodeWithCorrectSplitOffset() {
+        String text = "Hello, World!";
+        TextNode textNode = new TextNode(text);
+        int offset = 7;
+        TextNode tailNode = textNode.splitText(offset);
+        assertNotNull(tailNode.parent);
+        assertEquals(7, tailNode.value.length());
+    }
+
+    @Test
+    public void outerHtmlHead_MockParentAndNormaliseWhitespaceIsEnabled_MockAccumShouldBeCalledWithCorrectHtml() {
+        when(parentNode instanceof Document).thenReturn(true);
+        TextNode textNode = new TextNode("");
+        appendable(accum);
+        document(outputSettings(out));
+        assertNotNull(accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTail_MockParentAndNormaliseWhitespaceIsDisabled_MockAccumShouldNotBeCalled() {
+        when(parentNode instanceof Document).thenReturn(true);
+        TextNode textNode = new TextNode("");
+        appendable(accum);
+        document(outputSettings(out));
+        assertNull(accum.toString());
+    }
+
+    @Test
+    public void toString_ReturnsCorrectHtmlString() {
+        String text = "Hello, World!";
+        TextNode textNode = new TextNode(text);
+        assertNotNull(textNode.toString());
+    }
+
+    @Test
+    public void clone_ReturnsCorrectTextNodeWithSameValues() {
+        String text = "Hello, World!";
+        TextNode textNode = new TextNode(text);
+        TextNode clonedTextNode = textNode.clone();
+        assertNotNull(clonedTextNode.parent);
+        assertEquals("Hello, World!", clonedTextNode.value);
+    }
+
+    @Test
+    public void createFromEncoded_MockEncodedTextAndReturnCorrectTextNode() {
+        String encodedText = "&lt;Hello&gt;";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertNotNull(textNode.parent);
+        assertEquals("Hello", textNode.value);
+    }
+}
+
+public class LeafNode {
+    // Empty
+}
+
+public class Document {
+    public static class OutputSettings {
+        // Empty
+    }
+
+    public static class Appendable {
+        private StringBuilder value;
+
+        public void append(StringBuilder sb) {
+            this.value = sb;
+        }
+
+        public String toString() {
+            return value.toString();
+        }
+    }
+
+}

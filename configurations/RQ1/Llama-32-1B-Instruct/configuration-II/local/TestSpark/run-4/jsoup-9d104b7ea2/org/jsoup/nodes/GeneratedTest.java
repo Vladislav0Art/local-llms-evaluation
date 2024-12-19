@@ -1,0 +1,93 @@
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class GeneratedTest {
+
+    private static final String TEXT = "Hello, World!";
+    @Mock
+    private Appendable parentElement;
+
+    private TextNode textNode;
+    private Document document;
+
+    @BeforeEach
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+        textNode = new TextNode(TEXT);
+        document = new Document();
+        document.documentElement = document.createElement("text");
+        document.appendChild(document.documentElement);
+    }
+
+    @Test
+    public void isBlank_ReturnsTrue() {
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_ReturnsFalseIfContainsTextContent() {
+        textNode.text("Hello, World!");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_ReturnsNewTextNodeWithOriginalTextAfterOffset() {
+        textNode = new TextNode("Hello, ");
+        String originalText = "Hello, ";
+        String resultText = textNode.splitText(2);
+        assertEquals(originalText, resultText.value(), 10);
+    }
+
+    @Test
+    public void splitText_ReturnsNewTextNodesWithOriginalTextBeforeAndAfterOffset() {
+        textNode = new TextNode("Hello, ");
+        String originalText = "Hello, ";
+        int offset = 3;
+        String resultText1 = textNode.splitText(offset);
+        String resultText2 = textNode.splitText(offset + 1);
+        assertEquals(originalText.substring(0, offset), resultText1.value(), 10);
+        assertEquals(originalText.substring(offset), resultText2.value(), 10);
+    }
+
+    @Test
+    public void outerHtmlHead_TestForSplitting() {
+        textNode = new TextNode("Hello, ");
+        String originalText = "Hello, ";
+        document.appendChild(textNode);
+        append(textNode.outerHtmlHead(null, 0, null), null, 1);
+
+        // Assert that the last child of the parent element is a TextNode
+        assertEquals(textNode, ((Element) parentElement).getLastChild());
+    }
+
+    @Test
+    public void outerHtmlTail_TestForSplitting() {
+        textNode = new TextNode("Hello, ");
+        String originalText = "Hello, ";
+        document.appendChild(textNode);
+        append(textNode.outerHtmlTail(null, 0, null), null, 1);
+
+        // Assert that the last child of the parent element is a TextNode
+        assertEquals(textNode, ((Element) parentElement).getLastChild());
+    }
+
+    @Test
+    public void toString_TestForToString() {
+        textNode = new TextNode("Hello, ");
+        assertEquals("<text>Hello, </text>", textNode.toString());
+    }
+
+}

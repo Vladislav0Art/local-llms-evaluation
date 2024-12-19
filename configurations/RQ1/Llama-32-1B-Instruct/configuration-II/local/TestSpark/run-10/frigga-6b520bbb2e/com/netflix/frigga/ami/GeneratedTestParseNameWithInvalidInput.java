@@ -1,0 +1,39 @@
+package com.netflix.frigga.ami;
+
+import com.netflix.frigga.NameConstants;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedTestParseNameWithInvalidInput {
+
+    private static final Pattern APP_VERSION_PATTERN = Pattern.compile(
+            "([" + NameConstants.NAME_HYPHEN_CHARS
+                    + "]+)-([0-9.a-zA-Z~]+)-(\\w+)(?:[.](\\w+))?(?:\\/([" + NameConstants.NAME_HYPHEN_CHARS + "]+)\\/([0-9]+))?");
+
+    public static AppVersion parseName(String amiName) {
+        if (amiName == null) {
+            return null;
+        }
+        Matcher matcher = APP_VERSION_PATTERN.matcher(amiName);
+        if (!matcher.matches()) {
+            return null;
+        }
+        AppVersion parsedName = new AppVersion();
+        parsedName.packageName = matcher.group(1);
+        parsedName.version = matcher.group(2);
+        boolean buildFirst = matcher.group(3) != null && matcher.group(3).startsWith("h"); // 'h' is for Hudson
+        String buildString = matcher.group(buildFirst ? 3 : 4);
+        parsedName.buildNumber = buildString != null ? buildString.substring(1) : null;
+        parsedName.commit = matcher.group(buildFirst ? 4 : 3);
+        parsedName.buildJobName = matcher.group(5);
+        return parsedName;
+    }
+
+    @Test
+    public void testParseNameWithInvalidInput() {
+        AppVersion version = parseName(null);
+        // TODO: add error checking for null input
+    }
+
+}

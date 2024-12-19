@@ -1,0 +1,55 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testBlankNode() {
+        // Given
+        Node node = new TextNode("");
+
+        // When
+        boolean result = node.isBlank();
+
+        // Then
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void testSplitText() {
+        // Given
+        String text = "Hello World";
+
+        // When
+        TextNode splitNode = new TextNode(splitText(0, text.length()));
+
+        // Then
+        Assert.assertNotNull(splitNode.getWholeText());
+        Assert.assertTrue(text.contains(splitNode.getWholeText()));
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        // Given
+        String text = "Hello World";
+
+        // When
+        TextNode node = new TextNode(text);
+
+        // Then
+        Assert.assertNotNull(node.outerHtmlHead(new StringBuilder(), 0, null));
+    }
+
+    @Test
+    public void testToString() {
+        // Given
+        Node node = new TextNode("Hello World");
+
+        // When
+        String result = node.toString();
+
+        // Then
+        Assert.assertNotNull(result);
+        Assert.contains("Hello World", result);
+    }
+
+}

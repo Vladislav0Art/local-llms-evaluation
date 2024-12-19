@@ -1,0 +1,92 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testCommentNode() {
+        // Arrange
+        String data = "#comment";
+        Appendable accum = new StringBuilder();
+        Document OutputSettings = Document.OutputSettings.create();
+
+        // Act
+        Comment comment = new Comment(data);
+
+        // Assert
+        assertEquals("#comment", comment.nodeName());
+        assertEquals("<!--" + data + "-->", comment.outerHtmlHead(accum, 0, OutputSettings));
+        assertEquals("<!--" + data + "-->", comment.outerHtmlTail(accum, 0, OutputSettings));
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        // Arrange
+        String data = "/*\n*   * This is a test \n*/";
+        XmlDeclaration expected = new XmlDeclaration("<!DOCTYPE html PUBLIC \"-//W3C/DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\"><body>\n    /*\n    *   *\n    */\n</body></html>");
+
+        // Act
+        Comment comment = new Comment(data);
+
+        // Assert
+        assertTrue(comment.isXmlDeclaration());
+        assertEquals(expected, comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void testClone() {
+        // Arrange
+        String data = "#comment";
+        Comment expected = new Comment(data);
+        Appendable accum = new StringBuilder();
+        Document OutputSettings = Document.OutputSettings.create();
+
+        // Act
+        Comment clone = comment.clone();
+
+        // Assert
+        assertEquals(expected, clone);
+    }
+
+    @Test
+    public void testIsXmlDeclarationNoComment() {
+        // Arrange
+        String data = "?";
+        XmlDeclaration expected = null;
+
+        // Act
+        Comment comment = new Comment(data);
+
+        // Assert
+        assertFalse(comment.isXmlDeclaration());
+        assertEquals(expected, comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void testXmlDeclarationContent() {
+        // Arrange
+        String data = "/*\n*   * This is a test \n*/";
+        XmlDeclaration expected = new XmlDeclaration("<!DOCTYPE html PUBLIC \"-//W3C/DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\"><body>\n    /*\n    *   *\n    */\n</body></html>");
+
+        // Act
+        Comment comment = new Comment(data);
+
+        // Assert
+        assertTrue(comment.asXmlDeclaration() instanceof String);
+        assertEquals(expected, comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclarationNoContent() {
+        // Arrange
+        String data = "";
+        XmlDeclaration expected = null;
+
+        // Act
+        Comment comment = new Comment(data);
+
+        // Assert
+        assertFalse(comment.asXmlDeclaration() instanceof String);
+        assertEquals(expected, comment.asXmlDeclaration());
+    }
+
+}

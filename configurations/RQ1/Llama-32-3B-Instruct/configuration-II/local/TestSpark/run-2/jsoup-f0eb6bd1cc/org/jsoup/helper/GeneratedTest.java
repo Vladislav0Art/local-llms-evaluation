@@ -1,0 +1,102 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection.KeyVal;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.jsoup.helper.UrlBuilder.UTF_8;
+
+@RunWith(JUnit4.class)
+public class GeneratedTest {
+
+    private static UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path?query=param#fragment"));
+
+    @BeforeClass
+    public static void setup() {
+        String url = "https://example.com/path%20with+space";
+        builder.u = new URL(url);
+        builder.q = null;
+    }
+
+    public static class UrlBuilderTest {
+
+        @Test
+        public void build_PunnyCodingHost() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+            assertEquals("http://example.com/ascii", builder.build().getProtocol(), 0);
+        }
+
+        @Test
+        public void build_URIFragment() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+            assertEquals("https://example.com/path?query=param#fragment.ascii", builder.build().getPath(), 0);
+        }
+
+        @Test
+        public void appendKeyVal_ExistingQuery() throws UnsupportedEncodingException {
+            KeyVal kv = new KeyVal("existing-key", "value");
+            assertEquals("?existing-key=value", builder.q.toString());
+        }
+
+        @Test
+        public void appendKeyVal_NewQuery() throws UnsupportedEncodingException {
+            KeyVal kv = new KeyVal("new-key", "value");
+            builder.appendKeyVal(kv);
+            assertEquals("?new-key=value", builder.q.toString());
+        }
+
+        @Test
+        public void decodePart_Decoding() throws UnsupportedEncodingException {
+            String encoded = "%C3%A5";
+            assertEquals("ä", UrlBuilder.decodePart(encoded), 0);
+        }
+
+        @Test
+        public void appendToAscii_AspacedChar() {
+            StringBuilder sb = Mockito.mock(StringBuilder.class);
+            UrlBuilder.appendToAscii(" ", true, sb);
+            assertTrue(sb.toString().equals("+"));
+        }
+    }
+
+    @Test
+    public void decodePart_InvalidEncoding() throws UnsupportedEncodingException {
+        String encoded = "invalid";
+        assertThrows(UnsupportedEncodingException.class, () -> UrlBuilder.decodePart(encoded));
+    }
+}
+
+public static class UrlBuilderAppendToAsciiTest {
+
+    private static StringBuilder sbMock;
+    private static final char[] SPACE.
+
+    chars();
+
+    @Before
+    public void setup() {
+        sbMock = Mockito.mock(StringBuilder.class);
+        Mockito.when(sbMock.append(SPACE)).thenReturn(sbMock);
+    }
+
+    @Test
+    public void appendToAscii_AspacedChar() {
+        UrlBuilder.appendToAscii(" ", false, sbMock);
+        assertEquals("+", sbMock.toString());
+    }
+}
+
+}

@@ -1,0 +1,78 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.io.UnsupportedEncodingException;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildNoUrl() {
+        assertNull(new UrlBuilder(null).build());
+    }
+
+    @Test
+    public void buildWithSchemeAndAuthority() throws URISyntaxException, MalformedURLException {
+        URI uri = new URI("http://example.com/path/to/resource");
+        assertEquals(uri.toString(), new UrlBuilder(uri).build().toString());
+    }
+
+    @Test
+    public void buildWithNoQuery() throws URISyntaxException, MalformedURLException {
+        URI uri = new URI("http://example.com/path/to/resource");
+        String expected = "http://example.com/path%2Fto%2Fresource";
+        assertEquals(expected, new UrlBuilder(uri).build().toString());
+    }
+
+    @Test
+    public void buildWithQuery() throws URISyntaxException, MalformedURLException {
+        URI uri = new URI("http://example.com/path/to/resource?query=parameter");
+        String expected = "http://example.com/path%2Fto%2Fresource?query=parameter";
+        assertEquals(expected, new UrlBuilder(uri).build().toString());
+    }
+
+    @Test
+    public void buildWithFragment() throws URISyntaxException, MalformedURLException {
+        URI uri = new URI("http://example.com/path/to/resource#fragment");
+        String expected = "http://example.com/path%2Fto%2Fresource#fragment";
+        assertEquals(expected, new UrlBuilder(uri).build().toString());
+    }
+
+    @Test
+    public void buildWithNonAsciiPath() throws URISyntaxException, MalformedURLException {
+        URI uri = new URI("http://example.com/äöü/path/to/resource");
+        String expected = "http://example.com/%C3%A6%C3%B6%C3%BC/path%2Fto%2Fresource";
+        assertEquals(expected, new UrlBuilder(uri).build().toString());
+    }
+
+    @Test
+    public void appendKeyValSingle() {
+        UrlBuilder builder = new UrlBuilder(null);
+        Connection.KeyVal kv = new HashMap<String, String>().entrySet().next();
+        String expected = "?key=" + URLEncoder.encode(kv.getKey(), "UTF-8") + "&value=" + URLEncoder.encode(kv.getValue(), "UTF-8");
+        assertEquals(expected, builder.appendKeyVal(kv).toString());
+    }
+
+    @Test
+    public void appendKeyValMulti() {
+        UrlBuilder builder = new UrlBuilder(null);
+        Connection.KeyVal kv1 = new HashMap<String, String>().entrySet().next();
+        Connection.KeyVal kv2 = new HashMap<String, String>().entrySet().next();
+        String expected = "?key1=" + URLEncoder.encode(kv1.getKey(), "UTF-8") + "&value1=" + URLEncoder.encode(kv1.getValue(), "UTF-8")
+                + "&key2=" + URLEncoder.encode(kv2.getKey(), "UTF-8") + "&value2=" + URLEncoder.encode(kv2.getValue(), "UTF-8");
+        assertEquals(expected, builder.appendKeyVal(kv1).appendKeyVal(kv2).toString());
+    }
+
+    @Test
+    public void decodePart() {
+        String input = "äöü";
+        assertEquals("äöü", UrlBuilder.decodePart(input));
+    }
+
+}

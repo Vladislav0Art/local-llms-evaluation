@@ -1,0 +1,76 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextPrice_ReturnsCountWhenPriceIsGreaterOrEqual() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        onlineStockSpan.next(50);
+        onlineStockSpan.next(70);
+        assertEquals(2, onlineStockSpan.list.size());
+    }
+
+    @Test
+    public void nextPrice_ReturnsCountWhenPriceIsLessThanPrevious() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        onlineStockSpan.next(50);
+        onlineStockSpan.next(70);
+        assertEquals(1, onlineStockSpan.list.size());
+    }
+
+    @Test
+    public void calculateSpans_ReturnsCorrectSpans() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100, 80, 60, 70};
+        int[] expectedSpans = {1, 2, 4, 6};
+        int[] actualSpans = onlineStockSpan.calculateSpans(prices);
+        for (int i = 0; i < prices.length; i++) {
+            assertEquals(expectedSpans[i], actualSpans[i]);
+        }
+    }
+
+    @Test
+    public void calculateSpans_WhenPriceIsLessThanPreviousReturnsCorrectSpan() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100, 80, 60, 70};
+        int[] expectedSpans = {1, 2, 4, 6};
+        int[] actualSpans = onlineStockSpan.calculateSpans(prices);
+        assertEquals(4, actualSpans[0]);
+        assertEquals(2, actualSpans[1]);
+        assertEquals(4, actualSpans[2]);
+        assertEquals(6, actualSpans[3]);
+    }
+
+    @Test
+    public void calculateSpans_WhenIndexStackIsEmpty_ReturnsCorrectSpan() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100, 80, 60, 70};
+        int[] expectedSpans = {1, 2, 4, 6};
+        int[] actualSpans = onlineStockSpan.calculateSpans(prices);
+        assertEquals(5, actualSpans[0]);
+        assertEquals(3, actualSpans[1]);
+        assertEquals(4, actualSpans[2]);
+        assertEquals(6, actualSpans[3]);
+    }
+
+    @Test
+    public void nextPrice_MultipleTimes_ReturnsCorrectCount() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100, 80, 60, 70};
+        for (int i = 0; i < prices.length; i++) {
+            onlineStockSpan.next(prices[i]);
+        }
+        assertEquals(4, onlineStockSpan.list.size());
+    }
+
+}

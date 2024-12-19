@@ -1,0 +1,113 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+import static org.jsoup.helper.DataUtil.UTF_8;
+import static org.junit.Assert.assertEquals;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Connection.KeyVal kv;
+
+    @Test
+    public void build() {
+        URL u = new URL("http://example.com/path?query=123&ref=f#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(u);
+        URL result = urlBuilder.build();
+        assertEquals(new URL("http://example.com/path"), result);
+    }
+
+    @Test
+    public void build_withQuery() {
+        URL u = new URL("http://example.com/path?query=123&ref=f#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(u);
+        URL result = urlBuilder.build();
+        assertEquals(new URL("http://example.com/path"), result);
+    }
+
+    @Test
+    public void build_withRef() {
+        URL u = new URL("http://example.com/path?query=123&ref=f#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(u);
+        URL result = urlBuilder.build();
+        assertEquals(new URL("http://example.com/path"), result);
+    }
+
+    @Test
+    public void appendKeyVal() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/path"));
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("key=value", urlBuilder.q.toString());
+    }
+
+    @Test
+    public void appendKeyVal_withQuery() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/path?query=123&ref=f#anchor"));
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("?key=value", urlBuilder.q.toString());
+    }
+
+    @Test
+    public void build_withNonAsciiPath() {
+        URL u = new URL("http://example.com/áth?query=123&ref=f#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(u);
+        URL result = urlBuilder.build();
+        assertEquals(new URL("http://example.com/%C3%A1th"), result);
+    }
+
+    @Test
+    public void build_withNonAsciiQuery() {
+        URL u = new URL("http://example.com/path?query=ábcé&ref=f#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(u);
+        URL result = urlBuilder.build();
+        assertEquals(new URL("http://example.com/path"), result);
+    }
+
+    @Test
+    public void build_withNonAsciiFragment() {
+        URL u = new URL("http://example.com/path?query=123&ref=ábcé#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(u);
+        URL result = urlBuilder.build();
+        assertEquals(new URL("http://example.com/path"), result);
+    }
+
+    @Test
+    public void decodePart() {
+        String encoded = "á";
+        String decoded = UrlBuilder.decodePart(encoded);
+        assertEquals("á", decoded);
+    }
+
+    @Test
+    public void appendToAscii() {
+        StringBuilder sb = new StringBuilder();
+        String s = "ábcé";
+        UrlBuilder.appendToAscii(s, false, sb);
+        assertEquals("%C3%A1%C3%A6%C3%A7%C3%A8", sb.toString());
+    }
+
+    @Test
+    public void appendToAscii_withSpace() {
+        StringBuilder sb = new StringBuilder();
+        String s = "ábcé ";
+        UrlBuilder.appendToAscii(s, true, sb);
+        assertEquals("%20%C3%A1%C3%A6%C3%A7%C3%A8", sb.toString());
+    }
+
+}

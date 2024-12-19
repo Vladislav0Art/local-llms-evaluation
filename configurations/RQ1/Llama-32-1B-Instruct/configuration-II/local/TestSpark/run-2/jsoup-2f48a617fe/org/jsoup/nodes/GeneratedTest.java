@@ -1,0 +1,63 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    private static final Comment COMMENT = new Comment("This is an example comment");
+
+    @Test
+    public void testNodeName() {
+        assertEquals("#comment", COMMENT.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        assertEquals("This is an example comment", COMMENT.getData());
+    }
+
+    @Mock
+    private ParseSettings parseSettings;
+
+    @Mock
+    private Parser parser;
+
+    @Before
+    public void setUp() throws IOException, InterruptedException {
+        parseSettings = new ParseSettings();
+        parser = Parser.htmlParser().settings(parseSettings).parseInput("<!-- This is an example comment -->", "baseuri");
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException, InterruptedException {
+        Appendable accum = new StringBuilder();
+        COMMENT.outerHtmlHead(accum, 0, Document.OutputSettings.PrettyPrint());
+        assertEquals("<!--\nThis is an example comment\n-->\n", accum.toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() throws IOException, InterruptedException {
+        Comment comment = COMMENT.clone();
+        comment.outerHtmlTail(CommentTest::appendToOutput, 0);
+        // The tail should be empty for the comment to appear as empty in the output.
+        assertEquals("", appendToOutput());
+    }
+
+    private static String appendToOutput(Appendable accum) {
+        Appendable newAccum = new StringBuilder();
+        accum.append("<!--").append(newaccum.toString()).append("-->");
+        return newAccum.toString();
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        assertEquals(false, COMMENT.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclaration() throws IOException {
+        String data = "This is an example comment";
+        Comment comment = COMMENT.asXmlDeclaration();
+        // We should not be able to parse it as XML.
+        assertNull(comment.asXmlDeclaration());
+    }
+
+}

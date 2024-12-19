@@ -1,0 +1,54 @@
+package com.netflix.frigga.ami;
+
+public class GeneratedTest {
+
+    private final static Matcher matcher = AppVersion.APP_VERSION_PATTERN.matcher("subscriberha-1.0.0-586499");
+
+    @Test
+    public void parseName_returnsParsedAppVersion() {
+        // Given: amiName is "subscriberha-1.0.0-586499"
+        AppVersion parsedName = AppVersion.parseName(amiName);
+        assertNotNull(parsedName);
+        assertEquals("subscriberha", parsedName.packageName);
+        assertEquals("1.0.0-586499", parsedName.version);
+    }
+
+    @Test
+    public void parseName_returnsNullIfNoMatch() {
+        // Given: amiName is "no-match"
+        AppVersion parsedName = AppVersion.parseName(amiName);
+        assertNull(parsedName);
+    }
+
+    @Test
+    public void parseName_returnsParsedAppVersionWithCommitId() {
+        // Given: amiName is "subscriberha-1.0.0-586499.h150"
+        AppVersion parsedName = AppVersion.parseName(amiName);
+        assertNotNull(parsedName);
+        assertEquals("h150", parsedName.buildNumber);
+    }
+
+    @Test
+    public void parseName_returnsParsedAppVersionWithCommitIdAndBuildJobName() {
+        // Given: amiName is "subscriberha-1.0.0-586499.h150/WE-WAPP-subscriberha/150"
+        AppVersion parsedName = AppVersion.parseName(amiName);
+        assertNotNull(parsedName);
+        assertEquals("150", parsedName.buildNumber);
+    }
+
+    @Test
+    public void getPackageName_returnsPackageName() {
+        // Given: amiName is "subscriberha-1.0.0-586499"
+        AppVersion parsedName = new AppVersion();
+        parsedName.packageName = "subscriberha";
+        assertEquals("subscriberha", parsedName.getPackageName());
+    }
+
+    @Test
+    public void getPackageNameturnsNullIfNoPackageName() {
+        // Given: amiName is ""
+        AppVersion parsedName = new AppVersion();
+        assertNull(parsedName.getPackageName());
+    }
+
+}

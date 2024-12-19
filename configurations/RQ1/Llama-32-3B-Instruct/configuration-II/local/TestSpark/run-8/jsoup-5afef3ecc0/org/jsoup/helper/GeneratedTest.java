@@ -1,0 +1,87 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.net.IDN;
+import java.util.HashMap;
+
+public class GeneratedTest {
+
+    @Test
+    public void emptyUrlBuilds() {
+        URL inputUrl = null;
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertNotNull(builder.u);
+    }
+
+    @Test
+    public void punyCodeHostBuildsCorrectly() {
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals("http://example.com", builder.u.getProtocol() + "://" + IDN.toASCII(builder.u.getHost()) + "/", builder.u);
+    }
+
+    @Test
+    public void nonAsciiPathEncodesCorrectly() {
+        URL inputUrl = new URL("http://example.com/path?non+ascii");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals("http://example.com/path", builder.u.getProtocol() + "://" + IDN.toASCII(builder.u.getHost()) + "/", builder.u);
+    }
+
+    @Test
+    public void queryStringsAppendCorrectly() {
+        URL inputUrl = new URL("http://example.com?query=123");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals("?query=123", builder.q.toString());
+    }
+
+    @Test
+    public void refEncodesCorrectly() {
+        URL inputUrl = new URL("http://example.com#ref");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals("#%20ref", builder.u.getRef());
+    }
+
+    @Test
+    public void appendKeyValKeyAndValueAreEncodedCorrectly() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertEquals("&key=value", builder.q.toString());
+    }
+
+    @Test
+    public void appendKeyValQueriesArePreservedCorrectly() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("http://example.com?query=123");
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(kv);
+        assertEquals("?query=123&key=value", builder.q.toString());
+    }
+
+    @Test
+    public void decodePartEncodesCorrectly() {
+        String encoded = "example+com";
+        String decoded = UrlBuilder.decodePart(encoded);
+        assertEquals("example.com", decoded);
+    }
+
+    @Test
+    public void normalizeQuerySpacesAsPlusCorrectly() {
+        String query = "query with + spaces";
+        String normalized = UrlBuilder.normalizeQuery(query);
+        assertEquals("query%2Bspaces", normalized);
+    }
+
+    @Test
+    public void normalizeRefSpacesAsPercent20Correctly() {
+        String ref = "ref with %20 spaces";
+        String normalized = UrlBuilder.normalizeRef(ref);
+        assertEquals("ref%20spaces", normalized);
+    }
+}
+
+}

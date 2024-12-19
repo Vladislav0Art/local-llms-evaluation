@@ -1,0 +1,76 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Pattern appVersionPattern;
+
+    public static final String AMI_NAME = "subscriberha-1.0.0-586499";
+    public static final String PACKAGENAME = "subscriberha";
+    public static final String VERSION = "1.0.0";
+    public static final String BUILD_NUMBER = "h150";
+    public static final String COMMIT_ID = "abc123";
+
+    @Test
+    public void testParseName_validName_returnParsedAppVersion() {
+        AppVersion appVersion = AppVersion.parseName(AMI_NAME);
+        assertEquals(PACKAGENAME, appVersion.getPackageName());
+        assertEquals(VERSION, appVersion.getVersion());
+        assertEquals(BUILD_NUMBER, appVersion.getBuildNumber());
+        assertNull(appVersion.getCommit());
+    }
+
+    @Test
+    public void testParseName_invalidName_returnNull() {
+        AppVersion appVersion = AppVersion.parseName(null);
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void testGetAppVersionPattern() {
+        assertEquals(appVersionPattern, AppVersion.getAppVersionPattern());
+    }
+
+    @Test
+    public void testGetChangelist_deprecatedMethodShouldReturnCommit() {
+        when(appVersionPattern.matcher(AMI_NAME).find()).thenReturn(true);
+        AppVersion appVersion = new AppVersion();
+        appVersion.setPackageName(PACKAGENAME);
+        appVersion.setVersion(VERSION);
+        appVersion.setBuildJobName(BUILD_NUMBER);
+        appVersion.setBuildNumber(BUILD_NUMBER);
+        appVersion.setCommit(COMMIT_ID);
+
+        assertEquals(COMMIT_ID, appVersion.getChangelist());
+    }
+}
+
+public class AppVersion {
+    private String packageName;
+    private String version;
+    private String buildJobName;
+    private String buildNumber;
+    private String commit;
+
+    public static final Pattern APP_VERSION_PATTERN = new Pattern();
+
+    public static AppVersion parseName(String amiName) {
+        // implementation
+    }
+
+    @Deprecated
+    public String getChangelist() {
+        return commit;
+    }
+
+}

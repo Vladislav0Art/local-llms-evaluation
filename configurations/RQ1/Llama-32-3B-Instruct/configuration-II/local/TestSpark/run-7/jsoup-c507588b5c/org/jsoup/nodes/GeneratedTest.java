@@ -1,0 +1,119 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.jsoup.helper.Validate;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void newTextNode_GivenRawText_ReturnsCorrectTextNode() {
+        String rawText = "Hello World!";
+        TextNode textNode = new TextNode(rawText);
+        assertEquals(rawText, textNode.text());
+    }
+
+    @Test
+    public void text_GivenText_ReturnsEncodedText() {
+        String rawText = "Hello World!";
+        TextNode textNode = new TextNode(rawText);
+        String encodedText = textNode.text();
+        assertTrue(Validate.that(encodedText.contains("&lt;") && encodedText.contains("&gt;")));
+    }
+
+    @Test
+    public void text_GivenBlankText_ReturnsBlankString() {
+        String rawText = "";
+        TextNode textNode = new TextNode(rawText);
+        assertEquals("", textNode.text());
+    }
+
+    @Test
+    public void isBlank_GivenRawText_ReturnsFalse() {
+        String rawText = "Hello World!";
+        TextNode textNode = new TextNode(rawText);
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_GivenBlankText_ReturnsTrue() {
+        String rawText = "";
+        TextNode textNode = new TextNode(rawText);
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_GivenRawText_GeneratesCorrectResult() {
+        String rawText = "Hello World!";
+        TextNode textNode = new TextNode(rawText);
+        int offset = 7;
+        TextNode tailNode = textNode.splitText(offset);
+        assertEquals("World", tailNode.text());
+    }
+
+    @Test
+    public void splitText_GivenOffsetOutofRange_ReturnsNull() {
+        String rawText = "Hello World!";
+        TextNode textNode = new TextNode(rawText);
+        int offset = 10;
+        assertNull(textNode.splitText(offset));
+    }
+}
+
+class MockableTextNode extends TextNode {
+
+    private final String text;
+
+    public MockableTextNode(String text) {
+        super(text);
+        this.text = text;
+    }
+
+    @Override
+    public String coreValue() {
+        return text;
+    }
+}
+
+@Test
+public void normaliseWhitespace_GivenString_ReturnsEncodedString() {
+    String input = "Hello World!";
+    String expected = StringUtil.normaliseWhitespace(input);
+    assertEquals(expected, TextNodeUtil.normaliseWhitespace(input));
+}
+
+@Test
+public void stripLeadingWhitespace_GivenString_ReturnsEncodedString() {
+    String input = "   Hello World!";
+    String expected = TextNodeUtil.stripLeadingWhitespace(input);
+    assertEquals(expected, StringUtil.stripLeadingWhitespace(input));
+}
+
+@Test
+public void lastCharIsWhitespace_GivenStringBuilder_ReturnsBoolean() {
+    StringBuilder input = new StringBuilder("Hello ");
+    assertTrue(NodeUtil.lastCharIsWhitespace(input));
+}
+	}
+
+@Test
+public void prettyPrint_GivenDocumentSettings_ReturnsCorrectValue() {
+    boolean expected = true;
+    Document.OutputSettings outSettings = new Document.OutputSettings(expected);
+    boolean actual = outSettings.prettyPrint();
+    assertEquals(expected, actual);
+}
+
+@Test
+public void shouldIndent_GivenNode_GeneratesCorrectBoolean() {
+    Node node = new MockableTextNode("Hello");
+    boolean expected = true;
+    boolean actual = NodeUtil.shouldIndent(node);
+    assertEquals(expected, actual);
+}
+
+}

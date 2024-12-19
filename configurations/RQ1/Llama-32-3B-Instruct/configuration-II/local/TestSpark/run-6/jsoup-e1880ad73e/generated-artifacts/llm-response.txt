@@ -1,0 +1,78 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.URL;
+import java.util.regex.Pattern;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void newUrlBuilderWithValidInput_ReturnsNewUrl() throws MalformedURLException, URISyntaxException {
+        URL u = new URL("http://test.com/path?query=value#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertSame(builder.u, new URL(builder.build()));
+    }
+
+    @Test
+    public void newUrlBuilderWithInvalidProtocol_ThrowsMalformedURLException() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("invalid://test.com/path?query=value#fragment"));
+        try {
+            builder.build();
+            fail("Expected MalformedURLException");
+        } catch (MalformedURLException e) {}
+    }
+
+    @Test
+    public void newUrlBuilderWithNonAsciiPath_ThrowsURISyntaxException() throws MalformedURLException, URISyntaxException {
+        URL u = new URL("http://test.com/äöü?query=value#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        try {
+            builder.build();
+            fail("Expected URISyntaxException");
+        } catch (URISyntaxException e) {}
+    }
+
+    @Test
+    public void appendKeyValWithValidInput_AppendsToQuery() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://test.com/path?query=value#fragment"));
+        Connection.KeyVal kv = Connection.KeyVal.newString( "key", "value" );
+        builder.appendKeyVal(kv);
+        assertEquals("http://test.com/path?query=value&key=value", builder.u.toString());
+    }
+
+    @Test
+    public void appendKeyValWithNonAsciiValue_AppendsToQuery() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://test.com/path?query=value#fragment"));
+        Connection.KeyVal kv = Connection.KeyVal.newString( "key", "äöü" );
+        builder.appendKeyVal(kv);
+        assertEquals("http://test.com/path?query=value&key=%C3%A4%C3%B6%C3%BC", builder.u.toString());
+    }
+
+    @Test
+    public void decodePart_ThrowsUnsupportedEncodingException() {
+        try {
+            String decoded = UrlBuilder.decodePart("äöü");
+            fail("Expected UnsupportedEncodingException");
+        } catch (UnsupportedEncodingException e) {}
+    }
+
+    @Test
+    public void buildWithNonAsciiCharacter_ReturnsSameUrl() throws MalformedURLException, URISyntaxException {
+        URL u = new URL("http://test.com/äöü?query=value#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertSame(builder.u, new URL(builder.build()));
+    }
+
+    @Test
+    public void buildWithEmptyFragment_ReturnsSameUrl() throws MalformedURLException, URISyntaxException {
+        URL u = new URL("http://test.com/path?query=value#");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertSame(builder.u, new URL(builder.build()));
+    }
+}
+```
+===================================================
+

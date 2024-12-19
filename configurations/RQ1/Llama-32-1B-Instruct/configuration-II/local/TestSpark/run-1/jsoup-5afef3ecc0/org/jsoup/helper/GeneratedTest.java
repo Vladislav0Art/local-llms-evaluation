@@ -1,0 +1,120 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    @Test
+    public void testAppendKeyVal_MalformedKeyValue() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "bar").value("baz"));
+        assertEquals("http://example.com?foo=bar&baz", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_SingleValue() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "bar"));
+        assertEquals("http://example.com?foo=bar", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_NegativeValue() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "-1").value("baz"));
+        assertEquals("http://example.com?foo=-1&baz", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_InvalidValue() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        try {
+            urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "abc"));
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_Empty() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        urlBuilder.appendKeyVal(null);
+        assertEquals("", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_NonAscii() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        String inputUrl = "http://example.com; foo=bar";
+        try {
+            urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "bar").value(inputUrl));
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_NonAsciiNonSpace() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        String inputUrl = "http://example.com; foo=bar, baz";
+        try {
+            urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "bar").value(inputUrl));
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_Spacing() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        String inputUrl = "http://example.com; foo=bar&baz";
+        try {
+            urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "bar").value(inputUrl));
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_Hyphen() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        String inputUrl = "http://example.com; foo=-1&baz";
+        try {
+            urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "-1").value(inputUrl));
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_Semicolon() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        String inputUrl = "http://example.com; foo=bar&baz";
+        try {
+            urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "bar").value(inputUrl));
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_NoSpace() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        String inputUrl = "http://example.com; foo=bar baz";
+        try {
+            urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "bar").value(inputUrl));
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_EmptyString() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        String inputUrl = "";
+        try {
+            urlBuilder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "bar").value(inputUrl));
+        } catch (UnsupportedEncodingException e) {
+            // expected exception
+        }
+    }
+
+}

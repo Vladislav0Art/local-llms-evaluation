@@ -1,0 +1,91 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildUrlFromValidUrl_NoNormalizationNeeded() {
+        URL inputUrl = new URL("https://example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL expectedUrl = new URL(builder.build().getProtocol(), builder.build().getHost(), builder.build().getPath());
+        assertEquals(expectedUrl, new URL("https://example.com"));
+    }
+
+    @Test
+    public void buildUrlFromValidUrl_PunctuationPreserved() {
+        URL inputUrl = new URL("https://example.com/path with! punctuation?query=string#anchor");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL expectedUrl = new URL(builder.build().getProtocol(), builder.build().getHost(), builder.build().getPath());
+        assertEquals(expectedUrl, new URL("https://example.com/path%20with%21punctuation%3Fquery%3Dstring%23anchor"));
+    }
+
+    @Test
+    public void buildUrlFromValidUrl_QueryStringPreserved() {
+        URL inputUrl = new URL("https://example.com?query=string");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL expectedUrl = new URL(builder.build().getProtocol(), builder.build().getHost(), builder.build().getPath());
+        assertEquals(expectedUrl, new URL("https://example.com?query=string"));
+    }
+
+    @Test
+    public void buildUrlFromValidUrl_FragmentPreserved() {
+        URL inputUrl = new URL("https://example.com#anchor");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL expectedUrl = new URL(builder.build().getProtocol(), builder.build().getHost(), builder.build().getPath());
+        assertEquals(expectedUrl, new URL("https://example.com#anchor"));
+    }
+
+    @Test
+    public void appendKeyVal_QueryStringPreserved() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        assertTrue(builder.q != null);
+        builder.appendKeyVal(kv);
+        assertEquals("key=value", builder.q.toString());
+    }
+
+    @Test
+    public void appendKeyVal_QueryStringEscaped() {
+        Connection.KeyVal kv = new Connection.KeyVal("key with special chars !@#", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        assertTrue(builder.q != null);
+        builder.appendKeyVal(kv);
+        assertEquals("key%20with%20special%20chars%21%40%23=value", builder.q.toString());
+    }
+
+    @Test
+    public void buildUrlFromInvalidUrl_ThrowsMalformedURLException() {
+        try {
+            new UrlBuilder(new URL("https://example.com//"));
+            assert false;
+        } catch (MalformedURLException e) {
+        }
+    }
+
+    @Test
+    public void decodePart_ThrowsUnsupportedEncodingException() {
+        try {
+            decodePart("test");
+            assert false;
+        } catch (UnsupportedEncodingException e) {
+        }
+    }
+
+    private static String decodePart(String encoded) {
+        return URLDecoder.decode(encoded, "UTF-8");
+    }
+
+}

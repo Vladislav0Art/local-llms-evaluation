@@ -1,0 +1,92 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.jsoup.internal.StringUtil;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildUrlEmptyPath_EmptyString() {
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL result = builder.build();
+        assertNotNull(result);
+        assertEquals("http://example.com", result.getProtocol() + "://" + result.getHost());
+    }
+
+    @Test
+    public void buildUrlEmptyPath_Query() {
+        URL inputUrl = new URL("http://example.com?query=string");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL result = builder.build();
+        assertNotNull(result);
+        assertEquals("http://example.com?query=string", result.getProtocol() + "://" + result.getHost());
+    }
+
+    @Test
+    public void buildUrlEmptyPath_QueryFragment() {
+        URL inputUrl = new URL("http://example.com#fragment");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL result = builder.build();
+        assertNotNull(result);
+        assertEquals("http://example.com#fragment", result.getProtocol() + "://" + result.getHost());
+    }
+
+    @Test
+    public void buildUrlPathNonAscii() {
+        URL inputUrl = new URL("http://example.co.uk/path/with/non-ascii");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL result = builder.build();
+        assertNotNull(result);
+        assertEquals("http://example.co.uk/path/with/non-ascii", result.getProtocol() + "://" + result.getHost());
+    }
+
+    @Test
+    public void buildUrlPathNonAsciiQueryFragment() {
+        URL inputUrl = new URL("http://example.com/path/with/non-ascii?query=string#fragment");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL result = builder.build();
+        assertNotNull(result);
+        assertEquals("http://example.com/path/with/non-ascii?query=string#fragment", result.getProtocol() + "://" + result.getHost());
+    }
+
+    @Test
+    public void appendKeyVal_QueueNull() {
+        Connection.KeyVal kv = new Connection.KeyVal();
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertNotNull(builder.q);
+        assertEquals("key=value", builder.q.toString());
+    }
+
+    @Test
+    public void appendKeyVal_QueueNotNull() {
+        Connection.KeyVal kv = new Connection.KeyVal();
+        kv.key = "key";
+        kv.value = "value";
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertNotNull(builder.q);
+        assertEquals("key=value", builder.q.toString());
+    }
+
+    @Test
+    public void decodePart_DoesNotThrowException() {
+        String encoded = "example.co.uk";
+        UrlBuilder.DecodePart decoded = UrlBuilder.decodePart(encoded);
+        assertNotNull(decoded);
+        assertTrue(decoded != null);
+    }
+
+    @Test
+    public void decodePart_ThrowsRuntimeException() {
+        String encoded = "";
+        UrlBuilder.decodePart(encoded);
+    }
+
+}

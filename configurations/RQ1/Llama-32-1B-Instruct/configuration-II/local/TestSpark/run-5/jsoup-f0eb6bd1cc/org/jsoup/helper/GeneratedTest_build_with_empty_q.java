@@ -1,0 +1,21 @@
+package org.jsoup.helper;
+
+public class GeneratedTest_build_with_empty_q {
+
+    private static final String BASE_URL = "https://example.com/path?a=1&b=2#fragment";
+
+    @Test
+    public void test_build_with_empty_q() throws MalformedURLException, URISyntaxException {
+        URL baseUrl = null;
+        try {
+            UrlBuilder urlBuilder = new UrlBuilder(baseUrl);
+            urlBuilder.appendKeyVal(new KeyVal("c", "3"));
+            urlBuilder.q = null;
+            urlBuilder.build();
+            assert false;
+        } catch (UnsupportedEncodingException e) {
+            // expected
+        }
+    }
+
+}

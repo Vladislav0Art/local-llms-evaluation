@@ -1,0 +1,69 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    @Test
+    public void testUrlBuilder_build() {
+        // Test case for build method
+        String url = "https://example.com/path?query=value";
+        URLBuilder builder = new URLBuilder(new URI(url));
+        URL expectedUrl = new URI("https://example.com/path");
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void testUrlBuilder_appendKeyVal() {
+        // Test case for appendKeyVal method with a KeyVal object
+        UrlBuilder builder = new URLBuilder(new URI("https://example.com/path?query=value"));
+        builder.appendKeyVal(new org.jsoup.KeyVal().key("foo", "bar").value(123));
+        String expectedQuery = "foo=bar&expected_key_value";
+        assertEquals(expectedQuery, builder.q.toString());
+    }
+
+    @Test
+    public void testUrlBuilder_appendKeyVal_unexpectedInput() {
+        // Test case for appendKeyVal method with an unexpected input type
+        UrlBuilder builder = new URLBuilder(new URI("https://example.com/path?query=value"));
+        try {
+            builder.appendKeyVal(123); // invalid KeyVal object
+        } catch (UnsupportedEncodingException e) {
+            fail("Expected UnsupportedEncodingException, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUrlBuilder_appendKeyVal_nullInput() {
+        // Test case for appendKeyVal method with a null input type
+        UrlBuilder builder = new URLBuilder(new URI("https://example.com/path?query=value"));
+        try {
+            builder.appendKeyVal(null); // invalid KeyVal object
+        } catch (UnsupportedEncodingException e) {
+            fail("Expected UnsupportedEncodingException, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUrlBuilder_appendQuery() {
+        // Test case for appendQuery method with a query string
+        UrlBuilder builder = new URLBuilder(new URI("https://example.com/path?query=value"));
+        String expectedQuery = "?expected_query";
+        assertEquals(expectedQuery, builder.q.toString());
+    }
+
+    @Test
+    public void testUrlBuilder_appendRef() {
+        // Test case for appendRef method with a reference string
+        UrlBuilder builder = new URLBuilder(new URI("https://example.com/path?query=value"));
+        String expectedRef = "#expected_ref";
+        assertEquals(expectedRef, builder.q.toString());
+    }
+
+    @Test
+    public void testUrlBuilder_appendQueryNull() {
+        // Test case for appendQuery method with a null query string
+        UrlBuilder builder = new URLBuilder(new URI("https://example.com/path"));
+        String expectedQuery = "";
+        assertEquals(expectedQuery, builder.q.toString());
+    }
+
+}

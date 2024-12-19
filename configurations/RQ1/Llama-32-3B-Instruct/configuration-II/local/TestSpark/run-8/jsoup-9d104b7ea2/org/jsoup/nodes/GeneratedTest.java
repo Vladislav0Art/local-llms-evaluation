@@ -1,0 +1,125 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Document;
+import org.jsoup.helper.Validate;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNodeTest() {
+        TextNode textNode = new TextNode("Hello World");
+        assertNotNull(textNode);
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("Hello World");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        TextNode textNode = new TextNode("   Hello World  ");
+        assertEquals("Hello World", textNode.text());
+    }
+
+    @Test
+    public void textSetTest() {
+        TextNode textNode = new TextNode("Hello World");
+        textNode.text("New Text");
+        assertEquals("New Text", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("   Hello World  ");
+        assertEquals("   Hello World  ", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode1 = new TextNode("");
+        assertTrue(textNode1.isBlank());
+
+        TextNode textNode2 = new TextNode("   ");
+        assertTrue(textNode2.isBlank());
+
+        TextNode textNode3 = new TextNode("Hello World");
+        assertFalse(textNode3.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("Hello World");
+        TextNode tailNode = textNode.splitText(6);
+        assertEquals("World", tailNode.text());
+        assertNull(tailNode.nextSibling());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Document document = new Document();
+        Element parent = new Element("parent");
+        TextNode textNode = new TextNode("   ");
+        textNode.parentNode = parent;
+        textNode.coreValue("   ");
+        document.append(parent, textNode);
+        textNode.outerHtmlHead(outContent, 0, null);
+        outContent.reset();
+        assertEquals("<p>   </p>", outContent.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Document document = new Document();
+        Element parent = new Element("parent");
+        TextNode textNode = new TextNode("   ");
+        textNode.parentNode = parent;
+        document.append(parent, textNode);
+        textNode.outerHtmlTail(outContent, 0, null);
+        outContent.reset();
+        assertEquals("", outContent.toString());
+    }
+
+    @Test
+    public void toStringTest() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Document document = new Document();
+        Element parent = new Element("parent");
+        TextNode textNode = new TextNode("   ");
+        textNode.parentNode = parent;
+        textNode.coreValue("   ");
+        document.append(parent, textNode);
+        String result = textNode.toString();
+        outContent.reset();
+        assertEquals("<p>   </p>", outContent.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode originalTextNode = new TextNode("Hello World");
+        TextNode clonedTextNode = (TextNode) originalTextNode.clone();
+        assertNotNull(clonedTextNode);
+        assertEquals("#text", clonedTextNode.nodeName());
+    }
+
+    @Test
+    public void createFromEncodedTest() throws IOException {
+        String encodedText = " &lt; ";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertEquals(" < ", textNode.text());
+    }
+
+}

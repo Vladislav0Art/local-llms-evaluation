@@ -1,0 +1,90 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    private OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+
+    @Test
+    public void next_ZeroPrice_ReturnsZero() {
+        assertEquals(0, onlineStockSpan.next(0));
+    }
+
+    @Test
+    public void next_NegativePrice_ReturnsOne() {
+        assertEquals(1, onlineStockSpan.next(-1));
+    }
+
+    @Test
+    public void next_PositivePrice_ReturnsPositiveNumber() {
+        assertEquals(2, onlineStockSpan.next(3));
+    }
+
+    @Test
+    public void calculateSpans_EmptyArray_ReturnsEmptyArray() {
+        int[] prices = {};
+        assertArrayEquals(new int[]{}, onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_SingleElementReturnsOne() {
+        int[] prices = {1};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertEquals(1, result[0]);
+    }
+
+    @Test
+    public void calculateSpans_TwoElements_ReturnsCorrectSpans() {
+        int[] prices = {2, 4};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{3, 2}, result);
+    }
+
+    @Test
+    public void calculateSpans_MultipleElements_ReturnsCorrectSpans() {
+        int[] prices = {1, 2, 3, 4};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{2, 2, 2, 2}, result);
+    }
+
+    @Test
+    public void next_MocksStackToPopElement() {
+        //Arrange
+        Stack<Integer> indexStack = new MockIndexStack();
+        indexStack.push(1);
+
+        //Act
+        onlineStockSpan.next(0);
+        onlineStockSpan.next(-1);
+        onlineStockSpan.next(3);
+
+        //Assert
+        assertEquals(1, indexStack.getTopElement());
+    }
+}
+
+class MockIndexStack {
+    private int[] stack;
+    public int topElement;
+
+    public MockIndexStack() {
+        this.stack = new int[0];
+        this.topElement = -1;
+    }
+
+    public void push(int element) {
+        stack = Arrays.copyOf(stack, stack.length + 1);
+        stack[stack.length - 1] = element;
+        topElement = stack.length - 1;
+    }
+
+    public int getTopElement() {
+        return topElement;
+    }
+
+}

@@ -1,0 +1,113 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+public class UrlBuilderTest {
+
+    @Test
+    public void buildUrlWithValidProtocolAndHostReturnsCorrectUrl() {
+        // given
+        String protocol = "http";
+        String host = "example.com";
+        int port = 80;
+        URL inputUrl = new URL(protocol, "", host, port, null, null);
+
+        // when
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL normalizedUrl = builder.build();
+
+        // then
+        assertEquals(protocol, normalizedUrl.getProtocol());
+        assertEquals(host, IDN.toASCII(decodePart(normalizedUrl.getHost())));
+    }
+
+    @Test
+    public void buildUrlWithInvalidHostReturnsCorrectPunnedUrl() {
+        // given
+        String protocol = "http";
+        String host = "%s.example.com";
+        int port = 80;
+        URL inputUrl = new URL(protocol, "", host, port, null, null);
+
+        // when
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL normalizedUrl = builder.build();
+
+        // then
+        assertEquals(protocol, normalizedUrl.getProtocol());
+        assertEquals("s.example.com", IDN.toASCII(decodePart(normalizedUrl.getHost())));
+    }
+
+    @Test
+    public void buildUrlWithQueryAndFragmentReturnsCorrectNormalizedUrl() {
+        // given
+        String protocol = "http";
+        String host = "example.com";
+        int port = 80;
+        URL inputUrl = new URL(protocol, "", host, port, "/path?query=value#fragment", null);
+
+        // when
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL normalizedUrl = builder.build();
+
+        // then
+        assertEquals(protocol, normalizedUrl.getProtocol());
+        assertEquals(host, IDN.toASCII(decodePart(normalizedUrl.getHost())));
+        assertTrue(normalizedUrl.getPath().contains("/path"));
+        assertTrue(normalizedUrl.getQuery().equals("query=value"));
+        assertTrue(normalizedUrl.getRef().equals("fragment"));
+    }
+
+    @Test
+    public void appendKeyValWithValidKeyAndValueReturnsCorrectQueryString() {
+        // given
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+
+        // when
+        StringBuilder q = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+
+        // then
+        assertEquals("?key=value", q.toString());
+    }
+
+    @Test
+    public void appendKeyValWithInvalidKeyAndValueReturnsCorrectQueryString() {
+        // given
+        Connection.KeyVal kv = new Connection.KeyVal(null, null);
+
+        // when
+        StringBuilder q = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+
+        // then
+        assertEquals("?key=value", q.toString());
+    }
+
+    private String decodePart(String encoded) {
+        try {
+            return URLDecoder.decode(encoded, UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e); // wtf!
+        }
+    }
+
+    private void appendToAscii(String s, boolean spaceAsPlus, StringBuilder sb) throws UnsupportedEncodingException {
+        for (int i = 0; i < s.length(); i++) {
+            int c = s.codePointAt(i);
+            if (c == ' ') {
+                sb.append(spaceAsPlus ? '+' : "%20");
+            } else if (c > 127) { // out of ascii range
+                sb.append(URLEncoder.encode(new String(Character.toChars(c)), UTF_8.name()));
+            } else {
+                sb.append((char) c);
+            }
+        }
+    }
+
+}
+```
+===================================================
+

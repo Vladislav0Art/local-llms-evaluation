@@ -1,0 +1,68 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    private UrlBuilder urlBuilder;
+
+    @Before
+    public void setup() {
+        this.urlBuilder = new UrlBuilder(new URL("http://example.com/path?query=value#ref"));
+    }
+
+    @Test
+    public void buildNormalUrlTest() throws Exception {
+        String expected = "http://example.com/path?query=value#ref";
+        assertEquals(expected, urlBuilder.build().toString());
+    }
+
+    @Test
+    public void buildNormalPathTest() throws Exception {
+        String expected = "http://example.com/%C4%80path?query=value#ref";
+        URL url = urlBuilder.build();
+        URI uri = new URI(url.getProtocol(), url.getUserInfo(), uri.getHost(), url.getPort(), uri.getPath(), null, null);
+        assertEquals(expected, uri.toASCIIString());
+    }
+
+    @Test
+    public void buildNormalQueryTest() throws Exception {
+        String expected = "http://example.com/path?query%3Dvalue#ref";
+        URL url = urlBuilder.build();
+        URI uri = new URI(url.getProtocol(), url.getUserInfo(), uri.getHost(), url.getPort(), uri.getPath(), null, null);
+        assertEquals(expected, uri.toASCIIString());
+    }
+
+    @Test
+    public void buildNormalRefTest() throws Exception {
+        String expected = "http://example.com/path?query=value%23ref";
+        URL url = urlBuilder.build();
+        URI uri = new URI(url.getProtocol(), url.getUserInfo(), uri.getHost(), url.getPort(), uri.getPath(), null, null);
+        assertEquals(expected, uri.toASCIIString());
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        URL urlBuilder = new UrlBuilder(new URL("http://example.com/path?query=value#ref"));
+        String expected = "http://example.com/path?query=value&key%3Dvalue";
+        assertEquals(expected, urlBuilder.build().toString());
+    }
+
+    @Test
+    public void decodePartTest() throws Exception {
+        String encoded = "%C4%80example.com";
+        assertEquals("äexample.com", UrlBuilder.decodePart(encoded));
+    }
+
+    @Test
+    public void normalizeQueryTest() throws Exception {
+        String expected = "path?query%3Dvalue";
+        assertEquals(expected, UrlBuilder.normalizeQuery("path ? query=value"));
+    }
+
+    @Test
+    public void normalizeRefTest() throws Exception {
+        String expected = "ref=%20";
+        assertEquals(expected, UrlBuilder.normalizeRef("ref "));
+    }
+
+}

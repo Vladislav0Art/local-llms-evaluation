@@ -1,0 +1,126 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    private TextNode textNode;
+
+    @Test
+    public void ofTextCreatesTextNode() {
+        textNode = new TextNode("Hello World");
+        assert textNode != null;
+    }
+
+    @Test
+    public void nodeNameReturnsCorrectValue() {
+        textNode = new TextNode("");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textReturnsUnencodedText() {
+        String originalText = "Hello World";
+        textNode = new TextNode(originalText);
+        assertEquals(originalText, textNode.text());
+    }
+
+    @Test
+    public void textSetsCorrectValue() {
+        String originalText = "Hello World";
+        textNode = new TextNode();
+        textNode.text(originalText);
+        assertEquals(originalText, textNode.text());
+    }
+
+    @Test
+    public void getWholeTextReturnsUnencodedText() {
+        String originalText = "Hello World";
+        textNode = new TextNode(originalText);
+        assertEquals(originalText, textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankReturnsTrueIfEmptyOrWhitespaceOnly() {
+        textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+
+        textNode = new TextNode("   ");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlankReturnsFalseIfNonBlank() {
+        String originalText = "Hello World";
+        textNode = new TextNode(originalText);
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextSplitsCorrectlyAtOffset() throws IOException {
+        String originalText = "Hello World";
+        textNode = new TextNode(originalText);
+
+        int offset = 6;
+        TextNode expectedHead = new TextNode("Hello ");
+        TextNode expectedTail = new TextNode(originalText.substring(offset));
+        assertEquals(expectedHead, textNode.splitText(offset));
+
+        assertEquals(expectedTail, textNode.nextSibling());
+    }
+
+    @Test
+    public void splitTextReturnsCorrectSiblings() throws IOException {
+        String originalText = "Hello World";
+        textNode = new TextNode(originalText);
+
+        int offset = 6;
+        TextNode expectedHead = new TextNode("Hello ");
+        TextNode expectedTail = new TextNode(originalText.substring(offset));
+        assertEquals(expectedHead, textNode.splitText(offset).getParent().getChildren(0));
+
+        assertEquals(expectedTail, textNode.splitText(offset).getNextSibling());
+    }
+
+    @Test
+    public void outerHtmlHeadAppendsToAccumulator() throws IOException {
+        Appendable accumulator = new StringBuilder();
+        int depth = 1;
+        Document.OutputSettings settings = new Document.OutputSettings();
+        textNode = new TextNode("Hello World");
+
+        document.setOuterHTML(accumulator, depth, settings);
+
+        assertEquals("Hello World", accumulator.toString());
+    }
+
+    @Test
+    public void outerHtmlHeadIndentsCorrectly() throws IOException {
+        Appendable accumulator = new StringBuilder();
+        int depth = 1;
+        Document.OutputSettings settings = new Document.OutputSettings();
+        textNode = new TextNode("   Hello World");
+
+        document.setOuterHTML(accumulator, depth, settings);
+
+        assertEquals("<p><span>Hello World</span></p>", accumulator.toString());
+    }
+
+    @Test
+    public void createFromEncodedCreatesTextNode() {
+        String encodedText = "&lt;Hello World&gt;";
+        textNode = TextNode.createFromEncoded(encodedText);
+        assert textNode != null;
+    }
+
+    @Test
+    public void normaliseWhitespaceReturnsCorrectValue() {
+        String originalText = "   Hello World";
+        assertEquals("Hello World", TextNode.normaliseWhitespace(originalText));
+    }
+
+    @Test
+    public void stripLeadingWhitespaceReturnsCorrectValue() {
+        String originalText = "^\\s+Hello World";
+        assertEquals("Hello World", TextNode.stripLeadingWhitespace(originalText));
+    }
+
+}

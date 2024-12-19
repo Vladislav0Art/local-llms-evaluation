@@ -1,0 +1,103 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void newUrlBuilder_isInitializedCorrectly() {
+        URL inputUrl = new URL("https://example.com/path?query=value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertNotNull(urlBuilder.u);
+        assertNull(urlBuilder.q);
+    }
+
+    @Test
+    public void build_urlIsNormalizedWithPunyCodingAndNonAsciiPathEncoding() {
+        URL inputUrl = new URL("https://example.com/path?query=value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        String normUrl = urlBuilder.build().toString();
+        assertTrue(normUrl.contains("xn--");
+    }
+
+    @Test
+    public void build_urlHasCorrectQueryEncoding() {
+        URL inputUrl = new URL("https://example.com/path?query=value&foo=bar");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        String normUrl = urlBuilder.build().toString();
+        assertTrue(normUrl.contains("?"));
+        String[] queryParts = normUrl.split("\\?");
+        assertEquals(2, queryParts.length);
+    }
+
+    @Test
+    public void build_urlHasCorrectFragmentEncoding() {
+        URL inputUrl = new URL("https://example.com/path?query=value#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        String normUrl = urlBuilder.build().toString();
+        assertTrue(normUrl.contains("#"));
+        String[] fragmentParts = normUrl.split("#");
+        assertEquals(2, fragmentParts.length);
+    }
+
+    @Test
+    public void appendKeyVal_appendsEncodedKeyValuePairs() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com/path?query=value"));
+        String normUrl = urlBuilder.build().toString();
+        assertEquals("?key=encoded%3Akey%26value=encoded%3Avalue", normUrl);
+    }
+
+    @Test
+    public void appendKeyVal_keepsPreviousQuery() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com/path?query=value&foo=bar"));
+        String normUrl = urlBuilder.build().toString();
+        assertEquals("?key=encoded%3Akey%26value=encoded%3Avalue&foo=bar", normUrl);
+    }
+
+    @Test
+    public void decodePart_decodesAsciiCharactersCorrectly() {
+        String encoded = "hello world";
+        assertEquals("hello world", UrlBuilder.decodePart(encoded));
+    }
+
+    @Test
+    public void decodePart_encodesNonAsciiCharactersCorrectly() {
+        String encoded = "";
+        assertEquals("", UrlBuilder.decodePart(encoded));
+    }
+
+    @Test
+    public void appendToAscii_encodingSpacesAsPlus() {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii(" ", true, sb);
+        assertEquals("%20", sb.toString());
+    }
+
+    @Test
+    public void appendToAscii_encodingNonAsciiCharactersCorrectly() {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii(" ", false, sb);
+        assertEquals(" ", sb.toString());
+    }
+
+    @Test
+    public void build_throwsOnInvalidURL() {
+        URL invalidUrl = new URL("https://example.com/path?query=invalid");
+        UrlBuilder urlBuilder = new UrlBuilder(invalidUrl);
+        urlBuilder.build();
+    }
+
+}

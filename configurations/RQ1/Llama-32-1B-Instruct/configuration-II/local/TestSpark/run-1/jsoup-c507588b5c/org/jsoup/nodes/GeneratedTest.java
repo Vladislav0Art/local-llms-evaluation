@@ -1,0 +1,65 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testIsBlank() {
+        assertEquals(true, TextNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        String text = "Hello World";
+        TextNode node1 = TextNode.splitText(8);
+        TextNode node2 = TextNode.splitText(20);
+
+        assertEquals("Hello ", node1.getText());
+        assertEquals("", node2.getText());
+
+        assertEquals(node1, node2);
+    }
+
+    @Test
+    public void testGetWholeText() {
+        String text = "Hello World";
+        TextNode node = TextNode.text(text);
+
+        assertEquals("Hello World", node.getText());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Document document = new Document();
+        Appendable accum = new StringBuilder();
+
+        Appender appender = new DefaultAppender(accum);
+        appender.appendText("\n");
+        document.addContent(appender, 0);
+
+        assertEquals("Hello World", TextNode.outerHtmlHead(appender, 1, null));
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Document document = new Document();
+        Appendable accum = new StringBuilder();
+
+        Appender appender = new DefaultAppender(accum);
+        appender.appendText("\n");
+        document.addContent(appender, 0);
+
+        assertEquals("", TextNode.outerHtmlHead(appender, 1, null).toString());
+    }
+
+    @Test
+    public void testClone() {
+        String text = "Hello World";
+        TextNode node = TextNode.text(text);
+
+        // Create a new clone to verify the original is not changed.
+        TextNode clonedNode = (TextNode) node.clone();
+
+        assertEquals(node, clonedNode);
+    }
+
+}

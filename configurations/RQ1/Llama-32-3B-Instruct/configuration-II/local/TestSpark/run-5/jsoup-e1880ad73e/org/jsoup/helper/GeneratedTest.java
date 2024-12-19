@@ -1,0 +1,74 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    private UrlBuilder urlBuilder;
+
+    @Test
+    public void createUrlBuilderWithValidUrl() {
+        URL url = new URL("http://example.com/path?query=abc#fragment");
+        urlBuilder = new UrlBuilder(url);
+        assertNotNull(urlBuilder.u);
+    }
+
+    @Test
+    public void createUrlBuilderWithInvalidProtocol() {
+        assertThrows(MalformedURLException.class, () -> new UrlBuilder(new URL("ftp://example.com/path")));
+    }
+
+    @Test
+    public void createUrlBuilderWithEmptyPath() {
+        URL url = new URL("http://example.com/?query=abc#fragment");
+        urlBuilder = new UrlBuilder(url);
+        assertNotNull(urlBuilder.u);
+    }
+
+    @Test
+    public void normalizeHostWithNonASCIICharacter() {
+        URL url = new URL("http://éxámpLè@example.com/path?query=abc#fragment");
+        urlBuilder = new UrlBuilder(url);
+        String decodedHost = IDN.toASCII(decodePart(url.getHost()));
+        assertEquals("example.com", decodedHost);
+    }
+
+    @Test
+    public void normalizeQueryWithNonASCIICharacter() {
+        URL url = new URL("http://example.com/path?query=abc&éxámpLè#fragment");
+        urlBuilder = new UrlBuilder(url);
+        assertNotNull(urlBuilder.q);
+        assertTrue(urlBuilder.q.toString().contains("%3A%2B"));
+    }
+
+    @Test
+    public void normalizeFragmentWithNonASCIICharacter() {
+        URL url = new URL("http://example.com/path?query=abc#éxámpLè");
+        urlBuilder = new UrlBuilder(url);
+        assertNotNull(urlBuilder.u);
+        assertTrue(urlBuilder.u.getRef().contains("%3A%2B"));
+    }
+
+    @Test
+    public void appendKeyValWithValidKeyValuePairs() throws UnsupportedEncodingException {
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        urlBuilder.appendKeyVal(kv1);
+        assertNotNull(urlBuilder.q);
+        assertTrue(urlBuilder.q.toString().contains("key1=value1"));
+    }
+
+    @Test
+    public void appendKeyValWithMultipleKeyValuePairs() throws UnsupportedEncodingException {
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+        urlBuilder.appendKeyVal(kv1);
+        urlBuilder.appendKeyVal(kv2);
+        assertNotNull(urlBuilder.q);
+        assertTrue(urlBuilder.q.toString().contains("key1=value1&key2=value2"));
+    }
+
+    @Test
+    public void decodePartWithInvalidEncoding() throws UnsupportedEncodingException {
+        String encoded = "éxámpLè";
+        assertEquals("exampleLè", decodePart(encoded));
+    }
+
+}

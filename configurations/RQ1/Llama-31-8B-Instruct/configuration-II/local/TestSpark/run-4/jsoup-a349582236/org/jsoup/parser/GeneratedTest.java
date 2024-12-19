@@ -1,0 +1,99 @@
+package org.jsoup.parser;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @InjectMocks
+    private Tag tag;
+
+    @Mock
+    private ParseSettings settings;
+
+    @Test
+    public void getNameTest() {
+        tag = new Tag("p");
+        assertEquals("p", tag.getName());
+    }
+
+    @Test
+    public void normalNameTest() {
+        tag = new Tag("P");
+        assertEquals("p", tag.normalName());
+    }
+
+    @Test
+    public void valueOfTest() {
+        tag = Tag.valueOf("p", settings);
+        assertEquals("p", tag.getName());
+    }
+
+    @Test
+    public void valueOfWithSettingsTest() {
+        when(settings.normalizeTag("P")).thenReturn("p");
+        tag = Tag.valueOf("P", settings);
+        assertEquals("p", tag.getName());
+    }
+
+    @Test
+    public void isBlockTest() {
+        tag = new Tag("p");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        tag = new Tag("p");
+        assertFalse(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        tag = new Tag("img");
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        tag = new Tag("img");
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTagTest() {
+        assertTrue(Tag.isKnownTag("p"));
+    }
+
+    @Test
+    public void isKnownTagUnknownTest() {
+        assertFalse(Tag.isKnownTag("unknown"));
+    }
+
+    @Test
+    public void preserveWhitespaceTest() {
+        tag = new Tag("pre");
+        assertTrue(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void isFormListedTest() {
+        tag = new Tag("input");
+        assertTrue(tag.isFormListed());
+    }
+
+}

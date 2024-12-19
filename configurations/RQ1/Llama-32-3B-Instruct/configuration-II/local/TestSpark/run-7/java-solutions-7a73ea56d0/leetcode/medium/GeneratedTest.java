@@ -1,0 +1,56 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Stack;
+
+public class GeneratedTest {
+
+    public OnlineStockSpan solution = new OnlineStockSpan();
+
+    @Test
+    public void nextSingleElement() {
+        solution.next(100);
+    }
+
+    @Test
+    public void nextMultipleElements() {
+        solution.next(100); // First price
+        solution.next(80);   // Second price
+        solution.next(110);  // Third price
+        assertThat(solution.list, Arrays.asList(100, 80, 110));
+    }
+
+    @Test
+    public void calculateSpansSingleElement() {
+        int[] prices = {100};
+        int[] expected = new int[]{1};
+        Arrays.copy(expected, solution.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpansMultipleElements() {
+        int[] prices = {100, 80, 110};
+        int[] expected = new int[]{2, 1, 3};
+        Arrays.copy(expected, solution.calculateSpans(prices));
+    }
+
+    @Test
+    public void nextZeroElement() {
+        solution.next(0);
+    }
+
+    @Test
+    public void calculateSpansAllElementsSame() {
+        int[] prices = {100, 100, 100};
+        int[] expected = new int[]{3, 2, 1};
+        Arrays.copy(expected, solution.calculateSpans(prices));
+    }
+
+}

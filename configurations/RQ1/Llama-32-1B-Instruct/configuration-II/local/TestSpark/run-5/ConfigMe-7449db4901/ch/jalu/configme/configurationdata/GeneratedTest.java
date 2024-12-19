@@ -1,0 +1,39 @@
+package ch.jalu.configme.configurationdata;
+
+public class GeneratedTest {
+
+    private CommentsConfiguration commentsConfiguration;
+
+    @Before
+    public void setup() {
+        settingsHolder = mock(SettingsHolder.class);
+        commentsConfiguration = new CommentsConfiguration();
+    }
+
+    @Test
+    public void testConstructorMap() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("comment1"));
+        comments.put("path2", Collections.singletonList("comment2"));
+        commentsConfiguration.setComment("path1", "comment1", "comment3");
+        assertEquals(comments, commentsConfiguration.getAllComments());
+    }
+
+    @Test
+    public void testConstructorList() {
+        List<String> commentLines = Arrays.asList("comment1", "comment2");
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Collections.singletonList(commentLines));
+        commentsConfiguration.setComment("path1", commentLines);
+        assertEquals(comments, commentsConfiguration.getAllComments());
+    }
+
+    @Test
+    public void testSetComment() {
+        String path = "path1";
+        List<String> commentLines = Arrays.asList("comment1");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(Arrays.asList(commentLines), commentsConfiguration.getAllComments().get(path));
+    }
+
+}

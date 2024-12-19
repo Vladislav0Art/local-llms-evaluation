@@ -1,0 +1,169 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.helper;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.jsoup.Connection;
+import org.jsoup.ConnectionBuilder;
+import org.jsoup.internal.StringUtil;
+import javax.annotation.Nullable;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import static org.jsoup.helper.DataUtil.UTF_8;
+
+/**
+ * A utility class to normalize input URLs.
+ */
+final class UrlBuilder {
+    public static final String[] SCENARIOS = {"host", "path", "query"};
+
+    private URL u;
+
+    public void setURL(URL url) {
+        this.u = url;
+    }
+
+    /**
+     * Normalizes the input URL by punying decoding host and encoding non-ASCII path components.
+     *
+     * @param inputUrl The input URL to normalize.
+     */
+    public UrlBuilder normalizeInput(String inputUrl) throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        if (inputUrl == null || inputUrl.isEmpty()) {
+            throw new NullPointerException("Input URL cannot be null or empty");
+        }
+
+        String normalizedUrl = normalize(inputUrl);
+
+        // Build the normalized URL
+        return new UrlBuilder(new URL(normalizedUrl));
+    }
+
+    /**
+     * Normalizes a query string part of an input URL by punying decoding host and encoding non-ASCII path components.
+     *
+     * @param encoded The query string to decode.
+     */
+    private String normalize(String encoded) {
+        URI uri = new URI(
+            uri.getProtocol(),
+            uri.getUserInfo(),
+            IDN.toASCII(decodePart(uri.getHost())), // puny-code
+            uri.getPort(),
+            encodePath(encoded), // puny-code
+            null, // query and fragment appended later so as not to encode
+            null
+        );
+
+        String normUrl = uri.toASCIIString();
+        if (q != null || u.getRef() != null) {
+            StringBuilder sb = StringUtil.borrowBuilder().append(normUrl);
+            if (q != null) {
+                sb.append('?');
+                appendToAscii(StringUtil.releaseBuilder(q), true, sb);
+            }
+            if (u.getRef() != null) {
+                sb.append('#');
+                appendToAscii(u.getRef(), false, sb);
+            }
+            normUrl = StringUtil.releaseBuilder(sb);
+        }
+
+        u = new URL(normUrl);
+        return normUrl;
+    }
+
+    /**
+     * Normalizes a path component of an input URL by punying decoding host and encoding non-ASCII path components.
+     *
+     * @param encoded The path to decode.
+     */
+    private String encodePath(String encoded) {
+        URI uri = new URI(
+            uri.getProtocol(),
+            uri.getUserInfo(),
+            IDN.toASCII(decodePart(uri.getHost())), // puny-code
+            uri.getPort(),
+            encodePath(encoded), // puny-code
+            null, // query and fragment appended later so as not to encode
+            null
+        );
+
+        String normPath = uri.toASCIIString();
+        if (q != null || u.getRef() != null) {
+            StringBuilder sb = StringUtil.borrowBuilder().append(normPath);
+            if (q != null) {
+                sb.append('?');
+                appendToAscii(StringUtil.releaseBuilder(q), true, sb);
+            }
+            if (u.getRef() != null) {
+                sb.append('#');
+                appendToAscii(u.getRef(), false, sb);
+            }
+            normPath = StringUtil.releaseBuilder(sb);
+        }
+
+        return normPath;
+    }
+
+    /**
+     * Normalizes the query string of an input URL by punying decoding host and encoding non-ASCII path components.
+     *
+     * @param encoded The query to encode.
+     */
+    private String decodePart(String encoded) {
+        try {
+            return URLDecoder.decode(encoded, UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e); // wtf!
+        }
+    }
+
+    /**
+     * Appends a key-value pair to the normalized query string.
+     *
+     * @param kv The key-value pair to append.
+     */
+    private void appendKeyVal(Connection.KeyVal kv) throws UnsupportedEncodingException {
+        if (q == null)
+            q = StringUtil.borrowBuilder();
+        else
+            q.append('&');
+        q
+            .append(URLEncoder.encode(kv.key(), UTF_8.name()))
+            .append('=')
+            .append(URLEncoder.encode(kv.value(), UTF_8.name()));
+    }
+
+    /**
+     * Prepends a key-value pair to the normalized query string.
+     *
+     * @param kv   The key-value pair to prepend.
+     */
+    private void appendToAscii(Connection.KeyVal kv) throws UnsupportedEncodingException {
+        // minimal normalization of Unicode -> Ascii, and space normal. Existing escapes are left as-is.
+        for (int i = 0; i < q.length(); i++) {
+            char c = q.charAt(i);
+            if (c == ' ') {
+                q.setCharAt(i, '+');
+            } else if (c > 127) { // out of ascii range
+                q.setCharAt(i, URLEncoder.encode(new String(Character.toChars(c)), UTF_8.name()));
+            } else {
+                q.setCharAt(i, c);
+            }
+        }
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================

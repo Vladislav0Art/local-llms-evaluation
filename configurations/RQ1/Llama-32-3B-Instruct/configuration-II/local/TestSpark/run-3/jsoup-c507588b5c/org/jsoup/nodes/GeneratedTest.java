@@ -1,0 +1,90 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+@RunWith(JUnit4.class)
+public class GeneratedTest {
+
+    private final TextNode node1 = new TextNode("Hello World");
+    private final TextNode node2 = new TextNode("");
+    private final TextNode node3 = new TextNode("\n\n");
+
+    @Test
+    public void createTextNode_GivenText_ReturnsTextNode() {
+        assertSame(TextNode.class, node1.getClass());
+    }
+
+    @Test
+    public void text_GivenTextNodeReturnsCorrectedText() {
+        String correctedText = StringUtil.normaliseWhitespace(node1.text());
+        assertEquals("Hello World", correctedText);
+    }
+
+    @Test
+    public void isBlank_GivenTextNodeWithBlankText_ReturnsTrue() {
+        assertTrue(node2.isBlank());
+    }
+
+    @Test
+    public void isBlank_GivenTextNodeWithoutBlankText_ReturnsFalse() {
+        assertFalse(node1.isBlank());
+    }
+
+    @Test
+    public void text_GivenTextNodeWithLeadingWhitespace_ReturnsCorrectedText() {
+        String correctedText = StringUtil.normaliseWhitespace(node3.text());
+        assertEquals("\n\n", correctedText);
+    }
+
+    @Test
+    public void splitText_GivenTextNodeSplitAtOffset_ReturnsNewTextNode() throws IOException {
+        TextNode tail = node1.splitText(7);
+        assertNotNull(tail);
+        assertEquals("World", tail.text());
+    }
+
+    @Test
+    public void splitText_GivenInvalidOffset_ThrowsIndexOutOfBoundsException() {
+        node1.splitText(-1);
+    }
+
+    @Test
+    public void outerHtml_GivenTextNodeWithTrimmingOptions_ReturnsCorrectedHTML() throws IOException, InterruptedException {
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings(true, false);
+        node1.outerHtmlHead(accum, depth, out);
+        String correctedText = accum.toString();
+        assertEquals("<p>Hello World</p>", correctedText);
+    }
+
+    @Test
+    public void outerHtml_GivenTextNodeWithTrailingWhitespace_ReturnsCorrectedHTML() throws IOException, InterruptedException {
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings(false, false);
+        node1.outerHtmlHead(accum, depth, out);
+        String correctedText = accum.toString();
+        assertEquals("<p>Hello World</p>", correctedText);
+    }
+
+    @Test
+    public void outerHtml_GivenTextNodeWithLeadingWhitespaceAndTrailingTrimming_ReturnsCorrectedHTML() throws IOException, InterruptedException {
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings(false, true);
+        node1.outerHtmlHead(accum, depth, out);
+        String correctedText = accum.toString();
+        assertEquals("<p>Hello World</p>", correctedText);
+    }
+
+    @Test
+    public void clone_GivenTextNode_ReturnsClone() {
+        TextNode cloned = node1.clone();
+        assertNotNull(cloned);
+        assertEquals(node1, cloned);
+    }
+
+}

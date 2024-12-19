@@ -1,0 +1,65 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testComment
+
+    nodeName() {
+        Comment comment = new Comment("#comment");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void testComment
+
+    getData() {
+        String data = "#comment";
+        Comment comment = new Comment(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void testComment
+
+    setData() {
+        String data = "#comment";
+        Comment comment = new Comment(data);
+        comment.setData("newData");
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Comment comment = new Comment("#comment");
+        Appendable accum = new StringBuilder();
+        appender.append(comment.outerHtmlHead(accum, 0, Document.OutputSettings.PrettyPrint()));
+        assertEquals("<!--#comment-->", accum.toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Comment comment = new Comment("#comment");
+        Appendable accum = new StringBuilder();
+        appenders.append(comment.outerHtmlTail(accum, 0, Document.OutputSettings.Outline()));
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        String data = "!xml-declaration";
+        Comment comment = new Comment(data);
+        assertTrue(comment.isXmlDeclaration());
+        assertEquals(true, comment.asXmlDeclaration().isPresent());
+    }
+
+    @Test
+    public void testAsXmlDeclaration() {
+        String data = "<!xml-declaration>";
+        Comment comment = new Comment(data);
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        assertNotNull(decl);
+        assertTrue(!decl.isEmpty());
+    }
+
+}

@@ -1,0 +1,156 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.Element;
+import org.jsoup.helper.Validate;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Node parentNode;
+
+    @Mock
+    private Element parentElement;
+
+    @Mock
+    private Appendable accum;
+
+    @Test
+    public void createTextNode_SingleWordText_ReturnsTextNode() {
+        String text = "Hello";
+        when(parentNode).thenReturn(new LeafNode());
+        when(parentNode.addNode(anyString(), anyInt())).thenReturn(this);
+
+        TextNode textNode = new TextNode(text);
+        assertNotNull(textNode);
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void getWholeText_SingleWordText_ReturnsUnencodedText() {
+        String text = "Hello";
+        when(parentNode).thenReturn(new LeafNode());
+
+        String wholeText = textNode.text().getWholeText();
+        assertEquals("Hello", wholeText);
+    }
+
+    @Test
+    public void text_SingleWordTextSetsTextContent() {
+        String text = "Hello";
+        when(parentNode).thenReturn(new LeafNode());
+        TextNode textNode = new TextNode(text);
+
+        textNode.text(text);
+        assertNotNull(textNode.text());
+        assertEquals("Hello", textNode.text().toString());
+    }
+
+    @Test
+    public void isBlank_SingleWordText_ReturnsFalse() {
+        String text = "Hello";
+        when(parentNode).thenReturn(new LeafNode());
+
+        boolean isBlank = textNode.isBlank();
+        assertFalse(isBlank);
+    }
+
+    @Test
+    public void splitText_SplitAtMiddleReturnsTextNode() throws IOException {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        when(parentNode).thenReturn(new LeafNode());
+
+        TextNode tailNode = textNode.splitText(5);
+        assertNotNull(tailNode);
+        assertEquals("World", tailNode.text());
+    }
+
+    @Test
+    public void outerHtmlHead_SplitAtMiddleWorksCorrectly() throws IOException {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        when(parentNode).thenReturn(new LeafNode());
+
+        when(accum).append(anyString());
+        when(accum).appendLine(anyString());
+        textNode.splitText(5);
+        assertEquals(2, accum.length());
+    }
+
+    @Test
+    public void outerHtmlTail_SplitAtMiddleWorksCorrectly() throws IOException {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        when(parentNode).thenReturn(new LeafNode());
+
+        textNode.splitText(5);
+        assertEquals(0, accum.length());
+    }
+
+    @Test
+    public void clone_ReturnsSameTextNode() {
+        TextNode textNode = new TextNode("Hello");
+        TextNode clonedTextNode = textNode.clone();
+
+        assertNotNull(clonedTextNode);
+        assertEquals(textNode, clonedTextNode);
+    }
+
+    @Test
+    public void createFromEncoded_SingleWordText_ReturnsTextNode() {
+        String encodedText = "&lt;Hello&gt;";
+        when(accum).append(anyString());
+        when(parentNode).thenReturn(new LeafNode());
+
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+
+        assertNotNull(textNode);
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void createFromEncoded_SingleWordTextSetsUnencodedText() {
+        String encodedText = "&lt;Hello&gt;";
+        when(accum).append(anyString());
+        when(parentNode).thenReturn(new LeafNode());
+
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+
+        assertNotNull(textNode.text());
+        assertEquals("Hello", textNode.text().toString());
+    }
+
+    @Test
+    public void stripLeadingWhitespace_SingleWordTextReturnsUnencodedText() {
+        String text = "   Hello ";
+        when(accum).append(anyString());
+
+        String strippedText = TextNode.stripLeadingWhitespace(text);
+        assertEquals("Hello", strippedText);
+    }
+
+    @Test
+    public void lastCharIsWhitespace_SingleSpaceReturnsTrue() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(' ');
+
+        assertTrue(TextNode.lastCharIsWhitespace(sb));
+    }
+
+}

@@ -1,0 +1,47 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    private static final String EMPTY_COMMENT = "<!-- -->";
+
+    @Test
+    public void newCommentHasCorrectData() {
+        Comment comment = new Comment(EMPTY_COMMENT);
+        assertEquals(EMPTY_COMMENT, comment.getData());
+    }
+
+    @Test
+    public void cloneCommentReturnsSameInstance() {
+        Comment comment = new Comment(EMPTY_COMMENT);
+        Comment clonedComment = comment.clone();
+        assertSame(comment, clonedComment);
+    }
+
+    @Test
+    public void isXmlDeclaration_ReturnsTrueForValidData() {
+        Comment comment = new Comment("!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclaration_ReturnsFalseForInvalidData() {
+        Comment comment = new Comment("Invalid data");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_CastsCommentToXmlDeclarationForValidData() throws IOException {
+        Comment comment = new Comment("!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+        assertTrue(xmlDeclaration.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_CastsCommentToXmlDeclarationForInvalidData() throws IOException {
+        Comment comment = new Comment("Invalid data");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNull(xmlDeclaration);
+    }
+
+}

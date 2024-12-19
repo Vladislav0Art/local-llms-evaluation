@@ -1,0 +1,76 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void getCommentLinesConstructorTests() {
+        // Arrange
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Collections.emptyList());
+        String[] commentLines = {"line1\nline2", "line3"};
+
+        // Act
+        CommentsConfiguration configuration = new CommentsConfiguration(comments);
+
+        // Assert
+        assertEquals(commentLines, configuration.getComment("path"));
+    }
+
+    @Test
+    public void setCommentPathSetCommentLinesTests() {
+        // Arrange
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Collections.emptyList());
+        String[] commentLines = {"line1\nline2"};
+        List<String> lines = Arrays.asList(commentLines);
+
+        CommentsConfiguration configuration = new CommentsConfiguration(comments);
+        configuration.setComment("path", "line3");
+
+        // Act
+        List<String> commentedLines = configuration.getComment("path");
+
+        // Assert
+        assertEquals(2, commentedLines.size());
+    }
+
+    @Test
+    public void getAllCommentsReadonlyViewTest() {
+        // Arrange
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Collections.emptyList());
+        String[] commentLines = {"line1\nline2", "line3"};
+        List<String> lines = Arrays.asList(commentLines);
+
+        CommentsConfiguration configuration = new CommentsConfiguration(comments);
+        Map<String, @UnmodifiableView List<String>> result = configuration.getAllComments();
+
+        // Assert
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void setCommentPathSetAllCommentLinesTests() {
+        // Arrange
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Collections.emptyList());
+        String[] commentLines = {"line1\nline2"};
+        List<String> lines = Arrays.asList(commentLines);
+
+        CommentsConfiguration configuration = new CommentsConfiguration(comments);
+        configuration.setComment("path", "line3");
+
+        // Act
+        List<String> commentedLines = configuration.getComment("path");
+
+        // Assert
+        assertEquals(3, commentedLines.size());
+    }
+
+}

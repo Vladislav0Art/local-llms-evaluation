@@ -1,0 +1,105 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Appendable accum;
+
+    @Test
+    public void outerHtmlHead_AppendsCommentToOutput_WithData() throws IOException {
+        // given
+        when(accum.append(anyString())).thenReturn(this.accum);
+
+        // when
+        new Comment("<!-- This is a comment -->").outerHtmlHead(accum, 0, null);
+
+        // then
+        accum.assertTextMatches("<!--This is a comment-->");
+    }
+
+    @Test
+    public void outerHtmlHead_AppendsCommentToOutput_WithoutData() throws IOException {
+        // given
+        when(accum.append(anyString())).thenReturn(this.accum);
+
+        new Comment("").outerHtmlHead(accum, 0, null);
+
+        accum.assertTextMatches("<!---->");
+    }
+
+    @Test
+    public void outerHtmlTail_AppendsEmptyLineToOutput() throws IOException {
+        new Comment("").outerHtmlHead(accum, 0, null).outerHtmlTail(accum, 0, null);
+        accum.assertTextMatches("\n");
+    }
+
+    @Test
+    public void toString_RetursOuterHtmlAsComment() {
+        // given
+        when(accum.append(anyString())).thenReturn(this.accum);
+
+        new Comment("<!-- This is a comment -->").outerHtmlHead(accum, 0, null).toString();
+
+        accum.assertTextMatches("<!--This is a comment-->");
+    }
+
+    @Test
+    public void clone_ReturnsNewCommentInstance() {
+        Comment comment = new Comment("<!-- This is a comment -->");
+        Comment cloned = comment.clone();
+        assertNotNull(cloned);
+        assertEquals(comment, cloned);
+    }
+
+    @Test
+    public void isXmlDeclaration_ReturnsTrue_WithValidData() {
+        // given
+        when(accum.append(anyString())).thenReturn(this.accum);
+
+        new Comment("<!--<?xml version='1.0' encoding='UTF-8'?> -->").outerHtmlHead(accum, 0, null);
+        assertTrue(new Comment("").isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclaration_ReturnsFalse_WithoutValidData() {
+        // given
+        when(accum.append(anyString())).thenReturn(this.accum);
+
+        new Comment("<!-- This is not an XML Declaration -->").outerHtmlHead(accum, 0, null);
+        assertFalse(new Comment("").isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_ReturnsNull_WithInvalidData() {
+        // given
+        when(accum.append(anyString())).thenReturn(this.accum);
+
+        new Comment("<!-- This is not an XML Declaration -->").outerHtmlHead(accum, 0, null);
+        assertNull(new Comment("").asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_ReturnsValidDeclaration_WithValidData() {
+        // given
+        when(accum.append(anyString())).thenReturn(this.accum);
+
+        new Comment("<!--<?xml version='1.0' encoding='UTF-8'?> -->").outerHtmlHead(accum, 0, null);
+        XmlDeclaration decl = new Comment("").asXmlDeclaration();
+        assertNotNull(decl);
+    }
+
+}

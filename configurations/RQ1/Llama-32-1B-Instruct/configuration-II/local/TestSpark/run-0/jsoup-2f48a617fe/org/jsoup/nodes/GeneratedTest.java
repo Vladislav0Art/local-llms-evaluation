@@ -1,0 +1,68 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    private Comment comment;
+
+    @Before
+    public void setup() {
+        comment = new Comment("<!-- This is a test comment -->");
+    }
+
+    @Test
+    public void testCommentNodeName() {
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        assertEquals("This is a test comment", comment.getData());
+    }
+
+    @Test
+    public void testSetData() {
+        comment.setData("<!-- This is another test comment -->");
+        assertEquals("This is another test comment", comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        Appendable accum = new StringBuilder();
+        comment.outerHtmlHead(accum, 0, null);
+        assertTrue(accum.toString().contains("<!-- This is a test comment -->"));
+        assertEquals(comment.nodeName(), "comment");
+    }
+
+    @Test
+    public void testOuterHtmlTail() throws IOException {
+        // do nothing (no output)
+    }
+
+    @Test
+    public void testToString() {
+        String expected = "<!-- This is a test comment -->";
+        assertEquals(expected, comment.toString());
+    }
+
+    @Test
+    public void testClone() {
+        Comment clone = (Comment) comment.clone();
+        assertEquals(comment, clone);
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        assertTrue(comment.isXmlDeclaration());
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclaration() throws IOException {
+        XmlDeclaration expected = new XmlDeclaration("UTF-8", "XML Declaration", "");
+        Comment commentWithExpected = (Comment) comment.asXmlDeclaration();
+        assertNotNull(commentWithExpected);
+        assertEquals(expected, commentWithExpected);
+        // check that the comment is not immediately followed by another
+    }
+
+}

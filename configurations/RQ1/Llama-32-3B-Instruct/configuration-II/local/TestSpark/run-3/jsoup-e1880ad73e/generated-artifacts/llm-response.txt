@@ -1,0 +1,140 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+public class UrlBuilderTest {
+
+    @Test
+    public void builderHasOriginalUrl() {
+        // given
+        URL inputUrl = new URL("http://example.com/path?query#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        // when
+        URL result = urlBuilder.build();
+
+        // then
+        assert result.getProtocol().equals("http");
+        assert result.getHost().equals("example.com");
+        assert result.getPath() == null;
+        assert result.getQuery() != null;
+        assert result.getRef() != null;
+    }
+
+    @Test
+    public void builderPunycodesHost() {
+        // given
+        URL inputUrl = new URL("http://example.com/path?query#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        // when
+        URL result = urlBuilder.build();
+
+        // then
+        assert result.getProtocol().equals("http");
+        assert result.getHost().equals(IDN.toASCII("example.com"));
+    }
+
+    @Test
+    public void builderEncodesQuery() {
+        // given
+        URL inputUrl = new URL("http://example.com/path?query=Hello, World!#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        // when
+        URL result = urlBuilder.build();
+
+        // then
+        assert result.getProtocol().equals("http");
+        assert result.getHost().equals(IDN.toASCII("example.com"));
+        assert result.getPath() == null;
+        assert result.getQuery().equals(IDN.toASCII("query=Hello%2C+World%!"));
+    }
+
+    @Test
+    public void builderEncodesFragment() {
+        // given
+        URL inputUrl = new URL("http://example.com/path?query#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        // when
+        URL result = urlBuilder.build();
+
+        // then
+        assert result.getProtocol().equals("http");
+        assert result.getHost().equals(IDN.toASCII("example.com"));
+        assert result.getPath() == null;
+        assert result.getQuery() != null;
+        assert result.getRef().equals(IDN.toASCII("fragment"));
+    }
+
+    @Test
+    public void appendKeyValEncodesValue() {
+        // given
+        Connection.KeyVal kv = new Connection.KeyVal("key", "Hello, World!");
+
+        // when
+        UrlBuilder urlBuilder = new UrlBuilder(null);
+        StringBuilder q = StringUtil.borrowBuilder();
+        urlBuilder.appendKeyVal(kv);
+
+        // then
+        assert q.toString().equals(IDN.toASCII("key=Hello%2C+World%!"));
+    }
+
+    @Test
+    public void appendKeyValPreservesExistingEscapes() {
+        // given
+        Connection.KeyVal kv = new Connection.KeyVal("key", "Hello, World!");
+
+        // when
+        UrlBuilder urlBuilder = new UrlBuilder(null);
+        StringBuilder q = StringUtil.borrowBuilder();
+        q.append("?"); // existing escape
+        urlBuilder.appendKeyVal(kv);
+
+        // then
+        assert q.toString().equals(IDN.toASCII("key=Hello%2C+World%!?"));
+    }
+
+    @Test
+    public void decodePartHandlesNonAscii() {
+        // given
+        String encoded = "äöüß";
+
+        // when
+        String decoded = UrlBuilder.decodePart(encoded);
+
+        // then
+        assert decoded.equals(StringUtil.releaseBuilder(IDN.toASCII("äöüß")).toString());
+    }
+
+    @Test
+    public void appendToAsciiHandlesSpaceAsPlus() {
+        // given
+        StringBuilder sb = StringUtil.borrowBuilder();
+        urlBuilder.appendToAscii("Hello, World!", true, sb);
+
+        // when
+        String result = StringUtil.releaseBuilder(sb).toString();
+
+        // then
+        assert result.equals(IDN.toASCII("Hello%20World!"));
+    }
+
+    @Test
+    public void appendToAsciiHandlesNonAscii() {
+        // given
+        StringBuilder sb = StringUtil.borrowBuilder();
+        urlBuilder.appendToAscii("äöüß", false, sb);
+
+        // when
+        String result = StringUtil.releaseBuilder(sb).toString();
+
+        // then
+        assert result.equals(IDN.toASCII("äöü%ss"));
+    }
+}
+```
+===================================================
+

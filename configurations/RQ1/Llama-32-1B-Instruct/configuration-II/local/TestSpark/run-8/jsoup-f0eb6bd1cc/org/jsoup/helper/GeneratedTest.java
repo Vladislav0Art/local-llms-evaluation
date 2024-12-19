@@ -1,0 +1,94 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    private UrlBuilder urlBuilder;
+
+    @Before
+    void setUp() {
+        urlBuilder = new UrlBuilder(null);
+    }
+
+    @Test
+    public void testAppendKeyVal_WithNoQ() throws UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        urlBuilder.appendKeyVal(Connection.KeyVal.empty());
+        assertEquals(StringUtil.releaseBuilder(sb), urlBuilder.build());
+    }
+
+    @Test
+    public void testAppendKeyVal_WithQ() throws UnsupportedEncodingException {
+        String q = "key=value";
+        urlBuilder.q = StringUtil.borrowBuilder().append(q);
+        assertEquals("key%3Dvalue", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MalformedKey() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", null);
+        try {
+            urlBuilder.appendKeyVal(kv);
+            fail("Expected MalformedURLException");
+        } catch (MalformedURLException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_WithNullQ() throws UnsupportedEncodingException {
+        String q = null;
+        urlBuilder.q = StringUtil.borrowBuilder();
+        assertEquals("key%3Dvalue", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testBuildWithoutQuery() throws UnsupportedEncodingException {
+        URLBuilderUrlBuilder urlBuilderUrlBuilder = new UrlBuilderUrlBuilder(null);
+        String normUrl = urlBuilderUrlBuilder.build().toString();
+        assertEquals(new URI("https://example.com/path", null, null, 0L, null, null), normUrl.toURI());
+    }
+
+    @Test
+    public void testBuildWithQuery() throws UnsupportedEncodingException {
+        URLBuilderURLBuilder urlBuilderURLBuilder = new UrlBuilderURLBuilder(null);
+        String q = "key=value";
+        urlBuilderURLBuilder.q = StringUtil.borrowBuilder().append(q);
+        assertEquals(new URI(
+                urlBuilderURLBuilder.build().getScheme(),
+                urlBuilderURLBuilder.build().getAuthority(),
+                urlBuilderURLBuilder.build().getUserInfo(),
+                null,
+                null,
+                URLEncoder.encode(urlBuilderURLBuilder.build().getPath(), UTF_8.name()))
+        );
+    }
+
+    @Test
+    public void testBuildWithoutFragment() throws UnsupportedEncodingException {
+        URLBuilderUrlBuilder urlBuilderURLBuilder = new UrlBuilderURLBuilder(null);
+        String normUrl = urlBuilderURLBuilder.build().toString();
+        assertEquals(new URI(
+                urlBuilderURLBuilder.build().getScheme(),
+                urlBuilderURLBuilder.build().getUserInfo(),
+                null,
+                urlBuilderURLBuilder.build().getPort(),
+                null,
+                null))
+		);
+    }
+
+    @Test
+    public void testBuildWithFragment() throws UnsupportedEncodingException {
+        URLBuilderUrlBuilder urlBuilderURLBuilder = new UrlBuilderURLBuilder(null);
+        String q = "key=value#fragment";
+        urlBuilderURLBuilder.q = StringUtil.borrowBuilder().append(q);
+        assertEquals(new URI(
+                urlBuilderURLBuilder.build().getScheme(),
+                urlBuilderURLBuilder.build().getUserInfo(),
+                null,
+                urlBuilderURLBuilder.build().getPort(),
+                urlBuilderURLBuilder.build().getPath(), q)
+        );
+    }
+
+}

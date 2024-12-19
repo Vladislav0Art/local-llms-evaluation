@@ -1,0 +1,83 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    @Test
+    public void testAppendKeyVal_01() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path?a=1&b=2");
+        assertEquals(builder.build(), "https%3A//example.com/path?a%3D1&b%3D2%26%3F");
+    }
+
+    @Test
+    public void testAppendKeyVal_02() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path/a=1&b=2");
+        assertEquals(builder.build(), "https%3A//example.com/path/a%3D1&b%3D2%26%3F");
+    }
+
+    @Test
+    public void testAppendKeyVal_03() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path/a=1?b=2");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%26%3F");
+    }
+
+    @Test
+    public void testAppendKeyVal_04() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path/a=1&b=2?c=3");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%26%3A%26%3Bc%3D3%26%3F");
+    }
+
+    @Test
+    public void testAppendKeyVal_05() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path/a=1&b=2#c=3");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%23%26%3Cc%3D3");
+    }
+
+    @Test
+    public void testAppendKeyVal_06() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path/a=1&b=2%20c=3");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%2520%c%3D3");
+    }
+
+    @Test
+    public void testAppendKeyVal_07() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path&a=1&b=2#c=3");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%23%26%3Cc%3D3");
+    }
+
+    @Test
+    public void testAppendKeyVal_08() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path/a=1&b=2%26%3F");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%26%3F");
+    }
+
+    @Test
+    public void testAppendKeyVal_09() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path?a=1&b=2#c=3");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%23%26%3Cc%3D3");
+    }
+
+    @Test
+    public void testAppendKeyVal_10() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path&a=1&b=2%20c=3");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%2520%c%3D3");
+    }
+
+    @Test
+    public void testAppendKeyVal_11() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path/a=1&b=2#c=3");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%23%26%3Cc%3D3");
+    }
+
+    @Test
+    public void testAppendKeyVal_12() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path&a=1&b=2%26%3F");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%26%3F");
+    }
+
+    @Test
+    public void testAppendKeyVal_13() {
+        UrlBuilder builder = new UrlBuilder("https://example.com/path?a=1&b=2#c=3");
+        assertEquals(builder.build(), "https%3A//example.com/path%20a%3D1%26%3Ab%3D2%23%26%3Cc%3D3");
+    }
+
+}
