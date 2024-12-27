@@ -1,0 +1,48 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.protocol.BaseProtocolDecoder;
+import org.traccar.protocol.Protocol;
+import io.netty.channel.Channel;
+
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Channel;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedDecode_ValidMessageTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private io.netty.channel.Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    @InjectMocks
+    private WatchProtocolDecoder decoder;
+
+    @Test
+    public void decode_ValidMessageTest() throws Exception {
+        when(protocol.getName()).thenReturn("test");
+        when(protocol.decode(any(io.netty.channel.Channel.class), any(SocketAddress.class), any(Object.class))).thenReturn(new Object());
+        Object result = decoder.decode(channel, remoteAddress, new Object());
+        assertNotNull(result);
+    }
+
+}

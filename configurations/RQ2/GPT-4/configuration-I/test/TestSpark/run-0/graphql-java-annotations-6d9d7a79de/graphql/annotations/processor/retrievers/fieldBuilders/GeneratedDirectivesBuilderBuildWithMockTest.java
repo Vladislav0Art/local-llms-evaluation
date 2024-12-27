@@ -1,0 +1,36 @@
+package graphql.annotations.processor.retrievers.fieldBuilders;
+
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.retrievers.fieldBuilders.Builder;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.schema.GraphQLDirective;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.lang.reflect.AnnotatedElement;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.times;
+
+public class GeneratedDirectivesBuilderBuildWithMockTest {
+
+    @Test
+    public void DirectivesBuilderBuildWithMockTest() {
+        AnnotatedElement object = Mockito.mock(AnnotatedElement.class);
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        GraphQLDirective[] mockDirectives = new GraphQLDirective[1];
+        mockDirectives[0] = Mockito.mock(GraphQLDirective.class);
+
+        Mockito.when(container.getDirective(Mockito.any())).thenReturn(mockDirectives[0]);
+
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(object, container);
+        GraphQLDirective[] directives = directivesBuilder.build();
+
+        assertNotNull(directives);
+        assertEquals(directives.length, 1);
+        assertSame(directives[0], mockDirectives[0]);
+
+        Mockito.verify(container, times(1)).getDirective(Mockito.any());
+    }
+
+}

@@ -1,0 +1,35 @@
+package org.jsoup.parser;
+
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Token;
+import org.jsoup.parser.HtmlTreeBuilderState;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+import java.io.Reader;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mock;
+
+import static org.mockito.Mockito.when;
+
+@RunWith(JUnit4.class)
+public class GeneratedTransitionTest {
+
+    @Test
+    public void transitionTest() {
+        HtmlTreeBuilder htmlTreeBuilder = new HtmlTreeBuilder();
+        HtmlTreeBuilderState state = new HtmlTreeBuilderState();
+        htmlTreeBuilder.transition(state);
+    }
+
+}

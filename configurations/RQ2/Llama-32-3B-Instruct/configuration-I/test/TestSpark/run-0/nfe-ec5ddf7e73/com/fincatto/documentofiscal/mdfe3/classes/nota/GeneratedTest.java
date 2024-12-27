@@ -1,0 +1,127 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private MDFInfoModalRodoviarioVeiculo mdfInfoModalRodoviarioVeiculo;
+
+    public void setCodigoInterno(final String codigoInterno) {
+        // Mock implementation for setting codigoInterno
+    }
+
+    public void setPlaca(final String placa) {
+        // Mock implementation for setting placa
+    }
+
+    public void setRenavam(final String renavam) {
+        // Mock implementation for setting renavam
+    }
+
+    public void setTara(final String tara) {
+        // Mock implementation for setting tara
+    }
+
+    public String getCapacidadeKG() {
+        // Mock implementation for getting capacidadeKG
+        return "";
+    }
+
+    public void setCapacidadeKG(final String capacidadeKG) {
+        // Mock implementation for setting capacidadeKG
+    }
+
+    public String getCapacidadeM3() {
+        // Mock implementation for getting capacidadeM3
+        return "";
+    }
+
+    public void setCapacidadeM3(final String capacidadeM3) {
+        // Mock implementation for setting capacidadeM3
+    }
+
+    @Test
+    public void [setCodigoInterno][NoValueTest]
+
+    Test() {
+        when(mdfInfoModalRodoviarioVeiculo.setCodigoInterno("codigo")).thenReturn(true);
+        setCodigoInterno("codigo");
+        assertTrue(true);
+    }
+
+    @Test
+    public void [setPlaca][SameValueTest]
+
+    Test() {
+        when(mdfInfoModalRodoviarioVeiculo.setPlaca("placa")).thenReturn(true);
+        setPlaca("placa");
+        assertTrue(true);
+    }
+
+    @Test
+    public void [setRenavam][DifferentValueTest]
+
+    Test() {
+        when(mdfInfoModalRodoviarioVeiculo.setRenavam("renavam")).thenReturn(false);
+        setRenavam("renavam");
+        assertFalse(true);
+    }
+
+    @Test
+    public void [setTara][EmptyStringTest]
+
+    Test() {
+        when(mdfInfoModalRodoviarioVeiculo.setTara("")).thenReturn(true);
+        setTara("");
+        assertTrue(true);
+    }
+
+    @Test
+    public void [getCapacidadeKG][NonEmptyValueTest]
+
+    Test() {
+        when(mdfInfoModalRodoviarioVeiculo.getCapacidadeKG()).thenReturn("capacidade");
+        assertEquals("capacidade", getCapacidadeKG());
+        assertTrue(true);
+    }
+
+    @Test
+    public void [setCapacidadeKG][DifferentValueTest]
+
+    Test() {
+        when(mdfInfoModalRodoviarioVeiculo.setCapacidadeKG("capacidade")).thenReturn(true);
+        setCapacidadeKG("capacidade");
+        assertEquals("capacidade", getCapacidadeKG());
+        assertTrue(true);
+    }
+
+    @Test
+    public void [getCapacidadeM3][EmptyStringTest]
+
+    Test() {
+        when(mdfInfoModalRodoviarioVeiculo.getCapacidadeM3()).thenReturn("");
+        assertEquals("", getCapacidadeM3());
+        assertTrue(true);
+    }
+
+    @Test
+    public void [setCapacidadeM3][NonEmptyValueTest]
+
+    Test() {
+        when(mdfInfoModalRodoviarioVeiculo.setCapacidadeM3("capacidade")).thenReturn(true);
+        setCapacidadeM3("capacidade");
+        assertEquals("capacidade", getCapacidadeM3());
+        assertTrue(true);
+    }
+
+}

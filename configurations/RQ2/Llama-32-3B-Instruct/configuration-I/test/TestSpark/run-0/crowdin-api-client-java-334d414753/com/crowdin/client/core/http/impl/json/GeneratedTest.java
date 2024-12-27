@@ -1,0 +1,59 @@
+package com.crowdin.client.core.http.impl.json;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.lang.reflect.Field;
+
+public class GeneratedTest {
+
+    private JacksonJsonTransformer transformer;
+
+    @Test
+    public void newInstanceTest() {
+        transformer = new JacksonJsonTransformer();
+        assertNotNull(transformer);
+    }
+
+    @Test
+    public void parseMethodTest_InvalidJsonString() throws Exception {
+        Field field = JacksonJsonTransformer.class.getDeclaredField("parse");
+        field.setAccessible(true);
+        Object result = field.get(transformer);
+        assertEquals("", result);
+    }
+
+    @Test
+    public void parseMethodTest_ValidJsonString() throws Exception {
+        Field field = JacksonJsonTransformer.class.getDeclaredField("parse");
+        field.setAccessible(true);
+        Object result = field.get(transformer);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void parseMethodTest_ParsedClassNotFound() throws Exception {
+        Field field = JacksonJsonTransformer.class.getDeclaredField("parse");
+        field.setAccessible(true);
+        Object result = field.get(transformer);
+        assertEquals(null, result);
+    }
+
+    @Test
+    public void convertMethodTest_NullObject() throws Exception {
+        Field field = JacksonJsonTransformer.class.getDeclaredField("convert");
+        field.setAccessible(true);
+        Object result = field.get(transformer);
+        assertEquals("", result);
+    }
+
+    @Test
+    public void convertMethodTest_ValidJsonObject() throws Exception {
+        Field field = JacksonJsonTransformer.class.getDeclaredField("convert");
+        field.setAccessible(true);
+        Object result = field.get(transformer);
+        assertNotNull(result);
+    }
+
+}

@@ -1,0 +1,27 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+import org.mockito.InjectMocks;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedConstructorTest_WithPrinter {
+
+    @Mock
+    private Printer printer;
+
+    @Test
+    public void constructorTest_WithPrinter() {
+        when(printer.print(anyString())).thenReturn("printed");
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        assertNotNull(visitor);
+    }
+
+}

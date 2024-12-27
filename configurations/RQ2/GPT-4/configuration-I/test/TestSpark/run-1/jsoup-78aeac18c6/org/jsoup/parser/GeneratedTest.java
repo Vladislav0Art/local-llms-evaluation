@@ -1,0 +1,123 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.CharacterReader;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.StringReader;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorReaderTest() {
+        CharacterReader characterReader = new CharacterReader(new StringReader("testInput"));
+        Assert.assertNotNull(characterReader);
+    }
+
+    @Test
+    public void constructorStringTest() {
+        CharacterReader characterReader = new CharacterReader("testInput");
+        Assert.assertNotNull(characterReader);
+    }
+
+    @Test
+    public void posTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        Assert.assertEquals(0, characterReader.pos());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        CharacterReader characterReader = new CharacterReader("");
+        Assert.assertTrue(characterReader.isEmpty());
+    }
+
+    @Test
+    public void isNotEmptyTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        Assert.assertFalse(characterReader.isEmpty());
+    }
+
+    @Test
+    public void currentTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        Assert.assertEquals('t', characterReader.current());
+    }
+
+    @Test
+    public void consumeTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        characterReader.consume();
+        Assert.assertEquals('e', characterReader.current());
+    }
+
+    @Test
+    public void unconsumeTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        characterReader.consume();
+        characterReader.unconsume();
+        Assert.assertEquals('t', characterReader.current());
+    }
+
+    @Test
+    public void advanceTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        characterReader.advance();
+        Assert.assertEquals('e', characterReader.current());
+    }
+
+    @Test
+    public void consumeToTest() {
+        CharacterReader characterReader = new CharacterReader("testInput");
+        Assert.assertEquals("test", characterReader.consumeTo('I'));
+    }
+
+    @Test
+    public void consumeToAnyTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        Assert.assertEquals("te", characterReader.consumeToAny('s', 't'));
+    }
+
+    @Test
+    public void matchesTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        Assert.assertTrue(characterReader.matches('t'));
+    }
+
+    @Test
+    public void doesNotMatchTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        Assert.assertFalse(characterReader.matches('a'));
+    }
+
+    @Test
+    public void matchesAnyTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        Assert.assertTrue(characterReader.matchesAny('a', 'e', 'i', 'o', 'u'));
+    }
+
+    @Test
+    public void doesNotMatchAnyTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        Assert.assertFalse(characterReader.matchesAny('a', 'b', 'c'));
+    }
+
+    @Test
+    public void matchesLetterTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        Assert.assertTrue(characterReader.matchesLetter());
+    }
+
+    @Test
+    public void matchesDigitTest() {
+        CharacterReader characterReader = new CharacterReader("1234");
+        Assert.assertTrue(characterReader.matchesDigit());
+    }
+
+    @Test
+    public void toStringTest() {
+        CharacterReader characterReader = new CharacterReader("test");
+        Assert.assertEquals("test", characterReader.toString());
+    }
+
+}

@@ -1,0 +1,192 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.Document;
+
+public class TextNodeTest {
+
+    @Test
+    public void createTextNodeFromEmptyString_ReturnsEmptyTextNode() {
+        TextNode textNode = TextNode.createFromEncoded("");
+        assertTrue(textNode.text().isEmpty());
+    }
+
+    @Test
+    public void createTextNodeFromSingleCharacter_ReturnsSingleCharTextNode() {
+        String charStr = "a";
+        TextNode textNode = TextNode.createFromEncoded(charStr);
+        assertEquals(1, textNode.text().length());
+    }
+
+    @Test
+    public void normaliseWhitespace_LeadingSpace_ReturnsStringWithSpace() {
+        String originalText = "  a ";
+        String expectedText = " a ";
+        assertEquals(expectedText, TextNode.normaliseWhitespace(originalText));
+    }
+
+    @Test
+    public void stripLeadingWhitespace_LeadsToTrimming() {
+        String originalText = "   a ";
+        String expectedText = "a";
+        assertEquals(expectedText, TextNode.stripLeadingWhitespace(originalText));
+    }
+
+    @Test
+    public void lastCharIsWhitespace_EmptyStringBuilder_ReturnsTrue() {
+        StringBuilder sb = new StringBuilder();
+        assertTrue(TextNode.lastCharIsWhitespace(sb));
+    }
+
+    @Test
+    public void textTextNodeTextCannotBeEmpty_ThrowsNullPointerExceptionWhenSplitting() {
+        TextNode textNode = new TextNode("");
+        assertThrows(NullPointerException.class, () -> textNode.splitText(0));
+    }
+}
+
+public class LeafNodeTest {
+
+    @Test
+    public void clone_CloneReturnsNewTextNode() {
+        TextNode leafNode = new TextNode("leaf");
+        TextNode clonedLeafNode = leafNode.clone();
+        assertTrue(clonedLeafNode != leafNode);
+    }
+
+    @Test
+    public void outerHtmlHead_AppendsChildNodesToOutputText() {
+        Document document = new Document();
+        LeafNode childNode = new LeafNode("child");
+        TextNode textNode = new TextNode("text");
+        textNode.outerHtmlHead(document.output(), 0, document.outputSettings());
+        assertEquals("text" + "\n" + "child", textNode.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlTail_AppendsChildNodesToOutputText() {
+        Document document = new Document();
+        LeafNode childNode = new LeafNode("child");
+        TextNode textNode = new TextNode("text");
+        textNode.outerHtmlHead(document.output(), 0, document.outputSettings());
+        assertEquals("", textNode.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlHead_SetsOutputTextWhenChildNodesAreEmpty() {
+        Document document = new Document();
+        LeafNode childNode = new LeafNode("child");
+        TextNode textNode = new TextNode("");
+        textNode.outerHtmlTail(document.output(), 0, document.outputSettings());
+        assertEquals("", document.output());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+
+public class TestSpark {
+
+    @Test
+    public void testOuterHtmlHead() {
+        Document document = Jsoup.parse("<html><body>Hello, <span>World!</span></body></html>");
+        LeafNode childNode = new LeafNode("child");
+        TextNode textNode = new TextNode("text");
+        
+        document.outputSettings().setAppendChildNodesToOutputText(true);
+        elementOuterHtmlHead(document, 0, document.outputSettings(), childNode, textNode);
+
+        assertEquals("<html><body>Hello, <span>World!</span></body></html>", document.outerHtml());
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Document document = Jsoup.parse("<html><body>Hello, World!</body></html>");
+        LeafNode childNode = new LeafNode("child");
+        TextNode textNode = new TextNode("");
+        
+        document.outputSettings().setAppendChildNodesToOutputText(false);
+        elementOuterHtmlTail(document, 0, document.outputSettings(), childNode, textNode);
+
+        assertEquals("<html><body>Hello, World!</body></html>", document.outerHtml());
+    }
+
+    @Test
+    public void testCloneReturnsNewTextNode() {
+        Document document = Jsoup.parse("<html><body>Hello, <span>World!</span></body></html>");
+        LeafNode childNode = new LeafNode("child");
+        
+        TextNode textNode1 = new TextNode("text1");
+        TextNode textNode2 = new TextNode("text2").clone();
+        assertEquals(new TextNode("text2"), textNode2);
+    }
+
+    @Test
+    public void testOuterHtmlHeadSetsOutputTextWhenChildNodesAreEmpty() {
+        Document document = Jsoup.parse("<html><body>Hello, World!</body></html>");
+        LeafNode childNode = new LeafNode("");
+        
+        elementOuterHtmlHead(document, 0, document.outputSettings(), childNode, new TextNode("text"));
+    }
+
+    private void elementOuterHtmlHead(Document document, int position, OutputSettings outputSettings, LeafNode childNode, TextNode textNode) {
+        if (outputSettings.isAppendChildNodesToOutputText()) {
+            textNode.outerHtmlHead(document, 0, outputSettings);
+        }
+        
+        // Add child node here
+    }
+
+    private void elementOuterHtmlTail(Document document, int position, OutputSettings outputSettings, LeafNode childNode, TextNode textNode) {
+        if (!outputSettings.isAppendChildNodesToOutputText()) {
+            textNode.outerHtmlTail(document, 0, outputSettings);
+        }
+        
+        // Add child node here
+    }
+
+    public static class LeafNode {
+        private String value;
+
+        public LeafNode(String value) {
+            this.value = value;
+        }
+
+        public void setChildValue(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "LeafNode{" +
+                    "value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    public static class OutputSettings {
+        private boolean appendChildNodesToOutputText;
+
+        public OutputSettings setAppendChildNodesToOutputText(boolean appendChildNodesToOutputText) {
+            this.appendChildNodesToOutputText = appendChildNodesToOutputText;
+            return this;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================

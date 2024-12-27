@@ -1,0 +1,21 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+import org.stellar.sdk.KeyPair;
+
+import java.security.PublicKey;
+
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.*;
+
+public class GeneratedVerifyTest {
+
+    @Test
+    public void verifyTest() {
+        KeyPair keyPair = KeyPair.random();
+        byte[] data = {1, 2, 3};
+        byte[] signature = keyPair.sign(data);
+        assertTrue(keyPair.verify(data, signature));
+    }
+
+}

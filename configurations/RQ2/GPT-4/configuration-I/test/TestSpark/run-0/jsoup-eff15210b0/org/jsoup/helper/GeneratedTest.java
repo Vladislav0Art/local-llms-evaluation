@@ -1,0 +1,75 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.jsoup.Connection;
+import org.jsoup.helper.HttpConnection;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectUrlStringTest() {
+        Connection connection = HttpConnection.connect("http://example.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void connectUrlObjectTest() throws MalformedURLException {
+        Connection connection = HttpConnection.connect(new URL("http://example.com"));
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void newRequestTest() {
+        Connection connection = new HttpConnection();
+        assertNotNull(connection.newRequest());
+    }
+
+    @Test
+    public void urlTest() throws MalformedURLException {
+        Connection connection = new HttpConnection();
+        assertNotNull(connection.url(new URL("http://example.com")));
+    }
+
+    @Test
+    public void urlStringTest() {
+        Connection connection = new HttpConnection();
+        assertNotNull(connection.url("http://example.com"));
+    }
+
+    @Test
+    public void proxyTest() {
+        Connection connection = new HttpConnection();
+        assertNotNull(connection.proxy("localhost", 8000));
+    }
+
+    @Test
+    public void executeTest() throws IOException {
+        Connection connection = HttpConnection.connect("http://example.com");
+        assertNotNull(connection.execute());
+    }
+
+    @Test
+    public void userAgentTest() {
+        Connection connection = new HttpConnection();
+        assertNotNull(connection.userAgent("Mozilla/5.0"));
+    }
+
+    @Test
+    public void timeoutTest() {
+        Connection connection = new HttpConnection();
+        assertNotNull(connection.timeout(3000));
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        Connection connection = new HttpConnection();
+        assertNotNull(connection.timeout(2000));
+    }
+
+}

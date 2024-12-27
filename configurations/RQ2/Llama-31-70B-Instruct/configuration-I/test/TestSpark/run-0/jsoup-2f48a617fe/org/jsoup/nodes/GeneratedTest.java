@@ -1,0 +1,65 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.XmlDeclaration;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorTest() {
+        Comment comment = new Comment("test");
+        assertNotNull(comment);
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("test");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("test");
+        comment.setData("new data");
+        assertEquals("new data", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("test");
+        Appendable appendable = Mockito.mock(Appendable.class);
+        when(appendable.append("<!--test-->")).thenReturn(appendable);
+        comment.outerHtmlHead(appendable, 0, null);
+        Mockito.verify(appendable).append("<!--test-->");
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("test");
+        Appendable appendable = Mockito.mock(Appendable.class);
+        when(appendable.append("-->")).thenReturn(appendable);
+        comment.outerHtmlTail(appendable, 0, null);
+        Mockito.verify(appendable).append("-->");
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("test");
+        assertEquals("Comment[test]", comment.toString());
+    }
+
+}

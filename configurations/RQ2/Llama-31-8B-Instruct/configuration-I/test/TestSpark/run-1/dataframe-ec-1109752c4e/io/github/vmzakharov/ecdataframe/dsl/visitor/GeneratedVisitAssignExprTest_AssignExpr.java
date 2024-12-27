@@ -1,0 +1,27 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+import org.mockito.InjectMocks;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedVisitAssignExprTest_AssignExpr {
+
+    @Mock
+    private Printer printer;
+
+    @Test
+    public void visitAssignExprTest_AssignExpr() {
+        AssignExpr assignExpr = new AssignExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitAssignExpr(assignExpr);
+    }
+
+}

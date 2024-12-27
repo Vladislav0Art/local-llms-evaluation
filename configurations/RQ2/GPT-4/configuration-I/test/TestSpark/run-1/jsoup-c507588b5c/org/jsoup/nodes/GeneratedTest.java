@@ -1,0 +1,112 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.StringWriter;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeConstructorTest() {
+        TextNode node = new TextNode("Hello");
+        Assert.assertEquals("Hello", node.text());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode node = new TextNode("Hello");
+        Assert.assertEquals("#text", node.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        TextNode node = new TextNode("Hello");
+        Assert.assertEquals("Hello", node.text());
+    }
+
+    @Test
+    public void textSetterTest() {
+        TextNode node = new TextNode("Hello");
+        node.text("World");
+        Assert.assertEquals("World", node.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode node = new TextNode("Hello World");
+        Assert.assertEquals("Hello World", node.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode node = new TextNode("");
+        Assert.assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode node = new TextNode("Hello World");
+        TextNode splitNode = node.splitText(5);
+        Assert.assertEquals("Hello", node.text());
+        Assert.assertEquals(" World", splitNode.text());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        TextNode node = new TextNode("Hello");
+        StringWriter writer = new StringWriter();
+        node.outerHtmlHead(writer, 0, new Document.OutputSettings());
+        Assert.assertEquals("Hello", writer.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        TextNode node = new TextNode("Hello");
+        StringWriter writer = new StringWriter();
+        node.outerHtmlTail(writer, 0, new Document.OutputSettings());
+        Assert.assertEquals("", writer.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        TextNode node = new TextNode("Hello");
+        Assert.assertEquals("Hello", node.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode node = new TextNode("Clone");
+        TextNode cloneNode = node.clone();
+        Assert.assertNotSame(node, cloneNode);
+        Assert.assertEquals(node.text(), cloneNode.text());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode node = TextNode.createFromEncoded("Hello&amp;");
+        Assert.assertEquals("Hello&", node.getWholeText());
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String normalized = TextNode.normaliseWhitespace("Hello     World");
+        Assert.assertEquals("Hello World", normalized);
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String stripped = TextNode.stripLeadingWhitespace("     Hello World");
+        Assert.assertEquals("Hello World", stripped);
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        StringBuilder sb = new StringBuilder("Hello ");
+        boolean isLastCharWhitespace = TextNode.lastCharIsWhitespace(sb);
+        Assert.assertTrue(isLastCharWhitespace);
+    }
+
+}

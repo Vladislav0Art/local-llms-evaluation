@@ -1,0 +1,498 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CommentsConfigurationTest {
+
+    @Mock
+    private Map<String, List<String>> commentsMap;
+
+    @Mock
+    private String path;
+
+    @Mock
+    private String commentLine;
+
+    private CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+
+    @Test
+    public void newCommentConfigurationIsEmpty() {
+        assertEquals(0, commentsConfiguration.getAllComments().size());
+    }
+
+    @Test
+    public void newCommentConfigurationFromMapIsNotEmpty() {
+        when(commentsMap.get(anyString())).thenReturn(List.of(commentLine));
+        Map<String, List<String>> commentMap = Map.of(path, List.of(commentLine));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        assertEquals(1, configuration.getAllComments().size());
+    }
+
+    @Test
+    public void setCommentOverwritesExistingComment() {
+        when(commentsMap.get(anyString())).thenReturn(List.of("old comment"));
+        Map<String, List<String>> commentMap = Map.of(path, List.of("new comment"));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        configuration.setComment(path, "new comment");
+        assertEquals(1, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setCommentAddsNewLineAsEmptyLine() {
+        Map<String, List<String>> commentMap = Map.of(path, List.of(""));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        configuration.setComment(path, commentLine);
+        assertEquals(0, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setCommentSetsLinesWithMarker() {
+        when(commentsMap.get(anyString())).thenReturn(List.of());
+        Map<String, List<String>> commentMap = Map.of(path, List.of(commentLine));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        configuration.setComment(path, commentLine + ": " + commentLine);
+        assertEquals(2, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void getAllCommentsReturnsUnmodifiableView() {
+        when(commentsMap.get(anyString())).thenReturn(List.of(commentLine));
+        Map<String, List<String>> commentMap = Map.of(path, List.of(commentLine));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        assertEquals(1, configuration.getAllComments().size());
+        assertTrue(configuration.getAllComments().containsKey(path));
+    }
+
+    @Test
+    public void getAllCommentsReturnsEmptyForNonExistingPath() {
+        when(commentsMap.get(anyString())).thenReturn(List.of("old comment"));
+        Map<String, List<String>> commentMap = Map.of();
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        assertEquals(0, configuration.getAllComments().size());
+        assertTrue(configuration.getAllComments().containsKey(path));
+    }
+
+    @Test
+    public void setCommentSetsLinesWithMultipleMarkers() {
+        when(commentsMap.get(anyString())).thenReturn(List.of());
+        Map<String, List<String>> commentMap = Map.of(path, List.of(commentLine));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        configuration.setComment(path, "comment line 1" + ": " + commentLine + "; " + commentLine + ": " + commentLine);
+        assertEquals(3, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setCommentSetsLinesWithNoMarker() {
+        when(commentsMap.get(anyString())).thenReturn(List.of());
+        Map<String, List<String>> commentMap = Map.of(path, List.of(commentLine));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        configuration.setComment(path, "comment line without marker");
+        assertEquals(1, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setCommentSetsLinesWithMultipleNewLines() {
+        when(commentsMap.get(anyString())).thenReturn(List.of());
+        Map<String, List<String>> commentMap = Map.of(path, List.of(commentLine));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        configuration.setComment(path, "\n" + "comment line with multiple new lines" + "\n");
+        assertEquals(2, configuration.getAllComments().get(path).size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CommentsConfigurationTest {
+
+    @Mock
+    private Map<String, List<String>> commentsMap;
+
+    @Mock
+    private String path;
+
+    @Mock
+    private String commentLine;
+
+    @Captor
+    private ArgumentCaptor<List<String>> listArgumentCaptor;
+
+    private CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+
+    @Test
+    public void newCommentConfigurationIsEmpty() {
+        assertEquals(0, commentsConfiguration.getAllComments().size());
+    }
+
+    @Test
+    public void newCommentConfigurationFromMapIsNotEmpty() {
+        when(commentsMap.get(anyString())).thenReturn(List.of(commentLine));
+        Map<String, List<String>> commentMap = Map.of(path, List.of(commentLine));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        assertEquals(1, configuration.getAllComments().size());
+    }
+
+    @Test
+    public void setCommentOverwritesExistingComment() {
+        when(commentsMap.get(anyString())).thenReturn(List.of("old comment"));
+        Map<String, List<String>> commentMap = Map.of(path, List.of("new comment"));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"new comment", "comment line with multiple new lines"};
+        configuration.setComment(path, commentLines);
+        assertEquals(2, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setCommentAddsNewLineAsEmptyLine() {
+        Map<String, List<String>> commentMap = Map.of(path, List.of(""));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"comment line with multiple new lines"};
+        configuration.setComment(path, commentLines);
+        assertEquals(0, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setCommentSetsLinesWithMarker() {
+        when(commentsMap.get(anyString())).thenReturn(List.of());
+        Map<String, List<String>> commentMap = Map.of(path, List.of(commentLine));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"comment line with multiple new lines", "comment: " + commentLine};
+        configuration.setComment(path, commentLines);
+        assertEquals(2, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void getAllComments() {
+        Map<String, List<String>> commentMap = Map.of(path, listArgumentCaptor.capture());
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] expectedCommentLines = {"comment line with multiple new lines"};
+        configuration.setComment(path, expectedCommentLines);
+        assertEquals(expectedCommentLines, listArgumentCaptor.getValue());
+    }
+
+    @Test
+    public void getCommentsWhenNoCommentIsSet() {
+        Map<String, List<String>> commentMap = Map.of();
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        List<String> result = configuration.getAllComments();
+        assertNull(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CommentsConfigurationTest {
+
+    @Mock
+    private Map<String, List<String>> commentsMap;
+
+    @Mock
+    private String path;
+
+    @Mock
+    private String commentLine;
+
+    @Captor
+    private Mockito.Capture<List<String>> listCapture = new Mockito.Capture<>();
+
+    private CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+
+    @Test
+    public void newCommentConfigurationIsEmpty() {
+        assertEquals(0, commentsConfiguration.getAllComments().size());
+    }
+
+    @Test
+    public void newCommentConfigurationFromMapIsNotEmpty() {
+        when(commentsMap.get(anyString())).thenReturn(List.of(commentLine));
+        Map<String, List<String>> commentMap = Map.of(path, List.of(commentLine));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        assertEquals(1, configuration.getAllComments().size());
+    }
+
+    @Test
+    public void setCommentOverwritesExistingComment() {
+        when(commentsMap.get(anyString())).thenReturn(List.of("old comment"));
+        Map<String, List<String>> commentMap = Map.of(path, List.of("new comment"));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"new comment", "comment line with multiple new lines"};
+        configuration.setComment(path, commentLines);
+        assertEquals(2, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setCommentAddsNewLineAsEmptyLine() {
+        Map<String, List<String>> commentMap = Map.of(path, List.of(""));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"comment line with multiple new lines"};
+        configuration.setComment(path, commentLines);
+        assertEquals(0, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setCommentSetsLinesWithMarker() {
+        when(commentsMap.get(anyString())).thenReturn(List.of());
+        Map<String, List<String>> commentMap = Map.of(path, List.of(commentLine));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"comment line with multiple new lines", "comment: " + commentLine};
+        configuration.setComment(path, commentLines);
+        assertEquals(2, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void getAllComments() {
+        when(commentsMap.get(anyString())).thenReturn(listCapture.capture());
+        Map<String, List<String>> commentMap = Map.of(path, listCapture.getValue());
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] expectedCommentLines = {"comment line with multiple new lines"};
+        configuration.setComment(path, expectedCommentLines);
+        assertEquals(expectedCommentLines, configuration.getAllComments().get(path));
+    }
+
+    @Test
+    public void getCommentsWhenNoCommentIsSet() {
+        Map<String, List<String>> commentMap = Map.of();
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        Optional<List<String>> result = configuration.getComments();
+        assertNull(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+public class CommentsConfigurationTest {
+
+    @Mock
+    private Map<String, List<String>> commentsMap;
+
+    @Mock
+    private String path;
+
+    @Mock
+    private String commentLine;
+
+    public static final List<String> COMMENT_LINES = List.of("comment line with multiple new lines");
+
+    @Test
+    public void newCommentConfigurationIsEmpty() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        assertEquals(0, configuration.getAllComments().size());
+    }
+
+    @Test
+    public void newCommentConfigurationFromMapIsNotEmpty() {
+        when(commentsMap.get(anyString())).thenReturn(COMMENT_LINES);
+        Map<String, List<String>> commentMap = Map.of(path, COMMENT_LINES);
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        assertEquals(1, configuration.getAllComments().size());
+    }
+
+    @Test
+    public void setCommentOverwritesExistingComment() {
+        when(commentsMap.get(anyString())).thenReturn(List.of("old comment"));
+        Map<String, List<String>> commentMap = Map.of(path, List.of("new comment"));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"new comment", "comment line with multiple new lines"};
+        configuration.setComment(path, commentLines);
+        assertEquals(2, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setCommentAddsNewLineAsEmptyLine() {
+        Map<String, List<String>> commentMap = Map.of(path, List.of(""));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"comment line with multiple new lines"};
+        configuration.setComment(path, commentLines);
+        assertEquals(0, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setCommentSetsLinesWithMarker() {
+        when(commentsMap.get(anyString())).thenReturn(List.of());
+        Map<String, List<String>> commentMap = Map.of(path, List.of("comment line with multiple new lines"));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"comment line with multiple new lines", "comment: " + "comment line with multiple new lines"};
+        configuration.setComment(path, commentLines);
+        assertEquals(2, configuration.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void getAllComments() {
+        when(commentsMap.get(anyString())).thenReturn(COMMENT_LINES);
+        Map<String, List<String>> commentMap = Map.of("path", COMMENT_LINES);
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] expectedCommentLines = {"comment line with multiple new lines"};
+        configuration.setComment("path", expectedCommentLines);
+        assertEquals(expectedCommentLines, configuration.getAllComments().get("path"));
+    }
+
+    @Test
+    public void getCommentsWhenNoCommentIsSet() {
+        Map<String, List<String>> commentMap = Map.of();
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        Optional<List<String>> result = configuration.getComments();
+        assertNull(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+public class CommentsConfigurationTest {
+
+    @Mock
+    private Map<String, List<String>> commentsMap;
+
+    @Mock
+    private String path;
+
+    @Mock
+    private String commentLine;
+
+    public static final List<String> COMMENT_LINES = List.of("comment line with multiple new lines");
+
+    public void testNewCommentConfigurationIsEmpty() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        assertEquals(0, configuration.getAllComments().size());
+    }
+
+    public void testNewCommentConfigurationFromMapIsNotEmpty() {
+        when(commentsMap.get(anyString())).thenReturn(COMMENT_LINES);
+        Map<String, List<String>> commentMap = Map.of(path, COMMENT_LINES);
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        assertEquals(1, configuration.getAllComments().size());
+    }
+
+    public void testSetCommentOverwritesExistingComment() {
+        when(commentsMap.get(anyString())).thenReturn(List.of("old comment"));
+        Map<String, List<String>> commentMap = Map.of(path, List.of("new comment"));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"new comment", "comment line with multiple new lines"};
+        configuration.setComment(path, commentLines);
+        assertEquals(2, configuration.getAllComments().get(path).size());
+    }
+
+    public void testSetCommentAddsNewLineAsEmptyLine() {
+        Map<String, List<String>> commentMap = Map.of(path, List.of(""));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"comment line with multiple new lines"};
+        configuration.setComment(path, commentLines);
+        assertEquals(0, configuration.getAllComments().get(path).size());
+    }
+
+    public void testSetCommentSetsLinesWithMarker() {
+        when(commentsMap.get(anyString())).thenReturn(List.of());
+        Map<String, List<String>> commentMap = Map.of(path, List.of("comment line with multiple new lines"));
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] commentLines = {"comment line with multiple new lines", "comment: " + "comment line with multiple new lines"};
+        configuration.setComment(path, commentLines);
+        assertEquals(2, configuration.getAllComments().get(path).size());
+    }
+
+    public void testGetAllComments() {
+        when(commentsMap.get(anyString())).thenReturn(COMMENT_LINES);
+        Map<String, List<String>> commentMap = Map.of("path", COMMENT_LINES);
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        String[] expectedCommentLines = {"comment line with multiple new lines"};
+        configuration.setComment("path", expectedCommentLines);
+        assertEquals(expectedCommentLines, configuration.getAllComments().get("path"));
+    }
+
+    public void testGetCommentsWhenNoCommentIsSet() {
+        Map<String, List<String>> commentMap = Map.of();
+        CommentsConfiguration configuration = new CommentsConfiguration(commentMap);
+        Optional<List<String>> result = configuration.getComments();
+        assertNull(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================
