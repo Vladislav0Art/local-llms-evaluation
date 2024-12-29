@@ -1,0 +1,72 @@
+package leetcode.medium;
+
+import leetcode.medium.OnlineStockSpan;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextPriceIsHigherTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int result = span.next(100);
+        assertEquals(1, result);
+
+        result = span.next(150);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void nextPriceIsLowerTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int result = span.next(100);
+        assertEquals(1, result);
+
+        result = span.next(50);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextPriceIsEqualTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int result = span.next(100);
+        assertEquals(1, result);
+
+        result = span.next(100);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void calculateSpansAllPricesSameTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int[] prices = {100, 100, 100, 100, 100};
+        int[] spans = span.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 2, 3, 4, 5}, spans);
+    }
+
+    @Test
+    public void calculateSpansAllPricesIncreasingTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int[] prices = {50, 60, 70, 80, 90};
+        int[] spans = span.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 2, 3, 4, 5}, spans);
+    }
+
+    @Test
+    public void calculateSpansAllPricesDecreasingTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int[] prices = {100, 90, 80, 70, 60, 50};
+        int[] spans = span.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 1, 1, 1, 1, 1}, spans);
+    }
+
+    @Test
+    public void calculateSpansMixedPricesTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int[] prices = {100, 60, 70, 60, 75, 85};
+        int[] spans = span.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 1, 2, 1, 2, 3}, spans);
+    }
+
+}

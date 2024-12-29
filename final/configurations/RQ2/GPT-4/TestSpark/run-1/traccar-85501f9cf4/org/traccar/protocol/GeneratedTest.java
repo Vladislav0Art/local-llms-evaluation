@@ -1,0 +1,80 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.model.Position;
+import org.traccar.Protocol;
+import io.netty.channel.Channel;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.TimeZone;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void decodeGpsPosWithoutLengthAndWithoutTimezoneTest() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.copiedBuffer("DEADBEEF", StandardCharsets.UTF_8);
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false, null);
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsPosWithLengthAndTimezoneTest() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.copiedBuffer("DEADBEEF", StandardCharsets.UTF_8);
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, TimeZone.getDefault());
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsPosWithAllParamsTest() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.copiedBuffer("DEADBEEF", StandardCharsets.UTF_8);
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true,
+                true, true, TimeZone.getDefault());
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeMessageWithoutChannel() throws Exception {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(Mockito.mock(Protocol.class));
+        ByteBuf msg = Unpooled.copiedBuffer("DEADBEEF", StandardCharsets.UTF_8);
+
+        Object result = decoder.decode(null, Mockito.mock(SocketAddress.class), msg);
+
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void decodeMessageWithChannel() throws Exception {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(Mockito.mock(Protocol.class));
+        ByteBuf msg = Unpooled.copiedBuffer("DEADBEEF", StandardCharsets.UTF_8);
+
+        Object result = decoder.decode(Mockito.mock(Channel.class), Mockito.mock(SocketAddress.class), msg);
+
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void decodeProtocolTest() {
+        Protocol protocol = Mockito.mock(Protocol.class);
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(protocol);
+
+        Assert.assertNotNull(decoder);
+    }
+
+}

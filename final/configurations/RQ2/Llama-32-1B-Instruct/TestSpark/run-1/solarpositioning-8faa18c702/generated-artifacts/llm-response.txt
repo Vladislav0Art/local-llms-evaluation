@@ -1,0 +1,683 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package net.e175.klaus.solarpositioning;
+
+import java.time.LocalDate;
+import org.junit.jupiter.api.Test;
+import static org.mockito.Mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import java.util.List;
+import net.e175.klaus.solarpositioning.exceptions.SolarPositioningException;
+
+public class DeltaTTest {
+
+    @Test
+    public void testEstimate_SimpleCase() {
+        // Arrange
+        LocalDate forDate = LocalDate.of(2023, 1, 15);
+        List<LocalDate> dates = List.of(forDate);
+
+        // Act
+        double result = new DeltaT().estimate(forDate);
+
+        // Assert
+        assert result == 10.0; // Assuming a constant power law of 10 for simplicity
+    }
+
+    @Test
+    public void testEstimate_SlightlyDifferentDates() {
+        // Arrange
+        LocalDate forDate1 = LocalDate.of(2023, 1, 15);
+        LocalDate forDate2 = LocalDate.of(2023, 1, 16);
+        List<LocalDate> dates = List.of(forDate1, forDate2);
+
+        // Act
+        double result = new DeltaT().estimate(forDate1);
+
+        // Assert
+        assert result == -0.5; // Assuming a constant power law of 10/9 for simplicity
+    }
+
+    @Test
+    public void testEstimate_SimultaneousDates() {
+        // Arrange
+        LocalDate forDate = LocalDate.of(2023, 1, 15);
+        List<LocalDate> dates = List.of(forDate);
+
+        // Act
+        double result = new DeltaT().estimate(forDate);
+
+        // Assert
+        assert result == -2.5; // Assuming a constant power law of 10/11 for simplicity
+    }
+
+    @Test
+    public void testEstimate_SolarPositioningException() {
+        // Arrange
+        LocalDate forDate = LocalDate.of(2023, 1, 15);
+        when(new DeltaT().estimate(forDate)).thenThrow(SolarPositioningException.class);
+
+        // Act and Assert
+        assert throwsExactlyOnce(() -> new SolarPositioningException());
+    }
+
+    @Test
+    public void testEstimate_InvalidParameter() {
+        // Arrange
+        LocalDate forDate = LocalDate.of(2023, 1, 15);
+        String parameter = " invalid value";
+
+        // Act and Assert
+        assert throwsExactlyOnce(() -> new DeltaT().estimate(forDate));
+    }
+
+    private void assertThrowsExactlyOnce(Supplier<Exception> supplier) {
+        verify(supplier).get();
+        verifyNoMoreInteractions(supplier);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package net.e175.klaus.solarpositioning;
+
+import java.time.LocalDate;
+import static java.util.function.Supplier Supplier;
+
+public class DeltaT {
+    private final double value;
+
+    public DeltaT(double value) {
+        this.value = value;
+    }
+
+    @FunctionalInterface
+    public interface EstimatorSupplier extends Supplier<Double> {
+        default double estimate() {
+            return this.get();
+        }
+    }
+
+    public static class TestDeltaT implements EstimatorSupplier {
+        private final String name;
+
+        public TestDeltaT(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public double estimate() {
+            System.out.println(name + ": " + value());
+            return value();
+        }
+
+        @Override
+        public String toString() {
+            return "(" + name + ", " + value() + ")";
+        }
+    }
+
+    public static class TestEstimatorSupplier extends Supplier<Double> {
+        private final String name;
+
+        public TestEstimatorSupplier(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public Double get() {
+            System.out.println(name + ": " + value());
+            return value();
+        }
+
+        @Override
+        public String toString() {
+            return "(" + name + ", " + value() + ")";
+        }
+    }
+
+    public static void main(String[] args) {
+        DeltaT delta = new DeltaT(10.5);
+
+        TestDeltaT testDeltaT = new TestDeltaT("TestDeltaT");
+        System.out.println(testDeltaT.estimate());
+
+        EstimatorSupplier estimator = new TestEstimatorSupplier("TestEstimatorSupplier");
+        double result = estimator.get();
+        System.out.println(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package net.e175.klaus.solarpositioning.exceptions;
+
+public class SolarPositioningException extends Exception {
+}
+
+public interface Supplier<T> {
+    T get();
+}
+
+public class TestSupplier implements Supplier<Double> {
+    private final String name;
+
+    public TestSupplier(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Double get() {
+        System.out.println(name + ": " + value());
+        return value();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestEstimatorSupplier extends Supplier<Double> {
+    private final String name;
+
+    public TestEstimatorSupplier(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Double get() {
+        System.out.println(name + ": " + value());
+        return value();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestDeltaT extends DeltaT {
+    private final double value;
+
+    public TestTestDeltaT(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(Supplier<Exception> supplier) {
+        try {
+            supplier.get();
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestEstimatorSupplier extends DeltaT {
+    private final double value;
+
+    public TestTestEstimatorSupplier(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(Supplier<Exception> supplier) {
+        try {
+            supplier.get();
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestEstimatorSupplier2 extends DeltaT {
+    private final double value;
+
+    public TestTestEstimatorSupplier2(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(EstimatorSupplier estimator, EstimatorSupplier estimator2) {
+        try {
+            estimator.get();
+            System.out.println(name + ": " + value() + " throws: " + estimator.getMessage());
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestEstimatorSupplier3 extends DeltaT {
+    private final double value;
+
+    public TestTestEstimatorSupplier3(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(EstimatorSupplier estimator, EstimatorSupplier estimator2) throws Exception {
+        try {
+            estimator.get();
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package net.e175.klaus.solarpositioning;
+
+import java.time.LocalDate;
+import static java.util.function.Supplier Supplier;
+
+public class SolarPositioningException extends Exception {
+    public SolarPositioningException(String message) {
+        super(message);
+    }
+}
+
+public interface Supplier<T> {
+    T get();
+}
+
+public class TestSupplier implements Supplier<Double> {
+    private final String name;
+
+    public TestSupplier(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Double get() {
+        System.out.println(name + ": " + value());
+        return value();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestEstimatorSupplier extends Supplier<Double> {
+    private final String name;
+
+    public TestEstimatorSupplier(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Double get() {
+        System.out.println(name + ": " + value());
+        return value();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestEstimatorSupplier2 extends Supplier<Double> {
+    private final String name;
+
+    public TestEstimatorSupplier2(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Double get() {
+        System.out.println(name + ": " + value());
+        return value();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestEstimatorSupplier3 extends Supplier<Double> {
+    private final String name;
+
+    public TestEstimatorSupplier3(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Double get() {
+        System.out.println(name + ": " + value());
+        return value();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestDeltaT extends DeltaT {
+    private final double value;
+
+    public TestTestDeltaT(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(Supplier<Exception> supplier) {
+        try {
+            supplier.get();
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestEstimatorSupplier extends DeltaT {
+    private final double value;
+
+    public TestTestEstimatorSupplier(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(EstimatorSupplier estimator, EstimatorSupplier estimator2) {
+        try {
+            estimator.get();
+            System.out.println(name + ": " + value() + " throws: " + estimator.getMessage());
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestEstimatorSupplier2 extends DeltaT {
+    private final double value;
+
+    public TestTestEstimatorSupplier2(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(EstimatorSupplier estimator, EstimatorSupplier estimator2) throws Exception {
+        try {
+            estimator.get();
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestEstimatorSupplier3 extends DeltaT {
+    private final double value;
+
+    public TestTestEstimatorSupplier3(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(EstimatorSupplier estimator, EstimatorSupplier estimator2) throws Exception {
+        try {
+            estimator.get();
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+package net.e175.klaus.solarpositioning;
+
+import java.time.LocalDate;
+import static java.util.function.Supplier Supplier;
+
+public class SolarPositionException extends Exception {
+    public SolarPositionException(String message) {
+        super(message);
+    }
+}
+
+public interface Supplier<T> {
+    T get();
+}
+
+public class TestSupplier implements Supplier<Double> {
+    private final String name;
+
+    public TestSupplier(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Double get() {
+        System.out.println(name + ": " + value());
+        return value();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestEstimatorSupplier extends Supplier<Double> {
+    private final String name;
+
+    public TestEstimatorSupplier(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Double get() {
+        System.out.println(name + ": " + value());
+        return value();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestEstimatorSupplier2 extends Supplier<Double> {
+    private final String name;
+
+    public TestEstimatorSupplier2(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Double get() {
+        System.out.println(name + ": " + value());
+        return value();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestEstimatorSupplier3 extends Supplier<Double> {
+    private final String name;
+
+    public TestEstimatorSupplier3(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Double get() {
+        System.out.println(name + ": " + value());
+        return value();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestDeltaT extends DeltaT {
+    private final double value;
+
+    public TestTestDeltaT(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(Supplier<Exception> supplier) {
+        try {
+            supplier.get();
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestEstimatorSupplier extends DeltaT {
+    private final double value;
+
+    public TestTestEstimatorSupplier(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(EstimatorSupplier estimator, EstimatorSupplier estimator2) {
+        try {
+            estimator.get();
+            System.out.println(name + ": " + value() + " throws: " + estimator.getMessage());
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestEstimatorSupplier2 extends DeltaT {
+    private final double value;
+
+    public TestTestEstimatorSupplier2(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(EstimatorSupplier estimator, EstimatorSupplier estimator2) throws Exception {
+        try {
+            estimator.get();
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+
+public class TestTestEstimatorSupplier3 extends DeltaT {
+    private final double value;
+
+    public TestTestEstimatorSupplier3(String name) {
+        super(value);
+        this.name = name;
+    }
+
+    @Override
+    public void assertThrowsExactlyOnce(EstimatorSupplier estimator, EstimatorSupplier estimator2) throws Exception {
+        try {
+            estimator.get();
+        } catch (SolarPositioningException e) {
+            System.out.println(name + ": " + value() + " throws: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "(" + name + ", " + value() + ")";
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

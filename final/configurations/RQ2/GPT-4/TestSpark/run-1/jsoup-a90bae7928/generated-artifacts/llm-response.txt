@@ -1,0 +1,240 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.parser;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.junit.Test;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void parseReaderBaseUriTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<foo></foo>");
+        Document document = builder.parse(input, "http://base.uri");
+        assertEquals("http://base.uri", document.baseUri());
+        assertEquals("foo", document.childNode(0).nodeName());
+    }
+
+    @Test
+    public void parseStringBaseUriTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String input = "<foo></foo>";
+        Document document = builder.parse(input, "http://base.uri");
+        assertEquals("http://base.uri", document.baseUri());
+        assertEquals("foo", document.childNode(0).nodeName());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        XmlTreeBuilder instance = builder.newInstance();
+        assertTrue(instance instanceof XmlTreeBuilder);
+    }
+
+    @Test
+    public void insertCommentTokenTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Comment commentToken = new Token.Comment();
+        commentToken.data("Test Comment");
+        builder.insert(commentToken);
+        Node node = builder.getStack().get(0);
+        assertTrue(node instanceof Comment);
+        assertEquals("Test Comment", node.attr("data"));
+    }
+
+    @Test
+    public void insertCharacterTokenTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Character characterToken = new Token.Character();
+        characterToken.data("a");
+        builder.insert(characterToken);
+        Node node = builder.getStack().get(0);
+        assertTrue(node instanceof TextNode);
+        assertEquals("a", node.attr("text"));
+    }
+
+    @Test
+    public void insertDoctypeTokenTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Doctype doctypeToken = new Token.Doctype();
+        doctypeToken.name("html");
+        builder.insert(doctypeToken);
+        Node node = builder.getStack().get(0);
+        assertTrue(node instanceof DocumentType);
+        assertEquals("html", ((DocumentType) node).name());
+    }
+
+    @Test
+    public void parseFragmentInputFragmentBaseUriParserTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<h1>Hello</h1>";
+        Parser parser = Parser.xmlParser();
+        List<Node> nodes = builder.parseFragment(inputFragment, "http://base.uri", parser);
+        assertEquals(1, nodes.size());
+        Node node = nodes.get(0);
+        assertTrue(node instanceof Element);
+        assertEquals("h1", ((Element) node).tagName());
+        assertEquals("Hello", ((Element) node).text());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.Token;
+import org.jsoup.parser.TokenQueue;
+import org.junit.Test;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
+import static org.junit.Assert.assertEquals;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void initialiseParseTest() throws Exception {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Method initialiseParseMethod = TreeBuilder.class.getDeclaredMethod("initialiseParse", String.class, String.class, Parser.class);
+        initialiseParseMethod.setAccessible(true);
+        initialiseParseMethod.invoke(builder, "<foo></foo>", "http://base.uri", Parser.xmlParser());
+        assertEquals("http://base.uri", builder.getBaseUri());
+    }
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        assertEquals(TreeBuilder.ParseDefaultSettings.class, builder.defaultSettings().getClass());
+    }
+
+    @Test
+    public void processTest() throws Exception {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Method processMethod = TreeBuilder.class.getDeclaredMethod("process", Token.class);
+        processMethod.setAccessible(true);
+        TokenQueue tokenQueue = new TokenQueue("<p></p>");
+        while (!tokenQueue.isEmpty()) {
+            processMethod.invoke(builder, Parser.parseXmlDeclaration(tokenQueue, false));
+        }
+    }
+
+    @Test
+    public void parseReaderBaseUriTest() {
+        Reader input = new StringReader("<foo></foo>");
+        Document document = Jsoup.parse(input, "http://base.uri");
+        assertEquals("http://base.uri", document.baseUri());
+        assertEquals("foo", document.childNode(0).nodeName());
+    }
+
+    @Test
+    public void parseStringBaseUriTest() {
+        String input = "<foo></foo>";
+        Document document = Jsoup.parse(input, "http://base.uri");
+        assertEquals("http://base.uri", document.baseUri());
+        assertEquals("foo", document.childNode(0).nodeName());
+    }
+
+    @Test
+    public void newInstanceTest() throws Exception {
+        Constructor<XmlTreeBuilder> constructor = XmlTreeBuilder.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        XmlTreeBuilder newInstance = constructor.newInstance();
+        assertEquals(XmlTreeBuilder.class, newInstance.getClass());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void parseReaderBaseUriTest() {
+        String html = "<foo></foo>";
+        Document document = Jsoup.parse(html, "", Parser.xmlParser());
+        assertEquals("foo", document.childNode(0).nodeName());
+        assertEquals("", document.baseUri());
+    }
+
+    @Test
+    public void parseStringBaseUriTest() {
+        String html = "<foo></foo>";
+        Document document = Jsoup.parse(html, "", Parser.xmlParser());
+        assertEquals("foo", document.childNode(0).nodeName());
+        assertEquals("", document.baseUri());
+    }
+
+    @Test
+    public void parseInputReaderTest() {
+        String html = "<foo></foo>";
+        Document document = Jsoup.parse(new java.io.StringReader(html), "", Parser.xmlParser());
+        assertEquals("foo", document.childNode(0).nodeName());
+        assertEquals("", document.baseUri());
+    }
+
+    @Test
+    public void parseInputStringTest() {
+        String html = "<foo></foo>";
+        Document document = Jsoup.parse(html, "", Parser.xmlParser());
+        assertEquals("foo", document.childNode(0).nodeName());
+        assertEquals("", document.baseUri());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void parseReaderBaseUriTest() {
+        String html = "<foo></foo>";
+        Document document = Jsoup.parse(html, "", Parser.xmlParser());
+        assertEquals("foo", document.childNode(0).nodeName());
+        assertEquals("", document.baseUri());
+    }
+
+    @Test
+    public void parseStringBaseUriTest() {
+        String html = "<foo></foo>";
+        Document document = Jsoup.parse(html, "", Parser.xmlParser());
+        assertEquals("foo", document.childNode(0).nodeName());
+        assertEquals("", document.baseUri());
+    }
+}
+```
+===================================================
+

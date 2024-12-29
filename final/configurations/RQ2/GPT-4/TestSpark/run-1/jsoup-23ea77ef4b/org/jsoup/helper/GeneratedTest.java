@@ -1,0 +1,99 @@
+package org.jsoup.helper;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
+public class GeneratedTest {
+
+    @Test
+    public void W3CDomDefaultConstructorTest() {
+        W3CDom w3cDom = new W3CDom();
+        assertNotNull(w3cDom);
+    }
+
+    @Test
+    public void namespaceAwareDataTest() {
+        W3CDom w3cDom = new W3CDom();
+        boolean initialNamespaceAware = w3cDom.namespaceAware();
+        w3cDom.namespaceAware(!initialNamespaceAware);
+        assertEquals(!initialNamespaceAware, w3cDom.namespaceAware());
+    }
+
+    @Test
+    public void fromJsoupUsingDocumentTest() {
+        W3CDom w3cDom = new W3CDom();
+        Document jsoupDoc = mock(Document.class);
+        org.w3c.dom.Document w3cDocument = w3cDom.fromJsoup(jsoupDoc);
+        assertNotNull(w3cDocument);
+    }
+
+    @Test
+    public void fromJsoupUsingElementTest() {
+        W3CDom w3cDom = new W3CDom();
+        Element jsoupElement = mock(Element.class);
+        org.w3c.dom.Document w3cDocument = w3cDom.fromJsoup(jsoupElement);
+        assertNotNull(w3cDocument);
+    }
+
+    @Test
+    public void OutputHtmlTest() {
+        HashMap<String, String> outputHtml = W3CDom.OutputHtml();
+        assertFalse(outputHtml.isEmpty());
+    }
+
+    @Test
+    public void OutputXmlTest() {
+        HashMap<String, String> outputXml = W3CDom.OutputXml();
+        assertFalse(outputXml.isEmpty());
+    }
+
+    @Test
+    public void selectXpathUsingDocumentTest() {
+        W3CDom w3cDom = new W3CDom();
+        org.w3c.dom.Document w3cDocument = mock(org.w3c.dom.Document.class);
+        NodeList nodeList = w3cDom.selectXpath("", w3cDocument);
+        assertNotNull(nodeList);
+    }
+
+    @Test
+    public void selectXpathUsingContextNodeTest() {
+        W3CDom w3cDom = new W3CDom();
+        Node nodeContext = mock(Node.class);
+        NodeList nodeList = w3cDom.selectXpath("", nodeContext);
+        assertNotNull(nodeList);
+    }
+
+    @Test
+    public void contextNodeTest() {
+        W3CDom w3cDom = new W3CDom();
+        org.w3c.dom.Document w3cDocument = mock(org.w3c.dom.Document.class);
+        Node contextNode = w3cDom.contextNode(w3cDocument);
+        assertNotNull(contextNode);
+    }
+
+    @Test
+    public void asStringFromDocumentTest() {
+        W3CDom w3cDom = new W3CDom();
+        org.w3c.dom.Document w3cDocument = mock(org.w3c.dom.Document.class);
+        String str = w3cDom.asString(w3cDocument);
+        assertNotNull(str);
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = new HashMap<>();
+        map.put("key", "value");
+        W3CDom.propertiesFromMap(map);
+        assertFalse(map.isEmpty());
+    }
+
+}

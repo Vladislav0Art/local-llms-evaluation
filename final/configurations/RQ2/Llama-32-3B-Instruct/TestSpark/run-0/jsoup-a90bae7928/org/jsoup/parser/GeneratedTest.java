@@ -1,0 +1,103 @@
+package org.jsoup.parser;
+
+public class GeneratedTest {
+
+    @Test
+    public void initialiseParse_WithValidReader_ReturnsTrue() {
+        Reader reader = new StringReader("<html></html>");
+        assertTrue(new XmlTreeBuilder().initialiseParse(reader, null, null));
+    }
+
+    @Test
+    public void initialiseParse_WithInvalidReader_ThrowsNullPointerException() {
+        try {
+            new XmlTreeBuilder().initialiseParse(null, null, null);
+            assert false;
+        } catch (NullPointerException e) {
+            // Expected exception
+        }
+    }
+
+    @Test
+    public void parse_WithValidInputFragment_ReturnsDocument() {
+        String inputFragment = "<html><body>Hello World!</body></html>";
+        Document document = new XmlTreeBuilder().parse(inputFragment, null);
+        assertNotNull(document);
+    }
+
+    @Test
+    public void parse_WithInvalidInputFragment_ThrowsNullPointerException() {
+        try {
+            new XmlTreeBuilder().parse(null, null);
+            assert false;
+        } catch (NullPointerException e) {
+            // Expected exception
+        }
+    }
+
+    @Test
+    public void defaultSettings_ReturnsDefaultSettings() {
+        ParseSettings settings = new XmlTreeBuilder().defaultSettings();
+        assertNotNull(settings);
+    }
+
+    @Test
+    public void newInstance_ReturnsNewInstance() {
+        XmlTreeBuilder builder1 = new XmlTreeBuilder();
+        XmlTreeBuilder builder2 = builder1.newInstance();
+        assertNotSame(builder1, builder2);
+    }
+
+    @Test
+    public void process_TokenStartTag_UpdatesStack() {
+        Token token = Token.START_TAG;
+        List<Node> stack = new ArrayList<>();
+        boolean updated = new XmlTreeBuilder().process(token);
+        assertTrue(updated);
+    }
+
+    @Test
+    public void insertNode_NodeInsertsCorrectly() {
+        Node node = new TextNode("Hello");
+        new XmlTreeBuilder().insertNode(node);
+        assertNotNull(new XmlTreeBuilder().getDocument());
+    }
+
+    @Test
+    public void process_TokenEndTag_UpdatesStackAndAddsToResult() {
+        Token token = Token.END_TAG;
+        List<Node> result = new ArrayList<>();
+        boolean updated = new XmlTreeBuilder().process(token);
+        assertTrue(updated);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void insertStartTag_AddsCorrectly() {
+        Token.StartTag startTag = new Token.StartTag();
+        Element element = new XmlTreeBuilder().insert(startTag);
+        assertNotNull(element);
+    }
+
+    @Test
+    public void process_TokenComment_DoesNothing() {
+        Token token = Token.COMMENT;
+        boolean updated = new XmlTreeBuilder().process(token);
+        assertFalse(updated);
+    }
+
+    @Test
+    public void insertCharacter_InsertsCorrectly() {
+        Token.Character character = new Token.Character('!');
+        new XmlTreeBuilder().insert(character);
+        assertNotNull(new XmlTreeBuilder().getDocument());
+    }
+
+    @Test
+    public void process_TokenDoctype_DoesNothing() {
+        Token token = Token.DOCTYPE;
+        boolean updated = new XmlTreeBuilder().process(token);
+        assertFalse(updated);
+    }
+
+}

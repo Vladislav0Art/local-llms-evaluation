@@ -1,0 +1,111 @@
+package com.adobe.epubcheck.tool;
+
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.DefaultReportImpl;
+import org.junit.Test;
+
+import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleDefaultTest() {
+        EpubChecker checker = new EpubChecker();
+        Locale locale = checker.getLocale();
+
+        assertNotNull("Locale should not be null", locale);
+        assertEquals("Default locale should be English", Locale.ENGLISH, locale);
+    }
+
+    @Test
+    public void runNullArgsTest() {
+        EpubChecker checker = new EpubChecker();
+        int result = checker.run(null);
+
+        assertEquals("Exit code should be 1 for null arguments", 1, result);
+    }
+
+    @Test
+    public void runEmptyArgsTest() {
+        EpubChecker checker = new EpubChecker();
+        int result = checker.run(new String[0]);
+
+        assertEquals("Exit code should be 1 for empty arguments", 1, result);
+    }
+
+    @Test
+    public void processEpubFileNullArgsTest() {
+        EpubChecker checker = new EpubChecker();
+        int result = checker.processEpubFile(null);
+
+        assertEquals("Exit code should be 1 for null arguments", 1, result);
+    }
+
+    @Test
+    public void processEpubFileEmptyArgsTest() {
+        EpubChecker checker = new EpubChecker();
+        int result = checker.processEpubFile(new String[0]);
+
+        assertEquals("Exit code should be 1 for empty arguments", 1, result);
+    }
+
+    @Test
+    public void validateFileNullPathTest() {
+        EpubChecker checker = new EpubChecker();
+        Report report = new DefaultReportImpl("validPath", "validPath", false);
+        int result = checker.validateFile(null, EPUBVersion.VERSION_2, report, EPUBProfile.DEFAULT);
+
+        assertEquals("Exit code should be 1 for null path", 1, result);
+    }
+
+    @Test
+    public void validateFileEmptyPathTest() {
+        EpubChecker checker = new EpubChecker();
+        Report report = new DefaultReportImpl("validPath", "validPath", false);
+        int result = checker.validateFile("", EPUBVersion.VERSION_2, report, EPUBProfile.DEFAULT);
+
+        assertEquals("Exit code should be 1 for empty path", 1, result);
+    }
+
+    @Test
+    public void validateFileInvalidPathTest() {
+        EpubChecker checker = new EpubChecker();
+        Report report = new DefaultReportImpl("invalidPath", "invalidPath", false);
+        int result = checker.validateFile("invalidPath", EPUBVersion.VERSION_2, report, EPUBProfile.DEFAULT);
+
+        assertEquals("Exit code should be 1 for invalid path", 1, result);
+    }
+
+    @Test
+    public void validateFileNullVersionTest() {
+        EpubChecker checker = new EpubChecker();
+        Report report = new DefaultReportImpl("validPath", "validPath", false);
+        int result = checker.validateFile("validPath", null, report, EPUBProfile.DEFAULT);
+
+        assertEquals("Exit code should be 1 for null version", 1, result);
+    }
+
+    @Test
+    public void validateFileNullReportTest() {
+        EpubChecker checker = new EpubChecker();
+        int result = checker.validateFile("validPath", EPUBVersion.VERSION_2, null, EPUBProfile.DEFAULT);
+
+        assertEquals("Exit code should be 1 for null report", 1, result);
+    }
+
+    @Test
+    public void validateFileNullProfileTest() {
+        EpubChecker checker = new EpubChecker();
+        Report report = new DefaultReportImpl("validPath", "validPath", false);
+        int result = checker.validateFile("validPath", EPUBVersion.VERSION_2, report, null);
+
+        assertEquals("Exit code should be 1 for null profile", 1, result);
+    }
+
+}

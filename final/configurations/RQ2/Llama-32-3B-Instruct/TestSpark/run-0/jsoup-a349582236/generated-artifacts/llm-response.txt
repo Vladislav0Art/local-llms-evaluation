@@ -1,0 +1,495 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.parser;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
+
+public class TagTest {
+
+    @Test
+    public void getName() {
+        String tagName = "div";
+        Tag tag = new Tag(tagName);
+        assertThat(tag.getName(), is(tagName));
+    }
+
+    @Test
+    public void normalName() {
+        String tagName = "div";
+        Tag tag = new Tag(tagName);
+        assertThat(tag.normalName(), is(Validate.normalize(tagName)));
+    }
+
+    @Test
+    public void valueOf() {
+        String tagName = "div";
+        ParseSettings settings = mock(ParseSettings.class);
+        when(settings.normalizeTagNames()).thenReturn(true);
+
+        Tag expectedTag = mock(Tag.class);
+        when(expectedTag.getName()).thenReturn("div");
+
+        Tag actualTag = Tag.valueOf(tagName, settings);
+        assertThat(actualTag, is(expectedTag));
+    }
+
+    @Test
+    public void valueOfNoSettings() {
+        String tagName = "div";
+        Tag tag = Tag.valueOf(tagName);
+
+        assertThat(tag.getName(), is(tagName));
+    }
+
+    @Test
+    public void isBlock() {
+        String tagName = "p";
+        Tag tag = new Tag(tagName);
+        boolean result = tag.isBlock();
+        assertThat(result, is(false));
+    }
+
+    @Test
+    public void formatAsBlock() {
+        String tagName = "div";
+        Tag tag = new Tag(tagName);
+        boolean result = tag.formatAsBlock();
+        assertThat(result, is(true));
+    }
+
+    @Test
+    public void isInline() {
+        String tagName = "span";
+        Tag tag = new Tag(tagName);
+        boolean result = tag.isInline();
+        assertThat(result, is(true));
+    }
+
+    @Test
+    public void isEmpty() {
+        String tagName = "";
+        Tag tag = new Tag(tagName);
+        boolean result = tag.isEmpty();
+        assertThat(result, is(true));
+    }
+
+    @Test
+    public void isSelfClosing() {
+        String tagName = "img";
+        Tag tag = new Tag(tagName);
+        boolean result = tag.isSelfClosing();
+        assertThat(result, is(false));
+    }
+
+    @Test
+    public void isKnownTag() {
+        String tagName = "div";
+        Tag tag = new Tag(tagName);
+        boolean result = tag.isKnownTag();
+        assertThat(result, is(true));
+    }
+
+    @Test
+    public void isKnownTagUnknown() {
+        String unknownTagName = "unknown";
+        when(Tag.class.isKnownTag(unknownTagName)).thenReturn(false);
+
+        Tag tag = new Tag(unknownTagName);
+        boolean result = tag.isKnownTag();
+        assertThat(result, is(false));
+    }
+
+    @Test
+    public void preserveWhitespace() {
+        String tagName = "div";
+        Tag tag = new Tag(tagName);
+        boolean result = tag.preserveWhitespace();
+        assertThat(result, is(true));
+    }
+
+    @Test
+    public void isFormListed() {
+        String tagName = "form";
+        Tag tag = new Tag(tagName);
+        boolean result = tag.isFormListed();
+        assertThat(result, is(false));
+    }
+
+    @Test
+    public void isFormSubmittable() {
+        String tagName = "input[type='submit']";
+        Tag tag = new Tag(tagName);
+        boolean result = tag.isFormSubmittable();
+        assertThat(result, is(true));
+    }
+
+    @Test
+    public void setSelfClosing() {
+        String tagName = "img";
+        Tag tag = new Tag(tagName);
+        when(Tag.class.valueOf(tagName)).thenReturn(tag);
+
+        Tag actualTag = new Tag(tagName).setSelfClosing();
+
+        verify(tag, times(1)).setName("img");
+    }
+
+    @Test
+    public void equals() {
+        String tagName = "div";
+        Tag tag1 = new Tag(tagName);
+        Tag tag2 = new Tag(tagName);
+        when(Tag.class.valueOf(tagName)).thenReturn(tag1);
+
+        boolean result = tag1.equals(tag2);
+        assertThat(result, is(true));
+    }
+
+    @Test
+    public void equalsUnknown() {
+        String tagName = "div";
+        Tag tag1 = new Tag(tagName);
+        Tag tag2 = mock(Tag.class);
+        when(Tag.class.valueOf(tagName)).thenReturn(tag1);
+
+        boolean result = tag1.equals(tag2);
+        assertThat(result, is(false));
+    }
+
+    @Test
+    public void hashCode() {
+        String tagName = "div";
+        Tag tag = new Tag(tagName);
+        int expectedHashCode = 102; // assuming HashMap hash code for a string
+
+        when(Tag.class.valueOf(tagName)).thenReturn(tag);
+
+        int actualHashCode = tag.hashCode();
+        assertThat(actualHashCode, is(expectedHashCode));
+    }
+
+    @Test
+    public void toString() {
+        String tagName = "div";
+        Tag tag = new Tag(tagName);
+        when(Tag.class.valueOf(tagName)).thenReturn(tag);
+
+        String expectedString = "<div>"; // assuming a basic HTML string
+
+        String actualString = tag.toString();
+        assertThat(actualString, is(expectedString));
+    }
+
+    @Test
+    public void clone() {
+        String tagName = "div";
+        Tag tag = new Tag(tagName);
+        when(Tag.class.valueOf(tagName)).thenReturn(tag);
+
+        Tag actualTag = tag.clone();
+
+        assertThat(actualTag.getName(), is(tagName));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Tag {
+    private String name;
+    private int hashCode;
+
+    public Tag(String name) {
+        this.name = name;
+        this.hashCode = name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Tag tag = (Tag) obj;
+        return hashCode == tag.hashCode;
+    }
+
+    @Override
+    public int hashCode() {
+        return hashCode;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    public boolean isEquals(Tag other) {
+        return this.name.equals(other.name);
+    }
+
+    public int getHashCode() {
+        return hashCode;
+    }
+}
+
+public class GeneratedTest {
+    private Tag tag;
+
+    public GeneratedTest(String tagName) {
+        this.tag = new Tag(tagName);
+    }
+
+    @Test
+    public void testEquals() {
+        GeneratedTest test1 = new GeneratedTest("test");
+        GeneratedTest test2 = new GeneratedTest("test");
+
+        assertTrue(test1.isEquals(test2));
+        assertFalse(test1.isEquals(new GeneratedTest("other")));
+    }
+
+    @Test
+    public void testToString() {
+        GeneratedTest test = new GeneratedTest("tag");
+
+        assertEquals("tag", test.toString());
+    }
+
+    @Test
+    public void testHashCode() {
+        GeneratedTest test1 = new GeneratedTest("test");
+        GeneratedTest test2 = new GeneratedTest("test");
+
+        assertEquals(test1.getHashCode(), test2.getHashCode());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Tag {
+    private String name;
+
+    public Tag(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Tag tag = (Tag) obj;
+        return name.equals(tag.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    public boolean isEquals(Tag other) {
+        return this.name.equals(other.name);
+    }
+
+    public int getHashCode() {
+        return this.hashCode();
+    }
+}
+
+public class GeneratedTest {
+
+    private Tag tag;
+
+    public GeneratedTest(String tagName) {
+        this.tag = new Tag(tagName);
+    }
+
+    @org.junit.Test
+    public void testEquals() {
+        GeneratedTest test1 = new GeneratedTest("test");
+        GeneratedTest test2 = new GeneratedTest("test");
+
+        assertTrue(test1.isEquals(test2));
+        assertFalse(test1.isEquals(new GeneratedTest("other")));
+    }
+
+    @org.junit.Test
+    public void testToString() {
+        GeneratedTest test = new GeneratedTest("tag");
+
+        assertEquals("tag", test.toString());
+    }
+
+    @org.junit.Test
+    public void testHashCode() {
+        GeneratedTest test1 = new GeneratedTest("test");
+        GeneratedTest test2 = new GeneratedTest("test");
+
+        assertEquals(test1.getHashCode(), test2.getHashCode());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Tag {
+    private String name;
+    private int hashCode;
+
+    public Tag(String name) {
+        this.name = name;
+        this.hashCode = name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Tag tag = (Tag) obj;
+        return hashCode == tag.hashCode && name.equals(tag.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return hashCode;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    public boolean isEquals(Tag other) {
+        return this.name.equals(other.name);
+    }
+
+    public int getHashCode() {
+        return hashCode;
+    }
+}
+
+public class GeneratedTest {
+
+    private Tag tag;
+
+    public GeneratedTest(String tagName) {
+        this.tag = new Tag(tagName);
+    }
+
+    @org.junit.Test
+    public void testEquals() {
+        GeneratedTest test1 = new GeneratedTest("test");
+        GeneratedTest test2 = new GeneratedTest("test");
+
+        assertTrue(test1.isEquals(test2));
+        assertFalse(test1.isEquals(new GeneratedTest("other")));
+    }
+
+    @org.junit.Test
+    public void testToString() {
+        GeneratedTest test = new GeneratedTest("tag");
+
+        assertEquals("tag", test.toString());
+    }
+
+    @org.junit.Test
+    public void testHashCode() {
+        GeneratedTest test1 = new GeneratedTest("test");
+        GeneratedTest test2 = new GeneratedTest("test");
+
+        assertEquals(test1.getHashCode(), test2.getHashCode());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Tag {
+    private String name;
+
+    public Tag(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Tag tag = (Tag) obj;
+        return Objects.equals(this.name, tag.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name != null ? this.name.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
+
+    public boolean isEquals(Tag other) {
+        return Objects.equals(this.name, other.name);
+    }
+}
+
+public class GeneratedTest {
+
+    private Tag tag;
+
+    public GeneratedTest(String tagName) {
+        this.tag = new Tag(tagName);
+    }
+
+    @org.junit.Test
+    public void testEquals() {
+        GeneratedTest test1 = new GeneratedTest("test");
+        GeneratedTest test2 = new GeneratedTest("test");
+
+        assertTrue(test1.isEquals(test2));
+        assertFalse(test1.isEquals(new GeneratedTest("other")));
+    }
+
+    @org.junit.Test
+    public void testToString() {
+        GeneratedTest test = new GeneratedTest("tag");
+
+        assertEquals("tag", test.toString());
+    }
+
+    @org.junit.Test
+    public void testHashCode() {
+        GeneratedTest test1 = new GeneratedTest("test");
+        GeneratedTest test2 = new GeneratedTest("test");
+
+        assertEquals(test1.getHashCode(), test2.getHashCode());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

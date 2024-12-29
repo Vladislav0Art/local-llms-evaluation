@@ -1,0 +1,50 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateNormalDateTest() {
+        LocalDate date = LocalDate.of(2000, 5, 23);
+        double result = DeltaT.estimate(date);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void estimateLeapYearTest() {
+        LocalDate date = LocalDate.of(2004, 2, 29);
+        double result = DeltaT.estimate(date);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void estimateNullDateTest() {
+        LocalDate date = null;
+        double result = DeltaT.estimate(date);
+    }
+
+    @Test
+    public void estimateMockedDateTest() {
+        LocalDate date = Mockito.mock(LocalDate.class);
+        Mockito.when(date.getYear()).thenReturn(1900);
+        Mockito.when(date.getMonthValue()).thenReturn(1);
+        Mockito.when(date.getDayOfMonth()).thenReturn(1);
+
+        double result = DeltaT.estimate(date);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void estimateFutureDateTest() {
+        LocalDate date = LocalDate.of(3000, 12, 31);
+        double result = DeltaT.estimate(date);
+        assertNotNull(result);
+    }
+
+}

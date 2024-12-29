@@ -1,0 +1,310 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.ConnectionBuilder;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+
+public class UrlHelperTest {
+
+    @Test
+    public void testUrlJoin() {
+        String url = "https://example.com/path?param=value";
+        Document document = Jsoup.parse(url);
+        assertEquals("https://example.com/path", document.selectFirst("a").attr("href"));
+        assertEquals("path", document.selectFirst("a").attr("name"));
+    }
+
+    @Test
+    public void testUrlJoinWithoutQuery() {
+        String url = "https://example.com/path";
+        Document document = Jsoup.parse(url);
+        assertEquals("https://example.com/path", document.selectFirst("a").attr("href"));
+    }
+
+    @Test
+    public void testUrlJoinWithRedirect() throws Exception {
+        URI uri = new URI("https://example.com/path");
+        String redirectedUrl = uri.toString();
+        assertEquals("https://redirected.example.com/path", redirectedUrl);
+    }
+
+    @Test
+    public void testAppendKeyValSimple() {
+        URLBuilder builder = new UrlBuilder(new URL("https://example.com/path?param=value"));
+        builder.appendKeyVal(new KeyVal("key", "value"));
+        assertEquals(2, URLBuilder.class.getInterfaces().length);
+    }
+
+    @Test
+    public void testAppendKeyValMultiple() throws MalformedURLException {
+        URLBuilder builder = new UrlBuilder(new URL("https://example.com/path?param=value"));
+        String[] kvPairs = {"key1=value1", "key2=value2"};
+        for (String pair : kvPairs) {
+            builder.appendKeyVal(new KeyVal(pair));
+        }
+        assertEquals(3, URLBuilder.class.getInterfaces().length);
+    }
+
+    @Test
+    public void testAppendKeyValMultipleWithRedirect() throws MalformedURLException {
+        URI uri = new URI("https://example.com/path");
+        String[] kvPairs = {"key1=value1", "key2=value2"};
+        for (String pair : kvPairs) {
+            builder.appendKeyVal(new KeyVal(pair));
+        }
+        assertEquals(3, URLBuilder.class.getInterfaces().length);
+    }
+
+    @Test
+    public void testUrlJoinWithRedirectAndQuery() throws MalformedURLException {
+        URI uri = new URI("https://example.com/path?param=value");
+        String redirectedUrl = uri.toString();
+        assertEquals("https://redirected.example.com/path?param=value", redirectedUrl);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.net.URI;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class URIHelper {
+    public String createURI(String scheme, String authority, String path, String query, String fragment) {
+        return new URI(scheme, null, authority, path, null, null, "", null);
+    }
+
+    public String getAuthority(String uri) {
+        return uri.getHost();
+    }
+}
+
+class TestURIHelper {
+    private static final String URL = "https://example.com/path?param=value";
+    private static final URI URI = URI.create(URL);
+
+    @Test
+    public void testCreateURI() {
+        URI createdUri = URHelper.createURI("https", null, null, null, null);
+        assertEquals(URI.javaVersion(), createdUri.getScheme());
+        assertEquals(null, createdUri.getAuthority());
+
+        String authority = URHelper.getAuthority(URL);
+        assertEquals("example.com", authority);
+
+        path = "/path";
+        URI pathUri = URHelper.createURI("https", authority, path, null, null);
+        assertEquals(URI.javaVersion(), pathUri.getScheme());
+        assertEquals(path, pathUri.getPath());
+    }
+
+    @Test
+    public void testGetAuthority() {
+        String authority = URHelper.getAuthority(URL);
+        assertEquals("example.com", authority);
+
+        URI createdUri = URHelper.createURI("https", null, null, null, null);
+        assertEquals(null, createdUri.getAuthority());
+
+        path = "/path";
+        URI pathUri = URHelper.createURI("https", authority, path, null, null);
+        assertEquals("/path", pathUri.getPath());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class TestURIHelper {
+    public static void setUpBeforeClass() throws Exception {}
+
+    @Test
+    public void testCreateURI_Scheme() {
+        URI uri = URHelper.createURI("https", null, null, null, null);
+        assertEquals(URI.javaVersion(), uri.getScheme());
+    }
+
+    @Test
+    public void testGetHost_SchemeAuthorityPath() {
+        URI schemeAuthorityPathUri = URHelper.createURI("https", "example.com", "/path");
+        String authority = URHelper.getAuthority(schemeAuthorityPathUri);
+        assertEquals("example.com", authority);
+
+        URI pathUri = URHelper.createURI("https", null, null, null, null);
+        String path = "/path";
+        URI createdUri = URHelper.createURI("https", authority, path, null, null);
+        assertEquals(path, createdUri.getPath());
+    }
+
+    @Test
+    public void testCreateURI_SchemeAuthorityPath() {
+        URI uri = URHelper.createURI("https", "example.com", "/path");
+        String authority = URHelper.getAuthority(uri);
+        assertEquals("example.com", authority);
+
+        URI pathUri = URHelper.createURI("https", null, null, null, null);
+        String path = "/path";
+        URI createdUri = URHelper.createURI("https", authority, path, null, null);
+        assertEquals(path, createdUri.getPath());
+    }
+
+    @Test
+    public void testGetAuthority_Scheme() {
+        URI uri = URHelper.createURI("https", "example.com", "/path");
+        String authority = URHelper.getAuthority(uri);
+        assertEquals("example.com", authority);
+
+        URI schemeAuthorityPathUri = URHelper.createURI("https", null, null, null, null);
+        String authority = URHelper.getAuthority(schemeAuthorityPathUri);
+        assertEquals(null, authority);
+
+        URI pathUri = URHelper.createURI("https", "example.com", "/path");
+        String path = "/path";
+        URI createdUri = URHelper.createURI("https", null, null, null, null);
+        assertEquals(path, createdUri.getPath());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class URLUtils {
+    public static String getAuthority(String scheme, String path) {
+        return scheme + "://" + path;
+    }
+
+    public static void testGetAuthority_Scheme() {
+        // Test case 1
+        assertEquals("http://", getAuthority("http", "/"));
+        assertEquals("https://", getAuthority("https", "/"));
+        assertEquals("ftp://", getAuthority("ftp", "/"));
+
+        // Test case 2
+        assertEquals("ssh://", getAuthority("ssh", "/"));
+        assertEquals("sftp://", getAuthority("sftp", "/"));
+    }
+
+    public static void testGetAuthority_Scheme_with_trailing_slash() {
+        // Test case 1
+        assertEquals("/user/", getAuthority("http://user/", "/"));
+        assertEquals("/private/", getAuthority("https://user/private/", "/"));
+
+        // Test case 2
+        assertEquals("/", getAuthority("ssh://user/", ""));
+    }
+
+    public static void testGetAuthority_Scheme_with_trailing_slash_2() {
+        // Test case 1
+        assertEquals(null, getAuthority("http://", "/"));
+        assertEquals("/user/", getAuthority("https://", "/"));
+
+        // Test case 2
+        assertEquals("/private/", getAuthority("ssh://", "/"));
+    }
+
+    public static void testGetAuthority_Scheme_with_trailing_slash_3() {
+        // Test case 1
+        assertEquals(null, getAuthority("http://user/", "/"));
+        assertEquals("user/", getAuthority("https://user/", "/"));
+
+        // Test case 2
+        assertEquals("/private/", getAuthority("ssh://", "/"));
+    }
+
+    public static void testGetAuthority_Scheme_with_trailing_slash_4() {
+        // Test case 1
+        assertEquals(null, getAuthority("http://user/private/", "/"));
+
+        // Test case 2
+        assertEquals("/private/", getAuthority("https://user/private/", "/"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+Here's the complete Java code for the `URLUtils` class, including all test methods:
+
+```java
+import java.net.URI;
+
+public class URLUtils {
+    public static String getAuthority(String scheme, String path) {
+        return scheme + "://" + path;
+    }
+
+    public static void testGetAuthority_Scheme() {
+        // Test case 1
+        assertEquals("http://", getAuthority("http", "/"));
+        assertEquals("https://", getAuthority("https", "/"));
+        assertEquals("ftp://", getAuthority("ftp", "/"));
+
+        // Test case 2
+        assertEquals("ssh://", getAuthority("ssh", "/"));
+        assertEquals("sftp://", getAuthority("sftp", "/"));
+    }
+
+    public static void testGetAuthority_Scheme_with_trailing_slash() {
+        // Test case 1
+        assertEquals("/user/", getAuthority("http://user/", "/"));
+        assertEquals("/private/", getAuthority("https://user/private/", "/"));
+
+        // Test case 2
+        assertEquals("/", getAuthority("ssh://user/", ""));
+    }
+
+    public static void testGetAuthority_Scheme_with_trailing_slash_2() {
+        // Test case 1
+        assertEquals(null, getAuthority("http://", "/"));
+        assertEquals("/user/", getAuthority("https://", "/"));
+
+        // Test case 2
+        assertEquals("/private/", getAuthority("ssh://", "/"));
+    }
+
+    public static void testGetAuthority_Scheme_with_trailing_slash_3() {
+        // Test case 1
+        assertEquals(null, getAuthority("http://user/", "/"));
+        assertEquals("user/", getAuthority("https://user/", "/"));
+
+        // Test case 2
+        assertEquals("/private/", getAuthority("ssh://", "/"));
+    }
+
+    public static void testGetAuthority_Scheme_with_trailing_slash_4() {
+        // Test case 1
+        assertEquals(null, getAuthority("http://user/private/", "/"));
+
+        // Test case 2
+        assertEquals("/private/", getAuthority("https://user/private/", "/"));
+    }
+
+    public static void main(String[] args) {
+        testGetAuthority_Scheme();
+        testGetAuthority_Scheme_with_trailing_slash();
+        testGetAuthority_Scheme_with_trailing_slash_2();
+        testGetAuthority_Scheme_with_trailing_slash_3();
+        testGetAuthority_Scheme_with_trailing_slash_4();
+
+        System.out.println("All test cases passed.");
+    }
+}
+```
+
+Note that I also added a `main` method to run the tests.
+===================================================
+
+
+====================== Iteration #6 ======================

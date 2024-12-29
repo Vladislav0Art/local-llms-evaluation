@@ -1,0 +1,89 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.*;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void DocumentBaseUriTest() {
+        Document document = new Document("http://base.uri");
+        assertEquals("http://base.uri", document.location());
+    }
+
+    @Test
+    public void createShellTest() {
+        Document document = Document.createShell("http://shell.uri");
+        assertNotNull(document);
+    }
+
+    @Test
+    public void connectionTest() {
+        Connection connection = mock(Connection.class);
+        Document document = new Document("http://base.uri");
+        Document docWithConnection = document.connection(connection);
+        assertNotNull(docWithConnection.connection());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document document = new Document("http://base.uri");
+        document.charset(StandardCharsets.UTF_8);
+        assertEquals(StandardCharsets.UTF_8, document.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementTest() {
+        Document document = new Document("http://base.uri");
+        document.updateMetaCharsetElement(true);
+        assertTrue(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document document = new Document("http://base.uri");
+        Document clonedDocument = document.clone();
+        assertEquals(document.location(), clonedDocument.location());
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        Document document = new Document("http://base.uri");
+        Document clonedDocument = document.shallowClone();
+        assertEquals(document.location(), clonedDocument.location());
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document document = new Document("http://base.uri");
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        document.outputSettings(outputSettings);
+        assertEquals(outputSettings, document.outputSettings());
+    }
+
+    @Test
+    public void quirksModeTest() {
+        Document document = new Document("http://base.uri");
+        document.quirksMode(Document.QuirksMode.quirks);
+        assertEquals(Document.QuirksMode.quirks, document.quirksMode());
+    }
+
+    @Test
+    public void parserTest() {
+        Document document = new Document("http://base.uri");
+        Parser parser = Parser.htmlParser();
+        document.parser(parser);
+        assertEquals(parser, document.parser());
+    }
+
+}

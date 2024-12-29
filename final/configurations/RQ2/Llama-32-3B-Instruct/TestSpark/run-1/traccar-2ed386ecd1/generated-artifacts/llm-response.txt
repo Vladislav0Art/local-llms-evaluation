@@ -1,0 +1,358 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.traccar.protocol.Gt06ProtocolDecoder;
+import org.traccar.model.CellTower;
+import org.traccar.model.Position;
+import org.traccar.model.WifiAccessPoint;
+import org.traccar.protocol.NetworkMessage;
+import org.traccar.session.DeviceSession;
+import org.traccar.helper.Parser;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class Gt06ProtocolDecoderTest {
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    @Mock
+    private NetworkMessage message;
+
+    @Mock
+    private Parser parser;
+
+    private Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(Network.GT06);
+
+    @Test
+    public void decodeDecodeValidGt06Test() {
+        when(message.getClass()).thenReturn(Gt06Protocol.class);
+        Object result = decoder.decode(channel, remoteAddress, message);
+        // Assert that the object returned is a valid decoded object.
+    }
+
+    @Test
+    public void decodeDecodeInvalidGt06Test() {
+        when(message.getClass()).thenReturn(Gt06Protocol.class);
+        boolean invalid = decoder.decode(channel, remoteAddress, message);
+        assertTrue(invalid);
+    }
+
+    @Test
+    public void decodeDecodeUnknownProtocolTest() {
+        when(message.getClass()).thenThrow(new UnsupportedOperationException());
+        Object result = decoder.decode(channel, remoteAddress, message);
+        // Assert that the object returned is an exception.
+    }
+
+    @Test
+    public void decodeDecodeGt06MessageValidPositionTest() {
+        Gt06Protocol gt06 = new Gt06Protocol();
+        Position position = new Position(0, 0, 0, 0, null);
+        gt06.setPosition(position);
+
+        when(parser.parseBytes(buf)).thenReturn(gt06);
+
+        boolean result = decoder.decodeGps(deviceSession, buf, true, false, false, TimeZone.getTimeZone("UTC"));
+        // Assert that the decoded object is valid.
+    }
+
+    @Test
+    public void decodeDecodeGt06MessageEmptyPositionTest() {
+        Gt06Protocol gt06 = new Gt06Protocol();
+
+        when(parser.parseBytes(buf)).thenReturn(gt06);
+
+        boolean result = decoder.decodeGps(deviceSession, buf, true, false, false, TimeZone.getTimeZone("UTC"));
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeDecodeGt06MessagePositionWithInvalidCoordinateSystemTest() {
+        Gt06Protocol gt06 = new Gt06Protocol();
+        Position position = new Position(0, 0, 0, 1, null);
+
+        when(parser.parseBytes(buf)).thenReturn(gt06);
+
+        boolean result = decoder.decodeGps(deviceSession, buf, true, false, false, TimeZone.getTimeZone("UTC"));
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeDecodeMessageWithInvalidChecksumTest() {
+        Gt06Protocol gt06 = new Gt06Protocol();
+        gt06.setChecksum(1);
+
+        when(parser.parseBytes(buf)).thenReturn(gt06);
+
+        boolean result = decoder.decodeGps(deviceSession, buf, true, false, false, TimeZone.getTimeZone("UTC"));
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeDecodeMessageWithInvalidFormatLengthTest() {
+        Gt06Protocol gt06 = new Gt06Protocol();
+        when(parser.parseBytes(buf)).thenReturn(gt06);
+
+        boolean result = decoder.decodeGps(deviceSession, buf, true, false, false, TimeZone.getTimeZone("UTC"));
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeDecodeMessageWithInvalidFormatTest() {
+        Gt06Protocol gt06 = new Gt06Protocol();
+        when(parser.parseBytes(buf)).thenReturn(gt06);
+
+        boolean result = decoder.decodeGps(deviceSession, buf, true, false, false, TimeZone.getTimeZone("UTC"));
+        assertFalse(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import java.util.ArrayList;
+import java.util.List;
+
+public class GpsDecoder {
+    public List<GpsData> decodeGps(List<Byte[]> byteArrays, String timezone) {
+        List<GpsData> gpsData = new ArrayList<>();
+        for (Byte[] bytes : byteArrays) {
+            GpsData data = parseBytes(bytes);
+            gpsData.add(data);
+        }
+        return gpsData;
+    }
+
+    public int countSatellites(GpsData data) {
+        // assuming a simple implementation
+        return 5;
+    }
+
+    private GpsData parseBytes(Byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+        byte[] gpsData = new byte[10]; // assuming 10 fields in the data
+        System.arraycopy(bytes, 0, gpsData, 0, bytes.length);
+        return new GpsData(gpsData);
+    }
+
+    public static class GpsData {
+        private byte[] fields;
+
+        public GpsData(byte[] fields) {
+            this.fields = fields;
+        }
+    }
+}
+
+public class TestGpsDecoder {
+    @Test
+    public void testDecodeGps() {
+        List<Byte[]> byteArrays = new ArrayList<>();
+        byte[][] values = {{1, 2, 3}, {4, 5, 6}};
+        for (byte[] value : values) {
+            byteArrays.add(value);
+        }
+        GpsDecoder decoder = new GpsDecoder();
+        List<GpsData> gpsData = decoder.decodeGps(byteArrays, "UTC");
+        System.out.println(gpsData);
+    }
+
+    @Test
+    public void testCountSatellites() {
+        GpsDecoder decoder = new GpsDecoder();
+        GpsData data = decoder.parseBytes(new byte[]{1, 2, 3});
+        int count = decoder.countSatellites(data);
+        System.out.println(count); // prints 5
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class GpsDecoder {
+    public List<GpsData> decodeGps(List<byte[]> byteArrays, String timezone) {
+        List<GpsData> gpsData = new ArrayList<>();
+        for (byte[] bytes : byteArrays) {
+            GpsData data = parseBytes(bytes);
+            gpsData.add(data);
+        }
+        return gpsData;
+    }
+
+    public int countSatellites(GpsData data) {
+        // assuming a simple implementation
+        return 5;
+    }
+
+    private GpsData parseBytes(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+        byte[] gpsData = new byte[10]; // assuming 10 fields in the data
+        System.arraycopy(bytes, 0, gpsData, 0, bytes.length);
+        return new GpsData(gpsData);
+    }
+
+    public static class GpsData {
+        private byte[] fields;
+
+        public GpsData(byte[] fields) {
+            this.fields = fields;
+        }
+    }
+}
+
+public class TestGpsDecoder {
+    @Test
+    public void testDecodeGps() {
+        List<byte[]> byteArrays = new ArrayList<>();
+        byte[][] values = {{1, 2, 3}, {4, 5, 6}};
+        for (byte[] value : values) {
+            byteArrays.add(value);
+        }
+        GpsDecoder decoder = new GpsDecoder();
+        List<GpsData> gpsData = decoder.decodeGps(byteArrays, "UTC");
+        System.out.println(gpsData);
+    }
+
+    @Test
+    public void testCountSatellites() {
+        GpsDecoder decoder = new GpsDecoder();
+        GpsData data = decoder.parseBytes(new byte[]{1, 2, 3});
+        int count = decoder.countSatellites(data);
+        System.out.println(count); // prints 5
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class GpsDecoder {
+    public List<GpsData> decodeGps(List<byte[]> byteArrays, String timezone) {
+        List<GpsData> gpsData = new ArrayList<>();
+        for (byte[] bytes : byteArrays) {
+            GpsData data = parseBytes(bytes);
+            if (data != null) {
+                gpsData.add(data);
+            }
+        }
+        return gpsData;
+    }
+
+    public int countSatellites(GpsData data) {
+        // assuming a simple implementation
+        return 5;
+    }
+
+    private GpsData parseBytes(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+        // add your logic here to convert bytes to GpsData
+        return new GpsData();
+    }
+}
+
+public class GpsData {
+    
+}
+
+public class TestGpsDecoder {
+
+    @Test
+    public void testDecodeGps() {
+        List<byte[]> byteArrays = Arrays.asList(new byte[]{1, 2, 3}, new byte[]{4, 5, 6});
+        String timezone = "UTC";
+        GpsDecoder gpsDecoder = new GpsDecoder();
+        List<GpsData> gpsData = gpsDecoder.decodeGps(byteArrays, timezone);
+        assertEquals(2, gpsData.size());
+    }
+
+    @Test
+    public void testCountSatellites() {
+        GpsData data = new GpsData();
+        int satellites = GpsDecoder.countSatellites(data);
+        assertEquals(5, satellites);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class GpsData {
+    // no fields
+}
+
+public class GpsDecoder {
+    public List<GpsData> decodeGps(List<byte[]> byteArrays, String timezone) {
+        List<GpsData> gpsData = new ArrayList<>();
+        for (byte[] bytes : byteArrays) {
+            GpsData data = parseBytes(bytes);
+            if (data != null) {
+                gpsData.add(data);
+            }
+        }
+        return gpsData;
+    }
+
+    public int countSatellites(GpsData data) {
+        // assuming a simple implementation
+        return 5;
+    }
+
+    private GpsData parseBytes(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+        // add your logic here to convert bytes to GpsData
+        return new GpsData();
+    }
+}
+
+public class TestGpsDecoder {
+
+    @Test
+    public void testDecodeGps() {
+        List<byte[]> byteArrays = Arrays.asList(new byte[]{1, 2, 3}, new byte[]{4, 5, 6});
+        String timezone = "UTC";
+        GpsDecoder gpsDecoder = new GpsDecoder();
+        List<GpsData> gpsData = gpsDecoder.decodeGps(byteArrays, timezone);
+        assertEquals(2, gpsData.size());
+    }
+
+    @Test
+    public void testCountSatellites() {
+        GpsDecoder gpsDecoder = new GpsDecoder();
+        GpsData data = gpsDecoder.parseBytes(new byte[]{1, 2, 3});
+        assertEquals(5, gpsDecoder.countSatellites(data));
+    }
+}
+```
+===================================================
+

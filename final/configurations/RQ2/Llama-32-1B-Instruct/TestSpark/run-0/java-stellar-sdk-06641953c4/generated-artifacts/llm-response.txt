@@ -1,0 +1,428 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class KeyPairTest {
+    private static EdDSAEngine eddsaEngine;
+    private static XdrDataOutputStream xdrOut;
+
+    @Before
+    public void setup() throws GeneralSecurityException, IOException {
+        eddsaEngine = EdDSAEngine.getInstance("secp256k1");
+        xdrOut = new XdrDataOutputStream(System.out);
+    }
+
+    public void testCanSign() {
+        KeyPair keyPair = new KeyPair(EdDSAPublicKey.fromXdr(xdrOut));
+        Preconditions.checkNotNull(keyPair, "Expected a valid KeyPair");
+
+        assert keyPair.canSign(): "Expected canSign() to return true";
+    }
+
+    public void testFromSecretSeed() throws GeneralSecurityException {
+        char[] seed = "your_secret_seed_here".getBytes();
+        byte[] derivedKey = KeyPair.fromSecretSeed(seed);
+        Preconditions.checkNotNull(derivedKey, "Expected a valid KeyPair");
+
+        assert derivedKey.length == 32: "Expected a KeyPair of length 32";
+    }
+
+    public void testFromAccountId() throws GeneralSecurityException {
+        String accountId = "your_account_id_here".toByteArray();
+        byte[] derivedKey = KeyPair.fromAccountId(accountId);
+        Preconditions.checkNotNull(derivedKey, "Expected a valid KeyPair");
+
+        assert derivedKey.length == 32: "Expected a KeyPair of length 32";
+    }
+
+    public void testFromSecretSeedWithBip39Seed() throws GeneralSecurityException {
+        String bip39Seed = "your_bip39_seed_here".getBytes();
+        byte[] derivedKey = KeyPair.fromBip39Seed(bip39Seed, 123);
+        Preconditions.checkNotNull(derivedKey, "Expected a valid KeyPair");
+
+        assert derivedKey.length == 32: "Expected a KeyPair of length 32";
+    }
+
+    public void testRandom() {
+        KeyPair keyPair = new KeyPair(KeyPair.random());
+        assertEquals(32, keyPair.getSecretSeed().length);
+
+        assert !keyPair.getPublicKey().equals(keyPair.getXdrPublicKey());
+
+        Preconditions.checkNotNull(keyPair.signDecorated("your_data_here"), "Expected a valid signed data");
+    }
+
+    public void testFromXdrPublicKey() {
+        PublicKey publicKey = KeyPair.fromXdrPublicKey(EdDSAPublicKey.fromXdr(xdrOut));
+        assert publicKey != null;
+
+        Preconditions.checkNotNull(publicKey.getXdrSignerKey(), "Expected a SignerKey");
+
+        assert !publicKey.getSignatureHint().equals(SignatureHint.NO);
+    }
+
+    public void testFromXdrSignerKey() {
+        SignerKey key = KeyPair.fromXdrSignerKey(EdDSAPrivateKey.fromXdr(xdrOut));
+        Preconditions.checkNotNull(key.getXdrSignerKey(), "Expected a SignerKey");
+
+        assert !key.getSignatureHint().equals(SignatureHint.NO);
+    }
+
+    public void testSign() throws GeneralSecurityException {
+        char[] data = new char[10];
+        Arrays.fill(data, 'x');
+        byte[] signature = KeyPair.sign(new Uint256().setBytes(data));
+        Preconditions.checkNotNull(signature, "Expected a valid signed data");
+
+        assert Signature.hasSignatureHint(signature): "Expected a SignedData with a hint";
+    }
+
+    public void testSignPayloadDecorated() throws GeneralSecurityException {
+        byte[] signerPayload = new byte[10];
+        Arrays.fill(signerPayload, 'x');
+        byte[] signature = KeyPair.signPayloadDecorated(signerPayload);
+        Preconditions.checkNotNull(signature, "Expected a valid signed data");
+
+        assert Signature.hasSignatureHint(signature): "Expected a SignedData with a hint";
+    }
+
+    public void testVerify() {
+        byte[] data = new byte[10];
+        Arrays.fill(data, 'x');
+        String signature = "your_signature_here".getBytes();
+
+        KeyPair keyPair = KeyPair.fromXdrPublicKey(EdDSAPublicKey.fromXdr(xdrOut));
+        boolean verifyResult = KeyPair.verify(data, signature);
+        Preconditions.checkNotNull(verifyResult, "Expected a valid verification result");
+
+        assert verifyResult;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class KeyPairTest {
+    private static EdDSAEngine eddsaEngine;
+    private static XdrDataOutputStream xdrOut;
+
+    @Before
+    public void setup() throws GeneralSecurityException, IOException {
+        eddsaEngine = EdDSAEngine.getInstance("secp256k1");
+        xdrOut = new XdrDataOutputStream(System.out);
+    }
+
+    public void testCanSign() {
+        KeyPair keyPair = new KeyPair(EdDSAPublicKey.fromXdr(xdrOut));
+        Preconditions.checkNotNull(keyPair, "Expected a valid KeyPair");
+
+        assert keyPair.canSign(): "Expected canSign() to return true";
+    }
+
+    public void testFromSecretSeed() throws GeneralSecurityException {
+        char[] seed = "your_secret_seed_here".getBytes();
+        byte[] derivedKey = KeyPair.fromSecretSeed(seed);
+        Preconditions.checkNotNull(derivedKey, "Expected a valid KeyPair");
+
+        assert derivedKey.length == 32: "Expected a KeyPair of length 32";
+    }
+
+    public void testFromAccountId() throws GeneralSecurityException {
+        String accountId = "your_account_id_here".toByteArray();
+        byte[] derivedKey = KeyPair.fromAccountId(accountId);
+        Preconditions.checkNotNull(derivedKey, "Expected a valid KeyPair");
+
+        assert derivedKey.length == 32: "Expected a KeyPair of length 32";
+    }
+
+    public void testFromSecretSeedWithBip39Seed() throws GeneralSecurityException {
+        String bip39Seed = "your_bip39_seed_here".getBytes();
+        byte[] derivedKey = KeyPair.fromBip39Seed(bip39Seed, 123);
+        Preconditions.checkNotNull(derivedKey, "Expected a valid KeyPair");
+
+        assert derivedKey.length == 32: "Expected a KeyPair of length 32";
+    }
+
+    public void testRandom() {
+        KeyPair keyPair = new KeyPair(KeyPair.random());
+        assertEquals(32, keyPair.getSecretSeed().length);
+
+        assert !keyPair.getPublicKey().equals(keyPair.getXdrPublicKey());
+
+        Preconditions.checkNotNull(keyPair.signDecorated("your_data_here"), "Expected a valid signed data");
+    }
+
+    public void testFromXdrPublicKey() {
+        PublicKey publicKey = KeyPair.fromXdrPublicKey(EdDSAPublicKey.fromXdr(xdrOut));
+        assert publicKey != null;
+
+        Preconditions.checkNotNull(publicKey.getXdrSignerKey(), "Expected a SignerKey");
+
+        assert !publicKey.getSignatureHint().equals(SignatureHint.NO);
+    }
+
+    public void testFromXdrSignerKey() {
+        SignerKey key = KeyPair.fromXdrSignerKey(EdDSAPrivateKey.fromXdr(xdrOut));
+        Preconditions.checkNotNull(key.getXdrSignerKey(), "Expected a SignerKey");
+
+        assert !key.getSignatureHint().equals(SignatureHint.NO);
+    }
+
+    public void testSign() throws GeneralSecurityException {
+        char[] data = new char[10];
+        Arrays.fill(data, 'x');
+        byte[] signature = KeyPair.sign(new Uint256().setBytes(data));
+        Preconditions.checkNotNull(signature, "Expected a valid signed data");
+
+        assert Signature.hasSignatureHint(signature): "Expected a SignedData with a hint";
+    }
+
+    public void testSignPayloadDecorated() throws GeneralSecurityException {
+        byte[] signerPayload = new byte[10];
+        Arrays.fill(signerPayload, 'x');
+        byte[] signature = KeyPair.signPayloadDecorated(signerPayload);
+        Preconditions.checkNotNull(signature, "Expected a valid signed data");
+
+        assert Signature.hasSignatureHint(signature): "Expected a SignedData with a hint";
+    }
+
+    public void testVerify() {
+        byte[] data = new byte[10];
+        Arrays.fill(data, 'x');
+        String signature = "your_signature_here".getBytes();
+
+        KeyPair keyPair = KeyPair.fromXdrPublicKey(EdDSAPublicKey.fromXdr(xdrOut));
+        boolean verifyResult = KeyPair.verify(data, signature);
+        Preconditions.checkNotNull(verifyResult, "Expected a valid verification result");
+
+        assert verifyResult;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.ed2554 EdDSA;
+import org.ed2554.EdDSAPublicKey;
+import org.ed2554.EdDSSignature;
+import org.ed2554.XdrDataOutputStream;
+
+public class KeyPairTest {
+    private static XdrDataOutputStream xdrOut;
+
+    public static void main(String[] args) throws GeneralSecurityException, IOException {
+        KeyPair keyPair = new KeyPair(EdDSA.createKey(EdDSA.S256()));
+        
+        // Test can sign
+        testCanSign(keyPair);
+        
+        // Test from secret seed
+        testFromSecretSeed();
+        
+        // Test from account id
+        testFromAccountId();
+        
+        // Test from secret seed with bip39 seed
+        testFromSecretSeedWithBip39Seed();
+        
+        // Test random
+        testRandom();
+        
+        // Test from xdr public key
+        testFromXdrPublicKey(EdDSA.createPublicKey());
+        
+        // Test from xdr signer key
+        testFromXdrSignerKey(EdDSA.createPrivateKey());
+        
+        // Test sign
+        testSign();
+        
+        // Test sign payload decorated
+        testSignPayloadDecorated();
+        
+        // Test verify
+        testVerify();
+    }
+
+    public static void testCanSign() {
+        KeyPair keyPair = new KeyPair(EdDSA.createKey(EdDSA.S256()));
+        assertEquals(true, keyPair.isSigned());
+    }
+
+    public static void testFromSecretSeed() throws GeneralSecurityException {
+        char[] seed = "your_secret_seed_here".getBytes();
+        byte[] derivedKey = KeyPair.fromSecretSeed(seed);
+        assertEquals(32, derivedKey.length);
+    }
+
+    public static void testFromAccountId() throws GeneralSecurityException {
+        String accountId = "your_account_id_here".toByteArray();
+        byte[] derivedKey = KeyPair.fromAccountId(accountId);
+        assertEquals(32, derivedKey.length);
+    }
+
+    public static void testFromSecretSeedWithBip39Seed() throws GeneralSecurityException {
+        String bip39Seed = "your_bip39_seed_here".getBytes();
+        byte[] derivedKey = KeyPair.fromBip39Seed(bip39Seed, 123);
+        assertEquals(32, derivedKey.length);
+    }
+
+    public static void testRandom() {
+        KeyPair keyPair = new KeyPair(EdDSA.createKey(EdDSA.S256()));
+        assertEquals(32, keyPair.getSecretSeed().length);
+
+        // Test not equal
+        assertEquals("different secret seed", keyPair.getPublicKey().toString());
+        
+        // Test different secret seed
+        try {
+            KeyPair.fromSecretSeed(new byte[0]);
+            fail("Expected exception for empty secret seed");
+        } catch (Exception e) {}
+    }
+
+    public static void testFromXdrPublicKey() throws GeneralSecurityException, IOException {
+        EdDSA.PublicKey publicKey = EdDSA.createPublicKey();
+        assertEquals(true, publicKey.isSigned());
+        
+        KeyPair keyPair = new KeyPair(EdDSA.createKey(EdDSA.S256()));
+        assertEquals(publicKey, keyPair.getPublicKey());
+    }
+
+    public static void testFromXdrSignerKey() throws GeneralSecurityException, IOException {
+        EdDSA.PrivateKey privateKey = EdDSA.createPrivateKey();
+        assertEquals(true, privateKey.isSigned());
+        
+        KeyPair keyPair = new KeyPair(EdDSA.createKey(EdDSA.S256()));
+        assertEquals(privateKey, keyPair.getPrivateKey());
+    }
+
+    public static void testSign() throws GeneralSecurityException {
+        String data = "your_data_here";
+        byte[] signature = KeyPair.sign(data);
+        System.out.println("Signature: " + new EdDSSignature().decode(signature));
+    }
+
+    public static void testSignPayloadDecorated() throws GeneralSecurityException {
+        byte[] signerPayload = new byte[10];
+        Arrays.fill(signerPayload, 'x');
+        byte[] signature = KeyPair.signPayloadDecorated(signerPayload);
+        System.out.println("Signature: " + new EdDSSignature().decode(signature));
+    }
+
+    public static void testVerify() throws GeneralSecurityException {
+        String data = "your_data_here";
+        String signature = "your_signature_here";
+        
+        byte[] derivedKey = KeyPair.verify(data, signature);
+        System.out.println("Verification result: " + deriveSignature(derivedKey, signature));
+    }
+    
+    public static byte[] deriveSignature(byte[] signedData, String signature) throws GeneralSecurityException {
+        EdDSSignature edDSSignature = new EdDSSignature();
+        edDSSignature.setBinary(signedData);
+        
+        return edDSSignature.sign(EdDSA.S256());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.ed2554.EdDSA;
+import org.ed2554.EdDSAPublicKey;
+import org.ed2554.EdDSSignature;
+
+public class KeyPairTest {
+
+    public static void main(String[] args) {
+        KeyPair keyPair = new KeyPair(EdDSA.createKey(EdDSA.S256()));
+
+        System.out.println("Can sign: " + (keyPair.isSigned()));
+
+        String data = "your_data_here";
+        byte[] signature = EdDSA.sign(keyPair, data);
+
+        System.out.println("Signature: " + EdDSSignature.decode(signature));
+
+        keyPair.setSecretSeed(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+
+        System.out.println("Public key: " + EdDSA.publicKey(keyPair).toString());
+
+        System.out.println("Private key: " + EdDSA.privateKey(keyPair).toString());
+
+        byte[] derivedKey = keyPair.getPrivateKey();
+
+        System.out.println("Private key (hex): " + edDSSignature.decode(derivedKey));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Test EdDSA key pair generation and serialization
+        String privateKey = generateEddsaKeyPair().toString();
+        System.out.println("Private key: " + privateKey);
+
+        String publicKey = EdDSA.publicKey(new EdDSA.S256()).toString();
+        System.out.println("Public key: " + publicKey);
+
+        // Test signing with a message
+        byte[] messageBytes = {1, 2, 3};
+        byte[] signature = signEddsaMessage(EdDSA.sigs.sign(EdDSA.S256()), messageBytes);
+        System.out.println("Signature: " + EdDSSignature.decode(signature));
+
+        // Test verifying a signature
+        String expectedSignature = "your_expected_signature_here";
+        boolean isValid = verifyEddsaSignature(EdDSA.sigs.verify(EdDSA.S256()), messageBytes, expectedSignature);
+        System.out.println("Is signature valid? " + isValid);
+
+        // Test key pair creation from bytes
+        byte[] secretSeed = {1, 2, 3};
+        KeyPair keyPair = new KeyPair(EdDSA.createKey(EdDSA.S256()));
+        System.out.println("Public key: " + EdDSA.publicKey(keyPair).toString());
+    }
+
+    public static String generateEddsaKeyPair() {
+        try (XdrDataOutputStream xdrOut = new XdrDataOutputStream(System.in)) {
+            byte[] secretSeedBytes = ("your_secret_seed_here".getBytes()).toByteArray();
+            EdDSSignature edDSSignature = new EdDSSignature();
+            edDSSignature.setBinary(secretSeedBytes);
+            xdrOut.write(edDSSignature.encode());
+            return (new String(xdrOut.toByteArray())).trim();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] signEddsaMessage(EdDSA.Sigs sig, byte[] message) throws Exception {
+        EdDSSignature edDSSignature = new EdDSSignature();
+        edDSSignature.setBinary(message);
+        return edDSSignature.sign(EdDSA.S256());
+    }
+
+    public static boolean verifyEddsaSignature(EdDSA.Sigs sig, byte[] messageBytes, String expectedSignature) throws Exception {
+        EdDSSignature edDSSignature = new EdDSSignature();
+        edDSSignature.setBinary(messageBytes);
+        return edDSSignature.verify(sig, expectedSignature.getBytes());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

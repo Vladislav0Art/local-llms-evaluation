@@ -1,0 +1,490 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.davidmoten.text.utils;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+
+public class WordWrap {
+    public static void wordWrap(Reader in, Writer out, String newLine, Number maxWidth,
+                            Function<? super CharSequence, ? extends Number> stringWidth,
+                            Set<Character> extraWordChars, boolean insertHyphens, boolean breakWords)
+            throws IOException {
+        Preconditions.checkArgument(maxWidth != null && !maxWidth.isNegative());
+        Preconditions.checkArgument(stringWidth != null && !stringWidth.isNegative());
+
+        try (BufferedReader reader = new BufferedReader(in)) {
+            StringBuilder wordBuilder = new StringBuilder();
+            int currentLineLength = 0;
+            while (true) {
+                String line = reader.readLine();
+                if (line == null || line.isEmpty()) {
+                    break;
+                }
+
+                char[] characters = line.toCharArray();
+
+                for (char c : characters) {
+                    if (extraWordChars.contains(c)) {
+                        wordBuilder.append(c).append(newLine);
+                        currentLineLength += 1 + stringWidth.apply(characters).getAsInt();
+                        if (currentLineLength > maxWidth) {
+                            break;
+                        }
+                    } else {
+                        int len = wordBuilder.length() + c.length() + 1;
+                        if (len <= Math.max(maxWidth, newLine.length())) {
+                            wordBuilder.append(c);
+                            currentLineLength += len;
+                            if (insertHyphens && extraWordChars.contains('-')) {
+                                wordBuilder.insert(0, '-');
+                                wordBuilder.insert(wordBuilder.length(), newLine);
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                out.write(wordBuilder.toString());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void leftTrim(StringBuilder2 word) {
+        if (!word.isEmpty()) {
+            int len = 0;
+            for (char c : word.toCharArray()) {
+                len += c.length();
+            }
+            if (len > maxWidth) {
+                return;
+            }
+            word.delete(0, len);
+        }
+    }
+
+    public static boolean isWhitespace(CharSequence s) {
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (!Character.isWhitespace(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @VisibleForTesting
+    public static String rightTrim(StringBuilder2 word) {
+        int len = word.toString().length();
+        for (int i = 0; i < len - 1; i++) {
+            if (!word.charAt(i).isWhitespace() && !word.charAt(i + 1).isWhitespace()) {
+                return word.substring(0, i + 2);
+            }
+        }
+        return "";
+    }
+
+    public static void main(String[] args) throws IOException {
+        WordWrap.wordWrap(new InputStreamReader(System.in), System.out, ")", 100, String::length, (c -> c == ' ') -> false,
+                HashSet.of(' ', ',', '.', '?', '!'), true, true);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.davidmoten.text.utils;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
+public class WordWrap {
+    public static void wordWrap(Reader in, Writer out, String newLine, Number maxWidth,
+                            Function<? super CharSequence, ? extends Number> stringWidth,
+                            Set<Character> extraWordChars, boolean insertHyphens, boolean breakWords)
+            throws IOException {
+        Preconditions.checkArgument(maxWidth != null && !maxWidth.isNegative());
+        Preconditions.checkArgument(stringWidth != null && !stringWidth.isNegative());
+
+        try (BufferedReader reader = new BufferedReader(in)) {
+            StringBuilder wordBuilder = new StringBuilder();
+            int currentLineLength = 0;
+            while (true) {
+                String line = reader.readLine();
+                if (line == null || line.isEmpty()) {
+                    break;
+                }
+
+                char[] characters = line.toCharArray();
+
+                for (char c : characters) {
+                    if (extraWordChars.contains(c)) {
+                        wordBuilder.append(c).append(newLine);
+                        currentLineLength += 1 + stringWidth.apply(characters).getAsInt();
+                        if (currentLineLength > maxWidth) {
+                            break;
+                        }
+                    } else {
+                        int len = wordBuilder.length() + c.length() + 1;
+                        if (len <= Math.max(maxWidth, newLine.length())) {
+                            wordBuilder.append(c);
+                            currentLineLength += len;
+                            if (insertHyphens && extraWordChars.contains('-')) {
+                                wordBuilder.insert(0, '-');
+                                wordBuilder.insert(wordBuilder.length(), newLine);
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                out.write(wordBuilder.toString());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void leftTrim(StringBuilder2 word) {
+        if (!word.isEmpty()) {
+            int len = 0;
+            for (char c : word.toCharArray()) {
+                len += c.length();
+            }
+            if (len > maxWidth) {
+                return;
+            }
+            word.delete(0, len);
+        }
+    }
+
+    public static boolean isWhitespace(CharSequence s) {
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (!Character.isWhitespace(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @VisibleForTesting
+    public static String rightTrim(StringBuilder2 word) {
+        int len = word.toString().length();
+        for (int i = 0; i < len - 1; i++) {
+            if (!word.charAt(i).isWhitespace() && !word.charAt(i + 1).isWhitespace()) {
+                return word.substring(0, i + 2);
+            }
+        }
+        return "";
+    }
+
+    public static void main(String[] args) throws IOException {
+        WordWrap.wordWrap(new InputStreamReader(System.in), System.out, ")", 100, String::length, (c -> c == ' ') -> false,
+                HashSet.of(' ', ',', '.', '?', '!'), true, true);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package org.davidmoten.text.utils;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
+public class TextProcessingUtils {
+
+    public static void wordWrap(Reader in, Writer out, String newLine, Number maxWidth,
+                            Function<? super CharSequence, ? extends Number> stringWidth,
+                            Set<Character> extraWordChars, boolean insertHyphens, boolean breakWords)
+            throws IOException {
+        // Precondition: maxWord is not null and is not negative
+        Preconditions.checkArgument(maxWidth != null && !maxWidth.isNegative());
+        Preconditions.checkArgument(stringWidth != null && !stringWidth.isNegative());
+
+        try (BufferedReader reader = new BufferedReader(in)) {
+            StringBuilder wordBuilder = new StringBuilder();
+            int currentLineLength = 0;
+            while (true) {
+                String line = reader.readLine();
+                if (line == null || line.isEmpty()) {
+                    break;
+                }
+
+                char[] characters = line.toCharArray();
+
+                for (char c : characters) {
+                    if (extraWordChars.contains(c)) {
+                        wordBuilder.append(c).append(newLine);
+                        currentLineLength += 1 + stringWidth.apply(characters).getAsInt();
+                        if (currentLineLength > maxWidth) {
+                            break;
+                        }
+                    } else {
+                        int len = wordBuilder.length() + c.length() + 1;
+                        if (len <= Math.max(maxWidth, newLine.length())) {
+                            wordBuilder.append(c);
+                            currentLineLength += len;
+                            if (insertHyphens && extraWordChars.contains('-')) {
+                                wordBuilder.insert(0, '-');
+                                wordBuilder.insert(wordBuilder.length(), newLine);
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                out.write(wordBuilder.toString());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void leftTrim(StringBuilder2 word) {
+        if (!word.isEmpty()) {
+            int len = 0;
+            for (char c : word.toCharArray()) {
+                len += c.length();
+            }
+            if (len > maxWidth) {
+                return;
+            }
+            word.delete(0, len);
+        }
+    }
+
+    public static boolean isWhitespace(CharSequence s) {
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (!Character.isWhitespace(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @VisibleForTesting
+    public static String rightTrim(StringBuilder2 word) {
+        int len = word.toString().length();
+        for (int i = 0; i < len - 1; i++) {
+            if (!word.charAt(i).isWhitespace() && !word.charAt(i + 1).isWhitespace()) {
+                return word.substring(0, i + 2);
+            }
+        }
+        return "";
+    }
+
+    public static void main(String[] args) throws IOException {
+        String text = "This is a sample text to be processed.";
+        System.out.println("Processed Text:");
+        WordWrapUtil.wordWrap(new InputStreamReader(System.in), new OutputStreamWriter(System.out), "\n", 100,
+                (c) -> c.equals(' '), HashSet.of('.', ',', '?', '!'), true, true);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package org.davidmoten.text.utils;
+
+import java.util.*;
+
+public class TextProcessingUtils {
+
+    public static <T> void printArray(Iterable<T> array, String separator, String header, boolean isHead) throws Exception {
+        List<String> lines = new ArrayList<>();
+        for (T element : array) {
+            if (!isHead && element != null) {
+                lines.add(String.format("%s: %s", header, element));
+            } else if (element == null || !element.equals("")) {
+                lines.add(element.toString());
+            }
+        }
+
+        String result = "";
+        for (String line : lines) {
+            result += line + separator;
+        }
+
+        System.out.println(result);
+    }
+
+    public static <T> void printMap(Map<T, List<String>> map, String separator, Set<String> keysToPrint,
+                                boolean isHead, Function<T, String> stringKeyFormat) throws Exception {
+        Map.Entry<T, List<String>>[] entries = map.entrySet();
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < entries.length; i++) {
+            T key = entries[i].getKey();
+            List<String> values = entries[i].getValue();
+            if (!isHead && keysToPrint.contains(key.toString())) {
+                result.append(stringKeyFormat.apply(key)).append(": ").append(result);
+            }
+
+            for (String value : values) {
+                if (!value.equals("")) {
+                    result.append(separator).append(value);
+                }
+            }
+
+            if (i < entries.length - 1 || isHead) {
+                result.append("\n");
+            }
+        }
+
+        System.out.println(result.toString());
+    }
+
+    public static void main(String[] args) throws Exception {
+        List<String> names = Arrays.asList("John", "Anna", "Peter", "Linda");
+
+        printArray(names, ",", "", true);
+        System.out.println();
+
+        Map<String, Integer> scores = new HashMap<>();
+        scores.put("Alice", 90);
+        scores.put("Bob", 85);
+
+        printMap(scores, "\n", Collections.emptySet(), false, String::new);
+    }
+
+    public static List<String> stringToListOfStrings(String input, String separator) {
+        List<String> output = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.add(line);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return output;
+    }
+
+    public static Set<String> stringSetToListOfStrings(String input, String separator) throws Exception {
+        List<String> strings = stringToListOfStrings(input, separator);
+        return new HashSet<>(strings);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+package org.davidmoten.text.utils;
+
+import java.util.*;
+
+public class TextProcessingUtils {
+
+    public static <T> T[] stringToListOfObjects(String input, String separator, Class<T> objectType) {
+        List<String> strings = stringToListOfStrings(input, separator);
+        return Arrays.stream(strings)
+                .map(objectType::newInstance)
+                .toArray(T[]::new);
+    }
+
+    public static <T> void printArray(Iterable<T> array) throws Exception {
+        if (!isHead && array != null && !array.isEmpty()) {
+            for (T element : array) {
+                print(element.toString());
+                System.out.print(separator);
+            }
+            System.out.println();
+        } else if (array == null || array.isEmpty() || isHead) {
+            System.out.println();
+        }
+    }
+
+    public static <T> void printMap(Map<T, List<String>> map) throws Exception {
+        for (Map.Entry<T, List<String>> entry : map.entrySet()) {
+            print(entry.getKey().toString());
+            print(separator);
+            List<String> values = entry.getValue();
+            if (!isHead && values != null && !values.isEmpty()) {
+                for (String value : values) {
+                    print(value);
+                    System.out.print(separator);
+                }
+                System.out.println();
+            } else if (value == null || value.equals("")) {
+                System.out.println();
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        List<String> names = Arrays.asList("John", "Anna", "Peter", "Linda");
+
+        printArray(names);
+
+        Map<String, Integer> scores = new HashMap<>();
+        scores.put("Alice", 90);
+        scores.put("Bob", 85);
+
+        printMap(scores);
+    }
+
+    public static void main(String[] args) throws Exception {
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+
+        printArray(numbers);
+
+        Set<String> colors = new HashSet<>(Arrays.asList("Red", "Green", "Blue"));
+
+        printMap(colors);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

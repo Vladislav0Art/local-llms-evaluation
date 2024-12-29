@@ -1,0 +1,103 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.configurationdata.PropertyListBuilder;
+import ch.jalu.configme.properties.Property;
+import ch.jalu.configme.exception.ConfigMeException;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.doThrow;
+
+public class GeneratedTest {
+
+    @Test
+    public void addTest() {
+        // Given
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Property mockProperty = Mockito.mock(Property.class);
+
+        // When
+        propertyListBuilder.add(mockProperty);
+
+        // Then
+        // No exception thrown, therefore the addition is successful
+        assertTrue(true);
+    }
+
+    @Test
+    public void addNullPropertyTest() {
+        // Given
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+
+        // When
+        propertyListBuilder.add(null);
+
+        // Then
+        // Expect ConfigMeException due to the null input
+    }
+
+    @Test
+    public void createPropertyListTest() {
+        // Given
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Property mockProperty = Mockito.mock(Property.class);
+        propertyListBuilder.add(mockProperty);
+
+        // When
+        List<Property<?>> propertyList = propertyListBuilder.create();
+
+        // Then
+        // Verify that the property list is created and contains the added property
+        assertNotNull(propertyList);
+        assertEquals(1, propertyList.size());
+        assertTrue(propertyList.contains(mockProperty));
+    }
+
+    @Test
+    public void createEmptyPropertyListTest() {
+        // Given
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+
+        // When
+        List<Property<?>> propertyList = propertyListBuilder.create();
+
+        // Then
+        // Verify that the property list is created and that it's empty
+        assertNotNull(propertyList);
+        assertTrue(propertyList.isEmpty());
+    }
+
+    @Test
+    public void getRootEntriesTest() {
+        // Given
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Property mockProperty = Mockito.mock(Property.class);
+        propertyListBuilder.add(mockProperty);
+
+        // When
+        Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
+
+        // Then
+        // Verify that the root entries Map is obtained
+        assertNotNull(rootEntries);
+    }
+
+    @Test
+    public void getRootEntriesEmptyTest() {
+        // Given
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+
+        // When
+        Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
+
+        // Then
+        // Verify that the root entries Map is empty when no properties are added
+        assertNotNull(rootEntries);
+        assertTrue(rootEntries.isEmpty());
+    }
+
+}

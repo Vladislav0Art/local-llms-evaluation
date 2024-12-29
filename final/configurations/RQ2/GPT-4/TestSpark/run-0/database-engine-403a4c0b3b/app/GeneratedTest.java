@@ -1,0 +1,88 @@
+package app;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.Assert;
+
+import java.util.*;
+
+import com.opencsv.exceptions.CsvValidationException;
+import exceptions.DBAppException;
+import sql.SQLTerm;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        Assert.assertNotNull(dbApp.getMyTables());
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        Assert.assertNotNull(dbApp.getReader());
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        Assert.assertNotNull(dbApp.getWriter());
+    }
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+    }
+
+    @Test
+    public void createTableInvalidTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, String> colNameType = new Hashtable<>();
+        colNameType.put("col1", "String");
+        Hashtable<String, String> colNameMin = new Hashtable<>();
+        colNameMin.put("col1", "A");
+        Hashtable<String, String> colNameMax = new Hashtable<>();
+        colNameMax.put("col1", "Z");
+        dbApp.createTable(null, null, colNameType, colNameMin, colNameMax);
+    }
+
+    @Test
+    public void insertIntoTableInvalidTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> colNameValue = new Hashtable<>();
+        colNameValue.put("col1", "Value1");
+        dbApp.insertIntoTable(null, colNameValue);
+    }
+
+    @Test
+    public void updateTableInvalidTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> colNameValue = new Hashtable<>();
+        colNameValue.put("col1", "Value1");
+        dbApp.updateTable(null, "KeyValue1", colNameValue);
+    }
+
+    @Test
+    public void deleteFromTableInvalidTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> colNameValue = new Hashtable<>();
+        colNameValue.put("col1", "Value1");
+        dbApp.deleteFromTable(null, colNameValue);
+    }
+
+    @Test
+    public void selectFromTableInvalidTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        SQLTerm[] arrSQLTerms = new SQLTerm[1];
+        SQLTerm sqlTerm1 = new SQLTerm("col1", "string", "=", "Value1");
+        arrSQLTerms[0] = sqlTerm1;
+        String[] strarrOperators = new String[1];
+        strarrOperators[0] = "and";
+        dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+    }
+
+}

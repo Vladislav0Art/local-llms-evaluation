@@ -1,0 +1,108 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void TextNodeConstructorTest() {
+        TextNode node = new TextNode("Test Text");
+        assertEquals("Test Text", node.getWholeText());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode node = new TextNode("Test Text");
+        assertEquals("#text", node.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        TextNode node = new TextNode("Test Text");
+        assertEquals("Test Text", node.text());
+    }
+
+    @Test
+    public void textUpdateTest() {
+        TextNode node = new TextNode("Test Text");
+        node.text("Updated Text");
+        assertEquals("Updated Text", node.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode node = new TextNode("Test Text");
+        assertEquals("Test Text", node.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode node = new TextNode(" ");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode node = new TextNode("Test Text");
+        TextNode splitNode = node.splitText(4);
+        assertEquals("Test", node.getWholeText());
+        assertEquals(" Text", splitNode.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        TextNode node = new TextNode("Test Text");
+        StringBuilder builder = new StringBuilder();
+        node.outerHtmlHead(builder, 0, new Document.OutputSettings());
+        assertEquals("Test Text", builder.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        TextNode node = new TextNode("Test Text");
+        StringBuilder builder = new StringBuilder();
+        node.outerHtmlTail(builder, 0, new Document.OutputSettings());
+        assertEquals("", builder.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode node = new TextNode("Test Text");
+        TextNode cloneNode = node.clone();
+        assertNotSame(node, cloneNode);
+        assertEquals(node.getWholeText(), cloneNode.getWholeText());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        String encodedText = "Test Text with encoded &quot;text&quot;";
+        TextNode node = TextNode.createFromEncoded(encodedText);
+        assertEquals("Test Text with encoded \"text\"", node.getWholeText());
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String text = "  Norma  lize     W hitespace   ";
+        assertEquals(" Normalize Whitespace ", TextNode.normaliseWhitespace(text));
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String text = "     Leading Whitespace Removed ";
+        assertEquals("Leading Whitespace Removed ", TextNode.stripLeadingWhitespace(text));
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        StringBuilder sb = new StringBuilder("Test Text ");
+        assertTrue(TextNode.lastCharIsWhitespace(sb));
+        sb = new StringBuilder("Test Text");
+        assertFalse(TextNode.lastCharIsWhitespace(sb));
+    }
+
+}

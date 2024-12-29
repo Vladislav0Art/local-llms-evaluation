@@ -1,0 +1,443 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection.KeyVal kv;
+
+    @Mock
+    private URL inputUrl;
+
+    @Test
+    public void newUrlBuilder_givenNullInputUrl_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new UrlBuilder(null));
+    }
+
+    @Test
+    public void build_urlGivenNotNullInputUrl_returnSameUrl() throws MalformedURLException {
+        Mockito.when(inputUrl.toURI()).thenReturn(new URI("http://example.com"));
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assert(urlBuilder.build().toURI().toString().equals("http://example.com"));
+    }
+
+    @Test
+    public void build_urlGivenNotNullInputUrl_returnEncodedUrl() throws MalformedURLException {
+        Mockito.when(inputUrl.toURI()).thenReturn(new URI("http://example.com/path?param=value"));
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        String expectedEncodedUrl = "http%3A%2F%2Fexample.com%2Fpath%3Fparam%3Dvalue";
+        assert(urlBuilder.build().toURI().toString().equals(expectedEncodedUrl));
+    }
+
+    @Test
+    public void appendKeyVal_givenNullConnection_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> urlBuilder.appendKeyVal(null));
+    }
+
+    @Test
+    public void appendKeyVal_givenNotNullConnection_appendKeyValue() throws UnsupportedEncodingException {
+        Mockito.when(kv.getKey()).thenReturn("key");
+        Mockito.when(kv.getValue()).thenReturn("value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        String expectedEncodedValue = URLEncoder.encode("value", DataUtil.UTF_8).replace("+", "%20");
+        urlBuilder.appendKeyVal(kv);
+        assert(urlBuilder.build().toURI().toString().endsWith("?key=value"));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class UrlBuilderTest {
+
+    public static class Connection {
+        public interface KeyVal {
+            String getKey();
+            String getValue();
+        }
+
+        public static class DefaultKeyVal implements KeyVal {
+            private final String key;
+            private final String value;
+
+            public DefaultKeyVal(String key, String value) {
+                this.key = key;
+                this.value = value;
+            }
+
+            @Override
+            public String getKey() {
+                return key;
+            }
+
+            @Override
+            public String getValue() {
+                return value;
+            }
+        }
+    }
+
+    public static class DataUtil {
+        public static final String UTF_8 = "UTF-8";
+    }
+
+    @Mock
+    private Connection.KeyVal kv;
+
+    @Mock
+    private URL inputUrl;
+
+    @Test
+    public void newUrlBuilder_givenNullInputUrl_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new UrlBuilder(null));
+    }
+
+    @Test
+    public void build_urlGivenNotNullInputUrl_returnSameUrl() throws MalformedURLException {
+        Mockito.when(inputUrl.toURI()).thenReturn(new URI("http://example.com"));
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assert(urlBuilder.build().toURI().toString().equals("http://example.com"));
+    }
+
+    @Test
+    public void build_urlGivenNotNullInputUrl_returnEncodedUrl() throws MalformedURLException {
+        Mockito.when(inputUrl.toURI()).thenReturn(new URI("http://example.com/path?param=value"));
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        String expectedEncodedUrl = "http%3A%2F%2Fexample.com%2Fpath%3Fparam%3Dvalue";
+        assert(urlBuilder.build().toURI().toString().equals(expectedEncodedUrl));
+    }
+
+    @Test
+    public void appendKeyVal_givenNullConnection_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> urlBuilder.appendKeyVal(null));
+    }
+
+    @Test
+    public void appendKeyVal_givenNotNullConnection_appendKeyValue() throws UnsupportedEncodingException {
+        Mockito.when(kv.getKey()).thenReturn("key");
+        Mockito.when(kv.getValue()).thenReturn("value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        String expectedEncodedValue = URLEncoder.encode("value", DataUtil.UTF_8).replace("+", "%20");
+        urlBuilder.appendKeyVal(new Connection.DefaultKeyVal("key", "value"));
+        assert(urlBuilder.build().toURI().toString().endsWith("?key=value"));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class UrlBuilderTest {
+
+    public interface KeyVal {
+        String getKey();
+        String getValue();
+    }
+
+    public static class Connection implements KeyVal {
+        private final String key;
+        private final String value;
+
+        public Connection(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public static class DataUtil {
+        public static final String UTF_8 = "UTF-8";
+    }
+
+    public static class UrlBuilder {
+        private final URL inputUrl;
+
+        public UrlBuilder(URL inputUrl) {
+            this.inputUrl = inputUrl;
+        }
+
+        public void appendKeyVal(KeyVal kv) throws MalformedURLException {
+            String key = kv.getKey();
+            String value = kv.getValue();
+            assert value != null : "Value is null";
+            if (inputUrl.toURI().getScheme() == null) {
+                throw new MalformedURLException("Scheme is null");
+            }
+            String encodedKey = URLEncoder.encode(key, DataUtil.UTF_8);
+            String encodedValue = URLEncoder.encode(value, DataUtil.UTF_8).replace("+", "%20");
+            inputUrl = new URL(inputUrl.getProtocol(), inputUrl.getHost(), inputUrl.getPort(), inputUrl.getPath() + "?key=" + encodedKey + "&value=" + encodedValue, null);
+        }
+
+        public String build() {
+            return inputUrl.toURI().toString();
+        }
+    }
+
+    @Test
+    public void appendKeyVal_givenNotNullConnection_appendKeyValue() throws MalformedURLException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://localhost", "localhost", 80, "/"));
+        KeyVal connection = new Connection("key", "value");
+        String expectedEncodedValue = URLEncoder.encode("value", DataUtil.UTF_8).replace("+", "%20");
+        urlBuilder.appendKeyVal(connection);
+        assert urlBuilder.build().endsWith("?key=value");
+    }
+
+    @Test
+    public void appendKeyVal_givenNullConnection_throwsNullPointerException() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://localhost", "localhost", 80, "/"));
+        KeyVal connection = null;
+        try {
+            urlBuilder.appendKeyVal(connection);
+            assert false : "Expected NullPointerException to be thrown";
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class UrlBuilderTest {
+
+    public interface KeyVal {
+        String getKey();
+        String getValue();
+    }
+
+    public static class Connection implements KeyVal {
+        private final String key;
+        private final String value;
+
+        public Connection(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public static class DataUtil {
+        public static final String UTF_8 = "UTF-8";
+    }
+
+    public static class UrlBuilder {
+        private URL inputUrl;
+
+        public UrlBuilder(URL inputUrl) {
+            this.inputUrl = inputUrl;
+        }
+
+        public void appendKeyVal(KeyVal kv) throws MalformedURLException {
+            String key = kv.getKey();
+            String value = kv.getValue();
+            assert value != null : "Value is null";
+            if (inputUrl.toURI().getScheme() == null) {
+                throw new MalformedURLException("Scheme is null");
+            }
+            String encodedKey = URLEncoder.encode(key, DataUtil.UTF_8);
+            String encodedValue = URLEncoder.encode(value, DataUtil.UTF_8).replace("+", "%20");
+            inputUrl = new URL(inputUrl.getProtocol(), inputUrl.getHost(), inputUrl.getPort(), inputUrl.getPath() + "?key=" + encodedKey + "&value=" + encodedValue, null);
+        }
+
+        public String build() {
+            return inputUrl.toURI().toString();
+        }
+    }
+
+    @Test
+    public void appendKeyVal_givenNotNullConnection_appendKeyValue() throws MalformedURLException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://localhost", "localhost", 80, "/"));
+        KeyVal connection = new Connection("key", "value");
+        urlBuilder.appendKeyVal(connection);
+        assert urlBuilder.build().endsWith("?key=value");
+    }
+
+    @Test
+    public void appendKeyVal_givenNullConnection_throwsNullPointerException() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://localhost", "localhost", 80, "/"));
+        KeyVal connection = null;
+        try {
+            urlBuilder.appendKeyVal(connection);
+            assert false : "Expected NullPointerException to be thrown";
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class UrlBuilderTest {
+
+    public interface KeyVal {
+        String getKey();
+        String getValue();
+    }
+
+    public static class Connection implements KeyVal {
+        private final String key;
+        private final String value;
+
+        public Connection(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public class UrlBuilder {
+
+        private URL url;
+
+        public UrlBuilder(URL url) {
+            this.url = url;
+        }
+
+        public void appendKeyVal(KeyVal connection) throws MalformedURLException, URISyntaxException {
+            if (url.toURI().getScheme() == null) {
+                throw new MalformedURLException("Scheme is null");
+            }
+            String encodedKey = URLEncoder.encode(connection.getKey(), "UTF-8").replace("+", "%20");
+            String encodedValue = URLEncoder.encode(connection.getValue(), "UTF-8").replace("+", "%20");
+            url = new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getPath() + "?key=" + encodedKey + "&value=" + encodedValue, null);
+        }
+
+        public String build() throws URISyntaxException {
+            return url.toURI().toString();
+        }
+    }
+
+    @Test
+    public void appendKeyVal_givenNotNullConnection_appendKeyValue() throws MalformedURLException, URISyntaxException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://localhost", "localhost", 80, "/"));
+        KeyVal connection = new Connection("key", "value");
+        urlBuilder.appendKeyVal(connection);
+        assert urlBuilder.build().endsWith("?key=value&value=%20");
+    }
+
+    @Test
+    public void appendKeyVal_givenNullConnection_throwsNullPointerException() {
+        UrlBuilder urlBuilder = new UrlBuilder(null);
+        KeyVal connection = null;
+        try {
+            urlBuilder.appendKeyVal(connection);
+            assert false : "Expected NullPointerException to be thrown";
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
+
+}
+```
+===================================================
+

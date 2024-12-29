@@ -1,0 +1,382 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class XmlTreeBuilderTest extends XmlTreeBuilder {
+    
+    private Document document;
+    private Reader reader;
+
+    @Override
+    protected void initialiseParse(Reader input, String baseUri, Parser parser) throws Exception {
+        super.initialiseParse(input, baseUri, parser);
+        
+        this.reader = new StringReader("");
+        this.document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(reader);
+    }
+
+    @Test
+    public void testParse() throws Exception {
+        // Arrange
+        String inputFragment = "<xml><root><a>test</a></root></xml>";
+        String baseUri = "";
+        
+        // Act
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Document xmlDocument = treeBuilder.parse(inputFragment, baseUri);
+        
+        // Assert
+        assertEquals("<root><a>test</a></root>", xmlDocument.outerHtml());
+    }
+    
+    @Test
+    public void testParseWithoutBaseUri() throws Exception {
+        // Arrange
+        String inputFragment = "<xml><root><a>test</a></root></xml>";
+        
+        // Act
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Document xmlDocument = treeBuilder.parse(inputFragment);
+        
+        // Assert
+        assertEquals("<root><a>test</a></root>", xmlDocument.outerHtml());
+    }
+    
+    @Test
+    public void testInsertNode() throws Exception {
+        // Arrange
+        Node node = document.createElement("b");
+        node.appendChild(document.createTextNode("Hello"));
+        document.appendChild(node);
+        
+        Element element = (Element) treeBuilder.insertToken(node, "b");
+        
+        // Assert
+        assertEquals("<b>Hello</b>", ((TreeNode)element).outerHtml());
+    }
+    
+    @Test
+    public void testInsertNodeWithComment() throws Exception {
+        // Arrange
+        Node node = document.createElement("p");
+        document.appendChild(node);
+        Comment commentToken = document.createComment("Hello, World!");
+        node.appendChild(commentToken);
+        
+        Element element = (Element) treeBuilder.insertToken(node, "p");
+        
+        // Assert
+        assertEquals("<p> Hello, World!</p>", ((TreeNode)element).outerHtml());
+    }
+    
+    @Test
+    public void testInsertNodeWithCharacter() throws Exception {
+        // Arrange
+        Node node = document.createElement("b");
+        node.appendChild(document.createTextNode("Hello"));
+        document.appendChild(node);
+        
+        Element element = (Element) treeBuilder.insertToken(node, "b");
+        
+        // Assert
+        assertEquals("<b>Hello</b>", ((TreeNode)element).outerHtml());
+    }
+    
+    @Test
+    public void testInsertNodeWithDoctype() throws Exception {
+        // Arrange
+        Document doctypeDeclaration = document.createElement("doctype");
+        doctypeDeclaration.appendChild(document.createTextNode("<!DOCTYPE html><html>"));
+        document.appendChild(doctypeDeclaration);
+        
+        Element element = (Element) treeBuilder.insertToken(document, "html");
+        
+        // Assert
+        assertEquals("<!DOCTYPE html><html>", ((TreeNode)element).outerHtml());
+    }
+    
+    @Test
+    public void testPopStackToClose() throws Exception {
+        // Arrange
+        Token.EndTag endTag = document.createEndTag("a");
+        
+        Element element = (Element) treeBuilder.insertToken(document, "b");
+        treeBuilder.popStackToClose(endTag);
+        
+        // Assert
+        assertEquals("<b>", ((TreeNode)element).outerHtml());
+    }
+    
+    @Test
+    public void testParseFragment() throws Exception {
+        // Arrange
+        String inputFragment = "<xml><root><a>test</a></root></xml>";
+        String baseUri = "";
+        
+        // Act
+        List<Node> listNodes = new ArrayList<>();
+        treeBuilder.parseFragment(inputFragment, baseUri, null);
+        for (Node node : listNodes) {
+            document.appendChild(node);
+        }
+        
+        // Assert
+        assertEquals("<root><a>test</a></root>", document.outerHtml());
+    }
+    
+    @Test
+    public void testParseFragmentWithContext() throws Exception {
+        // Arrange
+        String inputFragment = "<xml><root><a>test</a></root></xml>";
+        Element context = document.createElement("doc");
+        
+        // Act
+        List<Node> listNodes = new ArrayList<>();
+        treeBuilder.parseFragment(inputFragment, context, null);
+        for (Node node : listNodes) {
+            context.appendChild(node);
+        }
+        
+        // Assert
+        assertEquals("<root><a>test</a></root>", document.outerHtml());
+    }
+    
+    @Test
+    public void testPopStackToCloseWithoutBaseUri() throws Exception {
+        // Arrange
+        Token.EndTag endTag = document.createEndTag("a");
+        
+        // Act
+        treeBuilder.popStackToClose(endTag);
+        
+        // Assert
+        assertEquals("<b>", ((TreeNode)document.body()).outerHtml());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+
+public class Main {
+
+    @Test
+    public void testParseFragment() {
+        // Test case 1: Empty input fragment
+        String inputFragment = "";
+        String expectedOutput = "<doc/>";
+        Main.main(inputFragment, null, null);
+        assert Expected_output.equals(expectedOutput);
+
+        // Test case 2: Non-empty input fragment with simple tag
+        inputFragment = "<p>Test Paragraph</p>";
+        expectedOutput = "<p></p>";
+        Main.main(inputFragment, null, null);
+        assert Expected_output.equals(expectedOutput);
+
+        // Test case 3: Non-empty input fragment with multiple tags
+        inputFragment = "<body><p>Test Paragraph</p><p>This is another paragraph.</p></body>";
+        expectedOutput = "<body><p>This is the second paragraph.</p></body>";
+        Main.main(inputFragment, null, null);
+        assert Expected_output.equals(expectedOutput);
+
+        // Test case 4: Non-empty input fragment with multiple tags and elements
+        inputFragment = "<body><div>Test Div</div><p>Test Paragraph</p></body>";
+        expectedOutput = "<body><div>This is the second div.</div><p>This is the third paragraph.</p></body>";
+        Main.main(inputFragment, null, null);
+        assert Expected_output.equals(expectedOutput);
+
+        // Test case 5: Empty body
+        inputFragment = "<html><head>Test Head</head><body></body></html>";
+        expectedOutput = "";
+        Main.main(inputFragment, null, null);
+        assert Expected_output.equals(expectedOutput);
+    }
+
+    public static class Main {
+        public void main(String[] args) {
+            new Main().testParseFragment();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class JsoupTest {
+
+    public static String testParseFragment() {
+        Document doc = Jsoup.parse("<html><head>Test Head</head><body></body></html>");
+        return doc.body().text();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(testParseFragment());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class JsoupParserTest {
+
+    public static String testParseFragment() {
+        Document doc = Jsoup.parse("<html><body></body></html>");
+        return doc.body().text();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(testParseFragment());
+    }
+}
+
+import org.junit.Test;
+
+public class MainTest {
+
+    @Test
+    public void testParseFragment() {
+        String inputFragment = "<p>Test Paragraph</p>";
+        String expectedOutput = "<p></p>";
+        JsoupParser.main(inputFragment, null, null);
+        assert MainTest.testParseFragment().equals(expectedOutput);
+
+        // Test case 2: Non-empty input fragment with simple tag
+        inputFragment = "<p>Test Paragraph</p>";
+        expectedOutput = "<p></p>";
+        MainParser.main(inputFragment, null, null);
+        assert MainTest.testParseFragment().equals(expectedOutput);
+
+        // Test case 3: Non-empty input fragment with multiple tags
+        inputFragment = "<body><div>Test Div</div><p>Test Paragraph</p></body>";
+        expectedOutput = "<body><div>This is the second div.</div><p>This is the third paragraph.</p></body>";
+        MainParser.main(inputFragment, null, null);
+        assert MainTest.testParseFragment().equals(expectedOutput);
+
+        // Test case 4: Non-empty input fragment with multiple tags and elements
+        inputFragment = "<body><div>Test Div</div><p>Test Paragraph</p></body>";
+        expectedOutput = "<body><div>This is the second div.</div><p>This is the third paragraph.</p></body>";
+        MainParser.main(inputFragment, null, null);
+        assert MainTest.testParseFragment().equals(expectedOutput);
+
+        // Test case 5: Empty body
+        inputFragment = "<html><head>Test Head</head><body></body></html>";
+        expectedOutput = "";
+        MainParser.main(inputFragment, null, null);
+        assert MainTest.testParseFragment().equals(expectedOutput);
+    }
+
+    public static class JsoupParser {
+        public static void main(String[] args) {
+            testParseFragment();
+        }
+    }
+
+    public static class MainParser {
+        public static void main(String[] args) {
+            System.out.println(testParseFragment());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class JsoupTest {
+
+    public static String testParseFragment() {
+        Document doc = Jsoup.parse("<html><body></body></html>");
+        return doc.body().text();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(testParseFragment());
+    }
+}
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class MainTest {
+
+    public static String testParseFragment() {
+        Document doc = Jsoup.parse("<html><body><p>Test Paragraph</p></body></html>");
+        return doc.body().text();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(testParseFragment());
+    }
+}
+
+import org.junit.Test;
+
+public class MainParserTest {
+
+    @Test
+    public void testParseFragment() {
+        String inputFragment = "<p>Test Paragraph</p>";
+        String expectedOutput = "<p></p>";
+        JsoupParser.main(inputFragment, null, null);
+        assert MainParser.testParseFragment().equals(expectedOutput);
+
+        // Test case 2: Non-empty input fragment with simple tag
+        inputFragment = "<p>Test Paragraph</p>";
+        expectedOutput = "<p></p>";
+        MainParserParser.main(inputFragment, null, null);
+        assert MainParser.testParseFragment().equals(expectedOutput);
+
+        // Test case 3: Non-empty input fragment with multiple tags
+        inputFragment = "<body><div>Test Div</div><p>Test Paragraph</p></body>";
+        expectedOutput = "<body><div>This is the second div.</div><p>This is the third paragraph.</p></body>";
+        MainParserParser.main(inputFragment, null, null);
+        assert MainParser.testParseFragment().equals(expectedOutput);
+
+        // Test case 4: Non-empty input fragment with multiple tags and elements
+        inputFragment = "<body><div>Test Div</div><p>Test Paragraph</p></body>";
+        expectedOutput = "<body><div>This is the second div.</div><p>This is the third paragraph.</p></body>";
+        MainParserParser.main(inputFragment, null, null);
+        assert MainParser.testParseFragment().equals(expectedOutput);
+
+        // Test case 5: Empty body
+        inputFragment = "<html><head>Test Head</head><body></body></html>";
+        expectedOutput = "";
+        MainParserParser.main(inputFragment, null, null);
+        assert MainParser.testParseFragment().equals(expectedOutput);
+    }
+
+    public static class JsoupParser {
+        public static String testParseFragment() {
+            Document doc = Jsoup.parse("<html><body></body></html>");
+            return doc.body().text();
+        }
+    }
+
+    public static class MainParserParser {
+        public static String testParseFragment() {
+            Document doc = Jsoup.parse("<html><body><p>Test Paragraph</p></body></html>");
+            return doc.body().text();
+        }
+    }
+}
+```
+===================================================
+

@@ -1,0 +1,348 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.MalformedURLException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.jsoup.Connection.KeyVal;
+import static org.jsoup.helper.DataUtil.UTF_8;
+import static org.jsoup.internal.StringUtil.emptyString;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection connection;
+
+    public UrlBuilder testUrlBuilder() {
+        return new UrlBuilder(new URL("https://example.com"));
+    }
+
+    @Test
+    public void build_URLReturnsOriginal() throws MalformedURLException, URISyntaxException {
+        // Given: original URL
+        String original = "https://example.com";
+        UrlBuilder builder = testUrlBuilder();
+
+        // When: building the URL
+        URL result = builder.build();
+
+        // Then: expected URL is returned
+        assertEquals(original, result.toString());
+    }
+
+    @Test
+    public void appendKeyVal_KeyValueAddedToOriginal() throws MalformedURLException, URISyntaxException {
+        // Given: original URL and key-value pair
+        String original = "https://example.com";
+        Connection.KeyVal kv = new KeyVal("key", "value");
+        UrlBuilder builder = testUrlBuilder();
+
+        // When: adding the key-value pair to the original URL
+        builder.appendKeyVal(kv);
+
+        // Then: expected modified URL is returned
+        String result = builder.build().toString();
+        assertEquals(original + "?" + kv.getKey(), result);
+    }
+
+    @Test
+    public void appendKeyVal_OnlyValueIsAddedToOriginal() throws MalformedURLException, URISyntaxException {
+        // Given: original URL and key-value pair
+        String original = "https://example.com";
+        Connection.KeyVal kv = new KeyVal("key", null);
+        UrlBuilder builder = testUrlBuilder();
+
+        // When: adding the key-value pair to the original URL
+        builder.appendKeyVal(kv);
+
+        // Then: expected modified URL is returned
+        String result = builder.build().toString();
+        assertEquals(original + "?" + emptyString, result);
+    }
+
+    @Test
+    public void appendKeyVal_ThrowsUnsupportedEncodingException() {
+        // Given: original URL and key-value pair with non-ASCII value
+        String original = "https://example.com";
+        Connection.KeyVal kv = new KeyVal("key", "äöü");
+        UrlBuilder builder = testUrlBuilder();
+
+        // When: adding the key-value pair to the original URL
+        try {
+            builder.appendKeyVal(kv);
+            fail("UnsupportedEncodingException was not thrown");
+        } catch (UnsupportedEncodingException e) {
+            // Then: exception is thrown with correct error message
+            assertEquals(UTF_8, e.getMessage());
+        }
+    }
+
+    @Test
+    public void build_URLReturnsEncodedValues() throws MalformedURLException, URISyntaxException {
+        // Given: original URL and key-value pair
+        String original = "https://example.com";
+        Connection.KeyVal kv = new KeyVal("key", "value");
+        UrlBuilder builder = testUrlBuilder();
+
+        // When: building the URL
+        URL result = builder.build();
+
+        // Then: expected modified URL is returned with encoded values
+        assertEquals(original + "?key=" + URLDecoder.decode(kv.getValue(), UTF_8), result.toString());
+    }
+
+    @Test
+    public void build_URLReturnsInvalidURL() {
+        // Given:
+        UrlBuilder builder = testUrlBuilder();
+
+        // When: building the invalid URL
+        try {
+            builder.build();
+            fail("NullPointerException was not thrown");
+        } catch (NullPointerException e) {
+            // Then: exception is thrown with correct error message
+            assertNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void appendKeyVal_ThrowsNullPointerException() {
+        // Given:
+        UrlBuilder builder = testUrlBuilder();
+
+        // When: adding a null key-value pair
+        try {
+            builder.appendKeyVal(null);
+            fail("NullPointerException was not thrown");
+        } catch (NullPointerException e) {
+            // Then: exception is thrown with correct error message
+            assertNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void appendKeyVal_ThrowsNullPointerException() {
+        // Given:
+        UrlBuilder builder = testUrlBuilder();
+
+        // When: adding a null value to the key-value pair
+        try {
+            builder.appendKeyVal(new KeyVal("key", null));
+            fail("NullPointerException was not thrown");
+        } catch (NullPointerException e) {
+            // Then: exception is thrown with correct error message
+            assertNull(e.getMessage());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class URLTest {
+    public void testUrlEncoding() {
+        String url = "https://example.com?param=äöü";
+        assertEquals("https://example.com?param%3C%3Fo%3Cu%3E", url);
+    }
+}
+
+public class UnsupportedEncodingExceptionTest {
+    @Test
+    public void testUnsupportedEncodingException() throws UnsupportedEncodingException {
+        fail("UnsupportedEncodingException was not thrown");
+    }
+}
+
+public class KeyValEncodingTest {
+    private Connection connection;
+
+    public void setup() {
+        // setup
+    }
+
+    public void teardown() {
+        // teardown
+    }
+
+    @Test
+    public void testKeyValEncoding() {
+        try {
+            connection = DriverManager.getConnection("jdbc:derby:test;user=tst;password=pss");
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM table WHERE column = 'äöü'");
+            fail("UnsupportedEncodingException was not thrown");
+        } catch (UnsupportedEncodingException e) {
+            // expected
+        }
+    }
+
+    public void testFail() {
+        fail("UnsupportedEncodingException was not thrown");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class UnsupportedEncodingExceptionTest {
+    @Test
+    public void testUnsupportedEncodingException() throws UnsupportedEncodingException {
+        fail("UnsupportedEncodingException was not thrown");
+    }
+}
+
+public class KeyValEncodingTest {
+    private Connection connection;
+
+    @Before
+    public void setup() {
+        // setup
+    }
+
+    @After
+    public void teardown() {
+        // teardown
+    }
+
+    @Test
+    public void testKeyValEncoding() throws UnsupportedEncodingException, SQLException {
+        try {
+            Class.forName("javax.sql.Connection");
+            connection = DriverManager.getConnection("jdbc:derby:test;user=tst;password=pss");
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM table WHERE column = 'äöü'");
+            fail("UnsupportedEncodingException was not thrown");
+        } catch (SQLException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testFail() throws UnsupportedEncodingException, SQLException {
+        fail("UnsupportedEncodingException was not thrown");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class GeneratedTest {
+
+    @Before
+    public void setup() {
+        // setup
+    }
+
+    @After
+    public void teardown() {
+        // teardown
+    }
+
+    public static void main(String[] args) throws UnsupportedEncodingException, SQLException {
+        GeneratedTest test = new GeneratedTest();
+        test.testUnsupportedEncodingException();
+        test.testKeyValEncoding();
+        test.testFail();
+    }
+}
+
+public class KeyValEncodingTest {
+
+    private Connection connection;
+
+    public KeyValEncodingTest() {}
+
+    @Before
+    public void setup() throws UnsupportedEncodingException, SQLException {
+        // setup
+        Class.forName("javax.sql.Connection");
+        connection = DriverManager.getConnection("jdbc:derby:test;user=tst;password=pss");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM table WHERE column = 'äöü'");
+    }
+
+    public void testUnsupportedEncodingException() {
+        fail("UnsupportedEncodingException was thrown");
+    }
+
+    public void testKeyValEncoding() {
+        fail("KeyValEncoding was not executed");
+    }
+
+    public void testFail() {
+        fail("UnsupportedEncodingException was not thrown");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class GeneratedTest {
+
+    @Before
+    public void setup() throws UnsupportedEncodingException, SQLException {
+        Class.forName("javax.sql.Connection");
+        Connection connection = DriverManager.getConnection("jdbc:derby:test;user=tst;password=pss");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM table WHERE column = 'äöü'");
+    }
+
+    @After
+    public void teardown() throws UnsupportedEncodingException, SQLException {
+        // Teardown
+    }
+
+    @Test
+    public void testUnsupportedEncodingException() throws UnsupportedEncodingException, SQLException {
+        try (Connection connection = DriverManager.getConnection("jdbc:derby:test;user=tst;password=pss")) {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM table WHERE column = 'äöü'");
+            assert resultSet.next();
+        } catch (SQLException e) {
+            fail("UnsupportedEncodingException was thrown");
+        }
+    }
+
+    @Test
+    public void testKeyValEncoding() throws SQLException {
+        try (Connection connection = DriverManager.getConnection("jdbc:derby:test;user=tst;password=pss")) {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM table WHERE column = 'äöü'");
+            assert resultSet.next();
+        }
+    }
+
+    @Test
+    public void testFail() throws UnsupportedEncodingException, SQLException {
+        try (Connection connection = DriverManager.getConnection("jdbc:derby:test;user=tst;password=pss")) {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM table WHERE column = 'äöü'");
+            assert !resultSet.next();
+        } catch (SQLException e) {
+            fail("UnsupportedEncodingException was not thrown");
+        }
+    }
+}
+```
+===================================================
+

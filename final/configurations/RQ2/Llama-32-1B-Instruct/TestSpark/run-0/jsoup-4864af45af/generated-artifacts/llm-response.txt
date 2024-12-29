@@ -1,0 +1,452 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.helper.Validate;
+import org.junit.Test;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class SafelistTest {
+
+    @Test
+    public void simpleText() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("p", "span");
+        safelist.removeTags("span");
+        safelist.addAttribute("class", "test-class");
+        Assert.assertTrue(safelist.isSafeTag("p"));
+        Assert.assertFalse(safelist.isSafeTag("img"));
+    }
+
+    @Test
+    public void basic() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("p");
+        safelist.removeAttributes("style");
+        safelist.addEnforcedAttribute("data-attr", "test-attr", "test-value");
+        Assert.assertTrue(safelist.isSafeTag("p"));
+        Assert.assertFalse(safelist.isSafeTag("img"));
+    }
+
+    @Test
+    public void basicWithImages() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("img");
+        safelist.removeAttributes("style");
+        safelist.addEnforcedAttribute("data-attr", "test-attr", "test-value");
+        safelist.addProtocols("img", "image-types");
+        Assert.assertTrue(safelist.isSafeTag("img"));
+        Assert.assertFalse(safelist.isSafeTag("div"));
+    }
+
+    @Test
+    public void relaxed() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("p");
+        safelist.removeAttributes("style");
+        safelist.addEnforcedAttribute("data-attr", "test-attr", "test-value");
+        Assert.assertTrue(safelist.isSafeTag("div"));
+    }
+
+    @Test
+    public void none() {
+        Safelist safelist = Safelist.none();
+        Assert.assertFalse(safelist.isSafeTag("p"));
+        Assert.assertFalse(safelist.isSafeTag("img"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class SafelistTest {
+
+    public Safelist none() {
+        return new Safelist();
+    }
+
+    public Safelist simpleText() {
+        Safelist safelist = none();
+        safelist.addTags("p");
+        safelist.removeAttributes("style");
+        safelist.addEnforcedAttribute("data-attr", "test-attr", "test-value");
+        Assert.assertTrue(safelist.isSafeTag("p"));
+        Assert.assertFalse(safelist.isSafeTag("img"));
+    }
+
+    public Safelist addAttribute(String key, String value) {
+        return new Safelist() {
+            @Override
+            public void appendAttributes(Attributes attributes) {
+                attributes.put(key, value);
+            }
+        };
+    }
+
+    public boolean isSafeTag(String tag) {
+        return !tag.equals("img");
+    }
+
+    public static void main(String[] args) {
+        SafelistTest test = new SafelistTest();
+
+        test.simpleText();
+        System.out.println(test.isSafeTag("p"));
+        System.out.println(test.isSafeTag("img"));
+
+        Safelist safelist = test.none();
+        safelist.addAttribute("class", "test-class");
+        Assert.assertTrue(safelist.isSafeTag("p"));
+        Assert.assertFalse(safelist.isSafeTag("img"));
+
+        Safelist safelist2 = test.addAttribute("id", "test-id");
+        safelist2.addAttribute("style", "display: none;");
+        System.out.println(test.isSafeTag("p"));
+        System.out.println(test.isSafeTag("div"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+public class SafelistTest {
+
+    public Document none() {
+        return new Document();
+    }
+
+    public Document addTags(String tag) {
+        Document document = new Document();
+        Element element = document.createElement(tag);
+        return document;
+    }
+
+    public Document removeAttributes(String attribute) {
+        Document document = new Document();
+        for (Attribute attributeValue : document.attributes()) {
+            if (!attribute.equals(attributeValue.getKey())) {
+                document.removeAttribute(attributeValue.getKey());
+            }
+        }
+        return document;
+    }
+
+    public Document addEnforcedAttribute(String key, String value) {
+        Document document = new Document();
+        Element element = document.createElement(key);
+        element.appendChild(document.createTextNode(value));
+        return document;
+    }
+
+    public boolean isSafeTag(String tag) {
+        return !tag.equals("img");
+    }
+
+    public void addProtocols(String protocol, Set<String> rules) {
+        Document document = new Document();
+        Element element = document.createElement(protocol);
+        for (String rule : rules) {
+            element.appendChild(document.createTextNode(rule));
+        }
+        return document;
+    }
+
+    public void appendAttributes(Attributes attributes) {
+        Document document = new Document();
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            Element element = document.createElement(entry.getKey());
+            element.appendChild(document.createTextNode(entry.getValue()));
+        }
+        return document;
+    }
+
+    public static SafelistTest main(String[] args) {
+        SafelistTest test = new SafelistTest();
+
+        Document document1 = none();
+        Element element1 = document1.addElement("p");
+        Assert.assertTrue(test.isSafeTag("p"));
+        System.out.println(element1.attributes().get("class"));
+
+        Safelist safelist = none();
+        safelist.addAttribute("id", "test-id");
+        Assert.assertFalse(safelist.isSafeTag("img"));
+
+        Document document2 = addTags("div");
+        Element element2 = document2.addElement("p");
+        Assert.assertTrue(test.isSafeTag("p"));
+        System.out.println(element2.attributes().get("class"));
+
+        Safelist safelist2 = addEnforcedAttribute("data-attr", "test-attr-value");
+        Assert.assertFalse(safelist2.isSafeTag("img"));
+
+        Document document3 = removeAttributes("style");
+        Element element3 = document3.addElement("div");
+        System.out.println(element3.attributes().get("style"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+public class SafelistTest {
+
+    public String none() {
+        return "";
+    }
+
+    public Document addTags(String tag) {
+        Document document = new Document();
+        Element element = document.createElement(tag);
+        return document;
+    }
+
+    public Document removeAttributes(String attribute) {
+        Document document = new Document();
+        for (Element child : document.children()) {
+            if (child.hasAttr(attribute)) {
+                child.removeAttr(attribute);
+            }
+        }
+        return document;
+    }
+
+    public Document addEnforcedAttribute(String key, String value) {
+        Document document = new Document();
+        Element element = document.createElement(key);
+        element.appendChild(document.createTextNode(value));
+        return document;
+    }
+
+    public boolean isSafeTag(String tag) {
+        return !tag.equals("img");
+    }
+
+    public void addProtocols(String protocol, Set<String> rules) {
+        Document document = new Document();
+        Element element = document.createElement(protocol);
+        for (String rule : rules) {
+            element.appendChild(document.createTextNode(rule));
+        }
+        return document;
+    }
+
+    public String appendAttributes(Attributes attributes) {
+        Document document = new Document();
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            Element element = document.createElement(entry.getKey());
+            element.appendChild(document.createTextNode(entry.getValue()));
+        }
+        return document.body().outerHtml();
+    }
+
+    public static SafelistTest main(String[] args) {
+        SafelistTest test = new SafelistTest();
+
+        System.out.println(test.none());
+
+        Document document1 = addTags("p");
+        Element element1 = document1.addElement("b");
+
+        Assert.assertTrue(test.isSafeTag("b"));
+        System.out.println(element1.attributes().get("style"));
+
+        Safelist safelist = addEnforcedAttribute("data-attr", "test-attr-value");
+
+        SafelistTestTest test2 = new SafelistTestTest();
+        assert test2.safelist1.equals("data-attr=" + "test-attr-value");
+    }
+}
+
+class SafelistTestTest {
+    public String safelist1() {
+        return "";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        SafelistTest.Test test = (SafelistTest.Test) obj;
+        return !element1.attributes().get("class").equals(element2.attributes().get("class"));
+    }
+
+    @Override
+    public int hashCode() {
+        return element1.attributes().get("class").hashCode();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+public class SafelistTest {
+
+    public String none() {
+        return "";
+    }
+
+    public Document addTags(String tag) {
+        Document document = new Document();
+        Element element = document.createElement(tag);
+        return document;
+    }
+
+    public Document removeAttributes(String attribute) {
+        Document document = new Document();
+        for (Element child : document.children()) {
+            if (child.hasAttr(attribute)) {
+                child.removeAttr(attribute);
+            }
+        }
+        return document;
+    }
+
+    public Element addEnforcedAttribute(String key, String value) {
+        Document document = new Document();
+        Element element = document.createElement(key);
+        element.appendChild(document.createTextNode(value));
+        return element;
+    }
+
+    public boolean isSafeTag(String tag) {
+        return !tag.equals("img");
+    }
+
+    public void addProtocols(String protocol, Set<String> rules) {
+        Document document = new Document();
+        Element element = document.createElement(protocol);
+        for (String rule : rules) {
+            element.appendChild(document.createTextNode(rule));
+        }
+        return document;
+    }
+
+    public String appendAttributes(Attributes attributes) {
+        Document document = new Document();
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            Element element = document.createElement(entry.getKey());
+            element.appendChild(document.createTextNode(entry.getValue()));
+        }
+        return document.body().outerHtml();
+    }
+
+    public static SafelistTest main(String[] args) {
+        SafelistTest test = new SafelistTest();
+
+        System.out.println(test.none());
+
+        Document document1 = addTags("p");
+        Element element1 = document1.addElement("b");
+
+        Assert.assertTrue(test.isSafeTag("b"));
+        String result1 = element1.attributes().get("style");
+        if (!result1.isEmpty()) {
+            System.out.println(result1);
+        }
+
+        Safelist safelist = addEnforcedAttribute("data-attr", "test-attr-value");
+
+        SafelistTest.Test test2 = new SafelistTest.Test();
+
+        String result2 = "data-attr=" + "test-attr-value";
+        Assert.assertTrue(test2.safelist1.equals(result2));
+    }
+}
+
+class SafelistTest {
+    public class Test {
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            return element1.attributes().get("style").equals(element2.attributes().get("style"));
+        }
+
+        @Override
+        public int hashCode() {
+            return element1.attributes().get("style").hashCode();
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        SafelistTest.Test test = (SafelistTest.Test) obj;
+        return !result1.isEmpty();
+    }
+
+    @Override
+    public int hashCode() {
+        return result1.hashCode();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,48 @@
+package org.jsoup.parser;
+
+public class GeneratedTestDiv {
+
+    public static Tag cloned(String element) {
+        return new Tag(element);
+    }
+
+    public static Tag div(Tag tag) {
+        return new Tag(tag.name());
+    }
+}
+
+class Tag {
+    private String name;
+
+    public Tag(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tag tag = (Tag) o;
+        return Objects.equals(name, tag.name);
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+}
+
+public class ParseTest {
+
+    @Test
+    public void testDiv() {
+        // Arrange
+        Tag tag = new Tag("div");
+        String cloned = "div";
+        Tag result = Parse.getInstance().div(tag);
+
+        // Assert
+        assertEquals(tag, result);
+    }
+
+}
