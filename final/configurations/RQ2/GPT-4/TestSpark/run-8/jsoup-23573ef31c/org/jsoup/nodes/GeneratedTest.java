@@ -1,0 +1,104 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.*;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
+public class GeneratedTest {
+
+    @Test
+    public void documentConstructorTest() {
+        Document doc = new Document("https://example.com");
+        assertEquals("https://example.com", doc.location());
+    }
+
+    @Test
+    public void createShellTest() {
+        Document shell = Document.createShell("https://example.com");
+        assertNotNull(shell);
+    }
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("https://example.com");
+        assertEquals("https://example.com", doc.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Document doc = new Document("https://example.com");
+        Connection mockConnection = mock(Connection.class);
+        Document docWithConnection = doc.connection(mockConnection);
+        assertEquals(mockConnection, docWithConnection.connection());
+    }
+
+    @Test
+    public void documentTypeTest() {
+        Document doc = new Document("https://example.com");
+        assertNull(doc.documentType()); // assuming that document type wasn't set
+    }
+
+    @Test
+    public void titleTest() {
+        Document doc = new Document("https://example.com");
+        doc.title("Test Title");
+        assertEquals("Test Title", doc.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document doc = new Document("https://example.com");
+        Element element = doc.createElement("mytag");
+        assertEquals("mytag", element.tagName());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Document doc = new Document("https://example.com");
+        assertEquals("#document", doc.nodeName()); // always returns #document
+    }
+
+    @Test
+    public void charsetTest() {
+        Document doc = new Document("https://example.com");
+        doc.charset(Charset.forName("UTF-8"));
+        assertEquals(Charset.forName("UTF-8"), doc.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementTest() {
+        Document doc = new Document("https://example.com");
+        doc.updateMetaCharsetElement(true);
+        assertTrue(doc.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document doc = new Document("https://example.com");
+        Document clone = doc.clone();
+        assertEquals(doc.outerHtml(), clone.outerHtml());
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document doc = new Document("https://example.com");
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        doc.outputSettings(outputSettings);
+        assertEquals(outputSettings, doc.outputSettings());
+    }
+
+    @Test
+    public void parserTest() {
+        Document doc = new Document("https://example.com");
+        Parser parser = Parser.htmlParser();
+        doc.parser(parser);
+        assertEquals(parser, doc.parser());
+    }
+
+}

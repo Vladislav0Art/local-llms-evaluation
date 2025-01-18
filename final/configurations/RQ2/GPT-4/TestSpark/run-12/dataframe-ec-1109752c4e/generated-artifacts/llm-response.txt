@@ -1,0 +1,263 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class PrettyPrintVisitorTest {
+    @Test
+    public void exprToStringTest() {
+        Expression expr = new VarExpr("testVar");
+        String result = PrettyPrintVisitor.exprToString(expr);
+        assertEquals("testVar", result);
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        AssignExpr expr = new AssignExpr(new VarExpr("x"), new DecimalExpr(5));
+        visitor.visitAssignExpr(expr);
+        assertEquals("x <== 5", visitor.getPrinter().asString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        BinaryExpr expr = new BinaryExpr(new VarExpr("x"), new VarExpr("y"), BinaryOp.PLUS);
+        visitor.visitBinaryExpr(expr);
+        assertEquals("x + y", visitor.getPrinter().asString());
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        UnaryExpr expr = new UnaryExpr(new VarExpr("x"), UnaryOp.MINUS);
+        visitor.visitUnaryExpr(expr);
+        assertEquals("-x", visitor.getPrinter().asString());
+    }
+
+    // Similar test cases should be created for each visit*Expr-method in the PrettyPrintVisitor class
+    // ...
+}
+```
+Please note that these test cases assume a certain behavior of the PrettyPrintVisitor that might not be the actual behavior. Create test cases that reflect expected behavior of your implementation. Refer to the documentation or code comments to understand the expected behavior of each method. Testing with various inputs and edge cases will also help ensure robust code.
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class PrettyPrintVisitorTest {
+
+    @Test
+    public void exprToStringTest() {
+        Expression expr = new VariableExpr("testVar", false);
+        String result = PrettyPrintVisitor.exprToString(expr);
+        assertEquals("testVar", result);
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        AssignExpr expr = new AssignExpr(new VariableExpr("x", false), new DecimalExpr(new ValueExpr(new DecimalValue(5)), new ValueExpr(new DecimalValue(5))));
+        expr.accept(visitor);
+        assertEquals("x <== 5", visitor.toString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        BinaryExpr expr = new BinaryExpr(new VariableExpr("x", false), new VariableExpr("y", false), BinaryOp.PLUS);
+        expr.accept(visitor);
+        assertEquals("x + y", visitor.toString());
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        UnaryExpr expr = new UnaryExpr(new VariableExpr("x", false), UnaryOp.MINUS);
+        expr.accept(visitor);
+        assertEquals("-x", visitor.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.value.Value;
+import org.junit.Test;
+
+import static org.mockito.Mockito.verify;
+
+public class PrettyPrintVisitorTest {
+
+    @Test
+    public void visitConstructorWithPrinterTest() {
+        Printer printer = Mockito.mock(Printer.class);
+        PrettyPrintVisitor prettyPrintVisitor = new PrettyPrintVisitor(printer);
+        assertNotNull(prettyPrintVisitor);
+    }
+
+    @Test
+    public void visitIfElseExprTest() {
+        Value ifTrueValue = new DecimalValue(BigDecimal.ONE);
+        Value ifFalseValue = new DecimalValue(BigDecimal.TEN);
+        Expr ifCondition = new ConstExpr(new BooleanValue(true));
+        IfElseExpr ifElseExpr = new IfElseExpr(ifCondition, ifTrueValue, ifFalseValue);
+
+        Printer printer = Mockito.mock(Printer.class);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        ifElseExpr.accept(visitor);
+
+        verify(printer).print(" if ");
+        verify(printer).print(" then ");
+        verify(printer).print(" else ");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import io.github.vmzakharov.ecdataframe.util.Printer;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+public class PrettyPrintVisitorTest {
+
+    @Test
+    public void exprToStringTest() {
+        Expression expr = new VarExpr("testVar", false);
+        String result = PrettyPrintVisitor.exprToString(expr);
+        assertEquals("testVar", result);
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        Printer printer = Mockito.mock(Printer.class);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        AssingExpr expr = new AssingExpr(new VarExpr("x", false));
+        expr.accept(visitor);
+
+        when(printer.asString()).thenReturn("x <== undefined");
+        assertEquals("x <== undefined", printer.asString());
+    }
+
+    @Test
+    public void visitVarExprTest() {
+        Printer printer = Mockito.mock(Printer.class);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        VarExpr expr = new VarExpr("VariableName", true);
+        expr.accept(visitor);
+
+        when(printer.asString()).thenReturn("$VariableName");
+        assertEquals("$VariableName", printer.asString());
+    }
+
+    @Test
+    public void visitProjectionExprTest() {
+        Printer printer = Mockito.mock(Printer.class);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        ProjectionExpr expr = new ProjectionExpr(new VarExpr("v", false), "attribute");
+        expr.accept(visitor);
+
+        when(printer.asString()).thenReturn("v.attribute");
+        assertEquals("v.attribute", printer.asString());
+    }
+
+    @Test
+    public void visitAliasExprTest() {
+        Printer printer = Mockito.mock(Printer.class);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        AliasExpr expr = new AliasExpr(new VarExpr("v", false), "alias");
+        expr.accept(visitor);
+
+        when(printer.asString()).thenReturn("v as alias");
+        assertEquals("v as alias", printer.asString());
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.eclipse.collections.impl.factory.Lists;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class PrettyPrintVisitorTest {
+    @Test
+    public void exprToStringTest() {
+        Expression expr = new VarExpr("testVar");
+        String result = PrettyPrintVisitor.exprToString(expr);
+        assertEquals("testVar", result);
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        AssingExpr expr = new AssingExpr(new VarExpr("x"), new DecimalExpr(5));
+        expr.accept(visitor);
+        assertEquals("x <== 5", visitor.toString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        PrettyPrintVisitor visior = new PrettyPrintVisitor();
+        BinaryExpr expr = new BinaryExpr(new VarExpr("x"), new VarExpr("y"), BinaryOp.PLUS);
+        expr.accept(visitor);
+        assertEquals("x + y", visitor.toString());
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        UnaryExpr expr = new UnaryExpr(new VarExpr("x"), UnaryOp.MINUS);
+        expr.accept(visitor);
+        assertEquals("-x", visitor.toString());
+    }
+
+    @Test
+    public void visitVectorExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        VectorExpr vectorExpr = new VectorExpr(Lists.mutable.of(new DecimalExpr(1), new DecimalExpr(2), new DecimalExpr(3)));
+        vectorExpr.accept(visitor);
+        assertEquals("[1, 2, 3]", visitor.toString());
+    }
+
+    @Test
+    public void visitProjectionExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        ProjectionExpr expr = new ProjectionExpr(Lists.mutable.with(new VarExpr("variable")), "projection");
+        expr.accept(visitor);
+        assertEquals("variable.projection", visitor.toString());
+    }
+}
+```
+===================================================
+

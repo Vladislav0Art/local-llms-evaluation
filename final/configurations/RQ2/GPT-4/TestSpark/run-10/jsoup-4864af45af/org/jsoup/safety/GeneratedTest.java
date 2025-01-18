@@ -1,0 +1,113 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import org.jsoup.safety.Safelist;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist result = Safelist.none();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist result = Safelist.simpleText();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist result = Safelist.basic();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist result = Safelist.basicWithImages();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist result = Safelist.relaxed();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void constructorTest() {
+        Safelist result = new Safelist();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist sl = new Safelist();
+        sl.addTags("tag1", "tag2");
+        Assert.assertTrue(sl.isSafeTag("tag1"));
+        Assert.assertTrue(sl.isSafeTag("tag2"));
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist sl = new Safelist().addTags("tag1", "tag2");
+        sl.removeTags("tag1");
+        Assert.assertFalse(sl.isSafeTag("tag1"));
+        Assert.assertTrue(sl.isSafeTag("tag2"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist sl = new Safelist();
+        sl.addAttributes("tag1", "attr1", "attr2");
+
+        Attribute attr = new Attribute("attr1", "value");
+        Element element = mock(Element.class);
+        when(element.nodeName()).thenReturn("tag1");
+
+        Assert.assertTrue(sl.isSafeAttribute("tag1", element, attr));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist sl = new Safelist();
+        sl.addAttributes("tag1", "attr1", "attr2");
+        sl.removeAttributes("tag1", "attr2");
+
+        Attribute attr = new Attribute("attr2", "value");
+        Element element = mock(Element.class);
+        when(element.nodeName()).thenReturn("tag1");
+
+        Assert.assertFalse(sl.isSafeAttribute("tag1", element, attr));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist sl = new Safelist();
+        sl.addEnforcedAttribute("tag1", "attr1", "value1");
+
+        Attributes resultAttr = sl.getEnforcedAttributes("tag1");
+
+        Assert.assertEquals(1, resultAttr.size());
+        Assert.assertEquals("value1", resultAttr.get("attr1"));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist sl = new Safelist();
+        sl.addEnforcedAttribute("tag1", "attr1", "value1");
+        sl.removeEnforcedAttribute("tag1", "attr1");
+
+        Attributes resultAttr = sl.getEnforcedAttributes("tag1");
+
+        Assert.assertEquals(0, resultAttr.size());
+    }
+
+}

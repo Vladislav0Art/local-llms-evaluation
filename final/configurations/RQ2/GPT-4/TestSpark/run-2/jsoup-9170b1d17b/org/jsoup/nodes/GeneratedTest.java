@@ -1,0 +1,106 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Iterator;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void addTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void putTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void removeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        attributes.remove("key");
+        assertNull(attributes.get("key"));
+    }
+
+    @Test
+    public void hasKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertTrue(attributes.hasKey("key"));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertEquals(1, attributes.size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void equalsTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.put("key", "value");
+        Attributes attributes2 = new Attributes();
+        attributes2.put("key", "value");
+        assertTrue(attributes1.equals(attributes2));
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        Attributes clonedAttributes = attributes.clone();
+        assertTrue(attributes.equals(clonedAttributes));
+    }
+
+    @Test
+    public void toStringTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        String expected = "key=\"value\"";
+        assertEquals(expected, attributes.toString());
+    }
+
+    @Test
+    public void iteratorTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        attributes.put("key2", "value2");
+        Iterator<Attribute> attributeIterator = attributes.iterator();
+        assertTrue(attributeIterator.hasNext());
+    }
+
+    @Test
+    public void htmlTest() throws IOException {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        String expected = " key=\"value\"";
+        assertEquals(expected, attributes.html());
+    }
+
+    @Test
+    public void datasetTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("data-key", "value");
+        assertTrue(attributes.dataset().containsKey("key"));
+    }
+
+}

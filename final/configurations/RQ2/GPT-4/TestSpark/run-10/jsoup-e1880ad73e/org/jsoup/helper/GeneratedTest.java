@@ -1,0 +1,107 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void urlBuilderConstructorTest() {
+        try {
+            URL url = new URL("https://www.google.com/");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+
+            assertNotNull(urlBuilder);
+        } catch (Exception e) {
+            fail("Exception should not have been thrown.");
+        }
+    }
+
+    @Test
+    public void urlBuilderConstructorNullUrlTest() {
+        try {
+            UrlBuilder urlBuilder = new UrlBuilder(null);
+            fail("Exception should have been thrown");
+        } catch (NullPointerException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void buildValidURLTest() {
+        try {
+            URL url = new URL("https://www.google.com/");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+
+            URL outputUrl = urlBuilder.build();
+
+            assertEquals(url, outputUrl);
+        } catch (Exception e) {
+            fail("Exception should not have been thrown");
+        }
+    }
+
+    @Test
+    public void buildInvalidURLTest() {
+        try {
+            URL url = new URL("https:/google");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+
+            URL outputUrl = urlBuilder.build();
+
+            assertNotEquals(url, outputUrl);
+        } catch (Exception e) {
+            fail("Exception should not have been thrown");
+        }
+    }
+
+    @Test
+    public void appendKeyValTest() {
+        try {
+            URL url = new URL("https://www.google.com");
+            UrlBuilder ub = new UrlBuilder(url);
+            Connection.KeyVal kv = mock(Connection.KeyVal.class);
+
+            when(kv.key()).thenReturn("keyTest");
+            when(kv.value()).thenReturn("valueTest");
+
+            ub.appendKeyVal(kv);
+
+            String encodedUrl = ub.build().toString();
+
+            assertTrue(encodedUrl.contains("keyTest=valueTest"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void appendKeyValUnsupportedEncodingTest() {
+        try {
+            URL url = new URL("https://www.google.com");
+            UrlBuilder ub = new UrlBuilder(url);
+            Connection.KeyVal kv = mock(Connection.KeyVal.class);
+
+            when(kv.key()).thenReturn("\uD84C\uDFB4");
+            when(kv.value()).thenReturn("\uD84C\uDFB4");
+
+            ub.appendKeyVal(kv);
+            fail("Exception should have been thrown due to unsupported encoding.");
+        } catch (UnsupportedEncodingException e) {
+            assertNotNull(e.getMessage());
+        } catch (Exception e) {
+            fail("Unexpected exception was thrown.");
+        }
+    }
+
+}

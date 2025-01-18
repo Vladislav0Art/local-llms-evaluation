@@ -1,0 +1,90 @@
+package io.github.vmzakharov.ecdataframe.dataframe;
+
+import io.github.vmzakharov.ecdataframe.dataframe.DataFrame;
+import org.junit.Test;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.ArrayList;
+
+import org.eclipse.collections.api.list.ListIterable;
+import org.eclipse.collections.impl.factory.Lists;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void AddStringColumnTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("TestColumn");
+        assertEquals(1, dataFrame.columnCount());
+    }
+
+    @Test
+    public void AddLongColumnTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addLongColumn("TestColumn");
+        assertEquals(1, dataFrame.columnCount());
+    }
+
+    @Test
+    public void AddDoubleColumnTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addDoubleColumn("TestColumn");
+        assertEquals(1, dataFrame.columnCount());
+    }
+
+    @Test
+    public void AddDateColumnTest() {
+        List<LocalDate> localDateList = new ArrayList<>();
+        localDateList.add(LocalDate.now());
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addDateColumn("TestColumn", Lists.immutable.ofAll(localDateList));
+        assertEquals(1, dataFrame.columnCount());
+    }
+
+    @Test
+    public void RedirectToAggregateByTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        ListIterable<String> listAggregateColumns = Lists.immutable.of("count");
+        dataFrame.sum(listAggregateColumns);
+        assertEquals(0, dataFrame.columnCount());
+    }
+
+    @Test
+    public void CloneStructureTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("TestColumn");
+        DataFrame clonedDataFrame = dataFrame.cloneStructure("Cloned");
+        assertEquals(dataFrame.columnCount(), clonedDataFrame.columnCount());
+        assertNotEquals(dataFrame.getName(), clonedDataFrame.getName());
+    }
+
+    @Test
+    public void JoinTest() {
+        DataFrame dataFrame1 = new DataFrame("Test1");
+        DataFrame dataFrame2 = new DataFrame("Test2");
+        dataFrame1.addStringColumn("CommonColumn");
+        dataFrame1.addRow("value1");
+        dataFrame2.addStringColumn("CommonColumn");
+        dataFrame2.addRow("value1");
+        DataFrame joinedDataFrame = dataFrame1.join(dataFrame2, "CommonColumn", "CommonColumn");
+        assertEquals(2, joinedDataFrame.columnCount());
+    }
+
+    @Test
+    public void DataRowCountTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("TestColumn");
+        dataFrame.addRow("value1");
+        assertEquals(1, dataFrame.rowCount());
+    }
+
+    @Test
+    public void IsEmptyTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        assertTrue(dataFrame.isEmpty());
+    }
+
+}

@@ -1,0 +1,157 @@
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void indexOfKeyValidKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        Assert.assertEquals(0, attributes.indexOfKey("key"));
+    }
+
+    @Test
+    public void indexOfKeyInvalidKeyTest() {
+        Attributes attributes = new Attributes();
+        Assert.assertEquals(-1, attributes.indexOfKey("key"));
+    }
+
+    @Test
+    public void getValidKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        Assert.assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void getInvalidKeyTest() {
+        Attributes attributes = new Attributes();
+        Assert.assertNull(attributes.get("key"));
+    }
+
+    @Test
+    public void putTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        Assert.assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void putBooleanTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", true);
+        Assert.assertEquals("", attributes.get("key"));
+    }
+
+    @Test
+    public void removeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        attributes.remove("key");
+        Assert.assertNull(attributes.get("key"));
+    }
+
+    @Test
+    public void hasKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        Assert.assertTrue(attributes.hasKey("key"));
+        Assert.assertFalse(attributes.hasKey("invalidKey"));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key1", "value1");
+        attributes.put("key2", "value2");
+        Assert.assertEquals(2, attributes.size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        Assert.assertTrue(attributes.isEmpty());
+        attributes.put("key", "value");
+        Assert.assertFalse(attributes.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attributes = new Attributes();
+        Attributes incoming = new Attributes();
+        incoming.put("key", "value");
+        attributes.addAll(incoming);
+        Assert.assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        List<Attribute> list = attributes.asList();
+        Assert.assertNotNull(list);
+        Assert.assertEquals(1, list.size());
+    }
+
+    @Test
+    public void datasetTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("data-key", "value");
+        Map<String, String> dataset = attributes.dataset();
+        Assert.assertNotNull(dataset);
+        Assert.assertEquals(1, dataset.size());
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        Attributes cloneAttributes = attributes.clone();
+        Assert.assertEquals(attributes, cloneAttributes);
+    }
+
+    @Test
+    public void normalizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("KEY", "VALUE");
+        attributes.normalize();
+        Assert.assertEquals("VALUE", attributes.get("key"));
+    }
+
+    @Test
+    public void deduplicateTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value1");
+        attributes.put("key", "value2");
+        ParseSettings parseSettings = new ParseSettings(true, true);
+        int numberOfDuplicates = attributes.deduplicate(parseSettings);
+        Assert.assertEquals(1, numberOfDuplicates);
+    }
+
+    @Test
+    public void equalsTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.put("key", "value");
+        Attributes attributes2 = new Attributes();
+        attributes2.put("key", "value");
+        Assert.assertTrue(attributes1.equals(attributes2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        int hashCode = attributes.hashCode();
+        Assert.assertEquals(hashCode, attributes.hashCode());
+    }
+
+}

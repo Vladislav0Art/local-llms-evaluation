@@ -1,0 +1,98 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Attribute;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class GeneratedTest {
+
+    @Test
+    public void getAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("testKey", "testValue");
+        Assert.assertEquals("testValue", attributes.get("testKey"));
+    }
+
+    @Test
+    public void getAttributeIgnoreCaseTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("testKey", "testValue");
+        Assert.assertEquals("testValue", attributes.getIgnoreCase("testkey"));
+    }
+
+    @Test
+    public void addAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("testKey", "testValue");
+        Assert.assertEquals("testValue", attributes.get("testKey"));
+    }
+
+    @Test
+    public void putAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("testKey", "testValue");
+        Assert.assertEquals("testValue", attributes.get("testKey"));
+    }
+
+    @Test
+    public void removeAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("testKey", "testValue");
+        attributes.remove("testKey");
+        Assert.assertNotEquals("testValue", attributes.get("testKey"));
+    }
+
+    @Test
+    public void hasKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("testKey", "testValue");
+        Assert.assertTrue(attributes.hasKey("testKey"));
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("testKey", "testValue");
+        ArrayList<Attribute> listAttributes = new ArrayList<>();
+        listAttributes.add(new Attribute("testKey", "testValue"));
+        Assert.assertEquals(listAttributes, attributes.asList());
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("testKey", "testValue");
+        Assert.assertEquals(1, attributes.size());
+    }
+
+    @Test
+    public void attributesIteratorTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("testKey", "testValue");
+        Iterator<Attribute> iterator = attributes.iterator();
+        Attribute attribute = iterator.next();
+        Assert.assertEquals("testKey", attribute.getKey());
+        Assert.assertEquals("testValue", attribute.getValue());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        Assert.assertTrue(attributes.isEmpty());
+        attributes.put("testKey", "testValue");
+        Assert.assertFalse(attributes.isEmpty());
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("testKey", "testValue");
+        Attributes result = attributes.clone();
+        Assert.assertEquals(attributes, result);
+    }
+
+}

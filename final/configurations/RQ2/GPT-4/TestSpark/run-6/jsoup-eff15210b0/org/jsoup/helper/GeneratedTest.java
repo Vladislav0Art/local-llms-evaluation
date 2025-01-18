@@ -1,0 +1,76 @@
+package org.jsoup.helper;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectUrlTest() {
+        Connection connection = HttpConnection.connect("http://example.com");
+        assertTrue(connection instanceof HttpConnection);
+    }
+
+    @Test
+    public void connectStringTest() throws MalformedURLException {
+        Connection connection = HttpConnection.connect(new URL("http://example.com"));
+        assertTrue(connection instanceof HttpConnection);
+    }
+
+    @Test
+    public void timeoutTest() {
+        Connection connection = new HttpConnection().timeout(5000);
+        assertEquals(5000, connection.request().timeout());
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        Connection connection = new HttpConnection().maxBodySize(1000);
+        assertEquals(1000, connection.request().maxBodySize());
+    }
+
+    @Test
+    public void followRedirectsTest() {
+        Connection connection = new HttpConnection().followRedirects(true);
+        assertTrue(connection.request().followRedirects());
+    }
+
+    @Test
+    public void dataWithMapTest() {
+        Map<String, String> data = new HashMap<>();
+        data.put("name", "value");
+        Connection connection = new HttpConnection().data(data);
+        assertEquals("name=value", connection.request().data().toString());
+    }
+
+    @Test
+    public void urlTest() throws MalformedURLException {
+        Connection connection = new HttpConnection().url(new URL("http://example.com"));
+        assertTrue(connection.request().url().toString().startsWith("http://"));
+    }
+
+    @Test
+    public void getWithInvalidUrlTest() throws IOException {
+        Connection connection = new HttpConnection().url("http://invalid_url");
+        connection.get();
+    }
+
+    @Test
+    public void getWithValidUrlTest() throws IOException {
+        Document document = Jsoup.connect("http://example.com").get();
+        assertTrue(document.title().contains("Example Domain"));
+    }
+
+}

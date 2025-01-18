@@ -1,0 +1,74 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCommentNewCommentTest() {
+        // Given
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "property.path";
+        String[] commentLines = {"This is a comment", "This is another comment"};
+
+        // When
+        commentsConfiguration.setComment(path, commentLines);
+
+        // Then
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+        assertTrue(allComments.containsKey(path));
+        assertTrue(allComments.get(path).containsAll(Arrays.asList(commentLines)));
+    }
+
+    @Test
+    public void setCommentReplaceCommentTest() {
+        // Given
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "property.path";
+        String[] oldCommentLines = {"Old comment"};
+        commentsConfiguration.setComment(path, oldCommentLines);
+        String[] newCommentLines = {"This is a new comment"};
+
+        // When
+        commentsConfiguration.setComment(path, newCommentLines);
+
+        // Then
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+        assertTrue(allComments.containsKey(path));
+        assertTrue(allComments.get(path).containsAll(Arrays.asList(newCommentLines)));
+        assertFalse(allComments.get(path).containsAll(Arrays.asList(oldCommentLines)));
+    }
+
+    @Test
+    public void commentsConfigurationEmptyConstructorTest() {
+        // When
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+
+        // Then
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+        assertTrue(allComments.isEmpty());
+    }
+
+    @Test
+    public void commentsConfigurationMapConstructorTest() {
+        // Given
+        Map<String, List<String>> inputComments = new HashMap<String, List<String>>();
+        inputComments.put("property.path", Arrays.asList("Comment 1", "Comment 2"));
+        inputComments.put("another.path", Arrays.asList("Another comment"));
+
+        // When
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(inputComments);
+
+        // Then
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+        assertEquals(inputComments, allComments);
+    }
+
+}

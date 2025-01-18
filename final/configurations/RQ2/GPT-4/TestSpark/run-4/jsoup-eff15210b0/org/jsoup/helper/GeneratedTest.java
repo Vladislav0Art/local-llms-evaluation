@@ -1,0 +1,149 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.CookieStore;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    private static final String TEST_URL_STRING = "http://localhost";
+    private static final String TEST_KEY = "test_key";
+    private static final String TEST_VALUE = "test_value";
+    private static final int TEST_TIMEOUT = 5000;
+    private static final SSLSocketFactory TEST_SSL_SOCKET_FACTORY = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+    @Test
+    public void newRequestTest() {
+        Connection connection = new HttpConnection();
+        Assert.assertNotNull(connection.newRequest());
+    }
+
+    @Test
+    public void urlURITest() throws MalformedURLException {
+        Connection connection = new HttpConnection();
+        connection.url(new URL(TEST_URL_STRING));
+    }
+
+    @Test
+    public void urlStringTest() {
+        Connection connection = new HttpConnection();
+        connection.url(TEST_URL_STRING);
+    }
+
+    @Test
+    public void proxyTest() {
+        Connection connection = new HttpConnection();
+        connection.proxy(Proxy.NO_PROXY);
+    }
+
+    @Test
+    public void userAgentTest() {
+        Connection connection = new HttpConnection();
+        connection.userAgent(TEST_VALUE);
+    }
+
+    @Test
+    public void timeoutTest() {
+        Connection connection = new HttpConnection();
+        connection.timeout(TEST_TIMEOUT);
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        Connection connection = new HttpConnection();
+        connection.maxBodySize(1024);
+    }
+
+    @Test
+    public void followRedirectsTest() {
+        Connection connection = new HttpConnection();
+        connection.followRedirects(true);
+    }
+
+    @Test
+    public void ignoreHttpErrorsTest() {
+        Connection connection = new HttpConnection();
+        connection.ignoreHttpErrors(true);
+    }
+
+    @Test
+    public void ignoreContentTypeTest() {
+        Connection connection = new HttpConnection();
+        connection.ignoreContentType(true);
+    }
+
+    @Test
+    public void referrerTest() {
+        Connection connection = new HttpConnection();
+        connection.referrer(TEST_VALUE);
+    }
+
+    @Test
+    public void requestDataMapTest() {
+        Map<String, String> data = new HashMap<>();
+        data.put(TEST_KEY, TEST_VALUE);
+        Connection connection = new HttpConnection();
+        connection.data(data);
+    }
+
+    @Test
+    public void requestBodyTest() {
+        Connection connection = new HttpConnection();
+        connection.requestBody(TEST_VALUE);
+    }
+
+    @Test
+    public void headersTest() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(TEST_KEY, TEST_VALUE);
+        Connection connection = new HttpConnection();
+        connection.headers(headers);
+    }
+
+    @Test
+    public void cookiesTest() {
+        Map<String, String> cookies = new HashMap<>();
+        cookies.put(TEST_KEY, TEST_VALUE);
+        Connection connection = new HttpConnection();
+        connection.cookies(cookies);
+    }
+
+    @Test
+    public void sslSocketFactoryTest() {
+        Connection connection = new HttpConnection();
+        connection.sslSocketFactory(TEST_SSL_SOCKET_FACTORY);
+    }
+
+    @Test
+    public void postDataCharsetTest() {
+        Connection connection = new HttpConnection();
+        connection.postDataCharset("UTF-8");
+    }
+
+    @Test
+    public void getTest() throws IOException {
+        Connection connection = new HttpConnection().url(TEST_URL_STRING);
+        Document document = connection.get();
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void parserTest() {
+        Connection connection = new HttpConnection();
+        connection.parser(Parser.htmlParser());
+    }
+
+}

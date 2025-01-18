@@ -1,0 +1,89 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorEmptyTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void constructorWithMapTest() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Collections.singletonList("comment1"));
+        comments.put("path2", Collections.singletonList("comment2"));
+
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+
+        assertEquals(2, commentsConfiguration.getAllComments().size());
+        assertTrue(commentsConfiguration.getAllComments().containsKey("path1"));
+        assertTrue(commentsConfiguration.getAllComments().containsKey("path2"));
+    }
+
+    @Test
+    public void setCommentTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+
+        commentsConfiguration.setComment("path1", "comment1");
+
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+
+        assertEquals(1, allComments.size());
+        assertEquals(Collections.singletonList("comment1"), allComments.get("path1"));
+    }
+
+    @Test
+    public void setCommentOverridesExistingCommentsTest() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Collections.singletonList("comment1"));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+
+        commentsConfiguration.setComment("path1", "newComment1");
+
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+
+        assertEquals(1, allComments.size());
+        assertEquals(Collections.singletonList("newComment1"), allComments.get("path1"));
+    }
+
+    @Test
+    public void setCommentWithMultipleLinesTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+
+        commentsConfiguration.setComment("path1", "comment1", "comment2", "comment3");
+
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+
+        assertEquals(1, allComments.size());
+        assertEquals(Arrays.asList("comment1", "comment2", "comment3"), allComments.get("path1"));
+    }
+
+    @Test
+    public void getAllCommentsUnmodifiableTest() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Collections.singletonList("comment1"));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+
+        try {
+            allComments.put("path2", Collections.singletonList("comment2"));
+            assertTrue("Expected UnsupportedOperationException not thrown", false);
+        } catch (UnsupportedOperationException e) {
+            // Exception expected
+        }
+    }
+
+}

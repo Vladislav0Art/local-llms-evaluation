@@ -1,0 +1,124 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.transform.dom.DOMSource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTest() {
+        W3CDom w3cDom = new W3CDom();
+        assertFalse(w3cDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAwareWithParameterTest() {
+        W3CDom w3cDom = new W3CDom().namespaceAware(true);
+        assertTrue(w3cDom.namespaceAware());
+    }
+
+    @Test
+    public void convertDocumentTest() {
+        Document jsoupDocument = new Document("test");
+        org.w3c.dom.Document document = W3CDom.convert(jsoupDocument);
+        assertNotNull(document);
+    }
+
+    @Test
+    public void asStringWithPropertiesTest() {
+        org.w3c.dom.Document document = W3CDom.convert(new Document("test"));
+        Map<String, String> properties = new HashMap<>();
+        properties.put("propertyName", "propertyValue");
+        String documentString = W3CDom.asString(document, properties);
+
+        assertNotNull(documentString);
+        assertTrue(documentString.contains("propertyValue"));
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = new HashMap<>();
+        map.put("mapKey", "mapValue");
+        Properties properties = W3CDom.propertiesFromMap(map);
+
+        assertNotNull(properties);
+        assertTrue(properties.containsKey("mapKey"));
+        assertEquals("mapValue", properties.getProperty("mapKey"));
+    }
+
+    @Test
+    public void OutputHtmlTest() {
+        assertNotNull(W3CDom.OutputHtml());
+    }
+
+    @Test
+    public void OutputXmlTest() {
+        assertNotNull(W3CDom.OutputXml());
+    }
+
+    @Test
+    public void fromJsoupDocumentTest() {
+        W3CDom w3cDom = new W3CDom();
+        Document jsoupDocument = new Document("test");
+        org.w3c.dom.Document document = w3cDom.fromJsoup(jsoupDocument);
+
+        assertNotNull(document);
+    }
+
+    @Test
+    public void fromJsoupElementTest() {
+        W3CDom w3cDom = new W3CDom();
+        Element jsoupElement = new Element("testElement");
+        org.w3c.dom.Document document = w3cDom.fromJsoup(jsoupElement);
+
+        assertNotNull(document);
+    }
+
+    @Test
+    public void convertDocumentToDocumentTest() {
+        W3CDom w3cDom = new W3CDom();
+        Document jsoupDocument = new Document("test");
+        w3cDom.convert(jsoupDocument, W3CDom.convert(new Document("test")));
+
+        assertNotNull(jsoupDocument);
+    }
+
+    @Test
+    public void convertElementToDocumentTest() {
+        W3CDom w3cDom = new W3CDom();
+        Element jsoupElement = new Element("testElement");
+        w3cDom.convert(jsoupElement, W3CDom.convert(new Document("test")));
+
+        assertNotNull(jsoupElement);
+    }
+
+    @Test
+    public void contextNodeTest() {
+        W3CDom w3cDom = new W3CDom();
+        Document jsoupDocument = new Document("test");
+        Node contextNode = w3cDom.contextNode(W3CDom.convert(jsoupDocument));
+
+        assertNotNull(contextNode);
+        assertEquals(contextNode.getNodeName(), "#document");
+    }
+
+    @Test
+    public void asStringDocumentTest() {
+        W3CDom w3cDom = new W3CDom();
+        Document jsoupDocument = new Document("test");
+        String documentString = w3cDom.asString(W3CDom.convert(jsoupDocument));
+
+        assertNotNull(documentString);
+    }
+
+}

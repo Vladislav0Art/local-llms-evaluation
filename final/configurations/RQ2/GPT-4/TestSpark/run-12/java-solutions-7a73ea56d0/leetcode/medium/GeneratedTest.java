@@ -1,0 +1,75 @@
+package leetcode.medium;
+
+import leetcode.medium.OnlineStockSpan;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSinglePriceTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int result = span.next(100);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextMultiplePricesTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        span.next(100);
+        span.next(90);
+        span.next(80);
+        int result = span.next(70);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextIncreasingPricesTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        span.next(100);
+        span.next(120);
+        span.next(140);
+        int result = span.next(160);
+        assertEquals(4, result);
+    }
+
+    @Test
+    public void nextDecreasingPricesTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        span.next(100);
+        span.next(80);
+        span.next(60);
+        span.next(40);
+        assertEquals(1, span.next(20));
+    }
+
+    @Test
+    public void calculateSpansEmptyArrayTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int[] result = span.calculateSpans(new int[]{});
+        assertArrayEquals(new int[]{}, result);
+    }
+
+    @Test
+    public void calculateSpansSingleElementArrayTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int[] result = span.calculateSpans(new int[]{100});
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpansMultipleElementsArrayTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int[] result = span.calculateSpans(new int[]{100, 120, 140, 160});
+        assertArrayEquals(new int[]{1, 2, 3, 4}, result);
+    }
+
+    @Test
+    public void calculateSpansMixedElementsArrayTest() {
+        OnlineStockSpan span = new OnlineStockSpan();
+        int[] result = span.calculateSpans(new int[]{100, 120, 80, 160});
+        assertArrayEquals(new int[]{1, 2, 1, 4}, result);
+    }
+
+}

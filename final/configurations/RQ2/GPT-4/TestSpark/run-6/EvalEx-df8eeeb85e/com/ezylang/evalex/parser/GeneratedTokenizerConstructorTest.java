@@ -1,0 +1,22 @@
+package com.ezylang.evalex.parser;
+
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTokenizerConstructorTest {
+
+    ExpressionConfiguration config = Mockito.mock(ExpressionConfiguration.class);
+
+    @Test
+    public void tokenizerConstructorTest() {
+        Tokenizer tokenizer = new Tokenizer("5 + 3 * 2", config);
+        assertTrue(tokenizer instanceof Tokenizer);
+    }
+
+}

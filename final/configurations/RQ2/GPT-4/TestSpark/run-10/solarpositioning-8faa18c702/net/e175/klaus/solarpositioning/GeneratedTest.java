@@ -1,0 +1,56 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.time.LocalDate;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateNullDateTest() {
+        try {
+            DeltaT.estimate(null);
+            fail("Expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Date is required", e.getMessage());
+        }
+    }
+
+    @Test
+    public void estimateAstronomicalYearTest() {
+        LocalDate date = LocalDate.of(1986, 1, 1);
+        double result = DeltaT.estimate(date);
+        assertEquals(56.75, result, 0.001);
+    }
+
+    @Test
+    public void estimateEarlierThan1955Test() {
+        LocalDate date = LocalDate.of(1940, 1, 1);
+        double result = DeltaT.estimate(date);
+        assertEquals(24.45, result, 0.001);
+    }
+
+    @Test
+    public void estimateFutureDateTest() {
+        LocalDate date = LocalDate.of(2022, 1, 1);
+        double result = DeltaT.estimate(date);
+        assertEquals(71.76, result, 0.001);
+    }
+
+    @Test
+    public void estimateEarlierThan1600Test() {
+        LocalDate date = LocalDate.of(1599, 1, 1);
+        double result = DeltaT.estimate(date);
+        assertEquals(8.75, result, 0.001);
+    }
+
+    @Test
+    public void estimateAstronomicalYearWithLeapYearTest() {
+        LocalDate date = LocalDate.of(1984, 2, 29);
+        double result = DeltaT.estimate(date);
+        assertEquals(55.48, result, 0.001);
+    }
+
+}

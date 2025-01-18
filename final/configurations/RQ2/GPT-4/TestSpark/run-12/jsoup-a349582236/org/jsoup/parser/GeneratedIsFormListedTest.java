@@ -1,0 +1,19 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.Tag;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedIsFormListedTest {
+
+    @Test
+    public void isFormListedTest() {
+        Tag tag = Tag.valueOf("button");
+        assertTrue(tag.isFormListed());
+        Tag nonListedTag = Tag.valueOf("div");
+        assertFalse(nonListedTag.isFormListed());
+    }
+
+}

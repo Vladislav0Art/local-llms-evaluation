@@ -1,0 +1,108 @@
+package app;
+
+import org.junit.Test;
+import org.junit.Assert;
+import org.mockito.Mockito;
+
+import java.util.*;
+
+import exceptions.DBAppException;
+import sql.SQLTerm;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> tables = dbApp.getMyTables();
+        Assert.assertNotNull(tables);
+    }
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    public void createTableExceptionTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.createTable(null, null, null, null, null);
+    }
+
+    @Test
+    public void insertIntoTableExceptionTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.insertIntoTable(null, null);
+    }
+
+    @Test
+    public void updateTableExceptionTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.updateTable(null, null, null);
+    }
+
+    @Test
+    public void deleteFromTableExceptionTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.deleteFromTable(null, null);
+    }
+
+    @Test
+    public void selectFromTableExceptionTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.selectFromTable(null, null);
+    }
+
+    @Test
+    public void createTableTest() throws DBAppException {
+        DBApp dbApp = spy(new DBApp());
+        Hashtable<String, String> htblColNameType = new Hashtable<>();
+        Hashtable<String, String> htblColNameMin = new Hashtable<>();
+        Hashtable<String, String> htblColNameMax = new Hashtable<>();
+
+        dbApp.createTable("table", "key", htblColNameType, htblColNameMin, htblColNameMax);
+        Mockito.verify(dbApp, atLeastOnce()).createTable(eq("table"), eq("key"), any(Hashtable.class), any(Hashtable.class), any(Hashtable.class));
+    }
+
+    @Test
+    public void insertIntoTableTest() throws DBAppException {
+        DBApp dbApp = spy(new DBApp());
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+
+        dbApp.insertIntoTable("table", htblColNameValue);
+        Mockito.verify(dbApp, atLeastOnce()).insertIntoTable(eq("table"), any(Hashtable.class));
+    }
+
+    @Test
+    public void updateTableTest() throws DBAppException {
+        DBApp dbApp = spy(new DBApp());
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+
+        dbApp.updateTable("table", "key", htblColNameValue);
+        Mockito.verify(dbApp, atLeastOnce()).updateTable(eq("table"), eq("key"), any(Hashtable.class));
+    }
+
+    @Test
+    public void deleteFromTableTest() throws DBAppException {
+        DBApp dbApp = spy(new DBApp());
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+
+        dbApp.deleteFromTable("table", htblColNameValue);
+        Mockito.verify(dbApp, atLeastOnce()).deleteFromTable(eq("table"), any(Hashtable.class));
+    }
+
+    @Test
+    public void selectFromTableTest() throws DBAppException {
+        DBApp dbApp = spy(new DBApp());
+        SQLTerm[] sqlTerms = new SQLTerm[0];
+        String[] operators = new String[0];
+
+        dbApp.selectFromTable(sqlTerms, operators);
+        Mockito.verify(dbApp, atLeastOnce()).selectFromTable(any(SQLTerm[].class), any(String[].class));
+    }
+
+}

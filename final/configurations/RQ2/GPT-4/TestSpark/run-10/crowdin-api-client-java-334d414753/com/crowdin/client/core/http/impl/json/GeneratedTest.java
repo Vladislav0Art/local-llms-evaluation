@@ -1,0 +1,62 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.projectsgroups.model.Project;
+import org.junit.Assert;
+import org.junit.Test;
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+
+import java.text.DateFormat;
+import java.util.TimeZone;
+import java.util.Locale;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseValidJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String testJson = "{\"id\":123,\"name\":\"test project\"}";
+        try {
+            Project project = transformer.parse(testJson, Project.class);
+            Assert.assertEquals(Long.valueOf(123), project.getId());
+            Assert.assertEquals("test project", project.getName());
+        } catch (Exception e) {
+            Assert.fail("Exception should not have been thrown");
+        }
+    }
+
+    @Test
+    public void parseInvalidJsonTest() throws CrowdinApiException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String testJson = "{\"id\"\"123\",\"name\":\"test project\"}";
+        // Expect an exception due to invalid JSON
+        Project project = transformer.parse(testJson, Project.class);
+    }
+
+    @Test
+    public void convertTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = new Project();
+        project.setId(Long.valueOf(456));
+        project.setName("Another Test Project");
+
+        String expectedJson = "{\"id\":456,\"name\":\"Another Test Project\"}";
+
+        try {
+            String result = transformer.convert(project);
+            Assert.assertEquals(expectedJson, result);
+        } catch (Exception e) {
+            Assert.fail("Exception should not have been thrown");
+        }
+    }
+
+    @Test
+    public void convertNonSerializableObjectTest() throws CrowdinApiException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        // Create a new instance of DateFormat which is not serializable
+        DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.UK);
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        // Expect an exception due to trying to convert a non-serializable object
+        String result = transformer.convert(df);
+    }
+
+}

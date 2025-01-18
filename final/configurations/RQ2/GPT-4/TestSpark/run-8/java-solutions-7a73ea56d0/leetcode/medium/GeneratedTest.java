@@ -1,0 +1,60 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import leetcode.medium.OnlineStockSpan;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSinglePriceTest() {
+        OnlineStockSpan spanner = new OnlineStockSpan();
+        int result = spanner.next(10);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextMultipleDifferentPricesTest() {
+        OnlineStockSpan spanner = new OnlineStockSpan();
+        int result = spanner.next(10);
+        result = spanner.next(20);
+        assertEquals(2, result);
+        result = spanner.next(5);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextMultipleSamePricesTest() {
+        OnlineStockSpan spanner = new OnlineStockSpan();
+        int result = spanner.next(10);
+        result = spanner.next(10);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void calculateSpansEmptyArrayTest() {
+        OnlineStockSpan spanner = new OnlineStockSpan();
+        int[] prices = {};
+        int[] spans = spanner.calculateSpans(prices);
+        assertTrue(spans.length == 0);
+    }
+
+    @Test
+    public void calculateSpansSingleElementTest() {
+        OnlineStockSpan spanner = new OnlineStockSpan();
+        int[] prices = {100};
+        int[] spans = spanner.calculateSpans(prices);
+        assertArrayEquals(new int[]{1}, spans);
+    }
+
+    @Test
+    public void calculateSpansMultipleElementsTest() {
+        OnlineStockSpan spanner = new OnlineStockSpan();
+        int[] prices = {100, 80, 60, 70, 60, 75, 85};
+        int[] spans = spanner.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 1, 1, 2, 1, 4, 6}, spans);
+    }
+
+}

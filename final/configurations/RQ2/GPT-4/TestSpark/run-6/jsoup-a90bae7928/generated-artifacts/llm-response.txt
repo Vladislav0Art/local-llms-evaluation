@@ -1,0 +1,502 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.parser.*;
+import org.jsoup.nodes.*;
+import org.junit.Test;
+import java.io.StringReader;
+import java.util.List;
+import static org.junit.Assert.*;
+
+public class XmlTreeBuilderTest {
+    
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        ParseSettings parseSettings = xmlTreeBuilder.defaultSettings();
+        assertTrue(parseSettings instanceof ParseSettings);
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        StringReader reader = new StringReader("<root></root>");
+        String baseUri = "dummyUri";
+        Parser parser = Parser.xmlParser();
+        xmlTreeBuilder.initialiseParse(reader, baseUri, parser);
+        assertEquals(baseUri, xmlTreeBuilder.getBaseUri());
+    }
+
+    @Test
+    public void parseWithReaderTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        StringReader reader = new StringReader("<root></root>");
+        String baseUri = "dummyUri";
+        Document document = xmlTreeBuilder.parse(reader, baseUri);
+        assertNotNull(document);
+        assertEquals("root", document.body().tagName());
+    }
+
+    @Test
+    public void parseWithStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String input = "<root></root>";
+        String baseUri = "dummyUri";
+        Document document = xmlTreeBuilder.parse(input, baseUri);
+        assertNotNull(document);
+        assertEquals("root", document.body().tagName());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        XmlTreeBuilder newInstance = xmlTreeBuilder.newInstance();
+        assertNotNull(newInstance);
+        assertTrue(newInstance instanceof XmlTreeBuilder);
+    }
+
+    @Test
+    public void processTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Character character = new Token.Character().data("<root></root>");
+        boolean processed = xmlTreeBuilder.process(character);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Node node = new Node("dummyUri");
+        xmlTreeBuilder.insertNode(node);
+        assertEquals("dummyUri", xmlTreeBuilder.getStack().peekFirst().baseUri());
+    }
+
+    @Test
+    public void insertStartTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.StartTag startTag = new Token.StartTag().name("root");
+        Element element = xmlTreeBuilder.insert(startTag);
+        assertNotNull(element);
+        assertEquals("root", element.tagName());
+    }
+
+    @Test
+    public void insertCharacterTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Character character = new Token.Character().data("dummyData");
+        xmlTreeBuilder.insert(character);
+        assertTrue(xmlTreeBuilder.getStack().peekFirst() instanceof TextNode);
+    }
+
+    @Test
+    public void insertDoctypeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Doctype doctype = new Token.Doctype().name("root").pubSysKey("PUBLIC").systemIdentifier("SystemID");
+        xmlTreeBuilder.insert(doctype);
+        assertTrue(xmlTreeBuilder.getStack().peekFirst() instanceof DocumentType);
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String inputFragment = "<root></root>";
+        String baseUri = "dummyUri";
+        Parser parser = Parser.xmlParser();
+        List<Node> nodes = xmlTreeBuilder.parseFragment(inputFragment, baseUri, parser);
+        assertFalse(nodes.isEmpty());
+        assertTrue(nodes.get(0) instanceof Element);
+        assertEquals("root", ((Element)nodes.get(0)).tagName());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.parser.*;
+import org.jsoup.nodes.*;
+import org.junit.Test;
+import java.io.StringReader;
+import java.util.List;
+import static org.junit.Assert.*;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertNotNull(xmlTreeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void parseWithReaderTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        StringReader reader = new StringReader("<root></root>");
+        String baseUri = "dummyUri";
+        Document document = xmlTreeBuilder.parse(reader, baseUri);
+        assertNotNull(document);
+        assertEquals("root", document.child(0).tagName());
+    }
+
+    @Test
+    public void parseWithStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String input = "<root></root>";
+        String baseUri = "dummyUri";
+        Document document = xmlTreeBuilder.parse(input, baseUri);
+        assertNotNull(document);
+        assertEquals("root", document.child(0).tagName());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        XmlTreeBuilder newInstance = xmlTreeBuilder.newInstance();
+        assertNotNull(newInstance);
+        assertTrue(newInstance instanceof XmlTreeBuilder);
+    }
+
+    private void processTokenTest(Token token) {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        boolean processed = xmlTreeBuilder.process(token);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void processTokenCharacterTest() {
+        Token.Character character = new Token.Character().data("dummyData");
+        processTokenTest(character);
+    }
+
+    @Test
+    public void processTokenStartTagTest() {
+        Token.StartTag startTag = new Token.StartTag();
+        startTag.nameAttr("root", "attr", new Attributes());
+        processTokenTest(startTag);
+    }
+
+    @Test
+    public void processTokenEndTagTest() {
+        Token.EndTag endTag = new Token.EndTag();
+        endTag.name("root");
+        processTokenTest(endTag);
+    }
+
+    @Test
+    public void processTokenDoctypeTest() {
+        Token.Doctype doctype = new Token.Doctype();
+        doctype.init("name", "", "", true);
+        processTokenTest(doctype);
+    }
+
+    @Test
+    public void processTokenCommentTest() {
+        Token.Comment comment = new Token.Comment();
+        comment.getDataBuffer().append("comment");
+        processTokenTest(comment);
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String inputFragment = "<root><child></child></root>";
+        String baseUri = "dummyUri";
+        Parser parser = Parser.xmlParser();
+        List<Node> nodes = xmlTreeBuilder.parseFragment(inputFragment, baseUri, parser);
+        assertFalse(nodes.isEmpty());
+        assertEquals("root", nodes.get(0).nodeName());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.parser.*;
+import org.jsoup.nodes.*;
+import org.junit.Test;
+import java.io.StringReader;
+import java.util.List;
+import static org.junit.Assert.*;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertNotNull(xmlTreeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void parseWithReaderTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        StringReader reader = new StringReader("<root></root>");
+        String baseUri = "dummyUri";
+        Document document = xmlTreeBuilder.parse(reader, baseUri);
+        assertNotNull(document);
+        assertEquals("root", document.child(0).tagName());
+    }
+
+    @Test
+    public void parseWithStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String input = "<root></root>";
+        String baseUri = "dummyUri";
+        Document document = xmlTreeBuilder.parse(input, baseUri);
+        assertNotNull(document);
+        assertEquals("root", document.child(0).tagName());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        XmlTreeBuilder newInstance = xmlTreeBuilder.newInstance();
+        assertNotNull(newInstance);
+        assertTrue(newInstance instanceof XmlTreeBuilder);
+    }
+
+    @Test
+    public void processTokenCharacterTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Character character = new Token.Character().data("dummyData");
+        boolean processed = xmlTreeBuilder.process(character);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void processTokenStartTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.StartTag startTag = new Token.StartTag();
+        startTag.nameAttr("root", new Attributes());
+        boolean processed = xmlTreeBuilder.process(startTag);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void processTokenEndTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.EndTag endTag = new Token.EndTag();
+        endTag.name("root");
+        boolean processed = xmlTreeBuilder.process(endTag);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void processTokenDoctypeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Doctype doctype = new Token.Doctype();
+        doctype.init("name", true);
+        boolean processed = xmlTreeBuilder.process(doctype);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String inputFragment = "<root><child></child></root>";
+        String baseUri = "dummyUri";
+        Parser parser = Parser.xmlParser();
+        List<Node> nodes = xmlTreeBuilder.parseFragment(inputFragment, baseUri, parser);
+        assertFalse(nodes.isEmpty());
+        assertEquals("root", nodes.get(0).nodeName());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.parser.*;
+import org.jsoup.nodes.*;
+import org.junit.Test;
+import java.io.StringReader;
+import java.util.List;
+import static org.junit.Assert.*;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertNotNull(xmlTreeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void parseWithReaderTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        StringReader reader = new StringReader("<root></root>");
+        String baseUri = "dummyUri";
+        Document document = xmlTreeBuilder.parse(reader, baseUri);
+        assertNotNull(document);
+        assertEquals("root", document.child(0).tagName());
+    }
+
+    @Test
+    public void parseWithStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String input = "<root></root>";
+        String baseUri = "dummyUri";
+        Document document = xmlTreeBuilder.parse(input, baseUri);
+        assertNotNull(document);
+        assertEquals("root", document.child(0).tagName());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        XmlTreeBuilder newInstance = xmlTreeBuilder.newInstance();
+        assertNotNull(newInstance);
+        assertTrue(newInstance instanceof XmlTreeBuilder);
+    }
+
+    @Test
+    public void processTokenCharacterTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Character character = new Token.Character().data("dummyData");
+        boolean processed = xmlTreeBuilder.process(character);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void processTokenStartTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.StartTag startTag = new Token.StartTag();
+        startTag.nameAttr("root", new Attributes());
+        boolean processed = xmlTreeBuilder.process(startTag);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void processTokenEndTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.EndTag endTag = new Token.EndTag();
+        endTag.name("root");
+        boolean processed = xmlTreeBuilder.process(endTag);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void processTokenDoctypeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Doctype doctype = new Token.Doctype();
+        doctype.init("name", "", "", "");
+        boolean processed = xmlTreeBuilder.process(doctype);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String inputFragment = "<root><child></child></root>";
+        String baseUri = "dummyUri";
+        Parser parser = Parser.xmlParser();
+        List<Node> nodes = xmlTreeBuilder.parseFragment(inputFragment, baseUri, parser);
+        assertFalse(nodes.isEmpty());
+        assertEquals("root", nodes.get(0).nodeName());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.parser.*;
+import org.jsoup.nodes.*;
+import org.junit.Test;
+import java.io.StringReader;
+import java.util.List;
+import static org.junit.Assert.*;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertNotNull(xmlTreeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void parseWithReaderTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        StringReader reader = new StringReader("<root></root>");
+        String baseUri = "dummyUri";
+        Document document = xmlTreeBuilder.parse(reader, baseUri);
+        assertNotNull(document);
+        assertEquals("root", document.child(0).tagName());
+    }
+
+    @Test
+    public void parseWithStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String input = "<root></root>";
+        String baseUri = "dummyUri";
+        Document document = xmlTreeBuilder.parse(input, baseUri);
+        assertNotNull(document);
+        assertEquals("root", document.child(0).tagName());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        XmlTreeBuilder newInstance = xmlTreeBuilder.newInstance();
+        assertNotNull(newInstance);
+        assertTrue(newInstance instanceof XmlTreeBuilder);
+    }
+
+    @Test
+    public void processTokenCharacterTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Character character = new Token.Character().data("dummyData");
+        boolean processed = xmlTreeBuilder.process(character);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void processTokenStartTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Attributes attributes = new Attributes();
+        attributes.put("attr", "value");
+        Token.StartTag startTag = new Token.StartTag().nameAttr("root", attributes);
+        boolean processed = xmlTreeBuilder.process(startTag);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void processTokenEndTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.EndTag endTag = new Token.EndTag();
+        endTag.name("root");
+        boolean processed = xmlTreeBuilder.process(endTag);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void processTokenDoctypeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Doctype doctype = new Token.Doctype();
+        boolean processed = xmlTreeBuilder.process(doctype);
+        assertTrue(processed);
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String inputFragment = "<root><child></child></root>";
+        String baseUri = "dummyUri";
+        Parser parser = Parser.xmlParser();
+        List<Node> nodes = xmlTreeBuilder.parseFragment(inputFragment, baseUri, parser);
+        assertFalse(nodes.isEmpty());
+        assertEquals("root", nodes.get(0).nodeName());
+    }
+
+}
+```
+===================================================
+

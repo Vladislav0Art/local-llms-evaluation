@@ -1,0 +1,169 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.HttpConnection;
+import org.junit.Test;
+import org.junit.Assert;
+import org.mockito.Mockito;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringUrlTest() {
+        Connection connection = HttpConnection.connect("http://www.google.com");
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void connectStringUrlInvalidTest() {
+        HttpConnection.connect("invalid_url");
+    }
+
+    @Test
+    public void connectUrlTest() throws Exception {
+        URL url = new URL("http://www.google.com");
+        Connection connection = HttpConnection.connect(url);
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        connection.userAgent("Mozilla");
+        Assert.assertEquals(connection.request().header("User-Agent"), "Mozilla");
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        connection.timeout(5000);
+        Assert.assertEquals(connection.request().timeout(), 5000);
+    }
+
+    @Test
+    public void proxyTest() {
+        Proxy proxy = Mockito.mock(Proxy.class);
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        connection.proxy(proxy);
+        Assert.assertEquals(connection.request().proxy(), proxy);
+    }
+
+    @Test
+    public void sslSocketFactoryTest() {
+        SSLSocketFactory socketFactory = Mockito.mock(SSLSocketFactory.class);
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        connection.sslSocketFactory(socketFactory);
+        Assert.assertEquals(connection.request().sslSocketFactory(), socketFactory);
+    }
+
+    @Test
+    public void dataStreamTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("test".getBytes());
+        connection.data("key", "test.txt", inputStream);
+        Assert.assertTrue(connection.request().data().stream().anyMatch(k -> k.key().equals("key") && k.value().equals("test")));
+    }
+
+    @Test
+    public void dataKeyValueTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        connection.data("key1", "value1");
+        Assert.assertTrue(connection.request().data().stream().anyMatch(k -> k.key().equals("key1") && k.value().equals("value1")));
+    }
+
+    @Test
+    public void cookieTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        String name = "test-cookie";
+        String value = "test-value";
+        connection.cookie(name, value);
+        Assert.assertEquals(connection.request().cookies().get(name), value);
+    }
+
+    @Test
+    public void followRedirectsTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        boolean followRedirects = false;
+        connection.followRedirects(followRedirects);
+        Assert.assertEquals(connection.request().followRedirects(), followRedirects);
+    }
+
+    @Test
+    public void executeTest() throws IOException {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        connection.method(Connection.Method.GET);
+        Assert.assertNotNull(connection.execute());
+    }
+
+    @Test
+    public void getTest() throws IOException {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        Assert.assertNotNull(connection.get());
+    }
+
+    @Test
+    public void postTest() throws IOException {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        Assert.assertNotNull(connection.post());
+    }
+
+    @Test
+    public void dataMapTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        Map<String, String> data = new HashMap<>();
+        data.put("key", "value");
+        connection.data(data);
+        Assert.assertTrue(connection.request().data().stream().anyMatch(k -> k.key().equals("key") && k.value().equals("value")));
+    }
+
+    @Test
+    public void headersTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("key", "value");
+        connection.headers(headers);
+        Assert.assertEquals(connection.request().header("key"), "value");
+    }
+
+    @Test
+    public void postDataCharsetTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        String charset = "UTF-8";
+        connection.postDataCharset(charset);
+        Assert.assertEquals(connection.request().postDataCharset(), charset);
+    }
+
+    @Test
+    public void referrerTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        String referrer = "http://www.referrer.com";
+        connection.referrer(referrer);
+        Assert.assertEquals(connection.request().header("Referer"), referrer);
+    }
+
+    @Test
+    public void ignoreHttpErrorsTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        boolean ignoreHttpErrors = true;
+        connection.ignoreHttpErrors(ignoreHttpErrors);
+        Assert.assertEquals(connection.request().ignoreHttpErrors(), ignoreHttpErrors);
+    }
+
+    @Test
+    public void ignoreContentTypeTest() {
+        HttpConnection connection = (HttpConnection) HttpConnection.connect("http://www.google.com");
+        boolean ignoreContentType = true;
+        connection.ignoreContentType(ignoreContentType);
+        Assert.assertEquals(connection.request().ignoreContentType(), ignoreContentType);
+    }
+
+}

@@ -1,0 +1,21 @@
+package org.jsoup.nodes;
+
+import org.jsoup.parser.ParseSettings;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+public class GeneratedGetNonExistingKeyTest {
+
+    @Test
+    public void getNonExistingKeyTest() {
+        Attributes attributes = new Attributes();
+        String result = attributes.getIgnoreCase("key");
+        Assert.assertEquals("", result);
+    }
+
+}

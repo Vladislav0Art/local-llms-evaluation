@@ -1,0 +1,75 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+
+import java.util.HashMap;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareDefaultTest() {
+        W3CDom w3CDom = new W3CDom();
+        assertFalse(w3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAwareTrueTest() {
+        W3CDom w3CDom = new W3CDom().namespaceAware(true);
+        assertTrue(w3CDom.namespaceAware());
+    }
+
+    @Test
+    public void convertNullDocumentTest() {
+        Document document = null;
+        W3CDom.convert(document);
+    }
+
+    @Test
+    public void propertiesFromMapEmptyTest() {
+        assertEquals(0, W3CDom.propertiesFromMap(new HashMap<>()).size());
+    }
+
+    @Test
+    public void asStringNullDocumentTest() {
+        HashMap<String, String> properties = new HashMap<>();
+        W3CDom.asString(null, properties);
+    }
+
+    @Test
+    public void fromJsoupNullDocumentTest() {
+        W3CDom w3CDom = new W3CDom();
+        Document document = null;
+        w3CDom.fromJsoup(document);
+    }
+
+    @Test
+    public void contextNodeNullDocumentTest() {
+        W3CDom w3CDom = new W3CDom();
+        org.w3c.dom.Document document = null;
+        w3CDom.contextNode(document);
+    }
+
+    @Test
+    public void selectXpathNullContextNodeTest() {
+        W3CDom w3CDom = new W3CDom();
+        Node contextNode = null;
+        w3CDom.selectXpath("/html/body/div[1]/div", contextNode);
+    }
+
+    @Test
+    public void sourceNodesNullNodeListTest() {
+        W3CDom w3CDom = new W3CDom();
+        NodeList nodeList = null;
+        w3CDom.sourceNodes(nodeList, Document.class);
+    }
+
+}

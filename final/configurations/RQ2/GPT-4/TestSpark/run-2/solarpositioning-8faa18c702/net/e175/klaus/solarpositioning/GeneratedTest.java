@@ -1,0 +1,48 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateNullDateTest() {
+        try {
+            DeltaT.estimate(null);
+        } catch (IllegalArgumentException ex) {
+            assertEquals("date must not be null", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void estimatePrehistoricDateTest() {
+        LocalDate date = LocalDate.of(0, 1, 1);
+        double deltaT = DeltaT.estimate(date);
+        assertEquals(17190.0, deltaT, 0.01);
+    }
+
+    @Test
+    public void estimateFutureDateTest() {
+        LocalDate date = LocalDate.of(5000, 1, 1);
+        double deltaT = DeltaT.estimate(date);
+        assertEquals(7528.34, deltaT, 0.01);
+    }
+
+    @Test
+    public void estimatePastDateTest() {
+        LocalDate date = LocalDate.of(1950, 1, 1);
+        double deltaT = DeltaT.estimate(date);
+        assertEquals(29.1, deltaT, 0.01);
+    }
+
+    @Test
+    public void estimateSpecificDateTest() {
+        LocalDate date = LocalDate.of(2000, 1, 1);
+        double deltaT = DeltaT.estimate(date);
+        assertEquals(63.83, deltaT, 0.01);
+    }
+
+}

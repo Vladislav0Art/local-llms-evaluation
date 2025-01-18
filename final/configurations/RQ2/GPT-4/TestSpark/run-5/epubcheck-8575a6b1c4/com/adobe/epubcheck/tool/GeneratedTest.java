@@ -1,0 +1,76 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Locale;
+
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.util.DefaultReportImpl;
+import com.adobe.epubcheck.util.EPUBVersion;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Locale result = epubChecker.getLocale();
+        Assert.assertNotNull(result);
+        Assert.assertEquals(Locale.getDefault(), result);
+    }
+
+    @Test
+    public void runWithValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"file.epub"};
+        int result = epubChecker.run(args);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void runWithInvalidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {};
+        int result = epubChecker.run(args);
+        Assert.assertNotEquals(0, result);
+    }
+
+    @Test
+    public void processEpubFileWithValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"file.epub"};
+        int result = epubChecker.processEpubFile(args);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void processEpubFileWithInvalidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {};
+        int result = epubChecker.processEpubFile(args);
+        Assert.assertNotEquals(0, result);
+    }
+
+    @Test
+    public void validateFileWithValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String path = "file.epub";
+        EPUBVersion version = EPUBVersion.VERSION_3;
+        DefaultReportImpl report = new DefaultReportImpl(path);
+        EPUBProfile profile = EPUBProfile.DEFAULT;
+        int result = epubChecker.validateFile(path, version, report, profile);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void validateFileWithInvalidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String path = "";
+        EPUBVersion version = EPUBVersion.VERSION_3;
+        DefaultReportImpl report = new DefaultReportImpl(path);
+        EPUBProfile profile = EPUBProfile.DEFAULT;
+        int result = epubChecker.validateFile(path, version, report, profile);
+        Assert.assertNotEquals(0, result);
+    }
+
+}

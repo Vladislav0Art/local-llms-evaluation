@@ -1,0 +1,215 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.parser;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.select.Elements;
+import org.junit.Assert;
+import org.junit.Test;
+import java.io.StringReader;
+import java.util.List;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<root/>"), "https://www.example.com", new Parser(xmlTreeBuilder));
+        Assert.assertEquals("Check the state of the stack after parsing", 1, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void parseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document document = xmlTreeBuilder.parse("<root><child/></root>", "https://www.example.com");
+        Elements root = document.getElementsByTag("root");
+        Assert.assertEquals("Check the number of root nodes", 1, root.size());
+        Assert.assertEquals("Check the number of child nodes", 1, root.get(0).childNodes().size());
+    }
+
+    @Test
+    public void processTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.process(new Token.StartTag("root")) ;
+        Assert.assertEquals("Check the state of the stack after processing", 1, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insertNode(new Element("root"));
+        Assert.assertEquals("Check the state of the stack after insertion", 1, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void insertStartTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.StartTag("root"));
+        Assert.assertEquals("Check the state of the stack after insertion", 1, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void insertCommentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Comment("<!-- Comment -->"));
+        Assert.assertEquals("Check the state of the stack after insertion", 1, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void insertCharacterTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Character("x"));
+        Assert.assertEquals("Check the state of the stack after insertion", 1, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void insertDoctypeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Doctype("DTD"));
+        Assert.assertEquals("Check the state of the stack after insertion", 1, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void popStackToCloseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.process(new Token.StartTag("root"));
+        xmlTreeBuilder.popStackToClose(new Token.EndTag("root")) ;
+        Assert.assertEquals("Check the state of the stack after closing", 0, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<child/>", "https://www.example.com", new Parser(xmlTreeBuilder));
+        Assert.assertEquals("Check the number of nodes after parsing fragment", 1, nodes.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.jsoup.parser;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<root/>"), "https://www.example.com", new Parser(xmlTreeBuilder));
+        Assert.assertEquals("Check the stack after parsing",  1, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void parseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document document = xmlTreeBuilder.parse("<root><child/></root>", "https://www.example.com");
+        Assert.assertEquals("Check root nodes", 1, document.getElementsByTag("root").size());
+        Assert.assertEquals("Check child nodes", 1, document.getElementsByTag("child").size());
+    }
+
+    @Test
+    public void processTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.process(new Token.Tag("root", Tag.valueOf("root")));
+        Assert.assertEquals("Check stack after processing", 1, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insertNode(new Element(Tag.valueOf("root"), ""));
+        Assert.assertEquals("Check stack after insertion", 1, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void popStackToCloseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.process(new Token.Tag("root", Tag.valueOf("root")));
+        xmlTreeBuilder.popStackToClose("root");
+        Assert.assertEquals("Check stack after closing", 0, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<child/>", "", "https://www.example.com", new Parser(xmlTreeBuilder));
+        Assert.assertEquals("Check nodes after parsing fragment", 1, nodes.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package org.jsoup.parser;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Node;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.StringReader;
+import java.util.List;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xb = new XmlTreeBuilder();
+        Assert.assertNotNull(xb.defaultSettings());
+    }
+
+    @Test
+    public void parseReaderTest() {
+        XmlTreeBuilder xb = new XmlTreeBuilder();
+        StringReader str = new StringReader("<html></html>");
+        Document dc = xb.parse(str, "");
+        Assert.assertEquals("<html>\n" + " <head></head>\n" + " <body></body>\n" + "</html>", dc.html());
+    }
+
+    @Test
+    public void parseStringTest() {
+        XmlTreeBuilder xb = new XmlTreeBuilder();
+        Document dc = xb.parse("<html></html>", "");
+        Assert.assertEquals("<html>\n" + " <head></head>\n" + " <body></body>\n" + "</html>", dc.html());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xb = new XmlTreeBuilder();
+        Assert.assertNotSame(xb, xb.newInstance());
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xb = new XmlTreeBuilder();
+        List<Node> nd = xb.parseFragment("<html></html>", "", new Parser(xb));
+        Assert.assertEquals(1, nd.size());
+    }
+    
+    @Test
+    public void parseFragmentContextTest() {
+        XmlTreeBuilder xb = new XmlTreeBuilder();
+        List<Node> nd = xb.parseFragment("<html></html>", null, "", new Parser(xb));
+        Assert.assertEquals(1, nd.size());
+    }
+
+}
+```
+===================================================
+

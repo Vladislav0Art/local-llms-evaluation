@@ -1,0 +1,120 @@
+package org.stellar.sdk;
+
+import net.i2p.crypto.eddsa.EdDSAPrivateKey;
+import net.i2p.crypto.eddsa.EdDSAPublicKey;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.SignerKey;
+
+import java.security.GeneralSecurityException;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void fromSecretSeedArrayTest() {
+        byte[] seed = new byte[]{1, 2, 3, 4, 5};
+        assertNotNull(KeyPair.fromSecretSeed(seed));
+    }
+
+    @Test
+    public void fromSecretSeedStringTest() {
+        String seed = "Seed";
+        assertNotNull(KeyPair.fromSecretSeed(seed));
+    }
+
+    @Test
+    public void fromAccountIdTest() {
+        String accountId = "AccountId";
+        assertNotNull(KeyPair.fromAccountId(accountId));
+    }
+
+    @Test
+    public void fromPublicKeyTest() {
+        byte[] publicKey = new byte[]{1, 2, 3, 4, 5};
+        assertNotNull(KeyPair.fromPublicKey(publicKey));
+    }
+
+    @Test
+    public void fromBip39SeedTest() {
+        byte[] bip39Seed = new byte[]{1, 2, 3, 4, 5};
+        int accountNumber = 1;
+        assertNotNull(KeyPair.fromBip39Seed(bip39Seed, accountNumber));
+    }
+
+    @Test
+    public void fromXdrPublicKeyTest() {
+        PublicKey key = new PublicKey();
+        assertNotNull(KeyPair.fromXdrPublicKey(key));
+    }
+
+    @Test
+    public void fromXdrSignerKeyTest() {
+        SignerKey key = new SignerKey();
+        assertNotNull(KeyPair.fromXdrSignerKey(key));
+    }
+
+    @Test
+    public void signTest() {
+        byte[] data = new byte[]{1, 2, 3, 4, 5};
+        EdDSAPublicKey publicKey = Mockito.mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.sign(data));
+    }
+
+    @Test
+    public void canSignTest() {
+        EdDSAPublicKey publicKey = Mockito.mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertFalse(keyPair.canSign());
+    }
+
+    @Test
+    public void getSecretSeedTest() {
+        EdDSAPublicKey publicKey = Mockito.mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNull(keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void getPublicKeyTest() {
+        EdDSAPublicKey publicKey = Mockito.mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void equalsTest() {
+        EdDSAPublicKey publicKey = Mockito.mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertFalse(keyPair.equals(new Object()));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        EdDSAPublicKey publicKey = Mockito.mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.hashCode());
+    }
+
+    @Test
+    public void getXdrPublicKeyTest() {
+        EdDSAPublicKey publicKey = Mockito.mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.getXdrPublicKey());
+    }
+
+    @Test
+    public void getXdrSignerKeyTest() {
+        EdDSAPublicKey publicKey = Mockito.mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.getXdrSignerKey());
+    }
+
+}

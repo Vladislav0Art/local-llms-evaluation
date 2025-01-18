@@ -1,0 +1,21 @@
+package com.ezylang.evalex.parser;
+
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
+
+public class GeneratedTokenizerConstructorTest {
+
+    @Test
+    public void tokenizerConstructorTest() {
+        ExpressionConfiguration configuration = Mockito.mock(ExpressionConfiguration.class);
+        Tokenizer tokenizer = new Tokenizer("1+sqrt(4)", configuration);
+
+        assertNotNull(tokenizer);
+    }
+
+}

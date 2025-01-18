@@ -1,0 +1,140 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorWithTagNameTest() {
+        Element element = new Element("div");
+        assertNotNull(element);
+        assertEquals("div", element.tagName());
+    }
+
+    @Test
+    public void constructorWithTagBaseUriAttributesTest() {
+        Element element = new Element(Tag.valueOf("div"), "https://example.com", null);
+        assertNotNull(element);
+        assertEquals("div", element.tagName());
+        assertEquals("https://example.com", element.baseUri());
+    }
+
+    @Test
+    public void hasChildNodesTest() {
+        Element elem = new Element("div");
+        assertFalse(elem.hasChildNodes());
+        elem.appendElement("span");
+        assertTrue(elem.hasChildNodes());
+    }
+
+    @Test
+    public void hasAttributesTest() {
+        Element elem = new Element("div");
+        assertFalse(elem.hasAttributes());
+        elem.attr("attr", "value");
+        assertTrue(elem.hasAttributes());
+    }
+
+    @Test
+    public void baseUriTest() {
+        Element elem = new Element(Tag.valueOf("div"), "https://example.com", null);
+        assertEquals("https://example.com", elem.baseUri());
+    }
+
+    @Test
+    public void doSetBaseUriTest() {
+        Element elem = new Element("div");
+        elem.doSetBaseUri("https://example.com");
+        assertEquals("https://example.com", elem.baseUri());
+    }
+
+    @Test
+    public void childNodeSizeTest() {
+        Element elem = new Element("div");
+        assertEquals(0, elem.childNodeSize());
+        elem.appendElement("span");
+        assertEquals(1, elem.childNodeSize());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Element elem = new Element("div");
+        assertEquals("div", elem.nodeName());
+    }
+
+    @Test
+    public void isBlockTest() {
+        Element elemDiv = new Element("div");
+        Element elemSpan = new Element("span");
+        assertTrue(elemDiv.isBlock());
+        assertFalse(elemSpan.isBlock());
+    }
+
+    @Test
+    public void idTest() {
+        Element elem = new Element("div");
+        elem.attr("id", "test-id");
+        assertEquals("test-id", elem.id());
+    }
+
+    @Test
+    public void idChangeTest() {
+        Element elem = new Element("div");
+        elem.id("test-id");
+        assertEquals("test-id", elem.attr("id"));
+    }
+
+    @Test
+    public void selectTest() {
+        Element elem = new Element("div");
+        elem.append("<span class='test'></span>");
+        assertEquals("span", elem.select(".test").first().tagName());
+    }
+
+    @Test
+    public void attrTest() {
+        Element elem = new Element("div");
+        elem.attr("customAttr", "attrValue");
+        assertEquals("attrValue", elem.attr("customAttr"));
+    }
+
+    @Test
+    public void attrBooleanTest() {
+        Element elem = new Element("div");
+        elem.attr("customAttr", true);
+        assertEquals("true", elem.attr("customAttr"));
+    }
+
+    @Test
+    public void prependChildTest() {
+        Element elem = new Element("div");
+        elem.prependChild(new Element("span"));
+        assertEquals("span", elem.child(0).tagName());
+    }
+
+    @Test
+    public void prependTextTest() {
+        Element elem = new Element("div");
+        elem.prependText("hello");
+        assertEquals("hello", elem.text());
+    }
+
+    @Test
+    public void appendTextTest() {
+        Element elem = new Element("div");
+        elem.appendText("world");
+        assertEquals("world", elem.text());
+    }
+
+    @Test
+    public void hasClassTest() {
+        Element elem = new Element("div");
+        elem.addClass("test");
+        assertTrue(elem.hasClass("test"));
+    }
+
+}

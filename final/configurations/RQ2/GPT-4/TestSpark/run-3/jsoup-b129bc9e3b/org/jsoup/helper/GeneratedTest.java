@@ -1,0 +1,168 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.InputStream;
+import java.io.IOException;
+import java.net.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectUrlTest() {
+        Connection connection = HttpConnection.connect("https://google.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void connectInvalidUrlTest() {
+        HttpConnection.connect("invalidUrl");
+    }
+
+    @Test
+    public void urlTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection returnedConnection = connection.url("https://google.com");
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void urlInvalidUrlTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.url("invalidUrl");
+    }
+
+    @Test
+    public void proxyTest() {
+        HttpConnection connection = new HttpConnection();
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8080));
+        Connection returnedConnection = connection.proxy(proxy);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection returnedConnection = connection.userAgent("Mozilla/5.0");
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection returnedConnection = connection.timeout(1000);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection returnedConnection = connection.maxBodySize(2000);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void followRedirectsTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection returnedConnection = connection.followRedirects(true);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void referrerTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection returnedConnection = connection.referrer("https://google.com");
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void methodTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection returnedConnection = connection.method(Connection.Method.GET);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void ignoreHttpErrorsTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection returnedConnection = connection.ignoreHttpErrors(true);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void dataWithTwoParamTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection returnedConnection = connection.data("key", "value");
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void sslSocketFactoryTest() {
+        HttpConnection connection = new HttpConnection();
+        SSLSocketFactory sslSocketFactory = Mockito.mock(SSLSocketFactory.class);
+        Connection returnedConnection = connection.sslSocketFactory(sslSocketFactory);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void dataWithThreeParamTest() {
+        HttpConnection connection = new HttpConnection();
+        InputStream inputStream = Mockito.mock(InputStream.class);
+        Connection returnedConnection = connection.data("key", "filename", inputStream);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void dataMultiParamTest() {
+        HttpConnection connection = new HttpConnection();
+        Map<String, String> data = new HashMap<>();
+        data.put("key1", "value1");
+        data.put("key2", "value2");
+        Connection returnedConnection = connection.data(data);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void headersTest() {
+        HttpConnection connection = new HttpConnection();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("key1", "value1");
+        headers.put("key2", "value2");
+        Connection returnedConnection = connection.headers(headers);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void cookiesTest() {
+        HttpConnection connection = new HttpConnection();
+        Map<String, String> cookies = new HashMap<>();
+        cookies.put("cookie1", "value1");
+        cookies.put("cookie2", "value2");
+        Connection returnedConnection = connection.cookies(cookies);
+        assertNotNull(returnedConnection);
+    }
+
+    @Test
+    public void getTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.url("https://google.com");
+        assertNotNull(connection.get());
+    }
+
+    @Test
+    public void getInvalidUrlTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.url("invalidUrl");
+        connection.get();
+    }
+
+}

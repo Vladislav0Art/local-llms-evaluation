@@ -1,0 +1,16 @@
+package org.stellar.sdk;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedGetPublicKeyTest {
+
+    @Test
+    public void getPublicKeyTest() {
+        EdDSAPublicKey publicKey = new EdDSAPublicKey(null);
+        KeyPair keyPair = new KeyPair(publicKey);
+        Assert.assertNotNull(keyPair.getPublicKey());
+    }
+
+}

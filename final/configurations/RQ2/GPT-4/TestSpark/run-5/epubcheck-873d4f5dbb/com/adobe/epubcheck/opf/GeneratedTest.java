@@ -1,0 +1,80 @@
+package com.adobe.epubcheck.opf;
+
+import com.adobe.epubcheck.opf.*;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void isAudioType_Test() {
+        assertTrue(OPFChecker30.isAudioType("audio/mpeg"));
+        assertFalse(OPFChecker30.isAudioType("video/mp4"));
+    }
+
+    @Test
+    public void isBlessedAudioType_Test() {
+        assertTrue(OPFChecker30.isBlessedAudioType("audio/mpeg"));
+        assertFalse(OPFChecker30.isBlessedAudioType("audio/mp3"));
+    }
+
+    @Test
+    public void isVideoType_Test() {
+        assertTrue(OPFChecker30.isVideoType("video/mp4"));
+        assertFalse(OPFChecker30.isVideoType("audio/mp3"));
+    }
+
+    @Test
+    public void isBlessedVideoType_Test() {
+        assertTrue(OPFChecker30.isBlessedVideoType("video/mp4"));
+        assertFalse(OPFChecker30.isBlessedVideoType("video/mp3"));
+    }
+
+    @Test
+    public void isCommonVideoType_Test() {
+        assertTrue(OPFChecker30.isCommonVideoType("video/mp4"));
+        assertFalse(OPFChecker30.isCommonVideoType("audio/mp3"));
+    }
+
+    @Test
+    public void isFontType_Test() {
+        assertTrue(OPFChecker30.isFontType("application/font-woff"));
+        assertFalse(OPFChecker30.isFontType("video/mp4"));
+    }
+
+    @Test
+    public void isBlessedFontType_Test() {
+        assertTrue(OPFChecker30.isBlessedFontType("application/font-woff"));
+        assertFalse(OPFChecker30.isBlessedFontType("application/pdf"));
+    }
+
+    @Test
+    public void isBlessedScriptType_Test() {
+        assertTrue(OPFChecker30.isBlessedScriptType("text/javascript"));
+        assertFalse(OPFChecker30.isBlessedScriptType("text/css"));
+    }
+
+    @Test
+    public void isCoreMediaType_Test() {
+        assertTrue(OPFChecker30.isCoreMediaType("text/css"));
+        assertFalse(OPFChecker30.isCoreMediaType("text/javascript"));
+    }
+
+    @Test
+    public void getPreferredMediaType_WhenTypeIsCore_ReturnsType() {
+        String expected = "text/css";
+        String actual = OPFChecker30.getPreferredMediaType(expected, "abc.css");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getPreferredMediaType_WhenTypeIsNotCore_ReturnsApplicationOctet() {
+        String notCoreType = "not/core";
+        String expected = "application/octet-stream";
+        String actual = OPFChecker30.getPreferredMediaType(notCoreType, "abc.css");
+        assertEquals(expected, actual);
+    }
+
+}

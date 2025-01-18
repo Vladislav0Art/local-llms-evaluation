@@ -1,0 +1,117 @@
+package org.jsoup.safety;
+
+import org.jsoup.safety.Safelist;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist safelist = Safelist.none();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist safelist = Safelist.simpleText();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist safelist = Safelist.basic();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist safelist = Safelist.basicWithImages();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist safelist = Safelist.relaxed();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void safelistCopyTest() {
+        Safelist original = Safelist.none();
+        Safelist copied = new Safelist(original);
+        Assert.assertEquals(original, copied);
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = Safelist.none().addTags("div", "p");
+        Assert.assertTrue(safelist.isSafeTag("div"));
+        Assert.assertTrue(safelist.isSafeTag("p"));
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = Safelist.none().addTags("div", "p").removeTags("div");
+        Assert.assertFalse(safelist.isSafeTag("div"));
+        Assert.assertTrue(safelist.isSafeTag("p"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = Safelist.none().addAttributes("div", "class", "style");
+        Assert.assertTrue(safelist.isSafeAttribute("div", null, new org.jsoup.nodes.Attribute("class", "")));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = Safelist.none().addAttributes("div", "class", "style").removeAttributes("div", "class");
+        Assert.assertFalse(safelist.isSafeAttribute("div", null, new org.jsoup.nodes.Attribute("class", "")));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none().addEnforcedAttribute("div", "class", "test");
+        Assert.assertEquals("test", safelist.getEnforcedAttributes("div").get("class"));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none().addEnforcedAttribute("div", "class", "test").removeEnforcedAttribute("div", "class");
+        Assert.assertFalse(safelist.getEnforcedAttributes("div").hasKey("class"));
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = Safelist.none().addProtocols("a", "href", "http", "https");
+        // further methods needed to actually test the list of allowed protocols
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = Safelist.none().addProtocols("a", "href", "http", "https").removeProtocols("a", "href", "http");
+        // further methods needed to actually test the list of allowed protocols
+    }
+
+    @Test
+    public void isSafeTagTest() {
+        Safelist safelist = Safelist.none().addTags("div");
+        Assert.assertTrue(safelist.isSafeTag("div"));
+        Assert.assertFalse(safelist.isSafeTag("p"));
+    }
+
+    @Test
+    public void isSafeAttributeTest() {
+        Safelist safelist = Safelist.none().addAttributes("div", "class");
+        Assert.assertTrue(safelist.isSafeAttribute("div", null, new org.jsoup.nodes.Attribute("class", "")));
+        Assert.assertFalse(safelist.isSafeAttribute("div", null, new org.jsoup.nodes.Attribute("style", "")));
+    }
+
+    @Test
+    public void getEnforcedAttributesTest() {
+        Safelist safelist = Safelist.none().addEnforcedAttribute("div", "class", "test");
+        Assert.assertTrue(safelist.getEnforcedAttributes("div").hasKey("class"));
+        Assert.assertEquals("test", safelist.getEnforcedAttributes("div").get("class"));
+    }
+
+}

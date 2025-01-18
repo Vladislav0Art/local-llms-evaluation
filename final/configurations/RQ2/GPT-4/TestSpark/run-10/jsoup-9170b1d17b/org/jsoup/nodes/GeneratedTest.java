@@ -1,0 +1,144 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void indexOfKeyNonExistentKeyTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        assertTrue(attrs.indexOfKey("non-existent") < 0);
+    }
+
+    @Test
+    public void getExistingKeyTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        assertEquals("value", attrs.get("key"));
+    }
+
+    @Test
+    public void getNonExistingKeyTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        assertNull(attrs.get("non-existent"));
+    }
+
+    @Test
+    public void addTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        assertEquals(1, attrs.size());
+    }
+
+    @Test
+    public void putTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        assertEquals("value", attrs.get("key"));
+    }
+
+    @Test
+    public void putBooleanTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", true);
+        assertEquals("", attrs.get("key"));
+    }
+
+    @Test
+    public void removeExistingKeyTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        attrs.remove("key");
+        assertEquals(0, attrs.size());
+    }
+
+    @Test
+    public void hasKeyTrueTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        assertTrue(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void isEmptyFalseTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        assertFalse(attrs.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attrs1 = new Attributes();
+        Attributes attrs2 = new Attributes();
+        attrs1.add("key1", "value1");
+        attrs2.add("key2", "value2").add("key3", "value3");
+        attrs1.addAll(attrs2);
+        assertEquals(3, attrs1.size());
+    }
+
+    @Test
+    public void iteratorTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        Iterator<Attribute> iterator = attrs.iterator();
+        assertTrue(iterator.hasNext());
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        ArrayList<Attribute> list = new ArrayList<>(Collections.singletonList(new Attribute("key", "value")));
+        assertEquals(list, attrs.asList());
+    }
+
+    @Test
+    public void datasetTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("data-custom", "value");
+        assertEquals(1, attrs.dataset().size());
+        assertEquals("value", attrs.dataset().get("custom"));
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        Attributes clone = attrs.clone();
+        assertEquals(attrs, clone);
+    }
+
+    @Test
+    public void normalizeTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("KEY", "value");
+        attrs.normalize();
+        assertTrue(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void deduplicateWithNoDuplicatesTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key1", "value1").add("key2", "value2");
+        assertEquals(0, attrs.deduplicate(ParseSettings.preserveCase));
+    }
+
+    @Test
+    public void internalKeyTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("data-custom", "value");
+        assertEquals("data-custom", Attributes.internalKey("custom"));
+    }
+
+}

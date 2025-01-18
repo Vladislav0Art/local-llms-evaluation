@@ -1,0 +1,81 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.io.UnsupportedEncodingException;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Connection.KeyVal keyVal;
+
+    @Test
+    public void urlBuilderConstructor_ValidURLTest() {
+        try {
+            URL url = new URL("https://www.example.com");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+            assertNotNull(urlBuilder);
+        } catch (MalformedURLException e) {
+            fail("Exception should not be thrown here");
+        }
+    }
+
+    @Test
+    public void urlBuilderConstructor_InvalidURLTest() throws MalformedURLException {
+        URL url = new URL("Invalid_URL");
+        new UrlBuilder(url);
+    }
+
+    @Test
+    public void build_ValidURLTest() {
+        try {
+            URL url = new URL("https://www.example.com");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+            URL builtURL = urlBuilder.build();
+            assertEquals("https://www.example.com", builtURL.toString());
+        } catch (MalformedURLException e) {
+            fail("Exception should not be thrown here");
+        }
+    }
+
+    @Test
+    public void build_InvalidURLTest() throws MalformedURLException {
+        URL url = new URL("Invalid_URL");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.build();
+    }
+
+    @Test
+    public void appendKeyVal_ValidKeyValTest() {
+        try {
+            when(keyVal.key()).thenReturn("key");
+            when(keyVal.value()).thenReturn("value");
+            URL url = new URL("https://www.example.com");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+            urlBuilder.appendKeyVal(keyVal);
+            assertEquals("https://www.example.com?key=value", urlBuilder.build().toString());
+        } catch (UnsupportedEncodingException | MalformedURLException e) {
+            fail("Exception should not be thrown here");
+        }
+    }
+
+    @Test
+    public void appendKeyVal_InvalidKeyValueTest() throws UnsupportedEncodingException, MalformedURLException {
+        when(keyVal.key()).thenReturn("Invalid Key");
+        when(keyVal.value()).thenReturn("Invalid Value");
+        URL url = new URL("https://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.appendKeyVal(keyVal);
+    }
+
+}

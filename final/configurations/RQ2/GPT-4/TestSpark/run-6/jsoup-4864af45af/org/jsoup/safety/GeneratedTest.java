@@ -1,0 +1,113 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.safety.Safelist;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist safelist = Safelist.none();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist safelist = Safelist.simpleText();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist safelist = Safelist.basic();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist safelist = Safelist.basicWithImages();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist safelist = Safelist.relaxed();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void safelistConstructorTest() {
+        Safelist safelist = new Safelist();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void copyConstructorTest() {
+        Safelist safelist = new Safelist(Safelist.none());
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = Safelist.none().addTags("tag1", "tag2");
+        Assert.assertTrue(safelist.isSafeTag("tag1"));
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = Safelist.basic().removeTags("head");
+        Assert.assertFalse(safelist.isSafeTag("head"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = Safelist.none().addAttributes("tag1", "attr1", "attr2");
+        Element el = mock(Element.class);
+        Assert.assertNotNull(safelist.isSafeAttribute("tag1", el, null));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = Safelist.basic().removeAttributes("a", "href");
+        Element el = mock(Element.class);
+        Assert.assertFalse(safelist.isSafeAttribute("a", el, null));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none().addEnforcedAttribute("tag1", "attr1", "val1");
+        Attributes attrs = safelist.getEnforcedAttributes("tag1");
+        Assert.assertTrue(attrs.hasKey("attr1"));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.basic().removeEnforcedAttribute("a", "target");
+        Attributes attrs = safelist.getEnforcedAttributes("a");
+        Assert.assertFalse(attrs.hasKey("target"));
+    }
+
+    @Test
+    public void preserveRelativeLinksTest() {
+        Safelist safelist = Safelist.none().preserveRelativeLinks(true);
+        Assert.assertNotNull(safelist.isSafeTag(""));
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = Safelist.none().addProtocols("a", "href", "http");
+        Assert.assertTrue(safelist.isSafeTag("a"));
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = Safelist.none().removeProtocols("a", "href", "http");
+        Assert.assertNotNull(safelist.isSafeTag("a"));
+    }
+
+}

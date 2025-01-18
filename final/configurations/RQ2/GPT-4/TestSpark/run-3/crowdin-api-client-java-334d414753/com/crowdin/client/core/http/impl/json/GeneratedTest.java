@@ -1,0 +1,55 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.JsonTransformer;
+import com.crowdin.client.core.http.impl.json.JacksonJsonTransformer;
+import com.crowdin.client.projectsgroups.model.Project;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNormalScenarioTest() {
+        String json = "{\"name\":\"Project1\",\"id\":1}";
+        Class<Project> clazz = Project.class;
+        JsonTransformer jsonTransformer = new JacksonJsonTransformer();
+
+        Project project = jsonTransformer.parse(json, clazz);
+
+        Assert.assertEquals("Project1", project.getName());
+        Assert.assertEquals(Long.valueOf(1), project.getId());
+    }
+
+    @Test
+    public void parseInvalidJsonScenarioTest() {
+        String json = "{unparsable json}";
+        Class<Project> clazz = Project.class;
+        JsonTransformer jsonTransformer = new JacksonJsonTransformer();
+
+        jsonTransformer.parse(json, clazz);
+    }
+
+    @Test
+    public void convertNormalScenarioTest() {
+        Project project = new Project();
+        project.setName("Project1");
+        project.setId(Long.valueOf(1));
+        JsonTransformer jsonTransformer = new JacksonJsonTransformer();
+
+        String json = jsonTransformer.convert(project);
+
+        Assert.assertEquals("{\"name\":\"Project1\",\"id\":1}", json);
+    }
+
+    @Test
+    public void convertInvalidObjectScenarioTest() {
+        class BrokenObject {
+            BrokenObject object = this;
+        }
+        BrokenObject brokenObject = new BrokenObject();
+        JsonTransformer jsonTransformer = new JacksonJsonTransformer();
+
+        jsonTransformer.convert(brokenObject);
+    }
+
+}

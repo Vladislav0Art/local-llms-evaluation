@@ -1,0 +1,24 @@
+package io.github.vmzakharov.ecdataframe.dataframe;
+
+import io.github.vmzakharov.ecdataframe.dataframe.DataFrame;
+import io.github.vmzakharov.ecdataframe.dataframe.DfColumn;
+import io.github.vmzakharov.ecdataframe.dsl.value.ValueType;
+import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.primitive.DoubleLists;
+import org.eclipse.collections.impl.factory.primitive.LongLists;
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public class GeneratedDataFrameConstructorTest {
+
+    @Test
+    public void DataFrameConstructorTest() {
+        DataFrame dataFrame = new DataFrame("test");
+        Assert.assertEquals("test", dataFrame.getName());
+    }
+
+}

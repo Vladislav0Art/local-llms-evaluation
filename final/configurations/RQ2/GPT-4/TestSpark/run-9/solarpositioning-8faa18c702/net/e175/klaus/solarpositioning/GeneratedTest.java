@@ -1,0 +1,45 @@
+package net.e175.klaus.solarpositioning;
+
+import net.e175.klaus.solarpositioning.DeltaT;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.time.LocalDate;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateNullDateTest() {
+        try {
+            DeltaT.estimate(null);
+        } catch (NullPointerException e) {
+            Assert.assertEquals("expected message", e.getMessage());
+        }
+    }
+
+    @Test
+    public void estimatePastDateTest() {
+        double deltaT = DeltaT.estimate(LocalDate.of(1900, 1, 1));
+        Assert.assertEquals(18.13, deltaT, 0.01);
+    }
+
+    @Test
+    public void estimateFutureDateTest() {
+        double deltaT = DeltaT.estimate(LocalDate.of(2100, 1, 1));
+        Assert.assertEquals(117.46, deltaT, 0.01);
+    }
+
+    @Test
+    public void estimateCurrentDateTest() {
+        double deltaT = DeltaT.estimate(LocalDate.now());
+        // Assert with known value for current date
+    }
+
+    @Test
+    public void estimateLeapYearTest() {
+        // February 29, 2024 is a leap year.
+        double deltaT = DeltaT.estimate(LocalDate.of(2024, 2, 29));
+        Assert.assertEquals(70.04, deltaT, 0.01);
+    }
+
+}

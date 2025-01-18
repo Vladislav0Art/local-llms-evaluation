@@ -1,0 +1,65 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.traccar.protocol.Gt06ProtocolDecoder;
+import org.traccar.model.Position;
+import io.netty.buffer.Unpooled;
+
+import java.util.TimeZone;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void decodeGps_hasLengthTrueTest() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(null);
+        Position position = new Position();
+        byte[] bytes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrappedBuffer(bytes), true, TimeZone.getDefault());
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGps_hasLengthFalseTest() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(null);
+        Position position = new Position();
+        byte[] bytes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrappedBuffer(bytes), false, TimeZone.getDefault());
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeGps_hasSpeedSatellitesTest() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(null);
+        Position position = new Position();
+        byte[] bytes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrappedBuffer(bytes), true, true, true, TimeZone.getDefault());
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGps_noSpeedSatellitesTest() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(null);
+        Position position = new Position();
+        byte[] bytes = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrappedBuffer(bytes),
+                true, false, false, TimeZone.getDefault());
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void decode_exceptionTest() throws Exception {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(null);
+        decoder.decode(null, null, null);
+    }
+
+}

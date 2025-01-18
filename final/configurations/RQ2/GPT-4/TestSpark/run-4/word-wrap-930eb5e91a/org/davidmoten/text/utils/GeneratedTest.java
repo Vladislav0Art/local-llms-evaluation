@@ -1,0 +1,94 @@
+package org.davidmoten.text.utils;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        BufferedReader reader = new BufferedReader(new StringReader("test"));
+        assertNotNull(WordWrap.from(reader));
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        assertNotNull(WordWrap.fromClasspathUtf8("resourceTest"));
+    }
+
+    @Test
+    public void fromClasspathTest() {
+        assertNotNull(WordWrap.fromClasspath("resourceTest", StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void fromTextTest() {
+        CharSequence text = "Hello, world!";
+        assertNotNull(WordWrap.from(text));
+    }
+
+    @Test
+    public void fromUtf8InputStreamTest() {
+        assertNotNull(WordWrap.fromUtf8(Mockito.mock(FileInputStream.class)));
+    }
+
+    @Test
+    public void fromInputStreamTest() {
+        assertNotNull(WordWrap.from(Mockito.mock(FileInputStream.class), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void fromFileTest() throws FileNotFoundException {
+        File file = Mockito.mock(File.class);
+        Mockito.when(file.exists()).thenReturn(true);
+        Mockito.when(file.isFile()).thenReturn(true);
+        assertNotNull(WordWrap.from(file, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void closeNullReaderTest() {
+        WordWrap.close(null);
+    }
+
+    @Test
+    public void closeReaderTest() throws IOException {
+        BufferedReader reader = Mockito.mock(BufferedReader.class);
+        Mockito.doNothing().when(reader).close();
+        WordWrap.close(reader);
+        Mockito.verify(reader, Mockito.times(1)).close();
+    }
+
+    @Test
+    public void rightTrimTest() {
+        CharSequence original = "   Hello, world!   ";
+        CharSequence trimmed = WordWrap.rightTrim(original);
+        assertEquals("   Hello, world!", trimmed.toString());
+    }
+
+    @Test
+    public void isWhitespaceTest() {
+        assertTrue(WordWrap.isWhitespace("  "));
+        assertFalse(WordWrap.isWhitespace("non-whitespace text"));
+    }
+
+    @Test
+    public void leftTrimTest() {
+        StringBuilder2 original = new StringBuilder2("   Hello, world!");
+        WordWrap.leftTrim(original);
+        assertEquals("Hello, world!", original.toString());
+    }
+
+}
