@@ -1,0 +1,68 @@
+package leetcode.medium;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @InjectMocks
+    private OnlineStockSpan onlineStockSpan;
+
+    @Test
+    public void next_EmptyStack_Returns1() {
+        int result = onlineStockSpan.next(10);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void next_PriceHigherThanStackTop_Returns1() {
+        onlineStockSpan.next(10);
+        int result = onlineStockSpan.next(20);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void next_PriceLowerThanStackTop_Returns2() {
+        onlineStockSpan.next(10);
+        onlineStockSpan.next(20);
+        int result = onlineStockSpan.next(15);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void next_PriceEqualStackTop_Returns1() {
+        onlineStockSpan.next(10);
+        onlineStockSpan.next(10);
+        int result = onlineStockSpan.next(10);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void calculateSpans_EmptyArray_ReturnsEmptyArray() {
+        int[] prices = {};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[0], result);
+    }
+
+    @Test
+    public void calculateSpans_SingleElementArray_ReturnsArrayWith1() {
+        int[] prices = {10};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpans_IncreasingPrices_ReturnsCorrectSpans() {
+        int[] prices = {10, 20, 30, 40, 50};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 1, 1, 1, 1}, result);
+    }
+
+}

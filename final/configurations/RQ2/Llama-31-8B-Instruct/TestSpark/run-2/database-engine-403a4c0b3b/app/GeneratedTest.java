@@ -1,0 +1,60 @@
+package app;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @InjectMocks
+    private DBApp dbApp;
+
+    @Mock
+    private CsvReader csvReader;
+
+    @Mock
+    private CsvWriter csvWriter;
+
+    @Test
+    public void getMyTablesTest_EmptyTables_ReturnsEmptySet() {
+        HashSet<String> result = dbApp.getMyTables();
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void getReaderTest_NullReader_ThrowsNullPointerException() {
+        try {
+            dbApp.getReader();
+            fail("Expected NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void getWriterTest_NullWriter_ThrowsNullPointerException() {
+        try {
+            dbApp.getWriter();
+            fail("Expected NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void initTest_InitiatesDBApp() {
+        dbApp.init();
+        verify(dbApp, times(1)).getReader();
+        verify(dbApp, times(1)).getWriter();
+    }
+
+}

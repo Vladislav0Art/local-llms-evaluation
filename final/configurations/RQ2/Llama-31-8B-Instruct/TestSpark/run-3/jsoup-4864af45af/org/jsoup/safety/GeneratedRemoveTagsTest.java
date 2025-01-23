@@ -1,0 +1,62 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Attribute;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+import static org.jsoup.nodes.Node.NodeType;
+import static org.jsoup.nodes.Node.NodeType.COMMENT;
+import static org.jsoup.nodes.Node.NodeType.DATA;
+import static org.jsoup.nodes.Node.NodeType.DOCUMENT_TYPE;
+import static org.jsoup.nodes.Node.NodeType.ENTITY;
+import static org.jsoup.nodes.Node.NodeType.TEXT;
+import static org.jsoup.nodes.Node.NodeType.ELEMENT;
+
+@RunWith(org.junit.runners.Parameterized.class)
+public class GeneratedRemoveTagsTest {
+
+    @Parameters
+    public static Iterable<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {Safelist.none(), "script", true},
+                {Safelist.simpleText(), "script", false},
+                {Safelist.basic(), "script", false},
+                {Safelist.basic(), "img", true},
+                {Safelist.basicWithImages(), "script", false},
+                {Safelist.basicWithImages(), "img", true},
+                {Safelist.basicWithImages(), "a", true},
+                {Safelist.relaxed(), "script", true},
+                {Safelist.relaxed(), "img", true},
+                {Safelist.relaxed(), "a", true}
+        });
+    }
+
+    private Safelist safelist;
+    private String tag;
+    private boolean expected;
+
+    public SafelistTest(Safelist safelist, String tag, boolean expected) {
+        this.safelist = safelist;
+        this.tag = tag;
+        this.expected = expected;
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("script");
+        safelist.removeTags("script");
+        assertFalse(safelist.isSafeTag("script"));
+    }
+
+}

@@ -1,0 +1,81 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.nodes.XmlDeclaration;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.jsoup.nodes.Comment;
+import org.junit.Assert;
+
+import java.io.IOException;
+import java.io.StringWriter;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void nodeName_ReturnsComment() {
+        Comment comment = new Comment("test");
+        assertEquals("comment", comment.nodeName());
+    }
+
+    @Test
+    public void nodeName_ReturnsCommentWhenDataIsEmpty() {
+        Comment comment = new Comment("");
+        assertEquals("comment", comment.nodeName());
+    }
+
+    @Test
+    public void getData_ReturnsData() {
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
+    }
+
+    @Test
+    public void getData_ReturnsEmptyStringWhenDataIsEmpty() {
+        Comment comment = new Comment("");
+        assertEquals("", comment.getData());
+    }
+
+    @Test
+    public void setData_SetsData() {
+        Comment comment = new Comment("");
+        comment.setData("test");
+        assertEquals("test", comment.getData());
+    }
+
+    @Test
+    public void setData_SetsEmptyStringWhenDataIsEmpty() {
+        Comment comment = new Comment("test");
+        comment.setData("");
+        assertEquals("", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHead_AppendsComment() throws IOException {
+        Comment comment = new Comment("test");
+        StringWriter writer = new StringWriter();
+        comment.outerHtmlHead(writer, 0, new Document.OutputSettings());
+        assertEquals("<!--test-->", writer.toString());
+    }
+
+    @Test
+    public void outerHtmlHead_AppendsEmptyComment() throws IOException {
+        Comment comment = new Comment("");
+        StringWriter writer = new StringWriter();
+        comment.outerHtmlHead(writer, 0, new Document.OutputSettings());
+        assertEquals("<!---->", writer.toString());
+    }
+
+}
