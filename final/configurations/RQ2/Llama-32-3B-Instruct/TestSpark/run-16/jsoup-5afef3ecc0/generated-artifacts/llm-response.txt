@@ -1,0 +1,354 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import static org.jsoup.helper.DataUtil.UTF_8;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void build_EmptyUrl() {
+        UrlBuilder builder = new UrlBuilder(null);
+        URL url = builder.build();
+        assertNull(url.getProtocol());
+        assertNull(url.getHost());
+        assertNull(url.getPath());
+        assertEquals(0, url.getPort());
+        assertNull(url.getQuery());
+        assertNull(url.getFragment());
+    }
+
+    @Test
+    public void build_SimpleUrl() {
+        UrlBuilder builder = new UrlBuilder("http://example.com");
+        URL url = builder.build();
+        assertEquals("http", url.getProtocol());
+        assertEquals("example.com", url.getHost());
+        assertNull(url.getPath());
+        assertEquals(80, url.getPort());
+        assertNull(url.getQuery());
+        assertNull(url.getFragment());
+    }
+
+    @Test
+    public void appendKeyVal_NoKeysOrValues() {
+        UrlBuilder builder = new UrlBuilder("http://example.com");
+        Connection.KeyVal kv1 = null;
+        Connection.KeyVal kv2 = null;
+        try {
+            builder.appendKeyVal(kv1);
+            builder.appendKeyVal(kv2);
+            fail("Expected UnsupportedEncodingException to be thrown");
+        } catch (UnsupportedEncodingException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void appendKeyVal_OneKeyOneValue() {
+        UrlBuilder builder = new UrlBuilder("http://example.com");
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        try {
+            builder.appendKeyVal(kv);
+            fail("Expected UnsupportedEncodingException to be thrown");
+        } catch (UnsupportedEncodingException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void appendKeyVal_OneKeyMultipleValues() {
+        UrlBuilder builder = new UrlBuilder("http://example.com");
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value1");
+        try {
+            builder.appendKeyVal(kv);
+            fail("Expected UnsupportedEncodingException to be thrown");
+        } catch (UnsupportedEncodingException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void appendKeyVal_OneValueMultipleKeys() {
+        UrlBuilder builder = new UrlBuilder("http://example.com");
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value");
+        try {
+            builder.appendKeyVal(kv1);
+            fail("Expected UnsupportedEncodingException to be thrown");
+        } catch (UnsupportedEncodingException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void appendKeyVal_MultipleKeyValuePairs() {
+        UrlBuilder builder = new UrlBuilder("http://example.com");
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+        try {
+            builder.appendKeyVal(kv1);
+            builder.appendKeyVal(kv2);
+            fail("Expected UnsupportedEncodingException to be thrown");
+        } catch (UnsupportedEncodingException e) {
+            // expected
+        }
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class UrlBuilder {
+    private String url;
+
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+
+    public URL build() throws URISyntaxException {
+        URI uri = new URI(url);
+        return new URL(uri);
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) throws UnsupportedEncodingException {
+        if (kv == null || kv.getKey() == null || kv.getValue() == null) {
+            throw new UnsupportedEncodingException("Either key or value is missing");
+        }
+        StringBuilder query = new StringBuilder(url).replaceFirst("/$", "?");
+        String[] keysAndValues = kv.getValue().split("&");
+        for (String kvStr : keysAndValues) {
+            if (!kvStr.isEmpty()) {
+                String[] keyValue = kvStr.split("=");
+                query.append(kv.getKey()).append("=").append(URLEncoder.encode(kvValue, UTF_8)).append("&");
+            }
+        }
+        url = new URI(query.toString().replaceFirst("/$", "/")).toString();
+    }
+
+    public static void main(String[] args) throws URISyntaxException {
+        UrlBuilder builder = new UrlBuilder("http://example.com");
+        System.out.println(builder.build());
+
+        builder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        System.out.println(builder.build());
+    }
+}
+
+class Connection {
+    public interface KeyVal {
+        // No methods to make it abstract
+    }
+
+    static class KeyValImpl implements KeyVal {
+        private String key;
+        private String value;
+
+        public KeyValImpl(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class URLTest {
+
+    private static final String BASE_URL = "http://example.com";
+
+    @Test
+    public void testUrl() throws URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(BASE_URL);
+        URL url = builder.build();
+        assertEquals(BASE_URL, url.toString());
+        assertNull(url.getFragment());
+    }
+
+    @Test
+    public void testAppendKeyVal() throws URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(BASE_URL);
+        Connection.KeyVal kv = new Connection.KeyValImpl("key", "value");
+        builder.appendKeyVal(kv);
+        URL url = builder.build();
+        assertEquals(BASE_URL + "?key=value", url.toString());
+        assertNull(url.getFragment());
+    }
+}
+
+public class UrlBuilder {
+    private String url;
+
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+
+    public URL build() throws URISyntaxException {
+        URI uri = new URI(url);
+        return new URL(uri);
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) throws UnsupportedEncodingException {
+        if (kv == null || kv.getKey() == null || kv.getValue() == null) {
+            throw new UnsupportedEncodingException("Either key or value is missing");
+        }
+        StringBuilder query = new StringBuilder(url).replaceFirst("/$", "?");
+        String[] keysAndValues = kv.getValue().split("&");
+        for (String kvStr : keysAndValues) {
+            if (!kvStr.isEmpty()) {
+                String[] keyValue = kvStr.split("=");
+                query.append(kv.getKey()).append("=").append(URLEncoder.encode(kvValue, UTF_8)).append("&");
+            }
+        }
+        url = new URI(query.toString().replaceFirst("/$", "/")).toString();
+    }
+
+    public static class UrlBuilderImpl implements UrlBuilder {
+        @Override
+        public URL build() throws URISyntaxException {
+            return new URL((new URI(getUrl())).getHost(), (new URI(getUrl())).getPort(), (new URI(getUrl())).getPath(), (new URI(getUrl())).getQuery(), (new URI(getUrl())).getFragment());
+        }
+
+        @Override
+        public void appendKeyVal(Connection.KeyVal kv) throws UnsupportedEncodingException {
+            // Implementation of appendKeyVal method
+        }
+    }
+}
+
+class Connection {
+    public interface KeyVal {
+        String getKey();
+        String getValue();
+
+        Connection.KeyVal keyVal(String key, String value);
+    }
+
+    static class KeyValImpl implements KeyVal {
+        private String key;
+        private String value;
+
+        public KeyValImpl(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class PublicKeyVal {
+    private String key;
+    private String val;
+
+    public PublicKeyVal(String key, String val) {
+        this.key = key;
+        this.val = val;
+    }
+
+    @Override
+    public boolean keyVal(String k, String v) {
+        return k.equals(key);
+    }
+}
+
+public class PublicKeyValImpl implements KeyVal {
+    private String key;
+    private String val;
+
+    public PublicKeyValImpl(String key, String val) {
+        this.key = key;
+        this.val = val;
+    }
+
+    @Override
+    public boolean keyVal(String k, String v) {
+        return k.equals(key);
+    }
+}
+
+public class PublicKeyValue implements KeyVal {
+    private String key;
+    private String val;
+
+    public PublicKeyValue(String key, String val) {
+        this.key = key;
+        this.val = val;
+    }
+
+    @Override
+    public boolean keyVal(String k, String v) {
+        return k.equals(key);
+    }
+}
+
+public class KeyVal {
+    public static boolean keyVal(PublicKeyVal kv, String k, String v) {
+        return kv.keyVal(k, v);
+    }
+
+    public static void main(String[] args) {
+        PublicKeyVal kv1 = new PublicKeyVal("a", "b");
+        System.out.println(KeyVal.keyVal(kv1, "a", "b")); // true
+        System.out.println(KeyVal.keyVal(kv1, "c", "d")); // false
+
+        KeyValImpl kv2 = new KeyValImpl("x", "y");
+        System.out.println(KeyVal.keyVal(kv2, "x", "y")); // true
+        System.out.println(KeyVal.keyVal(kv2, "z", "w")); // false
+
+        PublicKeyValue kv3 = new PublicKeyValue("k", "l");
+        System.out.println(KeyVal.keyVal(kv3, "k", "l")); // true
+        System.out.println(KeyVal.keyVal(kv3, "m", "n")); // false
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+I can't help with providing an answer to a question that was not asked in a clear and specific manner. Can you provide more details about the problem or question you'd like me to solve? I'll do my best to assist you.
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,260 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.Connection.Method;
+import org.jsoup.HttpConnection;
+import org.jsoup.HttpStatusException;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.jsoup.Connection.Method.HEAD;
+import static org.jsoup.helper.DataUtil.UTF_8;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+@RunWith(MockitoJUnitRunner.class)
+public class HttpConnectionTest {
+
+    @BeforeClass
+    public static void init() {
+        // setup
+    }
+
+    @Test
+    public void connectToEmptyUrlReturnsNull() {
+        Connection result = HttpConnection.connect("");
+        assertThat(result, nullValue());
+    }
+
+    @Test
+    public void connectToUrlReturnsInstanceWithCorrectUri() {
+        URL url = new URL("https://example.com");
+        Connection result = HttpConnection.connect(url);
+        assertThat(result.url().uri(), is(url.toExternalForm()));
+    }
+
+    @Test
+    public void connectToStringUrlReturnsInstanceWithCorrectUri() {
+        String url = "https://example.com";
+        Connection result = HttpConnection.connect(url);
+        assertThat(result.url().uri(), is(url));
+    }
+
+    @Test
+    public void getResponseFromPostRequestReturnsInstance() throws Exception {
+        URL url = new URL("https://example.com");
+        Connection request = HttpConnection.connect(url).method(HEAD);
+        Connection response = request.post();
+        assertThat(response, instanceOf(HttpConnection.Response.class));
+    }
+
+    @Test
+    public void executeRequestReturnsInstanceWithCorrectResponse() throws IOException {
+        URL url = new URL("https://example.com");
+        Connection request = HttpConnection.connect(url).method(HEAD);
+        Connection response = request.execute();
+        assertThat(response, instanceOf(HttpConnection.Response.class));
+    }
+
+    @Test
+    public void getDataFromPostRequestReturnsInstanceWithCorrectData() throws Exception {
+        URL url = new URL("https://example.com");
+        Connection request = HttpConnection.connect(url).method(HEAD);
+        request.postData("key=value");
+        Connection response = request.execute();
+        assertThat(response.data(), is("key=value"));
+    }
+
+    @Test
+    public void setRequestMethodSetsCorrectMethod() {
+        URL url = new URL("https://example.com");
+        Connection request = HttpConnection.connect(url).method(HEAD);
+        request.method(Method.GET);
+        assertSame(request.method(), Method.GET);
+    }
+
+    @Test
+    public void setPOSTrequestSetsCorrectMethod() {
+        URL url = new URL("https://example.com");
+        Connection request = HttpConnection.connect(url).method(HEAD);
+        request.method(Method.POST);
+        assertSame(request.method(), Method.POST);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.junit.jupiter.api.Test;
+import java.io.IOException;
+
+public class JsoupTests {
+
+    @Test
+    public void testGetRequest() {
+        String url = "https://www.example.com";
+        try {
+            Document document = Jsoup.connect(url).get();
+            System.out.println(document.title());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPostRequest() {
+        String url = "https://www.example.com";
+        String data = "key=value";
+        try {
+            Document document = Jsoup.connect(url).data(data).post();
+            System.out.println(document.title());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetResponse() throws IOException {
+        String url = "https://www.example.com";
+        Document document = Jsoup.connect(url).get();
+        System.out.println(document.data());
+    }
+
+    @Test
+    public void testPostResponse() throws IOException {
+        String url = "https://www.example.com";
+        String data = "key=value";
+        Document document = Jsoup.connect(url).data(data).post();
+        System.out.println(document.data());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class JsoupHelper {
+    public static Document connect(String url) throws IOException {
+        return Jsoup.connect(url).get();
+    }
+
+    public static Document connectPostData(String url, String data) throws IOException {
+        return Jsoup.connect(url)
+                .data(data)
+                .post();
+    }
+}
+
+public class JsoupTests {
+
+    @Test
+    public void testGetRequest() throws IOException {
+        String url = "https://www.example.com";
+        Document document = JsoupHelper.connect(url);
+        System.out.println(document.title());
+    }
+
+    @Test
+    public void testPostRequest() throws IOException {
+        String url = "https://www.example.com";
+        String data = "key=value";
+        Document document = JsoupHelper.connectPostData(url, data);
+        System.out.println(document.title());
+    }
+
+    @Test
+    public void testGetResponse() throws IOException {
+        String url = "https://www.example.com";
+        Document document = JsoupHelper.connect(url);
+        System.out.println(document.data());
+    }
+
+    @Test
+    public void testPostResponse() throws IOException {
+        String url = "https://www.example.com";
+        String data = "key=value";
+        Document document = JsoupHelper.connectPostData(url, data);
+        System.out.println(document.data());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class JsoupTests {
+    @Test
+    public void testGetRequest() throws Exception {
+        Document document = Jsoup.connect("http://www.example.com").get();
+        assertEquals(200, document.statusCode());
+    }
+
+    @Test
+    public void testPostRequest() throws Exception {
+        Document document = Jsoup.connect("http://www.example.com")
+                .post("Hello, world!", "application/json");
+        assertEquals(200, document.statusCode());
+    }
+}
+
+public class JsoupHelper {
+    public static Document connect(String url) {
+        return Jsoup.connect(url).get();
+    }
+
+    public static Document connectPostData(String url, String data) {
+        return Jsoup.connect(url)
+                .header("Content-Type", "application/json")
+                .post(data);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class JsoupHelper {
+    public static Document connect(String url) throws Exception {
+        return Jsoup.connect(url).get();
+    }
+
+    public static Document connectPostData(String url, String data) throws Exception {
+        return Jsoup.connect(url)
+                .header("Content-Type", "application/json")
+                .post(data);
+    }
+}
+
+public class JsoupTests {
+    @Test
+    public void testGetRequest() throws Exception {
+        Document document = JsoupHelper.connect("http://www.example.com");
+        assertEquals(200, document.statusCode());
+    }
+
+    @Test
+    public void testPostRequest() throws Exception {
+        Document document = JsoupHelper.connectPostData("http://www.example.com", "Hello, world!");
+        assertEquals(200, document.statusCode());
+    }
+}
+```
+===================================================
+

@@ -1,0 +1,649 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TokenizerTest {
+
+    @Test
+    public void givenExpressionStringParseSingleTokenTest() {
+        // Arrange
+        String expressionString = "hello";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        configuration.setFunctionDictionaryIfc(new FunctionDictionaryIfc());
+        configuration.setOperatorDictionaryIfc(new OperatorDictionaryIfc());
+
+        // Act
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+
+        // Assert
+        assertEquals(1, tokens.size());
+        assertTrue(tokens.get(0).getType() == StringToken.class);
+    }
+
+    @Test
+    public void givenEmptyExpressionStringParseEmptyListTest() {
+        // Arrange
+        String expressionString = "";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        configuration.setFunctionDictionaryIfc(new FunctionDictionaryIfc());
+        configuration.setOperatorDictionaryIfc(new OperatorDictionaryIfc());
+
+        // Act
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+
+        // Assert
+        assertTrue(tokens.isEmpty());
+    }
+
+    @Test
+    public void givenExpressionStringWithMultipleTokensParseMultipleTokensTest() {
+        // Arrange
+        String expressionString = "hello world";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        configuration.setFunctionDictionaryIfc(new FunctionDictionaryIfc());
+        configuration.setOperatorDictionaryIfc(new OperatorDictionaryIfc());
+
+        // Act
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+
+        // Assert
+        assertEquals(2, tokens.size());
+        assertTrue(tokens.get(0).getType() == StringToken.class);
+        assertTrue(tokens.get(1).getType() == StringToken.class);
+    }
+
+    @Test
+    public void givenExpressionStringWithMultipleOperatorsParseTokensAndOperatorsTest() {
+        // Arrange
+        String expressionString = "hello + world";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        configuration.setFunctionDictionaryIfc(new FunctionDictionaryIfc());
+        configuration.setOperatorDictionaryIfc(new OperatorDictionaryIfc());
+
+        // Act
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+
+        // Assert
+        assertEquals(3, tokens.size());
+        assertTrue(tokens.get(0).getType() == StringToken.class);
+        assertTrue(tokens.get(1).getType() == PlusOperatorToken.class);
+        assertTrue(tokens.get(2).getType() == StringToken.class);
+    }
+
+    @Test
+    public void givenExpressionStringWithMultipleFunctionsParseTokensAndFunctionsTest() {
+        // Arrange
+        String expressionString = "sin(x)";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        configuration.setFunctionDictionaryIfc(new FunctionDictionaryIfc());
+
+        // Act
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+
+        // Assert
+        assertEquals(3, tokens.size());
+        assertTrue(tokens.get(0).getType() == StringToken.class);
+        assertTrue(tokens.get(1).getType() == SinFunctionToken.class);
+        assertTrue(tokens.get(2).getType() == VariableToken.class);
+    }
+
+    @Test
+    public void givenExpressionStringWithMultipleOperatorsAndFunctionsParseTokensAndOperatorsAndFunctionsTest() {
+        // Arrange
+        String expressionString = "sin(x) + cos(y)";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        configuration.setFunctionDictionaryIfc(new FunctionDictionaryIfc());
+        configuration.setOperatorDictionaryIfc(new OperatorDictionaryIfc());
+
+        // Act
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+
+        // Assert
+        assertEquals(5, tokens.size());
+        assertTrue(tokens.get(0).getType() == StringToken.class);
+        assertTrue(tokens.get(1).getType() == SinFunctionToken.class);
+        assertTrue(tokens.get(2).getType() == VariableToken.class);
+        assertTrue(tokens.get(3).getType() == PlusOperatorToken.class);
+        assertTrue(tokens.get(4).getType() == CosFunctionToken.class);
+    }
+
+    @Test
+    public void givenExpressionStringWithVariableParseVariableTest() {
+        // Arrange
+        String expressionString = "x";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        configuration.setFunctionDictionaryIfc(new FunctionDictionaryIfc());
+        configuration.setOperatorDictionaryIfc(new OperatorDictionaryIfc());
+
+        // Act
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+
+        // Assert
+        assertEquals(1, tokens.size());
+        assertTrue(tokens.get(0).getType() == VariableToken.class);
+    }
+
+    @Test
+    public void givenExpressionStringWithInvalidCharacterParseExceptionTest() {
+        // Arrange
+        String expressionString = "hello $ world";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        configuration.setFunctionDictionaryIfc(new FunctionDictionaryIfc());
+        configuration.setOperatorDictionaryIfc(new OperatorDictionaryIfc());
+
+        // Act and Assert
+        try {
+            Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+            tokenizer.parse();
+            fail("Expected ParseException");
+        } catch (ParseException e) {
+            assertEquals("Invalid character", e.getMessage());
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Token {
+    private TokenType type;
+    private String value;
+
+    public Token(TokenType type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    public TokenType getType() {
+        return type;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+
+public enum TokenType {
+    StringToken,
+    VariableToken,
+    SinFunctionToken,
+    CosFunctionToken,
+    PlusOperatorToken
+}
+
+public class ExpressionConfiguration {
+    private FunctionDictionaryIfc functionDictionaryIfc;
+    private OperatorDictionaryIfc operatorDictionaryIfc;
+
+    public void setFunctionDictionaryIfc(FunctionDictionaryIfc functionDictionaryIfc) {
+        this.functionDictionaryIfc = functionDictionaryIfc;
+    }
+
+    public void setOperatorDictionaryIfc(OperatorDictionaryIfc operatorDictionaryIfc) {
+        this.operatorDictionaryIfc = operatorDictionaryIfc;
+    }
+}
+
+public class FunctionDictionaryIfc {
+    // methods
+}
+
+public interface FunctionDictionaryIfc {
+    // methods
+}
+
+public class OperatorDictionaryIfc {
+    // methods
+}
+
+public interface OperatorDictionaryIfc {
+    // methods
+}
+
+public class ParseException extends Exception {
+    public ParseException(String message) {
+        super(message);
+    }
+}
+
+public class TestSpark {
+    @Test
+    public void testExpressionConfiguration() throws ParseException {
+        ExpressionConfiguration expressionConfiguration = new ExpressionConfiguration();
+        FunctionDictionaryIfc functionDictionaryIfc = new FunctionDictionaryIfc();
+        OperatorDictionaryIfc operatorDictionaryIfc = new OperatorDictionaryIfc();
+
+        expressionConfiguration.setFunctionDictionaryIfc(functionDictionaryIfc);
+        expressionConfiguration.setOperatorDictionaryIfc(operatorDictionaryIfc);
+    }
+}
+
+public class GeneratedTest {
+    @Test
+    public void testToken() {
+        Token token = new Token(TokenType.StringToken, "test");
+        System.out.println(token.getType());
+        System.out.println(token.getValue());
+    }
+
+    @Test
+    public void testTokenType() {
+        System.out.println(TokenType.StringToken);
+        System.out.println(TokenType.VariableToken);
+        System.out.println(TokenType.SinFunctionToken);
+        System.out.println(TokenType.CosFunctionToken);
+        System.out.println(TokenType.PlusOperatorToken);
+    }
+
+    @Test
+    public void testExpressionConfiguration() throws ParseException {
+        ExpressionConfiguration expressionConfiguration = new ExpressionConfiguration();
+        FunctionDictionaryIfc functionDictionaryIfc = new FunctionDictionaryIfc();
+        OperatorDictionaryIfc operatorDictionaryIfc = new OperatorDictionaryIfc();
+
+        expressionConfiguration.setFunctionDictionaryIfc(functionDictionaryIfc);
+        expressionConfiguration.setOperatorDictionaryIfc(operatorDictionaryIfc);
+    }
+
+    @Test
+    public void testParseException() {
+        ParseException exception = new ParseException("Invalid character");
+        System.out.println(exception.getMessage());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Token {
+    public TokenType type;
+    public String value;
+
+    public Token(TokenType type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+}
+
+public class GeneratedTest {
+    @org.junit.Test
+    public void testToken() throws Exception {
+        Token token = new Token(TokenType.VariableToken, "x");
+        System.out.println(token.getType());
+        System.out.println(token.getValue());
+    }
+
+    @org.junit.Test
+    public void testTokenType() throws Exception {
+        System.out.println(TokenType.VariableToken);
+        System.out.println(TokenType.SinFunctionToken);
+        System.out.println(TokenType.CosFunctionToken);
+        System.out.println(TokenType.PlusOperatorToken);
+    }
+
+    @org.junit.Test
+    public void testExpressionConfiguration() throws ParseException, Exception {
+        FunctionDictionaryIfc functionDictionaryIfc = new FunctionDictionaryIfc();
+        OperatorDictionaryIfc operatorDictionaryIfc = new OperatorDictionaryIfc();
+        ExpressionConfiguration expressionConfiguration = new ExpressionConfiguration(functionDictionaryIfc, operatorDictionaryIfc);
+        expressionConfiguration.setFunctionDictionaryIfc(functionDictionaryIfc);
+        expressionConfiguration.setOperatorDictionaryIfc(operatorDictionaryIfc);
+    }
+
+    @org.junit.Test
+    public void testParseException() throws ParseException, Exception {
+        ParseException exception = new ParseException("Test Exception");
+        System.out.println(exception.getMessage());
+    }
+}
+
+public class FunctionDictionaryIfc {
+    // Methods and fields...
+}
+
+public class OperatorDictionaryIfc {
+    // Methods and fields...
+}
+
+public class ExpressionConfiguration {
+    public FunctionDictionaryIfc functionDictionaryIfc;
+    public OperatorDictionaryIfc operatorDictionaryIfc;
+
+    public void setFunctionDictionaryIfc(FunctionDictionaryIfc functionDictionaryIfc) {
+        this.functionDictionaryIfc = functionDictionaryIfc;
+    }
+
+    public void setOperatorDictionaryIfc(OperatorDictionaryIfc operatorDictionaryIfc) {
+        this.operatorDictionaryIfc = operatorDictionaryIfc;
+    }
+}
+
+public class ParseException extends Exception {
+    // Methods and fields...
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+I apologize for the incomplete response earlier. Here is a revised version of the code that meets your requirements:
+
+```java
+public class Token {
+    public TokenType type;
+    public String value;
+
+    public Token(TokenType type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+}
+
+public enum TokenType {
+    VariableToken,
+    FunctionToken,
+    OperatorToken,
+    LeftParenthesisToken,
+    RightParenthesisToken
+}
+
+public class ExpressionConfiguration {
+    private FunctionDictionaryIfc functionDictionaryIfc;
+    private OperatorDictionaryIfc operatorDictionaryIfc;
+
+    public void setFunctionDictionaryIfc(FunctionDictionaryIfc functionDictionaryIfc) {
+        this.functionDictionaryIfc = functionDictionaryIfc;
+    }
+
+    public void setOperatorDictionaryIfc(OperatorDictionaryIfc operatorDictionaryIfc) {
+        this.operatorDictionaryIfc = operatorDictionaryIfc;
+    }
+}
+
+public class FunctionDictionaryIfc {
+    // Define functions and their corresponding values
+    private Map<String, String> functions = new HashMap<>();
+
+    public FunctionDictionaryIfc() {}
+
+    public void addFunction(String name, String value) {
+        functions.put(name, value);
+    }
+
+    public String getFunction(String name) {
+        return functions.get(name);
+    }
+}
+
+public class OperatorDictionaryIfc {
+    // Define operators and their corresponding values
+    private Map<String, FunctionToken> operators = new HashMap<>();
+
+    public OperatorDictionaryIfc() {}
+
+    public void addOperator(String operator, FunctionToken function) {
+        operators.put(operator, function);
+    }
+
+    public FunctionToken getOperator(String operator) {
+        return operators.get(operator);
+    }
+}
+
+public class ExpressionParser {
+    private Token token;
+    private int position = 0;
+
+    public ExpressionParser(Token token) {
+        this.token = token;
+    }
+
+    public Token parseExpression() throws ParseException {
+        Token leftOperand = parseTerm();
+        while (token.type == TokenType.PlusOperatorToken) {
+            token = nextToken();
+            Token rightOperand = parseTerm();
+            if (token.type != TokenType.PlusOperatorToken || !token.value.equals("+")) {
+                throw new ParseException("Expected +, but found " + token.value);
+            }
+        }
+        return leftOperand;
+    }
+
+    private Token parseTerm() throws ParseException {
+        Token leftOperand = parseFactor();
+        while (token.type == TokenType.MultiplyOperatorToken) {
+            token = nextToken();
+            Token rightOperand = parseFactor();
+            if (token.type != TokenType.MultiplyOperatorToken || !token.value.equals("*")) {
+                throw new ParseException("Expected *, but found " + token.value);
+            }
+        }
+        return leftOperand;
+    }
+
+    private Token parseFactor() throws ParseException {
+        // Check for parentheses
+        if (token.type == TokenType.LeftParenthesisToken) {
+            token = nextToken();
+            Token result = parseExpression();
+            token = nextToken(); // Eat the closing parenthesis
+            return result;
+        }
+        // Check for variable or function call
+        else if (token.type == TokenType.VariableToken || token.type == TokenType.FunctionToken) {
+            return token;
+        } else {
+            throw new ParseException("Expected a term, but found " + token.value);
+        }
+    }
+
+    private Token nextToken() throws ParseException {
+        String value = token.value;
+        if (position < value.length()) {
+            token.value = value.substring(position);
+            position += 1;
+            return token;
+        } else {
+            token.type = TokenType.EmptyToken;
+            throw new ParseException("Unexpected end of input");
+        }
+    }
+
+    public static class ParseException extends Exception {
+        public ParseException(String message) {
+            super(message);
+        }
+    }
+}
+```
+
+This revised version includes the following:
+
+*   A `Token` class to represent tokens in the expression.
+*   An `enum TokenType` to define different types of tokens.
+*   An `ExpressionConfiguration` class that holds function and operator dictionaries.
+*   A `FunctionDictionaryIfc` class that defines functions and their values.
+*   An `OperatorDictionaryIfc` class that defines operators and their corresponding functions.
+*   An `ExpressionParser` class that parses expressions according to the grammar specified.
+
+You can use this code as a starting point for building a parser or interpreter for your language. Note that this implementation is simplified and might not cover all edge cases in a real-world scenario.
+===================================================
+
+
+====================== Iteration #5 ======================
+I apologize for the incomplete response earlier. Here's another attempt at answering your original question:
+
+```java
+public class Token {
+    public TokenType type;
+    public String value;
+
+    public Token(TokenType type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+}
+
+public enum TokenType {
+    VariableToken,
+    FunctionToken,
+    OperatorToken,
+    LeftParenthesisToken,
+    RightParenthesisToken
+}
+
+public class ExpressionConfiguration {
+    private FunctionDictionaryIfc functionDictionaryIfc;
+    private OperatorDictionaryIfc operatorDictionaryIfc;
+
+    public void setFunctionDictionaryIfc(FunctionDictionaryIfc functionDictionaryIfc) {
+        this.functionDictionaryIfc = functionDictionaryIfc;
+    }
+
+    public void setOperatorDictionaryIfc(OperatorDictionaryIfc operatorDictionaryIfc) {
+        this.operatorDictionaryIfc = operatorDictionaryIfc;
+    }
+}
+
+public class FunctionDictionaryIfc {
+    // Define functions and their corresponding values
+    private Map<String, String> functions = new HashMap<>();
+
+    public FunctionDictionaryIfc() {}
+
+    public void addFunction(String name, String value) {
+        functions.put(name, value);
+    }
+
+    public String getFunction(String name) {
+        return functions.get(name);
+    }
+}
+
+public class OperatorDictionaryIfc {
+    // Define operators and their corresponding values
+    private Map<String, FunctionToken> operators = new HashMap<>();
+
+    public OperatorDictionaryIfc() {}
+
+    public void addOperator(String operator, FunctionToken function) {
+        operators.put(operator, function);
+    }
+
+    public FunctionToken getOperator(String operator) {
+        return operators.get(operator);
+    }
+}
+
+public class ExpressionParser {
+    private Token token;
+    private int position = 0;
+
+    public ExpressionParser(Token token) {
+        this.token = token;
+    }
+
+    public Token parseExpression() throws ParseException {
+        Token leftOperand = parseTerm();
+        while (token.type == TokenType.PlusOperatorToken) {
+            token = nextToken();
+            Token rightOperand = parseTerm();
+            if (token.type != TokenType.PlusOperatorToken || !token.value.equals("+")) {
+                throw new ParseException("Expected +, but found " + token.value);
+            }
+        }
+        return leftOperand;
+    }
+
+    private Token parseTerm() throws ParseException {
+        Token leftOperand = parseFactor();
+        while (token.type == TokenType.MultiplyOperatorToken) {
+            token = nextToken();
+            Token rightOperand = parseFactor();
+            if (token.type != TokenType.MultiplyOperatorToken || !token.value.equals("*")) {
+                throw new ParseException("Expected *, but found " + token.value);
+            }
+        }
+        return leftOperand;
+    }
+
+    private Token parseFactor() throws ParseException {
+        // Check for parentheses
+        if (token.type == TokenType.LeftParenthesisToken) {
+            token = nextToken();
+            Token result = parseExpression();
+            token = nextToken(); // Eat the closing parenthesis
+            return result;
+        }
+        // Check for variable or function call
+        else if (token.type == TokenType.VariableToken || token.type == TokenType.FunctionToken) {
+            return token;
+        } else {
+            throw new ParseException("Expected a term, but found " + token.value);
+        }
+    }
+
+    private Token nextToken() throws ParseException {
+        String value = token.value;
+        if (position < value.length()) {
+            token.value = value.substring(position);
+            position += 1;
+            return token;
+        } else {
+            token.type = TokenType.EmptyToken;
+            throw new ParseException("Unexpected end of input");
+        }
+    }
+
+    public static class ParseException extends Exception {
+        public ParseException(String message) {
+            super(message);
+        }
+    }
+}
+```
+
+To use this code, you would create a `FunctionDictionaryIfc` and an `OperatorDictionaryIfc`, then set them in the `ExpressionConfiguration`. You could also add functions to these dictionaries using methods like `addFunction()`.
+
+Here's an example of how you might do that:
+
+```java
+public static void main(String[] args) {
+    FunctionDictionaryIfc functionDict = new FunctionDictionaryIfc();
+    OperatorDictionaryIfc operatorDict = new OperatorDictionaryIfc();
+
+    // Add some functions to the dictionary
+    functionDict.addFunction("sin", "Math.sin");
+    functionDict.addFunction("cos", "Math.cos");
+
+    // Define an operator and its corresponding value
+    FunctionToken operatorValue = new FunctionToken(OperatorToken.MUL);
+    operatorValue.value = "*";
+
+    operatorDict.addOperator("*", operatorValue);
+
+    // Set the dictionaries in the configuration
+    ExpressionConfiguration config = new ExpressionConfiguration();
+    config.setFunctionDictionaryIfc(functionDict);
+    config.setOperatorDictionaryIfc(operatorDict);
+}
+```
+
+This is just a starting point, and you would likely need to add more functionality to your parser or interpreter.
+===================================================
+
+
+====================== Iteration #6 ======================

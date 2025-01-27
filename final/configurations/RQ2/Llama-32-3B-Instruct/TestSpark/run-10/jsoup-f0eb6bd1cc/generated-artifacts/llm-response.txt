@@ -1,0 +1,383 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.helper;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void UrlBuilder_constructUrlFromInputUrl() throws URISyntaxException {
+        String input = "https://www.example.com";
+        URL expected = new URL(input);
+        UrlBuilder builder = new UrlBuilder(new URL(input));
+        assertEquals(expected, builder.build());
+    }
+
+    @Test
+    public void UrlBuilder_appendKeyVal() throws URISyntaxException, UnsupportedEncodingException {
+        Map<String, String> keyVals = new HashMap<>();
+        keyVals.put("key1", "value1");
+        Connection.KeyVal kv = new org.jsoup.internal.StringUtil.KeyVal(keyVals);
+        UrlBuilder builder = new UrlBuilder(new URL("https://www.example.com"));
+        builder.appendKeyVal(kv);
+        URI uri = builder.build().toURI();
+        assertEquals(uri, new URI("https://www.example.com/key1=value1"));
+    }
+
+    @Test
+    public void UrlBuilder_appendKeyVal_urlEncoding() throws URISyntaxException, UnsupportedEncodingException {
+        Map<String, String> keyVals = new HashMap<>();
+        keyVals.put("key1", "value with spaces");
+        Connection.KeyVal kv = new org.jsoup.internal.StringUtil.KeyVal(keyVals);
+        UrlBuilder builder = new UrlBuilder(new URL("https://www.example.com"));
+        builder.appendKeyVal(kv);
+        URI uri = builder.build().toURI();
+        assertEquals(uri, new URI("https://www.example.com/key1=value+with+spaces"));
+    }
+
+    @Test
+    public void UrlBuilder_appendMultipleKeyVals() throws URISyntaxException, UnsupportedEncodingException {
+        Map<String, String> keyVals = new HashMap<>();
+        keyVals.put("key1", "value1");
+        keyVals.put("key2", "value2");
+        Connection.KeyVal[] kvArray = new org.jsoup.internal.StringUtil.KeyVal[keyVals.size()];
+        for (Map.Entry<String, String> entry : keyVals.entrySet()) {
+            kvArray[i] = new org.jsoup.internal.StringUtil.KeyVal(entry);
+        }
+        UrlBuilder builder = new UrlBuilder(new URL("https://www.example.com"));
+        builder.appendKeyVal(kvArray);
+        URI uri = builder.build().toURI();
+        assertEquals(uri, new URI("https://www.example.com/key1=value1&key2=value2"));
+    }
+
+    @Test
+    public void UrlBuilder_appendMultipleKeyVals_urlEncoding() throws URISyntaxException, UnsupportedEncodingException {
+        Map<String, String> keyVals = new HashMap<>();
+        keyVals.put("key1", "value with spaces");
+        keyVals.put("key2", "value with spaces");
+        Connection.KeyVal[] kvArray = new org.jsoup.internal.StringUtil.KeyVal[keyVals.size()];
+        for (Map.Entry<String, String> entry : keyVals.entrySet()) {
+            kvArray[i] = new org.jsoup.internal.StringUtil.KeyVal(entry);
+        }
+        UrlBuilder builder = new UrlBuilder(new URL("https://www.example.com"));
+        builder.appendKeyVal(kvArray);
+        URI uri = builder.build().toURI();
+        assertEquals(uri, new URI("https://www.example.com/key1=value+with+spaces&key2=value+with+spaces"));
+    }
+
+    @Test
+    public void UrlBuilder_build() {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertTrue(builder.build().toString().startsWith("https://www.example.com/"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class UrlBuilder {
+    private String[] keyValues;
+
+    public UrlBuilder(String url) {
+        this.keyValues = url.split("&");
+    }
+
+    public void addKeyValue(String entry) {
+        if (keyValues == null || keyValues.length >= 10000) {
+            System.out.println("Too many key-value pairs, cannot continue.");
+            return;
+        }
+        String[] keyValue = entry.split("=");
+        if (keyValue.length != 2) {
+            System.out.println("Invalid key-value pair: " + entry);
+            return;
+        }
+        keyValues[keyValues.length] = keyValue[0];
+        keyValues[keyValues.length + 1] = keyValue[1];
+    }
+
+    public void printUrl() {
+        for (String key : keyValues) {
+            System.out.println(key + "=");
+        }
+    }
+}
+
+public class TestUrlBuilder {
+
+    @Test
+    public void testUrlBuilder() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        urlBuilder.addKeyValue("key1=value1&key2=value2");
+        urlBuilder.addKeyValue("key3=value3&key4=value4");
+        urlBuilder.printUrl();
+    }
+
+    @Test
+    public void testUrlBuilderTooManyKeyValues() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        for (int i = 0; i < 10000; i++) {
+            urlBuilder.addKeyValue(String.valueOf(i) + "=" + String.valueOf(i));
+        }
+        urlBuilder.printUrl();
+    }
+
+    @Test
+    public void testUrlBuilderInvalidKeyValue() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        urlBuilder.addKeyValue("key=value"); // should throw exception
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class UrlBuilder {
+    private String[] keyValues;
+    private String url;
+
+    public UrlBuilder(String url) {
+        this.url = url;
+        this.keyValues = null;
+    }
+
+    public void addKeyValue(String entry) {
+        if (keyValues == null || keyValues.length >= 10000) {
+            System.out.println("Too many key-value pairs, cannot continue.");
+            return;
+        }
+        String[] keyValue = entry.split("=");
+        if (keyValue.length != 2) {
+            System.out.println("Invalid key-value pair: " + entry);
+            return;
+        }
+        if (keyValues == null) {
+            keyValues = new String[2];
+        }
+        keyValues[keyValue.length - 1] += "=" + keyValue[1].replaceAll("&", "");
+    }
+
+    public void printUrl() {
+        Document doc = Jsoup.parse(url);
+        for (int i = 0; i < keyValues.length; i++) {
+            System.out.println(doc.getElementById("kv" + i));
+        }
+    }
+
+    public static class TestUrlBuilder {
+
+        @org.junit.Test
+        public void testUrlBuilder() {
+            UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+            urlBuilder.addKeyValue("key1=value1&key2=value2");
+            urlBuilder.addKeyValue("key3=value3&key4=value4");
+            urlBuilder.printUrl();
+        }
+
+        @org.junit.Test
+        public void testUrlBuilderTooManyKeyValues() {
+            UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+            for (int i = 0; i < 10000; i++) {
+                urlBuilder.addKeyValue(String.valueOf(i) + "=" + String.valueOf(i));
+            }
+            urlBuilder.printUrl();
+        }
+
+        @org.junit.Test
+        public void testUrlBuilderInvalidKeyValue() {
+            UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+            try {
+                urlBuilder.addKeyValue("key=value"); // should throw exception
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        @org.junit.Test
+        public void testUrlBuilderConstructor() {
+            UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+            assert urlBuilder.url.equals("https://www.example.com");
+            assert urlBuilder.keyValues == null;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class UrlBuilder {
+    private String url;
+    public StringBuilder keyValue = new StringBuilder();
+
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+
+    public void addKeyValue(String entry) {
+        if (keyValue.length() >= 10000) {
+            System.out.println("Too many key-value pairs, cannot continue.");
+            return;
+        }
+        String[] keyValueArray = entry.split("=");
+        if (keyValueArray.length != 2) {
+            System.out.println("Invalid key-value pair: " + entry);
+            return;
+        }
+        keyValue.append(keyValueArray[0]);
+        keyValue.append("=");
+        keyValue.append(keyValueArray[1]);
+    }
+
+    public void printUrl() {
+        Document doc = Jsoup.parse(url);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < keyValue.length(); i += 2) {
+            sb.append(doc.getElementById("kv").attr("value"));
+            if (i != keyValue.length() - 1) {
+                sb.append("&");
+            }
+        }
+        System.out.println(sb.toString());
+    }
+
+    public static class TestUrlBuilder {
+
+        @org.junit.Test
+        public void testUrlBuilder() {
+            UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com?key1=value1&key2=value2");
+            urlBuilder.addKeyValue("key3=value3&key4=value4");
+            urlBuilder.printUrl();
+        }
+
+        @org.junit.Test
+        public void testUrlBuilderTooManyKeyValues() {
+            UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com?key1=value1&key2=value2");
+            for (int i = 0; i < 10000; i++) {
+                urlBuilder.addKeyValue(String.valueOf(i) + "=" + String.valueOf(i));
+            }
+            urlBuilder.printUrl();
+        }
+
+        @org.junit.Test
+        public void testUrlBuilderInvalidKeyValue() {
+            UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+            try {
+                urlBuilder.addKeyValue("key=value"); // should throw exception
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        @org.junit.Test
+        public void testUrlBuilderConstructor() {
+            UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+            assert urlBuilder.url.equals("https://www.example.com");
+            assert urlBuilder.keyValue.length() == 0;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class UrlBuilder {
+    private String url;
+
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+
+    public void addKeyValue(String entry) {
+        if (entry.contains("=")) {
+            String[] keyValueArray = entry.split("=");
+            StringBuilder keyValue = new StringBuilder();
+            for (int i = 0; i < keyValueArray.length - 1; i++) {
+                keyValue.append(keyValueArray[i]).append("=");
+            }
+            keyValue.append(keyValueArray[keyValueArray.length - 1]);
+            // handle multiple key-value pairs
+        } else {
+            System.out.println("Invalid key-value pair: " + entry);
+        }
+    }
+
+    public void printUrl() {
+        String[] keyValuePairs = url.split("&");
+        StringBuilder sb = new StringBuilder();
+        for (String keyValuePair : keyValuePairs) {
+            if (!keyValuePair.isEmpty()) {
+                addKeyValue(keyValuePair);
+                sb.append(" & ");
+            }
+        }
+        System.out.println(sb.toString());
+    }
+
+    private void addKeyValue(String entry) {
+        // implement logic to handle multiple key-value pairs
+    }
+}
+
+public class TestUrlBuilder {
+
+    @org.junit.Test
+    public void testUrlBuilder() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com?key1=value1&key2=value2");
+        urlBuilder.addKeyValue("key3=value3&key4=value4");
+        urlBuilder.printUrl();
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderTooManyKeyValues() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com?key1=value1&key2=value2");
+        for (int i = 0; i < 10000; i++) {
+            urlBuilder.addKeyValue(String.valueOf(i) + "=" + String.valueOf(i));
+        }
+        urlBuilder.printUrl();
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderInvalidKeyValue() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        try {
+            urlBuilder.addKeyValue("key=value"); // should throw exception
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderConstructor() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        assert urlBuilder.url.equals("https://www.example.com");
+        // implement assertion for urlBuilder
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

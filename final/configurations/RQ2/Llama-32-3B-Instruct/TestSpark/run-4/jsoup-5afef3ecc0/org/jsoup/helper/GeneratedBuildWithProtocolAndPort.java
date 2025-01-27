@@ -1,0 +1,37 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.junit.runner.RunWith;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedBuildWithProtocolAndPort {
+
+    @Mock
+    private Connection connection;
+
+    public static void main(String[] args) {
+        org.junit.runner.JUnitCore.main("org.jsoup.helper.UrlBuilderTest");
+    }
+
+    @Test
+    public void buildWithProtocolAndPort() throws MalformedURLException {
+        URL inputUrl = new URL("http://example.com:8080/path");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertNotNull(urlBuilder.build());
+        assertTrue(StringUtil.isSameURL(urlBuilder.build(), inputUrl));
+    }
+
+}

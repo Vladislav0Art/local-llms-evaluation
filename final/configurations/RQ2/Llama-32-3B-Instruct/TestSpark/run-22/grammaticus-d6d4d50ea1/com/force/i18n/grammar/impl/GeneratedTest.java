@@ -1,0 +1,90 @@
+package com.force.i18n.grammar.impl;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import com.force.i18n.commons.util.collection.MapSerializer;
+import com.force.i18n.grammar.impl.GrammaticalTermMapImpl;
+import com.force.i18n.HumanLanguage;
+import com.force.i18n.grammar.GrammaticalTerm;
+
+public class GeneratedTest {
+
+    @Test
+    public void newImplCreatesEmptyMap() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        assertTrue(map.isEmpty());
+    }
+
+    @Test
+    public void newImplWithInitialTermsReturnsMap() {
+        Map<String, GrammaticalTerm> initialTerms = new HashMap<>();
+        initialTerms.put("term1", new GrammaticalTerm(HumanLanguage.English));
+        initialTerms.put("term2", new GrammaticalTerm(HumanLanguage.French));
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>(initialTerms, false);
+        assertEquals(initialTerms, map.keySet());
+    }
+
+    @Test
+    public void makeSkinnyReturnsEmptyMap() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> skinny = map.makeSkinny();
+        assertTrue(skinny.isEmpty());
+    }
+
+    @Test
+    public void writeJsonSerializesTerms() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(outContent));
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("term1", new GrammaticalTerm(HumanLanguage.English));
+        map.writeJson(System.out, null, null, null);
+        String outJson = MapSerializer.unserialize(outContent.toByteArray());
+        assertTrue(outJson.contains("\"term1\":"));
+    }
+
+    @Test
+    public void getReturnsTermForName() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("term1", new GrammaticalTerm(HumanLanguage.English));
+        GrammaticalTerm term = map.get("term1");
+        assertNotNull(term);
+    }
+
+    @Test
+    public void containsKeyReturnsFalseForUnknownName() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        assertFalse(map.containsKey("unknown"));
+    }
+
+    @Test
+    public void putSetsTermForName() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("term1", new GrammaticalTerm(HumanLanguage.English));
+        GrammaticalTerm term = map.get("term1");
+        assertNotNull(term);
+    }
+
+    @Test
+    public void putAllCopiesTerms() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("term1", new GrammaticalTerm(HumanLanguage.English));
+        GrammaticalTermMapImpl<GrammaticalTerm> other = new GrammaticalTermMapImpl<>();
+        other.put("term2", new GrammaticalTerm(HumanLanguage.French));
+        other.putAll(map);
+        assertTrue(other.containsKey("term1"));
+    }
+
+    @Test
+    public void isEmptyReturnsFalseForNonEmptyMap() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("term1", new GrammaticalTerm(HumanLanguage.English));
+        assertFalse(map.isEmpty());
+    }
+
+}

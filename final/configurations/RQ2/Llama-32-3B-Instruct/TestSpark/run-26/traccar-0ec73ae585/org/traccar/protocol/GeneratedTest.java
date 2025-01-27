@@ -1,0 +1,120 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+
+import java.net.SocketAddress;
+import java.util.Date;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    public boolean getHasIndex() {
+        // mock implementation
+        return false;
+    }
+
+    public String getManufacturer() {
+        // mock implementation
+        return "unknown";
+    }
+
+    @Test
+    public void decode_CellIsNotAvailable_ReturnsNull() {
+        ByteBuf buffer = Unpooled.buffer();
+        NetworkMessage networkMessage = new NetworkMessage(buffer);
+        Object result = WatchProtocolDecoder.decode(channel, remoteAddress, networkMessage);
+        assert result == null;
+    }
+
+    @Test
+    public void getHasIndex_CelIsNotAvailable_ReturnsFalse() {
+        boolean result = WatchProtocolDecoder.getHasIndex();
+        assert !result;
+    }
+
+    @Test
+    public void getManufacturer_UnknownManufacturer_ReturnsUnknown() {
+        String result = WatchProtocolDecoder.getManufacturer();
+        assert result.equals("unknown");
+    }
+
+    @Test
+    public void decode_ValidMessage_ReturnsDecodedMessage() throws Exception {
+        ByteBuf buffer = Unpooled.buffer(10);
+        NetworkMessage networkMessage = new NetworkMessage(buffer);
+        networkMessage.addByte(1);
+        networkMessage.addByte(2);
+        networkMessage.addByte(3);
+        Object result = WatchProtocolDecoder.decode(channel, remoteAddress, networkMessage);
+        assert result instanceof Object;
+    }
+
+    @Test
+    public void decode_MissingRequiredFields_ThrowsException() throws Exception {
+        ByteBuf buffer = Unpooled.buffer();
+        NetworkMessage networkMessage = new NetworkMessage(buffer);
+        int requiredFieldCount = WatchProtocolDecoder.getRequiredFieldCount();
+        for (int i = 0; i < requiredFieldCount; i++) {
+            networkMessage.addByte(i);
+        }
+        assertThrows(Exception.class, () -> WatchProtocolDecoder.decode(channel, remoteAddress, networkMessage));
+    }
+
+    @Test
+    public void decode_UnparsableData_ThrowsException() throws Exception {
+        ByteBuf buffer = Unpooled.buffer();
+        NetworkMessage networkMessage = new NetworkMessage(buffer);
+        String unparsableData = "unparsable data";
+        byte[] bytes = BufferUtil.toBytes(unparsableData, StandardCharsets.UTF_8);
+        networkMessage.addBytes(bytes);
+        assertThrows(Exception.class, () -> WatchProtocolDecoder.decode(channel, remoteAddress, networkMessage));
+    }
+
+    @Test
+    public void decode_ValidPosition_ReturnsDecodedPosition() throws Exception {
+        ByteBuf buffer = Unpooled.buffer(20);
+        NetworkMessage networkMessage = new NetworkMessage(buffer);
+        Position position = new Position();
+        position.setLatitude("1");
+        position.setLongitude("2");
+        position.setAltitude(3);
+        position.setAccuracy(4);
+        patternBuilder builder = new patternBuilder();
+        String expectedPattern = "latitude\\s*:\\s*\\w+\\nlongitude\\s*:\\s*\\w+\\naltitude\\s*:\\s*\\d+\\naccuracy\\s*:\\s*\\d+")
+        ;
+        Pattern pattern = Pattern.compile(expectedPattern, Pattern.CASE_INSENSITIVE);
+        builder.addString("latitude", position.getLatitude())
+                .addString("longitude", position.getLongitude())
+                .addByte("altitude", position.getAltitude())
+                .addByte("accuracy", position.getAccuracy())
+                .build(position, pattern);
+        networkMessage.addBytes(BufferUtil.toBytes(position, StandardCharsets.UTF_8));
+        Object result = WatchProtocolDecoder.decode(channel, remoteAddress, networkMessage);
+        assert result instanceof Position;
+    }
+}
+
+class patternBuilder {
+    public String addString(String key, String value) {
+        // implementation
+    }
+
+    public byte[] build(Object object, Pattern pattern) {
+        // implementation
+    }
+
+}

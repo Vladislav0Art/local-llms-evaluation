@@ -1,0 +1,66 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextPriceWithNoSpansTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(10));
+    }
+
+    @Test
+    public void nextPriceWithOneSpanTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        assertEquals(2, stockSpan.next(80));
+    }
+
+    @Test
+    public void nextPriceWithMultipleSpansTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        stockSpan.next(80);
+        stockSpan.next(75);
+        assertEquals(4, stockSpan.next(60));
+    }
+
+    @Test
+    public void calculateSpansEmptyArrayTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[0]);
+        assertEquals(new int[]{}, result);
+    }
+
+    @Test
+    public void calculateSpansSingleElementArrayTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{100});
+        assertEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpansMultiElementArrayTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{10, 12, 7, 5, 8});
+        assertEquals(new int[]{1, 2, 3, 4, 5}, result);
+    }
+
+    @Test
+    public void calculateSpansWithDuplicatePricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{10, 12, 7, 7, 8});
+        assertEquals(new int[]{1, 2, 3, 4, 5}, result);
+    }
+
+    @Test
+    public void calculateSpansWithZeroPriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{0});
+        assertEquals(new int[]{1}, result);
+    }
+
+}

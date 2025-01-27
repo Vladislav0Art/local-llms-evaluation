@@ -1,0 +1,34 @@
+package org.jsoup.parser;
+
+public class GeneratedTestNormalNameMultipleCharactersReturnFirstCharacterUpperWithoutSpaceTest {
+
+    private String name;
+
+    public TagClass(String name) {
+        if (name == null) {
+            throw new NullPointerException("Name cannot be null");
+        }
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public static String normalName(String tagName) {
+        return Normalizer.nfc(tagName).toString();
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void testNormalNameMultipleCharactersReturnFirstCharacterUpperWithoutSpaceTest() {
+        TagClass tag = new TagClass("abc");
+        String tagName = "Abc";
+        char[] expected = Normalizer.nfc(tagName).toCharArray();
+        char[] actual = TagClass.normalName(tag.getName()).toCharArray();
+        assertArrayEquals(expected, actual);
+    }
+
+}

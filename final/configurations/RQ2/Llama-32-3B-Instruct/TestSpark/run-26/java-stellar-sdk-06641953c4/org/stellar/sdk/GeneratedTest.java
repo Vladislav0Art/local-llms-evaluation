@@ -1,0 +1,93 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+import net.i2p.crypto.eddsa.EdDSAPrivateKey;
+import net.i2p.crypto.eddsa.EdDSAEngine;
+import net.i2p.crypto.eddsa.KeyPairGenerator;
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveSpec;
+import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec;
+import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
+import org.stellar.sdk.XdrDataOutputStream;
+
+import java.io.ByteArrayOutputStream;
+
+public class GeneratedTest {
+
+    @Test
+    public void canSign_EdDSAPrivateKey_Pass() {
+        EdDSAPrivateKey privatekey = new EdDSAPrivateKey();
+        assertEquals(true, new KeyPair(privatekey).canSign());
+    }
+
+    @Test
+    public void canSign_EdDSAPublicKey_NegativeResult() {
+        EdDSAPublicKey publicKey = new EdDSAPublicKey();
+        assertEquals(false, new KeyPair(publicKey).canSign());
+    }
+
+    @Test
+    public void fromSecretSeed_InvalidSeed_ThrowsException() {
+        assertThrows(GeneralSecurityException.class, () -> KeyPair.fromSecretSeed(null));
+    }
+
+    @Test
+    public void fromSecretSeed_EmptyString_ThrowsException() {
+        assertThrows(GeneralSecurityException.class, () -> KeyPair.fromSecretSeed(""));
+    }
+
+    @Test
+    public void fromSecretSeed_BigIntSeed_ThrowsException() {
+        assertThrows(GeneralSecurityException.class, () -> KeyPair.fromSecretSeed(Long.toString()));
+    }
+
+    @Test
+    public void getAccountId_EmptyKey_Pass() {
+        assertEquals("", new KeyPair().getAccountId());
+    }
+
+    @Test
+    public void getAccountId_NullKey_ThrowsException() {
+        assertThrows(NullPointerException.class, () -> new KeyPair(null).getAccountId());
+    }
+
+    @Test
+    public void getSecretSeed_EmptyKey_Pass() {
+        char[] empty = {};
+        assertEquals(empty, new KeyPair().getSecretSeed());
+    }
+
+    @Test
+    public void getSecretSeed_NullKey_ThrowsException() {
+        assertThrows(NullPointerException.class, () -> new KeyPair(null).getSecretSeed());
+    }
+
+    @Test
+    public void getPublicKey_EmptyKey_Pass() {
+        byte[] empty = {};
+        assertEquals(empty, new KeyPair().getPublicKey());
+    }
+
+    @Test
+    public void getPublicKey_NullKey_ThrowsException() {
+        assertThrows(NullPointerException.class, () -> new KeyPair(null).getPublicKey());
+    }
+
+    @Test
+    public void sign_EmptyData_Pass() {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        XdrDataOutputStream os = new XdrDataOutputStream(bos);
+        byte[] signature = new byte[0];
+        assertEquals(signature, new KeyPair().sign(new byte[0]));
+    }
+
+    @Test
+    public void sign_NullData_ThrowsException() {
+        assertThrows(NullPointerException.class, () -> new KeyPair().sign(null));
+    }
+
+}

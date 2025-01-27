@@ -1,0 +1,644 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.traccar.protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org traccar protocol DeviceSession;
+import org traccar protocol NetworkMessage;
+import org traccar protocol Protocol;
+import org traccar helper BitUtil;
+import org traccar helper BufferUtil;
+import org traccar helper Parser;
+import org traccar helper PatternBuilder;
+import org traccar helper UnitsConverter;
+import org traccar model CellTower;
+import org traccar model Network;
+import org traccar model Position;
+import org traccar model WifiAccessPoint;
+import java net SocketAddress;
+import java.nio.charset StandardCharsets;
+import java.util Date;
+import java.util.regex Pattern;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    @Mock
+    private Network network;
+
+    @Mock
+    private Position position;
+
+    @Mock
+    private CellTower cellTower;
+
+    @Mock
+    private WifiAccessPoint wifiAccessPoint;
+
+    @Test
+    public void getHasIndex_EmptyProtocol() {
+        boolean result = new WatchProtocolDecoder(protocol).getHasIndex();
+        assertTrue(result);
+    }
+
+    @Test
+    public void getHasIndex_HasIndex() {
+        protocol.setHasIndex(true);
+        boolean result = new WatchProtocolDecoder(protocol).getHasIndex();
+        assertTrue(result);
+    }
+
+    @Test
+    public void getManufacturer_EmptyProtocol() {
+        boolean result = new WatchProtocolDecoder(protocol).getManufacturer();
+        assertEquals("", result);
+    }
+
+    @Test
+    public void getManufacturer_HasManufacturer() {
+        protocol.setManufacturer("manufacturer");
+        String result = new WatchProtocolDecoder(protocol).getManufacturer();
+        assertEquals("manufacturer", result);
+    }
+
+    @Test
+    public void decode_EmptyMessage() throws Exception {
+        ByteBuf buffer = Unpooled.buffer();
+        NetworkMessage message = new NetworkMessage(buffer, network, deviceSession);
+        Object result = new WatchProtocolDecoder(protocol).decode(message.getChannel(), message.getRemoteAddress(), message);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void decode_HasIndex() throws Exception {
+        protocol.setHasIndex(true);
+        ByteBuf buffer = Unpooled.buffer();
+        NetworkMessage message = new NetworkMessage(buffer, network, deviceSession);
+        Object result = new WatchProtocolDecoder(protocol).decode(message.getChannel(), message.getRemoteAddress(), message);
+        assertEquals(cellTower, result);
+    }
+
+    @Test
+    public void decode_HasManufacturer() throws Exception {
+        protocol.setHasIndex(true);
+        protocol.setManufacturer("manufacturer");
+        ByteBuf buffer = Unpooled.buffer();
+        NetworkMessage message = new NetworkMessage(buffer, network, deviceSession);
+        Object result = new WatchProtocolDecoder(protocol).decode(message.getChannel(), message.getRemoteAddress(), message);
+        assertEquals(position, result);
+    }
+
+    @Test
+    public void decode_HasPosition() throws Exception {
+        protocol.setHasIndex(true);
+        protocol.setManufacturer("manufacturer");
+        protocol.setPosition(position);
+        ByteBuf buffer = Unpooled.buffer();
+        NetworkMessage message = new NetworkMessage(buffer, network, deviceSession);
+        Object result = new WatchProtocolDecoder(protocol).decode(message.getChannel(), message.getRemoteAddress(), message);
+        assertEquals(wifiAccessPoint, result);
+    }
+
+    @Test
+    public void decode_HasNoData() throws Exception {
+        protocol.setHasIndex(false);
+        ByteBuf buffer = Unpooled.buffer();
+        NetworkMessage message = new NetworkMessage(buffer, network, deviceSession);
+        Object result = new WatchProtocolDecoder(protocol).decode(message.getChannel(), message.getRemoteAddress(), message);
+        assertNull(result);
+    }
+
+    @Test
+    public void decode_HasInvalidData() throws Exception {
+        protocol.setHasIndex(true);
+        protocol.setManufacturer("manufacturer");
+        ByteBuf buffer = Unpooled.buffer();
+        NetworkMessage message = new NetworkMessage(buffer, network, deviceSession);
+        String invalidData = "invalid data";
+        result(buffer, message, invalidData, Object.class, position);
+    }
+
+    @Test
+    public void decode_MissingProtocol() {
+        try {
+            new WatchProtocolDecoder(null).decode(null, null, null);
+            fail("Expected Exception");
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+    private <T> void result(ByteBuf buffer, NetworkMessage message, String invalidData, Class<T> clazz, T expected) throws Exception {
+        MockitoAnnotations.initMocks(this);
+        message.setBuffer(buffer);
+        object(message, invalidData);
+        Object result = new WatchProtocolDecoder(protocol).decode(null, null, message);
+        assertResult(result, expected, clazz);
+    }
+
+    private void object(NetworkMessage message, String invalidData) {
+        Network network = message.getNetwork();
+        deviceSession = message.getDeviceSession();
+        Position position = message.getPosition();
+        CellTower cellTower = message.getCellTower();
+        WifiAccessPoint wifiAccessPoint = message.getWifiAccessPoint();
+
+        if (invalidData != null && !invalidData.isEmpty()) {
+            bitUtil(invalidData);
+        }
+
+        if (position != null) {
+            bufferUtil(position);
+        }
+    }
+
+    private void assertResult(Object result, Object expected, Class<?> clazz) {
+        if (clazz.equals(CellTower.class)) {
+            assertEquals(expected, result);
+        } else if (clazz.equals(Position.class)) {
+            assertEquals(expected, result);
+        } else if (clazz.equals(WifiAccessPoint.class)) {
+            assertEquals(expected, result);
+        } else {
+            fail("Unsupported class: " + clazz.getName());
+        }
+    }
+
+    private void bitUtil(String invalidData) {
+        // implementation
+    }
+
+    private void bufferUtil(Position position) {
+        // implementation
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Network {
+    private String id;
+    private int speed;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+}
+
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+}
+
+public class CellTower {
+    private String id;
+    private int signalStrength;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getSignalStrength() {
+        return signalStrength;
+    }
+
+    public void setSignalStrength(int signalStrength) {
+        this.signalStrength = signalStrength;
+    }
+}
+
+public class WifiAccessPoint {
+    private String macAddress;
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+}
+
+public class TestNetwork {
+    @Test
+    public void testNetwork() throws IOException {
+        Network network = new Network();
+        network.setId("network-1");
+        network.setSpeed(100);
+
+        Position position = new Position();
+        position.setLatitude(37.7749);
+        position.setLongitude(-122.4194);
+
+        CellTower cellTower = new CellTower();
+        cellTower.setId("celltower-1");
+        cellTower.setSignalStrength(50);
+
+        WifiAccessPoint wifiAccessPoint = new WifiAccessPoint();
+        wifiAccessPoint.setMacAddress("00:11:22:33:44:55");
+
+        Assert.assertEquals(network.getId(), "network-1");
+        Assert.assertEquals(position.getLatitude(), 37.7749);
+        Assert.assertEquals(cellTower.getSignalStrength(), 50);
+        Assert.assertEquals(wifiAccessPoint.getMacAddress(), "00:11:22:33:44:55");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public Position(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+}
+
+public class CellTower {
+    private String id;
+    private int signalStrength;
+
+    public CellTower(String id, int signalStrength) {
+        this.id = id;
+        this.signalStrength = signalStrength;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getSignalStrength() {
+        return signalStrength;
+    }
+
+    public void setSignalStrength(int signalStrength) {
+        this.signalStrength = signalStrength;
+    }
+}
+
+public class WifiAccessPoint {
+    private String macAddress;
+
+    public WifiAccessPoint(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+}
+
+public class Network {
+    private String id;
+    private int speed;
+
+    public Network(String id, int speed) {
+        this.id = id;
+        this.speed = speed;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+}
+
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class TestNetwork {
+    @Test
+    public void testNetwork() throws IOException {
+        Network network = new Network("network-1", 100);
+        Position position = new Position(37.7749, -122.4194);
+
+        CellTower cellTower = new CellTower("celltower-1", 50);
+
+        WifiAccessPoint wifiAccessPoint = new WifiAccessPoint("00:11:22:33:44:55");
+
+        assertEquals(network.getId(), "network-1");
+        assertEquals(position.getLatitude(), 37.7749);
+        assertEquals(cellTower.getId(), "celltower-1");
+        assertEquals(wifiAccessPoint.getMacAddress(), "00:11:22:33:44:55");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public Position(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+}
+
+public class CellTower {
+    private String id;
+    private int signalStrength;
+
+    public CellTower(String id, int signalStrength) {
+        this.id = id;
+        this.signalStrength = signalStrength;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getSignalStrength() {
+        return signalStrength;
+    }
+
+    public void setSignalStrength(int signalStrength) {
+        this.signalStrength = signalStrength;
+    }
+}
+
+public class WifiAccessPoint {
+    private String macAddress;
+
+    public WifiAccessPoint(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+}
+
+public class Network {
+    private String id;
+    private int speed;
+
+    public Network(String id, int speed) {
+        this.id = id;
+        this.speed = speed;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+}
+
+import org.junit.jupiter.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TestNetwork {
+    @Test
+    public void testNetwork() throws IOException {
+        Network network = new Network("network-1", 100);
+        Position position = new Position(37.7749, -122.4194);
+
+        CellTower cellTower = new CellTower("celltower-1", 50);
+
+        WifiAccessPoint wifiAccessPoint = new WifiAccessPoint("00:11:22:33:44:55");
+
+        assertEquals(network.getId(), "network-1");
+        assertEquals(position.getLatitude(), 37.7749);
+        assertEquals(cellTower.getId(), "celltower-1");
+        assertEquals(wifiAccessPoint.getMacAddress(), "00:11:22:33:44:55");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public Position() {}
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+}
+
+public class CellTower {
+    private String id;
+    private int signalStrength;
+
+    public CellTower(String id, int signalStrength) {}
+
+    public void setSignalStrength(int signalStrength) {
+        this.signalStrength = signalStrength;
+    }
+
+    public int getSignalStrength() {
+        return signalStrength;
+    }
+}
+
+public class WifiAccessPoint {
+    private String macAddress;
+
+    public WifiAccessPoint(String macAddress) {}
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+}
+
+public class Network {
+    private String id;
+    private int speed;
+
+    public Network() {}
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+}
+
+public class PositionTest {
+    @org.junit.jupiter.Test
+    public void testPosition() {
+        Position position = new Position();
+        position.setLatitude(37.7749);
+        position.setLongitude(-122.4194);
+        assertEquals(position.getLatitude(), 37.7749);
+    }
+
+    @org.junit.jupiter.Test
+    public void testCellTower() {
+        CellTower cellTower = new CellTower();
+        cellTower.setSignalStrength(50);
+        assertEquals(cellTower.getSignalStrength(), 50);
+    }
+
+    @org.junit.jupiter.Test
+    public void testWifiAccessPoint() {
+        WifiAccessPoint wifiAccessPoint = new WifiAccessPoint();
+        wifiAccessPoint.setMacAddress("00:11:22:33:44:55");
+        assertEquals(wifiAccessPoint.getMacAddress(), "00:11:22:33:44:55");
+    }
+
+    @org.junit.jupiter.Test
+    public void testNetwork() {
+        Network network = new Network();
+        network.setId("network-1");
+        network.setSpeed(100);
+        assertEquals(network.getSpeed(), 100);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

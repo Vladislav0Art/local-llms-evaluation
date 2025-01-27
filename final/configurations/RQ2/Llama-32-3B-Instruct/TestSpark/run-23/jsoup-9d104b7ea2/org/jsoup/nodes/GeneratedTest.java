@@ -1,0 +1,96 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.TextNode;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorTextTextNode_Test() {
+        TextNode textNode = new TextNode("Hello World");
+        assertEquals("Hello World", textNode.text());
+    }
+
+    @Test
+    public void nodeNameTextNode_Test() {
+        TextNode textNode = new TextNode("Hello World");
+        assertEquals("text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTextNode_Test() {
+        TextNode textNode = new TextNode("Hello World");
+        assertNotNull(textNode.text());
+    }
+
+    @Test
+    public void textStringTextNode_Test() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTextNode_Test() {
+        TextNode textNode = new TextNode("Hello World");
+        assertNotNull(textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTextNode_Test() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextOffsetTextNode_Test() throws Exception {
+        TextNode textNode = new TextNode("Hello World");
+        TextNode result1 = textNode.splitText(6);
+        assertEquals("World", result1.text());
+        assertNotNull(result1.nodeName());
+    }
+
+    @Test
+    public void outerHtmlHeadAppendableDepthDocumentOutputSettingsTextNode_Test() throws Exception {
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        TextNode textNode = new TextNode("Hello World");
+        textNode.outerHtmlHead(accum, depth, out);
+        assertEquals("<text>Hello World</text>", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailAppendableDepthDocumentOutputSettingsTextNode_Test() throws Exception {
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        TextNode textNode = new TextNode("Hello World");
+        textNode.outerHtmlTail(accum, depth, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toStringTextNode_Test() {
+        TextNode textNode = new TextNode("Hello World");
+        assertNotNull(textNode.toString());
+    }
+
+    @Test
+    public void cloneTextNode_Test() throws Exception {
+        TextNode originalTextNode = new TextNode("Hello World");
+        TextNode clonedTextNode = originalTextNode.clone();
+        assertEquals(originalTextNode, clonedTextNode);
+    }
+
+    @Test
+    public void createFromEncodedStringTextNode_Test() {
+        String encodedText = "encoded%20text";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertNotNull(textNode);
+    }
+
+}

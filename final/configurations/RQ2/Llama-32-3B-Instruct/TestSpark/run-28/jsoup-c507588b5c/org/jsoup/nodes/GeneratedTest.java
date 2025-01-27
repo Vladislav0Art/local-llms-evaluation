@@ -1,0 +1,156 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeName_DefaultText_ReturnsTextNode() {
+        TextNode textNode = new TextNode("Default text");
+        assertEquals(TextNode.class, textNode.nodeName());
+    }
+
+    @Test
+    public void nodeName_NonBlankText_ReturnsTextNode() {
+        TextNode textNode = new TextNode("Not default text");
+        assertEquals(TextNode.class, textNode.nodeName());
+    }
+
+    @Test
+    public void text_DefaultText_ReturnsDefaultText() {
+        TextNode textNode = new TextNode("Default text");
+        assertEquals("Default text", textNode.text());
+    }
+
+    @Test
+    public void text_NonBlankText_ReturnsNonBlankText() {
+        TextNode textNode = new TextNode("Not default text");
+        assertEquals("Not default text", textNode.text());
+    }
+
+    @Test
+    public void text_NullableText_RetursEmptyString() {
+        TextNode textNode = new TextNode(null);
+        assertEquals("", textNode.text());
+    }
+
+    @Test
+    public void text_SplitText_ReturnsNewTextNodeWithSplitText() {
+        TextNode originalTextNode = new TextNode("Original text");
+        TextNode newTextNode = originalTextNode.splitText(6);
+        assertNotNull(newTextNode.text());
+        assertTrue(!newTextNode.text().equals(originalTextNode.text()));
+    }
+
+    @Test
+    public void isBlank_DefaultText_ReturnsFalse() {
+        TextNode textNode = new TextNode("Default text");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_BlankText_ReturnsTrue() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void clone_DefaultText_ReturnsSameTextNode() {
+        TextNode originalTextNode = new TextNode("Default text");
+        TextNode clonedTextNode = originalTextNode.clone();
+        assertEquals(originalTextNode, clonedTextNode);
+    }
+
+    @Test
+    public void clone_NullText_ReturnsNull() {
+        assertNull(new TextNode(null).clone());
+    }
+
+    @Test
+    public void outerHtmlHead_DefaultText_ReturnsHtmlOutput() {
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        TextNode textNode = new TextNode("Default text");
+        try {
+            textNode.outerHtmlHead(accum, 0, out);
+            assertTrue(accum.toString().contains("<p>Default text</p>"));
+        } catch (IOException e) {
+            fail("IOException should not be thrown");
+        }
+    }
+
+    @Test
+    public void outerHtmlHead_NullText_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new TextNode(null).outerHtmlHead(new StringBuilder(), 0, new Document.OutputSettings()));
+    }
+
+    @Test
+    public void outerHtmlTail_NullText_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new TextNode(null).outerHtmlTail(new StringBuilder(), 0, new Document.OutputSettings()));
+    }
+
+    @Test
+    public void toString_DefaultText_ReturnsTextNodeRepresentation() {
+        TextNode textNode = new TextNode("Default text");
+        assertEquals("<p>Default text</p>", textNode.toString());
+    }
+
+    @Test
+    public void createFromEncoded_NullString_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> TextNode.createFromEncoded(null));
+    }
+
+    @Test
+    public void normaliseWhitespace_HyphenatedText_ReturnsHyphennatedText() {
+        String text = "This-is-a-hyphennated-text";
+        assertEquals(text, StringUtil.normaliseWhitespace(text));
+    }
+
+    @Test
+    public void nodeName_BlankText_ReturnsTextNode() {
+        TextNode textNode = new TextNode("");
+        assertEquals(TextNode.class, textNode.nodeName());
+    }
+
+    @Test
+    public void text_BlankText_ReturnsEmptyString() {
+        TextNode textNode = new TextNode("");
+        assertEquals("", textNode.text());
+    }
+
+    @Test
+    public void text_Nulltext_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new TextNode(null).text());
+    }
+
+    @Test
+    public void text_NullableText_ReturnsEmptyString() {
+        TextNode textNode = new TextNode("");
+        assertEquals("", textNode.text());
+    }
+
+    @Test
+    public void outerHtmlHead_DefaultText_ReturnsHtmlOutput() throws IOException {
+        TextNode textNode = new TextNode("Default text");
+        Appendable appendable = new StringBuilder();
+        textNode.outerHtmlHead(appendable, 0, new Document.OutputSettings());
+        assertTrue(appendable.toString().contains("<p>Default text</p>"));
+    }
+
+    @Test
+    public void outerHtmlTail_DefaultText_ReturnsHtmlOutput() throws IOException {
+        TextNode textNode = new TextNode("Default text");
+        Appendable appendable = new StringBuilder();
+        textNode.outerHtmlTail(appendable, 0, new Document.OutputSettings());
+        assertTrue(appendable.toString().contains("</p><p>Default text</p>"));
+    }
+
+    @Test
+    public void nodeName_NullText_ReturnsTextNode() {
+        TextNode textNode = new TextNode(null);
+        assertEquals(TextNode.class, textNode.nodeName());
+    }
+
+}

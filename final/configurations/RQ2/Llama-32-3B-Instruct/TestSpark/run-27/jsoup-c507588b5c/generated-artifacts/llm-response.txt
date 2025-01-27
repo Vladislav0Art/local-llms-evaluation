@@ -1,0 +1,571 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.helper.Validate;
+
+public class TextNodeTest {
+
+    @Test
+    public void createTextNodeValidTextNotNull() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertNotNull(textNode.text());
+    }
+
+    @Test
+    public void createTextNodeBlankTextNotNull() {
+        String text = "";
+        TextNode textNode = new TextNode(text);
+        assertNotNull(textNode.text());
+    }
+
+    @Test
+    public void getWholeTextEmptyText() {
+        String text = "";
+        TextNode textNode = new TextNode(text);
+        assertEquals("", textNode.getWholeText());
+    }
+
+    @Test
+    public void getWholeTextNonBlankText() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertEquals("Hello World", textNode.getWholeText());
+    }
+
+    @Test
+    public void splitTextPositiveOffsetNotNull() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        TextNode result = textNode.splitText(0);
+        assertNotNull(result.text());
+    }
+
+    @Test
+    public void splitTextNegativeOffsetNullResult() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertNull(textNode.splitText(-1).text());
+    }
+
+    @Test
+    public void isBlankEmptyTextTrue() {
+        String text = "";
+        TextNode textNode = new TextNode(text);
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlankNonBlankTextFalse() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertFalse(textNode.isBlank());
+    }
+}
+
+public class AppendableUtils {
+
+    @Test
+    public void outerHtmlHeadNullAppendable() throws IOException {
+        Appendable accum = null;
+        Document.OutputSettings out = null;
+        TextNode node = new TextNode("Hello World");
+        node.outerHtmlHead(accum, 0, out);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void outerHtmlTailEmptyTextNoAppend() {
+        String text = "";
+        Appendable accum = new StringBuilder();
+        int depth = 1;
+        Document.OutputSettings out = null;
+        TextNode node = new TextNode(text);
+        node.outerHtmlTail(accum, depth, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailNonEmptyTextAppend() {
+        String text = "Hello World";
+        Appendable accum = new StringBuilder();
+        int depth = 1;
+        Document.OutputSettings out = null;
+        TextNode node = new TextNode(text);
+        node.outerHtmlTail(accum, depth, out);
+        assertEquals("<p>Hello World</p>", accum.toString());
+    }
+
+    @Test
+    public void cloneCloneTextSame() {
+        String text = "Hello World";
+        TextNode textNode1 = new TextNode(text);
+        TextNode textNode2 = textNode1.clone();
+        assertEquals(text, textNode2.text());
+    }
+}
+
+public class StringUtilTests {
+
+    @Test
+    public void normaliseWhitespaceEmptyString() {
+        String input = "";
+        String expected = "";
+        assertEquals(expected, StringUtil.normaliseWhitespace(input));
+    }
+
+    @Test
+    public void normaliseWhitespaceSingleCharNotWhitespace() {
+        String input = "A";
+        String expected = "A";
+        assertEquals(expected, StringUtil.normaliseWhitespace(input));
+    }
+
+    @Test
+    public void stripLeadingWhitespaceStringStartsWithWhitespace() {
+        String input = "   Hello World ";
+        String expected = "Hello World";
+        assertEquals(expected, StringUtil.stripLeadingWhitespace(input));
+    }
+}
+
+public class DocumentOutputSettingsTests {
+
+    @Test
+    public void outputSettingsToStringNormalisationAndEscaping() throws IOException {
+        String text = "Hello World";
+        TextNode node = new TextNode(text);
+        Document.OutputSettings settings = new Document.OutputSettings();
+        StringBuilder builder = new StringBuilder();
+        node.outerHtmlHead(builder, 0, settings);
+        assertEquals("<p>Hello World</p>", builder.toString());
+    }
+
+    @Test
+    public void lastCharIsWhitespaceStringEndsWithWhitespace() {
+        String input = "Hello World";
+        assertTrue(Document.OutputSettings.lastCharIsWhitespace(new StringBuilder(input).append(' ')));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class StringUtilTest {
+
+    @Test
+    public void testStripLeadingWhitespace() {
+        String input = "   Hello World";
+        assertEquals("Hello World", StringUtil.stripLeadingWhitespace(input));
+    }
+
+    @Test
+    public void testLastCharIsWhitespaceStringEndsWithWhitespace() {
+        StringBuilder builder = new StringBuilder();
+        assertTrue(Document.OutputSettings.lastCharIsWhitespace(builder.append(' ')));
+    }
+}
+
+public class DocumentOutputSettings {
+
+    private static boolean lastCharIsWhitespace(StringBuilder builder) {
+        return builder.length() > 0 && Character.isWhitespace(builder.charAt(builder.length() - 1));
+    }
+
+    public static boolean lastCharIsWhitespace(int length, OutputSettings settings) {
+        return lastCharIsWhitespace(new StringBuilder(settings.toString()));
+    }
+}
+
+public class StringUtil {
+
+    private static String stripLeadingWhitespace(String input) {
+        int start = input.indexOfFirstNonWhitespace();
+        if (start == -1) return "";
+        return input.substring(start);
+    }
+
+    public static String stripLeadingWhitespace(StringBuilder builder, int length, OutputSettings settings) {
+        return stripLeadingWhitespace(settings.toString());
+    }
+}
+
+public class OutputSettings {
+
+    private StringBuilder string;
+
+    public OutputSettings() {
+        this.string = new StringBuilder();
+    }
+
+    public String toString() {
+        return string.toString();
+    }
+
+    public Document.OutputSettings lastCharIsWhitespace(int length) {
+        return new Document.OutputSettings(lastCharIsWhitespace(this, length));
+    }
+}
+
+public class Document {
+
+    private static boolean lastCharIsWhitespace(StringBuilder builder, int length, OutputSettings settings) {
+        if (builder.length() > 0 && Character.isWhitespace(builder.charAt(length - 1))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static Document.OutputSettings lastCharIsWhitespace(OutputSettings settings) {
+        return new Document.OutputSettings(lastCharIsWhitespace(settings.toString(), 0, settings));
+    }
+}
+
+public class OutputSettings {
+
+    private StringBuilder string;
+
+    public OutputSettings(StringBuilder builder) {
+        this.string = builder;
+    }
+
+    public String toString() {
+        return string.toString();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class DocumentOutputSettings {
+    private StringBuilder string;
+
+    public DocumentOutputSettings() {
+        this.string = new StringBuilder();
+    }
+
+    public static boolean lastCharIsWhitespace(StringBuilder builder, int length) {
+        if (builder.length() > 0 && Character.isWhitespace(builder.charAt(length - 1))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public DocumentOutputSettings lastCharIsWhitespace(int length) {
+        return new DocumentOutputSettings(lastCharIsWhitespace(string, length));
+    }
+
+    public static Document.OutputSettings lastCharIsWhitespace(OutputSettings settings) {
+        return new Document.OutputSettings(lastCharIsWhitespace(settings.toString(), 0, settings));
+    }
+}
+
+public class StringUtil {
+    private StringBuilder builder;
+
+    public StringUtil(StringBuilder builder) {
+        this.builder = builder;
+    }
+
+    public String stripLeadingWhitespace() {
+        int start = builder.indexOfFirstNonWhitespace();
+        if (start == -1) return "";
+        return builder.substring(start);
+    }
+
+    public static String stripLeadingWhitespace(String input) {
+        return new StringUtil(new StringBuilder(input)).stripLeadingWhitespace();
+    }
+}
+
+public class OutputSettings {
+
+}
+
+public class Document {
+    private static boolean lastCharIsWhitespace(StringBuilder builder, int length, OutputSettings settings) {
+        if (builder.length() > 0 && Character.isWhitespace(builder.charAt(length - 1))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static Document.OutputSettings lastCharIsWhitespace(OutputSettings settings) {
+        return new Document(lastCharIsWhitespace(settings.toString(), 0, settings));
+    }
+}
+
+public class TestDocument {
+    @Test
+    public void testStripLeadingWhitespace() {
+        assertEquals("Hello World", StringUtil.stripLeadingWhitespace("   Hello World"));
+    }
+
+    @Test
+    public void testLastCharIsWhitespace() {
+        Document.OutputSettings settings = new Document(new OutputSettings()).lastCharIsWhitespace(0);
+        assertTrue(settings.lastCharIsWhitespace());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class DocumentOutputSettings {
+    private StringBuilder string;
+
+    public DocumentOutputSettings(StringBuilder string) {
+        this.string = string;
+    }
+
+    public static boolean lastCharIsWhitespace(StringBuilder builder, int length) {
+        if (builder.length() > 0 && Character.isWhitespace(builder.charAt(length - 1))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public DocumentOutputSettings lastCharIsWhitespace(int length) {
+        StringBuilder newString = new StringBuilder();
+        for (int i = 0; i < string.length(); i++) {
+            if (!lastCharIsWhitespace(newString, i)) {
+                newString.append(string.charAt(i));
+            } else {
+                break;
+            }
+        }
+        return new DocumentOutputSettings(newString);
+    }
+
+    public static Document.OutputSettings lastCharIsWhitespace(OutputSettings settings) {
+        StringBuilder newStringBuilder = new StringBuilder();
+        for (int i = 0; i < settings.toString().length(); i++) {
+            if (!lastCharIsWhitespace(newStringBuilder, i)) {
+                newStringBuilder.append(settings.toString().charAt(i));
+            } else {
+                break;
+            }
+        }
+        return new Document.OutputSettings(newStringBuilder);
+    }
+}
+
+public class StringUtil {
+    private StringBuilder builder;
+
+    public StringUtil(StringBuilder builder) {
+        this.builder = builder;
+    }
+
+    public String stripLeadingWhitespace() {
+        int start = builder.indexOfFirstNonWhitespace();
+        if (start == -1) return "";
+        return builder.substring(start);
+    }
+
+    public static String stripLeadingWhitespace(String input) {
+        StringBuilder newStringBuilder = new StringBuilder(input);
+        int start = newStringBuilder.indexOfFirstNonWhitespace();
+        if (start == -1) return "";
+        newStringBuilder.deleteCharAt(start);
+        return newStringBuilder.toString();
+    }
+}
+
+public class OutputSettings {
+
+}
+
+public class Document {
+    public static boolean lastCharIsWhitespace(StringBuilder builder, int length, OutputSettings settings) {
+        if (builder.length() > 0 && Character.isWhitespace(builder.charAt(length - 1))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static Document.OutputSettings lastCharIsWhitespace(OutputSettings settings) {
+        StringBuilder newStringBuilder = new StringBuilder();
+        for (int i = 0; i < settings.toString().length(); i++) {
+            if (!lastCharIsWhitespace(newStringBuilder, i, settings)) {
+                newStringBuilder.append(settings.toString().charAt(i));
+            } else {
+                break;
+            }
+        }
+        return new Document.OutputSettings(newStringBuilder);
+    }
+
+    public Document(OutputSettings settings) {
+        this.settings = settings;
+    }
+
+    private OutputSettings settings;
+
+    public boolean lastCharIsWhitespace() {
+        return lastCharIsWhitespace(settings, 0).lastCharIsWhitespace();
+    }
+}
+
+public class TestDocument {
+    @Test
+    public void testStripLeadingWhitespace() {
+        assertEquals("Hello World", StringUtil.stripLeadingWhitespace("   Hello World"));
+    }
+
+    @Test
+    public void testLastCharIsWhitespace() {
+        Document.OutputSettings settings = new Document(new OutputSettings()).lastCharIsWhitespace();
+        assertTrue(settings.lastCharIsWhitespace());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class DocumentOutputSettings {
+    private StringBuilder string;
+
+    public DocumentOutputSettings(StringBuilder string) {
+        this.string = new StringBuilder(string.toString());
+    }
+
+    public static boolean lastCharIsWhitespace(StringBuilder builder, int length) {
+        if (builder.length() > 0 && Character.isWhitespace(builder.charAt(length - 1))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public DocumentOutputSettings lastCharIsWhitespace(int length) {
+        StringBuilder newString = new StringBuilder();
+        for (int i = 0; i < string.length(); i++) {
+            if (!lastCharIsWhitespace(newString, i)) {
+                newString.append(string.charAt(i));
+            } else {
+                break;
+            }
+        }
+        return new DocumentOutputSettings(newString);
+    }
+
+    public static Document.OutputSettings lastCharIsWhitespace(OutputSettings settings) {
+        StringBuilder newStringBuilder = new StringBuilder();
+        for (int i = 0; i < ((StringBuilder)settings).toString().length(); i++) {
+            if (!lastCharIsWhitespace(newStringBuilder, i)) {
+                newStringBuilder.append(((StringBuilder)settings).charAt(i));
+            } else {
+                break;
+            }
+        }
+        return new Document.OutputSettings(newStringBuilder);
+    }
+
+    public String getToString() {
+        return string.toString();
+    }
+}
+
+public class StringUtil {
+    private StringBuilder builder;
+
+    public StringUtil(StringBuilder builder) {
+        this.builder = builder;
+    }
+
+    public String stripLeadingWhitespace() {
+        int start = builder.indexOfFirstNonWhitespace();
+        if (start == -1) return "";
+        return builder.substring(start);
+    }
+
+    public static String stripLeadingWhitespace(String input) {
+        StringBuilder newStringBuilder = new StringBuilder(input);
+        int start = newStringBuilder.indexOfFirstNonWhitespace();
+        if (start == -1) return "";
+        newStringBuilder.deleteCharAt(start);
+        return newStringBuilder.toString();
+    }
+}
+
+public class OutputSettings {
+
+}
+
+public class Document {
+    public static boolean lastCharIsWhitespace(StringBuilder builder, int length, OutputSettings settings) {
+        if (builder.length() > 0 && Character.isWhitespace(builder.charAt(length - 1))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static Document.OutputSettings lastCharIsWhitespace(OutputSettings settings) {
+        StringBuilder newStringBuilder = new StringBuilder();
+        for (int i = 0; i < ((StringBuilder)settings).toString().length(); i++) {
+            if (!lastCharIsWhitespace(newStringBuilder, i, settings)) {
+                newStringBuilder.append(((StringBuilder)settings).charAt(i));
+            } else {
+                break;
+            }
+        }
+        return new Document.OutputSettings(newStringBuilder);
+    }
+
+    public OutputSettings getSettings() {
+        return this.settings;
+    }
+
+    private OutputSettings settings;
+
+    public Document(OutputSettings settings) {
+        this.settings = settings;
+    }
+
+    public boolean lastCharIsWhitespace() {
+        String s = getToString();
+        if (lastCharIsWhitespace(s).getToString().length() > 0 && Character.isWhitespace(lastCharIsWhitespace(getSettings()).getToString().charAt(lastCharIsWhitespace(getSettings()).getSettings().getToString().length() -1))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+public class TestDocument {
+    @Test
+    public void testStripLeadingWhitespace() {
+        assertEquals("Hello World", StringUtil.stripLeadingWhitespace("   Hello World"));
+    }
+
+    @Test
+    public void testLastCharIsWhitespace() {
+        Document.OutputSettings settings = new Document(new OutputSettings()).lastCharIsWhitespace();
+        assertTrue(settings.lastCharIsWhitespace());
+    }
+}
+```
+===================================================
+

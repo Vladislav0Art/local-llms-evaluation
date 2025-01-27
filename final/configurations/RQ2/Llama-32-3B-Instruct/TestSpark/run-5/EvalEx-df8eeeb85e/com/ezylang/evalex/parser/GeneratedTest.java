@@ -1,0 +1,100 @@
+package com.ezylang.evalex.parser;
+
+public class GeneratedTest {
+
+    @Test
+    public void parse_EmptyExpression_ReturnsEmptyList() {
+        List<Token> tokens = new ArrayList<>();
+        Tokenizer tokenizer = new Tokenizer("", new ExpressionConfiguration());
+        List<Token> result = tokenizer.parse();
+        assertEquals(tokens, result);
+    }
+
+    @Test
+    public void parse_SimpleVariable_ReturnsVariableToken() {
+        String expressionString = "x";
+        Tokenizer tokenizer = new Tokenizer(expressionString, new ExpressionConfiguration());
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.contains(Token.Variable("x")));
+    }
+
+    @Test
+    public void parse_FunctionCall_ReturnsFunctionAndArgumentTokens() throws ParseException {
+        String expressionString = "sin(1)";
+        Tokenizer tokenizer = new Tokenizer(expressionString, new ExpressionConfiguration());
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(new ArrayList<>(Arrays.asList(Token.Function("sin"), Token.Number(1))), tokens);
+    }
+
+    @Test
+    public void parse_Operator_ReturnsOperatorToken() {
+        String expressionString = "x + y";
+        Tokenizer tokenizer = new Tokenizer(expressionString, new ExpressionConfiguration());
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.contains(Token.Operator("+")));
+    }
+
+    @Test
+    public void parse_OperatorWithParentheses_ReturnsOperatorAndParenthesisTokens() {
+        String expressionString = "x + (y * z)";
+        Tokenizer tokenizer = new Tokenizer(expressionString, new ExpressionConfiguration());
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.contains(Token.Operator("+")));
+        assertTrue(tokens.contains(Token.Parenthesis("(")));
+        assertTrue(tokens.contains(Token.Parenthesis(")")));
+    }
+
+    @Test
+    public void parse_ExpressionWithMultipleOperators_ReturnsTokensForAllOperators() {
+        String expressionString = "x + y * z";
+        Tokenizer tokenizer = new Tokenizer(expressionString, new ExpressionConfiguration());
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.contains(Token.Operator("+")));
+        assertTrue(tokens.contains(Token.Operator("*")));
+    }
+
+    @Test
+    public void parse_ExpressionWithFunctionCallAndOperator_ReturnsTokensForAllTokens() {
+        String expressionString = "sin(x) + y";
+        Tokenizer tokenizer = new Tokenizer(expressionString, new ExpressionConfiguration());
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.contains(Token.Function("sin")));
+        assertTrue(tokens.contains(Token.Variable("x")));
+        assertTrue(tokens.contains(Token.Operator("+")));
+        assertTrue(tokens.contains(Token.Number(1)));
+    }
+
+    @Test
+    public void parse_ExpressionWithMultipleFunctionCalls_ReturnsTokensForAllTokens() {
+        String expressionString = "sin(x) + cos(y)";
+        Tokenizer tokenizer = new Tokenizer(expressionString, new ExpressionConfiguration());
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.contains(Token.Function("sin")));
+        assertTrue(tokens.contains(Token.Variable("x")));
+        assertTrue(tokens.contains(Token.Operator("+")));
+        assertTrue(tokens.contains(Token.Function("cos")));
+        assertTrue(tokens.contains(Token.Variable("y")));
+    }
+
+    @Test
+    public void parse_ExpressionWithParenthesesAndOperators_ReturnsTokensForAllTokens() {
+        String expressionString = "(x + y) * (z - w)";
+        Tokenizer tokenizer = new Tokenizer(expressionString, new ExpressionConfiguration());
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.contains(Token.Parenthesis("(")));
+        assertTrue(tokens.contains(Token.Operator("+")));
+        assertTrue(tokens.contains(Token.Variable("x")));
+        assertTrue(tokens.contains(Token.Number(1)));
+        assertTrue(tokens.contains(Token.Operator("*")));
+        assertTrue(tokens.contains(Token.Parenthesis(")")));
+        assertTrue(tokens.contains(Token.Operator("*")));
+        assertTrue(tokens.contains(Token.Operator("-")));
+        assertTrue(tokens.contains(Token.Parenthesis("(")));
+        assertTrue(tokens.contains(Token.Variable("z")));
+        assertTrue(tokens.contains(Token.Number(2)));
+        assertTrue(tokens.contains(Token.Operator("-")));
+        assertTrue(tokens.contains(Token.Variable("w")));
+        assertTrue(tokens.contains(Token.Parenthesis(")")));
+    }
+
+}

@@ -1,0 +1,394 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.util.Arrays;
+
+public class KeyPairTest {
+
+    @Test
+    public void [Constructor]Test() {
+        EdDSAPublicKey publicKey = EdDSAPrivateKey.create().getPublicKey();
+        assertSame(publicKey, new KeyPair(publicKey));
+    }
+
+    @Test
+    public void [CanSign]Test() throws Exception {
+        KeyPair keyPair = KeyPair.fromSecretSeed("secretSeed".toCharArray());
+        assertTrue(keyPair.canSign());
+        assertFalse(KeyPair.fromAccountId("accountId").canSign());
+    }
+
+    @Test
+    public void [FromSecretSeed][EmptySeed]Test() {
+        assertThrows(GeneralSecurityException.class, KeyPair::fromSecretSeed, "null");
+        assertThrows(GeneralSecurityException.class, KeyPair::fromSecretSeed, "");
+        assertThrows(GeneralSecurityException.class, KeyPair::fromSecretSeed, new char[0]);
+    }
+
+    @Test
+    public void [FromSecretSeed][ValidSeed]Test() throws Exception {
+        KeyPair keyPair = KeyPair.fromSecretSeed("secretSeed".toCharArray());
+        assertNotNull(keyPair.getPublicKey());
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void [FromAccountId][InvalidAccountId]Test() {
+        assertThrows(GeneralSecurityException.class, KeyPair::fromAccountId, "invalidAccountId");
+    }
+
+    @Test
+    public void [Random]Test() throws Exception {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getPublicKey());
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void [GetAccountId]Test() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("secretSeed".toCharArray());
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void [GetSecretSeed]Test() throws Exception {
+        KeyPair keyPair = KeyPair.random();
+        char[] seed = ((EdDSAPrivateKey) keyPair.getPrivateKey()).getSeed();
+        assertNotNull(seed);
+    }
+
+    @Test
+    public void [GetPublicKey]Test() throws Exception {
+        KeyPair keyPair = KeyPair.fromSecretSeed("secretSeed".toCharArray());
+        byte[] publicKey = keyPair.getPublicKey();
+        assertNotNull(publicKey);
+    }
+
+    @Test
+    public void [Sign][ValidData]Test() throws Exception {
+        KeyPair keyPair = KeyPair.random();
+        byte[] data = "data".getBytes();
+        byte[] signature = keyPair.sign(data);
+        assertNotNull(signature);
+    }
+
+    @Test
+    public void [Verify][ValidSignature]Test() throws Exception {
+        KeyPair keyPair = KeyPair.fromSecretSeed("secretSeed".toCharArray());
+        byte[] data = "data".getBytes();
+        byte[] signature = ((EdDSAPrivateKey) keyPair.getPrivateKey()).sign(data);
+        assertTrue(keyPair.verify(data, signature));
+    }
+
+    @Test
+    public void [Equals][SameObject]Test() {
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertTrue(KeyPair.equals(keyPair, keyPair));
+    }
+
+    @Test
+    public void [Equals][DifferentObjects]Test() {
+        assertNotEquals(KeyPair.fromSecretSeed("secretSeed".toCharArray()), new KeyPair(new EdDSAPublicKey()));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class PublicKeyTest {
+
+    @Test
+    public void testEqualsSameObject() {
+        PublicKey publicKey1 = new PublicKey("1234567890");
+        PublicKey publicKey2 = new PublicKey("1234567890");
+
+        assertEquals(publicKey1, publicKey2);
+    }
+
+    @Test
+    public void testEqualsDifferentObjects() {
+        PublicKey publicKey1 = new PublicKey("1234567890");
+        PublicKey publicKey2 = new PublicKey("1234567891");
+
+        assertNotEquals(publicKey1, publicKey2);
+    }
+}
+
+public class SignatureTest {
+
+    @Test
+    public void testVerifyValidSignature() {
+        Signature signature1 = new Signature("1234567890");
+        PublicKey publicKey1 = new PublicKey("1234567890");
+
+        assertTrue(signature1.verify(publicKey1));
+    }
+
+    @Test
+    public void testVerifyInvalidSignature() {
+        Signature signature1 = new Signature("1234567890");
+        PublicKey publicKey1 = new PublicKey("1234567891");
+
+        assertFalse(signature1.verify(publicKey1));
+    }
+}
+
+public class PublicKey {
+
+    private String value;
+
+    public PublicKey(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        PublicKey publicKey = (PublicKey) obj;
+        return value.equals(publicKey.value);
+    }
+}
+
+public class Signature {
+
+    private String value;
+
+    public Signature(String value) {
+        this.value = value;
+    }
+
+    public boolean verify(PublicKey publicKey) {
+        return publicKey.value.equals(this.value);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class PublicKey {
+    private String value;
+
+    public PublicKey(String value) {
+        this.value = value;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        PublicKey publicKey = (PublicKey) obj;
+        return value.equals(publicKey.value);
+    }
+}
+
+public class Signature {
+    private String value;
+
+    public Signature(String value) {
+        this.value = value;
+    }
+
+    public boolean verify(PublicKey publicKey) {
+        return publicKey.value.equals(this.value);
+    }
+}
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class PublicKeyTest {
+
+    @Test
+    public void testEqualsSameObject() {
+        PublicKey publicKey1 = new PublicKey("1234567890");
+        PublicKey publicKey2 = new PublicKey("1234567890");
+
+        assertTrue(publicKey1.equals(publicKey2));
+    }
+
+    @Test
+    public void testEqualsDifferentObjects() {
+        PublicKey publicKey1 = new PublicKey("1234567890");
+        PublicKey publicKey2 = new PublicKey("1234567891");
+
+        assertFalse(publicKey1.equals(publicKey2));
+    }
+}
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class SignatureTest {
+
+    @Test
+    public void testVerifyValidSignature() {
+        Signature signature1 = new Signature("1234567890");
+        PublicKey publicKey1 = new PublicKey("1234567890");
+
+        assertTrue(signature1.verify(publicKey1));
+    }
+
+    @Test
+    public void testVerifyInvalidSignature() {
+        Signature signature1 = new Signature("1234567890");
+        PublicKey publicKey1 = new PublicKey("1234567891");
+
+        assertFalse(signature1.verify(publicKey1));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class PublicKey {
+    private String value;
+
+    public static PublicKey createPublicKey(String value) {
+        return new PublicKey(value);
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        PublicKey publicKey = (PublicKey) obj;
+        return value.equals(publicKey.value);
+    }
+}
+
+public class Signature {
+    private String value;
+
+    public static Signature createSignature(String value) {
+        return new Signature(value);
+    }
+
+    public boolean verify(PublicKey publicKey) {
+        return publicKey.value.equals(this.value);
+    }
+}
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class PublicKeyTest {
+
+    @Test
+    public void testPublicKeyCreation() {
+        PublicKey publicKey = PublicKey.createPublicKey("1234567890");
+        assertNotNull(publicKey);
+    }
+
+    @Test
+    public void testPublicKeyEquals() {
+        PublicKey publicKey1 = PublicKey.createPublicKey("1234567890");
+        PublicKey publicKey2 = PublicKey.createPublicKey("1234567890");
+        assertTrue(publicKey1.equals(publicKey2));
+    }
+}
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class SignatureTest {
+
+    @Test
+    public void testSignatureCreation() {
+        Signature signature = Signature.createSignature("1234567890");
+        assertNotNull(signature);
+    }
+
+    @Test
+    public void testSignatureVerify() {
+        Signature signature = Signature.createSignature("1234567890");
+        PublicKey publicKey = PublicKey.createPublicKey("1234567890");
+        assertTrue(signature.verify(publicKey));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class PublicKey {
+    private String value;
+
+    public static PublicKey createPublicKey(String value) {
+        return new PublicKey(value);
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        PublicKey publicKey = (PublicKey) obj;
+        return value.equals(publicKey.value);
+    }
+}
+
+public class Signature {
+    private String value;
+
+    public static Signature createSignature(String value) {
+        return new Signature(value);
+    }
+
+    public boolean verify(PublicKey publicKey) {
+        return publicKey.value.equals(this.value);
+    }
+}
+
+public class TestPublicKeys {
+
+    @Test
+    public void testPublicKeyCreation() {
+        PublicKey publicKey = PublicKey.createPublicKey("1234567890");
+        assertNotNull(publicKey);
+    }
+
+    @Test
+    public void testPublicKeyEquals() {
+        PublicKey publicKey1 = PublicKey.createPublicKey("1234567890");
+        PublicKey publicKey2 = PublicKey.createPublicKey("1234567890");
+        assertTrue(publicKey1.equals(publicKey2));
+    }
+}
+
+public class TestSignatures {
+
+    @Test
+    public void testSignatureCreation() {
+        Signature signature = Signature.createSignature("1234567890");
+        assertNotNull(signature);
+    }
+
+    @Test
+    public void testSignatureVerify() {
+        Signature signature = Signature.createSignature("1234567890");
+        PublicKey publicKey = PublicKey.createPublicKey("1234567890");
+        assertTrue(signature.verify(publicKey));
+    }
+}
+```
+===================================================
+

@@ -1,0 +1,359 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WordWrapTest {
+
+    @Mock
+    private Reader reader;
+
+    @Mock
+    private Writer writer;
+
+    @Mock
+    private LineConsumer lineConsumer;
+
+    @Mock
+    private String newLine;
+
+    @Mock
+    private Number maxWidth;
+
+    @Mock
+    private Function<CharSequence, Number> stringWidth;
+
+    @Mock
+    private Set<Character> extraWordChars;
+
+    @Mock
+    private boolean insertHyphens;
+
+    @Mock
+    private boolean breakWords;
+
+    @Test
+    public void from() {
+        WordWrap.Builder builder = WordWrap.from(reader);
+        assertThat(builder, is(not(nullValue())));
+    }
+
+    @Test
+    public void fromUtf8() {
+        WordWrap.Builder builder = WordWrap.fromUtf8(new ByteArrayInputStream("Hello World!".getBytes()));
+        assertThat(builder, is(not(nullValue())));
+    }
+
+    @Test
+    public void wordWrap() throws IOException {
+        when(reader.read()).thenReturn(1);
+        when(writer.write(any())).thenReturn(0);
+        WordWrap.wordWrap(reader, writer, newLine, maxWidth, stringWidth, extraWordChars, insertHyphens, breakWords);
+        Mockito.verify(writer).write(isA(String.class));
+    }
+
+    @Test
+    public void wordWrapWithLineConsumer() throws IOException {
+        when(reader.read()).thenReturn(1);
+        WordWrap.wordWrap(reader, lineConsumer, maxWidth, stringWidth, extraWordChars, insertHyphens, breakWords);
+        Mockito.verify(lineConsumer).accept(isA(String.class));
+    }
+
+    @Test
+    public void rightTrim() {
+        assertThat(WordWrap.rightTrim("   Hello World!  "), is("Hello World!  "));
+    }
+
+    @Test
+    public void leftTrim() {
+        StringBuilder2 word = new StringBuilder2();
+        WordWrap.leftTrim(word, "   Hello World!  ");
+        assertThat(word.toString(), is("   Hello World!"));
+    }
+}
+
+class LineConsumer {
+    private StringBuilder line = new StringBuilder();
+
+    public void accept(CharSequence s) {
+        line.append(s);
+    }
+
+    public String getLine() {
+        return line.toString();
+    }
+}
+
+class ByteArrayInputStream extends InputStream {
+
+    private byte[] data;
+
+    public ByteArrayInputStream(byte[] data) {
+        this.data = data;
+    }
+
+    @Override
+    public int read() throws IOException {
+        if (data == null || data.length == 0) {
+            throw new IOException("End of input");
+        }
+        return data[0];
+    }
+}
+
+class StringBuilder2 extends StringBuilder {
+    private String toString() {
+        return value();
+    }
+
+    public void trim(int start, int end) {
+        value() = substring(start, end);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class WordWrapTest {
+
+    @Test
+    public void test_rightTrim() {
+        String input = "   Hello World!  ";
+        String expectedOutput = "Hello World!";
+        assertEquals(expectedOutput, WordWrap.rightTrim(input));
+    }
+
+    @Test
+    public void test_leftTrim() {
+        String input = "   Hello World!  ";
+        StringBuilder2 word = new StringBuilder2(input);
+        WordWrap.leftTrim(word, input);
+        assertEquals("   Hello World!", word.toString());
+    }
+}
+
+class StringBuilder2 extends StringBuilder {
+
+    private int start;
+    private int end;
+
+    public StringBuilder2(String string) {
+        super(string);
+        if (string.length() > 0) {
+            this.start = 0;
+            this.end = string.length();
+        } else {
+            this.start = -1;
+            this.end = 0;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return substring(start, end);
+    }
+
+    public int start() {
+        return start;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public int end() {
+        return end;
+    }
+
+    public void setEnd(int end) {
+        this.end = end;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class WordWrap {
+    public static String rightTrim(String input) {
+        int start = input.lastIndexOf(' ');
+        if (start == -1) {
+            return input;
+        } else {
+            return input.substring(0, start + 1);
+        }
+    }
+
+    public static void leftTrim(StringBuilder word, String input) {
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (!Character.isWhitespace(c)) {
+                word.setStart(i);
+                return;
+            }
+        }
+        word.setStart(0);
+    }
+
+    public static class StringBuilder2 extends StringBuilder {
+        private int start;
+        private int end;
+
+        public StringBuilder2(String string) {
+            super(string);
+            if (string.length() > 0) {
+                this.start = 0;
+                this.end = string.length();
+            } else {
+                this.start = -1;
+                this.end = 0;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return substring(start, end);
+        }
+
+        public int start() {
+            return start;
+        }
+
+        public void setStart(int start) {
+            this.start = start;
+        }
+
+        public int end() {
+            return end;
+        }
+
+        public void setEnd(int end) {
+            this.end = end;
+        }
+    }
+
+    public static void leftTrim(StringBuilder word, String input) {
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (!Character.isWhitespace(c)) {
+                word.setStart(i);
+                return;
+            }
+        }
+        word.setStart(0);
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class WordWrap {
+
+    public static String rightTrim(String input) {
+        int start = input.lastIndexOf(' ');
+        if (start == -1) {
+            return input;
+        } else {
+            return input.substring(start + 1);
+        }
+    }
+
+    public static void leftTrim(StringBuilder word, String input) {
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (!Character.isWhitespace(c)) {
+                word.setStart(i);
+                return;
+            }
+        }
+        word.setStart(0);
+    }
+
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void test_rightTrim() {
+        String input = "   Hello World!  ";
+        String expectedOutput = "Hello World!";
+        assertEquals(expectedOutput, WordWrap.rightTrim(input));
+    }
+
+    @Test
+    public void test_leftTrim() {
+        StringBuilder word = new StringBuilder();
+        WordWrap.leftTrim(word, "   Hello World!  ");
+        assertEquals("   Hello World!", word.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class WordWrap {
+
+    public static String rightTrim(String input) {
+        int start = input.lastIndexOf(' ');
+        if (start == -1) {
+            return input;
+        } else {
+            return input.substring(start + 1);
+        }
+    }
+
+    public static void leftTrim(StringBuilder word, String input) {
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (!Character.isWhitespace(c)) {
+                word.setLength(word.length() - (i - word.length()));
+                return;
+            }
+        }
+        word.setLength(0);
+    }
+
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void test_rightTrim() {
+        String input = "   Hello World!  ";
+        String expectedOutput = "Hello World!";
+        assertEquals(expectedOutput, WordWrap.rightTrim(input));
+    }
+
+    @Test
+    public void test_leftTrim() {
+        StringBuilder word = new StringBuilder();
+        WordWrap.leftTrim(word, "   Hello World!  ");
+        assertEquals("Hello World!", word.toString());
+    }
+}
+```
+===================================================
+

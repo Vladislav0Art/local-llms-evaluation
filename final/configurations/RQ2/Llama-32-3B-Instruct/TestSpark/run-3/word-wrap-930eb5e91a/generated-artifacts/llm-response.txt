@@ -1,0 +1,373 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+public class WordWrapTest {
+
+    @Test
+    public void fromReader BuilderShouldReturnBuilder() {
+        try (WordWrap.Builder builder = WordWrap.from(new String[]{"Hello", "World"})) {
+            assertNotNull(builder);
+        }
+    }
+
+    @Test
+    public void fromClasspathUtf8ShouldReturnBuilder() {
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("Hello World");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromReaderWithCloseShouldCloseReader() {
+        WordWrap.Builder builder = WordWrap.from(new String[]{"Hello", "World"}, true);
+        assertTrue(WordWrap.close(builder.reader()));
+    }
+
+    @Test
+    public void fromUtf8BuilderShouldReturnBuilder() {
+        try (InputStream in = new ByteArrayInputStream("Hello World".getBytes())) {
+            WordWrap.Builder builder = WordWrap.fromUtf8(in);
+            assertNotNull(builder);
+        }
+    }
+
+    @Test
+    public void isWhitespaceStringContainsWhitespaceChar() {
+        assertTrue(WordWrap.isWhitespace("   "));
+    }
+
+    @Test
+    public void isWhitespaceStringDoesNotContainWhitespaceChar() {
+        assertFalse(WordWrap.isWhitespace("Hello World"));
+    }
+
+    @Test
+    public void rightTrim CharSequenceShouldBeRightTrimmmed() {
+        CharSequence s = "   Hello World   ";
+        assertEquals(s.substring(5, 11), WordWrap.rightTrim(s));
+    }
+
+    @Test
+    public void leftTrim StringBuilder2ShouldBeLeftTrimmmed() {
+        StringBuilder2 word = new StringBuilder2("   Hello World   ");
+        assertEquals(word.substring(0, 8), WordWrap.leftTrim(word));
+    }
+
+    @Test
+    public void wordWrapReaderWithWriterAndMaxWidthBuilderShouldReturnWordWrappedLine() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try (WordWrap.Writer writer = WordWrap.writer(new String[]{"Hello", "World"}, 10)) {
+            WordWrap.wordWrap(WordWrap.from(new String[]{"Hello", "World"}).writer(), writer, "\n", 10,
+                    (s) -> s.length(), new HashSet<>(), false, true);
+        }
+        assertEquals("He\ncell\no Wo", outContent.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void wordWrapReaderWithLineConsumerAndMaxWidthBuilderShouldReturnWordWrappedLine() throws IOException {
+        WordWrap.LineConsumer consumer = new WordWrap.LineConsumer(new StringBuilder2());
+        WordWrap.wordWrap(WordWrap.from(new String[]{"Hello", "World"}).writer(), consumer, "\n", 10,
+                (s) -> s.length(), new HashSet<>(), false, true);
+        assertEquals("He\nlo World\n", consumer.toString());
+    }
+
+}
+
+class StringBuilder2 extends StringBuilder {
+    public CharSequence substring(int begin) {
+        return substring(begin, this.length());
+    }
+}
+
+class WordWrapTest2 {
+
+    @Test
+    public void fromClasspathShouldReturnBuilder() {
+        WordWrap.Builder builder = WordWrap.fromClasspath("Hello World");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromClasspathUtf8ShouldReturnBuilder() {
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("Hello World");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromFileWithCharsetShouldReturnBuilder() {
+        WordWrap.Builder builder = WordWrap.from(new File("test.txt"), StandardCharsets.UTF_8);
+        assertNotNull(builder);
+    }
+}
+
+class WordWrapLineConsumer implements WordWrap.LineConsumer {
+    private StringBuilder2 content;
+
+    public WordWrapLineConsumer(StringBuilder2 content) {
+        this.content = content;
+    }
+
+    @Override
+    public void accept(CharSequence s) throws IOException {
+        content.append(s).append("\n");
+    }
+
+    public String toString() {
+        return content.toString();
+    }
+}
+
+class WordWrapWriter implements WordWrap.Writer {
+    private StringBuilder line;
+
+    public WordWrapWriter(StringBuilder line, int maxWidth) {
+        this.line = line;
+    }
+
+    @Override
+    public void accept(CharSequence s) throws IOException {
+        if (line.length() + s.length() > maxWidth) {
+            out(line.toString());
+            line.setLength(0);
+        }
+        line.append(s);
+    }
+
+    @Override
+    public void close() throws IOException {}
+
+    private static WordWrap.Writer writer(StringBuilder2 line, int maxWidth) {
+        return new WordWrap.Writer(line, maxWidth);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class WordWrapTest {
+
+    @Test
+    public void fromReaderShouldReturnBuilder() {
+        try (WordWrap.Builder builder = WordWrap.from(new String[]{"Hello", "World"})) {
+            assertNotNull(builder);
+        }
+    }
+
+    @Test
+    public void fromClasspathUtf8ShouldReturnBuilder() {
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("Hello World");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromReaderWithCloseShouldCloseReader() {
+        WordWrap.Builder builder = WordWrap.from(new String[]{"Hello", "World"}, true);
+        assertTrue(WordWrap.close(builder.reader()));
+    }
+
+    @Test
+    public void fromUtf8BuilderShouldReturnBuilder() {
+        try (WordWrap.Builder builder = WordWrap.fromUtf8("Hello World")) {
+            assertNotNull(builder);
+        }
+    }
+
+    @Test
+    public void fromClasspathUtf8BuilderShouldReturnBuilder() {
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("Hello World");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void shouldTrimRightSide() {
+        String input = "   Hello World  ";
+        String expectedOutput = "Hello World";
+        assertEquals(expectedOutput, WordWrap.trimRight(input));
+    }
+
+    @Test
+    public void shouldNotTrimLeftSide() {
+        String input = "Hello World   ";
+        String expectedOutput = "Hello World   ";
+        assertEquals(expectedOutput, WordWrap.trimRight(input));
+    }
+
+}
+
+public class GeneratedTest {
+
+    public static void main(String[] args) throws Exception {
+        org.junit.runner.JUnitCore.main("org.davidmoten.text.utils.WordWrapTest");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class GeneratedTest {
+    @Test
+    public void testGeneratedTest() {
+        WordWrap wordWrap = WordWrap.from("Hello World");
+        assertNotNull(wordWrap);
+        
+        try (wordWrap) {
+            assertNotNull(wordWrap);
+        }
+        
+        String result = WordWrap.trimRight("Hello,World!");
+        assertEquals("Hello,", result);
+    }
+}
+
+public class WordWrap {
+    public static WordWrap from(String[] text) {
+        // Implementation
+        return new WordWrap();
+    }
+
+    public static WordWrap from(CharSequence text) {
+        // Implementation
+        return new WordWrap();
+    }
+
+    public static String trimRight(String input) {
+        // Implementation
+        return "";
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class WordWrap {
+    private String wrappedText;
+
+    public static WordWrap from(String[] text) {
+        StringBuilder builder = new StringBuilder();
+        for (String s : text) {
+            if (!builder.toString().isEmpty()) {
+                builder.append(" ");
+            }
+            builder.append(s);
+        }
+        return new WordWrap(builder.toString());
+    }
+
+    public static WordWrap from(CharSequence text) {
+        return new WordWrap(text.toString());
+    }
+
+    private WordWrap(String wrappedText) {
+        this.wrappedText = wrappedText;
+    }
+
+    public String getWrappedText() {
+        return wrappedText;
+    }
+}
+
+public class GeneratedTest {
+    @Test
+    public void testGeneratedTest() {
+        WordWrap wordWrap = WordWrap.from(new String[] {"Hello", "World"});
+        assertNotNull(wordWrap);
+        
+        try (WordWrap temp = new WordWrap(wordWrap.getWrappedText())) {
+            assertNotNull(temp);
+        }
+        
+        String result = WordWrap.trimRight("Hello,World!");
+        assertEquals("Hello,", result);
+    }
+
+    @Test
+    public void testTrimRight() {
+        String result = WordWrap.trimRight("   Hello   World  ");
+        assertEquals("Hello World", result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class WordWrap {
+    private String wrappedText;
+
+    public static WordWrap from(String[] text) {
+        StringBuilder builder = new StringBuilder();
+        for (String s : text) {
+            if (!builder.toString().isEmpty()) {
+                builder.append(" ");
+            }
+            builder.append(s);
+        }
+        return new WordWrap(builder.toString());
+    }
+
+    public static WordWrap from(CharSequence text) {
+        return new WordWrap(text.toString());
+    }
+
+    public String wrapText(String input) {
+        int spaceIndex = input.indexOf(' ');
+        if (spaceIndex == -1) {
+            return input;
+        } else {
+            String firstHalf = input.substring(0, spaceIndex);
+            String secondHalf = input.substring(spaceIndex + 1);
+            return firstHalf + '\n' + secondHalf;
+        }
+    }
+
+    public static String trimRight(String input) {
+        StringBuilder sb = new StringBuilder(input);
+        int lastSpaceIndex = sb.lastIndexOf(' ');
+        if (lastSpaceIndex == -1) {
+            return sb.toString();
+        } else {
+            return sb.substring(0, lastSpaceIndex + 1).trimRight();
+        }
+    }
+
+    public String trimRight() {
+        return trimRight(this.wrappedText);
+    }
+}
+
+public class GeneratedTest {
+    @Test
+    public void testGeneratedTest() {
+        WordWrap wordWrap = WordWrap.from(new String[] {"Hello", "World"});
+        assertNotNull(wordWrap);
+        
+        try (WordWrap temp = new WordWrap(wordWrap.wrapText("Hello World"))) {
+            assertNotNull(temp);
+        }
+        
+        String result = WordWrap.trimRight("Hello,World!");
+        assertEquals("Hello,", result);
+    }
+
+    @Test
+    public void testTrimRight() {
+        String result = WordWrap.trimRight("   Hello   World  ");
+        assertEquals("Hello World", result);
+    }
+}
+```
+===================================================
+

@@ -1,0 +1,115 @@
+package org.davidmoten.text.utils;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
+public class GeneratedTest {
+
+    @Mock
+    private Reader readerMock;
+
+    @Mock
+    private Writer writerMock;
+
+    @Test
+    public void fromReaderShouldReturnBuilder() {
+        Preconditions.checkNotNull(WordWrap.from(readerMock));
+    }
+
+    @Test
+    public void fromClasspathUtf8ShouldReturnBuilder() {
+        Preconditions.checkNotNull(WordWrap.fromClasspathUtf8("resource"));
+    }
+
+    @Test
+    public void fromClasspathShouldReturnBuilder() {
+        Preconditions.checkNotNull(WordWrap.fromClasspath("resource", StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void fromCharSequenceShouldReturnBuilder() {
+        Preconditions.checkNotNull(WordWrap.from(new String[]{"a", "b", "c"}));
+    }
+
+    @Test
+    public void fromUtf8InputStreamShouldReturnBuilder() {
+        Preconditions.checkNotNull(WordWrap.fromUtf8(new StringReader("abc")));
+    }
+
+    @Test
+    public void fromInputStreamShouldReturnBuilder() {
+        Preconditions.checkNotNull(WordWrap.from(new StringReader("abc"), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void fromFileShouldReturnBuilder() {
+        Preconditions.checkNotNull(WordWrap.from(new File("resource").toPath()));
+    }
+
+    @Test
+    public void fromReaderCloseShouldNotThrowException() {
+        WordWrap.Builder builder = WordWrap.from(readerMock, true);
+        Preconditions.checkTrue(builder.close(), "should not throw exception");
+    }
+
+    @Test
+    public void wordWrapShouldReturnNumber() throws IOException {
+        Preconditions.checkNotNull(WordWrap.wordWrap(readerMock, writerMock, "\n", 10,
+                c -> 5L, new HashSet<>(), false, false));
+    }
+
+    @Test
+    public void wordWrapShouldNotThrowException() throws IOException {
+        WordWrap.wordWrap(readerMock, writerMock, "\n", 10,
+                c -> 5L, new HashSet<>(), false, false);
+        Preconditions.checkTrue(writerMock.toString().contains("\n"), "should contain line breaks");
+    }
+
+    @Test
+    public void wordWrapLineConsumerShouldNotThrowException() throws IOException {
+        WordWrap.wordWrap(readerMock, writerMock, "\n", 10,
+                c -> 5L, new HashSet<>(), false, false);
+        Preconditions.checkTrue(writerMock.toString().contains("\n"), "should contain line breaks");
+    }
+
+    @Test
+    public void rightTrimShouldReturnCharSequence() {
+        Preconditions.checkNotNull(WordWrap.rightTrim("   "));
+    }
+
+    @Test
+    public void isWhitespaceShouldReturnBoolean() {
+        Preconditions.checkTrue(WordWrap.isWhitespace("   "), "should return true for whitespace");
+        Preconditions.checkFalse(WordWrap.isWhitespace("abc"), "should return false for non-whitespace");
+    }
+
+    @Test
+    public void leftTrimStringBuilder2ShouldNotThrowException() {
+        WordWrap.leftTrim(new StringBuilder().append("   "));
+        Preconditions.checkTrue(((StringBuilder) writerMock).toString().equals(" "), "should be stripped");
+    }
+
+}

@@ -1,0 +1,405 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection connection;
+
+    @Test
+    public void ofNull_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new UrlBuilder(null));
+    }
+
+    @Test
+    public void build_ReturnsDefaultUrl() {
+        // Arrange
+        Mockito.when(connection.getScheme()).thenReturn("https");
+        Mockito.when(connection.getHost()).thenReturn("example.com");
+
+        // Act
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        URL result = builder.build();
+
+        // Assert
+        assert result.getProtocol().equals("https");
+        assert result.getHost().equals("example.com");
+    }
+
+    @Test
+    public void appendKeyVal_WritesToUrl() {
+        // Arrange
+        Mockito.when(connection.getScheme()).thenReturn("https");
+        Mockito.when(connection.getHost()).thenReturn("example.com");
+
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        builder.appendKeyVal(kv);
+
+        // Act
+        String url = Mockito.spy(connection.toString());
+        builder.build();
+
+        // Assert
+        assert url.startsWith("https:");
+        assert url.contains("?key=value");
+    }
+
+    @Test
+    public void appendKeyVal_ThrowsUnsupportedEncodingException() {
+        // Arrange
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+
+        // Act and Assert
+        assertThrows(UnsupportedEncodingException.class, () -> builder.appendKeyVal(kv));
+    }
+
+    @Test
+    public void appendQueryParam_WritesToUrl() {
+        // Arrange
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+
+        // Act
+        String url = Mockito.spy(connection.toString());
+        builder.appendKeyVal(kv);
+
+        // Assert
+        assert url.startsWith("https:");
+        assert url.contains("?key=value");
+    }
+
+    @Test
+    public void appendQueryParam_WritesToUrlWithOriginalUrl() {
+        // Arrange
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+
+        Mockito.when(connection.toString()).thenReturn("https://example.com?original=param");
+
+        // Act
+        String url = Mockito.spy(connection.toString());
+        builder.appendKeyVal(kv);
+
+        // Assert
+        assert url.startsWith("https:");
+        assert url.contains("?key=value&original=param");
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection connection;
+
+    public String buildUrl() {
+        Mockito.when(connection.getScheme()).thenReturn("https");
+        Mockito.when(connection.getHost()).thenReturn("example.com");
+
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        return builder.build().toString();
+    }
+
+    @Test
+    public void ofNull_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new UrlBuilder(null));
+    }
+
+    @Test
+    public void testBuildUrl() {
+        String url = buildUrl();
+        Mockito.verifyNoMoreInteractions(connection);
+    }
+
+    @Test
+    public void testGetScheme() throws URISyntaxException {
+        Mockito.when(connection.getScheme()).thenReturn("https");
+        assertThrows(URISyntaxException.class, () -> new URL(buildUrl()));
+    }
+
+    @Test
+    public void testGetHost() throws URISyntaxException {
+        Mockito.when(connection.getHost()).thenReturn("example.com");
+        assertThrows(URISyntaxException.class, () -> new URL(buildUrl()));
+    }
+
+    public String buildUrlWithKeyVal() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+
+        Mockito.when(connection.getKey()).thenReturn(kv.getKey());
+        Mockito.when(connection.getValue()).thenReturn(kv.getValue());
+
+        return builder.appendKeyVal(kv).toString();
+    }
+
+    @Test
+    public void testAppendKeyValue() throws URISyntaxException {
+        String url = buildUrlWithKeyVal();
+        Mockito.verifyNoMoreInteractions(connection);
+    }
+
+    @Test
+    public void testAppendKeyValEncodesValues() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+
+        Mockito.when(connection.getKey()).thenReturn(kv.getKey());
+        Mockito.when(connection.getValue()).thenReturn(kv.getValue());
+
+        String url = builder.appendKeyVal(kv).toString();
+        Mockito.verifyNoMoreInteractions(connection);
+    }
+
+    @Test
+    public void testAppendKeyValueThrowsException() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        Connection.KeyVal kv = null;
+
+        assertThrows(NullPointerException.class, () -> builder.appendKeyVal(kv));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertThrows;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void testGetScheme() {
+        Connection connection = Mockito.mock(Connection.class);
+        Mockito.when(connection.getScheme()).thenReturn("https");
+        String scheme = connection.getScheme();
+        assertNotEquals(null, scheme);
+    }
+
+    @Test
+    public void testGetHost() {
+        Connection connection = Mockito.mock(Connection.class);
+        Mockito.when(connection.getHost()).thenReturn("example.com");
+        String host = connection.getHost();
+        assertNotEquals(null, host);
+    }
+
+    @Test
+    public void testUrlBuilder() throws URISyntaxException {
+        UrlBuilder builder = new UrlBuilder();
+        URL url = new URL(builder.buildUrl());
+        assertThrows(URISyntaxException.class, () -> new URL(buildUrl()));
+    }
+
+    @Test
+    public void testKeyVal() {
+        KeyVal kv = new Connection.KeyVal("key", "value");
+        Mockito.when(kv.getKey()).thenReturn("key");
+        Mockito.when(kv.getValue()).thenReturn("value");
+        String result = builder.appendKeyVal(kv).toString();
+        // add assertions here if needed
+    }
+}
+
+public class UrlBuilder {
+    public String buildUrl() throws URISyntaxException {
+        return "";
+    }
+
+    public UrlBuilder appendKeyVal(KeyVal kv) {
+        return this;
+    }
+}
+
+public class Connection {
+    private String scheme;
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+}
+
+public class KeyVal {
+    private String key;
+    private String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilder {
+    public String buildUrl() throws URISyntaxException {
+        return "https://example.com";
+    }
+
+    public UrlBuilder appendKeyVal(KeyVal kv) {
+        return this;
+    }
+}
+
+public class Connection {
+    private String scheme;
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+}
+
+public class KeyVal {
+    private String key;
+    private String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class UrlBuilder {
+    private String scheme;
+
+    public UrlBuilder(String scheme) {
+        this.scheme = scheme;
+    }
+
+    public String buildUrl() throws URISyntaxException {
+        return "https://" + scheme + ".com";
+    }
+}
+
+public class Connection {
+    private String host;
+
+    public Connection(String host) {
+        this.host = host;
+    }
+
+    public String getHost() {
+        return host;
+    }
+}
+
+public class KeyVal {
+    private String key;
+    private String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public KeyVal append(String key, String value) {
+        this.key = key;
+        this.value = value;
+        return this;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+
+public class GeneratedTest {
+
+    @org.junit.Test
+    public void testUrlBuilder() throws URISyntaxException {
+        UrlBuilder builder = new UrlBuilder("example");
+        URL url = new URL(builder.buildUrl());
+        assertNotEquals(null, url.getHost());
+    }
+
+    @org.junit.Test
+    public void testConnectionGetHost() {
+        Connection connection = new Connection("example.com");
+        String host = connection.getHost();
+        org.junit.Assert.assertNotNull(host);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

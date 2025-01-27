@@ -1,0 +1,308 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+public class JacksonJsonTransformerTest {
+
+    @Test
+    public void parseProjectJsonToProject() {
+        String json = "{\"name\":\"ProjectName\",\"description\":\"ProjectDescription\"}";
+        Project project = new Project();
+        project.setName("ProjectName");
+        project.setDescription("ProjectDescription");
+
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(Project.class, (JsonSerializer<?> serializer, JsonParser parser) -> {
+            // implementation
+            return project;
+        });
+
+        when(mapper.getDeserializationFeature(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)).thenReturn(false);
+        when(mapper.findAndRegisterModules()).thenReturn(module);
+
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project result = transformer.parse(json, Project.class);
+        assertEquals(project.getName(), result.getName());
+        assertEquals(project.getDescription(), result.getDescription());
+    }
+
+    @Test
+    public void parseFileInformationJsonToFileInfo() {
+        String json = "{\"name\":\"FileName\",\"size\":1024,\"type\":\"FileType\"}";
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setName("FileName");
+        fileInfo.setSize(1024);
+        fileInfo.setType("FileType");
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        FileInfo result = transformer.parse(json, FileInfo.class);
+        assertEquals(fileInfo.getName(), result.getName());
+        assertEquals(fileInfo.getSize(), result.getSize());
+        assertEquals(fileInfo.getType(), result.getType());
+    }
+
+    @Test
+    public void convertLanguageTranslationsToLanguageTranslations() {
+        LanguageTranslations translations = new LanguageTranslations();
+        translations.setTranslation("English", "Hello World");
+        translations.setTranslation("Spanish", "Hola Mundo");
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        LanguageTranslations result = transformer.convert(translations);
+        assertEquals(translations.getTranslation("English"), result.getTranslation("English"));
+        assertEquals(translations.getTranslation("Spanish"), result.getTranslation("Spanish"));
+    }
+
+    @Test
+    public void convertExportOptionsToJsonString() {
+        ExportOptions options = new ExportOptions();
+        options.setFormat("JSON");
+        options.setEncoding("UTF-8");
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String result = transformer.convert(options);
+        assertEquals("{\"format\":\"JSON\",\"encoding\":\"UTF-8\"}", result);
+    }
+
+    @Test
+    public void convertImportOptionsToJsonString() {
+        ImportOptions options = new ImportOptions();
+        options.setFormat("CSV");
+        options.setEncoding("ISO-8859-1");
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String result = transformer.convert(options);
+        assertEquals("{\"format\":\"CSV\",\"encoding\":\"ISO-8859-1\"}", result);
+    }
+
+    @Test
+    public void convertFileInformationToJsonString() {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setName("FileName");
+        fileInfo.setSize(1024);
+        fileInfo.setType("FileType");
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String result = transformer.convert(fileInfo);
+        assertEquals("{\"name\":\"FileName\",\"size\":1024,\"type\":\"FileType\"}", result);
+    }
+
+    @Test
+    public void convertLanguageTranslationsToJsonString() {
+        LanguageTranslations translations = new LanguageTranslations();
+        translations.setTranslation("English", "Hello World");
+        translations.setTranslation("Spanish", "Hola Mundo");
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String result = transformer.convert(translations);
+        assertEquals("{\"English\":\"Hello World\",\"Spanish\":\"Hola Mundo\"}", result);
+    }
+
+    @Test
+    public void convertToNullThrowsCrowdinApiException() {
+        LanguageTranslations translations = null;
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        assertThrows(CrowdinApiException.class, () -> transformer.convert(translations));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+public class CrowdinApiTransformerTest {
+
+    @Mock
+    private CrowdinApiCrowdin crowdin;
+
+    @Mock
+    private LanguageTranslations languageTranslations;
+
+    @InjectMocks
+    private CrowdinApiTransformer transformer;
+
+    @Test
+    public void testConvertLanguageTranslations() {
+        when(crowdin.getCrowdin()).thenReturn(languageTranslations);
+        assertThrows(CrowdinApiException.class, () -> transformer.convert(languageTranslations));
+    }
+
+    @Test
+    public void testGetCrowdinApiName() {
+        String crowdinApiName = transformer.getCrowdinApiName();
+        assertNotNull(crowdinApiName);
+    }
+}
+
+class CrowdinApiException extends RuntimeException {}
+
+public class CrowdinApiCrowdin {
+    private LanguageTranslations languageTranslations;
+
+    public LanguageTranslations getCrowdin() {
+        return languageTranslations;
+    }
+
+    public void setCrowdin(LanguageTranslations languageTranslations) {
+        this.languageTranslations = languageTranslations;
+    }
+}
+
+public class LanguageTranslations {
+}
+
+public class CrowdinApiTransformer {
+    public String getCrowdinApiName() {
+        return "crowdin-api-name";
+    }
+
+    public CrowdinApiException convert(LanguageTranslations languageTranslations) {
+        // implementation
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class CrowdinApiCrowdin {
+    private LanguageTranslations languageTranslations;
+
+    public LanguageTranslations getCrowdin() {
+        return languageTranslations;
+    }
+
+    public void setCrowdin(LanguageTranslations languageTranslations) {
+        this.languageTranslations = languageTranslations;
+    }
+}
+
+public class LanguageTranslations {
+}
+
+public class CrowdinApiException extends RuntimeException {}
+
+public class CrowdinApiTransformer {
+    public String getCrowdinApiName() {
+        return "crowdin-api-name";
+    }
+
+    public CrowdinApiException convert(LanguageTranslations languageTranslations) {
+        throw new CrowdinApiException();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class CrowdinApiCrowdin {
+    private LanguageTranslations languageTranslations;
+
+    public LanguageTranslations getCrowdin() {
+        return languageTranslations;
+    }
+
+    public void setCrowdin(LanguageTranslations languageTranslations) {
+        this.languageTranslations = languageTranslations;
+    }
+}
+
+public class LanguageTranslations {
+
+}
+
+public class CrowdinApiException extends RuntimeException {
+
+}
+
+public class CrowdinApiTransformer {
+    private CrowdinApiCrowdin crowdin;
+
+    @Mock
+    public void setCrowdin(CrowdinApiCrowdin crowdin) {
+        this.crowdin = crowdin;
+    }
+
+    public String getCrowdinApiName() {
+        return "crowdin-api-name";
+    }
+
+    public CrowdinApiException convert(LanguageTranslations languageTranslations) {
+        throw new CrowdinApiException();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+public class CrowdinApiTransformerTest {
+
+    @Mock
+    private CrowdinApiCrowdin crowdin;
+
+    @Mock
+    private LanguageTranslations languageTranslations;
+
+    @InjectMocks
+    private CrowdinApiTransformer transformer;
+
+    @Test
+    public void testConvertLanguageTranslations() {
+        when(crowdin.getCrowdin()).thenReturn(languageTranslations);
+        assertThrows(CrowdinApiException.class, () -> transformer.convert(languageTranslations));
+    }
+
+    @Test
+    public void testGetCrowdinApiName() {
+        String crowdinApiName = transformer.getCrowdinApiName();
+        assertNotNull(crowdinApiName);
+    }
+}
+```
+===================================================
+

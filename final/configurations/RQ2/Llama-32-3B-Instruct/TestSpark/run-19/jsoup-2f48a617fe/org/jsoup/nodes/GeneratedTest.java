@@ -1,0 +1,85 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeName_isNotNull() {
+        Comment comment = new Comment("data");
+        AssertNotNull(comment.nodeName());
+    }
+
+    @Test
+    public void getData_returnsData() {
+        Comment comment = new Comment("data");
+        AssertEquals("data", comment.getData());
+    }
+
+    @Test
+    public void setData_setsData() {
+        Comment comment = new Comment("");
+        String data = "newData";
+        comment.setData(data);
+        AssertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHead_throwsIOException_onIOError() {
+        Appendable accum = Mockito.mock(Appendable.class);
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("");
+        try {
+            comment.outerHtmlHead(accum, depth, out);
+            Assert.fail("Expected IOException");
+        } catch (IOException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void outerHtmlTail_throwsIOError_onIOError() {
+        Appendable accum = Mockito.mock(Appendable.class);
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("");
+        try {
+            comment.outerHtmlTail(accum, depth, out);
+            Assert.fail("Expected IOException");
+        } catch (IOException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void toString_returnsString() {
+        Comment comment = new Comment("data");
+        String result = comment.toString();
+        AssertNotEquals("", result);
+    }
+
+    @Test
+    public void clone_returnsComment() {
+        Comment comment = new Comment("");
+        Comment cloned = comment.clone();
+        AssertSame(comment, cloned);
+    }
+
+    @Test
+    public void isXmlDeclaration_returnsFalse() {
+        Comment comment = new Comment("data");
+        AssertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_returnsNull() {
+        Comment comment = new Comment("");
+        XmlDeclaration result = comment.asXmlDeclaration();
+        assertNull(result);
+    }
+
+}

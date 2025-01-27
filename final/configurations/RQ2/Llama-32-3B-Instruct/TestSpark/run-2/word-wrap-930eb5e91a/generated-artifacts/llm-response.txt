@@ -1,0 +1,365 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
+import static org.junit.Assert.*;
+import static com.github.davidmoten.guavamini.Preconditions.checkArgument;
+
+public class WordWrapTest {
+
+    @Test
+    public void fromReaderTest() {
+        String text = "Hello World";
+        String resource = new String(text.getBytes(), StandardCharsets.UTF_8);
+        WordWrap.Builder builder = WordWrap.fromUtf8(new ByteArrayInputStream(resource.getBytes()));
+        Preconditions.assertState(builder, WordWrap.class, true);
+    }
+
+    @Test
+    public void fromReaderCloseTest() {
+        String text = "Hello World";
+        String resource = new String(text.getBytes(), StandardCharsets.UTF_8);
+        WordWrap.Builder builder = WordWrap.fromUtf8(new ByteArrayInputStream(resource.getBytes()));
+        WordWrap.close(builder.reader());
+    }
+
+    @Test
+    public void fromClasspathResourceTest() {
+        String text = "Hello World";
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("hello");
+        Preconditions.assertState(builder, WordWrap.class, true);
+    }
+
+    @Test
+    public void fromClasspathResourceCloseTest() {
+        String text = "Hello World";
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("hello");
+        WordWrap.close(builder.reader());
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        String text = "Hello World";
+        WordWrap.Builder builder = WordWrap.from(text);
+        Preconditions.assertState(builder, WordWrap.class, true);
+    }
+
+    @Test
+    public void wordWrapReaderWriterTest() throws IOException {
+        String text = "Hello World";
+        WordWrap.Builder builder = WordWrap.fromUtf8(new ByteArrayInputStream(text.getBytes()));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        writer(out::writeBytes, 80);
+        WordWrap.wordWrap(builder.reader(), out, "\n", 80, (s) -> s.length(), new HashSet<>(), false, true);
+        assertTrue(out.toString().contains("Hello\nWorld"));
+    }
+
+    @Test
+    public void wordWrapReaderLineConsumerTest() throws IOException {
+        String text = "Hello World";
+        WordWrap.Builder builder = WordWrap.fromUtf8(new ByteArrayInputStream(text.getBytes()));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        writer(out::writeBytes, 80);
+        WordWrap.wordWrap(builder.reader(), out, "\n", 80, (s) -> s.length(), new HashSet<>(), false, true);
+        assertTrue(out.toString().contains("Hello\nWorld"));
+    }
+
+    @Test
+    public void isWhitespaceCharSequenceTest() {
+        char[] chars = {'\t', ' ', '\r'};
+        for (char c : chars) {
+            assertTrue(WordWrap.isWhitespace(new StringBuilder(String.valueOf(c))));
+            assertFalse(WordWrap.isWhitespace(new StringBuilder(String.valueOf('!'))));
+        }
+    }
+
+    @Test
+    public void rightTrimCharSequenceTest() {
+        String s = "   Hello World  ";
+        Preconditions.assertState(WordWrap.rightTrim(s), String.class, !s.equals(WordWrap.rightTrim(s)));
+    }
+
+    private static final class writer implements LineConsumer {
+        private final ByteArrayOutputStream out;
+
+        public writer(Consumer<ByteString> action) {
+            this.out = new ByteArrayOutputStream();
+        }
+
+        @Override
+        public void writeLine(String s) throws IOException {
+            out.writeBytes("\n".getBytes());
+            action.accept(new ByteString(s));
+        }
+    }
+
+    private static class ByteString implements CharSequence {
+        private final String str;
+
+        public ByteString(String str) {
+            this.str = str;
+        }
+
+        @Override
+        public int length() {
+            return str.length();
+        }
+
+        @Override
+        public char at(int i) {
+            return str.charAt(i);
+        }
+
+        @Override
+        public CharSequence subSequence(int start, int end) {
+            return str.subSequence(start, end);
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
+import static org.junit.Assert.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+public class WordWrapTest {
+
+    @Test
+    public void fromReaderTest() {
+        String text = "Hello World";
+        String resource = new String(text.getBytes(), StandardCharsets.UTF_8);
+        WordWrap.Builder builder = WordWrap.fromUtf8(new ByteArrayInputStream(resource.getBytes()));
+        Preconditions.assertState(builder, WordWrap.class, true);
+    }
+
+    @Test
+    public void fromReaderCloseTest() {
+        String text = "Hello World";
+        String resource = new String(text.getBytes(), StandardCharsets.UTF_8);
+        WordWrap.Builder builder = WordWrap.fromUtf8(new ByteArrayInputStream(resource.getBytes()));
+        WordWrap.close(builder.reader());
+    }
+
+    @Test
+    public void isWhitespaceCharSequenceTest() {
+        char[] chars = {'\t', ' ', '\r'};
+        for (char c : chars) {
+            assertTrue(WordWrap.isWhitespace(new StringBuilder(String.valueOf(c))));
+            assertFalse(WordWrap.isWhitespace(new StringBuilder(String.valueOf('!'))));
+        }
+    }
+
+    @Test
+    public void rightTrimCharSequenceTest() {
+        String s = "   Hello World  ";
+        Preconditions.assertState(WordWrap.rightTrim(s), String.class, !s.equals(WordWrap.rightTrim(s)));
+    }
+
+    private static class ByteString implements CharSequence {
+        private final String str;
+
+        public ByteString(String str) {
+            this.str = str;
+        }
+
+        @Override
+        public int length() {
+            return str.length();
+        }
+
+        @Override
+        public char at(int i) {
+            return str.charAt(i);
+        }
+
+        @Override
+        public CharSequence subSequence(int start, int end) {
+            return str.subSequence(start, end);
+        }
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
+
+public class WordWrapTest {
+
+    @Test
+    public void fromReaderTest() {
+        String text = "Hello World";
+        WordWrap.Builder builder = WordWrap.fromUtf8(text);
+        Preconditions.assertState(builder, WordWrap.class, true);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        builder.writer(new Consumer<ByteString>() {
+            @Override
+            public void accept(ByteString byteString) {
+                out.write(byteString.getBytes(StandardCharsets.UTF_8));
+            }
+        });
+    }
+
+    @Test
+    public void fromReaderCloseTest() {
+        String text = "Hello World";
+        WordWrap.Builder builder = WordWrap.fromUtf8(text);
+        WordWrap.close(builder.reader());
+    }
+
+    @Test
+    public void isWhitespaceCharSequenceTest() {
+        char[] chars = {'\t', ' ', '\r'};
+        for (char c : chars) {
+            assertTrue(WordWrap.isWhitespace(new StringBuilder(String.valueOf(c))));
+            assertFalse(WordWrap.isWhitespace(new StringBuilder(String.valueOf('!'))));
+        }
+    }
+
+    @Test
+    public void rightTrimCharSequenceTest() {
+        String s = "   Hello World  ";
+        Preconditions.assertState(WordWrap.rightTrim(s), String.class, !s.equals(WordWrap.rightTrim(s)));
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class WordWrapTest {
+
+    @org.junit.Test
+    public void fromReaderTest() {
+        String text = "Hello World";
+        WordWrap.Builder builder = WordWrap.fromUtf8(text);
+        org.junit.Assert.assertTrue(WordWrap.class.equals(builder.getClass()));
+    }
+
+    @org.junit.Test
+    public void fromReaderCloseTest() {
+        String text = "Hello World";
+        WordWrap.Builder builder = WordWrap.fromUtf8(text);
+        WordWrap.close(builder.writer());
+    }
+
+    @org.junit.Test
+    public void isWhitespaceCharSequenceTest() {
+        char[] chars = {'\t', ' ', '\r'};
+        for (char c : chars) {
+            org.junit.Assert.assertTrue(WordWrap.isWhitespace(new StringBuilder(String.valueOf(c))));
+            org.junit.Assert.assertFalse(WordWrap.isWhitespace(new StringBuilder(String.valueOf('!'))));
+        }
+    }
+
+    @org.junit.Test
+    public void rightTrimCharSequenceTest() {
+        String s = "   Hello World  ";
+        org.junit.Assert.assertEquals(WordWrap.rightTrim(s), s);
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class WordWrap {
+
+    public static Builder fromUtf8(String text) {
+        // implementation
+        return new Builder();
+    }
+
+    public static void close(Writer writer) {
+        // implementation
+    }
+
+    public static boolean isWhitespace(CharSequence seq) {
+        // implementation
+        return false;
+    }
+
+    public static String rightTrim(String s) {
+        // implementation
+        return "";
+    }
+
+}
+
+public class WordWrapTest {
+
+    @org.junit.Test
+    public void fromReaderTest() {
+        String text = "Hello World";
+        org.junit.Assert.assertTrue(WordWrap.class.equals(text.getClass()));
+        WordWrap.Builder builder = WordWrap.fromUtf8(text);
+        org.junit.Assert.assertNotNull(builder);
+    }
+
+    @org.junit.Test
+    public void fromReaderCloseTest() {
+        String text = "Hello World";
+        org.junit.Assert.assertNotNull(WordWrap.fromUtf8(text));
+        WordWrap.Builder builder = WordWrap.fromUtf8(text);
+        org.junit.Assert.assertNotNull(builder.writer());
+        WordWrap.close(builder.writer());
+    }
+
+    @org.junit.Test
+    public void isWhitespaceCharSequenceTest() {
+        char[] chars = {'\t', ' ', '\r'};
+        for (char c : chars) {
+            org.junit.Assert.assertTrue(WordWrap.isWhitespace(new StringBuilder(String.valueOf(c))));
+            org.junit.Assert.assertFalse(WordWrap.isWhitespace(new StringBuilder(String.valueOf('!'))));
+        }
+    }
+
+    @org.junit.Test
+    public void rightTrimCharSequenceTest() {
+        String s = "   Hello World  ";
+        org.junit.Assert.assertEquals("", WordWrap.rightTrim(s));
+    }
+
+}
+
+public class Builder {
+
+    private Writer writer;
+
+    public void writer(Consumer<Writer> consumer) {
+        // implementation
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

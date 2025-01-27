@@ -1,0 +1,380 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection connection;
+
+    @Mock
+    private URI uri;
+
+    public static final String UTF_8 = "UTF-8";
+
+    @Test
+    public void newUrlBuilder() {
+        UrlBuilder builder = new UrlBuilder(uri);
+        Mockito.verify(builder).build();
+    }
+
+    @Test
+    public void buildWithoutKeyVal() throws UnsupportedEncodingException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(connection.getBaseUri());
+        URL url = builder.build();
+        Mockito.verifyNoMoreInteractions(builder);
+    }
+
+    @Test
+    public void buildWithKeyVal() throws UnsupportedEncodingException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(connection.getBaseUri());
+        builder.appendKeyVal(Connection.KeyVal.newKeyVal("key", "value"));
+        URL url = builder.build();
+        Mockito.verifyNoMoreInteractions(builder);
+    }
+
+    @Test
+    public void appendKeyValWithEmptyKey() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(connection.getBaseUri());
+        builder.appendKeyVal(Connection.KeyVal.newKeyVal("", "value"));
+        Mockito.verifyNoMoreInteractions(builder);
+    }
+
+    @Test
+    public void appendKeyValWithNullValue() {
+        UrlBuilder builder = new UrlBuilder(connection.getBaseUri());
+        Connection.KeyVal kv = Connection.KeyVal.newKeyVal("key", null);
+        builder.appendKeyVal(kv);
+        Mockito.verifyNoMoreInteractions(builder);
+    }
+
+    @Test
+    public void appendKeyValWithInvalidEncoding() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(connection.getBaseUri());
+        builder.appendKeyVal(Connection.KeyVal.newKeyVal("key", UTF_8));
+        Mockito.verifyNoMoreInteractions(builder);
+    }
+
+    @Test
+    public void appendKeyValWithSpacesInValue() throws UnsupportedEncodingException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(connection.getBaseUri());
+        Connection.KeyVal kv = Connection.KeyVal.newKeyVal("key", "value with spaces");
+        builder.appendKeyVal(kv);
+        Mockito.verifyNoMoreInteractions(builder);
+    }
+
+    @Test
+    public void appendKeyValWithNonAsciiCharactersInValue() throws UnsupportedEncodingException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(connection.getBaseUri());
+        Connection.KeyVal kv = Connection.KeyVal.newKeyVal("key", "value with non ascii characters");
+        builder.appendKeyVal(kv);
+        Mockito.verifyNoMoreInteractions(builder);
+    }
+
+    @Test
+    public void appendQuery() throws UnsupportedEncodingException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(connection.getBaseUri());
+        URI query = new URI("key=value");
+        builder.appendQuery(query);
+        URL url = builder.build();
+        Mockito.verifyNoMoreInteractions(builder);
+    }
+
+    @Test
+    public void appendFragment() throws UnsupportedEncodingException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(connection.getBaseUri());
+        String fragment = "#fragment";
+        builder.appendFragment(fragment);
+        URL url = builder.build();
+        Mockito.verifyNoMoreInteractions(builder);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Connection {
+    public URI getBaseUri() {
+        return null;
+    }
+}
+
+public class KeyVal {
+    public static KeyVal newKeyVal(String key, String value) {
+        return new KeyVal(key, value);
+    }
+
+    private final String key;
+    private final String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+}
+
+public class UrlBuilder {
+    private URI baseUri;
+
+    public UrlBuilder(URI baseUri) {
+        this.baseUri = baseUri;
+    }
+
+    public UrlBuilder appendKeyVal(KeyVal kv) throws UnsupportedEncodingException, URISyntaxException {
+        String query = "";
+        if (baseUri.getQuery() != null) {
+            query = baseUri.getQuery();
+        }
+        query += "&" + kv.key + "=" + URLEncoder.encode(kv.value, "UTF-8");
+        baseUri = new URI(baseUri.toString().replaceFirst("^.*\\?", "") + "?" + query);
+        return this;
+    }
+
+    public String getQueryString() throws UnsupportedEncodingException {
+        return baseUri.getQuery();
+    }
+
+    public UrlBuilder appendQuery(String query) throws UnsupportedEncodingException, URISyntaxException {
+        if (baseUri.getQuery() != null) {
+            throw new RuntimeException("Already have a query.");
+        }
+        baseUri = new URI(baseUri.toString().replaceFirst("^.*\\?", "") + "?" + query);
+        return this;
+    }
+
+    public UrlBuilder appendFragment(String fragment) throws URISyntaxException {
+        if (baseUri.getFragment() != null) {
+            throw new RuntimeException("Already have a fragment.");
+        }
+        baseUri = new URI(baseUri.toString().replaceFirst("^.*#?", "") + "#" + fragment);
+        return this;
+    }
+
+    public URI buildUrl() throws URISyntaxException {
+        return baseUri;
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Connection {
+    private String uri;
+
+    public Connection(String uri) {
+        this.uri = uri;
+    }
+
+    public URI getBaseUri() throws URISyntaxException {
+        return new URI(uri);
+    }
+}
+
+public class KeyVal {
+    public static KeyVal newKeyVal(String key, String value) {
+        return new KeyVal(key, value);
+    }
+
+    private final String key;
+    private final String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KeyVal keyVal = (KeyVal) o;
+        return Objects.equals(key, keyVal.key) && Objects.equals(value, keyVal.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value);
+    }
+}
+
+public class UrlBuilder {
+    private String query;
+
+    public UrlBuilder(String uri) throws URISyntaxException {
+        this.uri = new URI(uri).toString();
+        query = uri.split("\\?")[1];
+    }
+
+    public UrlBuilder appendKeyVal(KeyVal kv) throws UnsupportedEncodingException, URISyntaxException {
+        if (query == null) {
+            query = kv.key;
+        } else {
+            query += "&" + kv.key;
+        }
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return uri;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Connection {
+    private URI connection;
+
+    public Connection(URI connection) {
+        this.connection = connection;
+    }
+
+    public URI getBaseUri() throws URISyntaxException {
+        return connection;
+    }
+}
+
+public class KeyVal {
+    public static KeyVal newKeyVal(String key, String value) {
+        return new KeyVal(key, value);
+    }
+
+    private final String key;
+    private final String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+}
+
+public class UrlBuilder {
+    private URI uri;
+
+    public UrlBuilder(URI uri) {
+        this.uri = uri;
+    }
+
+    public UrlBuilder appendKeyVal(KeyVal kv) throws URISyntaxException {
+        if (uri.getQuery() == null) {
+            uri = new URI(uri.toString().replaceFirst("^.*\\?", "") + "?" + kv.key + "=" + java.net.URLEncoder.encode(kv.value, "UTF-8"));
+        } else {
+            String query = uri.getQuery();
+            query += "&" + kv.key + "=" + java.net.URLEncoder.encode(kv.value, "UTF-8");
+            uri = new URI(uri.toString().replaceFirst("^.*\\?", "") + "?" + query);
+        }
+        return this;
+    }
+
+    public void appendQuery(String query) throws URISyntaxException {
+        if (uri.getQuery() != null) {
+            throw new RuntimeException("Already have a query.");
+        }
+        uri = new URI(uri.toString().replaceFirst("^.*#?", "") + "?" + query);
+    }
+
+    public void appendFragment(String fragment) throws URISyntaxException {
+        if (uri.getFragment() != null) {
+            throw new RuntimeException("Already have a fragment.");
+        }
+        uri = new URI(uri.toString().replaceFirst("^.*#?", "") + "#" + fragment);
+    }
+
+    public String getQueryString() throws URISyntaxException {
+        return uri.getQuery();
+    }
+
+    public String toString() {
+        return uri.toString();
+    }
+
+    public URI buildUrl() throws URISyntaxException {
+        return uri;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Connection {
+    private String baseUri;
+
+    public Connection(String baseUri) {
+        this.baseUri = baseUri;
+    }
+
+    public URI getBaseUri() {
+        return new URI(baseUri);
+    }
+}
+
+public class KeyVal {
+    public static KeyVal newKeyVal(String key, String value) {
+        return new KeyVal(key, value);
+    }
+
+    private final String key;
+    private final String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+}
+
+public class UrlBuilder {
+    private String query;
+
+    public UrlBuilder(String baseUri) throws URISyntaxException {
+        this.query = baseUri.split("\\?")[1];
+    }
+
+    public UrlBuilder appendKeyVal(KeyVal kv) throws UnsupportedEncodingException, URISyntaxException {
+        if (query == null) {
+            query = kv.key;
+        } else {
+            query += "&" + kv.key;
+        }
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return baseUri.split("\\?")[0] + "?" + query;
+    }
+}
+```
+
+Note: I have used `UnsupportedEncodingException` in the `UrlBuilder` class, but it is not actually used anywhere. If you want to include it in the code, you would need to use it for encoding the key-value pairs in the URL.
+===================================================
+
+
+====================== Iteration #6 ======================

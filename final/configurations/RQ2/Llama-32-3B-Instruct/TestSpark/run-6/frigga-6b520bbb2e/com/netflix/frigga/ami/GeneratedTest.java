@@ -1,0 +1,110 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameValidAmarthVersion() {
+        String amiName = "amarth-1234567890";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion);
+        assertTrue(appVersion.getPackageName().equals("com.netflix.apt"));
+        assertTrue(appVersion.getVersion().equals("1.0"));
+    }
+
+    @Test
+    public void parseNameInvalidFormat() {
+        String amiName = "invalid-ami-name";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void compareSameVersion() {
+        AppVersion appVersion1 = AppVersion.parseName("amarth-1234567890");
+        AppVersion appVersion2 = AppVersion.parseName("amarth-1234567890");
+        assertEquals(0, appVersion1.compareTo(appVersion2));
+    }
+
+    @Test
+    public void compareDifferentVersions() {
+        AppVersion appVersion1 = AppVersion.parseName("amarth-1234567890");
+        AppVersion appVersion2 = AppVersion.parseName("amarth-9876543210");
+        assertTrue(appVersion1.compareTo(appVersion2) < 0);
+    }
+
+    @Test
+    public void getAppVersionPattern() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        assertTrue(pattern.matcher("amarth-1234567890").find());
+    }
+
+    @Test
+    public void getPackageName() {
+        AppVersion appVersion = AppVersion.parseName("amarth-1234567890");
+        assertNotNull(appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersion() {
+        AppVersion appVersion = AppVersion.parseName("amarth-1234567890");
+        assertNotNull(appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobName() {
+        AppVersion appVersion = AppVersion.parseName("amarth-1234567890");
+        assertNotNull(appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumber() {
+        AppVersion appVersion = AppVersion.parseName("amarth-1234567890");
+        assertNotNull(appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommit() {
+        AppVersion appVersion = AppVersion.parseName("amarth-1234567890");
+        assertNotNull(appVersion.getCommit());
+    }
+
+    @Test
+    public void getChangelistDeprecated() {
+        @Deprecated
+        AppVersion appVersion = AppVersion.parseName("amarth-1234567890");
+        assertNull(appVersion.getChangelist());
+    }
+
+    @Test
+    public void toStringValidFormat() {
+        AppVersion appVersion = AppVersion.parseName("amarth-1234567890");
+        assertNotNull(appVersion.toString());
+    }
+
+    @Test
+    public void equalsSameObject() {
+        AppVersion appVersion1 = AppVersion.parseName("amarth-1234567890");
+        assertEquals(appVersion1, appVersion1);
+    }
+
+    @Test
+    public void hashCodeDifferentObjects() {
+        AppVersion appVersion1 = AppVersion.parseName("amarth-1234567890");
+        AppVersion appVersion2 = AppVersion.parseName("amarth-9876543210");
+        assertNotEquals(appVersion1.hashCode(), appVersion2.hashCode());
+    }
+
+    @Test
+    public void equalsSameInstance() {
+        AppVersion appVersion1 = new AppVersion();
+        assertEquals(appVersion1, appVersion1);
+    }
+
+}

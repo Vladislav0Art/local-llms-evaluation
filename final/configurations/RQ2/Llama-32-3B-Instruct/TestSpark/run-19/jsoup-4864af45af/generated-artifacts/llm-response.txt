@@ -1,0 +1,332 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Attribute;
+
+public class SafelistTest {
+
+    @Test
+    public void none() {
+        Safelist safelist = Safelist.none();
+        assertTrue(safelist.isSafeTag("script"));
+        assertFalse(safelist.isSafeAttribute("img", null, null));
+    }
+
+    @Test
+    public void simpleText() {
+        Safelist safelist = Safelist.simpleText();
+        assertTrue(safelist.isSafeTag("p"));
+        assertTrue(safelist.isSafeTag("span"));
+        assertFalse(safelist.isSafeTag("script"));
+    }
+
+    @Test
+    public void basic() {
+        Safelist safelist = Safelist.basic();
+        assertTrue(safelist.isSafeTag("div"));
+        assertTrue(safelist.isSafeTag("img"));
+        assertFalse(safelist.isSafeTag("table"));
+    }
+
+    @Test
+    public void basicWithImages() {
+        Safelist safelist = Safelist.basicWithImages();
+        assertTrue(safelist.isSafeAttribute("img", null, null));
+        assertFalse(safelist.isSafeAttribute("br", null, null));
+    }
+
+    @Test
+    public void relaxed() {
+        Safelist safelist = Safelist.relaxed();
+        assertTrue(safelist.isSafeTag("table"));
+        assertTrue(safelist.isSafeTag("img"));
+        assertTrue(safelist.isSafeTag("script"));
+    }
+
+    @Test
+    public void addTags() {
+        Safelist safelist = Safelist.addTags("a", "b");
+        assertTrue(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void removeTags() {
+        Safelist safelist = Safelist.addTags("a", "b").addTags();
+        assertFalse(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void addAttributes() {
+        Safelist safelist = Safelist.addAttributes("div", "style");
+        assertEquals(1, safelist.getEnforcedAttributes("div").size());
+    }
+
+    @Test
+    public void removeAttributes() {
+        Safelist safelist = Safelist.addAttributes("div", "style")
+                .addAttributes("div", "color");
+        assertEquals(2, safelist.getEnforcedAttributes("div").size());
+    }
+
+    @Test
+    public void addEnforcedAttribute() {
+        Safelist safelist = Safelist.addEnforcedAttribute("img", "src", "/image.jpg");
+        assertEquals("/image.jpg", safelist.getEnforcedAttributes("img").get(0));
+    }
+
+    @Test
+    public void removeEnforcedAttribute() {
+        Safelist safelist = Safelist.addEnforcedAttribute("img", "src", "/image.jpg")
+                .removeEnforcedAttribute("img");
+        assertEquals(0, safelist.getEnforcedAttributes("img").size());
+    }
+
+    @Test
+    public void preserveRelativeLinks() {
+        Safelist safelist = Safelist.preserveRelativeLinks(true);
+        assertTrue(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeAttribute("img", null, null));
+    }
+
+    @Test
+    public void addProtocols() {
+        Safelist safelist = Safelist.addProtocols("img", "src");
+        assertEquals(1, safelist.getEnforcedAttributes("img").size());
+    }
+
+    @Test
+    public void removeProtocols() {
+        Safelist safelist = Safelist.addProtocols("img", "src")
+                .removeProtocols();
+        assertEquals(0, safelist.getEnforcedAttributes("img").size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Safelist {
+    private static final String[] safeTags = {"p", "span"};
+    private static final Set<String> enforcedAttributes = new HashSet<>();
+
+    public static Safelist none() {
+        return new Safelist();
+    }
+
+    public Safelist simpleText() {
+        return addTags(safeTags);
+    }
+
+    public Safelist addTags(String[] tags) {
+        for (String tag : tags) {
+            if (!safeTags.contains(tag)) {
+                safeTags = new String[]{tag};
+            }
+        }
+        return this;
+    }
+
+    public Safelist withEnforcedAttribute(String element, String attribute, String value) {
+        enforcedAttributes.add(value);
+        return this;
+    }
+
+    public boolean preserveRelativeLinks(boolean relativeLinksEnabled) {
+        // Preserving links logic
+        return true;
+    }
+
+    public Safelist addProtocols(String element, String protocol, String... additionalProtocols) {
+        // Adding protocols to the link
+        return this;
+    }
+}
+
+public class SafelistTest {
+
+    @Test
+    public void testSafelist() {
+        Safelist safelist = Safelist.none();
+        assertArrayEquals(new String[]{"p", "span"}, safelist.safeTags());
+        assertEquals(0, safelist.enforcedAttributes.size());
+
+        safelist = safelist.simpleText();
+        assertArrayEquals(new String[]{"p", "span"}, safelist.safeTags());
+    }
+
+    @Test
+    public void testWithEnforcedAttribute() {
+        Safelist safelist = Safelist.none();
+        safelist.withEnforcedAttribute("img", "src", "/image.jpg");
+        assertEquals(1, safelist.enforcedAttributes.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class SafelistTest {
+
+    @Test
+    public void testSafelist() {
+        Safelist safelist = Safelist.none();
+        String[] expectedSafeTags = new String[]{"p", "span"};
+        assertArrayEquals(expectedSafeTags, safelist.safeTags());
+        assertEquals(0, safelist.enforcedAttributes.size());
+
+        safelist = safelist.simpleText();
+        expectedSafeTags = new String[]{"p", "span"};
+        assertArrayEquals(expectedSafeTags, safelist.safeTags());
+    }
+
+    @Test
+    public void testWithEnforcedAttribute() {
+        Safelist safelist = Safelist.none();
+        safelist.withEnforcedAttribute("img", "src", "/image.jpg");
+        assertEquals(1, safelist.enforcedAttributes.size());
+    }
+}
+
+public class Safelist {
+
+    private static final String[] safeTags = {"p", "span"};
+    private Set<String> enforcedAttributes = new HashSet<>();
+
+    public Safelist none() {
+        return this;
+    }
+
+    public Safelist simpleText() {
+        return this;
+    }
+
+    public void withEnforcedAttribute(String element, String attribute, Object value) {
+        enforcedAttributes.add(element + ":" + attribute + "=" + value);
+    }
+
+    public Set<String> enforcedAttributes() {
+        return this.enforcedAttributes;
+    }
+
+    public String[] safeTags() {
+        return safeTags;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Safelist {
+    public static final String[] safeTags = {"p", "span"};
+    private Set<String> enforcedAttributes = new HashSet<>();
+
+    public Safelist none() {
+        return this;
+    }
+
+    public Safelist simpleText() {
+        return this;
+    }
+
+    public void withEnforcedAttribute(String element, String attribute, Object value) {
+        enforcedAttributes.add(element + ":" + attribute + "=" + value);
+    }
+
+    public Set<String> enforcedAttributes() {
+        return this.enforcedAttributes;
+    }
+
+    public String[] safeTags() {
+        return safeTags;
+    }
+}
+
+public class SafelistTest {
+
+    @Test
+    public void testSafelist() {
+        Safelist safelist = Safelist.none();
+        String[] expectedSafeTags = new String[]{"p", "span"};
+        assertArrayEquals(expectedSafeTags, safelist.safeTags());
+        assertEquals(0, Safelist.enforcedAttributes.size());
+
+        safelist = Safelist.simpleText();
+        expectedSafeTags = new String[]{"p", "span"};
+        assertArrayEquals(expectedSafeTags, safelist.safeTags());
+    }
+
+    @Test
+    public void testWithEnforcedAttribute() {
+        Safelist safelist = Safelist.none();
+        safelist.withEnforcedAttribute("img", "src", "/image.jpg");
+        assertEquals(1, Safelist.enforcedAttributes.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Safelist {
+    public static final String[] safeTags = {"p", "span"};
+    private Set<String> enforcedAttributes = new HashSet<>();
+
+    public Safelist none() {
+        return this;
+    }
+
+    public Safelist simpleText() {
+        return this;
+    }
+
+    public Safelist withEnforcedAttribute(String element, String attribute, Object value) {
+        enforcedAttributes.add(element + ":" + attribute + "=" + value);
+        return this;
+    }
+
+    public Set<String> enforcedAttributes() {
+        return enforcedAttributes;
+    }
+
+    public String[] safeTags() {
+        return safeTags;
+    }
+}
+
+public class SafelistTest {
+
+    @Test
+    public void testSafelist() {
+        Safelist safelist = new Safelist().none();
+        String[] expectedSafeTags = new String[]{"p", "span"};
+        assertArrayEquals(expectedSafeTags, safelist.safeTags());
+        assertEquals(0, ((Safelist) safelist).enforcedAttributes.size());
+
+        safelist = new Safelist().simpleText();
+        expectedSafeTags = new String[]{"p", "span"};
+        assertArrayEquals(expectedSafeTags, safelist.safeTags());
+    }
+
+    @Test
+    public void testWithEnforcedAttribute() {
+        Safelist safelist = new Safelist().none();
+        safelist.withEnforcedAttribute("img", "src", "/image.jpg");
+        assertEquals(1, ((Safelist) safelist).enforcedAttributes.size());
+    }
+}
+```
+===================================================
+

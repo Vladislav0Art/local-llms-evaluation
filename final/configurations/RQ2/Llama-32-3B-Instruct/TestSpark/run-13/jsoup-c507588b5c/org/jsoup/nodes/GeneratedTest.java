@@ -1,0 +1,215 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeCreatedWithText_ReturnsTextNode() {
+        // Given
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // When
+        // Then
+        assertNotNull(textNode);
+    }
+
+    @Test
+    public void nodeNameReturnsCorrectName() {
+        // Given
+        TextNode textNode = new TextNode("example");
+
+        // When
+        String nodeName = textNode.nodeName();
+
+        // Then
+        assertEquals("text", nodeName);
+    }
+
+    @Test
+    public void textReturnsTextNodeText() {
+        // Given
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // When
+        String textValue = textNode.text();
+
+        // Then
+        assertEquals(text, textValue);
+    }
+
+    @Test
+    public void textSetsTextNodeText() {
+        // Given
+        TextNode textNode = new TextNode();
+        String newText = "New Text";
+        textNode.text(newText);
+
+        // When
+        String textValue = textNode.text();
+
+        // Then
+        assertEquals(newText, textValue);
+    }
+
+    @Test
+    public void getWholeTextReturnsTextNodeText() {
+        // Given
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // When
+        String wholeText = textNode.getWholeText();
+
+        // Then
+        assertEquals(text, wholeText);
+    }
+
+    @Test
+    public void isBlankReturnsTrueForEmptyTextNode() {
+        // Given
+        TextNode textNode = new TextNode("");
+
+        // When
+        boolean isEmpty = textNode.isBlank();
+
+        // Then
+        assertTrue(isEmpty);
+    }
+
+    @Test
+    public void isBlankReturnsFalseForNonEmptyTextNode() {
+        // Given
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // When
+        boolean isEmpty = textNode.isBlank();
+
+        // Then
+        assertFalse(isEmpty);
+    }
+
+    @Test
+    public void splitTextSplitsTextNodeAtGivenOffset() throws IOException {
+        // Given
+        String text = "Hello World";
+        int offset = 5;
+        TextNode textNode = new TextNode(text);
+
+        // When
+        String[] splits = textNode.splitText(offset).text().split(" ", 1);
+
+        // Then
+        assertEquals(new String[]{text.substring(0, offset), text.substring(offset)}, splits);
+    }
+
+    @Test
+    public void outerHtmlHeadAppendsTextNodeToAppendable() throws IOException {
+        // Given
+        StringBuilder appendable = new StringBuilder();
+        int depth = 1;
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+
+        // When
+        TextNode textNode = new TextNode("example");
+        textNode.outerHtmlHead(appendable, depth, outputSettings);
+
+        // Then
+        assertEquals("html>body><p>example</p></body>", appendable.toString());
+    }
+
+    @Test
+    public void outerHtmlTailAppendsTextNodeToAppendable() {
+        // Given
+        StringBuilder appendable = new StringBuilder();
+        int depth = 1;
+
+        // When
+        TextNode textNode = new TextNode("example");
+        textNode.outerHtmlTail(appendable, depth, new Document.OutputSettings());
+
+        // Then
+        assertEquals("<p>example</p>", appendable.toString());
+    }
+
+    @Test
+    public void toStringReturnsTextNodeText() {
+        // Given
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // When
+        String toStringValue = textNode.toString();
+
+        // Then
+        assertEquals(text, toStringValue);
+    }
+
+    @Test
+    public void cloneCreatesNewTextNodeWithSameText() {
+        // Given
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // When
+        TextNode clonedTextNode = textNode.clone();
+
+        // Then
+        assertEquals(text, clonedTextNode.text());
+    }
+
+    @Test
+    public void createFromEncodedCreatesTextNodeWithCorrectText() {
+        // Given
+        String encodedText = "Hello World";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+
+        // When
+        String textValue = textNode.text();
+
+        // Then
+        assertEquals(encodedText, textValue);
+    }
+
+    @Test
+    public void normaliseWhitespaceReturnsCorrectlyNormalisedText() {
+        // Given
+        String text = "   Hello World   ";
+        String expectedText = "Hello World";
+        StringBuilder sb = new StringBuilder(text);
+
+        // When
+        String normalisedText = TextNode.normaliseWhitespace(sb.toString());
+
+        // Then
+        assertEquals(expectedText, normalisedText);
+    }
+
+    @Test
+    public void stripLeadingWhitespaceReturnsCorrectlyStripedText() {
+        // Given
+        String text = "   Hello World   ";
+        String expectedText = "Hello World";
+        StringBuilder sb = new StringBuilder(text);
+
+        // When
+        String strippedText = TextNode.stripLeadingWhitespace(sb.toString());
+
+        // Then
+        assertEquals(expectedText, strippedText);
+    }
+
+    @Test
+    public void lastCharIsWhitespaceReturnsFalseForNonWhitespaceLastCharacter() {
+        // Given
+        StringBuilder sb = new StringBuilder("Hello World");
+
+        // When
+        boolean result = TextNode.lastCharIsWhitespace(sb);
+
+        // Then
+        assertFalse(result);
+    }
+
+}

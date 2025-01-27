@@ -1,0 +1,80 @@
+package org.davidmoten.text.utils;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderReturnsBuilder() {
+        Reader reader = new ByteArrayInputStream("Hello World!".getBytes(StandardCharsets.UTF_8));
+        Preconditions.checkState(WordWrap.from(reader).isPresent());
+    }
+
+    @Test
+    public void fromClasspathUtf8ReturnsBuilder() {
+        String resource = "Hello World!";
+        Preconditions.checkState(WordWrap.fromClasspathUtf8(resource).isPresent());
+    }
+
+    @Test
+    public void fromClasspathUtf8BuilderHasMaxWidthProperty() {
+        String resource = "Hello World!";
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8(resource);
+        Preconditions.checkState(builder.maxWidth().orElseThrow());
+    }
+
+    @Test
+    public void wordWrapReaderWriterReturnsNoLines() throws IOException {
+        Reader in = new ByteArrayInputStream("This is a very long string that will be wrapped.".getBytes(StandardCharsets.UTF_8));
+        Writer out = new ByteArrayOutputStream();
+        Set<Character> extraWordChars = new HashSet<>();
+        String newLine = "\n";
+        Number maxWidth = 20L;
+        Function<? super CharSequence, ? extends Number> stringWidth = s -> s.length();
+        boolean insertHyphens = false;
+        boolean breakWords = true;
+        WordWrap.wordWrap(in, out, newLine, maxWidth, stringWidth, extraWordChars, insertHyphens, breakWords);
+        assertEquals(0, out.size());
+    }
+
+    @Test
+    public void wordWrapReaderLineConsumerReturnsLines() throws IOException {
+        Reader in = new ByteArrayInputStream("This is a very long string that will be wrapped.".getBytes(StandardCharsets.UTF_8));
+        StringBuilder lineConsumer = new StringBuilder();
+        Set<Character> extraWordChars = new HashSet<>();
+        String newLine = "\n";
+        Number maxWidth = 20L;
+        Function<? super CharSequence, ? extends Number> stringWidth = s -> s.length();
+        boolean insertHyphens = false;
+        boolean breakWords = true;
+        WordWrap.wordWrap(in, lineConsumer, newLine, maxWidth, stringWidth, extraWordChars, insertHyphens, breakWords);
+        assertEquals(1, lineConsumer.length());
+    }
+
+    @Test
+    public void fromUtf8InputStreamReturnsBuilder() {
+        InputStream in = new ByteArrayInputStream("Hello World!".getBytes(StandardCharsets.UTF_8));
+        Preconditions.checkState(WordWrap.from(in).isPresent());
+    }
+
+    @Test
+    public void rightTrimTrimsWhitespaceFromEnd() {
+        CharSequence s = "Hello   World!";
+        Preconditions.checkState(rightTrim(s).toString().equals("Hello World!"));
+    }
+
+    @Test
+    public void isWhitespaceReturnsFalseForNonWhitespaceChar() {
+        CharSequence s = "H";
+        Preconditions.checkState(!isWhitespace(s));
+    }
+}
+
+}

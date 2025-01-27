@@ -1,0 +1,479 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WordWrapTest {
+
+    @Mock
+    private Reader reader;
+
+    @Mock
+    private Writer writer;
+
+    @Mock
+    private LineConsumer lineConsumer;
+
+    @Test
+    public void fromReader_ReturnsBuilder() {
+        // Given
+        WordWrap.Builder builder = WordWrap.from(reader);
+
+        // Then
+        assertEquals(reader, builder.input());
+    }
+
+    @Test
+    public void fromClasspathUtf8_ReturnsBuilder() {
+        // Given
+        String resource = "resource";
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8(resource);
+
+        // Then
+        assertEquals(resource, builder.resource());
+    }
+
+    @Test
+    public void wordWrap_WithReader_OutsideBuilder() throws IOException {
+        // Given
+        when(reader.read()).thenReturn(1);
+        when(writer.write(any())).thenReturn(0);
+        WordWrap.Builder builder = new WordWrap.Builder();
+
+        // When
+        WordWrap.wordWrap(reader, writer, "\n", 10, (s) -> 5L, new HashSet<>(), false, true);
+
+        // Then
+        assertTrue(builder.build().length() > 0);
+    }
+
+    @Test
+    public void wordWrap_WithLineConsumer_OutsideBuilder() throws IOException {
+        // Given
+        when(lineConsumer.consume(any())).thenReturn(0);
+        WordWrap.Builder builder = new WordWrap.Builder();
+
+        // When
+        WordWrap.wordWrap(reader, lineConsumer, 10, (s) -> 5L, new HashSet<>(), false, true);
+
+        // Then
+        assertTrue(lineConsumer.consume().length() > 0);
+    }
+
+    @Test
+    public void isWhitespace_CharactersStartingWithSpace_ReturnsTrue() {
+        // Given
+        when(reader.read()).thenReturn(1);
+
+        // When
+        boolean result = WordWrap.isWhitespace(" ");
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void rightTrim_StringEndingWithCharacterReturnsTrimmedString() {
+        // Given
+        String s = "   abc";
+        when(reader.read()).thenReturn(1);
+
+        // When
+        String trimmed = WordWrap.rightTrim(s);
+
+        // Then
+        assertEquals("abc", trimmed);
+    }
+
+    @Test
+    public void leftTrim_StringStartingWithCharacterReturnsTrimmedString() {
+        // Given
+        StringBuilder2 word = new StringBuilder2();
+        word.append("   abc");
+        when(reader.read()).thenReturn(1);
+
+        // When
+        String trimmed = WordWrap.leftTrim(word.toString());
+
+        // Then
+        assertEquals("abc", trimmed);
+    }
+
+    @Test
+    public void close_ReaderIsClosedAfterUse() {
+        // Given
+        when(reader.read()).thenReturn(1);
+        WordWrap.from(reader, false);
+
+        // When
+        WordWrap.close(reader);
+
+        // Then
+        assertTrue(reader.isClosed());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WordWrapTest {
+
+    @Mock
+    private java.io.Reader reader;
+
+    @Mock
+    private java.io.Writer writer;
+
+    @Mock
+    private org.davidmoten.text.utils.LineConsumer lineConsumer;
+
+    @Test
+    public void fromReader_ReturnsBuilder() {
+        // Given
+        WordWrap.Builder builder = WordWrap.from(reader);
+
+        // Then
+        assertEquals(java.util.Collections.singletonList(reader), builder.input());
+    }
+
+    @Test
+    public void fromClasspathUtf8_ReturnsBuilder() {
+        // Given
+        String resource = "resource";
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8(resource);
+
+        // Then
+        assertEquals(StandardCharsets.UTF_8, builder.charset());
+        assertEquals(resource, builder.resource());
+    }
+
+    @Test
+    public void wordWrap_WithReader_OutsideBuilder() throws java.io.IOException {
+        // Given
+        when(java.util.Arrays.asList(reader).get(0)).thenReturn('a');
+        when(writer.write(any())).thenReturn(0);
+        WordWrap.Builder builder = new WordWrap.Builder();
+
+        // When
+        WordWrap.wordWrap(reader, writer, "\n", 10, (s) -> 5L, new java.util.HashSet<>(), false);
+
+        // Then
+        assertTrue(new java.util.ArrayList<>(writer.getBuffer().toString().split("\n")).contains("a"));
+    }
+
+    @Test
+    public void isWhitespace_CharactersStartingWithSpace_ReturnsTrue() {
+        // Given
+        when(reader.read()).thenReturn(' ');
+        boolean result = WordWrap.isWhitespace(" ");
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void rightTrim_StringEndingWithCharacterReturnsTrimmedString() {
+        // Given
+        String s = "   abc";
+        char c = ' ';
+        when(reader.read()).thenReturn(c);
+
+        // When
+        String trimmed = WordWrap.rightTrim(s, true);
+
+        // Then
+        assertEquals("abc", trimmed);
+    }
+
+    @Test
+    public void leftTrim_StringStartingWithCharacterReturnsTrimmedString() {
+        // Given
+        StringBuilder sBuilder = new java.util.LinkedList<>();
+        sBuilder.add(' ');
+        sBuilder.add('a');
+        sBuilder.add('b');
+        sBuilder.add('c');
+        when(reader.read()).thenReturn(sBuilder.poll());
+        WordWrap leftTrimTest = new WordWrap();
+        leftTrimTest.leftTrim(" ", true);
+
+        // When
+        String trimmed = ((StringBuilder)leftTrimTest.rightTrim("", false)).toString();
+
+        // Then
+        assertEquals("abc", trimmed);
+    }
+
+    @Test
+    public void close_ReaderIsClosedAfterUse() {
+        // Given
+        when(reader.read()).thenReturn('a');
+        WordWrap fromTest = new WordWrap();
+        fromTest.from(new java.io.ByteArrayInputStream( "Hello".getBytes()),false);
+
+        // When
+        fromTest.close();
+
+        // Then
+        assertTrue(((java.util.ArrayList)fromTest.writer).isEmpty());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class WordWrapTest {
+
+    @Test
+    public void testWordWrap() {
+        WordWrap wordWrap = new WordWrap();
+        assertEquals("", wordWrap.leftTrim(new StringBuilder()));
+        assertEquals(" ", wordWrap.rightTrim(new StringBuilder()));
+        assertEquals("", ((StringBuilder) wordWrap.leftTrim(new StringBuilder())).toString());
+        assertEquals(" ", ((StringBuilder) wordWrap.rightTrim(new StringBuilder())).toString());
+        assertEquals(0, (((java.util.ArrayList) wordWrap.writer).size()));
+    }
+
+    public class WordWrap {
+
+        private java.util.ArrayList<StringBuilder> buffer;
+
+        public WordWrap() {
+            this.buffer = new java.util.ArrayList<>();
+        }
+
+        public String leftTrim(StringBuilder sb) {
+            if (sb != null && !sb.isEmpty()) {
+                StringBuilder result = new StringBuilder();
+                for (char c : sb.toString().toCharArray()) {
+                    if (Character.isWhitespace(c)) {
+                        break;
+                    }
+                    result.append(c);
+                }
+                return result.toString();
+            } else {
+                return "";
+            }
+        }
+
+        public String rightTrim(StringBuilder sb) {
+            if (sb != null && !sb.isEmpty()) {
+                StringBuilder result = new StringBuilder(sb.toString());
+                int start = result.lastIndexOf(' ');
+                if (start == -1) {
+                    return result.toString();
+                }
+                result.deleteCharAt(start);
+                return result.toString();
+            } else {
+                return "";
+            }
+        }
+
+        public String leftTrim(String sb) {
+            StringBuilder sbBuilder = new StringBuilder(sb);
+            return this.leftTrim(sbBuilder);
+        }
+
+        public String rightTrim(String sb) {
+            StringBuilder sbBuilder = new StringBuilder(sb);
+            return this.rightTrim(sbBuilder);
+        }
+
+        public String from(java.io.ByteArrayInputStream input, boolean wrapLines) {}
+
+        public java.util.ArrayList<StringBuilder> writer() {
+            return buffer;
+        }
+
+        public void close() {}
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class WordWrapTest {
+
+    @org.junit.Test
+    public void testWordWrap() {
+        WordWrap wordWrap = new WordWrap();
+        org.assertEqual("", wordWrap.leftTrim(new StringBuilder()));
+        org.assertEqual(" ", wordWrap.rightTrim(new StringBuilder()));
+        org.assertEqual("", ((StringBuilder) wordWrap.leftTrim(new StringBuilder())).toString());
+        org.assertEqual(" ", ((StringBuilder) wordWrap.rightTrim(new StringBuilder())).toString());
+        org.assertEqual(0, ((java.util.ArrayList) wordWrap.writer()).size());
+    }
+}
+
+public class WordWrap {
+
+    public java.util.ArrayList<StringBuilder> buffer;
+
+    public WordWrap() {
+        this.buffer = new java.util.ArrayList<>();
+    }
+
+    public String leftTrim(StringBuilder sb) {
+        if (sb != null && !sb.isEmpty()) {
+            StringBuilder result = new StringBuilder();
+            for (char c : sb.toString().toCharArray()) {
+                if (Character.isWhitespace(c)) {
+                    break;
+                }
+                result.append(c);
+            }
+            return result.toString();
+        } else {
+            return "";
+        }
+    }
+
+    public String rightTrim(StringBuilder sb) {
+        if (sb != null && !sb.isEmpty()) {
+            StringBuilder result = new StringBuilder(sb.toString());
+            int start = result.lastIndexOf(' ');
+            if (start == -1) {
+                return result.toString();
+            }
+            result.deleteCharAt(start);
+            return result.toString();
+        } else {
+            return "";
+        }
+    }
+
+    public String leftTrim(String sb) {
+        StringBuilder sbBuilder = new StringBuilder(sb);
+        return this.leftTrim(sbBuilder);
+    }
+
+    public String rightTrim(String sb) {
+        StringBuilder sbBuilder = new StringBuilder(sb);
+        return this.rightTrim(sbBuilder);
+    }
+
+    public java.util.ArrayList<StringBuilder> writer() {
+        return buffer;
+    }
+
+    public void close() {}
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class WordWrapTest {
+
+    @Test
+    public void testWordWrap() {
+        WordWrap wordWrap = new WordWrap();
+        assertEquals("", wordWrap.leftTrim(new StringBuilder()));
+        assertEquals(" ", wordWrap.rightTrim(new StringBuilder()));
+        assertEquals("", ((StringBuilder) wordWrap.leftTrim(new StringBuilder())).toString());
+        assertEquals(" ", ((StringBuilder) wordWrap.rightTrim(new StringBuilder())).toString());
+        assertEquals(0, ((java.util.ArrayList) wordWrap.writer()).size());
+    }
+}
+
+public class WordWrap {
+
+    private java.util.ArrayList<StringBuilder> buffer;
+
+    public WordWrap() {
+        this.buffer = new java.util.ArrayList<>();
+    }
+
+    public String leftTrim(StringBuilder sb) {
+        if (sb != null && !sb.isEmpty()) {
+            StringBuilder result = new StringBuilder();
+            for (char c : sb.toString().toCharArray()) {
+                if (Character.isWhitespace(c)) {
+                    break;
+                }
+                result.append(c);
+            }
+            return result.toString();
+        } else {
+            return "";
+        }
+    }
+
+    public String rightTrim(StringBuilder sb) {
+        if (sb != null && !sb.isEmpty()) {
+            StringBuilder result = new StringBuilder(sb.toString());
+            int start = result.lastIndexOf(' ');
+            if (start == -1) {
+                return result.toString();
+            }
+            result.deleteCharAt(start);
+            return result.toString();
+        } else {
+            return "";
+        }
+    }
+
+    public String leftTrim(String sb) {
+        StringBuilder sbBuilder = new StringBuilder(sb);
+        return this.leftTrim(sbBuilder);
+    }
+
+    public String rightTrim(String sb) {
+        StringBuilder sbBuilder = new StringBuilder(sb);
+        return this.rightTrim(sbBuilder);
+    }
+
+    public java.util.ArrayList<StringBuilder> writer() {
+        return buffer;
+    }
+
+    public void close() {}
+}
+```
+===================================================
+

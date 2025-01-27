@@ -1,0 +1,414 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class AppVersionTest {
+
+    @Mock
+    private Pattern getAppVersionPattern();
+
+    @Mock
+    private NameConstants NameConstants;
+
+    @Test
+    public void parseName_EmptyString_ThrowsNullPointerException() {
+        when(NameConstants.getAppVersionParser()).thenReturn(new Matcher());
+        assertNull(AppVersion.parseName(""));
+    }
+
+    @Test
+    public void parseName_MatchesPattern_ReturnsParsedAppVersion() {
+        Pattern pattern = Pattern.compile("^[a-z]+\\.[a-z]+$");
+        Matcher matcher = new Matcher();
+        when(NameConstants.getAppVersionParser()).thenReturn(matcher);
+        when(pattern.matcher("test.123")).thenReturn(matcher);
+        AppVersion appVersion = AppVersion.parseName("test.123");
+        assertEquals("test", appVersion.getPackageName());
+        assertEquals("123", appVersion.getVersion());
+    }
+
+    @Test
+    public void parseName_MatchesPattern_ReturnsParsedAppVersionWithBuildInfo() {
+        Pattern pattern = Pattern.compile("^[a-z]+\\.[a-z]+-build-[0-9]+$");
+        Matcher matcher = new Matcher();
+        when(NameConstants.getAppVersionParser()).thenReturn(matcher);
+        when(pattern.matcher("test.123-build-456")).thenReturn(matcher);
+        AppVersion appVersion = AppVersion.parseName("test.123-build-456");
+        assertEquals("test", appVersion.getPackageName());
+        assertEquals("123", appVersion.getVersion());
+        assertEquals("build-456", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void parseName_DoesNotMatchPattern_ReturnsNull() {
+        Pattern pattern = Pattern.compile("^[a-z]+\\.[a-z]+$");
+        Matcher matcher = new Matcher();
+        when(NameConstants.getAppVersionParser()).thenReturn(matcher);
+        when(pattern.matcher("invalid.abc")).thenReturn(matcher);
+        AppVersion appVersion = AppVersion.parseName("invalid.abc");
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void compareVersions_DifferentBuildNumbers_ReturnsNegativeInt() {
+        AppVersion appVersion1 = new AppVersion("test", "123");
+        AppVersion appVersion2 = new AppVersion("test", "456");
+        int result = appVersion1.compareTo(appVersion2);
+        assertTrue(result < 0);
+    }
+
+    @Test
+    public void compareVersions_SameBuildNumbers_ReturnsZero() {
+        AppVersion appVersion1 = new AppVersion("test", "123");
+        AppVersion appVersion2 = new AppVersion("test", "123");
+        int result = appVersion1.compareTo(appVersion2);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void compareVersions_SamePackageNameAndBuildNumber_ReturnsZero() {
+        AppVersion appVersion1 = new AppVersion("test", "123");
+        AppVersion appVersion2 = new AppVersion("test.456", "123");
+        int result = appVersion1.compareTo(appVersion2);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void getAppVersionPattern_ReturnsAppVersionPattern() {
+        when(getAppVersionPattern()).thenReturn(Pattern.compile("^\\d+\\.\\d+$"));
+        assertEquals(Pattern.compile("^\\d+\\.\\d+$"), getAppVersionPattern());
+    }
+
+    @Test
+    public void getPackageName_ReturnsPackageName() {
+        AppVersion appVersion = new AppVersion("test", "123");
+        assertEquals("test", appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersion_ReturnsVersion() {
+        AppVersion appVersion = new AppVersion("test", "123");
+        assertEquals("123", appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobName_ReturnsBuildJobName() {
+        AppVersion appVersion = new AppVersion("test.123", "build-456");
+        assertEquals("build-456", appVersion.getBuildJobNumber());
+    }
+
+    @Test
+    public void getBuildNumber_ReturnsBuildNumber() {
+        AppVersion appVersion = new AppVersion("test.123", "build-456");
+        assertEquals("456", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommit_ReturnsCommit() {
+        AppVersion appVersion = new AppVersion("test.123", "commit-789");
+        assertEquals("789", appVersion.getCommit());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class AppVersion {
+    private String version;
+    private String buildJobNumber;
+
+    public AppVersion(String version, String buildJobNumber) {
+        this.version = version;
+        this.buildJobNumber = buildJobNumber;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getBuildJobNumber() {
+        return buildJobNumber;
+    }
+}
+
+public class AppVersionComparator implements Comparator<AppVersion> {
+
+    @Override
+    public int compare(AppVersion o1, AppVersion o2) {
+        if (o1.getBuildJobNumber().equals(o2.getBuildJobNumber())) {
+            return o1.getVersion().compareTo(o2.getVersion());
+        } else {
+            return o1.getBuildJobNumber().compareTo(o2.getBuildJobNumber());
+        }
+    }
+}
+
+public class TestAppVersion {
+
+    @Test
+    public void testCompare() {
+        AppVersion appVersion1 = new AppVersion("test", "build-456");
+        AppVersion appVersion2 = new AppVersion("test", "build-789");
+
+        AppVersionComparator comparator = new AppVersionComparator();
+        int compareResult = comparator.compare(appVersion1, appVersion2);
+        assertEquals(-1, compareResult);
+
+        appVersion1 = new AppVersion("test", "build-456");
+        appVersion2 = new AppVersion("test.123", "build-456");
+
+        compareResult = comparator.compare(appVersion1, appVersion2);
+        assertEquals(0, compareResult);
+
+        appVersion1 = new AppVersion("test", "build-456");
+        appVersion2 = new AppVersion("test", "commit-789");
+
+        compareResult = comparator.compare(appVersion1, appVersion2);
+        assertEquals(-1, compareResult);
+    }
+
+    @Test
+    public void testCreateAppVersion() {
+        AppVersion appVersion = new AppVersion("test.123", "build-456");
+        assertEquals("test.123", appVersion.getVersion());
+        assertEquals("build-456", appVersion.getBuildJobNumber());
+
+        appVersion = new AppVersion("test.789", "commit-789");
+        assertEquals("test.789", appVersion.getVersion());
+        assertEquals("commit-789", appVersion.getBuildJobNumber());
+    }
+
+    @Test
+    public void testEqualsMethod() {
+        AppVersion appVersion1 = new AppVersion("test", "build-456");
+        AppVersion appVersion2 = new AppVersion("test", "build-456");
+
+        assertTrue(appVersion1.equals(appVersion2));
+
+        appVersion1 = new AppVersion("test", "build-456");
+        AppVersion appVersion3 = new AppVersion("test.123", "build-456");
+
+        assertFalse(appVersion1.equals(appVersion3));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class AppVersion {
+    private String version;
+    private String buildJobNumber;
+
+    public AppVersion(String version, String buildJobNumber) {
+        this.version = version;
+        this.buildJobNumber = buildJobNumber;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getBuildJobNumber() {
+        return buildJobNumber;
+    }
+}
+
+public class AppVersionComparator implements Comparator<AppVersion> {
+
+    @Override
+    public int compare(AppVersion o1, AppVersion o2) {
+        if (o1.getBuildJobNumber().equals(o2.getBuildJobNumber())) {
+            return o1.getVersion().compareTo(o2.getVersion());
+        } else {
+            return o1.getBuildJobNumber().compareTo(o2.getBuildJobNumber());
+        }
+    }
+
+    public static boolean compare(AppVersion o1, AppVersion o2) {
+        if (o1.getBuildJobNumber().equals(o2.getBuildJobNumber())) {
+            return o1.getVersion().compareTo(o2.getVersion()) < 0;
+        } else {
+            return o1.getBuildJobNumber().compareTo(o2.getBuildJobNumber()) < 0;
+        }
+    }
+
+    public static boolean equals(AppVersion o1, AppVersion o2) {
+        if (o1.getBuildJobNumber().equals(o2.getBuildJobNumber())) {
+            return o1.getVersion().equals(o2.getVersion());
+        } else {
+            return false;
+        }
+    }
+}
+
+public class TestAppVersion {
+
+    @org.junit.Test
+    public void testCompare() {
+        AppVersion appVersion1 = new AppVersion("test", "build-456");
+        AppVersion appVersion2 = new AppVersion("test", "build-789");
+
+        AppVersionComparator comparator = new AppVersionComparator();
+        int compareResult = comparator.compare(appVersion1, appVersion2);
+        assertTrue(compareResult < 0);
+
+        appVersion1 = new AppVersion("test", "build-456");
+        appVersion2 = new AppVersion("test.123", "build-456");
+
+        compareResult = comparator.compare(appVersion1, appVersion2);
+        assertEquals(0, compareResult);
+
+        appVersion1 = new AppVersion("test", "build-456");
+        appVersion2 = new AppVersion("test", "commit-789");
+
+        compareResult = comparator.compare(appVersion1, appVersion2);
+        assertTrue(compareResult < 0);
+    }
+
+    @org.junit.Test
+    public void testCreateAppVersion() {
+        AppVersion appVersion = new AppVersion("test.123", "build-456");
+        assertEquals("test.123", appVersion.getVersion());
+        assertEquals("build-456", appVersion.getBuildJobNumber());
+
+        appVersion = new AppVersion("test.789", "commit-789");
+        assertEquals("test.789", appVersion.getVersion());
+        assertEquals("commit-789", appVersion.getBuildJobNumber());
+    }
+
+    @org.junit.Test
+    public void testEqualsMethod() {
+        AppVersion appVersion1 = new AppVersion("test", "build-456");
+        AppVersion appVersion2 = new AppVersion("test", "build-456");
+
+        assertTrue(AppVersionComparator.equals(appVersion1, appVersion2));
+
+        appVersion1 = new AppVersion("test", "build-456");
+        AppVersion appVersion3 = new AppVersion("test.123", "build-456");
+
+        assertFalse(AppVersionComparator.equals(appVersion1, appVersion3));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class AppVersion {
+    private String version;
+    private String buildJobNumber;
+
+    public AppVersion(String version, String buildJobNumber) {
+        this.version = version;
+        this.buildJobNumber = buildJobNumber;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getBuildJobNumber() {
+        return buildJobNumber;
+    }
+}
+
+public class AppVersionComparator implements Comparator<AppVersion> {
+
+    @Override
+    public int compare(AppVersion o1, AppVersion o2) {
+        if (o1.getBuildJobNumber().equals(o2.getBuildJobNumber())) {
+            return o1.getVersion().compareTo(o2.getVersion());
+        } else {
+            return o1.getBuildJobNumber().compareTo(o2.getBuildJobNumber());
+        }
+    }
+
+    public static boolean compare(AppVersion o1, AppVersion o2) {
+        if (o1.getBuildJobNumber().equals(o2.getBuildJobNumber())) {
+            return o1.getVersion().compareTo(o2.getVersion()) < 0;
+        } else {
+            return o1.getBuildJobNumber().compareTo(o2.getBuildJobNumber()) < 0;
+        }
+    }
+
+    public static boolean equals(AppVersion o1, AppVersion o2) {
+        if (o1.getBuildJobNumber().equals(o2.getBuildJobNumber())) {
+            return o1.getVersion().equals(o2.getVersion());
+        } else {
+            return false;
+        }
+    }
+}
+
+public class TestAppVersion {
+
+    @org.junit.Test
+    public void testCompare() {
+        AppVersion appVersion1 = new AppVersion("test", "build-456");
+        AppVersion appVersion2 = new AppVersion("test", "build-789");
+
+        AppVersionComparator comparator = new AppVersionComparator();
+        int compareResult = comparator.compare(appVersion1, appVersion2);
+        assertTrue(compareResult < 0);
+
+        appVersion1 = new AppVersion("test", "build-456");
+        appVersion2 = new AppVersion("test.123", "build-456");
+
+        compareResult = comparator.compare(appVersion1, appVersion2);
+        assertEquals(0, compareResult);
+
+        appVersion1 = new AppVersion("test", "build-456");
+        appVersion2 = new AppVersion("test", "commit-789");
+
+        compareResult = comparator.compare(appVersion1, appVersion2);
+        assertTrue(compareResult < 0);
+    }
+
+    @org.junit.Test
+    public void testCreateAppVersion() {
+        AppVersion appVersion = new AppVersion("test.123", "build-456");
+        assertEquals("test.123", appVersion.getVersion());
+        assertEquals("build-456", appVersion.getBuildJobNumber());
+
+        appVersion = new AppVersion("test.789", "commit-789");
+        assertEquals("test.789", appVersion.getVersion());
+        assertEquals("commit-789", appVersion.getBuildJobNumber());
+    }
+
+    @org.junit.Test
+    public void testEqualsMethod() {
+        AppVersion appVersion1 = new AppVersion("test", "build-456");
+        AppVersion appVersion2 = new AppVersion("test", "build-456");
+
+        assertTrue(AppVersionComparator.equals(appVersion1, appVersion2));
+
+        appVersion1 = new AppVersion("test", "build-456");
+        AppVersion appVersion3 = new AppVersion("test.123", "build-456");
+
+        assertFalse(AppVersionComparator.equals(appVersion1, appVersion3));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================

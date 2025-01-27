@@ -1,0 +1,128 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(JUnit4Runner.class)
+public class GeneratedTest {
+
+    @Mock
+    private LocalDate forDate;
+
+    @Mock
+    private static double defaultDeltaT;
+
+    public DeltaTTest() {
+        MockitoAnnotations.initMocks(this);
+        when(forDate.getYear()).thenReturn(2022);
+        when(forDate.getMonthValue()).thenReturn(1);
+        when(forDate.getDayOfMonth()).thenReturn(1);
+        when(defaultDeltaT).thenReturn(9.8696);
+    }
+
+    @Test
+    public void estimate_DatesInPast() {
+        // Arrange
+        LocalDate date = LocalDate.of(2022, 1, 1);
+
+        // Act
+        double deltaT = DeltaT.estimate(date);
+
+        // Assert
+        assertTrue(deltaT == defaultDeltaT || deltaT > defaultDeltaT);
+    }
+
+    @Test
+    public void estimate_DatesInFuture() {
+        // Arrange
+        LocalDate date = LocalDate.of(2023, 1, 1);
+
+        // Act
+        double deltaT = DeltaT.estimate(date);
+
+        // Assert
+        assertTrue(deltaT == defaultDeltaT || deltaT > defaultDeltaT);
+    }
+
+    @Test
+    public void estimate_MiddleDates() {
+        // Arrange
+        LocalDate date = LocalDate.of(2022, 6, 15);
+
+        // Act
+        double deltaT = DeltaT.estimate(date);
+
+        // Assert
+        assertTrue(deltaT == defaultDeltaT || deltaT > defaultDeltaT);
+    }
+
+    @Test
+    public void estimate_DatesInLeapYear() {
+        // Arrange
+        LocalDate date = LocalDate.of(2024, 2, 29);
+
+        // Act
+        double deltaT = DeltaT.estimate(date);
+
+        // Assert
+        assertTrue(deltaT == defaultDeltaT || deltaT > defaultDeltaT);
+    }
+
+    @Test
+    public void estimate_DatesAtBeginningOfYear() {
+        // Arrange
+        LocalDate date = LocalDate.of(2022, 1, 31);
+
+        // Act
+        double deltaT = DeltaT.estimate(date);
+
+        // Assert
+        assertTrue(deltaT == defaultDeltaT || deltaT > defaultDeltaT);
+    }
+
+    @Test
+    public void estimate_DatesAtEndOfYear() {
+        // Arrange
+        LocalDate date = LocalDate.of(2022, 12, 31);
+
+        // Act
+        double deltaT = DeltaT.estimate(date);
+
+        // Assert
+        assertTrue(deltaT == defaultDeltaT || deltaT > defaultDeltaT);
+    }
+
+    @Test
+    public void estimate_DatesAtMonthBoundary() {
+        // Arrange
+        LocalDate date = LocalDate.of(2022, 12, 30);
+
+        // Act
+        double deltaT = DeltaT.estimate(date);
+
+        // Assert
+        assertTrue(deltaT == defaultDeltaT || deltaT > defaultDeltaT);
+    }
+
+    @Test
+    public void estimate_DatesAtDayBoundary() {
+        // Arrange
+        LocalDate date = LocalDate.of(2022, 1, 31);
+
+        // Act
+        double deltaT = DeltaT.estimate(date);
+
+        // Assert
+        assertTrue(deltaT == defaultDeltaT || deltaT > defaultDeltaT);
+    }
+
+}

@@ -1,0 +1,200 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.CDataNode;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entities;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.XmlDeclaration;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.Reader;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void defaultSettings_returnCorrectValues() {
+        // Arrange nothing
+        // Act call to the method
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        ParseSettings result = treeBuilder.defaultSettings();
+
+        // Assert that return values are correct
+        Validate.notNull(result);
+    }
+
+    @Test
+    public void initialiseParse_parseDocumentCorrectly() {
+        // Arrange
+        Reader reader = new StringReader("<html><body>Hello World!</body></html>");
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        String baseUri = "http://example.com";
+        Parser parser = new Parser();
+
+        // Act call to the method
+        Document result = treeBuilder.initialiseParse(reader, baseUri, parser);
+
+        // Assert that return values are correct
+        Validate.notNull(result);
+    }
+
+    @Test
+    public void parse_documentFromReaderCorrectly() {
+        // Arrange
+        Reader reader = new StringReader("<html><body>Hello World!</body></html>");
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        String baseUri = "http://example.com";
+
+        // Act call to the method
+        Document result = treeBuilder.parse(reader, baseUri);
+
+        // Assert that return values are correct
+        Validate.notNull(result);
+    }
+
+    @Test
+    public void parse_documentFromStringCorrectly() {
+        // Arrange
+        String input = "<html><body>Hello World!</body></html>";
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        String baseUri = "http://example.com";
+
+        // Act call to the method
+        Document result = treeBuilder.parse(input, baseUri);
+
+        // Assert that return values are correct
+        Validate.notNull(result);
+    }
+
+    @Test
+    public void newInstance_createNewInstanceCorrectly() {
+        // Arrange nothing
+        // Act call to the method
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        XmlTreeBuilder result = treeBuilder.newInstance();
+
+        // Assert that return values are correct
+        Validate.notNull(result);
+    }
+
+    @Test
+    public void process_token_processCorrectly() {
+        // Arrange nothing
+        // Act call to the method
+        Token token = new Token();
+        boolean result = treeBuilder.process(token);
+
+        // Assert that return values are correct
+        Validate.isTrue(result);
+    }
+
+    @Test
+    public void insertNode_insertNodeCorrectly() {
+        // Arrange nothing
+        Node node = new Node();
+        treeBuilder.insertNode(node);
+
+        // Assert that return values are correct
+        Validate.notNull(node);
+    }
+
+    @Test
+    public void insertNode_insertNodeWithTokenInsertCorrectly() {
+        // Arrange nothing
+        Node node = new Node();
+        Token token = new Token();
+        treeBuilder.insertNode(node, token);
+
+        // Assert that return values are correct
+        Validate.notNull(node);
+    }
+
+    @Test
+    public void insert_startTag_insertCorrectly() {
+        // Arrange nothing
+        Token.StartTag startTag = new Token.StartTag();
+        Element result = treeBuilder.insert(startTag);
+
+        // Assert that return values are correct
+        Validate.notNull(result);
+    }
+
+    @Test
+    public void insert_commentInsertCorrectly() {
+        // Arrange nothing
+        Token.Comment commentToken = new Token.Comment();
+        treeBuilder.insert(commentToken);
+
+        // Assert that return values are correct
+        Validate.notNull(commentToken);
+    }
+
+    @Test
+    public void insert_characterInsertCorrectly() {
+        // Arrange nothing
+        Token.Character token = new Token.Character();
+        treeBuilder.insert(token);
+
+        // Assert that return values are correct
+        Validate.notNull(token);
+    }
+
+    @Test
+    public void insert_doctypeInsertCorrectly() {
+        // Arrange nothing
+        Token.Doctype d = new Token.Doctype();
+        treeBuilder.insert(d);
+
+        // Assert that return values are correct
+        Validate.notNull(d);
+    }
+
+    @Test
+    public void popStackToClose_endTag_closeTagCorrectly() {
+        // Arrange nothing
+        Token.EndTag endTag = new Token.EndTag();
+        treeBuilder.popStackToClose(endTag);
+
+        // Assert that return values are correct
+        Validate.isTrue(endTag);
+    }
+
+    @Test
+    public void parseFragment_parseDocumentCorrectly() {
+        // Arrange
+        String inputFragment = "<html><body>Hello World!</body></html>";
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Parser parser = new Parser();
+
+        // Act call to the method
+        List<Node> result = treeBuilder.parseFragment(inputFragment, parser);
+
+        // Assert that return values are correct
+        Validate.notNull(result);
+    }
+
+    @Test
+    public void parseFragment_parseDocumentWithContextCorrectly() {
+        // Arrange
+        String inputFragment = "<html><body>Hello World!</body></html>";
+        Element context = new Element();
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Parser parser = new Parser();
+
+        // Act call to the method
+        List<Node> result = treeBuilder.parseFragment(inputFragment, context, parser);
+
+        // Assert that return values are correct
+        Validate.notNull(result);
+    }
+
+}

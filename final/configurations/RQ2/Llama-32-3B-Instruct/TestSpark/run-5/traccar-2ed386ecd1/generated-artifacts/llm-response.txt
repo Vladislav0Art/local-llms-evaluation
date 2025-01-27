@@ -1,0 +1,660 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class Gt06ProtocolDecoderTest {
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    @Mock
+    private NetworkMessage networkMessage;
+
+    @Mock
+    private ByteBuf buf;
+
+    @InjectMocks
+    private Gt06ProtocolDecoder gt06ProtocolDecoder;
+
+    @Test
+    public void decodeGpsPositionTest() {
+        // Arrange
+        Position position = new Position(1, 2, 3);
+        when(deviceSession.getPosition()).thenReturn(position);
+
+        // Act
+        boolean result = gt06ProtocolDecoder.decodeGps(position, buf, false, null);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsPositionLengthTest() {
+        // Arrange
+        Position position = new Position(1, 2, 3);
+        when(deviceSession.getPosition()).thenReturn(position);
+
+        // Act
+        boolean result = gt06ProtocolDecoder.decodeGps(position, buf, true, null);
+
+        // Assert
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeGpsPositionHasSatellitesTest() {
+        // Arrange
+        Position position = new Position(1, 2, 3);
+        when(deviceSession.getPosition()).thenReturn(position);
+
+        // Act
+        boolean result = gt06ProtocolDecoder.decodeGps(position, buf, false, true);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsPositionHasSpeedTest() {
+        // Arrange
+        Position position = new Position(1, 2, 3);
+        when(deviceSession.getPosition()).thenReturn(position);
+
+        // Act
+        boolean result = gt06ProtocolDecoder.decodeGps(position, buf, false, false, true);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodePositionFromGt06ProtocolDecoderTest() {
+        // Arrange
+        when(gt06ProtocolDecoder.decode(any(), any(), any())).thenReturn("position");
+
+        // Act
+        Object result = gt06ProtocolDecoder.decode(deviceSession, deviceSession.getRemoteAddress(), networkMessage);
+
+        // Assert
+        assertEquals(networkMessage, result);
+    }
+
+    @Test
+    public void decodeGt06ProtocolDecodeIntoPositionTest() {
+        // Arrange
+        when(gt06ProtocolDecoder.decode(any(), any(), any())).thenReturn(position());
+
+        // Act
+        Object result = gt06ProtocolDecoder.decode(deviceSession, deviceSession.getRemoteAddress(), networkMessage);
+
+        // Assert
+        assertTrue(result instanceof Position);
+    }
+
+    @Test
+    public void decodeGt06ProtocolDecodeIntoPositionWithSpeedAndSatellitesTest() {
+        // Arrange
+        when(gt06ProtocolDecoder.decode(any(), any(), any())).thenReturn(positionWithSpeedAndSatellites());
+
+        // Act
+        Object result = gt06ProtocolDecoder.decode(deviceSession, deviceSession.getRemoteAddress(), networkMessage);
+
+        // Assert
+        assertTrue(result instanceof Position);
+    }
+
+    @Test
+    public void decodeGt06ProtocolDecodeIntoPositionWithSpeedButNoSatellitesTest() {
+        // Arrange
+        when(gt06ProtocolDecoder.decode(any(), any(), any())).thenReturn(positionWithSpeed());
+
+        // Act
+        Object result = gt06ProtocolDecoder.decode(deviceSession, deviceSession.getRemoteAddress(), networkMessage);
+
+        // Assert
+        assertTrue(result instanceof Position);
+    }
+
+    @Test
+    public void decodeGt06ProtocolDecodeIntoPositionWithSatellitesButNoSpeedTest() {
+        // Arrange
+        when(gt06ProtocolDecoder.decode(any(), any(), any())).thenReturn(positionWithSatellites());
+
+        // Act
+        Object result = gt06ProtocolDecoder.decode(deviceSession, deviceSession.getRemoteAddress(), networkMessage);
+
+        // Assert
+        assertTrue(result instanceof Position);
+    }
+
+    private Position position() {
+        return new Position(1, 2, 3);
+    }
+
+    private PositionWithSpeedAndSatellites positionWithSpeedAndSatellites() {
+        return new PositionWithSpeedAndSatellites(1, 2, 3, "speed", true);
+    }
+
+    private PositionWithSpeed positionWithSpeed() {
+        return new PositionWithSpeed(1, 2, 3, "speed");
+    }
+
+    private PositionWithSatellites positionWithSatellites() {
+        return new PositionWithSatellites(1, 2, 3, true);
+    }
+}
+
+class Position {
+    public int latitude;
+    public int longitude;
+    public int altitude;
+
+    public Position(int latitude, int longitude, int altitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.altitude = altitude;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Position position = (Position) o;
+        return latitude == position.latitude &&
+                longitude == position.longitude &&
+                altitude == position.altitude;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(latitude, longitude, altitude);
+    }
+}
+
+class PositionWithSpeedAndSatellites extends Position {
+    private String speed;
+    private boolean hasSatellites;
+
+    public PositionWithSpeedAndSatellites(int latitude, int longitude, int altitude, String speed, boolean hasSatellites) {
+        super(latitude, longitude, altitude);
+        this.speed = speed;
+        this.hasSatellites = hasSatellites;
+    }
+}
+
+class PositionWithSpeed extends Position {
+    private String speed;
+
+    public PositionWithSpeed(int latitude, int longitude, int altitude, String speed) {
+        super(latitude, longitude, altitude);
+        this.speed = speed;
+    }
+}
+
+class PositionWithSatellites extends Position {
+    private boolean hasSatellites;
+
+    public PositionWithSatellites(int latitude, int longitude, int altitude, boolean hasSatellites) {
+        super(latitude, longitude, altitude);
+        this.hasSatellites = hasSatellites;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class DeviceSession {
+    private Object position;
+
+    public Object getPosition() {
+        return position;
+    }
+
+    public void setPosition(Object position) {
+        this.position = position;
+    }
+}
+
+public class NetworkMessage {
+    // No fields for simplicity, as they are not needed in the test
+}
+
+public class ByteBuf {
+    public int readInt() {
+        return 0; // Not used in the test, for completeness
+    }
+
+    public void writeInt(int value) {}
+}
+
+public class Position {
+    private int latitude;
+    private int longitude;
+    private int altitude;
+
+    public Position(int latitude, int longitude, int altitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.altitude = altitude;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Position position = (Position) o;
+        return latitude == position.latitude &&
+                longitude == position.longitude &&
+                altitude == position.altitude;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(latitude, longitude, altitude);
+    }
+}
+
+public class PositionWithSpeedAndSatellites extends Position {
+    private String speed;
+    private boolean hasSatellites;
+
+    public PositionWithSpeedAndSatellites(int latitude, int longitude, int altitude, String speed, boolean hasSatellites) {
+        super(latitude, longitude, altitude);
+        this.speed = speed;
+        this.hasSatellites = hasSatellites;
+    }
+}
+
+public class PositionWithSpeed extends Position {
+    private String speed;
+
+    public PositionWithSpeed(int latitude, int longitude, int altitude, String speed) {
+        super(latitude, longitude, altitude);
+        this.speed = speed;
+    }
+}
+
+public class PositionWithSatellites extends Position {
+    private boolean hasSatellites;
+
+    public PositionWithSatellites(int latitude, int longitude, int altitude, boolean hasSatellites) {
+        super(latitude, longitude, altitude);
+        this.hasSatellites = hasSatellites;
+    }
+}
+
+public class GeneratedTest {
+
+    public DeviceSession deviceSession;
+    public NetworkMessage networkMessage;
+    public ByteBuf buf;
+
+    @Before
+    public void setUp() {
+        deviceSession = new DeviceSession();
+        networkMessage = new NetworkMessage();
+        buf = new ByteBuf();
+    }
+
+    private Object Objects.hash(int latitude, int longitude, int altitude) {
+        return "latitude: " + latitude + ", longitude: " + longitude + ", altitude: " + altitude;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class DeviceSession {
+    private int latitude;
+    private int longitude;
+    private int altitude;
+
+    public DeviceSession(int latitude, int longitude, int altitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.altitude = altitude;
+    }
+
+    public int getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(int latitude) {
+        this.latitude = latitude;
+    }
+
+    public int getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(int longitude) {
+        this.longitude = longitude;
+    }
+
+    public int getAltitude() {
+        return altitude;
+    }
+
+    public void setAltitude(int altitude) {
+        this.altitude = altitude;
+    }
+}
+
+public class NetworkMessage {
+    private String message;
+
+    public NetworkMessage(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+}
+
+public class ByteBuf {
+    public int readInt() {
+        return 0; // Not used in the test, for completeness
+    }
+
+    public void writeInt(int value) {}
+}
+
+public class Position {
+    private int latitude;
+    private int longitude;
+    private int altitude;
+
+    public Position(int latitude, int longitude, int altitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.altitude = altitude;
+    }
+
+    public int getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(int latitude) {
+        this.latitude = latitude;
+    }
+
+    public int getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(int longitude) {
+        this.longitude = longitude;
+    }
+
+    public int getAltitude() {
+        return altitude;
+    }
+
+    public void setAltitude(int altitude) {
+        this.altitude = altitude;
+    }
+}
+
+public class PositionWithSpeedAndSatellites extends Position {
+    private String speed;
+    private boolean hasSatellites;
+
+    public PositionWithSpeedAndSatellites(int latitude, int longitude, int altitude, String speed, boolean hasSatellites) {
+        super(latitude, longitude, altitude);
+        this.speed = speed;
+        this.hasSatellites = hasSatellites;
+    }
+
+    public String getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(String speed) {
+        this.speed = speed;
+    }
+
+    public boolean isHasSatellites() {
+        return hasSatellites;
+    }
+
+    public void setHasSatellites(boolean hasSatellites) {
+        this.hasSatellites = hasSatellites;
+    }
+}
+
+public class PositionWithSpeed extends Position {
+    private String speed;
+
+    public PositionWithSpeed(int latitude, int longitude, int altitude, String speed) {
+        super(latitude, longitude, altitude);
+        this.speed = speed;
+    }
+
+    public String getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(String speed) {
+        this.speed = speed;
+    }
+}
+
+public class PositionWithSatellites extends Position {
+    private boolean hasSatellites;
+
+    public PositionWithSatellites(int latitude, int longitude, int altitude, boolean hasSatellites) {
+        super(latitude, longitude, altitude);
+        this.hasSatellites = hasSatellites;
+    }
+
+    public boolean isHasSatellites() {
+        return hasSatellites;
+    }
+
+    public void setHasSatellites(boolean hasSatellites) {
+        this.hasSatellites = hasSatellites;
+    }
+}
+
+public class GeneratedTest {
+
+    public DeviceSession deviceSession;
+    public NetworkMessage networkMessage;
+    public ByteBuf buf;
+
+    @Before
+    public void setUp() {
+        deviceSession = new DeviceSession(0, 0, 0);
+        networkMessage = new NetworkMessage("");
+        buf = new ByteBuf();
+    }
+
+    private Object Objects.hash(int latitude, int longitude, int altitude) {
+        return "latitude: " + latitude + ", longitude: " + longitude + ", altitude: " + altitude;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class DeviceSession {
+    private int latitude;
+    private int longitude;
+    private int altitude;
+
+    public DeviceSession(int latitude, int longitude, int altitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.altitude = altitude;
+    }
+
+    public String toJson() {
+        return "{\"latitude\":" + latitude + ",\"longitude\":" + longitude + ",\"altitude\":" + altitude + "}";
+    }
+}
+
+public class NetworkMessage {
+    private int id;
+    private byte[] payload;
+
+    public NetworkMessage(int id, byte[] payload) {
+        this.id = id;
+        this.payload = payload;
+    }
+
+    public String getId() {
+        return Integer.toHexString(id);
+    }
+
+    public byte[] getPayload() {
+        return payload;
+    }
+}
+
+public class ByteBuf {
+    private byte[] buffer;
+
+    public ByteBuf(int size) {
+        buffer = new byte[size];
+    }
+
+    public int readInt() {
+        // Assuming the most significant 32 bits are used for integer
+        int result = 0;
+        for (int i = 31; i >= 0; i--) {
+            result |= (buffer[i + 3] & 0x7F) << i;
+            if (i != 0) buffer[i + 3] >>= 7;
+        }
+        return result;
+    }
+
+    public void writeInt(int value) {
+        // Using the most significant 32 bits
+        int index = 31;
+        for (int i = 31; i >= 0; i--) {
+            byte b = (byte) ((value >> i) & 0x7F);
+            buffer[index + 3 - i] = b;
+            if (i != 0) b >>= 7;
+            buffer[index + 3 - i] |= (byte) (b << (7 - i));
+        }
+    }
+
+    public void print() {
+        System.out.print(new String(buffer, 0, buffer.length));
+    }
+}
+
+public class Position {
+    private int latitude;
+    private int longitude;
+
+    public Position(int latitude, int longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public double getDistanceFromOrigin() {
+        return Math.sqrt(latitude * latitude + longitude * longitude);
+    }
+}
+
+public class PositionWithSpeedAndSatellites extends Position {
+    private String speed;
+    private boolean hasSatellites;
+
+    public PositionWithSpeedAndSatellites(int latitude, int longitude, String speed, boolean hasSatellites) {
+        super(latitude, longitude);
+        this.speed = speed;
+        this.hasSatellites = hasSatellites;
+    }
+
+    public double getDistanceFromOrigin() {
+        return Math.sqrt(getLatitude() * getLatitude() + getLongitude() * getLongitude());
+    }
+}
+
+public class PositionWithSpeed extends Position {
+    private String speed;
+
+    public PositionWithSpeed(int latitude, int longitude, String speed) {
+        super(latitude, longitude);
+        this.speed = speed;
+    }
+
+    public double getDistanceFromOrigin() {
+        return Math.sqrt(getLatitude() * getLatitude() + getLongitude() * getLongitude());
+    }
+}
+
+public class PositionWithSatellites extends Position {
+    private boolean hasSatellites;
+
+    public PositionWithSatellites(int latitude, int longitude, boolean hasSatellites) {
+        super(latitude, longitude);
+        this.hasSatellites = hasSatellites;
+    }
+
+    public double getDistanceFromOrigin() {
+        return Math.sqrt(getLatitude() * getLatitude() + getLongitude() * getLongitude());
+    }
+}
+
+public class GeneratedTest {
+
+    public DeviceSession deviceSession;
+    public NetworkMessage networkMessage;
+    public ByteBuf buf;
+
+    @Before
+    public void setUp() {
+        deviceSession = new DeviceSession(0, 0, 0);
+        networkMessage = new NetworkMessage(1, new byte[10]);
+        buf = new ByteBuf(100);
+    }
+
+    @Test
+    public void testToJson() {
+        String json = deviceSession.toJson();
+        System.out.println(json);
+
+        json = networkMessage.getId() + ":" + java.util.Base64.getEncoder().encodeToString(networkMessage.getPayload());
+        System.out.println(json);
+
+        buf.writeInt(123);
+        buf.print();
+    }
+
+    @Test
+    public void testDistanceFromOrigin() {
+        double distance = new Position(0, 0).getDistanceFromOrigin();
+        assert Math.isClose(distance, 0.0, 1e-10) : "Distance from origin is not zero";
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================

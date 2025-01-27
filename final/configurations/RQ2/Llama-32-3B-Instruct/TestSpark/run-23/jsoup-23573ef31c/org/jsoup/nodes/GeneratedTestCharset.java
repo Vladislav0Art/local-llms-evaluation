@@ -1,0 +1,73 @@
+package org.jsoup.nodes;
+
+public class GeneratedTestCharset {
+
+    private int errorCount;
+
+    public Parser() {
+        this.errorCount = 0;
+    }
+
+    public void setErrorCount(int count) {
+        this.errorCount = count;
+    }
+
+    public int getErrors() {
+        return errorCount;
+    }
+}
+
+public class OutputSettings {
+    private String value;
+
+    public OutputSettings() {
+        this.value = "";
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}
+
+public class QuirksMode {
+    public static final String NORMAL = "normal";
+    public static final String INHERIT = "inherit";
+
+    private String mode;
+
+    public QuirksMode() {
+        this.mode = NORMAL;
+    }
+
+    public String toString() {
+        return mode;
+    }
+}
+
+public class Charset {
+    private String name;
+
+    public Charset(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+// GeneratedTest.java
+
+public class Main {
+
+    @Test
+    public void testCharset() {
+        Charset charset = new Charset("UTF-8");
+        assertEquals("UTF-8", charset.getName());
+    }
+
+}

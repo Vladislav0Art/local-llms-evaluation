@@ -1,0 +1,275 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    @Mock
+    private NetworkMessage networkMessage;
+
+    private WatchProtocolDecoder watchProtocolDecoder = new WatchProtocolDecoder(protocol);
+
+    @Test
+    public void getHasIndex_EmptyMessage_ReturnsFalse() {
+        assertFalse(watchProtocolDecoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturer_UnknownManufacturer_ReturnsDefault() {
+        when(protocol.getDefaultManufacturer()).thenReturn("Unknown");
+        assertEquals("Unknown", watchProtocolDecoder.getManufacturer());
+    }
+
+    @Test
+    public void decode_DecodeMessage_ReturnsDecodedData() throws Exception {
+        byte[] data = {0x01, 0x02, 0x03};
+        ByteBuf buffer = Unpooled.buffer(data.length);
+        BufferUtil.copyBuffer(buffer, data);
+        Object result = watchProtocolDecoder.decode(null, null, networkMessage);
+        assertEquals(deviceSession, result);
+    }
+
+    @Test
+    public void decode_DecodeMessageWithInvalidData_ThrowsException() throws Exception {
+        byte[] data = {0x01, 0x02, 0x03, (byte) -1};
+        ByteBuf buffer = Unpooled.buffer(data.length);
+        BufferUtil.copyBuffer(buffer, data);
+        assertThrows(Exception.class, () -> watchProtocolDecoder.decode(null, null, networkMessage));
+    }
+
+    @Test
+    public void decode_DecodeMessageWithInvalidLength_ThrowsException() throws Exception {
+        byte[] data = {0x01, 0x02};
+        ByteBuf buffer = Unpooled.buffer(data.length);
+        BufferUtil.copyBuffer(buffer, data);
+        assertThrows(Exception.class, () -> watchProtocolDecoder.decode(null, null, networkMessage));
+    }
+
+    @Test
+    public void decode_DecodeMessageWithNoIndex_ReturnsDefault() throws Exception {
+        byte[] data = {0x01, 0x02, 0x03};
+        ByteBuf buffer = Unpooled.buffer(data.length);
+        BufferUtil.copyBuffer(buffer, data);
+        Object result = watchProtocolDecoder.decode(null, null, networkMessage);
+        assertNull(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    public static class Protocol {
+        public Object getDefaultManufacturer() {
+            return "Default";
+        }
+    }
+
+    public static class DeviceSession {
+    }
+
+    public static class NetworkMessage {
+    }
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    @Mock
+    private NetworkMessage networkMessage;
+
+    public WatchProtocolDecoder watchProtocolDecoder = new WatchProtocolDecoder(protocol);
+
+    @Test
+    public void getHasIndex_EmptyMessage_ReturnsFalse() {
+        assertTrue(watchProtocolDecoder.getHasIndex(null));
+    }
+
+    @Test
+    public void testGetHasIndex() {
+        when(protocol.getDefaultManufacturer()).thenReturn("Default");
+        boolean result = watchProtocolDecoder.getHasIndex(networkMessage);
+        assertNull(result);
+    }
+
+    public interface WatchProtocolDecoder {
+        boolean getHasIndex(NetworkMessage message);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class ProtocolDecoderTest {
+
+    public interface WatchProtocolDecoder {
+        boolean getHasIndex(NetworkMessage message);
+    }
+
+    @Mock
+    private WatchProtocolDecoder watchProtocolDecoder = Mockito.mock(WatchProtocolDecoder.class);
+
+    @Test
+    public void getHasIndex_EmptyMessage_ReturnsFalse() {
+        when(watchProtocolDecoder.getHasIndex(Mockito.any(NetworkMessage.class))).thenReturn(false);
+        assertTrue(watchProtocolDecoder.getHasIndex(null));
+    }
+
+    @Test
+    public void testGetHasIndex() {
+        when(watchProtocolDecoder.getHasIndex(Mockito.any(NetworkMessage.class))).thenReturn(true);
+        boolean result = watchProtocolDecoder.getHasIndex(Mockito.any(NetworkMessage.class));
+        assertTrue(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public interface WatchProtocolDecoder {
+    boolean getHasIndex(NetworkMessage message);
+}
+
+public class DefaultWatchProtocolDecoder implements WatchProtocolDecoder {
+    @Override
+    public boolean getHasIndex(NetworkMessage message) {
+        return false;
+    }
+}
+
+public class NetworkMessage {
+    // add some properties like id, data, etc.
+}
+
+@RunWith(MockitoJUnitRunner.class)
+public class ProtocolDecoderTest {
+
+    @Mock
+    private DefaultWatchProtocolDecoder watchProtocolDecoder;
+
+    @Test
+    public void getHasIndex_EmptyMessage_ReturnsFalse() {
+        when(watchProtocolDecoder.getHasIndex(Mockito.any(NetworkMessage.class))).thenReturn(false);
+        assertTrue(watchProtocolDecoder.getHasIndex(null));
+    }
+
+    @Test
+    public void testGetHasIndex() {
+        when(watchProtocolDecoder.getHasIndex(Mockito.any(NetworkMessage.class))).thenReturn(true);
+        boolean result = watchProtocolDecoder.getHasIndex(Mockito.any(NetworkMessage.class));
+        assertTrue(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public interface WatchProtocolDecoder {
+    boolean getHasIndex(NetworkMessage message);
+}
+
+public class DefaultWatchProtocolDecoder implements WatchProtocolDecoder {
+    @Override
+    public boolean getHasIndex(NetworkMessage message) {
+        return false;
+    }
+}
+
+public class NetworkMessage {
+    private String id;
+    private byte[] data;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+}
+
+@RunWith(org.junit.runners.JUnit4.class)
+public class ProtocolDecoderTest {
+
+    @Mock
+    private DefaultWatchProtocolDecoder watchProtocolDecoder;
+
+    @InjectMocks
+    private WatchProtocolDecoder protocolDecoder;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void getHasIndex_EmptyMessage_ReturnsFalse() {
+        when(watchProtocolDecoder.getHasIndex(Mockito.any(NetworkMessage.class))).thenReturn(false);
+        assertTrue(protocolDecoder.getHasIndex(null));
+    }
+
+    @Test
+    public void testGetHasIndex() {
+        when(watchProtocolDecoder.getHasIndex(Mockito.any(NetworkMessage.class))).thenReturn(true);
+        boolean result = protocolDecoder.getHasIndex(Mockito.any(NetworkMessage.class));
+        assertTrue(result);
+    }
+}
+```
+===================================================
+

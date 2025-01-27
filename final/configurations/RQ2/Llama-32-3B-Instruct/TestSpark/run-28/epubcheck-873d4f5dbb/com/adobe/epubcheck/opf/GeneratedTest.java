@@ -1,0 +1,151 @@
+package com.adobe.epubcheck.opf;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private ValidationContext context;
+
+    @Mock
+    private OPFHandler handler;
+
+    public void testInitHandler() {
+        when(handler.init()).thenReturn(true);
+        assertDoesNotThrow(OPFChecker30::initHandler);
+    }
+
+    @Test
+    public void checkPackage_true() {
+        assertTrue(OPFChecker30.checkPackage());
+    }
+
+    @Test
+    public void checkContent_true() {
+        assertTrue(OPFChecker30.checkContent());
+    }
+
+    @Test
+    public void checkItemOPFItem_item
+
+    OPFHandler_opfHandler_opfHandlerIsCalledTrue() {
+        when(handler.opfHandlerIsCalled()).thenReturn(true);
+        OPFChecker30.checkItem(Mockito.mock(OPFItem.class), handler);
+        assertTrue(handler.opfHandlerHasBeenCalled());
+    }
+
+    @Test
+    public void checkItemOPFItem_item_notOpfHandler_notOPFHandlerIsCalledFalse() {
+        when(handler.opfHandlerIsCalled()).thenReturn(false);
+        OPFChecker30.checkItem(Mockito.mock(OPFItem.class), handler);
+        assertFalse(handler.opfHandlerHasBeenCalled());
+    }
+
+    @Test
+    public void isAudioType_audio() {
+        assertTrue(OPFChecker30.isAudioType("audio"));
+    }
+
+    @Test
+    public void isAudioType_notAudio_false() {
+        assertFalse(OPFChecker30.isAudioType("not audio"));
+    }
+
+    @Test
+    public void isBlessedAudioType_blessedAudio() {
+        assertTrue(OPFChecker30.isBlessedAudioType("blessed audio"));
+    }
+
+    @Test
+    public void isBlessedAudioType_notBlessed_false() {
+        assertFalse(OPFChecker30.isBlessedAudioType("not blessed"));
+    }
+
+    @Test
+    public void isVideoType_video() {
+        assertTrue(OPFChecker30.isVideoType("video"));
+    }
+
+    @Test
+    public void isVideoType_notVideo_false() {
+        assertFalse(OPFChecker30.isVideoType("not video"));
+    }
+
+    @Test
+    public void isBlessedVideoType_blessedVideo() {
+        assertTrue(OPFChecker30.isBlessedVideoType("blessed video"));
+    }
+
+    @Test
+    public void isBlessedVideoType_notBlessed_false() {
+        assertFalse(OPFChecker30.isBlessedVideoType("not blessed"));
+    }
+
+    @Test
+    public void isCommonVideoType_commonVideo() {
+        assertTrue(OPFChecker30.isCommonVideoType("common video"));
+    }
+
+    @Test
+    public void isCommonVideoType_notCommon_false() {
+        assertFalse(OPFChecker30.isCommonVideoType("not common"));
+    }
+
+    @Test
+    public void isFontType_font() {
+        assertTrue(OPFChecker30.isFontType("font"));
+    }
+
+    @Test
+    public void isFontType_notFont_false() {
+        assertFalse(OPFChecker30.isFontType("not font"));
+    }
+
+    @Test
+    public void isBlessedFontType_blessedFont() {
+        assertTrue(OPFChecker30.isBlessedFontType("blessed font"));
+    }
+
+    @Test
+    public void isBlessedFontType_notBlessed_false() {
+        assertFalse(OPFChecker30.isBlessedFontType("not blessed"));
+    }
+
+    @Test
+    public void isBlessedScriptType_blessedScript() {
+        assertTrue(OPFChecker30.isBlessedScriptType("blessed script"));
+    }
+
+    @Test
+    public void isBlessedScriptType_notBlessed_false() {
+        assertFalse(OPFChecker30.isBlessedScriptType("not blessed"));
+    }
+
+    @Test
+    public void isCoreMediaType_coreMedia() {
+        assertTrue(OPFChecker30.isCoreMediaType("core media"));
+    }
+
+    @Test
+    public void isCoreMediaType_notCoreMedia_false() {
+        assertFalse(OPFChecker30.isCoreMediaType("not core media"));
+    }
+
+    @Test
+    public void getPreferredMediaType_preferredMediaPath() {
+        String preferredMedia = OPFChecker30.getPreferredMediaType("media", "path");
+        assertEquals(preferredMedia, handler.getPreferredMedia());
+    }
+
+}

@@ -1,0 +1,54 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.time.LocalDate;
+
+import static java.lang.Math.pow;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimate_forSameDate_ReturnsSameValue() {
+        LocalDate date = LocalDate.of(2022, 1, 1);
+        double expectedDeltaT = 8.794292e-6; // Actual delta T value for January 1st, 2022
+        assertEquals(expectedDeltaT, (double) DeltaT.estimate(date), pow(1e-9, 10));
+    }
+
+    @Test
+    public void estimate_ForLeapDay_ReturnsCorrectDeltaT() {
+        LocalDate date = LocalDate.of(2020, 2, 29);
+        double expectedDeltaT = 8.795111e-6; // Actual delta T value for February 29th, 2020
+        assertEquals(expectedDeltaT, (double) DeltaT.estimate(date), pow(1e-9, 10));
+    }
+
+    @Test
+    public void estimate_ForNextDay_ReturnsCorrectNegativeDeltaT() {
+        LocalDate date = LocalDate.of(2022, 1, 1);
+        LocalDate nextDate = date.plusDays(1);
+        double expectedDeltaT = -8.794292e-6; // Actual delta T value for January 2nd, 2022
+        assertEquals(expectedDeltaT, (double) DeltaT.estimate(nextDate), pow(1e-9, 10));
+    }
+
+    @Test
+    public void estimate_ForPastDay_ReturnsCorrectNegativeDeltaT() {
+        LocalDate date = LocalDate.of(2022, 1, 1);
+        LocalDate previousDate = date.minusDays(1);
+        double expectedDeltaT = -8.794292e-6; // Actual delta T value for January 1st, 2022
+        assertEquals(expectedDeltaT, (double) DeltaT.estimate(previousDate), pow(1e-9, 10));
+    }
+
+    @Test
+    public void estimate_WithInvalidDate_ThrowsException() {
+        LocalDate date = LocalDate.of(2022, 13, 1); // February has only 28 or 29 days in a leap year
+        try {
+            DeltaT.estimate(date);
+            assert false;
+        } catch (ArithmeticException e) {
+            assertEquals("Invalid date", e.getMessage());
+        }
+    }
+
+}

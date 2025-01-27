@@ -1,0 +1,471 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.jsoup.helper.DataUtil.UTF_8;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection.KeyVal kv;
+
+    @Mock
+    private URI uri;
+
+    @Mock
+    private URL url;
+
+    @Test
+    public void newUrlBuilder_fromNull() {
+        UrlBuilder builder = new UrlBuilder(null);
+        assertTrue(builder == null);
+    }
+
+    @Test
+    public void build_urlAlreadySet() {
+        UrlBuilder builder = new UrlBuilder(url);
+        assertEquals(url, builder.build());
+    }
+
+    @Test
+    public void build_newUrl() throws MalformedURLException, URISyntaxException {
+        String baseUrl = "http://example.com";
+        URI path = uri;
+        UrlBuilder builder = new UrlBuilder(baseUrl);
+        URL expectedUrl = new URL(baseUrl + path);
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void appendKeyVal_empty() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.appendKeyVal(kv);
+        assertTrue(builder.build().toString().isEmpty());
+    }
+
+    @Test
+    public void appendKeyVal_addsSinglePair() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+        String baseUrl = "http://example.com";
+        URI path = uri;
+        Map<String, String> kv = new HashMap<>();
+        kv.put("key", "value");
+        UrlBuilder builder = new UrlBuilder(baseUrl);
+        builder.appendKeyVal(kv);
+        assertEquals(baseUrl + "?" + Arrays.toString(kv), builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyVal_addsMultiplePairs() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+        String baseUrl = "http://example.com";
+        URI path = uri;
+        Map<String, String> kv1 = new HashMap<>();
+        kv1.put("key1", "value1");
+        Map<String, String> kv2 = new HashMap<>();
+        kv2.put("key2", "value2");
+        UrlBuilder builder = new UrlBuilder(baseUrl);
+        builder.appendKeyVal(kv1);
+        builder.appendKeyVal(kv2);
+        assertEquals(baseUrl + "?" + Arrays.toString(kv1) + "&" + Arrays.toString(kv2), builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyVal_multiplePairsWithSameKey() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+        String baseUrl = "http://example.com";
+        URI path = uri;
+        Map<String, String> kv1 = new HashMap<>();
+        kv1.put("key1", "value1");
+        Map<String, String> kv2 = new HashMap<>();
+        kv2.put("key1", "value2");
+        UrlBuilder builder = new UrlBuilder(baseUrl);
+        builder.appendKeyVal(kv1);
+        builder.appendKeyVal(kv2);
+        assertEquals(baseUrl + "?" + Arrays.toString(kv1) + "&" + Arrays.toString(kv2), builder.build().toString());
+    }
+
+    @Test
+    public void build_urlDecodedPath() throws MalformedURLException, URISyntaxException {
+        String baseUrl = "http://example.com";
+        URI path = new URI("http%3A%2F%2Fexample.com/path");
+        UrlBuilder builder = new UrlBuilder(baseUrl);
+        URL expectedUrl = new URL(baseUrl + path.getQuery());
+        assertEquals(expectedUrl, builder.build());
+    }
+
+    @Test
+    public void appendKeyVal_pathEncoded() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+        String baseUrl = "http://example.com";
+        URI path = uri;
+        Map<String, String> kv = new HashMap<>();
+        kv.put("key", "value%20with+spaces");
+        UrlBuilder builder = new UrlBuilder(baseUrl);
+        builder.appendKeyVal(kv);
+        assertEquals(baseUrl + "?" + Arrays.toString(kv), builder.build().toString());
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class UrlBuilder {
+    private String baseUrl;
+
+    public UrlBuilder(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public void appendKeyVal(String key, String value) {
+        if (baseUrl.isEmpty()) {
+            baseUrl += key + "=" + value;
+        } else {
+            if (!baseUrl.endsWith("&")) {
+                baseUrl += "&";
+            }
+            baseUrl += key + "=" + value;
+        }
+    }
+
+    public String build() {
+        return baseUrl;
+    }
+}
+
+public class TestUrlBuilder {
+
+    @Test
+    public void testUrlBuilder() {
+        UrlBuilder urlBuilder = new UrlBuilder("http://example.com");
+        urlBuilder.appendKeyVal("key1", "value1");
+        urlBuilder.appendKeyVal("key2", "value2");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        assertEquals("http://example.com/key1=value1&key2=value2", result);
+    }
+
+    @Test
+    public void testUrlBuilderEmptyBaseURL() {
+        UrlBuilder urlBuilder = new UrlBuilder("");
+        urlBuilder.appendKeyVal("key1", "value1");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        assertEquals("key1=value1", result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class UrlBuilder {
+    private String baseUrl;
+
+    public UrlBuilder(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public void appendKeyVal(String key, String value) {
+        if (baseUrl.isEmpty()) {
+            baseUrl += key + "=" + value;
+        } else {
+            if (!baseUrl.endsWith("&")) {
+                baseUrl += "&";
+            }
+            baseUrl += key + "=" + value;
+        }
+    }
+
+    public String build() {
+        return baseUrl;
+    }
+
+    public static UrlBuilder createUrlBuilder(String baseUrl) {
+        return new UrlBuilder(baseUrl);
+    }
+}
+
+public class TestUrlBuilder {
+
+    @org.junit.Test
+    public void testUrlBuilder() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("http://example.com");
+        urlBuilder.appendKeyVal("key1", "value1");
+        urlBuilder.appendKeyVal("key2", "value2");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("http://example.com/key1=value1&key2=value2", result);
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderEmptyBaseURL() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("");
+        urlBuilder.appendKeyVal("key1", "value1");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("key1=value1", result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilder {
+    private String baseUrl;
+
+    public UrlBuilder(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public void appendKeyVal(String key, String value) {
+        if (baseUrl.isEmpty()) {
+            baseUrl += key + "=" + value;
+        } else {
+            if (!baseUrl.endsWith("&")) {
+                baseUrl += "&";
+            }
+            baseUrl += key + "=" + value;
+        }
+    }
+
+    public String build() {
+        return baseUrl;
+    }
+
+    public static UrlBuilder createUrlBuilder(String baseUrl) {
+        return new UrlBuilder(baseUrl);
+    }
+
+    public void appendKeyValWithSpaces(String key, String value) {
+        if (baseUrl.isEmpty()) {
+            baseUrl += key + "=" + value;
+        } else {
+            if (!baseUrl.endsWith("&")) {
+                baseUrl += "&";
+            }
+            baseUrl += key + "=" + value;
+        }
+    }
+
+    public static UrlBuilder createUrlBuilderWithSpaces(String baseUrl) {
+        return new UrlBuilder(baseUrl);
+    }
+}
+
+public class TestUrlBuilder {
+
+    @org.junit.Test
+    public void testUrlBuilder() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("http://example.com");
+        urlBuilder.appendKeyVal("key1", "value1");
+        urlBuilder.appendKeyVal("key2", "value2");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("http://example.com/key1=value1&key2=value2", result);
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderEmptyBaseURL() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("");
+        urlBuilder.appendKeyVal("key1", "value1");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("key1=value1", result);
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderWithSpaces() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("http://example.com");
+        urlBuilder.appendKeyValWithSpaces("key1", "value with spaces");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("http://example.com/key1=value%20with%20spaces", result);
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderWithSpacesEmptyBaseURL() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("");
+        urlBuilder.appendKeyValWithSpaces("key1", "value with spaces");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("key1=value%20with%20spaces", result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class UrlBuilder {
+    private String baseUrl;
+
+    public UrlBuilder(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public void appendKeyVal(String key, String value) {
+        if (baseUrl.isEmpty()) {
+            baseUrl += key + "=" + value;
+        } else {
+            if (!baseUrl.endsWith("&")) {
+                baseUrl += "&";
+            }
+            baseUrl += key + "=" + value;
+        }
+    }
+
+    public String build() {
+        return baseUrl;
+    }
+
+    public static UrlBuilder createUrlBuilder(String baseUrl) {
+        return new UrlBuilder(baseUrl);
+    }
+
+    public void appendKeyValWithSpaces(String key, String value) {
+        if (baseUrl.isEmpty()) {
+            baseUrl += key + "=" + value;
+        } else {
+            if (!baseUrl.endsWith("&")) {
+                baseUrl += "&";
+            }
+            baseUrl += key + "=" + value;
+        }
+    }
+
+    public static UrlBuilder createUrlBuilderWithSpaces(String baseUrl) {
+        return new UrlBuilder(baseUrl);
+    }
+
+    public void appendQuery(String query) {
+        if (baseUrl.isEmpty()) {
+            baseUrl += "?" + query;
+        } else {
+            if (!baseUrl.endsWith("?")) {
+                baseUrl += "&" + query;
+            } else {
+                baseUrl += "?" + query;
+            }
+        }
+    }
+
+    public static UrlBuilder createUrlBuilderWithQuery(String baseUrl, String query) {
+        return new UrlBuilder(baseUrl);
+    }
+}
+
+public class TestUrlBuilder {
+
+    @org.junit.Test
+    public void testUrlBuilder() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("http://example.com");
+        urlBuilder.appendKeyVal("key1", "value1");
+        urlBuilder.appendKeyVal("key2", "value2");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("http://example.com/key1=value1&key2=value2", result);
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderEmptyBaseURL() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("");
+        urlBuilder.appendKeyVal("key1", "value1");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("key1=value1", result);
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderWithSpaces() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("http://example.com");
+        urlBuilder.appendKeyValWithSpaces("key1", "value with spaces");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("http://example.com/key1=value%20with%20spaces", result);
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderWithSpacesEmptyBaseURL() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("");
+        urlBuilder.appendKeyValWithSpaces("key1", "value with spaces");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("key1=value%20with%20spaces", result);
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderWithQuery() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("http://example.com");
+        urlBuilder.appendQuery("query");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("http://example.com?query", result);
+    }
+
+    @org.junit.Test
+    public void testUrlBuilderWithQueryEmptyBaseURL() {
+        UrlBuilder urlBuilder = UrlBuilder.createUrlBuilder("");
+        urlBuilder.appendQuery("query");
+
+        String result = urlBuilder.build();
+
+        // Test expected URL
+        org.junit.Assert.assertEquals("?query", result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

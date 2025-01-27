@@ -1,0 +1,94 @@
+package org.jsoup.safety;
+
+public class GeneratedTest {
+
+    @Test
+    public void none_SafelistShouldBeEmpty() {
+        Assert.assertEquals(0, new Safelist().size());
+    }
+
+    @Test
+    public void simpleText_NoTagsToAdd() {
+        Safelist safelist = Safelist.simpleText();
+        Set<String> tags = safelist.getTags();
+        Assert.assertTrue(tags.isEmpty());
+    }
+
+    @Test
+    public void basic_AddTagsToBasicSafelist() {
+        Safelist safelist = new Safelist();
+        safelist.addTags("tag1", "tag2");
+        Set<String> tags = safelist.getTags();
+        Set<String> expectedTags = new HashSet<>(Arrays.asList("tag1", "tag2"));
+        Assert.assertEquals(expectedTags, tags);
+    }
+
+    @Test
+    public void basic_NoAddTagAfterCreation() {
+        Safelist safelist = Safelist.basic();
+        safelist.addTags("tag3");
+        Set<String> tags = safelist.getTags();
+        Set<String> expectedTags = new HashSet<>(Arrays.asList("tag1", "tag2"));
+        Assert.assertEquals(expectedTags, tags);
+    }
+
+    @Test
+    public void basic_NoRemoveTagAfterCreation() {
+        Safelist safelist = Safelist.basic();
+        safelist.removeTags("tag3");
+        Set<String> tags = safelist.getTags();
+        Set<String> expectedTags = new HashSet<>(Arrays.asList("tag1", "tag2"));
+        Assert.assertEquals(expectedTags, tags);
+    }
+
+    @Test
+    public void basicWithImages_AddImageTag() {
+        Safelist safelist = Safelist.basicWithImages();
+        safelist.addTags("img");
+        Set<String> tags = safelist.getTags();
+        Set<String> expectedTags = new HashSet<>(Arrays.asList("img"));
+        Assert.assertEquals(expectedTags, tags);
+    }
+
+    @Test
+    public void relaxed_AddRelaxedTags() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.addTags("a", "b");
+        Set<String> tags = safelist.getTags();
+        Set<String> expectedTags = new HashSet<>(Arrays.asList("a", "b"));
+        Assert.assertEquals(expectedTags, tags);
+    }
+
+    @Test
+    public void none_ValidationForAddTags() {
+        Validate.expectingAssertionError(() -> Safelist.none().addTags("tag1"));
+    }
+
+    @Test
+    public void basic_addEnforcedAttributesToBasicSafelist() {
+        Safelist safelist = new Safelist();
+        safelist.addEnforcedAttribute("img", "src", "https://example.com");
+        Attributes enforcedAttributes = safelist.getEnforcedAttributes("img");
+        Set<String> expectedEnforcedAttributes = new HashSet<>(Arrays.asList("src"));
+        Assert.assertEquals(expectedEnforcedAttributes, enforcedAttributes);
+    }
+
+    @Test
+    public void basic_removeEnforcedAttributeFromBasicSafelist() {
+        Safelist safelist = new Safelist();
+        safelist.addEnforcedAttribute("img", "src", "https://example.com");
+        safelist.removeEnforcedAttribute("img", "src");
+        Attributes enforcedAttributes = safelist.getEnforcedAttributes("img");
+        Set<String> expectedEnforcedAttributes = new HashSet<>();
+        Assert.assertEquals(expectedEnforcedAttributes, enforcedAttributes);
+    }
+
+    @Test
+    public void preserveRelativeLinks_PreserveRelativeLinksByDefault() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.preserveRelativeLinks(false);
+        boolean preserveRelativeLinks = safelist.preserveRelativeLinks();
+        Assert.assertTrue(preserveRelativeLinks);
+    }
+
+}

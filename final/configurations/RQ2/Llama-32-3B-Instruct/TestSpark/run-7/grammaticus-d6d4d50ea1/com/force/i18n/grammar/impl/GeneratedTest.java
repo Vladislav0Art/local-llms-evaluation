@@ -1,0 +1,65 @@
+package com.force.i18n.grammar.impl;
+
+public class GeneratedTest {
+
+    @Test
+    public void newInstance() {
+        // No assertions needed for the default constructor
+    }
+
+    @Test
+    public void newSkinnyInstance() {
+        Map<String, GrammaticalTerm> map = ImmutableMap.of("key", new GrammaticalTerm());
+        GrammaticalTermMapImpl<GrammaticalTerm> instance = new GrammaticalTermMapImpl<>(map, true);
+        assertNotNull(instance);
+    }
+
+    @Test
+    public void getOrDefault() {
+        Map<String, GrammaticalTerm> map = ImmutableMap.of("key", new GrammaticalTerm());
+        GrammaticalTermMapImpl<GrammaticalTerm> instance = new GrammaticalTermMapImpl<>(map, true);
+        assertEquals(instance.get("key"), instance.getOrDefault("key"));
+    }
+
+    @Test
+    public void putAndGet() {
+        Map<String, GrammaticalTerm> map = ImmutableMap.of("key", new GrammaticalTerm());
+        GrammaticalTermMapImpl<GrammaticalTerm> instance = new GrammaticalTermMapImpl<>(map, true);
+        GrammaticalTerm term = new GrammaticalTerm();
+        instance.put("newKey", term);
+        assertEquals(1, instance.get("newKey").getCount());
+    }
+
+    @Test
+    public void putAll() {
+        Map<String, GrammaticalTerm> map = ImmutableMap.of("key", new GrammaticalTerm());
+        GrammaticalTermMapImpl<GrammaticalTerm> instance = new GrammaticalTermMapImpl<>(map, true);
+        GrammaticalTerm term1 = new GrammaticalTerm();
+        GrammaticalTerm term2 = new GrammaticalTerm();
+        instance.putAll(ImmutableMap.of("newKey1", term1, "newKey2", term2));
+        assertEquals(2, instance.get("newKey1").getCount());
+        assertEquals(1, instance.get("newKey2").getCount());
+    }
+
+    @Test
+    public void containsKey() {
+        Map<String, GrammaticalTerm> map = ImmutableMap.of("key", new GrammaticalTerm());
+        GrammaticalTermMapImpl<GrammaticalTerm> instance = new GrammaticalTermMapImpl<>(map, true);
+        assertTrue(instance.containsKey("key"));
+        assertFalse(instance.containsKey("nonExistentKey"));
+    }
+
+    @Test
+    public void isEmpty() {
+        Map<String, GrammaticalTerm> map = ImmutableMap.of("key", new GrammaticalTerm());
+        GrammaticalTermMapImpl<GrammaticalTerm> instance = new GrammaticalTermMapImpl<>(map, true);
+        assertFalse(instance.isEmpty());
+    }
+
+    @Test
+    public void writeJson() {
+        // This test is not applicable as it requires external dependencies like ObjectOutputStream.
+        // Instead, you can create a custom writer to serialize the GrammaticalTermMapImpl instance.
+    }
+
+}

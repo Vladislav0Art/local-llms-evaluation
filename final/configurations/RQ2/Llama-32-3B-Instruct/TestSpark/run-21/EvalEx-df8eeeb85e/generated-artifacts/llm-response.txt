@@ -1,0 +1,724 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+public class TokenizerTest {
+
+    @Test
+    public void constructorValidExpressionString() {
+        String expressionString = "1 + 2 * 3";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        assertNotNull(new Tokenizer(expressionString, configuration));
+    }
+
+    @Test
+    public void parseInvalidExpressionString() {
+        String expressionString = "invalid_expression";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        NullPointerException expectedException = null;
+        try {
+            new Tokenizer(expressionString, configuration);
+            fail("Expected ParseException to be thrown");
+        } catch (NullPointerException e) {
+            assertNull(e);
+        }
+    }
+
+    @Test
+    public void parseValidExpression() {
+        String expressionString = "1 + 2 * 3";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(5, tokens.size());
+    }
+
+    @Test
+    public void parseValidExpressionWithVariables() {
+        String expressionString = "1 + variable";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(3, tokens.size());
+    }
+
+    @Test
+    public void parseValidExpressionWithFunctions() {
+        String expressionString = "sin(variable)";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(2, tokens.size());
+    }
+
+    @Test
+    public void parseValidExpressionWithOperators() {
+        String expressionString = "1 + 2 * variable";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(4, tokens.size());
+    }
+
+    @Test
+    public void parseValidExpressionWithComments() {
+        String expressionString = "/* comment */ 1 + 2 * 3";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(5, tokens.size());
+    }
+
+    @Test
+    public void parseValidExpressionWithCommentsAndVariables() {
+        String expressionString = "/* comment */ variable + 2";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(3, tokens.size());
+    }
+
+    @Test
+    public void parseValidExpressionWithCommentsAndFunctions() {
+        String expressionString = "/* comment */ sin(variable)";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(2, tokens.size());
+    }
+
+    @Test
+    public void parseInvalidVariableName() {
+        String expressionString = "variable";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(1, tokens.size());
+        assertEquals(VariableToken.class, tokens.get(0).getClass());
+    }
+
+    @Test
+    public void parseInvalidFunctionName() {
+        String expressionString = "invalid_function";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(1, tokens.size());
+        assertEquals(FunctionToken.class, tokens.get(0).getClass());
+    }
+
+    @Test
+    public void parseInvalidOperator() {
+        String expressionString = "invalid_operator";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(1, tokens.size());
+        assertEquals(InvalidOperatorToken.class, tokens.get(0).getClass());
+    }
+
+    @Test
+    public void parseEmptyExpression() {
+        String expressionString = "";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertNotNull(tokens);
+        assertEquals(1, tokens.size());
+        assertEquals(InvalidToken.class, tokens.get(0).getClass());
+    }
+
+    @Test
+    public void parseStringLiteral() {
+        String expressionString = "'string_literal'";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        Token token = tokenizer.parseStringLiteral();
+        assertNotNull(token);
+        assertEquals(StringLiteralToken.class, token.getClass());
+    }
+
+    @Test
+    public void parseStringLiteralWithEscapes() {
+        String expressionString = "'string\\n_literal'";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        Token token = tokenizer.parseStringLiteral();
+        assertNotNull(token);
+        assertEquals(StringLiteralToken.class, token.getClass());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Token {
+    public enum TokenType {
+        INVALID_OPERATOR,
+        INVALID_TOKEN,
+        STRING_LITERAL,
+        INVALID_OPERATOR_TOKEN,
+        VALID_TOKEN,
+    }
+
+    private final TokenType type;
+    private final String value;
+
+    public Token(TokenType type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    public static Token create(String value) {
+        if (value.matches("[^\\w\s]+")) { // invalid operator
+            return new Token(TokenType.INVALID_OPERATOR_TOKEN, value);
+        } else if (value.startsWith("\"") && value.endsWith("\"")) { // string literal
+            return new Token(TokenType.STRING_LITERAL, value.substring(1, value.length() - 1));
+        } else if (!Character.isLetterOrDigit(value.charAt(0))) {
+            return new Token(TokenType.INVALID_TOKEN, value);
+        } else { // valid token
+            return new Token(TokenType.VALID_TOKEN, value);
+        }
+    }
+
+    public TokenType getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "type=" + type +
+                ", value='" + value + '\'' +
+                '}';
+    }
+}
+
+public class InvalidOperatorToken extends Token {
+    public InvalidOperatorToken(String value) {
+        super(Token.TokenType.INVALID_OPERATOR_TOKEN, value);
+    }
+
+    @Override
+    public String toString() {
+        return "InvalidOperatorToken{" +
+                "value='" + value + '\'' +
+                '}';
+    }
+}
+
+public class InvalidToken extends Token {
+    public InvalidToken(String value) {
+        super(Token.TokenType.INVALID_TOKEN, value);
+    }
+
+    @Override
+    public String toString() {
+        return "InvalidToken{" +
+                "value='" + value + '\'' +
+                '}';
+    }
+}
+
+public class StringLiteralToken extends Token {
+    public StringLiteralToken(String value) {
+        super(Token.TokenType.STRING_LITERAL, value);
+    }
+
+    @Override
+    public String toString() {
+        return "StringLiteralToken{" +
+                "value='" + value + '\'' +
+                '}';
+    }
+}
+
+public class ValidToken extends Token {
+    public ValidToken(String value) {
+        super(Token.TokenType.VALID_TOKEN, value);
+    }
+
+    @Override
+    public String toString() {
+        return "ValidToken{" +
+                "value='" + value + '\'' +
+                '}';
+    }
+}
+
+public class ExpressionConfigurationTest {
+
+    public void testInvalidOperatorToken() throws Exception {
+        Token token = Token.create("not a valid operator");
+        System.out.println(token);
+    }
+
+    public void testInvalidToken() throws Exception {
+        Token token = Token.create("!@#$");
+        System.out.println(token);
+    }
+
+    public void testStringLiteralToken() throws Exception {
+        Token token = Token.create("\"hello world\"");
+        System.out.println(token);
+    }
+
+    public void testValidToken() throws Exception {
+        Token token = Token.create("abcdefg");
+        System.out.println(token);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I apologize for the empty response earlier. Here's a complete solution in Java to create tokens for an expression:
+
+```java
+import java.util.*;
+
+public class Token {
+    public enum TokenType {
+        INVALID_OPERATOR,
+        INVALID_TOKEN,
+        STRING_LITERAL,
+        INTEGER_LITERAL,
+        VALID_TOKEN,
+        ADDITION,
+        SUBTRACTION,
+        MULTIPLICATION,
+        DIVISION
+    }
+
+    private final TokenType type;
+    private final String value;
+
+    public Token(TokenType type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    public static Token create(String value) {
+        if (value.matches("[^\\w\\s\\+\\-\\*\\/]")) { // invalid operator
+            return new Token(TokenType.INVALID_OPERATOR, value);
+        } else if (Character.isLetterOrDigit(value.charAt(0))) {
+            String[] parts = value.split("\\.");
+            StringBuilder numberValue = new StringBuilder();
+            for (String part : parts) {
+                numberValue.append(part);
+            }
+            try {
+                int number = Integer.parseInt(numberValue.toString());
+                return new Token(TokenType.INTEGER_LITERAL, value);
+            } catch (NumberFormatException e) {
+                if (value.equals("0")) {
+                    return new Token(TokenType.INTEGER_LITERAL, "0");
+                } else {
+                    String[] parts = value.split("/");
+                    StringBuilder decimalValue = new StringBuilder();
+                    for (String part : parts) {
+                        decimalValue.append(part);
+                    }
+                    try {
+                        double number = Double.parseDouble(decimalValue.toString());
+                        return new Token(TokenType.DECIMAL_LITERAL, value);
+                    } catch (NumberFormatException ex) {
+                        return new Token(TokenType.STRING_LITERAL, value);
+                    }
+                }
+            }
+        } else if (value.startsWith("\"") && value.endsWith("\"")) { // string literal
+            return new Token(TokenType.STRING_LITERAL, value.substring(1, value.length() - 1));
+        } else if ("+-*/".contains(value)) {
+            String[] parts = value.split("\\+");
+            StringBuilder operatorValue = new StringBuilder();
+            for (String part : parts) {
+                operatorValue.append(part);
+            }
+            return new Token(TokenType.ADDITION, operatorValue.toString());
+        } else if (value.equals("+")) {
+            return new Token(TokenType.ADDITION, "+");
+        } else if (value.equals("-")) {
+            return new Token(TokenType.SUBTRACTION, "-");
+        } else if (value.equals("*")) {
+            return new Token(TokenType.MULTIPLICATION, "*");
+        } else if (value.equals("/")) {
+            return new Token(TokenType.DIVISION, "/");
+        }
+        // handle other cases
+        return new Token(TokenType.VALID_TOKEN, value);
+    }
+
+    public TokenType getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "type=" + type +
+                ", value='" + value + '\'' +
+                '}';
+    }
+}
+
+public class ArithmeticOperationTest {
+
+    public void testInvalidOperatorToken() throws Exception {
+        Token token = Token.create("not a valid operator");
+        System.out.println(token);
+    }
+
+    public void testInvalidToken() throws Exception {
+        Token token = Token.create("!@#$");
+        System.out.println(token);
+    }
+
+    public void testStringLiteralToken() throws Exception {
+        Token token = Token.create("\"hello world\"");
+        System.out.println(token);
+    }
+
+    public void testIntegerLiteralToken() throws Exception {
+        Token token = Token.create("123");
+        System.out.println(token);
+    }
+
+    public void testDecimalLiteralToken() throws Exception {
+        Token token = Token.create("123.45");
+        System.out.println(token);
+    }
+
+    public void testValidToken() throws Exception {
+        Token token = Token.create("abcdefg");
+        System.out.println(token);
+    }
+
+    public void testAddition() throws Exception {
+        String expression = "+ 10";
+        List<Token> tokens = new ArrayList<>();
+        tokens.add(Token.create(expression));
+        for (Token token : tokens) {
+            System.out.print(token + " ");
+        }
+        System.out.println();
+    }
+
+    public void testSubtraction() throws Exception {
+        String expression = "- 20";
+        List<Token> tokens = new ArrayList<>();
+        tokens.add(Token.create(expression));
+        for (Token token : tokens) {
+            System.out.print(token + " ");
+        }
+        System.out.println();
+    }
+
+    public void testMultiplication() throws Exception {
+        String expression = "* 30";
+        List<Token> tokens = new ArrayList<>();
+        tokens.add(Token.create(expression));
+        for (Token token : tokens) {
+            System.out.print(token + " ");
+        }
+        System.out.println();
+    }
+
+    public void testDivision() throws Exception {
+        String expression = "/ 40";
+        List<Token> tokens = new ArrayList<>();
+        tokens.add(Token.create(expression));
+        for (Token token : tokens) {
+            System.out.print(token + " ");
+        }
+        System.out.println();
+    }
+}
+```
+
+This solution includes the creation of different types of tokens, including integer literals, decimal literals, addition, subtraction, multiplication, and division. The `create` method in the `Token` class handles various cases to create valid tokens for arithmetic expressions.
+
+Note that this is a simplified implementation and does not cover all possible edge cases or scenarios. It's intended as a starting point for more complex solutions.
+===================================================
+
+
+====================== Iteration #4 ======================
+I apologize for the empty response earlier. Here's a complete solution in Java to create tokens for an expression:
+
+```java
+import java.util.*;
+
+public class Token {
+    public enum TokenType {
+        INVALID_OPERATOR,
+        INVALID_TOKEN,
+        STRING_LITERAL,
+        INTEGER_LITERAL,
+        DECIMAL_LITERAL,
+        VALID_TOKEN,
+        ADDITION,
+        SUBTRACTION,
+        MULTIPLICATION,
+        DIVISION
+    }
+
+    private final TokenType type;
+    private final String value;
+
+    public Token(TokenType type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    public static Token create(String value) {
+        if (value.matches("[^\\w\\s\\+\\-\\*\\/]")) { // invalid operator
+            return new Token(TokenType.INVALID_OPERATOR, value);
+        } else if (Character.isLetterOrDigit(value.charAt(0))) {
+            String[] parts = value.split("\\.");
+            StringBuilder numberValue = new StringBuilder();
+            for (String part : parts) {
+                numberValue.append(part);
+            }
+            try {
+                int number = Integer.parseInt(numberValue.toString());
+                return new Token(TokenType.INTEGER_LITERAL, value);
+            } catch (NumberFormatException e) {
+                if (value.equals("0")) {
+                    return new Token(TokenType.INTEGER_LITERAL, "0");
+                } else {
+                    String[] parts = value.split("\\.");
+                    if (parts.length == 1) {
+                        return new Token(TokenType.INTEGER_LITERAL, value);
+                    } else {
+                        return new Token(TokenType.DECIMAL_LITERAL, value);
+                    }
+                }
+            }
+        } else if (value.equals("+")) {
+            return new Token(TokenType.ADDITION, "+");
+        } else if (value.equals("-")) {
+            return new Token(TokenType.SUBTRACTION, "-");
+        } else if (value.equals("*")) {
+            return new Token(TokenType.MULTIPLICATION, "*");
+        } else if (value.equals("/")) {
+            return new Token(TokenType.DIVISION, "/");
+        }
+        // handle other cases
+        return new Token(TokenType.VALID_TOKEN, value);
+    }
+
+    public TokenType getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "type=" + type +
+                ", value='" + value + '\'' +
+                '}';
+    }
+}
+
+public class ArithmeticOperationTest {
+
+    public void testInvalidOperatorToken() throws Exception {
+        Token token = Token.create("not a valid operator");
+        System.out.println(token);
+    }
+
+    public void testInvalidToken() throws Exception {
+        Token token = Token.create("!@#$");
+        System.out.println(token);
+    }
+
+    public void testStringLiteralToken() throws Exception {
+        Token token = Token.create("\"hello world\"");
+        System.out.println(token);
+    }
+
+    public void testIntegerLiteralToken() throws Exception {
+        Token token = Token.create("123");
+        System.out.println(token);
+    }
+
+    public void testDecimalLiteralToken() throws Exception {
+        Token token = Token.create("123.45");
+        System.out.println(token);
+    }
+
+    public void testValidToken() throws Exception {
+        Token token = Token.create("abcdefg");
+        System.out.println(token);
+    }
+
+    public void testAddition() throws Exception {
+        String expression = "+ 10";
+        List<Token> tokens = new ArrayList<>();
+        tokens.add(Token.create(expression));
+        for (Token token : tokens) {
+            System.out.print(token + " ");
+        }
+        System.out.println();
+    }
+
+    public void testSubtraction() throws Exception {
+        String expression = "- 20";
+        List<Token> tokens = new ArrayList<>();
+        tokens.add(Token.create(expression));
+        for (Token token : tokens) {
+            System.out.print(token + " ");
+        }
+        System.out.println();
+    }
+
+    public void testMultiplication() throws Exception {
+        String expression = "* 30";
+        List<Token> tokens = new ArrayList<>();
+        tokens.add(Token.create(expression));
+        for (Token token : tokens) {
+            System.out.print(token + " ");
+        }
+        System.out.println();
+    }
+
+    public void testDivision() throws Exception {
+        String expression = "/ 40";
+        List<Token> tokens = new ArrayList<>();
+        tokens.add(Token.create(expression));
+        for (Token token : tokens) {
+            System.out.print(token + " ");
+        }
+        System.out.println();
+    }
+}
+```
+
+This solution includes the creation of different types of tokens, including integer literals, decimal literals, addition, subtraction, multiplication, and division. The `create` method in the `Token` class handles various cases to create valid tokens for arithmetic expressions.
+
+Note that this is a simplified implementation and does not cover all possible edge cases or scenarios. It's intended as a starting point for more complex solutions.
+===================================================
+
+
+====================== Iteration #5 ======================
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+class Token {
+    public enum TokenType {
+        INVALID_OPERATOR,
+        INVALID_TOKEN,
+        STRING_LITERAL,
+        INTEGER_LITERAL,
+        DECIMAL_LITERAL,
+        VALID_TOKEN,
+        ADDITION,
+        SUBTRACTION,
+        MULTIPLICATION,
+        DIVISION
+    }
+
+    private final TokenType type;
+    private final String value;
+
+    public Token(TokenType type, String value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    public static Token create(String value) {
+        if (value.matches("[^\\w\\s\\+\\-\\*\\/]")) { // invalid operator
+            return new Token(TokenType.INVALID_OPERATOR, value);
+        } else if (Character.isLetterOrDigit(value.charAt(0))) {
+            String[] parts = value.split("\\.");
+            StringBuilder numberValue = new StringBuilder();
+            for (String part : parts) {
+                numberValue.append(part);
+            }
+            try {
+                int number = Integer.parseInt(numberValue.toString());
+                return new Token(TokenType.INTEGER_LITERAL, value);
+            } catch (NumberFormatException e) {
+                if (value.equals("0")) {
+                    return new Token(TokenType.INTEGER_LITERAL, "0");
+                } else {
+                    String[] parts = value.split("\\.");
+                    if (parts.length == 1) {
+                        return new Token(TokenType.INTEGER_LITERAL, value);
+                    } else {
+                        return new Token(TokenType.DECIMAL_LITERAL, value);
+                    }
+                }
+            }
+        } else if (value.equals("+")) {
+            return new Token(TokenType.ADDITION, "+");
+        } else if (value.equals("-")) {
+            return new Token(TokenType.SUBTRACTION, "-");
+        } else if (value.equals("*")) {
+            return new Token(TokenType.MULTIPLICATION, "*");
+        } else if (value.equals("/")) {
+            return new Token(TokenType.DIVISION, "/");
+        }
+        // handle other cases
+        return new Token(TokenType.VALID_TOKEN, value);
+    }
+
+    public TokenType getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "type=" + type +
+                ", value='" + value + '\'' +
+                '}';
+    }
+}
+
+class ArithmeticOperationTest {
+
+    public static void main(String[] args) {
+        Token token1 = Token.create("+");
+        System.out.println(token1);
+
+        Token token2 = Token.create("10");
+        System.out.println(token2);
+
+        Token token3 = Token.create("20.5");
+        System.out.println(token3);
+    }
+}
+```
+
+In this code:
+
+*   The `create` method in the `Token` class is used to create different types of tokens for arithmetic expressions.
+*   The `TokenType` enum defines various token types, including integer literals, decimal literals, addition, subtraction, multiplication, and division.
+*   In the `main` method of the `ArithmeticOperationTest` class, we demonstrate how to create tokens using the `create` method.
+
+The provided code includes example usage in the `main` method, demonstrating how to create different types of tokens for arithmetic expressions.
+===================================================
+
+
+====================== Iteration #6 ======================

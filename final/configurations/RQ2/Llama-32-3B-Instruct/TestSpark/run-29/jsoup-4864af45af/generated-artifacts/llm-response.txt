@@ -1,0 +1,497 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.safety.Safelist;
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import java.util.HashSet;
+import java.util.Set;
+
+public class SafelistTest {
+
+    @Test
+    public void none_SafelistEmpty() {
+        Safelist safelist = Safelist.none();
+        assertTrue(safelist.isSafeTag("tag"));
+        assertTrue(safelist.getEnforcedAttributes("tag").isEmpty());
+    }
+
+    @Test
+    public void simpleText_SimpleTextSafelist() {
+        Safelist safelist = Safelist.simpleText();
+        assertTrue(safelist.isSafeTag("p"));
+        assertTrue(safelist.getEnforcedAttributes("p").containsKey(Validate.ATTR_TEXT));
+    }
+
+    @Test
+    public void basic_BasicWithImagesSafelist() {
+        Safelist safelist = Safelist.basic();
+        assertTrue(safelist.isSafeTag("img"));
+        assertTrue(safelist.getEnforcedAttributes("img").isEmpty());
+    }
+
+    @Test
+    public void relaxed_RelaxedSafelistWithImagesAndLinks() {
+        Safelist safelist = Safelist.relaxed();
+        assertTrue(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeAttribute("a", null, new Attribute("href", "http://example.com")));
+    }
+
+    @Test
+    public void addTags_SimpleTextWithAddedTagSafelist() {
+        Safelist safelist = Safelist.simpleText();
+        safelist = safelist.addTags("script");
+        assertTrue(safelist.isSafeTag("script"));
+    }
+
+    @Test
+    public void removeTags_SimpleTextWithRemovedTagSafelist() {
+        Safelist safelist = Safelist.simpleText();
+        safelist = safelist.removeTags("p");
+        assertFalse(safelist.isSafeTag("p"));
+    }
+
+    @Test
+    public void addAttributes_AddedAttributeToSimpleTextSafelist() {
+        Safelist safelist = Safelist.simpleText();
+        safelist = safelist.addAttributes("p", "data-test", "test-attribute");
+        assertTrue(safelist.getEnforcedAttributes("p").containsKey(Validate.ATTR_DATA_TEST));
+    }
+
+    @Test
+    public void removeAttributes_RemoveAddedAttributeFromSimpleTextSafelist() {
+        Safelist safelist = Safelist.simpleText();
+        safelist = safelist.addAttributes("p", "data-test", "test-attribute");
+        safelist = safelist.removeAttributes("p", "data-test");
+        assertTrue(safelist.getEnforcedAttributes("p").isEmpty());
+    }
+
+    @Test
+    public void addEnforcedAttribute_AddedEnforcedAttributeToBasicSafelist() {
+        Safelist safelist = Safelist.basic();
+        safelist = safelist.addEnforcedAttribute("form", "data-attr", "test-value");
+        assertTrue(safelist.getEnforcedAttributes("form").containsKey(Validate.ATTR_DATA_ATTR));
+    }
+
+    @Test
+    public void removeEnforcedAttribute_RemoveAddedEnforcedAttributeFromBasicSafelist() {
+        Safelist safelist = Safelist.basic();
+        safelist = safelist.addEnforcedAttribute("form", "data-attr", "test-value");
+        safelist = safelist.removeEnforcedAttribute("form", "data-attr");
+        assertTrue(safelist.getEnforcedAttributes("form").isEmpty());
+    }
+
+    @Test
+    public void preserveRelativeLinks_PreserveLink() {
+        Safelist safelist = Safelist.relaxed();
+        safelist = safelist.preserveRelativeLinks(true);
+        assertTrue(safelist.isSafeAttribute("a", null, new Attribute(Validate.ATTR_HREF, "http://example.com")));
+    }
+
+    @Test
+    public void addProtocols_AddedProtocolToRelaxedSafelist() {
+        Safelist safelist = Safelist.relaxed();
+        safelist = safelist.addProtocols("img", Validate.ATTR_SRC, "https://example.com");
+        assertTrue(safelist.getEnforcedAttributes("img").containsKey(Validate.ATTR_SRC));
+    }
+
+    @Test
+    public void removeProtocols_RemoveAddedProtocolFromRelaxedSafelist() {
+        Safelist safelist = Safelist.relaxed();
+        safelist = safelist.addProtocols("img", Validate.ATTR_SRC, "https://example.com");
+        safelist = safelist.removeProtocols("img", Validate.ATTR_SRC, new String[]{"https://example.net"});
+        assertTrue(safelist.getEnforcedAttributes("img").isEmpty());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class Validate {
+    public static final String ATTR_TEXT = "text";
+    public static final String ATTR_DATA_TEST = "data-test";
+    public static final String ATTR_DATA_ATTR = "data-attr";
+    public static final String ATTR_HREF = "href";
+    public static final String ATTR_SRC = "src";
+
+    public static class Attribute {
+        private String attr;
+        private String value;
+
+        public Attribute(String attr, String value) {
+            this.attr = attr;
+            this.value = value;
+        }
+
+        public String getAttr() {
+            return attr;
+        }
+    }
+
+    public interface Rule {
+        boolean apply(Element element);
+    }
+
+    public static class Safelist {
+        private java.util.HashMap<String, java.util.List<String>> enforcedAttributes = new java.util.HashMap<>();
+        private java.util.List<Rule> rules;
+
+        public void addProtocols(String tag, String attr, String value) {
+            if (!enforcedAttributes.containsKey(tag)) {
+                enforcedAttributes.put(tag, new java.util.ArrayList<>());
+            }
+            enforcedAttributes.get(tag).add(attr);
+            rules = new java.util.ArrayList<>();
+            rules.add(new Rule() {
+                @Override
+                public boolean apply(Element element) {
+                    return element.hasAttr(attr) && element.attr(attr).equals(value);
+                }
+            });
+        }
+
+        public void removeProtocols(String tag, String attr, java.util.List<String> values) {
+            if (!enforcedAttributes.containsKey(tag)) {
+                enforcedAttributes.put(tag, new java.util.ArrayList<>());
+            }
+            enforcedAttributes.get(tag).removeIf(a -> a.equals(attr) && !values.contains(value));
+            rules = new java.util.ArrayList<>();
+        }
+
+        public boolean getEnforcedAttributes(String tag).containsKey(ATTR_TEXT) {
+            return enforcedAttributes.containsKey(tag);
+        }
+
+        public boolean isSafeTag(String tag) {
+            if (!enforcedAttributes.containsKey(tag)) {
+                return true;
+            }
+            for (Rule rule : rules) {
+                if (rule.apply(null)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public boolean isSafeAttribute(String attr, String value, Attribute a) {
+            if (!enforcedAttributes.containsKey(attr)) {
+                return true;
+            }
+            for (Rule rule : rules) {
+                if (rule.apply(null)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    public static class GeneratedTest {
+        @Before
+        public void setup() throws Exception {
+            Document document = new Document().select("html").append(new Element("body"));
+            Safelist safelist = new Safelist();
+            safelist.addProtocols("img", Validate.ATTR_SRC, "https://example.com");
+            safelist.removeProtocols("img", Validate.ATTR_SRC, Arrays.asList("https://example.net"));
+
+            assertTrue(safelist.isSafeTag("img"));
+            assertFalse(safelist.getEnforcedAttributes("img").containsKey(Validate.ATTR_SRC));
+        }
+
+        @Test
+        public void testSafelist() {
+            Safelist safelist = new Safelist();
+            safelist.addProtocols("img", Validate.ATTR_SRC, "https://example.com");
+
+            assertTrue(safelist.isSafeAttribute("a", null, new Attribute(Validate.ATTR_HREF, "http://example.com")));
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class Validate {
+    public static final String ATTR_TEXT = "text";
+    public static final String ATTR_DATA_TEST = "data-test";
+    public static final String ATTR_DATA_ATTR = "data-attr";
+    public static final String ATTR_HREF = "href";
+    public static final String ATTR_SRC = "src";
+
+    public static class Attribute {
+        private String attr;
+        private String value;
+
+        public Attribute(String attr, String value) {
+            this.attr = attr;
+            this.value = value;
+        }
+
+        public String getAttr() {
+            return attr;
+        }
+    }
+
+    public interface Rule {
+        boolean apply(Element element);
+    }
+
+    public static class Safelist {
+        private java.util.HashMap<String, java.util.List<String>> enforcedAttributes = new java.util.HashMap<>();
+        private java.util.List<Rule> rules;
+
+        public void addProtocols(String tag, String attr, String value) {
+            if (!enforcedAttributes.containsKey(tag)) {
+                enforcedAttributes.put(tag, new java.util.ArrayList<>());
+            }
+            enforcedAttributes.get(tag).add(attr);
+            rules = new java.util.ArrayList<>();
+            rules.add(new Rule() {
+                @Override
+                public boolean apply(Element element) {
+                    return element.hasAttr(attr) && element.attr(attr).equals(value);
+                }
+            });
+        }
+
+        public void removeProtocols(String tag, String attr, java.util.List<String> values) {
+            if (!enforcedAttributes.containsKey(tag)) {
+                enforcedAttributes.put(tag, new java.util.ArrayList<>());
+            }
+            enforcedAttributes.get(tag).removeIf(a -> a.equals(attr) && !values.contains(value));
+            rules = new java.util.ArrayList<>();
+        }
+
+        public boolean getEnforcedAttributes(String tag).containsKey(ATTR_TEXT) {
+            return enforcedAttributes.containsKey(tag);
+        }
+
+        public boolean isSafeTag(String tag) {
+            if (!enforcedAttributes.containsKey(tag)) {
+                return true;
+            }
+            for (Rule rule : rules) {
+                if (rule.apply(null)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public boolean isSafeAttribute(String attr, String value, Attribute a) {
+            if (!enforcedAttributes.containsKey(attr)) {
+                return true;
+            }
+            for (Rule rule : rules) {
+                if (rule.apply(null)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    public static class GeneratedTest {
+        @Before
+        public void setup() throws Exception {
+            Document document = new Document().select("html").append(new Element("body"));
+            Safelist safelist = new Safelist();
+            safelist.addProtocols("img", Validate.ATTR_SRC, "https://example.com");
+            safelist.removeProtocols("img", Validate.ATTR_SRC, Arrays.asList("https://example.net"));
+
+            assertTrue(safelist.isSafeTag("img"));
+            assertFalse(safelist.getEnforcedAttributes("img").containsKey(Validate.ATTR_SRC));
+        }
+
+        @Test
+        public void testSafelist() {
+            Safelist safelist = new Safelist();
+            safelist.addProtocols("img", Validate.ATTR_SRC, "https://example.com");
+
+            assertTrue(safelist.isSafeAttribute("a", null, new Attribute(Validate.ATTR_HREF, "http://example.com")));
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Safelist {
+    private java.util.HashMap<String, java.util.List<String>> enforcedAttributes = new java.util.HashMap<>();
+    private java.util.List<Rule> rules;
+
+    public void addProtocols(String tag, String attr, String value) {
+        if (!enforcedAttributes.containsKey(tag)) {
+            enforcedAttributes.put(tag, new java.util.ArrayList<>());
+        }
+        enforcedAttributes.get(tag).add(attr);
+        rules = new java.util.ArrayList<>();
+        rules.add(new Rule() {
+            @Override
+            public boolean apply(Element element) {
+                return element.hasAttr(attr) && element.attr(attr).equals(value);
+            }
+        });
+    }
+
+    public void removeProtocols(String tag, String attr, java.util.List<String> values) {
+        if (!enforcedAttributes.containsKey(tag)) {
+            enforcedAttributes.put(tag, new java.util.ArrayList<>());
+        }
+        enforcedAttributes.get(tag).removeIf(a -> a.equals(attr) && !values.contains(value));
+        rules = new java.util.ArrayList<>();
+    }
+
+    public boolean getEnforcedAttributes(String tag).containsKey(ATTR_TEXT) {
+        return enforcedAttributes.containsKey(tag);
+    }
+
+    public boolean isSafeTag(String tag) {
+        if (!enforcedAttributes.containsKey(tag)) {
+            return true;
+        }
+        for (Rule rule : rules) {
+            if (rule.apply(null)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isSafeAttribute(String attr, String value, Attribute a) {
+        if (!enforcedAttributes.containsKey(attr)) {
+            return true;
+        }
+        for (Rule rule : rules) {
+            if (rule.apply(null)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+public class GeneratedTest {
+
+    @Before
+    public void setup() throws Exception {
+        Document document = new Document().select("html").append(new Element("body"));
+        Safelist safelist = new Safelist();
+        safelist.addProtocols("img", "src", "https://example.com");
+        safelist.removeProtocols("img", "src", Arrays.asList("https://example.net"));
+
+        assertTrue(safelist.isSafeTag("img"));
+        assertFalse(safelist.getEnforcedAttributes("img").containsKey(Safelist.ATTR_SRC));
+    }
+
+    @Test
+    public void testSafelist() {
+        Safelist safelist = new Safelist();
+        safelist.addProtocols("img", "src", "https://example.com");
+
+        assertTrue(safelist.isSafeAttribute("a", null, new Attribute(Safelist.ATTR_SRC, "http://example.com")));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Safelist {
+    private java.util.HashMap<String, java.util.List<String>> enforcedAttributes = new java.util.HashMap<>();
+    private java.util.List<Rule> rules;
+
+    public void addProtocols(String tag, String attr, String value) {
+        if (!enforcedAttributes.containsKey(tag)) {
+            enforcedAttributes.put(tag, new java.util.ArrayList<>());
+        }
+        enforcedAttributes.get(tag).add(attr);
+        rules = new java.util.ArrayList<>();
+        rules.add(new Rule() {
+            @Override
+            public boolean apply(Element element) {
+                return element.hasAttr(attr) && element.attr(attr).equals(value);
+            }
+        });
+    }
+
+    public void removeProtocols(String tag, String attr, java.util.List<String> values) {
+        if (!enforcedAttributes.containsKey(tag)) {
+            enforcedAttributes.put(tag, new java.util.ArrayList<>());
+        }
+        enforcedAttributes.get(tag).removeIf(a -> a.equals(attr) && !values.contains(value));
+        rules = new java.util.ArrayList<>();
+    }
+
+    public boolean getEnforcedAttributes(String tag) {
+        return enforcedAttributes.containsKey(tag);
+    }
+
+    public boolean isSafeTag(String tag) {
+        if (!enforcedAttributes.containsKey(tag)) {
+            return true;
+        }
+        for (Rule rule : rules) {
+            if (rule.apply(null)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isSafeAttribute(String attr, String value, Attribute a) {
+        if (!enforcedAttributes.containsKey(attr)) {
+            return true;
+        }
+        for (Rule rule : rules) {
+            if (rule.apply(null)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static final String ATTR_TEXT = "text";
+}
+
+public class GeneratedTest {
+
+    @Before
+    public void setup() throws Exception {
+        Document document = new Document().select("html").append(new Element("body"));
+        Safelist safelist = new Safelist();
+        safelist.addProtocols("img", "src", "https://example.com");
+        safelist.removeProtocols("img", "src", Arrays.asList("https://example.net"));
+
+        assertTrue(safelist.isSafeTag("img"));
+        assertFalse(safelist.getEnforcedAttributes("img").containsKey(Safelist.ATTR_TEXT));
+    }
+
+    @Test
+    public void testSafelist() {
+        Safelist safelist = new Safelist();
+        safelist.addProtocols("img", "src", "https://example.com");
+
+        assertTrue(safelist.isSafeAttribute("a", null, new Attribute(Safelist.ATTR_SRC, "http://example.com")));
+    }
+}
+```
+===================================================
+

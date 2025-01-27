@@ -1,0 +1,142 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Printer newPrinter;
+
+    public void testConstructor() {
+        // test constructor call
+    }
+
+    public void testVisitAssignExpr() {
+        AssingExpr expr = new AssingExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        visitor.visitAssignExpr(expr);
+        // test visitAssignExpr method
+    }
+
+    public void testVisitBinaryExpr_SimpleExpression() {
+        BinaryExpr expr = new BinaryExpr(1, 2);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        visitor.visitBinaryExpr(expr);
+        // test visitBinaryExpr with simple expression
+    }
+
+    public void testVisitBinaryExpr_ComplexExpression() {
+        BinaryExpr expr = new BinaryExpr(new BinaryExpr(1, 2), "+");
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        visitor.visitBinaryExpr(expr);
+        // test visitBinaryExpr with complex expression
+    }
+
+    @Test
+    public void testVisitAnonymousScript() {
+        AnonymousScript script = new AnonymousScript();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(script);
+        assertEquals("[AnonymousScript]", result);
+        // test visitAnonymousScript method
+    }
+
+    @Test
+    public void testVisitDecimalExpr() {
+        DecimalExpr expr = new DecimalExpr(1, 2);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(expr);
+        assertEquals("1.0", result);
+        // test visitDecimalExpr method
+    }
+
+    @Test
+    public void testVisitFunctionCall() {
+        FunctionCallExpr expr = new FunctionCallExpr("testFunction", "arg");
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(expr);
+        assertEquals("testFunction(arg)", result);
+        // test visitFunctionCall method
+    }
+
+    @Test
+    public void testVisitIfElseExpression_SimpleCondition() {
+        IfElseExpr expr = new IfElseExpr(true, "trueCase", false, "falseCase");
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(expr);
+        assertEquals("[IfElseExpr]{condition true; case trueCase, else falseCase}", result);
+        // test visitIfElseExpression with simple condition
+    }
+
+    @Test
+    public void testVisitPropertyPathExpr() {
+        PropertyPathExpr expr = new PropertyPathExpr("property1", "value");
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(expr);
+        assertEquals("[PropertyPathExpr]{property1.value}", result);
+        // test visitPropertyPathExpr method
+    }
+
+    @Test
+    public void testVisitProjectionExpr() {
+        ProjectionExpr expr = new ProjectionExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(expr);
+        assertEquals("[ProjectionExpr]", result);
+        // test visitProjectionExpr method
+    }
+
+    @Test
+    public void testVisitVarExpression() {
+        VarExpr expr = new VarExpr("varName");
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(expr);
+        assertEquals("[VarExpr]{name varName}", result);
+        // test visitVarExpression method
+    }
+
+    @Test
+    public void testVisitUnaryExpr_SimpleOperation() {
+        UnaryExpr expr = new UnaryExpr("op", 1, 2);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(expr);
+        assertEquals("[UnaryExpr]{operation op; operand 1.0}", result);
+        // test visitUnaryExpr with simple operation
+    }
+
+    @Test
+    public void testVisitVectorExpression() {
+        VectorExpr expr = new VectorExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(expr);
+        assertEquals("[VectorExpr]", result);
+        // test visitVectorExpression method
+    }
+
+    @Test
+    public void testVisitIndexExpression_SimpleIndex() {
+        IndexExpr expr = new IndexExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(expr);
+        assertEquals("[IndexExpr]", result);
+        // test visitIndexExpression with simple index
+    }
+
+    @Test
+    public void testVisitIndexExpression_ComplexIndex() {
+        IndexExpr expr = new IndexExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(newPrinter);
+        String result = visitor.exprToString(expr);
+        assertEquals("[IndexExpr]", result);
+        // test visitIndexExpression with complex index
+    }
+
+}

@@ -1,0 +1,34 @@
+package com.adobe.epubcheck.opf;
+
+public class GeneratedTestEPUBProfile {
+
+    public int getVersion() {
+        return 1;
+    }
+}
+
+public class PreferringMediaTypes {
+    public String getPreferredMediaType(String mediaType, String path) {
+        if (mediaType.equals("image") && path.endsWith(".jpg")) {
+            return "image/jpeg";
+        } else if (mediaType.equals("text") && path.endsWith(".txt")) {
+            return "text/plain";
+        }
+        return null;
+    }
+
+    public void setPreferredMediaType(String mediaType) {
+        this.preferredMediaType = mediaType;
+    }
+}
+
+public class Tests {
+
+    @Test
+    public void testEPUBProfile() {
+        EPUBProfile epubProfile = new EPUBProfile();
+        epubProfile.setMediaType("image/jpeg");
+        assertEquals("image/jpeg", epubProfile.getMediaType());
+    }
+
+}

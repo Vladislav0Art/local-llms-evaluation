@@ -1,0 +1,39 @@
+package com.adobe.epubcheck.opf;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(org.junit.runners.JUnit4.class)
+public class GeneratedInitHandler_exception {
+
+    @Mock
+    private ValidationContext validationContext;
+
+    @Mock
+    private OPFChecker30 opfChecker30;
+
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        when(opfChecker30.getValidationContext()).thenReturn(validationContext);
+    }
+
+    @Test
+    public void initHandler_exception() {
+        when(opfChecker30.getValidationContext()).thenThrow(Exception.class);
+        boolean isInitHandlerCalled = false;
+        try {
+            opfChecker30.initHandler();
+            assertEquals(false, isInitHandlerCalled);
+        } catch (Exception e) {
+            assertEquals(true, isInitHandlerCalled);
+        }
+    }
+
+}

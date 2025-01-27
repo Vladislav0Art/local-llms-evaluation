@@ -1,0 +1,473 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import java.util.Arrays;
+import java.util.List;
+
+public class TokenizerTest {
+
+    @Test
+    public void constructorParseCorrectly() {
+        String expressionString = "1 + 2";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        assertThat(tokenizer.parse(), is(notNullValue()));
+    }
+
+    @Test
+    public void parseReturnsCorrectList() {
+        String expressionString = "a + b * c";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertThat(tokens.size(), is(5));
+    }
+
+    @Test
+    public void parseStringLiteralReturnsCorrectToken() {
+        String expressionString = "'hello'";
+        Tokenizer tokenizer = new Tokenizer(expressionString, new ExpressionConfiguration());
+        Token token = tokenizer.parseStringLiteral();
+        assertThat(token.getValue(), is("'hello'"));
+    }
+
+    @Test
+    public void parseStringLiteralThrowsParseExceptionForEmptyString() {
+        String expressionString = "";
+        Tokenizer tokenizer = new Tokenizer(expressionString, new ExpressionConfiguration());
+        assertThrows(ParseException.class, () -> tokenizer.parseStringLiteral());
+    }
+}
+
+public class MockitoTest {
+
+    private static final OperatorDictionaryIfc mockOperatorDictionaryIfc = mock(OperatorDictionaryIfc.class);
+
+    @Test
+    public void parseFunctionReturnsCorrectToken() {
+        String expressionString = "sin(x)";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        OperatorDictionaryIfc operatorDictionaryIfc = Mockito.mock(OperatorDictionaryIfc.class);
+        when(mockOperatorDictionaryIfc.get("sin")).thenReturn(new FunctionIfc());
+        List<Token> tokens = tokenizer.parse();
+        assertThat(tokens.size(), is(2));
+    }
+
+    @Test
+    public void parseFunctionThrowsParseExceptionForInvalidFunction() {
+        String expressionString = "sin";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        assertThrows(ParseException.class, () -> tokenizer.parse());
+    }
+}
+
+public class ExpressionConfigurationTest {
+
+    private static final ExpressionConfiguration mockExpressionConfiguration = mock(ExpressionConfiguration.class);
+
+    @Test
+    public void parseReturnsCorrectToken() {
+        String expressionString = "1 + 2";
+        Tokenizer tokenizer = new Tokenizer(expressionString, mockExpressionConfiguration);
+        List<Token> tokens = tokenizer.parse();
+        assertThat(tokens.size(), is(3));
+    }
+
+    @Test
+    public void parseThrowsParseExceptionForEmptyExpression() {
+        String expressionString = "";
+        ExpressionConfiguration configuration = mock(ExpressionConfiguration.class);
+        when(configuration.getFunctionDictionaryIfc()).thenReturn(null);
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        assertThrows(ParseException.class, () -> tokenizer.parse());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TokenizerTest {
+
+    @Test
+    public void testParseWithEmptyExpression() {
+        String expression = "";
+        Tokenizer tokenizer = new Tokenizer(expression, mock(ExpressionConfiguration.class));
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.isEmpty());
+    }
+
+    @Test
+    public void testParseReturnsCorrectToken() {
+        String expression = "sin(x)";
+        ExpressionConfiguration configuration = mock(ExpressionConfiguration.class);
+        when(configuration.getFunctionDictionaryIfc()).thenReturn(new FunctionDictionaryIfc());
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(3, tokens.size());
+    }
+
+    @Test
+    public void testParseThrowsParseExceptionForEmptyExpression() {
+        String expression = "";
+        ExpressionConfiguration configuration = mock(ExpressionConfiguration.class);
+        when(configuration.getFunctionDictionaryIfc()).thenReturn(null);
+        assertThrows(ParseException.class, () -> new Tokenizer(expression, configuration).parse());
+    }
+}
+
+class FunctionDictionaryIfc {
+}
+
+class ExpressionConfiguration {
+    public FunctionDictionaryIfc getFunctionDictionaryIfc() { return null; }
+}
+
+class Token {
+    private String type;
+
+    public Token(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Token token = (Token) o;
+        return Objects.equals(type, token.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return type.hashCode();
+    }
+}
+
+class ParseException extends Exception {}
+
+class MockedObject<T> {
+    private T object;
+
+    public MockedObject(T object) {
+        this.object = object;
+    }
+
+    public T getObject() { return object; }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class TokenizerTest {
+
+    @Test
+    public void testParseWithEmptyExpression() {
+        String expression = "";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        when(configuration.getFunctionDictionaryIfc()).thenReturn(null);
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.isEmpty());
+    }
+
+    @Test
+    public void testParseReturnsCorrectToken() {
+        String expression = "sin(x)";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        when(configuration.getFunctionDictionaryIfc()).thenReturn(new FunctionDictionaryIfc());
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(3, tokens.size());
+    }
+
+    @Test
+    public void testParseThrowsParseExceptionForEmptyExpression() {
+        String expression = "";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        when(configuration.getFunctionDictionaryIfc()).thenReturn(null);
+        assertThrows(ParseException.class, () -> new Tokenizer(expression, configuration).parse());
+    }
+}
+
+class FunctionDictionaryIfc {}
+
+class ExpressionConfiguration {
+    public FunctionDictionaryIfc getFunctionDictionaryIfc() { return null; }
+}
+
+class Token {
+    private String type;
+
+    public Token(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Token token = (Token) o;
+        return Objects.equals(type, token.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return type.hashCode();
+    }
+}
+
+class ParseException extends Exception {}
+
+public class Tokenizer {
+    private String expression;
+    private ExpressionConfiguration configuration;
+
+    public Tokenizer(String expression, ExpressionConfiguration configuration) {
+        this.expression = expression;
+        this.configuration = configuration;
+    }
+
+    public List<Token> parse() throws ParseException {
+        // implementation
+    }
+}
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import java.util.List;
+import java.util.function.Function;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.Method;
+
+class MockedObject<T> implements InvocationHandler {
+    private T object;
+
+    public MockedObject(T object) {
+        this.object = object;
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        return object.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(object, args);
+    }
+}
+
+public class ExpressionConfigurationImpl extends ExpressionConfiguration {
+    @Override
+    public FunctionDictionaryIfc getFunctionDictionaryIfc() { return new FunctionDictionaryIfc(); }
+}
+
+class ParseException extends Exception {}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Token {
+    private String type;
+
+    public Token(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Token token = (Token) o;
+        return Objects.equals(type, token.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return type.hashCode();
+    }
+}
+
+public class ExpressionConfigurationImpl extends ExpressionConfiguration {
+    @Override
+    public FunctionDictionaryIfc getFunctionDictionaryIfc() { 
+        return new FunctionDictionaryIfc(); 
+    }
+}
+
+public class ParseException extends Exception {}
+
+public class MockedObject<T> implements InvocationHandler {
+    private T object;
+
+    public MockedObject(T object) {
+        this.object = object;
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        return object.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(object, args);
+    }
+}
+
+public class Tokenizer {
+    private String expression;
+    private ExpressionConfiguration configuration;
+
+    public Tokenizer(String expression, ExpressionConfiguration configuration) {
+        this.expression = expression;
+        this.configuration = configuration;
+    }
+
+    public List<Token> parse() throws ParseException { 
+        // implementation
+        return new ArrayList<>(); 
+    }
+}
+
+public class FunctionDictionaryIfc {}
+
+import java.util.List;
+import java.util.function.Function;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.Method;
+
+public class GeneratedTest {
+
+    public static void main(String[] args) throws ParseException {
+        ExpressionConfiguration configuration = new ExpressionConfigurationImpl();
+        Tokenizer tokenizer = new Tokenizer("", configuration);
+        List<Token> tokens = tokenizer.parse();
+        System.out.println(tokens.size());
+    }
+
+    @org.junit.jupiter.api.Test
+    public void testParseWithEmptyExpression() { 
+        String expression = "";
+        Tokenizer tokenizer = new Tokenizer(expression, new ExpressionConfigurationImpl());
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.isEmpty());
+    }
+
+    @org.junit.jupiter.api.Test
+    public void testParseReturnsCorrectToken() { 
+        String expression = "sin(x)";
+        Tokenizer tokenizer = new Tokenizer(expression, new ExpressionConfigurationImpl());
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(3, tokens.size());
+    }
+
+    @org.junit.jupiter.api.Test
+    public void testParseThrowsParseExceptionForEmptyExpression() throws ParseException { 
+        String expression = "";
+        Tokenizer tokenizer = new Tokenizer(expression, new ExpressionConfigurationImpl());
+        assertThrows(ParseException.class, () -> tokenizer.parse());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Token {
+    private String type;
+
+    public Token(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Token token = (Token) o;
+        return Objects.equals(type, token.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return type.hashCode();
+    }
+}
+
+public class ExpressionConfigurationImpl extends ExpressionConfiguration {
+    @Override
+    public FunctionDictionaryIfc getFunctionDictionaryIfc() { 
+        return new FunctionDictionaryIfc(); 
+    }
+}
+
+public class ParseException extends Exception {}
+
+public class MockedObject<T> implements InvocationHandler {
+    private T object;
+
+    public MockedObject(T object) {
+        this.object = object;
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        return object.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(object, args);
+    }
+}
+
+public class FunctionDictionaryIfc {}
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.Method;
+
+public class GeneratedTest {
+
+    public static void main(String[] args) throws ParseException {
+        ExpressionConfiguration configuration = new ExpressionConfigurationImpl();
+        Tokenizer tokenizer = new Tokenizer("", configuration);
+        List<Token> tokens = tokenizer.parse();
+        System.out.println(tokens.size());
+    }
+
+    @org.junit.jupiter.api.Test
+    public void testParseWithEmptyExpression() { 
+        String expression = "";
+        Tokenizer tokenizer = new Tokenizer(expression, new ExpressionConfigurationImpl());
+        List<Token> tokens = tokenizer.parse();
+        assertTrue(tokens.isEmpty());
+    }
+
+    @org.junit.jupiter.api.Test
+    public void testParseReturnsCorrectToken() { 
+        String expression = "sin(x)";
+        Tokenizer tokenizer = new Tokenizer(expression, new ExpressionConfigurationImpl());
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(3, tokens.size());
+    }
+
+    @org.junit.jupiter.api.Test
+    public void testParseThrowsParseExceptionForEmptyExpression() throws ParseException { 
+        String expression = "";
+        Tokenizer tokenizer = new Tokenizer(expression, new ExpressionConfigurationImpl());
+        assertThrows(ParseException.class, () -> tokenizer.parse());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

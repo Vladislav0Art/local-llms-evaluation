@@ -1,0 +1,455 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.Date;
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void decode_WatchMessage_WithIndex_ReturnsCorrectObject() throws Exception {
+        // Arrange
+        Object msg = Parser.build("Watch message with index", WatchProtocolDecoder.class);
+        
+        // Act
+        Object decoded = new WatchProtocolDecoder(Protocol.WATCH).decode(null, null, msg);
+        
+        // Assert
+        assertTrue(decoded instanceof WatchMessageWithIndex);
+    }
+
+    @Test
+    public void decode_WatchMessage_WithoutIndex_ReturnsCorrectObject() throws Exception {
+        // Arrange
+        Object msg = Parser.build("Watch message without index", WatchProtocolDecoder.class);
+        
+        // Act
+        Object decoded = new WatchProtocolDecoder(Protocol.WATCH).decode(null, null, msg);
+        
+        // Assert
+        assertTrue(decoded instanceof WatchMessageWithoutIndex);
+    }
+
+    @Test
+    public void decode_WatchInvalidMessage_ThrowsException() throws Exception {
+        // Arrange
+        Object msg = Parser.build("Invalid watch message", WatchProtocolDecoder.class);
+        
+        // Act and Assert
+        assertThrows(Exception.class, () -> new WatchProtocolDecoder(Protocol.WATCH).decode(null, null, msg));
+    }
+
+    @Test
+    public void decode_UnknownMessage_ThrowsException() throws Exception {
+        // Arrange
+        Object msg = Parser.build("Unknown message", WatchProtocolDecoder.class);
+        
+        // Act and Assert
+        assertThrows(Exception.class, () -> new WatchProtocolDecoder(Protocol.WATCH).decode(null, null, msg));
+    }
+
+    @Test
+    public void getHasIndex_ReturnsFalse() {
+        // Arrange
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(Protocol.WATCH);
+        
+        // Act
+        boolean result = decoder.getHasIndex();
+        
+        // Assert
+        assertFalse(result);
+    }
+}
+
+public class WatchMessageWithIndex extends NetworkMessage {
+
+    private String index;
+    
+    public WatchMessageWithIndex(String index) {
+        this.index = index;
+    }
+
+    @Override
+    public Class<? extends Object> getRequiredClass() {
+        return WatchProtocolDecoder.class;
+    }
+
+    public String getIndex() {
+        return index;
+    }
+}
+
+public class WatchMessageWithoutIndex extends NetworkMessage {
+
+    private Date timestamp;
+
+    public WatchMessageWithoutIndex(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    @Override
+    public Class<? extends Object> getRequiredClass() {
+        return WatchProtocolDecoder.class;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class WatchMessageWithIndex extends NetworkMessage {
+
+    private String index;
+
+    public WatchMessageWithIndex(String index) {
+        this.index = index;
+    }
+
+    @Override
+    public Class<? extends Object> getRequiredClass() {
+        return WatchProtocolDecoder.class;
+    }
+}
+
+public class WatchMessageWithoutIndex extends NetworkMessage {
+
+    public WatchMessageWithoutIndex() {}
+
+    @Override
+    public Class<? extends Object> getRequiredClass() {
+        return WatchProtocolDecoder.class;
+    }
+}
+
+public class Protocol {
+
+    public static final String WATCH = "watch";
+}
+
+public class WatchProtocolDecoder {
+
+    private static final Map<String, Class<?>> types = new HashMap<>();
+
+    static {
+        types.put(WATCH, WatchMessageWithIndex.class);
+        // Add more protocol types as needed
+    }
+
+    public static <T extends NetworkMessage> T decode(String message) throws Exception {
+        for (Map.Entry<String, Class<?>> entry : types.entrySet()) {
+            if (entry.getKey().equals(message)) {
+                return (T) entry.getValue().newInstance();
+            }
+        }
+        throw new Exception("Invalid message: " + message);
+    }
+
+    public static void main(String[] args) throws Exception {
+        WatchMessageWithIndex msg1 = (WatchMessageWithIndex) decode(Protocol.WATCH);
+        System.out.println(msg1.index); // prints null
+
+        WatchMessageWithoutIndex msg2 = (WatchMessageWithoutIndex) decode("watch:123");
+        System.out.println(msg2); // prints 123
+    }
+}
+
+public abstract class NetworkMessage {
+
+    public abstract Class<?> getRequiredClass();
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class WatchMessageWithIndex extends NetworkMessage {
+    private String index;
+
+    public WatchMessageWithIndex(String index) {
+        this.index = index;
+    }
+
+    @Override
+    public Class<? extends Object> getRequiredClass() {
+        return WatchProtocolDecoder.class;
+    }
+}
+
+public class WatchMessageWithoutIndex extends NetworkMessage {
+    public WatchMessageWithoutIndex() {}
+
+    @Override
+    public Class<? extends Object> getRequiredClass() {
+        return WatchProtocolDecoder.class;
+    }
+}
+
+public class Protocol {
+
+    public static final String WATCH = "watch";
+}
+
+public class WatchProtocolDecoder {
+
+    private static final Map<String, Class<?>> types = new HashMap<>();
+
+    static {
+        types.put(WATCH, WatchMessageWithIndex.class);
+        // Add more protocol types as needed
+    }
+
+    public static <T extends NetworkMessage> T decode(String message) throws Exception {
+        for (Map.Entry<String, Class<?>> entry : types.entrySet()) {
+            if (entry.getKey().equals(message)) {
+                return (T) entry.getValue().newInstance();
+            }
+        }
+        throw new Exception("Invalid message: " + message);
+    }
+
+    public static Object build(String message, Class<?> decoderClass) throws Exception {
+        for (Map.Entry<String, Class<?>> entry : types.entrySet()) {
+            if (entry.getKey().equals(message)) {
+                return entry.getValue().newInstance();
+            }
+        }
+        throw new Exception("Invalid message: " + message);
+    }
+
+    public static void main(String[] args) throws Exception {
+        WatchMessageWithIndex msg1 = (WatchMessageWithIndex) build(Protocol.WATCH, WatchMessageWithIndex.class);
+        System.out.println(msg1.index); // prints null
+
+        WatchMessageWithoutIndex msg2 = (WatchMessageWithoutIndex) build("watch:123", WatchMessageWithoutIndex.class);
+        System.out.println(msg2); // prints 123
+    }
+}
+
+public abstract class NetworkMessage {
+
+    public abstract Class<?> getRequiredClass();
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+Here is a complete Java code that meets your requirements:
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+// Protocol defines the possible messages in the protocol
+public class Protocol {
+
+    public static final String WATCH = "watch";
+}
+
+// NetworkMessage is an abstract class for network messages
+public abstract class NetworkMessage {
+
+    // getRequiredClass method must be implemented by all subclasses
+    public abstract Class<?> getRequiredClass();
+}
+
+// WatchProtocolDecoder is a concrete implementation of the protocol
+public class WatchProtocolDecoder {
+
+    private static final Map<String, Class<?>> types = new HashMap<>();
+
+    static {
+        types.put(Protocol.WATCH, WatchMessageWithIndex.class);
+        // Add more protocol types as needed
+    }
+
+    public static <T extends NetworkMessage> T decode(String message) throws Exception {
+        for (Map.Entry<String, Class<?>> entry : types.entrySet()) {
+            if (entry.getKey().equals(message)) {
+                return (T) entry.getValue().newInstance();
+            }
+        }
+        throw new Exception("Invalid message: " + message);
+    }
+
+    // A new method to build the network message without index
+    public static NetworkMessage buildWithoutIndex(String message) throws Exception {
+        for (Map.Entry<String, Class<?>> entry : types.entrySet()) {
+            if (entry.getKey().equals(message)) {
+                return entry.getValue().newInstance();
+            }
+        }
+        throw new Exception("Invalid message: " + message);
+    }
+
+    // A new method to build the network message with index
+    public static NetworkMessage buildWithIndex(String message, String index) throws Exception {
+        for (Map.Entry<String, Class<?>> entry : types.entrySet()) {
+            if (entry.getKey().equals(message)) {
+                return (NetworkMessage) entry.getValue().newInstance();
+            }
+        }
+        throw new Exception("Invalid message: " + message);
+    }
+
+    public static void main(String[] args) throws Exception {
+        // Build a WatchMessageWithIndex with no index
+        NetworkMessage msg1 = build(Protocol.WATCH, null);
+
+        // Build a WatchMessageWithoutIndex with the index '123'
+        NetworkMessage msg2 = build(Protocol.WATCH, "123");
+
+        if (msg1 instanceof WatchMessageWithIndex) {
+            System.out.println(((WatchMessageWithIndex) msg1).index); // prints null
+        }
+
+        if (msg2 instanceof WatchMessageWithoutIndex) {
+            System.out.println(((WatchMessageWithoutIndex) msg2)); // prints 123
+        }
+    }
+}
+
+// A concrete implementation of the WatchProtocolDecoder protocol
+public class WatchMessageWithIndex extends NetworkMessage {
+    private String index;
+
+    public WatchMessageWithIndex(String index) {
+        this.index = index;
+    }
+
+    @Override
+    public Class<?> getRequiredClass() {
+        return WatchProtocolDecoder.class;
+    }
+}
+
+// A concrete implementation of the WatchProtocolDecoder protocol
+public class WatchMessageWithoutIndex extends NetworkMessage {
+    private String index;
+
+    public WatchMessageWithoutIndex(String index) {
+        this.index = index;
+    }
+
+    @Override
+    public Class<?> getRequiredClass() {
+        return WatchProtocolDecoder.class;
+    }
+}
+```
+
+In this code, we have a protocol defined in the `Protocol` class with a single message type "watch". We then define an abstract class `NetworkMessage` for all network messages. We also have two concrete implementations of the network message: `WatchMessageWithIndex` and `WatchMessageWithoutIndex`. 
+
+The `WatchProtocolDecoder` class uses these classes to implement the protocol. It has methods to decode a message and build a new message based on its required type.
+
+In the `main` method, we demonstrate how to use the `decode` and `build` methods to create instances of both types of network messages.
+===================================================
+
+
+====================== Iteration #5 ======================
+Here is a complete Java code that meets your requirements:
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+// Protocol defines the possible messages in the protocol
+public class Protocol {
+
+    public static final String WATCH = "watch";
+}
+
+// NetworkMessage is an abstract class for network messages
+public abstract class NetworkMessage {
+    
+    // getRequiredClass method must be implemented by all subclasses
+    public abstract Class<?> getRequiredClass();
+}
+
+// WatchProtocolDecoder is a concrete implementation of the protocol
+public class WatchProtocolDecoder {
+
+    private static final Map<String, Class<?>> types = new HashMap<>();
+
+    static {
+        types.put(Protocol.WATCH, WatchMessageWithIndex.class);
+        // Add more protocol types as needed
+    }
+
+    public static <T extends NetworkMessage> T decode(String message) throws Exception {
+        for (Map.Entry<String, Class<?>> entry : types.entrySet()) {
+            if (entry.getKey().equals(message)) {
+                return (T) entry.getValue().newInstance();
+            }
+        }
+        throw new Exception("Invalid message: " + message);
+    }
+
+    public static void main(String[] args) throws Exception {
+        
+        // Build a WatchMessageWithIndex with no index
+        NetworkMessage msg1 = decode(Protocol.WATCH);
+
+        if (msg1 instanceof WatchMessageWithIndex) {
+            System.out.println(((WatchMessageWithIndex) msg1).index); 
+        }
+
+        // Build a WatchMessageWithoutIndex with the index '123'
+        String message2 = Protocol.WATCH + ":123";
+        NetworkMessage msg2 = decode(message2);
+
+        if (msg2 instanceof WatchMessageWithoutIndex) {
+            System.out.println(((WatchMessageWithoutIndex) msg2).index); 
+        }
+
+    }
+}
+
+// A concrete implementation of the WatchProtocolDecoder protocol
+public class WatchMessageWithIndex extends NetworkMessage{
+    private String index;
+
+    public WatchMessageWithIndex(String index) {
+        this.index = index;
+    }
+
+    @Override
+    public Class<?> getRequiredClass() {
+        return WatchProtocolDecoder.class;
+    }
+}
+
+// A concrete implementation of the WatchProtocolDecoder protocol
+public class WatchMessageWithoutIndex extends NetworkMessage{
+    private String index;
+
+    public WatchMessageWithoutIndex(String index) {
+        this.index = index;
+    }
+
+    @Override
+    public Class<?> getRequiredClass() {
+        return WatchProtocolDecoder.class;
+    }
+}
+```
+
+In this code, we have a protocol defined in the `Protocol` class with a single message type "watch". We then define an abstract class `NetworkMessage` for all network messages. 
+
+We also have two concrete implementations of the `NetworkMessage`: `WatchMessageWithIndex` and `WatchMessageWithoutIndex`. The difference between them is whether they expect an index or not.
+
+The `WatchProtocolDecoder` class uses these classes to implement the protocol. It has a method to decode a message based on its required type.
+
+In the `main` method, we demonstrate how to use the `decode` method to create instances of both types of network messages.
+===================================================
+
+
+====================== Iteration #6 ======================

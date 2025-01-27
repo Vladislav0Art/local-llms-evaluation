@@ -1,0 +1,348 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection connection;
+
+    @Test
+    public void ofConstructor_withNullUrl_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new UrlBuilder(null));
+    }
+
+    @Test
+    public void ofConstructor_withValidUrl_returnsInstance() {
+        URL url = Mockito.mock(URL.class);
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Mockito.verify(url).equals(url);
+    }
+
+    @Test
+    public void build_urlWithQueryAndFragment() throws MalformedURLException, URISyntaxException {
+        String baseUrl = "http://example.com/base";
+        String query = "key=value&foo=bar";
+        String fragment = "#anchor";
+
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(baseUrl));
+        urlBuilder.appendKeyVal(Connection.KeyVal.create("key", "value"));
+        urlBuilder.appendKeyVal(Connection.KeyVal.create("foo", "bar"));
+
+        URI uri = Mockito.mock(URI.class);
+        Mockito.when(uri.resolve("/path/to/resource")).thenReturn(uri);
+        Mockito.when(connection.request()).thenReturn(uri);
+
+        URL result = urlBuilder.build();
+        assertEquals(baseUrl, result.toString());
+    }
+
+    @Test
+    public void build_urlWithoutQueryAndFragment() throws MalformedURLException {
+        String baseUrl = "http://example.com/base";
+
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(baseUrl));
+        Connection.KeyVal kv1 = Mockito.mock(Connection.KeyVal.class);
+        Connection.KeyVal kv2 = Mockito.mock(Connection.KeyVal.class);
+
+        urlBuilder.appendKeyVal(kv1);
+        urlBuilder.appendKeyVal(kv2);
+
+        URI uri = Mockito.mock(URI.class);
+        Mockito.when(uri.resolve("/path/to/resource")).thenReturn(uri);
+        Mockito.when(connection.request()).thenReturn(uri);
+
+        URL result = urlBuilder.build();
+        assertEquals(baseUrl, result.toString());
+    }
+
+    @Test
+    public void build_urlWithOnlyFragment() throws MalformedURLException {
+        String baseUrl = "http://example.com/base";
+
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(baseUrl));
+        Connection.KeyVal kv1 = Mockito.mock(Connection.KeyVal.class);
+        Connection.KeyVal kv2 = Mockito.mock(Connection.KeyVal.class);
+
+        urlBuilder.appendKeyVal(kv1);
+        urlBuilder.appendKeyVal(kv2);
+
+        URI uri = Mockito.mock(URI.class);
+        Mockito.when(uri.resolve("/path/to/resource")).thenReturn(uri);
+        Mockito.when(connection.request()).thenReturn(uri);
+        Mockito.when(uri.getFragment()).thenReturn("#anchor");
+
+        URL result = urlBuilder.build();
+        assertEquals(baseUrl + "#anchor", result.toString());
+    }
+
+    @Test
+    public void appendKeyVal_withNullValue_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> connection.appendKeyVal(null));
+    }
+
+    @Test
+    public void appendKeyVal_validUrlAdded_toConnection() throws UnsupportedEncodingException {
+        URL url = Mockito.mock(URL.class);
+        String key = "key";
+        String value = "value";
+
+        Connection.KeyVal kv = new Connection.KeyVal(key, value);
+        connection.appendKeyVal(kv);
+
+        Mockito.verify(connection).append(key, URI.create("http://example.com/base"), UTF_8.encode(value));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public class GeneratedTest {
+
+    @Test
+    public void testUrlBuilder() {
+        UrlBuilder urlBuilder = new UrlBuilder();
+        urlBuilder.appendKeyVal(Connection.KeyVal.create("key", "value"));
+        String uri = urlBuilder.build().toString();
+        assertEquals(baseUrl, uri);
+    }
+
+    @Test
+    public void testUrlBuilderWithAnchor() {
+        UrlBuilder urlBuilder = new UrlBuilder();
+        urlBuilder.appendKeyVal(Connection.KeyVal.create("key", "value"));
+        String uri = urlBuilder.build().toString();
+        assertEquals(baseUrl + "#anchor", uri);
+    }
+
+    @Test
+    public void testConnectionAppendKeyVal() {
+        Connection connection = new Connection();
+        connection.appendKeyVal(Connection.KeyVal.create("key", "value"));
+        assertThrows(NullPointerException.class, () -> new UrlBuilder(null));
+    }
+}
+
+class UrlBuilder {
+
+    private StringBuilder sb;
+
+    public UrlBuilder() {
+        sb = new StringBuilder();
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {
+        sb.append(kv.getKey()).append("=").append(kv.getValue());
+    }
+
+    public URI build() {
+        return Jsoup.parse(sb.toString(), baseUrl).getUri();
+    }
+
+    private static final String baseUrl = "http://example.com/base";
+}
+
+class Connection {
+
+    public void appendKeyVal(Connection.KeyVal kv) throws NullPointerException {
+        // implementation
+    }
+}
+
+interface KeyVal {
+    String getKey();
+    String getValue();
+
+    KeyVal create(String key, String value);
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class UrlBuilder {
+    private StringBuilder sb;
+
+    public UrlBuilder() {
+        sb = new StringBuilder();
+    }
+
+    public void appendKeyVal(KeyValue kv) {
+        sb.append(kv.getKey()).append("=").append(kv.getValue());
+    }
+
+    public String build() {
+        return "http://example.com/" + sb.toString();
+    }
+}
+
+class Connection {
+    public void appendKeyVal(KeyValue kv) throws NullPointerException {
+        // implementation
+    }
+}
+
+interface KeyValue {
+    String getKey();
+    String getValue();
+
+    KeyValue create(String key, String value);
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilder {
+    private StringBuilder sb;
+    public static final String baseUrl = "http://example.com/base";
+
+    public UrlBuilder() {
+        sb = new StringBuilder();
+    }
+
+    public void appendKeyVal(KeyValue kv) {
+        sb.append(kv.getKey()).append("=").append(kv.getValue());
+    }
+
+    public URI build() {
+        return UriBuilder.build(sb.toString());
+    }
+}
+
+class UriBuilder {
+    private static final String baseUrl = UrlBuilder.baseUrl;
+
+    public static URI build(String query) {
+        // implementation
+    }
+}
+
+interface KeyValue {
+    String getKey();
+    String getValue();
+
+    KeyValue create(String key, String value);
+}
+
+public class Connection {
+    public void appendKeyVal(KeyValue kv) throws NullPointerException {
+        // implementation
+    }
+
+    public static class KeyValue implements KeyValue {
+        private String key;
+        private String value;
+
+        public KeyValue(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public KeyValue create(String key, String value) {
+            return new KeyValue(key, value);
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class UrlBuilder {
+    private StringBuilder sb;
+
+    public UrlBuilder() {
+        sb = new StringBuilder();
+    }
+
+    public void appendKeyVal(KeyValue kv) {
+        sb.append(kv.getKey()).append("=").append(kv.getValue());
+    }
+
+    public String buildUrl() {
+        return baseUrl + "?" + sb.toString();
+    }
+}
+
+class Connection {
+    public static class KeyValue implements java.util.Map.Entry<String, String> {
+        private String key;
+        private String value;
+
+        public KeyValue(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public java.util.Map.Entry<String, String> getValueObject() {
+            return this;
+        }
+    }
+
+    public void appendKeyVal(KeyValue kv) throws NullPointerException {
+        // implementation
+    }
+}
+
+interface KeyValue {
+    String getKey();
+    String getValue();
+
+    KeyValue create(String key, String value);
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

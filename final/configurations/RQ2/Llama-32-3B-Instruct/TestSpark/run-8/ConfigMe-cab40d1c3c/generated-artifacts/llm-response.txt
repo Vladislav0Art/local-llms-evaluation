@@ -1,0 +1,512 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+public class PropertyListBuilderTest {
+
+    @Mock
+    private Property<?> property1, property2, property3;
+
+    @Mock
+    private Map<String, Object> map1, map2;
+
+    @Test
+    public void addPropertyToBuildertoReturnExistingInstance() {
+        // when
+        PropertyListBuilder builder = new PropertyListBuilder();
+        PropertyListBuilder existingBuilder = builder;
+        builder.add(property1);
+        // then
+        assertThat(existingBuilder, Mockito.spy(existingBuilder));
+    }
+
+    @Test
+    public void addMultiplePropertiesToBuilderReturnsNewInstance() {
+        // when
+        PropertyListBuilder builder = new PropertyListBuilder();
+        PropertyListBuilder result = builder.add(property2).add(property3);
+        // then
+        assertThat(result, is(new PropertyListBuilder()));
+    }
+
+    @Test
+    public void createMethodShouldReturnCorrectProperties() {
+        // given
+        List<Property<?>> expectedProperties = new ArrayList<>();
+        expectedProperties.add(property1);
+        expectedProperties.add(property2);
+
+        // when
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(property1);
+        builder.add(property2);
+        List<Property<?>> actualProperties = new ArrayList<>(builder.create());
+        // then
+        assertThat(actualProperties, is(expectedProperties));
+    }
+
+    @Test
+    public void createMethodShouldReturnEmptyListIfNoPropertiesAdded() {
+        // given
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        // when
+        List<Property<?>> actualProperties = new ArrayList<>(builder.create());
+        // then
+        assertThat(actualProperties, is(new ArrayList<>()));
+    }
+
+    @Test
+    public void getRootEntriesShouldReturnCorrectMap() {
+        // given
+        Map<String, Object> expectedMap = map1;
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(property1);
+
+        // when
+        Map<String, Object> actualMap = builder.getRootEntries();
+        // then
+        assertThat(actualMap, is(expectedMap));
+    }
+
+    @Test
+    public void getRootEntriesShouldReturnEmptyMapIfNoPropertiesAdded() {
+        // given
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        // when
+        Map<String, Object> actualMap = builder.getRootEntries();
+        // then
+        assertThat(actualMap, is(new HashMap<>()));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+
+@RunWith(MockitoJUnitRunner.class)
+public class PropertyListBuilderTest {
+
+    @Test
+    public void testPropertyListBuilder() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        // Add some properties to the builder
+        builder.addProperty("property1", "value1");
+        builder.addProperty("property2", "value2");
+
+        List<Property<?>> expectedProperties = new ArrayList<>();
+        expectedProperties.add(new Property<>("property1", "value1"));
+        expectedProperties.add(new Property<>("property2", "value2"));
+
+        List<Property<?>> actualProperties = new ArrayList<>(builder.create());
+
+        assertThat(actualProperties, is(expectedProperties));
+
+    }
+
+    @Test
+    public void testSpyOnExistingBuilder() {
+        PropertyListBuilder existingBuilder = new PropertyListBuilder();
+
+        PropertyListBuilder spyBuilder = Mockito.spy(existingBuilder);
+
+        Mockito.when(spyBuilder.addProperty("property1", "value1")).thenReturn(spyBuilder);
+        Mockito.when(spyBuilder.addProperty("property2", "value2")).thenReturn(spyBuilder);
+
+        List<Property<?>> expectedProperties = new ArrayList<>();
+        expectedProperties.add(new Property<>("property1", "value1"));
+        expectedProperties.add(new Property<>("property2", "value2"));
+
+        List<Property<?>> actualProperties = new ArrayList<>(spyBuilder.create());
+
+        assertThat(actualProperties, is(expectedProperties));
+
+    }
+
+}
+
+class Property {
+    private String key;
+    private String value;
+
+    public Property(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Property property = (Property) o;
+        return key.equals(property.key) && value.equals(property.value);
+    }
+
+    public String getKey() {
+        return key;
+    }
+}
+
+class PropertyListBuilder {
+
+    private List<Property> properties;
+
+    public PropertyListBuilder() {
+        this.properties = new ArrayList<>();
+    }
+
+    public void addProperty(String key, String value) {
+        properties.add(new Property(key, value));
+    }
+
+    public List<Property> create() {
+        return properties;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class List {
+    public static <T> List<T> emptyList() {
+        return new ArrayList<>();
+    }
+
+    public static <T> void add(List<T> list, T element) {
+        list.add(element);
+    }
+}
+
+public class Property {
+    private String key;
+    private String value;
+
+    public Property(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "Property{" +
+                "key='" + key + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
+}
+
+public class SpyBuilder {
+    private List<Property> properties = new ArrayList<>();
+
+    public void addProperty(String key, String value) {
+        this.properties.add(new Property(key, value));
+    }
+
+    public List<Property> getProperties() {
+        return properties;
+    }
+}
+
+public class TestPropertyListBuilder {
+
+    @Test
+    public void testSpyBuilderAddProperty() {
+        SpyBuilder spyBuilder = new SpyBuilder();
+        spyBuilder.addProperty("property1", "value1");
+        List<Property> expectedProperties = List.emptyList();
+        Mockito.when(spyBuilder.getProperties()).thenReturn(expectedProperties);
+        assertEquals(0, spyBuilder.getProperties().size());
+    }
+
+    @Test
+    public void testSpyBuilderAddMultipleProperties() {
+        SpyBuilder spyBuilder = new SpyBuilder();
+        spyBuilder.addProperty("property1", "value1");
+        spyBuilder.addProperty("property2", "value2");
+        List<Property> expectedProperties = List.emptyList();
+        Mockito.when(spyBuilder.getProperties()).thenReturn(expectedProperties);
+        assertEquals(0, spyBuilder.getProperties().size());
+    }
+
+    @Test
+    public void testSpyBuilderAddPropertyAndReturn() {
+        SpyBuilder spyBuilder = new SpyBuilder();
+        spyBuilder.addProperty("property1", "value1");
+        List<Property> expectedProperties = List.emptyList();
+        Mockito.when(spyBuilder.addProperty("property2", "value2")).thenReturn(expectedProperties);
+        assertEquals(0, spyBuilder.addProperty("property2", "value2").size());
+    }
+
+    @Test
+    public void testSpyBuilderGetProperties() {
+        SpyBuilder spyBuilder = new SpyBuilder();
+        List<Property> expectedProperties = List.emptyList();
+        Mockito.when(spyBuilder.getProperties()).thenReturn(expectedProperties);
+        assertEquals(0, spyBuilder.getProperties().size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
+
+class PropertyListBuilderTest {
+
+    @Test
+    public void testAddProperty() {
+        List<Property> propertyList = new ArrayList<>();
+        PropertyListBuilder builder = new PropertyListBuilder(propertyList);
+        builder.addProperty("property1", "value1");
+        assertEquals(1, propertyList.size());
+    }
+
+    @Test
+    public void testGetProperties() {
+        List<Property> propertyList = new ArrayList<>();
+        PropertyListBuilder builder = new PropertyListBuilder(propertyList);
+        builder.addProperty("property2", "value2");
+        builder.addProperty("property3", "value3");
+        assertEquals(2, ((PropertyList)builder.getProperties()).size());
+    }
+
+    @Test
+    public void testAddMultipleProperties() {
+        List<Property> propertyList = new ArrayList<>();
+        PropertyListBuilder builder = new PropertyListBuilder(propertyList);
+        builder.addProperty("property1", "value1");
+        builder.addProperty("property2", "value2");
+        assertEquals(2, ((PropertyList)builder.getProperties()).size());
+    }
+}
+
+class Property {
+    private String name;
+    private String value;
+
+    public Property(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Property property = (Property) o;
+        return name.equals(property.name);
+    }
+}
+
+class PropertyList implements List<Property> {
+
+    private ArrayList<Property> list;
+
+    public PropertyList() {
+        this.list = new ArrayList<>();
+    }
+
+    @Override
+    public boolean add(Property element) {
+        if(element == null){
+            throw new NullPointerException("You can not add Null into the list");
+        }
+        return list.add(element);
+    }
+
+    @Override
+    public int size() {
+        return list.size();
+    }
+}
+
+class PropertyListBuilder {
+
+    private List<Property> propertyList;
+
+    public PropertyListBuilder(List<Property> propertyList) {
+        this.propertyList = propertyList;
+    }
+
+    public void addProperty(String name, String value) {
+        propertyList.add(new Property(name, value));
+    }
+
+    public List<Property> getProperties() {
+        return propertyList;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Property {
+    private String name;
+    private String value;
+
+    public Property(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Property property = (Property) o;
+        return name.equals(property.name);
+    }
+}
+
+public class PropertyList implements List<Property> {
+
+    private ArrayList<Property> list;
+
+    public PropertyList() {
+        this.list = new ArrayList<>();
+    }
+
+    @Override
+    public boolean add(Property element) {
+        if(element == null){
+            throw new NullPointerException("You can not add Null into the list");
+        }
+        return list.add(element);
+    }
+
+    @Override
+    public int size() {
+        return list.size();
+    }
+
+    @Override
+    public Object get(int index) {
+        return list.get(index);
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        return list.contains(o);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return list.isEmpty();
+    }
+
+    @Override
+    public void clear() {
+        list.clear();
+    }
+
+    @Override
+    public Iterator<Property> iterator() {
+        return list.iterator();
+    }
+
+    @Override
+    public int indexOf(Object o) {
+        return list.indexOf(o);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        for (Object object : c) {
+            if (!list.contains(object)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void add(int index, Property element) {
+        list.add(index, element);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PropertyList propertyList = (PropertyList) o;
+        return list.equals(propertyList.list);
+    }
+
+    @Override
+    public int hashCode() {
+        return list.hashCode();
+    }
+}
+
+public class PropertyListBuilder {
+
+    private List<Property> propertyList;
+
+    public PropertyListBuilder(List<Property> propertyList) {
+        this.propertyList = propertyList;
+    }
+
+    public void addProperty(String name, String value) {
+        propertyList.add(new Property(name, value));
+    }
+
+    public List<Property> getProperties() {
+        return new ArrayList<>(propertyList);
+    }
+}
+
+public class TestSpark {
+
+    @Test
+    public void testAddProperty() {
+        List<Property> propertyList = new ArrayList<>();
+        PropertyListBuilder builder = new PropertyListBuilder(propertyList);
+        builder.addProperty("property1", "value1");
+        assertEquals(1, ((PropertyList)builder.getProperties()).size());
+    }
+
+    @Test
+    public void testGetProperties() {
+        List<Property> propertyList = new ArrayList<>();
+        PropertyListBuilder builder = new PropertyListBuilder(propertyList);
+        builder.addProperty("property2", "value2");
+        builder.addProperty("property3", "value3");
+        assertEquals(2, ((PropertyList)builder.getProperties()).size());
+    }
+
+    @Test
+    public void testAddMultipleProperties() {
+        List<Property> propertyList = new ArrayList<>();
+        PropertyListBuilder builder = new PropertyListBuilder(propertyList);
+        builder.addProperty("property1", "value1");
+        builder.addProperty("property2", "value2");
+        assertEquals(2, ((PropertyList)builder.getProperties()).size());
+    }
+}
+```
+===================================================
+

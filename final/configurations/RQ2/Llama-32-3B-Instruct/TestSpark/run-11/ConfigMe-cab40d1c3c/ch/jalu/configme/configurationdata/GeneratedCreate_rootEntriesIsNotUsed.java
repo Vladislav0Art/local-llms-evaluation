@@ -1,0 +1,43 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedCreate_rootEntriesIsNotUsed {
+
+    @Mock
+    private List<Property<?>> properties;
+
+    @Mock
+    private Map<String, Object> rootEntries;
+
+    private PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+
+    public PropertyListBuilderTest() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void create_rootEntriesIsNotUsed() {
+        // Arrange & Act
+        Map<String, Object> rootEntry = mock(Map.class);
+        when(rootEntries.getClass()).thenReturn(Map.class);
+
+        List<Property<?>> result = propertyListBuilder.create();
+
+        // Assert
+        verifyNoMoreInteractions(rootEntries);
+    }
+
+}

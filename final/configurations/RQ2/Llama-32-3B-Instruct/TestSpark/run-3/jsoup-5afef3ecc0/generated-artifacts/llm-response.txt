@@ -1,0 +1,325 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void buildUrlTest() {
+        new UrlBuilder(new URL("http://www.test.com"));
+    }
+
+    @Test(expected = MalformedURLException.class)
+    public void buildUrlMalformedUriTest() {
+        new UrlBuilder(new URL("invalid://test.com"));
+    }
+
+    @Test
+    public void appendKeyValTest() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        new UrlBuilder(new URL("http://www.test.com")).appendKeyVal(kv);
+        assertEquals("key=value", StringUtil.getValue(kv));
+    }
+
+    @Test
+    public void appendKeyValWithQueryTest() throws MalformedURLException, URISyntaxException {
+        String url = "http://www.test.com?query";
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(url));
+        urlBuilder.appendKeyVal(kv);
+        assertEquals(url + "&key=value", StringUtil.getValue(urlBuilder.build()));
+    }
+
+    @Test
+    public void appendKeyValWithQueryAndFragmentTest() throws MalformedURLException, URISyntaxException {
+        String url = "http://www.test.com?query#fragment";
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(url));
+        urlBuilder.appendKeyVal(kv);
+        assertEquals(url + "&key=value#fragment", StringUtil.getValue(urlBuilder.build()));
+    }
+
+    @Test
+    public void appendKeyValMultipleTimesTest() throws MalformedURLException, URISyntaxException {
+        String url = "http://www.test.com";
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(url));
+        urlBuilder.appendKeyVal(kv1);
+        urlBuilder.appendKeyVal(kv2);
+        assertEquals(url + "&key1=value1&key2=value2", StringUtil.getValue(urlBuilder.build()));
+    }
+
+    @Test
+    public void appendKeyValNullValueTest() throws MalformedURLException, URISyntaxException {
+        String url = "http://www.test.com";
+        Connection.KeyVal kv = new Connection.KeyVal("key", null);
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(url));
+        urlBuilder.appendKeyVal(kv);
+        assertEquals(url + "&key=", StringUtil.getValue(urlBuilder.build()));
+    }
+
+    @Test
+    public void appendKeyValEmptyValueTest() throws MalformedURLException, URISyntaxException {
+        String url = "http://www.test.com";
+        Connection.KeyVal kv = new Connection.KeyVal("key", "");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(url));
+        urlBuilder.appendKeyVal(kv);
+        assertEquals(url + "&key=", StringUtil.getValue(urlBuilder.build()));
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class ConnectionKeyValTests {
+
+    @Test
+    public void testUrlWithSingleKeyAndValue() {
+        String url = "http://example.com?key=value";
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal(url);
+        assertEquals("value", connectionKeyVal.getKey("key"));
+    }
+
+    @Test
+    public void testUrlWithMultipleKeysAndValues() {
+        String url = "http://example.com?key1=value1&key2=value2";
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal(url);
+        assertEquals("value1", connectionKeyVal.getKey("key1"));
+        assertEquals("value2", connectionKeyVal.getKey("key2"));
+    }
+
+    @Test
+    public void testUrlWithSingleKeyAndNullValue() {
+        String url = "http://example.com?key";
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal(url);
+        assertEquals(null, connectionKeyVal.getKey("key"));
+    }
+
+    @Test
+    public void testUrlWithMultipleKeysAndValuesWithFragment() {
+        String url = "http://example.com?key1=value1&key2=value2#fragment";
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal(url);
+        assertEquals("value1", connectionKeyVal.getKey("key1"));
+        assertEquals("value2", connectionKeyVal.getKey("key2"));
+    }
+
+    @Test
+    public void testUrlWithSingleKeyAndEmptyValue() {
+        String url = "http://example.com?key";
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal(url);
+        assertEquals(null, connectionKeyVal.getKey("key"));
+    }
+}
+
+class ConnectionKeyVal {
+
+    private String url;
+
+    public ConnectionKeyVal(String url) {
+        this.url = url;
+    }
+
+    public String getKey(String key) {
+        return url.substring(url.indexOf(key + "="));
+    }
+
+    @Override
+    public String toString() {
+        return url;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class ConnectionKeyVal {
+
+    private String url;
+
+    public ConnectionKeyVal(String url) {
+        this.url = url;
+    }
+
+    public String getKey(String key) {
+        return url.substring(url.indexOf(key + "="));
+    }
+}
+
+public class ConnectionKeyValTests {
+
+    @Test
+    public void testUrlWithSingleKeyAndValue() {
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal("http://example.com?key=value");
+        assertEquals("value", connectionKeyVal.getKey("key"));
+    }
+
+    @Test
+    public void testUrlWithMultipleKeysAndValues() {
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal("http://example.com?key1=value1&key2=value2");
+        assertEquals("value1", connectionKeyVal.getKey("key1"));
+        assertEquals("value2", connectionKeyVal.getKey("key2"));
+    }
+
+    @Test
+    public void testUrlWithSingleKeyAndNullValue() {
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal("http://example.com?key");
+        assertEquals(null, connectionKeyVal.getKey("key"));
+    }
+
+    @Test
+    public void testUrlWithMultipleKeysAndValuesWithFragment() {
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal("http://example.com?key1=value1&key2=value2#fragment");
+        assertEquals("value1", connectionKeyVal.getKey("key1"));
+        assertEquals("value2", connectionKeyVal.getKey("key2"));
+    }
+
+    @Test
+    public void testUrlWithSingleKeyAndEmptyValue() {
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal("http://example.com?key");
+        assertEquals(null, connectionKeyVal.getKey("key"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class ConnectionKeyVal {
+
+    private String url;
+
+    public ConnectionKeyVal(String url) {
+        this.url = parseUrl(url);
+    }
+
+    private String parseUrl(String url) {
+        int keyIndex = url.indexOf('?');
+        if (keyIndex == -1) return url;
+        return url.substring(keyIndex + 1);
+    }
+
+    public String getKey(String key) {
+        return url.split("&")[0].split("=")[1];
+    }
+}
+
+public class ConnectionKeyValTests {
+
+    @Test
+    public void testUrlWithSingleKeyAndValue() {
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal("http://example.com?key=value");
+        assertEquals("value", connectionKeyVal.getKey("key"));
+    }
+
+    @Test
+    public void testUrlWithMultipleKeysAndValues() {
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal("http://example.com?key1=value1&key2=value2");
+        assertEquals("value1", connectionKeyVal.getKey("key1"));
+        assertEquals("value2", connectionKeyVal.getKey("key2"));
+    }
+
+    @Test
+    public void testUrlWithSingleKeyAndNullValue() {
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal("http://example.com?key");
+        assertEquals(null, connectionKeyVal.getKey("key"));
+    }
+
+    @Test
+    public void testUrlWithMultipleKeysAndValuesWithFragment() {
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal("http://example.com?key1=value1&key2=value2#fragment");
+        assertEquals("value1", connectionKeyVal.getKey("key1"));
+        assertEquals("value2", connectionKeyVal.getKey("key2"));
+    }
+
+    @Test
+    public void testUrlWithSingleKeyAndEmptyValue() {
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal("http://example.com?key");
+        assertEquals(null, connectionKeyVal.getKey("key"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+public class ConnectionKeyVal {
+
+    private String url;
+
+    public static String parseUrl(String url) {
+        int keyIndex = url.indexOf('?');
+        if (keyIndex == -1) return url;
+        return url.substring(keyIndex + 1);
+    }
+
+    public String getKey(String key) {
+        Document doc = Jsoup.parse(url);
+        return doc.attr("value");
+    }
+}
+
+public class ConnectionKeyValTests {
+
+    @Test
+    public void testUrlWithSingleKeyAndValue() {
+        String url = "http://example.com?key=value";
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal(url);
+        assertEquals("value", connectionKeyVal.getKey("key"));
+    }
+
+    @Test
+    public void testUrlWithMultipleKeysAndValues() {
+        String url = "http://example.com?key1=value1&key2=value2";
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal(url);
+        assertEquals("value1", connectionKeyVal.getKey("key1"));
+        assertEquals("value2", connectionKeyVal.getKey("key2"));
+    }
+
+    @Test
+    public void testUrlWithSingleKeyAndNullValue() {
+        String url = "http://example.com?key";
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal(url);
+        assertEquals(null, connectionKeyVal.getKey("key"));
+    }
+
+    @Test
+    public void testUrlWithMultipleKeysAndValuesWithFragment() {
+        String url = "http://example.com?key1=value1&key2=value2#fragment";
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal(url);
+        assertEquals("value1", connectionKeyVal.getKey("key1"));
+        assertEquals("value2", connectionKeyVal.getKey("key2"));
+    }
+
+    @Test
+    public void testUrlWithSingleKeyAndEmptyValue() {
+        String url = "http://example.com?key";
+        ConnectionKeyVal connectionKeyVal = new ConnectionKeyVal(url);
+        assertEquals(null, connectionKeyVal.getKey("key"));
+    }
+}
+```
+===================================================
+

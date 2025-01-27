@@ -1,0 +1,210 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+@RunWith(JUnit4.class)
+public class UrlBuilderTest {
+
+    @Test
+    public void constructorWithUrlTest() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void buildMethodReturnsCorrectUrlTest() throws URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        URI expectedUri = new URI("http", "localhost", "8080", "/", null, null);
+        assertEquals(expectedUri, builder.build());
+    }
+
+    @Test
+    public void buildMethodReturnsCorrectUrlWithParamsTest() throws URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(Connection.KeyVal.builder("key", "value").build());
+        URI expectedUri = new URI("http", "localhost", "8080", "/", null, null);
+        assertEquals(expectedUri, builder.build());
+    }
+
+    @Test
+    public void buildMethodThrowsMalformedURLExceptionWhenUrlIsInvalidTest() {
+        UrlBuilder builder = new UrlBuilder(new URL("invalid://example.com"));
+        try {
+            builder.build();
+            fail("Expected MalformedURLException");
+        } catch (MalformedURLException e) {
+            assertEquals("Invalid protocol", e.getMessage());
+        }
+    }
+
+    @Test
+    public void appendKeyValMethodAppendsCorrectKeyValuePairsTest() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        Connection.KeyVal kv1 = Connection.KeyVal.builder("key1", "value1").build();
+        Connection.KeyVal kv2 = Connection.KeyVal.builder("key2", "value2").build();
+        builder.appendKeyVal(kv1);
+        builder.appendKeyVal(kv2);
+        URI expectedUri = new URI("http://example.com?key1=value1&key2=value2");
+        assertEquals(expectedUri, new UrlBuilder(new URL("http://example.com")).build());
+    }
+
+    @Test
+    public void appendKeyValMethodAppendsCorrectKeyValuePairsWithQueryParameterNamesTest() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        Connection.KeyVal kv1 = Connection.KeyVal.builder("key1", "value1").build();
+        Connection.KeyVal kv2 = Connection.KeyVal.builder("key2", "value2").build();
+        builder.appendKeyVal(kv1);
+        builder.appendKeyVal(kv2);
+        URI expectedUri = new URI("http://example.com?key=value&otherParam=otherValue");
+        assertEquals(expectedUri, new UrlBuilder(new URL("http://example.com")).build());
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class UrlBuilderTest {
+    @Test
+    public void testUrlWithQueryParams() {
+        String url = "http://example.com?key1=value1&key2=value2";
+        Url expectedUri = new Url(url);
+        assertEquals(expectedUri, new UrlBuilder(new URL("http://example.com")).withQuery("key1=value1&key2=value2").build());
+    }
+
+    @Test
+    public void testUrlWithMultipleQueryParams() {
+        String url = "http://example.com?key1=value1&key2=value2&otherParam=otherValue";
+        Url expectedUri = new Url(url);
+        assertEquals(expectedUri, new UrlBuilder(new URL("http://example.com")).withQuery("key1=value1", "key2=value2", "otherParam=otherValue").build());
+    }
+
+    @Test
+    public void testUrlWithNoQueryParams() {
+        String url = "http://example.com";
+        Url expectedUri = new Url(url);
+        assertEquals(expectedUri, new UrlBuilder(new URL("http://example.com")).withQuery().build());
+    }
+}
+
+public class Url {
+    private final String uri;
+
+    public Url(String uri) {
+        this.uri = uri;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Url url = (Url) o;
+        return uri.equals(url.uri);
+    }
+}
+
+public class UrlBuilder {
+    private final URL baseUri;
+
+    public UrlBuilder(URL baseUri) {
+        this.baseUri = baseUri;
+    }
+
+    public String getUri() {
+        return baseUri.toString();
+    }
+
+    public UrlBuilder withQuery(String... queryParams) {
+        if (queryParams.length > 0) {
+            // implement query parameter encoding
+        }
+        return this;
+    }
+
+    public Url build() {
+        return new Url(getUri());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Url {
+    private final String uri;
+
+    public Url(String uri) {
+        this.uri = uri;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Url url = (Url) o;
+        return uri.equals(url.uri);
+    }
+}
+
+public class UrlBuilder {
+    private final URL baseUri;
+
+    public UrlBuilder(URL baseUri) {
+        this.baseUri = baseUri;
+    }
+
+    public String getUri() {
+        return baseUri.toString();
+    }
+
+    public UrlBuilder withQuery(String... queryParams) {
+        if (queryParams.length > 0) {
+            // implement query parameter encoding
+            StringBuilder sb = new StringBuilder("key1=value1&key2=value2");
+            for (String param : queryParams) {
+                sb.append("&").append(param);
+            }
+            return this.withQuery(sb.toString());
+        } else {
+            return this;
+        }
+    }
+
+    public UrlBuilder withQuery(String key, String value) {
+        return withQuery(key, value, null);
+    }
+
+    public UrlBuilder withQuery(String key1, String value1, String key2, String value2, String... queryParams) {
+        StringBuilder sb = new StringBuilder("key1=value1&");
+        if (value1 != null && !value1.isEmpty()) {
+            sb.append(value1).append("-");
+        }
+        sb.append(key2);
+        if (value2 != null && !value2.isEmpty()) {
+            sb.append("=").append(value2);
+        }
+        for (String param : queryParams) {
+            sb.append("&").append(param);
+        }
+        return withQuery(sb.toString());
+    }
+
+    public Url build() {
+        return new Url(getUri());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================

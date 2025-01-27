@@ -1,0 +1,136 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void testExpressionToString() {
+        Expression e = Mockito.mock(Expression.class);
+        String result = io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor.exprToString(e);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testVisitAssignExpr_SimpleAssign() {
+        AssingExpr expr = new AssingExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitAssignExpr(expr);
+    }
+
+    @Test
+    public void testVisitBinaryExpr_Addition() {
+        BinaryExpr expr = new BinaryExpr("+", 1, 2);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitBinaryExpr(expr);
+    }
+
+    @Test
+    public void testVisitUnaryExpr_NegativeNumber() {
+        UnaryExpr expr = new UnaryExpr("-");
+        Value value = Mockito.mock(Value.class);
+        expr.setExpression(value);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitUnaryExpr(expr);
+    }
+
+    @Test
+    public void testVisitConstExpr_UnknownValue() {
+        Value expr = new DecimalExpr(0);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitConstExpr(expr);
+    }
+
+    @Test
+    public void testVisitFunctionCallExpr_FunctionCall() {
+        FunctionCallExpr expr = new FunctionCallExpr("func", Mockito.mock(Value.class));
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitFunctionCallExpr(expr);
+    }
+
+    @Test
+    public void testVisitPropertyPathExpr_PropertyAccess() {
+        PropertyPathExpr expr = new PropertyPathExpr("key");
+        Value value = Mockito.mock(Value.class);
+        expr.setPropertyPath(value.get());
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitPropertyPathExpr(expr);
+    }
+
+    @Test
+    public void testVisitAnonymousScriptExpr_AnonymousFunction() {
+        AnonymousScript expr = new AnonymousScript();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitAnonymousScriptExpr(expr);
+    }
+
+    @Test
+    public void testVisitFunctionScriptExpr_FunctionDeclaration() {
+        FunctionScript expr = new FunctionScript("func", Mockito.mock(Value.class));
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitFunctionScriptExpr(expr);
+    }
+
+    @Test
+    public void testVisitStatementSequenceScript_SimpleSequence() {
+        StatementSequenceScript expr = new StatementSequenceScript();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitStatementSequenceScript(expr);
+    }
+
+    @Test
+    public void testVisitVarExpr_VarAccess() {
+        VarExpr expr = new VarExpr("var");
+        Value value = Mockito.mock(Value.class);
+        expr.setVariable(value.get());
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitVarExpr(expr);
+    }
+
+    @Test
+    public void testVisitProjectionExpr_Projection() {
+        ProjectionExpr expr = new ProjectionExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitProjectionExpr(expr);
+    }
+
+    @Test
+    public void testVisitAliasExpr_Alias() {
+        AliasExpr expr = new AliasExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitAliasExpr(expr);
+    }
+
+    @Test
+    public void testVisitVectorExpr_Vector() {
+        VectorExpr expr = new VectorExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitVectorExpr(expr);
+    }
+
+    @Test
+    public void testVisitIndexExpr_IndexAccess() {
+        IndexExpr expr = new IndexExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitIndexExpr(expr);
+    }
+
+    @Test
+    public void testVisitDecimalExpr_DecimalNumber() {
+        DecimalExpr expr = new DecimalExpr(0);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitDecimalExpr(expr);
+    }
+
+    @Test
+    public void testVisitIfElseExpr_IfExpression() {
+        IfElseExpr expr = new IfElseExpr();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitIfElseExpr(expr);
+    }
+
+}

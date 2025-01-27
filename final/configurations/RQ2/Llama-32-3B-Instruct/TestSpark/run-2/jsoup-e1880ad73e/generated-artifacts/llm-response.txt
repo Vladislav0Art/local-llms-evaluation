@@ -1,0 +1,383 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void buildUrlFromExistingUrl() throws MalformedURLException, URISyntaxException {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL builtUrl = builder.build();
+        assertEquals("http://example.com", builtUrl.toString());
+    }
+
+    @Test
+    public void appendKeyVal_NoKeyOrValue() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = Connection.KeyVal.empty();
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertNull(kv.getKey());
+        assertNull(kv.getValue());
+    }
+
+    @Test
+    public void appendKeyVal_NoSpaceInKey() throws UnsupportedEncodingException, URISyntaxException {
+        String key = "abc.def";
+        Connection.KeyVal kv = Connection.KeyVal.of(key, null);
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertEquals(key, new String(kv.getKey(), UTF_8));
+    }
+
+    @Test
+    public void appendKeyVal_NoSpaceInValue() throws UnsupportedEncodingException {
+        String value = "abc.def";
+        Connection.KeyVal kv = Connection.KeyVal.of(null, value);
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertEquals(value, new String(kv.getValue(), UTF_8));
+    }
+
+    @Test
+    public void appendKeyVal_SpaceInKey() throws UnsupportedEncodingException, URISyntaxException {
+        String key = "abc def";
+        Connection.KeyVal kv = Connection.KeyVal.of(key, null);
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertEquals("abc%20def", new String(kv.getKey(), UTF_8));
+    }
+
+    @Test
+    public void appendKeyVal_SpaceInValue() throws UnsupportedEncodingException {
+        String value = "abc def";
+        Connection.KeyVal kv = Connection.KeyVal.of(null, value);
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        assertEquals("abc%20def", new String(kv.getValue(), UTF_8));
+    }
+
+    @Test
+    public void appendQueryParam_NoParams() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(Connection.KeyVal.of("key", null));
+        assertTrue(builder.build().getQuery().isEmpty());
+    }
+
+    @Test
+    public void appendQueryParam_SingleParam() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        Connection.KeyVal kv = Connection.KeyVal.of("key", "value");
+        builder.appendKeyVal(kv);
+        assertEquals("key=value", builder.build().toString());
+    }
+
+    @Test
+    public void appendQueryParam_MultipleParams() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        Connection.KeyVal kv1 = Connection.KeyVal.of("key1", "value1");
+        Connection.KeyVal kv2 = Connection.KeyVal.of("key2", "value2");
+        builder.appendKeyVal(kv1);
+        builder.appendKeyVal(kv2);
+        assertEquals("key1=value1&key2=value2", builder.build().toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class ConnectionKeyValTest {
+    @Test
+    public void testConnectionKeyVal() {
+        String key = "key";
+        String value = "value";
+        Connection.KeyVal kv = new Connection.KeyVal(key, value);
+        
+        assertEquals(key, kv.getKey());
+        assertEquals(value, kv.getValue());
+    }
+    
+    @Test
+    public void testConnectionKeyValBuilder() {
+        String key = "key";
+        String value = "value";
+        builder.appendKeyVal(Connection.KeyVal.of(key, value));
+        
+        assertEquals(key, builder.getKey());
+        assertEquals(value, builder.getValue());
+    }
+
+    @Test
+    public void testConnectionKeyValWithSpecialChar() {
+        String key = "key%20def";
+        String value = "value";
+        Connection.KeyVal kv = new Connection.KeyVal(key, value);
+        
+        assertEquals("key%20def", kv.getKey());
+        assertEquals(value, kv.getValue());
+    }
+
+    @Test
+    public void testConnectionKeyValWithSpecialCharBuilder() {
+        String key = "key%20def";
+        String value = "value";
+        builder.appendKeyVal(Connection.KeyVal.of(key, value));
+        
+        assertEquals("key%20def", builder.getKey());
+        assertEquals(value, builder.getValue());
+    }
+    
+    @Test
+    public void testConnectionKeyValWithNullValue() {
+        String key = "key";
+        Connection.KeyVal kv = new Connection.KeyVal(key, null);
+        
+        assertEquals(key, kv.getKey());
+        assertNull(kv.getValue());
+    }
+
+    @Test
+    public void testConnectionKeyValBuilderWithNullValue() {
+        String key = "key";
+        builder.appendKeyVal(Connection.KeyVal.of(key, null));
+        
+        assertEquals(key, builder.getKey());
+        assertNull(builder.getValue());
+    }
+}
+
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public static class Builder {
+        private String key;
+        private String value;
+
+        public Builder appendKeyVal(Connection.KeyVal kv) {
+            this.key = kv.getKey();
+            this.value = kv.getValue();
+            return this;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public static class Builder {
+        private String key;
+        private String value;
+
+        public Builder appendKeyVal(Connection.KeyVal kv) {
+            this.key = kv.getKey();
+            this.value = kv.getValue();
+            return this;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public static Connection.KeyVal of(String key, String value) {
+        return new KeyVal(key, value);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public static class Builder {
+        private String key;
+        private String value;
+
+        public Builder appendKeyVal(Connection.KeyVal kv) {
+            this.key = kv.getKey();
+            this.value = kv.getValue();
+            return this;
+        }
+
+        public Connection.KeyVal build() {
+            return new Connection.KeyVal(key, value);
+        }
+    }
+
+    public static Builder builder(String key, String value) {
+        return new Builder().key(key).value(value);
+    }
+
+    public static void main(String[] args) {
+        Connection.KeyVal kv = builder("key", "value").build();
+        System.out.println(kv.getKey());
+        System.out.println(kv.getValue());
+
+        kv = builder("newKey", null).build();
+        System.out.println(kv.getKey());
+        System.out.println(kv.getValue());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public static class Builder {
+        private Connection.KeyVal kv;
+
+        public Builder appendKeyVal(Connection.KeyVal kv) {
+            this.kv = kv;
+            return this;
+        }
+
+        public Connection.KeyVal build() {
+            return kv;
+        }
+
+        public void appendKeyValue(String key, String value) {
+            kv.key = key;
+            kv.value = value;
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Builder of(String key, String value) {
+        Connection.KeyVal kv = new Connection.KeyVal(key, value);
+        return builder().appendKeyVal(kv);
+    }
+
+    public static void main(String[] args) {
+        Connection.builder()
+                  .appendKeyValue("key1", "value1")
+                  .appendKeyValue("key2", null)
+                  .build();
+
+        Connection.builder()
+                  .of("newKey", "newValue")
+                  .appendKeyValue("newKey2", "newValue2")
+                  .build();
+
+        assertEquals("key1", ((Connection.KeyVal) ((Builder) org.junit.contrib.java.util.Lists.newArrayList()).appendKeyValue("key1", "value1").build()).getKey());
+        assertNull(((Connection.KeyVal) ((Builder) org.junit.contrib.java.util.Lists.newArrayList()).appendKeyValue("key2", null).build()).getValue());
+
+        assertEquals("newKey", ((Connection.KeyVal) ((Builder) org.junit.contrib.java.util.Lists.newArrayList().of("newKey", "newValue").build()).getKey());
+        assertEquals("newValue", ((Connection.KeyVal) ((Builder) org.junit.contrib.java.util.Lists.newArrayList().of("newKey", "newValue").build()).getValue());
+
+        assertEquals("newKey2", ((Connection.KeyVal) ((Builder) org.junit.contrib.java.util.Lists.newArrayList().of("newKey", "newValue").appendKeyValue("newKey2", "newValue2").build()).getKey());
+        assertEquals("newValue2", ((Connection.KeyVal) ((Builder) org.junit.contrib.java.util.Lists.newArrayList().of("newKey", "newValue").appendKeyValue("newKey2", "newValue2").build()).getValue());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

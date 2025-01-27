@@ -1,0 +1,68 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+
+public class GeneratedTest {
+
+    @Test
+    public void newNodeTextNoChangesTest() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.text());
+    }
+
+    @Test
+    public void newTextNodeWithBlankTextTest() {
+        TextNode textNode = new TextNode("   ");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void newNodeTextTrimmingTest() {
+        String text = "   Hello World  ";
+        TextNode textNode = new TextNode(text);
+        assertEquals(11, textNode.text().length());
+    }
+
+    @Test
+    public void newTextNodeSplittingTest() throws IOException {
+        TextNode textNode = new TextNode("Hello\nWorld");
+        TextNode newNode = textNode.splitText(6);
+        assertEquals("World", newNode.text());
+    }
+
+    @Test
+    public void cloneTextNodeTest() {
+        String text = "Hello World";
+        TextNode original = new TextNode(text);
+        TextNode cloned = original.clone();
+        assertTrue(original == cloned);
+    }
+
+    @Test
+    public void createFromEncodedTextTest() throws IOException {
+        String encodedText = "UTF-8";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertNotNull(textNode);
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String text = "\n\tHello World\n";
+        assertEquals(11, StringUtil.normaliseWhitespace(text).length());
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String text = "   Hello World";
+        assertEquals("Hello World", TextNode.stripLeadingWhitespace(text));
+    }
+
+}

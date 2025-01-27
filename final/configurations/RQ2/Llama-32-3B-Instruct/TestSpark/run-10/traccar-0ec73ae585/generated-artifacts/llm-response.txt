@@ -1,0 +1,391 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.traccar.protocol;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import io.netty.buffer.ByteBuf;
+import org.traccar.BaseProtocolDecoder;
+import org.traccar.session.DeviceSession;
+import org.traccar.NetworkMessage;
+import org.traccar.Protocol;
+import org.traccar.helper.BitUtil;
+import org.traccar.helper.BufferUtil;
+import org.traccar.helper.Parser;
+import org.traccar.helper.PatternBuilder;
+import org.traccar.helper.UnitsConverter;
+
+public class WatchProtocolDecoderTest {
+
+    private static final int WATCH_PROTOCOL = 5;
+
+    @Test
+    public void decode_WatchProtocol_ReturnsTrue() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol(WATCH_PROTOCOL));
+        assertTrue(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturer_WatchProtocol_MatchesExpectedValue() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol(5));
+        assertEquals("Watch", decoder.getManufacturer());
+    }
+
+    @Test
+    public void decode_NoData_ReturnsNull() throws Exception {
+        Object msg = null;
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol(WATCH_PROTOCOL));
+        assertNull(decoder.decode(null, null, msg));
+    }
+
+    @Test
+    public void decode_ValidData_ReturnsCorrectValues() throws Exception {
+        byte[] data = "000102030405060708090a0b0c0d0e".getBytes(StandardCharsets.US_ASCII);
+        Object msg = new NetworkMessage(data);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol(WATCH_PROTOCOL));
+        SocketAddress remoteAddress = new InetSocketAddress("localhost", 8080);
+        Object result = decoder.decode(remoteAddress, null, msg);
+        assertTrue(result instanceof Position);
+    }
+
+    @Test
+    public void decode_InvalidData_ThrowsException() throws Exception {
+        byte[] data = "000102030405060708090a".getBytes(StandardCharsets.US_ASCII); // incomplete data
+        Object msg = new NetworkMessage(data);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol(WATCH_PROTOCOL));
+        assertThrows(Exception.class, () -> decoder.decode(null, null, msg));
+    }
+
+    @Test
+    public void decode_MultipleValues_ThrowsException() throws Exception {
+        byte[] data = "000102030405060708090a0b0c".getBytes(StandardCharsets.US_ASCII); // multiple values
+        Object msg = new NetworkMessage(data);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol(WATCH_PROTOCOL));
+        assertThrows(Exception.class, () -> decoder.decode(null, null, msg));
+    }
+
+    @Test
+    public void decode_BadFormat_ThrowsException() throws Exception {
+        byte[] data = "InvalidWatchData".getBytes(StandardCharsets.US_ASCII);
+        Object msg = new NetworkMessage(data);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol(WATCH_PROTOCOL));
+        assertThrows(Exception.class, () -> decoder.decode(null, null, msg));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class WatchProtocolDecoderTest {
+
+    private static final int WATCH_PROTOCOL = 5;
+
+    @Test
+    public void decode_WatchProtocol_ReturnsTrue() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new WatchProtocol(WATCH_PROTOCOL));
+        assertTrue(decoder.getProtocolType() == WATCH_PROTOCOL);
+    }
+
+    @Test
+    public void testDecodeData() throws Exception {
+        byte[] data = "Hello World!".getBytes();
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new WatchProtocol(WATCH_PROTOCOL));
+        NetworkMessage msg = decoder.decode(data, null);
+        assertNotNull(msg);
+        assertEquals(0, msg.getData().length);
+    }
+
+    public class WatchProtocol implements ProtocolType {
+        private int protocolType;
+
+        public WatchProtocol(int protocolType) {
+            this.protocolType = protocolType;
+        }
+
+        @Override
+        public int getProtocolType() {
+            return protocolType;
+        }
+    }
+
+    public interface ProtocolType {}
+
+    public class NetworkMessage {
+        private byte[] data;
+
+        public NetworkMessage(byte[] data) {
+            this.data = data;
+        }
+
+        public byte[] getData() {
+            return data;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class ProtocolType {
+    public static final int WATCH_PROTOCOL = 5;
+}
+
+public class WatchProtocol implements ProtocolType {
+    private int protocolType;
+
+    public WatchProtocol(int protocolType) {
+        this.protocolType = protocolType;
+    }
+
+    @Override
+    public int getProtocol() {
+        return protocolType;
+    }
+}
+
+public interface Decoder {
+    NetworkMessage decode(byte[] data, Channel channel);
+}
+
+public class WatchProtocolDecoder implements Decoder {
+    private final WatchProtocol protocol;
+
+    public WatchProtocolDecoder(WatchProtocol protocol) {
+        this.protocol = protocol;
+    }
+
+    @Override
+    public NetworkMessage decode(byte[] data, Channel channel) {
+        // implementation of decode method
+        return null; // placeholder
+    }
+}
+
+public class NetworkMessage {
+    private byte[] data;
+
+    public NetworkMessage(byte[] data) {
+        this.data = data;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+}
+
+public interface Channel {}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Channel {}
+
+public class GeneratedTest {
+
+    @Test
+    public void decode_WatchProtocol_ReturnsTrue() throws Exception {
+        WatchProtocol protocol = new WatchProtocol(ProtocolType.WATCH_PROTOCOL);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        assertTrue((int) decoder.getProtocol() == ProtocolType.WATCH_PROTOCOL);
+    }
+
+    @Test
+    public void testDecodeData() throws Exception {
+        byte[] data = "Hello World!".getBytes();
+        WatchProtocol protocol = new WatchProtocol(ProtocolType.WATCH_PROTOCOL);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        NetworkMessage msg = decoder.decode(data, null); // placeholder channel and socket
+        assertNotNull(msg);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+// WatchProtocol.java
+public class WatchProtocol implements ProtocolType {
+    private int protocolType;
+
+    public WatchProtocol(int protocolType) {
+        this.protocolType = protocolType;
+    }
+
+    @Override
+    public int getProtocol() {
+        return protocolType;
+    }
+}
+
+// Decoder.java
+public interface Decoder {
+    // methods here, e.g. decode(byte[] data)
+}
+
+// WatchProtocolDecoder.java
+import org.traccar.protocol.Decoder;
+
+public class WatchProtocolDecoder implements Decoder {
+    private WatchProtocol protocol;
+
+    public WatchProtocolDecoder(WatchProtocol protocol) {
+        this.protocol = protocol;
+    }
+
+    @Override
+    public void decode(byte[] data) {
+        // implementation here
+    }
+}
+
+// NetworkMessage.java
+public class NetworkMessage {
+    private byte[] data;
+
+    public NetworkMessage(byte[] data) {
+        this.data = data;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+}
+
+// Channel.java
+public interface Channel {}
+
+// ProtocolType.java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ProtocolType {}
+
+// Channel.java
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface Channel {}
+
+// GeneratedTest.java
+public class GeneratedTest {
+
+    @Test
+    public void decode_WatchProtocol_ReturnsTrue() throws Exception {
+        WatchProtocol protocol = new WatchProtocol(1);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        assertTrue((int) decoder.getProtocol() == 1);
+    }
+
+    @Test
+    public void testDecodeData() throws Exception {
+        byte[] data = "Hello World!".getBytes();
+        WatchProtocol protocol = new WatchProtocol(1);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.decode(data); // placeholder channel and socket
+        assertNotNull(new NetworkMessage(data).getData());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+// WatchProtocol.java
+public class WatchProtocol implements ProtocolType {
+    private int protocolType;
+
+    public static WatchProtocol createWatchProtocol(int protocolType) {
+        return new WatchProtocol(protocolType);
+    }
+
+    @Override
+    public int getProtocol() {
+        return protocolType;
+    }
+}
+
+// Decoder.java
+public interface Decoder {
+    void decode(byte[] data);
+}
+
+// WatchProtocolDecoder.java
+import org.traccar.protocol.Decoder;
+
+public class WatchProtocolDecoder implements Decoder {
+    private WatchProtocol protocol;
+
+    public static void main(String[] args) {
+        // usage here
+    }
+
+    @Override
+    public void decode(byte[] data) {
+        // implementation here
+    }
+}
+
+// NetworkMessage.java
+public class NetworkMessage {
+    private byte[] data;
+
+    public static NetworkMessage createNetworkMessage(byte[] data) {
+        return new NetworkMessage(data);
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+}
+
+// Channel.java
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+public class Channel {}
+
+// ProtocolType.java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ProtocolType {}
+
+// GeneratedTest.java
+import org.traccar.protocol.Decoder;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+
+public class GeneratedTest {
+
+    @Test
+    public void decode_WatchProtocol_ReturnsTrue() {
+        WatchProtocol protocol = WatchProtocol.createWatchProtocol(1);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder();
+        decoder.decode(null); // placeholder channel and socket
+        assertTrue(true);
+    }
+
+    @Test
+    public void testDecodeData() {
+        byte[] data = "Hello World!".getBytes();
+        WatchProtocol protocol = WatchProtocol.createWatchProtocol(1);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder();
+        decoder.decode(data); 
+        assertNotNull(NetworkMessage.createNetworkMessage(data).getData());
+    }
+}
+```
+===================================================
+

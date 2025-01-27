@@ -1,0 +1,28 @@
+package com.sun.tools.xjc.addon.xew;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTestGetElementNameIsCustom {
+
+    @Mock
+    private JClassContainer container;
+
+    @Mock
+    private CommonConfiguration config;
+
+    @Test
+    public void testGetElementNameIsCustom() {
+        when(config.getElementName()).thenReturn("Custom Element Name");
+        String result = XmlElementWrapperPlugin.getElementName(container, config);
+        assertEquals("Custom Element Name", result);
+    }
+
+}

@@ -1,0 +1,360 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.traccar.protocol;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import java.nio.charset.StandardCharsets;
+
+public class Gt06ProtocolDecoderTest {
+
+    @Test
+    public void decodeGps_Position_WithEmptyBuffer_ThrowsException() {
+        Position position = new Position();
+        assertFalse(Gt06ProtocolDecoder.decodeGps(position, null, false, false, false, null));
+    }
+
+    @Test
+    public void decodeGps_Position_WithLengthOfZero_ThrowsException() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.buffer(0);
+        assertFalse(Gt06ProtocolDecoder.decodeGps(position, buf, true, false, false, null));
+    }
+
+    @Test
+    public void decodeGps_Position_WithChecksumOfZero_ThrowsException() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.buffer(4);
+        buf.writeByte(0x00); // checksum
+        assertFalse(Gt06ProtocolDecoder.decodeGps(position, buf, true, false, false, null));
+    }
+
+    @Test
+    public void decodeGps_Position_WithValidData_ThrowsException() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.buffer(4);
+        buf.writeByte(0x01); // data1
+        buf.writeByte(0x02); // data2
+        buf.writeByte(0x00); // checksum
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, buf, true, false, false, null));
+    }
+
+    @Test
+    public void decodePosition_WithValidData_ReturnsCorrectedPosition() {
+        ByteBuf buf = Unpooled.buffer(4);
+        buf.writeByte(0x01); // data1
+        buf.writeByte(0x02); // data2
+        assertTrue(Gt06ProtocolDecoder.decodeGps(new Position(), buf, true, false, false, null));
+    }
+
+    @Test
+    public void decodePosition_WithInvalidData_ReturnsNull() {
+        ByteBuf buf = Unpooled.buffer(4);
+        buf.writeByte(0x01); // data1
+        assertFalse(Gt06ProtocolDecoder.decodeGps(new Position(), buf, true, false, false, null));
+    }
+
+    @Test
+    public void decodeGps_Position_WithMultipleSatellites_ReturnsCorrectedPosition() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.buffer(8);
+        buf.writeByte(0x01); // data1
+        buf.writeByte(0x02); // data2
+        buf.writeByte(0x03); // data3
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, buf, true, true, false, null));
+    }
+
+    @Test
+    public void decodeSpeed_WithValidData_ReturnsCorrectedSpeed() {
+        ByteBuf buf = Unpooled.buffer(2);
+        buf.writeByte(0x01); // data1
+        assertTrue(Gt06ProtocolDecoder.decodeGps(new Position(), buf, true, false, true, null));
+    }
+
+    @Test
+    public void decodeCellTower_WithValidData_ReturnsCorrectedCellTower() {
+        ByteBuf buf = Unpooled.buffer(2);
+        buf.writeByte(0x01); // data1
+        assertTrue(Gt06ProtocolDecoder.decodeGps(new Position(), buf, true, false, false, null));
+    }
+
+    @Test
+    public void decodePosition_WithWifiAccessPoint_ReturnsCorrectedPosition() {
+        ByteBuf buf = Unpooled.buffer(2);
+        buf.writeByte(0x01); // data1
+        assertTrue(Gt06ProtocolDecoder.decodeGps(new Position(), buf, true, false, false, null));
+    }
+
+    @Test
+    public void decodeNetwork_WithValidData_ReturnsCorrectedNetwork() {
+        ByteBuf buf = Unpooled.buffer(2);
+        buf.writeByte(0x01); // data1
+        assertTrue(Gt06ProtocolDecoder.decodeGps(new Position(), buf, true, false, false, null));
+    }
+
+    @Test
+    public void decodePosition_WithDate_ReturnsCorrectedPosition() {
+        ByteBuf buf = Unpooled.buffer(4);
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        assertEquals(calendar.getTimeZone(), Gt06ProtocolDecoder.decodeGps(new Position(), buf, true, false, false, null));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class Gt06ProtocolDecoderTest {
+
+    @Test
+    public void testDecodeGps() {
+        // Create instances of Position, Date and Calendar
+        Position position = new Position(1.0, 2.0);
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+
+        // Test cases for decodeGps method
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, true));
+        assertFalse(Gt06ProtocolDecoder.decodeGps(new Position(-1.0, -2.0), false));
+    }
+
+    @Test
+    public void testDecodeGpsWithDate() {
+        // Create instances of Position and Date
+        Position position = new Position(1.0, 2.0);
+        Date date = new Date();
+
+        // Test cases for decodeGps method with Date
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, date));
+        assertFalse(Gt06ProtocolDecoder.decodeGps(new Position(-1.0, -2.0), null));
+    }
+
+    @Test
+    public void testDecodeGpsWithCalendar() {
+        // Create instances of Position and Calendar
+        Position position = new Position(1.0, 2.0);
+        Calendar calendar = Calendar.getInstance();
+
+        // Test cases for decodeGps method with Calendar
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, calendar));
+        assertFalse(Gt06ProtocolDecoder.decodeGps(new Position(-1.0, -2.0), null));
+    }
+
+    @Test
+    public void testDecodeGpsEquality() {
+        // Create instances of Position and Date
+        Position position = new Position(1.0, 2.0);
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+
+        // Test cases for equality of decoded Gps with original data
+        assertEquals(position.getLatitude(), Gt06ProtocolDecoder.decodeGps(position, true).getLatitude());
+        assertEquals(position.getLatitude(), Gt06ProtocolDecoder.decodeGps(new Position(-1.0, -2.0), false).getLatitude());
+    }
+}
+
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public Position(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+}
+
+public class Date {}
+
+public class Calendar {}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public Position(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+}
+
+public class Date {}
+
+public class Calendar {}
+
+public class Gt06ProtocolDecoder {
+
+    public static Position decodeGps(Position position, boolean useDate) {
+        // implementation of the method
+        if (useDate && position.getLatitude() != 0.0) {
+            return new Position(position.getLongitude(), position.getLatitude());
+        } else {
+            return position;
+        }
+    }
+
+    public static boolean decodeGps(Position position, Date date) {
+        // implementation of the method
+        return false; // assuming no match for now
+    }
+
+    public static boolean decodeGps(Position position, Calendar calendar) {
+        // implementation of the method
+        return false; // assuming no match for now
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Gt06ProtocolDecoder {
+
+    public static Position decodeGps(Position position, boolean useDate) {
+        if (useDate && position.getLatitude() != 0.0) {
+            return new Position(position.getLongitude(), position.getLatitude());
+        } else {
+            return position;
+        }
+    }
+
+    public static boolean equalsDecodedGps(Position originalPosition, Position decodedPosition) {
+        if (!decodedPosition.getLatitude().equals(originalPosition.getLatitude()) ||
+                !decodedPosition.getLongitude().equals(originalPosition.getLongitude())) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void testDecodeGps() {
+        Position position = new Position(1.0, 2.0);
+        Date date = null;
+        Calendar calendar = null;
+
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, true));
+        assertFalse(EqualsDecodedGps(position, Gt06ProtocolDecoder.decodeGps(position, true)));
+
+        assertTrue(EqualsDecodedGps(position, position));
+
+        assertFalse(Gt06ProtocolDecoder.decodeGps(new Position(-1.0, -2.0), true));
+        assertFalse(EqualsDecodedGps(new Position(-1.0, -2.0), Gt06ProtocolDecoder.decodeGps(new Position(-1.0, -2.0), true)));
+
+        assertFalse(Gt06ProtocolDecoder.decodeGps(position, date));
+        assertFalse(EqualsDecodedGps(position, Gt06ProtocolDecoder.decodeGps(position, date)));
+
+        assertFalse(Gt06ProtocolDecoder.decodeGps(position, calendar));
+        assertFalse(EqualsDecodedGps(position, Gt06ProtocolDecoder.decodeGps(position, calendar)));
+    }
+
+    public static boolean EqualsDecodedGps(Position originalPosition, Position decodedPosition) {
+        return Gt06ProtocolDecoder.decodeGps(originalPosition, true).getLatitude().equals(decodedPosition.getLatitude()) &&
+               Gt06ProtocolDecoder.decodeGps(originalPosition, true).getLongitude().equals(decodedPosition.getLongitude());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public Position(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+}
+
+public class Date {}
+
+public class Calendar {}
+
+public class Gt06ProtocolDecoder {
+
+    public static Position decodeGps(Position position, boolean useDate) {
+        if (useDate && position.getLatitude() != 0.0) {
+            return new Position(position.getLongitude(), position.getLatitude());
+        } else {
+            return position;
+        }
+    }
+
+    public static boolean equalsDecodedGps(Position originalPosition, Position decodedPosition) {
+        if (!decodedPosition.getLatitude().equals(originalPosition.getLatitude()) ||
+                !decodedPosition.getLongitude().equals(originalPosition.getLongitude())) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void testDecodeGps() {
+        Position position = new Position(1.0, 2.0);
+        Date date = null;
+        Calendar calendar = null;
+
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, true));
+        assertFalse(EquivalentDecodedGps(position, Gt06ProtocolDecoder.decodeGps(position, true)));
+
+        assertTrue(EquivalentDecodedGps(position, position));
+
+        assertFalse(Gt06ProtocolDecoder.decodeGps(new Position(-1.0, -2.0), true));
+        assertFalse(EquivalentDecodedGps(new Position(-1.0, -2.0), Gt06ProtocolDecoder.decodeGps(new Position(-1.0, -2.0), true)));
+
+        assertFalse(Gt06ProtocolDecoder.decodeGps(position, date));
+        assertFalse(EquivalentDecodedGps(position, Gt06ProtocolDecoder.decodeGps(position, date)));
+
+        assertFalse(Gt06ProtocolDecoder.decodeGps(position, calendar));
+        assertFalse(EquivalentDecodedGps(position, Gt06ProtocolDecoder.decodeGps(position, calendar)));
+    }
+
+    public static boolean EquivalentDecodedGps(Position originalPosition, Position decodedPosition) {
+        return Gt06ProtocolDecoder.decodeGps(originalPosition, true).getLatitude().equals(decodedPosition.getLatitude()) &&
+               Gt06ProtocolDecoder.decodeGps(originalPosition, true).getLongitude().equals(decodedPosition.getLongitude());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,481 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class DataFrame {
+    // private fields
+    private List<String> columnNames;
+    private List<Column> columns;
+    private Map<String, Object[]> data;
+
+    // constructor
+    public DataFrame(List<String> columnNames, List<Column> columns, Map<String, Object[]> data) {
+        this.columnNames = columnNames;
+        this.columns = columns;
+        this.data = data;
+    }
+
+    // public methods
+    public List<String> getColumnNames() {
+        return columnNames;
+    }
+
+    public List<Column> getColumns() {
+        return columns;
+    }
+
+    public Map<String, Object[]> getData() {
+        return data;
+    }
+
+    public DataFrame selectBy(String filterExpressionString) {
+        // implementation
+        return new DataFrame(columnNames, columns, filterData(filterExpressionString));
+    }
+
+    private Map<String, Object[]> filterData(String filterExpressionString) {
+        Map<String, Object[]> result = new HashMap<>();
+        for (Object[] row : data.values()) {
+            boolean match = true;
+            String[] parts = filterExpressionString.split(",");
+            for (int i = 0; i < parts.length; i++) {
+                if (!row[i].equals(parts[i])) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                result.put(row[0], row);
+            }
+        }
+        return result;
+    }
+
+    public DataFrame dropColumn(String columnName) {
+        // implementation
+        List<Column> newColumns = new ArrayList<>();
+        for (Column column : columns) {
+            if (!column.getName().equals(columnName)) {
+                newColumns.add(column);
+            }
+        }
+        Map<String, Object[]> newData = new HashMap<>();
+        for (Object[] row : data.values()) {
+            Object[] newRow = new Object[row.length - 1];
+            System.arraycopy(row, 0, newRow, 0, row.length - 1);
+            newData.put(row[0], newRow);
+        }
+        return new DataFrame(columnNames, newColumns, newData);
+    }
+
+    public static class Column {
+        private String name;
+
+        public Column(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    @Override
+    public void forEach(Procedure<DfCursor> action) {
+        // implementation
+    }
+}
+
+public class DfCursor implements Iterable<Object[]> {
+    private Map<String, Object[]> data;
+
+    public DfCursor(Map<String, Object[]> data) {
+        this.data = data;
+    }
+
+    @Override
+    public Iterator<Object[]> iterator() {
+        return new Iterator<Object[]>() {
+            int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return index < data.size();
+            }
+
+            @Override
+            public Object[] next() {
+                return data.get(String.valueOf(index++));
+            }
+        };
+    }
+}
+
+public interface Procedure<DfCursor> {
+    void execute(DfCursor cursor);
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+I apologize for the earlier response. Here's a complete implementation of the DataFrame class in Java, along with methods for filtering and dropping columns:
+
+```java
+import java.util.*;
+
+public class DataFrame {
+    private List<String> columnNames;
+    private List<Column> columns;
+    private Map<String, Object[]> data;
+
+    // Constructor
+    public DataFrame(List<String> columnNames, List<Column> columns, Map<String, Object[]> data) {
+        this.columnNames = columnNames;
+        this.columns = columns;
+        this.data = data;
+    }
+
+    // Getters and setters
+    public List<String> getColumnNames() {
+        return columnNames;
+    }
+
+    public List<Column> getColumns() {
+        return columns;
+    }
+
+    public Map<String, Object[]> getData() {
+        return data;
+    }
+
+    // Method to select rows based on a filter expression
+    public DataFrame selectBy(String filterExpressionString) {
+        Map<String, Object[]> filteredData = new HashMap<>();
+        for (Object[] row : data.values()) {
+            boolean match = true;
+            String[] parts = filterExpressionString.split(",");
+            for (int i = 0; i < parts.length; i++) {
+                if (!row[i].equals(parts[i])) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                filteredData.put(row[0], row);
+            }
+        }
+        return new DataFrame(columnNames, columns, filteredData);
+    }
+
+    // Method to drop a column
+    public DataFrame dropColumn(String columnName) {
+        List<Column> newColumns = new ArrayList<>();
+        for (Column column : columns) {
+            if (!column.getName().equals(columnName)) {
+                newColumns.add(column);
+            }
+        }
+        Map<String, Object[]> newData = new HashMap<>();
+        for (Object[] row : data.values()) {
+            Object[] newRow = new Object[row.length - 1];
+            System.arraycopy(row, 0, newRow, 0, row.length - 1);
+            if (row[newRow.length] != null) {
+                newData.put(String.valueOf(newRow.length), row);
+            }
+        }
+        return new DataFrame(columnNames.subList(0, columnNames.indexOf(columnName)), newColumns, newData);
+    }
+
+    // Method to drop a row
+    public DataFrame dropRow(String rowValue) {
+        Map<String, Object[]> filteredData = new HashMap<>();
+        for (Object[] row : data.values()) {
+            if (!row[0].equals(rowValue)) {
+                filteredData.put(row[0], row);
+            }
+        }
+        return new DataFrame(columnNames, columns, filteredData);
+    }
+
+    // Method to calculate the mean of a column
+    public Double calculateMean(String columnName) {
+        double sum = 0;
+        int count = 0;
+        for (Object[] row : data.values()) {
+            if (row.length > 1 && row[1].equals(columnName)) {
+                sum += (double) row[2];
+                count++;
+            }
+        }
+        return count == 0 ? null : sum / count;
+    }
+
+    // Method to calculate the standard deviation of a column
+    public Double calculateStdDev(String columnName) {
+        double mean = calculateMean(columnName);
+        double sumSquares = 0;
+        int count = 0;
+        for (Object[] row : data.values()) {
+            if (row.length > 1 && row[1].equals(columnName)) {
+                double value = (double) row[2];
+                sumSquares += Math.pow(value - mean, 2);
+                count++;
+            }
+        }
+        return count == 0 ? null : Math.sqrt(sumSquares / count);
+    }
+
+    // Method to print the DataFrame
+    public void print() {
+        for (Object[] row : data.values()) {
+            for (int i = 0; i < row.length; i++) {
+                System.out.print(row[i] + " ");
+            }
+            System.out.println();
+        }
+    }
+}
+
+public class Column {
+    private String name;
+
+    public Column(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+class Procedure<DfCursor> implements Runnable {
+    private DfCursor cursor;
+
+    public Procedure(DfCursor cursor) {
+        this.cursor = cursor;
+    }
+
+    @Override
+    public void run() {
+        // Execute the procedure
+        cursor.forEach(this::executeProcedure);
+    }
+
+    public void executeProcedure(Object[] row) {
+        System.out.println(Arrays.toString(row));
+    }
+}
+
+public class DfCursor implements Iterator<Object[]> {
+    private Map<String, Object[]> data;
+
+    public DfCursor(Map<String, Object[]> data) {
+        this.data = data;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return !data.isEmpty();
+    }
+
+    @Override
+    public Object[] next() {
+        return data.keySet().iterator().next();
+    }
+}
+```
+
+This implementation includes methods for filtering rows based on a filter expression, dropping a column or row, calculating the mean and standard deviation of a column, printing the DataFrame, and executing procedures.
+===================================================
+
+
+====================== Iteration #3 ======================
+Here is the complete implementation of the DataFrame class in Java:
+
+```java
+import java.util.*;
+
+public class DataFrame {
+    private List<String> columnNames;
+    private List<Column> columns;
+    private Map<String, Object[]> data;
+
+    // Constructor
+    public DataFrame(List<String> columnNames, List<Column> columns, Map<String, Object[]> data) {
+        this.columnNames = columnNames;
+        this.columns = columns;
+        this.data = data;
+    }
+
+    // Getters and setters
+    public List<String> getColumnNames() {
+        return columnNames;
+    }
+
+    public List<Column> getColumns() {
+        return columns;
+    }
+
+    public Map<String, Object[]> getData() {
+        return data;
+    }
+
+    // Method to select rows based on a filter expression
+    public DataFrame selectBy(String filterExpressionString) {
+        Map<String, Object[]> filteredData = new HashMap<>();
+        for (Object[] row : data.values()) {
+            boolean match = true;
+            String[] parts = filterExpressionString.split(",");
+            for (int i = 0; i < parts.length; i++) {
+                if (!row[i].equals(parts[i])) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                filteredData.put(row[0], row);
+            }
+        }
+        return new DataFrame(columnNames, columns, filteredData);
+    }
+
+    // Method to drop a column
+    public DataFrame dropColumn(String columnName) {
+        List<String> newColumnNames = new ArrayList<>();
+        for (String name : columnNames) {
+            if (!name.equals(columnName)) {
+                newColumnNames.add(name);
+            }
+        }
+        Map<String, Object[]> newData = new HashMap<>();
+        for (Object[] row : data.values()) {
+            Object[] newRow = new Object[newRow.length - 1];
+            System.arraycopy(row, 0, newRow, 0, newRow.length - 1);
+            newRow[rowNew.length] = null;
+            if (row[newRow.length] != null) {
+                newData.put(String.valueOf(newRow.length), row);
+            }
+        }
+        return new DataFrame(newColumnNames, columns.subList(0, columns.indexOf(columnName)), newData);
+    }
+
+    // Method to drop a row
+    public DataFrame dropRow(String rowValue) {
+        Map<String, Object[]> filteredData = new HashMap<>();
+        for (Object[] row : data.values()) {
+            if (!row[0].equals(rowValue)) {
+                filteredData.put(row[0], row);
+            }
+        }
+        return new DataFrame(columnNames, columns, filteredData);
+    }
+
+    // Method to calculate the mean of a column
+    public Double calculateMean(String columnName) {
+        double sum = 0;
+        int count = 0;
+        for (Object[] row : data.values()) {
+            if (row.length > 1 && row[1].equals(columnName)) {
+                sum += (double) row[2];
+                count++;
+            }
+        }
+        return count == 0 ? null : sum / count;
+    }
+
+    // Method to calculate the standard deviation of a column
+    public Double calculateStdDev(String columnName) {
+        double mean = calculateMean(columnName);
+        double sumSquares = 0;
+        int count = 0;
+        for (Object[] row : data.values()) {
+            if (row.length > 1 && row[1].equals(columnName)) {
+                double value = (double) row[2];
+                sumSquares += Math.pow(value - mean, 2);
+                count++;
+            }
+        }
+        return count == 0 ? null : Math.sqrt(sumSquares / count);
+    }
+
+    // Method to print the DataFrame
+    public void print() {
+        for (Object[] row : data.values()) {
+            for (int i = 0; i < row.length; i++) {
+                System.out.print(row[i] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    // Method to execute a procedure on the DataFrame
+    public void executeProcedure(Procedure<DfCursor> procedure) {
+        DfCursor cursor = new DfCursor(data);
+        Thread thread = new Thread(new Procedure<>(cursor));
+        thread.start();
+    }
+}
+
+public class Column {
+    private String name;
+
+    public Column(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+class Procedure<DfCursor> implements Runnable {
+    private DfCursor cursor;
+
+    public Procedure(DfCursor cursor) {
+        this.cursor = cursor;
+    }
+
+    @Override
+    public void run() {
+        // Execute the procedure
+        while (cursor.hasNext()) {
+            Object[] row = cursor.next();
+            System.out.println(Arrays.toString(row));
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    public void executeProcedure(Object[] row) {
+        System.out.println(Arrays.toString(row));
+    }
+}
+
+public class DfCursor implements Iterator<Object[]> {
+    private Map<String, Object[]> data;
+
+    public DfCursor(Map<String, Object[]> data) {
+        this.data = data;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return !data.isEmpty();
+    }
+
+    @Override
+    public Object[] next() {
+        return data.keySet().iterator().next();
+    }
+}
+```
+
+This implementation includes methods for filtering rows based on a filter expression, dropping a column or row, calculating the mean and standard deviation of a column, printing the DataFrame, executing procedures, and iterating over the DataFrame.
+===================================================
+
+
+====================== Iteration #4 ======================

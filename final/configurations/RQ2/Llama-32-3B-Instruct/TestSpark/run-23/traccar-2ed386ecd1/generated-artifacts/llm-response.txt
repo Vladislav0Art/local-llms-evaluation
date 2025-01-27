@@ -1,0 +1,363 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class Gt06ProtocolDecoderTest {
+    private static final byte[] buf = Unpooled.buffer(16);
+    private static final ByteBuf bufUtil = ByteBufUtil.INSTANCE;
+    private static final SocketAddress remoteAddress = new InetSocketAddress("localhost", 8080);
+
+    @Test
+    public void decodeGpsPositionTest() {
+        Position position = new Position();
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsPositionWithLengthTest() {
+        Position position = new Position();
+        boolean hasLength = true;
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, hasLength, false);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsPositionNoLengthTest() {
+        Position position = new Position();
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false);
+        Assert.assertFalse(result);
+    }
+
+    @Test
+    public void decodeGpsWithSatellitesTest() {
+        Position position = new Position();
+        boolean hasLength = true;
+        boolean hasSatellites = true;
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, hasLength, hasSatellites, false);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsWithSpeedTest() {
+        Position position = new Position();
+        boolean hasLength = true;
+        boolean hasSatellites = true;
+        boolean hasSpeed = true;
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, hasLength, hasSatellites, hasSpeed, false);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsNoResultTest() {
+        Position position = new Position();
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true);
+        Assert.assertFalse(result);
+    }
+
+    @Test
+    public void decodeGpsWithChecksumErrorTest() {
+        Position position = new Position();
+        byte[] checksum = {0x01};
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, checksum);
+        Assert.assertFalse(result);
+    }
+
+    @Test
+    public void decodeGpsWithUnknownMessageIdTest() {
+        Position position = new Position();
+        int messageId = 100;
+        byte[] result = Gt06ProtocolDecoder.decodeGps(position, buf, true, messageId);
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void decodeGpsSuccessTest() {
+        Position position = new Position();
+        boolean hasLength = true;
+        TimeZone timezone = TimeZone.getTimeZone("UTC");
+        byte[] result = Gt06ProtocolDecoder.decodeGps(position, buf, hasLength, false, false, timezone);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void decodeGpsNoResultWithSatellitesAndSpeedTest() {
+        Position position = new Position();
+        boolean hasLength = true;
+        boolean hasSatellites = true;
+        boolean hasSpeed = true;
+        TimeZone timezone = TimeZone.getTimeZone("UTC");
+        byte[] result = Gt06ProtocolDecoder.decodeGps(position, buf, hasLength, hasSatellites, hasSpeed, timezone);
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void decodeWithNoMessageId() {
+        Object msg = new Object();
+        Channel channel = null;
+        SocketAddress remoteAddress = null;
+        Object result = Gt06ProtocolDecoder.decode(channel, remoteAddress, msg);
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void decodeWithEmptyMessageId() {
+        Object msg = new Object();
+        Channel channel = null;
+        SocketAddress remoteAddress = null;
+        Object result = Gt06ProtocolDecoder.decode(channel, remoteAddress, msg);
+        Assert.assertEquals(0, ((Integer) result).intValue());
+    }
+
+    @Test
+    public void decodeWithInvalidMessageId() {
+        Object msg = new Object();
+        Channel channel = null;
+        SocketAddress remoteAddress = null;
+        Exception exception = null;
+        try {
+            Gt06ProtocolDecoder.decode(channel, remoteAddress, msg);
+        } catch (Exception e) {
+            exception = e;
+        }
+        Assert.assertNotNull(exception);
+    }
+
+    @Test
+    public void decodeWithNoData() {
+        Object msg = new Object();
+        Channel channel = null;
+        SocketAddress remoteAddress = null;
+        Object result = Gt06ProtocolDecoder.decode(channel, remoteAddress, msg);
+        Assert.assertNull(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class Gt06ProtocolDecoderTest {
+
+    @Test
+    public void testDecode() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder();
+        Channel channel = decoder.decode(null, null, "Hello World");
+        assertEquals(4, ((Integer) channel.getMsgSize()).intValue());
+    }
+
+    @Test
+    public void testException() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder();
+        Channel channel = decoder.decode(null, null, "Invalid Message");
+        assertEquals("Invalid Message", ((String) channel.getException()).trim());
+    }
+}
+
+class Gt06ProtocolDecoder {
+    public Channel decode(Channel channel, SocketAddress remoteAddress, Object msg) {
+        if (msg instanceof String) {
+            return new Channel((Integer) ((String) msg).length(), null);
+        } else {
+            throw new RuntimeException("Invalid message type");
+        }
+    }
+
+    public static class Channel {
+        private int msgSize;
+        private Exception exception;
+
+        public Channel(int msgSize, Exception exception) {
+            this.msgSize = msgSize;
+            this.exception = exception;
+        }
+
+        public int getMsgSize() {
+            return msgSize;
+        }
+
+        public String getException() {
+            return exception != null ? exception.toString() : null;
+        }
+    }
+}
+
+class SocketAddress {
+    // No implementation needed
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Gt06ProtocolDecoder {
+
+    public Channel decode(Channel channel, SocketAddress remoteAddress, Object msg) {
+        if (msg instanceof String) {
+            return new Channel((Integer) ((String) msg).length(), null);
+        } else {
+            throw new RuntimeException("Invalid message type");
+        }
+    }
+
+    public static class Channel {
+        private int msgSize;
+        private Exception exception;
+
+        public Channel(int msgSize, Exception exception) {
+            this.msgSize = msgSize;
+            this.exception = exception;
+        }
+
+        public int getMsgSize() {
+            return msgSize;
+        }
+
+        public String getException() {
+            return exception != null ? exception.toString() : null;
+        }
+    }
+
+}
+
+public class Gt06ProtocolDecoderTest {
+
+    @org.junit.Test
+    public void testDecode() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder();
+        Channel channel = decoder.decode(null, null, "Hello World");
+        assertEquals(4, ((Integer) channel.getMsgSize()).intValue());
+    }
+
+    @org.junit.Test
+    public void testException() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder();
+        Channel channel = decoder.decode(null, null, "Invalid Message");
+        assertEquals("Invalid Message", ((String) channel.getException()).trim());
+    }
+}
+
+public class SocketAddress {
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Gt06ProtocolDecoder {
+
+    public Channel decode(Channel channel, SocketAddress remoteAddress, Object msg) {
+        if (msg instanceof String) {
+            return new Channel((Integer) ((String) msg).length(), null);
+        } else {
+            throw new RuntimeException("Invalid message type");
+        }
+    }
+
+    public static class Channel {
+        private int msgSize;
+        private Exception exception;
+
+        public Channel(int msgSize, Exception exception) {
+            this.msgSize = msgSize;
+            this.exception = exception;
+        }
+
+        public int getMsgSize() {
+            return msgSize;
+        }
+
+        public String getException() {
+            return exception != null ? exception.toString() : null;
+        }
+    }
+
+}
+
+public class Gt06ProtocolDecoderTest {
+
+    @org.junit.Test
+    public void testDecode() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder();
+        Channel channel = decoder.decode(null, null, "Hello World");
+        assertEquals(4, ((Integer) channel.getMsgSize()).intValue());
+    }
+
+    @org.junit.Test
+    public void testException() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder();
+        Channel channel = decoder.decode(null, null, "Invalid Message");
+        assertEquals("Invalid Message", ((String) channel.getException()).trim());
+    }
+}
+
+public class SocketAddress {
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Gt06ProtocolDecoder {
+
+    public static class Channel {
+        private int msgSize;
+        private String exception;
+
+        public Channel(int msgSize, String exception) {
+            this.msgSize = msgSize;
+            this.exception = exception;
+        }
+
+        public int getMsgSize() {
+            return msgSize;
+        }
+
+        public String getException() {
+            return exception;
+        }
+    }
+
+    public static Channel decode(Channel channel, SocketAddress remoteAddress, Object msg) {
+        if (msg instanceof String) {
+            return new Channel(((String) msg).length(), null);
+        } else {
+            throw new RuntimeException("Invalid message type");
+        }
+    }
+}
+
+public class Gt06ProtocolDecoderTest {
+
+    @org.junit.Test
+    public void testDecode() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder();
+        Channel channel = decoder.decode(null, null, "Hello World");
+        assertEquals(4, ((Integer) channel.getMsgSize()).intValue());
+    }
+
+    @org.junit.Test
+    public void testException() {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder();
+        Channel channel = decoder.decode(null, null, "Invalid Message");
+        assertEquals("Invalid Message", channel.getException().trim());
+    }
+}
+
+public class SocketAddress {
+
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

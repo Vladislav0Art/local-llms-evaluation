@@ -1,0 +1,24 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import org.traccar.BaseProtocolDecoder;
+import org.traccar.session.DeviceSession;
+import org.traccar.NetworkMessage;
+import org.traccar.Protocol;
+import org.traccar.helper.BufferUtil;
+import org.traccar.helper.Parser;
+import org.traccar.helper.PatternBuilder;
+
+public class GeneratedTest {
+
+    @Mock
+    private MockNetwork mockNetwork;
+
+    public static class Test {
+
+    }

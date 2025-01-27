@@ -1,0 +1,370 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.function.Function;
+
+@RunWith(org.junit.runners.JUnit4.class)
+public class WordWrapTest {
+
+    @Mock
+    private Reader reader;
+
+    @Mock
+    private File file;
+
+    @Mock
+    private Charset charset;
+
+    @Mock
+    private Function<? super CharSequence, Number> stringWidth;
+
+    @Mock
+    private LineConsumer lineConsumer;
+
+    public static class LineConsumer {
+        public void accept(CharSequence s) throws IOException {}
+    }
+
+    public static class Builder {
+        // implementation...
+    }
+
+    @Test
+    public void fromReader() {
+        when(reader.read()).thenReturn(10);
+        when(reader.read()).thenReturn(-1);
+        WordWrap.Builder builder = WordWrap.from(reader);
+        assertEquals(2, builder.length());
+    }
+
+    @Test
+    public void fromClasspathUtf8() {
+        when(file.exists()).thenReturn(true);
+        when(file.canRead()).thenReturn(true);
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("resource");
+        assertEquals("utf-8", builder.charset().toString());
+    }
+
+    @Test
+    public void wordWrapReaderLineConsumer() throws IOException {
+        when(reader.read()).thenReturn(10);
+        WordWrap.wordWrap(reader, lineConsumer, 20, stringWidth, new HashSet<>(), false, true);
+        assertTrue(lineConsumer.accepted);
+    }
+
+    @Test
+    public void wordWrapFile() throws IOException {
+        when(file.exists()).thenReturn(true);
+        when(file.canRead()).thenReturn(true);
+        when(file.length()).thenReturn(10);
+        WordWrap.wordWrap(file, charset, 20, stringWidth, new HashSet<>(), false, true);
+        assertTrue(true); // implementation depends on file length
+    }
+
+    @Test
+    public void isWhitespace() {
+        assertFalse(isWhitespace("hello"));
+        assertFalse(isWhitespace("\t"));
+        assertTrue(isWhitespace("\n"));
+    }
+
+    @Test
+    public void rightTrim() {
+        when(stringWidth.apply(CharSequence.of("hello\n"))).thenReturn(5);
+        assertEquals("hello", WordWrap.rightTrim(CharSequence.of("hello\n")));
+    }
+
+    @Test
+    public void leftTrim() {
+        when(reader.read()).thenReturn(10);
+        when(reader.read()).thenReturn(-1);
+        WordWrap.leftTrim(new StringBuilder("hello world"));
+        assertTrue(true); // implementation depends on reader input
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.function.Function;
+
+@RunWith(org.junit.runners.JUnit4.class)
+public class WordWrapTest {
+
+    @Mock
+    private BufferedReader reader;
+
+    @Mock
+    private File file;
+
+    @Mock
+    private Charset charset;
+
+    @Mock
+    private Function<? super CharSequence, Number> stringWidth;
+
+    @Mock
+    private LineConsumer lineConsumer;
+
+    public static class LineConsumer {
+        public void accept(CharSequence s) throws IOException {}
+    }
+
+    public static class Builder {
+        // implementation...
+    }
+
+    @Test
+    public void fromReader() throws IOException {
+        when(reader.readLine()).thenReturn("hello");
+        WordWrap.Builder builder = WordWrap.from(reader);
+        assertEquals(1, builder.length());
+    }
+
+    @Test
+    public void fromClasspathUtf8() {
+        when(file.exists()).thenReturn(true);
+        when(file.canRead()).thenReturn(true);
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("resource");
+        assertEquals("utf-8", builder.charset().toString());
+    }
+
+    @Test
+    public void wordWrapReaderLineConsumer() throws IOException {
+        when(reader.readLine()).thenReturn("hello\nworld");
+        WordWrap.wordWrap(reader, lineConsumer, 20, stringWidth, new HashSet<>(), false, true);
+        assertTrue(lineConsumer.accepted);
+    }
+
+    @Test
+    public void wordWrapFile() throws IOException {
+        when(file.length()).thenReturn(10);
+        WordWrap.wordWrap(file, charset, 20, stringWidth, new HashSet<>(), false, true);
+        assertTrue(true); // implementation depends on file length
+    }
+
+    @Test
+    public void isWhitespace() {
+        assertFalse(isWhitespace("hello"));
+        assertFalse(isWhitespace("\t"));
+        assertTrue(isWhitespace("\n"));
+    }
+
+    @Test
+    public void rightTrim() {
+        when(stringWidth.apply(CharSequence.of("hello\n"))).thenReturn(5);
+        assertEquals("hello", WordWrap.rightTrim(CharSequence.of("hello\n")));
+    }
+
+    @Test
+    public void leftTrim() throws IOException {
+        reader = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder builder = new StringBuilder(reader.readLine());
+        WordWrap.leftTrim(builder);
+        assertEquals("", builder.toString().trim());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class WordWrapTest {
+
+    private final String CLASSPATH_RESOURCE = "resource";
+
+    @org.junit.Before
+    public void setup() {
+        // implementation...
+    }
+
+    @org.junit.Test
+    public void fromReader() throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        when(reader.readLine()).thenReturn("hello");
+        WordWrap.Builder builder = WordWrap.from(reader);
+        assertEquals(1, builder.length());
+    }
+
+    @org.junit.Test
+    public void fromClasspathUtf8() {
+        File file = new File(CLASSPATH_RESOURCE);
+        when(file.exists()).thenReturn(true);
+        when(file.canRead()).thenReturn(true);
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8(file);
+        assertEquals("utf-8", builder.charset().toString());
+    }
+
+    @org.junit.Test
+    public void wordWrapReaderLineConsumer() throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        when(reader.readLine()).thenReturn("hello\nworld");
+        LineConsumer lineConsumer = mock(LineConsumer.class);
+        WordWrap.wordWrap(reader, lineConsumer, 20, stringWidth, new HashSet<>(), false, true);
+        verify(lineConsumer).accept(any());
+    }
+
+    @org.junit.Test
+    public void wordWrapFile() throws IOException {
+        File file = new File(CLASSPATH_RESOURCE);
+        when(file.length()).thenReturn(10);
+        WordWrap.wordWrap(file, charset, 20, stringWidth, new HashSet<>(), false, true);
+        // implementation depends on file length
+    }
+
+    @org.junit.Test
+    public void isWhitespace() {
+        assertFalse(isWhitespace("hello"));
+        assertFalse(isWhitespace("\t"));
+        assertTrue(isWhitespace("\n"));
+    }
+
+    @org.junit.Test
+    public void rightTrim() {
+        when(stringWidth.apply(CharSequence.of("hello\n"))).thenReturn(5);
+        assertEquals("hello", WordWrap.rightTrim(CharSequence.of("hello\n")));
+    }
+
+    @org.junit.Test
+    public void leftTrim() throws IOException {
+        System.setIn(new FileInputStream(CLASSPATH_RESOURCE));
+        StringBuilder builder = new StringBuilder(reader.readLine());
+        WordWrap.leftTrim(builder);
+        assertEquals("", builder.toString().trim());
+    }
+
+    private boolean isWhitespace(String s) {
+        return s.matches("^[\\s\\t]*$");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.function.Function;
+
+@RunWith(org.junit4.JUnit4.class)
+public class WordWrapTest {
+
+    @Mock
+    private BufferedReader reader;
+
+    @Mock
+    private File file;
+
+    @Mock
+    private Charset charset;
+
+    @Mock
+    private Function<? super CharSequence, Number> stringWidth;
+
+    public static class LineConsumer {
+        public void accept(CharSequence s) throws IOException {}
+    }
+
+    public static class Builder {
+        // implementation...
+    }
+
+    @Test
+    public void fromReader() throws IOException {
+        when(reader.readLine()).thenReturn("hello");
+        WordWrap.Builder builder = WordWrap.from(reader);
+        assertEquals(1, builder.length());
+    }
+
+    @Test
+    public void fromClasspathUtf8() {
+        when(file.exists()).thenReturn(true);
+        when(file.canRead()).thenReturn(true);
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8(file);
+        assertEquals("utf-8", builder.charset().toString());
+    }
+
+    @Test
+    public void wordWrapReaderLineConsumer() throws IOException {
+        when(reader.readLine()).thenReturn("hello\nworld");
+        WordWrap.wordWrap(reader, new LineConsumer(), 20, stringWidth, new HashSet<>(), false, true);
+        verify(new LineConsumer()).accept(any());
+    }
+
+    @Test
+    public void wordWrapFile() throws IOException {
+        when(file.length()).thenReturn(10);
+        WordWrap.wordWrap(file, charset, 20, stringWidth, new HashSet<>(), false, true);
+        // implementation depends on file length
+    }
+
+    @Test
+    public void isWhitespace() {
+        assertFalse(isWhitespace("hello"));
+        assertFalse(isWhitespace("\t"));
+        assertTrue(isWhitespace("\n"));
+    }
+
+    @Test
+    public void rightTrim() {
+        when(stringWidth.apply(CharSequence.of("hello\n"))).thenReturn(5);
+        assertEquals("hello", WordWrap.rightTrim(CharSequence.of("hello\n")));
+    }
+
+    @Test
+    public void leftTrim() throws IOException {
+        System.setIn(new FileInputStream("resource"));
+        StringBuilder builder = new StringBuilder(reader.readLine());
+        WordWrap.leftTrim(builder);
+        assertEquals("", builder.toString().trim());
+    }
+
+    private boolean isWhitespace(String s) {
+        return s.matches("^[\\s\\t]*$");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================

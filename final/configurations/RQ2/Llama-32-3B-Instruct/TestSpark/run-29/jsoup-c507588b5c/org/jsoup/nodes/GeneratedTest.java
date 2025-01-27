@@ -1,0 +1,91 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+
+public class GeneratedTest {
+
+    @Test
+    public void newNodeTextIsEmpty() {
+        String text = "";
+        TextNode node = new TextNode(text);
+        assertTrue(node.text().isEmpty());
+    }
+
+    @Test
+    public void newNodeTextIsNotBlank() {
+        String text = "Hello";
+        TextNode node = new TextNode(text);
+        assertFalse(node.isBlank());
+    }
+
+    @Test
+    public void cloneReturnsSameInstance() {
+        TextNode node = new TextNode("Hello");
+        TextNode cloned = node.clone();
+        assertEquals(node, cloned);
+    }
+
+    @Test
+    public void textChangesWhenCalled() {
+        String originalText = "Hello";
+        TextNode node = new TextNode(originalText);
+        String newText = "World";
+        node.text(newText);
+        assertEquals(newText, node.text());
+    }
+
+    @Test
+    public void splitTextMovesOffsetForward() {
+        StringBuilder builder = new StringBuilder();
+        TextNode node = new TextNode("Hello World");
+        int offset = 7;
+        node.splitText(offset);
+        assertEquals(10, builder.length());
+    }
+
+    @Test
+    public void outerHtmlHeadIncludesWholeText() throws Exception {
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        TextNode node = new TextNode("Hello");
+        node.outerHtmlHead(accum, 0, out);
+        assertEquals("Hello", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailDoesNotIncludeNewlines() throws Exception {
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        TextNode node = new TextNode("\nHello\nWorld");
+        node.outerHtmlTail(accum, 0, out);
+        assertEquals("HelloWorld", accum.toString());
+    }
+
+    @Test
+    public void wholeTextIncludesAllChildren() {
+        String originalText = "Hello World";
+        TextNode node = new TextNode(originalText);
+        assertTrue(node.getWholeText().equals(originalText));
+    }
+
+    @Test
+    public void isBlankReturnsFalseForNonEmptyText() {
+        TextNode node = new TextNode("Hello");
+        assertFalse(node.isBlank());
+    }
+
+    @Test
+    public void isBlankReturnsTrueForEmptyText() {
+        TextNode node = new TextNode("");
+        assertTrue(node.isBlank());
+    }
+
+}

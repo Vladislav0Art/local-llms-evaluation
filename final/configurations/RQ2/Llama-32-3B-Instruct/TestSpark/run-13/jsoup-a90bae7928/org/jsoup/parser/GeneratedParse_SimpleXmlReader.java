@@ -1,0 +1,22 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.XmlTreeBuilder;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.StringReader;
+import java.util.List;
+
+public class GeneratedParse_SimpleXmlReader {
+
+    @Test
+    public void parse_SimpleXmlReader() throws Exception {
+        Reader input = new StringReader("<root><child/></root>");
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Document document = treeBuilder.parse(input, "");
+        assertNotNull(document);
+        assertEquals(1, document.children().size());
+    }
+
+}

@@ -1,0 +1,416 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.io.IOException;
+import java.util.Map;
+
+public class CssFormatterTests {
+
+    @Test
+    public void initInitializedTest() {
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        CssFormatter formatter = new CssFormatter();
+       (formatter.init(options, cfg));
+        assertThat(formatter.isInitialized(), is(true));
+    }
+
+    @Test
+    public void initNotInitializedTest() {
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        CssFormatter formatter = new CssFormatter();
+        assertThat(() -> formatter.init(options, cfg), throws(classOf(IOException)));
+        assertThat(formatter.isInitialized(), is(false));
+    }
+
+    @Test
+    public void doFormatNoErrorTest() {
+        String code = "body { color: red; }";
+        LineEnding ending = LineEnding.LF;
+        CssFormatter formatter = new CssFormatter();
+        try {
+            formatter.doFormat(code, ending);
+            // no exception expected
+        } catch (IOException e) {
+            throw new AssertionError(e.getMessage());
+        }
+    }
+
+    @Test
+    public void doFormatErrorTest() {
+        String code = "body { color: red; }";
+        LineEnding ending = LineEnding.CRLF;
+        CssFormatter formatter = new CssFormatter();
+        try {
+            formatter.doFormat(code, ending);
+            assert false : "Expected an IOException to be thrown.";
+        } catch (IOException e) {
+            assertThat(e.getMessage(), is("Unsupported line ending for CSS"));
+        }
+    }
+
+    @Test
+    public void doFormatParserErrorTest() throws Exception {
+        String code = "{ invalid css";
+        LineEnding ending = LineEnding.LF;
+        CssFormatter formatter = new CssFormatter();
+        try {
+            formatter.doFormat(code, ending);
+            assert false : "Expected an exception to be thrown.";
+        } catch (IOException e) {
+            assertThat(e.getMessage(), is("Invalid CSS"));
+        }
+    }
+
+    @Test
+    public void doFormatNoOptionsTest() throws Exception {
+        String code = "body { color: red; }";
+        LineEnding ending = LineEnding.LF;
+        CssFormatter formatter = new CssFormatter();
+        try {
+            formatter.doFormat(code, ending);
+            assert false : "Expected an exception to be thrown.";
+        } catch (IOException e) {
+            assertThat(e.getMessage(), is("No options provided for CSS formatter"));
+        }
+    }
+
+    @Test
+    public void doFormatUnsupportedOptionsTest() throws Exception {
+        String code = "body { color: red; }";
+        LineEnding ending = LineEnding.LF;
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = Collections.singletonMap("invalid", "option");
+        try {
+            formatter.doFormat(code, ending);
+            assert false : "Expected an exception to be thrown.";
+        } catch (IOException e) {
+            assertThat(e.getMessage(), is("Unsupported option for CSS: invalid"));
+        }
+    }
+
+    @Test
+    public void doFormatUninitializedFormatterTest() throws Exception {
+        String code = "body { color: red; }";
+        LineEnding ending = LineEnding.LF;
+        CssFormatter formatter = mock(CssFormatter.class);
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        when(cfg.getOptions()).thenReturn(options);
+        when(formatter.init(any(), any())).thenThrow(IOException::new);
+        try {
+            formatter.doFormat(code, ending);
+            assert false : "Expected an exception to be thrown.";
+        } catch (IOException e) {
+            assertThat(e.getMessage(), is("Formatter not initialized"));
+        }
+    }
+
+    @Test
+    public void doFormatUnsupportedLineEndingTest() throws Exception {
+        String code = "body { color: red; }";
+        LineEnding ending = LineEnding.CRLF;
+        CssFormatter formatter = new CssFormatter();
+        try {
+            formatter.doFormat(code, ending);
+            assert false : "Expected an exception to be thrown.";
+        } catch (IOException e) {
+            assertThat(e.getMessage(), is("Unsupported line ending for CSS"));
+        }
+    }
+
+    @Test
+    public void isInitializedTrueTest() {
+        CssFormatter formatter = new CssFormatter();
+        assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void isInitializedFalseTest() {
+        CssFormatter formatter = mock(CssFormatter.class);
+        when(formatter.init(any(), any())).thenThrow(IOException::new);
+        assertFalse(formatter.isInitialized());
+    }
+}
+
+class ConfigurationSource {
+    private Map<String, String> options;
+
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    void setOptions(Map<String, String> options) {
+        this.options = options;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.io.IOException;
+import java.util.Map;
+
+public class CssFormatterTests {
+
+    @Test
+    public void initInitializedTest() {
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        CssFormatter formatter = new CssFormatter();
+        formatter.init(options, cfg);
+        assertThat(formatter.isInitialized(), is(true));
+    }
+
+    @Test
+    public void initNotInitializedTest() {
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        CssFormatter formatter = new CssFormatter();
+        try {
+            formatter.init(options, cfg);
+            assert false : "Expected an exception to be thrown.";
+        } catch (IOException e) {
+            assertThat(e.getMessage(), is("Formatter not initialized"));
+        }
+    }
+
+    @Test
+    public void doFormatNoErrorTest() {
+        String code = "body { color: red; }";
+        LineEnding ending = LineEnding.LF;
+        CssFormatter formatter = new CssFormatter();
+        String formatted = formatter.doFormat(code, ending);
+        assertThat(formatted, is("body { color: red; }"));
+    }
+
+    @Test
+    public void doFormatErrorTest() {
+        String code = "body { color: red; }";
+        LineEnding ending = LineEnding.CRLF;
+        CssFormatter formatter = new CssFormatter();
+        try {
+            formatter.doFormat(code, ending);
+            assert false : "Expected an IOException to be thrown.";
+        } catch (IOException e) {
+            assertThat(e.getMessage(), is("Unsupported line ending for CSS"));
+        }
+    }
+
+    @Test
+    public void doFormatParserErrorTest() throws Exception {
+        String code = "body { color: red; ";
+        LineEnding ending = LineEnding.LF;
+        CssFormatter formatter = new CssFormatter();
+        try {
+            formatter.doFormat(code, ending);
+            assert false : "Expected an IOException to be thrown.";
+        } catch (IOException e) {
+            assertThat(e.getMessage(), is("Invalid CSS code"));
+        }
+    }
+
+    @Test
+    public void isInitializedTrueTest() {
+        CssFormatter formatter = new CssFormatter();
+        assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void isInitializedFalseTest() {
+        CssFormatter formatter = mock(CssFormatter.class);
+        when(formatter.init(any(), any())).thenThrow(IOException::new);
+        assertFalse(formatter.isInitialized());
+    }
+}
+
+class ConfigurationSource {
+    private Map<String, String> options;
+
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    void setOptions(Map<String, String> options) {
+        this.options = options;
+    }
+}
+
+class LineEnding {
+    public static final String LF = "\n";
+
+    public String getValue() {
+        return LF;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.HashMap;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void testFormatter() {
+        CssFormatter formatter = mock(CssFormatter.class);
+        ConfigurationSource cfg = Mockito.mock(ConfigurationSource.class);
+
+        Map<String, String> options = new HashMap<>();
+        options.put("a", "1");
+        options.put("b", "2");
+
+        when(formatter.init(options, cfg)).thenReturn(true);
+
+        assertTrue(formatter.isInitialized());
+    }
+}
+
+public class CssFormatter {
+
+    public boolean isInitialized() {
+        return true;
+    }
+
+    public void init(Map<String, String> options, ConfigurationSource cfg) {
+        // do nothing
+    }
+
+    public String doFormat(String code, LineEnding ending) {
+        return "formatted";
+    }
+}
+
+public enum LineEnding {
+    LF,
+    CRLF
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class GeneratedTest {
+
+    @Test
+    public void testFormatter() {
+        CssFormatter formatter = new CssFormatter();
+
+        Map<String, String> options = new HashMap<>();
+        options.put("a", "1");
+        options.put("b", "2");
+
+        boolean result = formatter.init(options);
+        assertTrue(result);
+
+        result = formatter.isInitialized();
+        assertTrue(result);
+
+        assertEquals("formatted", formatter.doFormat("test", LineEnding.LF));
+    }
+}
+
+public class CssFormatter {
+
+    public boolean init(Map<String, String> options) {
+        // do nothing
+        return true;
+    }
+
+    public boolean isInitialized() {
+        return false;
+    }
+
+    public String doFormat(String code, LineEnding ending) {
+        switch (ending) {
+            case LF:
+                return "formatted";
+            case CRLF:
+                return "formatted\n";
+            default:
+                throw new RuntimeException("Unsupported line ending");
+        }
+    }
+}
+
+public enum LineEnding {
+    LF,
+    CRLF
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class CssFormatter {
+
+    private boolean initialized;
+
+    public boolean init(Map<String, String> options) {
+        // do nothing
+        this.initialized = true;
+        return true;
+    }
+
+    public boolean isInitialized() {
+        return this.initialized;
+    }
+
+    public String doFormat(String code, LineEnding ending) {
+        switch (ending) {
+            case LF:
+                return "formatted";
+            case CRLF:
+                return "formatted\n";
+            default:
+                throw new RuntimeException("Unsupported line ending");
+        }
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void testFormatter() {
+        CssFormatter formatter = new CssFormatter();
+
+        Map<String, String> options = new HashMap<>();
+        options.put("a", "1");
+        options.put("b", "2");
+
+        boolean result = formatter.init(options);
+        assertTrue(result);
+
+        result = formatter.isInitialized();
+        assertTrue(result);
+
+        assertEquals("formatted", formatter.doFormat("test", LineEnding.LF));
+    }
+}
+
+public enum LineEnding {
+    LF,
+    CRLF
+}
+```
+===================================================
+

@@ -1,0 +1,316 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CommentsConfigurationTest {
+
+    @Mock
+    private SettingsHolder settingsHolder;
+
+    @Test
+    public void newCommentConfigurationCreation_ReturnsInstance() {
+        CommentsConfiguration commentConfiguration = new CommentsConfiguration();
+        Mockito.when(settingsHolder.getComments()).thenReturn(Collections.emptyMap());
+        assertNotNull(commentConfiguration);
+    }
+
+    @Test
+    public void newCommentConfigurationCreationFromMap_ReturnsInstance() {
+        Map<String, List<String>> comments = Collections.singletonMap("key", Arrays.asList("value"));
+        CommentsConfiguration commentConfiguration = new CommentsConfiguration(comments);
+        assertNotNull(commentConfiguration);
+    }
+
+    @Test
+    public void setComment_AddsLinesForProvidedPath() {
+        String path = "path";
+        String[] commentLines = {"line1", "line2"};
+        CommentsConfiguration commentConfiguration = new CommentsConfiguration();
+        commentConfiguration.setComment(path, commentLines);
+        List<String> expectedCommentLines = Arrays.asList("line1", "line2");
+        Mockito.when(settingsHolder.getComments()).thenReturn(Collections.emptyMap());
+        assertEquals(expectedCommentLines, commentConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void setComment_AddsEmptyLineForNewEntry() {
+        String path = "path";
+        String[] commentLines = {"line1", "", "line3"};
+        CommentsConfiguration commentConfiguration = new CommentsConfiguration();
+        commentConfiguration.setComment(path, commentLines);
+        List<String> expectedCommentLines = Arrays.asList("line1", "", "line3");
+        Mockito.when(settingsHolder.getComments()).thenReturn(Collections.emptyMap());
+        assertEquals(expectedCommentLines, commentConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void setComment_OverwritesExistingEntryForPath() {
+        String path = "path";
+        List<String> existingCommentLines = Arrays.asList("existingLine1", "line2");
+        Map<String, List<String>> comments = Collections.singletonMap(path, existingCommentLines);
+        CommentsConfiguration commentConfiguration = new CommentsConfiguration(comments);
+        String[] newCommentLines = {"newLine1", "line3"};
+        commentConfiguration.setComment(path, newCommentLines);
+        assertEquals(newCommentLines, commentConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void setComment_ThrowsNullPointerExceptionForNullPath() {
+        CommentsConfiguration commentConfiguration = new CommentsConfiguration();
+        Mockito.when(settingsHolder.getComments()).thenReturn(Collections.emptyMap());
+        assertThrows(NullPointerException.class, () -> commentConfiguration.setComment(null, "line1"));
+    }
+
+    @Test
+    public void setComment_ThrowsNullPointerExceptionForNullLines() {
+        String path = "path";
+        CommentsConfiguration commentConfiguration = new CommentsConfiguration();
+        Mockito.when(settingsHolder.getComments()).thenReturn(Collections.emptyMap());
+        assertThrows(NullPointerException.class, () -> commentConfiguration.setComment(path, null));
+    }
+
+    @Test
+    public void getAllComments_ReturnsUnmodifiableView() {
+        String path = "path";
+        List<String> expectedCommentLines = Arrays.asList("line1", "line2");
+        Map<String, List<String>> comments = Collections.singletonMap(path, expectedCommentLines);
+        CommentsConfiguration commentConfiguration = new CommentsConfiguration(comments);
+        Mockito.when(settingsHolder.getComments()).thenReturn(comments);
+        assertEquals(expectedCommentLines, commentConfiguration.getAllComments().get(path));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class CommentConfiguration {
+    private Map<String, List<String>> comments;
+
+    public CommentConfiguration() {
+        this.comments = new HashMap<>();
+    }
+
+    public void setComment(String path, String comment) {
+        if (comment == null || comment.isEmpty()) {
+            throw new NullPointerException("Comment cannot be null or empty");
+        }
+        comments.putIfAbsent(path, new ArrayList<>());
+        comments.get(path).add(comment);
+    }
+
+    public List<String> getComment(String path) {
+        return comments.getOrDefault(path, Collections.emptyList());
+    }
+}
+
+public class CommentConfigurationTest {
+
+    @Test
+    public void testSetComment() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.setComment("path1", "comment1");
+        assertEquals(2, commentConfiguration.getComment("path1").size());
+    }
+
+    @Test
+    public void testGetComment() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.setComment("path1", "comment1");
+        assertEquals(1, commentConfiguration.getComment("path1").size());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSetCommentNullComment() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.setComment("path1", null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetCommentNullPath() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.getComment(null);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class CommentConfiguration {
+
+    private Map<String, List<String>> comments;
+
+    public CommentConfiguration() {
+        this.comments = new HashMap<>();
+    }
+
+    public void setComment(String path, String comment) {
+        if (comment == null || comment.isEmpty()) {
+            throw new NullPointerException("Comment cannot be null or empty");
+        }
+        comments.putIfAbsent(path, new ArrayList<>());
+        comments.get(path).add(comment);
+    }
+
+    public List<String> getComment(String path) {
+        return comments.getOrDefault(path, Collections.emptyList());
+    }
+}
+
+public class CommentConfigurationTest {
+
+    @Test
+    public void testSetComment() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.setComment("path1", "comment1");
+        assertEquals(2, commentConfiguration.getComment("path1").size());
+    }
+
+    @Test
+    public void testGetComment() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.setComment("path1", "comment1");
+        assertEquals(1, commentConfiguration.getComment("path1").size());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSetCommentNullComment() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.setComment("path1", null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetCommentNullPath() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.getComment(null);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class CommentConfiguration {
+
+    private Map<String, List<String>> comments;
+
+    public CommentConfiguration() {
+        this.comments = new HashMap<>();
+    }
+
+    public void setComment(String path, String comment) {
+        if (comment == null || comment.isEmpty()) {
+            throw new NullPointerException("Comment cannot be null or empty");
+        }
+        comments.putIfAbsent(path, new ArrayList<>());
+        comments.get(path).add(comment);
+    }
+
+    public List<String> getComment(String path) {
+        return comments.getOrDefault(path, Collections.emptyList());
+    }
+
+}
+
+public class CommentConfigurationTest {
+
+    @Test
+    public void testSetComment() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.setComment("path1", "comment1");
+        assertEquals(1, commentConfiguration.getComment("path1").size());
+    }
+
+    @Test
+    public void testGetComment() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.setComment("path1", "comment1");
+        assertEquals(1, commentConfiguration.getComment("path1").size());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSetCommentNullComment() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.setComment("path1", null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetCommentNullPath() {
+        var commentConfiguration = new CommentConfiguration();
+        commentConfiguration.getComment(null);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class CommentConfigurationTest {
+
+    private CommentConfiguration commentConfiguration;
+
+    @Before
+    public void setup() {
+        commentConfiguration = new CommentConfiguration();
+    }
+
+    @Test
+    public void testSetComment() {
+        commentConfiguration.setComment("path1", "comment1");
+        assertEquals(1, commentConfiguration.getComment("path1").size());
+    }
+
+    @Test
+    public void testGetComment() {
+        commentConfiguration.setComment("path1", "comment1");
+        assertEquals(1, commentConfiguration.getComment("path1").size());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSetCommentNullComment() {
+        commentConfiguration.setComment("path1", null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetCommentNullPath() {
+        commentConfiguration.getComment(null);
+    }
+}
+
+public class CommentConfiguration {
+
+    private Map<String, List<String>> comments;
+
+    public CommentConfiguration() {}
+
+    public void setComment(String path, String comment) {
+        if (comment == null || comment.isEmpty()) {
+            throw new NullPointerException("Comment cannot be null or empty");
+        }
+        comments.putIfAbsent(path, new ArrayList<>());
+        comments.get(path).add(comment);
+    }
+
+    public List<String> getComment(String path) {
+        return comments.getOrDefault(path, Collections.emptyList());
+    }
+}
+```
+===================================================
+

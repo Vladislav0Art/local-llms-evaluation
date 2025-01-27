@@ -1,0 +1,18 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedGetPackageNameReturnsCorrectPackage {
+
+    @Test
+    public void getPackageNameReturnsCorrectPackage() {
+        AppVersion appVersion = new AppVersion("1.0-1234567890");
+        assertEquals(NameConstants.APP_VERSION, appVersion.getPackageName());
+    }
+
+}

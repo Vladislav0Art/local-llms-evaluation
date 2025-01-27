@@ -1,0 +1,104 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    @Test
+    public void newRequest() {
+        assertSame(HttpConnection.class, Connection.newRequest().getClass());
+    }
+
+    @Test
+    public void url_URL() {
+        URL url = new URL("http://example.com");
+        assertSame(url, HttpConnection.connect(url));
+    }
+
+    @Test
+    public void connect_String() {
+        String url = "http://example.com";
+        assertSame(HttpConnection.class, Connection.connect(url).getClass());
+    }
+
+    @Test
+    public void proxy_Proxy() {
+        assertSame(HttpConnection.class, Connection.proxy(new Proxy("host", 8080)));
+    }
+
+    @Test
+    public void method_Method() {
+        HttpConnection connection = new HttpConnection();
+        Method method = Method.POST;
+        assertEquals(method, connection.method(method));
+    }
+
+    @Test
+    public void timeout_millis() {
+        int millis = 1000;
+        assertSame(HttpConnection.class, Connection.timeout(millis).getClass());
+    }
+
+    @Test
+    public void data_String() {
+        String key = "value";
+        HttpConnection connection = new HttpConnection();
+        assertEquals(key, connection.data(key));
+    }
+
+    @Test
+    public void data_Map() {
+        Map<String, String> data = Collections.singletonMap("key", "value");
+        assertSame(HttpConnection.class, Connection.data(data).getClass());
+    }
+
+    @Test
+    public void get() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Document document = connection.get();
+        assertNotNull(document);
+    }
+
+    @Test
+    public void post() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Document document = connection.post();
+        assertNotNull(document);
+    }
+
+    @Test
+    public void execute() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Connection.Response response = connection.execute();
+        assertNotNull(response);
+    }
+
+    @Test
+    public void request() {
+        assertSame(HttpConnection.class, Connection.request().getClass());
+    }
+
+    @Test
+    public void requestBody_String() {
+        String body = "value";
+        HttpConnection connection = new HttpConnection();
+        assertEquals(body, connection.requestBody(body));
+    }
+
+    @Test
+    public void headers_Map() {
+        Map<String, String> headers = Collections.singletonMap("key", "value");
+        assertSame(HttpConnection.class, Connection.headers(headers).getClass());
+    }
+
+    @Test
+    public void cookie_String() {
+        String name = "value";
+        HttpConnection connection = new HttpConnection();
+        assertEquals(name, connection.cookie(name));
+    }
+
+    @Test
+    public void response() {
+        assertSame(HttpConnection.class, Connection.response().getClass());
+    }
+
+}

@@ -1,0 +1,35 @@
+package app;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
+import java.io.IOException;
+
+import com.opencsv.exceptions.CsvValidationException;
+import exceptions.DBAppException;
+import util.filecontroller.Serializer;
+import storage.*;
+import util.TypeCaster;
+import util.search.*;
+import sql.SQLTerm;
+import datamanipulation.CsvReader;
+import datamanipulation.CsvWriter;
+import util.validation.Validator;
+
+public class GeneratedGetMyTablesShouldReturnHashSetInstance {
+
+    @Test
+    public void getMyTablesShouldReturnHashSetInstance() {
+        DBApp db = new DBApp();
+        HashSet<String> myTables = db.getMyTables();
+        assertNotNull(myTables);
+    }
+
+}

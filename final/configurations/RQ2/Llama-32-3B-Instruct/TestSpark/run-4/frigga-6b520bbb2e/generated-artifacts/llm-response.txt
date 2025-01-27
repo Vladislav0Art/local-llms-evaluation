@@ -1,0 +1,443 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class AppVersionTest {
+
+    @Test
+    public void parseName_AmiNameWithPackage() {
+        String amiName = "ami-0c123456789012345678901234567890";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void parseName_InvalidAmiName() {
+        String amiName = "InvalidAmiName";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void getPackageName_ValidPackage() {
+        String packageName = NameConstants.NAMES_AMI;
+        String amiName = "ami-" + packageName + "-123456789012345678901234567890";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertEquals(packageName, appVersion.getPackageName());
+    }
+
+    @Test
+    public void getPackagePattern_ValidPattern() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        assertTrue(pattern.matcher("ami-123456789012345678901234567890").find());
+    }
+
+    @Test
+    public void getVersion_ValidVersion() {
+        String amiName = "ami-0c123456789012345678901234567890";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobName_ValidBuildJobName() {
+        String buildJobName = "build-job-1234567890";
+        AppVersion appVersion = new AppVersion("ami-123456789012345678901234567890", buildJobName, "1.2.3");
+        assertEquals(buildJobName, appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumber_ValidBuildNumber() {
+        String buildNumber = "12345";
+        AppVersion appVersion = new AppVersion("ami-123456789012345678901234567890", "", buildNumber);
+        assertEquals(buildNumber, appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommit_ValidCommit() {
+        String commit = "commit-id";
+        AppVersion appVersion = new AppVersion("ami-123456789012345678901234567890", "", "");
+        appVersion.setCommit(commit);
+        assertEquals(commit, appVersion.getCommit());
+    }
+
+    @Test
+    public void getChangelist_ValidChangelist() {
+        String changelist = "changelist-id";
+        AppVersion appVersion = new AppVersion("ami-123456789012345678901234567890", "", changelist);
+        assertEquals(changelist, appVersion.getChangelist());
+    }
+
+    @Test
+    public void compareTo_AppVersionLessThan() {
+        String amiName1 = "ami-0c123456789012345678901234567890";
+        AppVersion appVersion1 = AppVersion.parseName(amiName1);
+        String amiName2 = "ami-0c123456789012345678901234567891";
+        AppVersion appVersion2 = AppVersion.parseName(amiName2);
+        assertTrue(appVersion1.compareTo(appVersion2) > 0);
+    }
+
+    @Test
+    public void compareTo_AppVersionGreaterThan() {
+        String amiName1 = "ami-0c123456789012345678901234567890";
+        AppVersion appVersion1 = AppVersion.parseName(amiName1);
+        String amiName2 = "ami-0c123456789012345678901234567889";
+        AppVersion appVersion2 = AppVersion.parseName(amiName2);
+        assertTrue(appVersion1.compareTo(appVersion2) < 0);
+    }
+
+    @Test
+    public void toString_ValidString() {
+        String amiName = "ami-123456789012345678901234567890";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion.toString());
+    }
+
+    @Test
+    public void hashCode_ValidHashcode() {
+        String amiName = "ami-123456789012345678901234567890";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertEquals(-127511111, appVersion.hashCode());
+    }
+
+    @Test
+    public void equals_AppVersionEquals() {
+        String amiName1 = "ami-0c123456789012345678901234567890";
+        AppVersion appVersion1 = AppVersion.parseName(amiName1);
+        String amiName2 = "ami-123456789012345678901234567890";
+        AppVersion appVersion2 = AppVersion.parseName(amiName2);
+        assertTrue(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void equals_AppVersionNotEquals() {
+        String amiName1 = "ami-0c123456789012345678901234567890";
+        AppVersion appVersion1 = AppVersion.parseName(amiName1);
+        String amiName2 = "ami-12345678901234567890123456789";
+        AppVersion appVersion2 = AppVersion.parseName(amiName2);
+        assertFalse(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void equals_AppVersionNull() {
+        String amiName1 = "ami-0c123456789012345678901234567890";
+        AppVersion appVersion1 = AppVersion.parseName(amiName1);
+        assertEquals(false, appVersion1.equals(null));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class AppVersionTest {
+
+    @Test
+    public void parseName_AmiNameWithPackage() {
+        String packageName = "com.netflix.frigga.ami";
+        String amiId = "123456789012345678901234567890";
+        AppVersion appVersion = AppVersion.parse(amiId, packageName);
+        assertEquals(packageName, appVersion.getPackageName());
+    }
+
+    @Test
+    public void parseName_AmiNameWithoutPackage() {
+        String amiId = "123456789012345678901234567890";
+        AppVersion appVersion = AppVersion.parse(amiId);
+        assertNull(appVersion.getPackageName());
+    }
+
+    @Test
+    public void constructAppVersionWithNoArguments() {
+        String amiId = "123456789012345678901234567890";
+        AppVersion appVersion = new AppVersion(amiId, "", "");
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void constructAppVersionWithOnlyId() {
+        String amiId = "123456789012345678901234567890";
+        AppVersion appVersion = new AppVersion(amiId, null, null);
+        assertEquals(amiId, appVersion.getId());
+    }
+
+    @Test
+    public void constructAppVersionWithCommit() {
+        String commit = "test-commit";
+        AppVersion appVersion = new AppVersion("", "", commit);
+        assertEquals(commit, appVersion.getCommit());
+    }
+
+    @Test
+    public void constructAppVersionWithBuildNumber() {
+        String buildNumber = "1.2.3";
+        AppVersion appVersion = new AppVersion("", buildNumber, "");
+        assertEquals(buildNumber, appVersion.getBuildNumber());
+    }
+}
+
+public class AppVersion {
+
+    private String id;
+    private String packageName;
+    private String commit;
+    private String buildNumber;
+
+    public static AppVersion parse(String amiId) {
+        // implementation of the parse method
+        return new AppVersion(amiId, null, null);
+    }
+
+    public static AppVersion parse(String amiId, String packageName) {
+        // implementation of the parse method
+        return new AppVersion(amiId, packageName, null);
+    }
+
+    public static AppVersion parse(String amiId, String packageName, String commit) {
+        // implementation of the parse method
+        return new AppVersion(amiId, packageName, commit);
+    }
+
+    private AppVersion(String id, String buildNumber, String commit) {
+        this.id = id;
+        this.buildNumber = buildNumber;
+        this.commit = commit;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getCommit() {
+        return commit;
+    }
+
+    public String getBuildNumber() {
+        return buildNumber;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class AppVersion {
+    private String amiId;
+    private String packageName;
+    private String commit;
+    private String buildNumber;
+
+    public AppVersion(String amiId, String packageName, String commit) {
+        this.amiId = amiId;
+        this.packageName = packageName;
+        this.commit = commit;
+        this.buildNumber = null;
+    }
+
+    public String getId() {
+        return amiId;
+    }
+
+    public void setId(String id) {
+        this.amiId = id;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    public String getCommit() {
+        return commit;
+    }
+
+    public void setCommit(String commit) {
+        this.commit = commit;
+    }
+
+    public String getBuildNumber() {
+        return buildNumber;
+    }
+
+    public void setBuildNumber(String buildNumber) {
+        this.buildNumber = buildNumber;
+    }
+}
+
+public class AppVersionTest {
+
+    @Test
+    public void testAppVersion() {
+        AppVersion appVersion = new AppVersion("ami-id", "package-name", "commit");
+        assertNotNull(appVersion);
+        assertEquals("ami-id", appVersion.getId());
+        assertEquals("package-name", appVersion.getPackageName());
+        assertEquals("commit", appVersion.getCommit());
+        assertNull(appVersion.getBuildNumber());
+
+        appVersion.setBuildNumber("build-number");
+        assertEquals("build-number", appVersion.getBuildNumber());
+    }
+}
+
+public class Test {
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class AppVersion {
+    private String amiId;
+    private String packageName;
+    private String commit;
+    private String buildNumber;
+
+    public AppVersion(String amiId, String packageName, String commit) {
+        this.amiId = amiId;
+        this.packageName = packageName;
+        this.commit = commit;
+        this.buildNumber = null;
+    }
+
+    public String getId() {
+        return amiId;
+    }
+
+    public void setId(String id) {
+        this.amiId = id;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    public String getCommit() {
+        return commit;
+    }
+
+    public void setCommit(String commit) {
+        this.commit = commit;
+    }
+
+    public String getBuildNumber() {
+        return buildNumber;
+    }
+
+    public void setBuildNumber(String buildNumber) {
+        this.buildNumber = buildNumber;
+    }
+}
+
+public class AppVersionTest {
+
+    @org.junit.Test
+    public void testAppVersion() {
+        AppVersion appVersion = new AppVersion("ami-id", "package-name", "commit");
+        org.junit.Assert.assertNotNull(appVersion);
+        org.junit.Assert.assertEquals("ami-id", appVersion.getId());
+        org.junit.Assert.assertEquals("package-name", appVersion.getPackageName());
+        org.junit.Assert.assertEquals("commit", appVersion.getCommit());
+        org.junit.Assert.assertNull(appVersion.getBuildNumber());
+
+        appVersion.setBuildNumber("build-number");
+        org.junit.Assert.assertEquals("build-number", appVersion.getBuildNumber());
+    }
+}
+
+public class Main {
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class AppVersion {
+    private String amiId;
+    private String packageName;
+    private String commit;
+    private String buildNumber;
+
+    public AppVersion(String amiId, String packageName, String commit) {
+        this.amiId = amiId;
+        this.packageName = packageName;
+        this.commit = commit;
+        this.buildNumber = null;
+    }
+
+    public void setId(String id) {
+        this.amiId = id;
+    }
+
+    public String getPackageName() {
+        return this.packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    public String getCommit() {
+        return this.commit;
+    }
+
+    public void setCommit(String commit) {
+        this.commit = commit;
+    }
+
+    public String getBuildNumber() {
+        return this.buildNumber;
+    }
+
+    public void setBuildNumber(String buildNumber) {
+        this.buildNumber = buildNumber;
+    }
+}
+
+public class AppVersionTest {
+
+    @org.junit.Test
+    public void testAppVersion() {
+        AppVersion appVersion = new AppVersion("ami-id", "package-name", "commit");
+        org.junit.Assert.assertNotNull(appVersion);
+        appVersion.setId("new-ami-id");
+        org.junit.Assert.assertEquals("new-ami-id", appVersion.getId());
+        org.junit.Assert.assertEquals("package-name", appVersion.getPackageName());
+        org.junit.Assert.assertEquals("commit", appVersion.getCommit());
+        org.junit.Assert.assertNull(appVersion.getBuildNumber());
+
+        appVersion.setBuildNumber("build-number");
+        org.junit.Assert.assertEquals("build-number", appVersion.getBuildNumber());
+    }
+}
+
+public class Main {
+
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

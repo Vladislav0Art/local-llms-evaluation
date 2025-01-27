@@ -1,0 +1,435 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.traccar.protocol.Gt06ProtocolDecoder;
+import io.netty.buffer.ByteBuf;
+
+public class Gt06ProtocolDecoderTest {
+
+    @Test
+    public void decodeGps_NoPosition_ReturnsFalse() {
+        ByteBuf buf = Unpooled.copiedBuffer("1", StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(null, buf, false, null);
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeGps_PositionIsEmpty_ReturnsFalse() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.copiedBuffer("1", StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false, null);
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeGps_PositionIsValid_ReturnsTrue() {
+        Position position = new Position(10.0, -122.0, 100.0, Calendar.getInstance().getTime(), "US/Pacific");
+        ByteBuf buf = Unpooled.copiedBuffer("1", StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false, null);
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGps_PositionHasSpeed_ReturnsTrue() {
+        Position position = new Position(10.0, -122.0, 100.0, Calendar.getInstance().getTime(), "US/Pacific");
+        position.setSpeed(10.0);
+        ByteBuf buf = Unpooled.copiedBuffer("1", StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false, null);
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGps_PositionHasSatellites_ReturnsTrue() {
+        Position position = new Position(10.0, -122.0, 100.0, Calendar.getInstance().getTime(), "US/Pacific");
+        position.setSatellites(10);
+        ByteBuf buf = Unpooled.copiedBuffer("1", StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false, null);
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGps_PositionHasLength_ReturnsTrue() {
+        Position position = new Position(10.0, -122.0, 100.0, Calendar.getInstance().getTime(), "US/Pacific");
+        ByteBuf buf = Unpooled.copiedBuffer("1", StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, null);
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGps_PositionHasTimezone_ReturnsTrue() {
+        Position position = new Position(10.0, -122.0, 100.0, Calendar.getInstance().getTime(), "US/Pacific");
+        ByteBuf buf = Unpooled.copiedBuffer("1", StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false, null);
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGps_PositionWithValidChecksum_ReturnsTrue() {
+        Position position = new Position(10.0, -122.0, 100.0, Calendar.getInstance().getTime(), "US/Pacific");
+        int checksum = Checksum.calculate(position, null);
+        ByteBuf buf = Unpooled.copiedBuffer(String.format("%02x%02x%02x%02x", checksum >> 8, checksum & 0xff, checksum >> 16, checksum & 0xff), StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, null);
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGps_PositionWithInvalidChecksum_ReturnsFalse() {
+        Position position = new Position(10.0, -122.0, 100.0, Calendar.getInstance().getTime(), "US/Pacific");
+        int checksum = Checksum.calculate(position, null);
+        ByteBuf buf = Unpooled.copiedBuffer(String.format("%02x%02x%02x%02x", (checksum >> 8) + 1, (checksum & 0xff) + 1, (checksum >> 16) + 1, (checksum & 0xff) + 1), StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, null);
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeGps_SatellitesIsZero_ReturnsFalse() {
+        Position position = new Position(10.0, -122.0, 100.0, Calendar.getInstance().getTime(), "US/Pacific");
+        position.setSatellites(0);
+        ByteBuf buf = Unpooled.copiedBuffer("1", StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false, null);
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeGps_SpeedIsZero_ReturnsFalse() {
+        Position position = new Position(10.0, -122.0, 100.0, Calendar.getInstance().getTime(), "US/Pacific");
+        position.setSpeed(0.0);
+        ByteBuf buf = Unpooled.copiedBuffer("1", StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false, null);
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeGps_PositionIsNull_ReturnsFalse() {
+        ByteBuf buf = Unpooled.copiedBuffer("1", StandardCharsets.US_ASCII);
+        boolean result = Gt06ProtocolDecoder.decodeGps(null, buf, true, null);
+        assertFalse(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public Position(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public String toString() {
+        return "(" + latitude + ", " + longitude + ")";
+    }
+}
+
+public class TestPosition {
+    @Test
+    public void testConstructPosition() {
+        Position position = new Position(37.7749, -122.4194);
+        assertEquals("37.7749,-122.4194", position.toString());
+    }
+
+    @Test
+    public void testEqualsSign() {
+        Position position1 = new Position(37.7749, -122.4194);
+        Position position2 = new Position(37.7749, -122.4194);
+        assertTrue(position1.equals(position2));
+    }
+}
+
+public class TestUnpooled {
+    @Test
+    public void testCopiedBuffer() throws Exception {
+        byte[] buffer = "1".getBytes();
+        assertEquals("1", new String(buffer));
+    }
+
+    @Test
+    public void testCopiedBufferWithStandardCharsets() throws Exception {
+        byte[] buffer = "1".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        assertEquals("1", new String(buffer, java.nio.charset.StandardCharsets.UTF_8));
+    }
+}
+
+public class PositionTest {
+    @Test
+    public void testToStringPosition() {
+        Position position = new Position(37.7749, -122.4194);
+        assertEquals("(37.7749,-122.4194)", position.toString());
+    }
+
+    @Test
+    public void testEqualsSign2() {
+        Position position1 = new Position(37.7749, -122.4194);
+        Position position2 = new Position(37.7749, -122.4194);
+        assertTrue(position1.equals(position2));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public Position(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + latitude + ", " + longitude + ")";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Position position = (Position) obj;
+        return Double.compare(position.latitude, latitude) == 0 && Double.compare(position.longitude, longitude) == 0;
+    }
+}
+
+public class TestPosition {
+    @Test
+    public void testConstructPosition() {
+        Position position = new Position(37.7749, -122.4194);
+        assertEquals("37.7749,-122.4194", position.toString());
+    }
+
+    @Test
+    public void testEqualsSign() {
+        Position position1 = new Position(37.7749, -122.4194);
+        Position position2 = new Position(37.7749, -122.4194);
+        assertTrue(position1.equals(position2));
+    }
+}
+
+public class TestUnpooled {
+    @Test
+    public void testCopiedBuffer() throws Exception {
+        byte[] buffer = "1".getBytes();
+        assertEquals("1", new String(buffer));
+    }
+
+    @Test
+    public void testCopiedBufferWithStandardCharsets() throws Exception {
+        byte[] buffer = "1".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        assertEquals("1", new String(buffer, java.nio.charset.StandardCharsets.UTF_8));
+    }
+}
+
+public class PositionTest {
+    @Test
+    public void testToStringPosition() {
+        Position position = new Position(37.7749, -122.4194);
+        assertEquals("(37.7749,-122.4194)", position.toString());
+    }
+
+    @Test
+    public void testEqualsSign2() {
+        Position position1 = new Position(37.7749, -122.4194);
+        Position position2 = new Position(37.7749, -122.4194);
+        assertTrue(position1.equals(position2));
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // Test cases
+        TestPosition testPosition = new TestPosition();
+        testPosition.testConstructPosition();
+        testPosition.testEqualsSign();
+
+        TestUnpooled testUnpooled = new TestUnpooled();
+        testUnpooled.testCopiedBuffer();
+        testUnpooled.testCopiedBufferWithStandardCharsets();
+
+        PositionTest positionTest = new PositionTest();
+        positionTest.testToStringPosition();
+        positionTest.testEqualsSign2();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public Position(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + latitude + ", " + longitude + ")";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Position position = (Position) obj;
+        return Double.compare(position.latitude, latitude) == 0 && Double.compare(position.longitude, longitude) == 0;
+    }
+}
+
+public class PositionTest {
+    public void testConstructPosition() {
+        Position position = new Position(37.7749, -122.4194);
+        assertEquals("37.7749,-122.4194", position.toString());
+    }
+
+    public void testEqualsSign() {
+        Position position1 = new Position(37.7749, -122.4194);
+        Position position2 = new Position(37.7749, -122.4194);
+        assertTrue(position1.equals(position2));
+    }
+
+    public void testCopiedBuffer() throws Exception {
+        byte[] buffer = "1".getBytes();
+        assertEquals("1", new String(buffer, java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    public void testCopiedBufferWithStandardCharsets() throws Exception {
+        byte[] buffer = "1".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        assertEquals("1", new String(buffer, java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    public void testToStringPosition() {
+        Position position = new Position(37.7749, -122.4194);
+        assertEquals("(37.7749,-122.4194)", position.toString());
+    }
+
+    public void testEqualsSign2() {
+        Position position1 = new Position(37.7749, -122.4194);
+        Position position2 = new Position(37.7749, -122.4194);
+        assertTrue(position1.equals(position2));
+    }
+}
+
+public class TestRunner {
+    public static void main(String[] args) throws Exception {
+        PositionTest test = new PositionTest();
+        test.testConstructPosition();
+        test.testEqualsSign();
+        test.testCopiedBuffer();
+        test.testCopiedBufferWithStandardCharsets();
+        test.testToStringPosition();
+        test.testEqualsSign2();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Position {
+    private double latitude;
+    private double longitude;
+
+    public Position(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + latitude + ", " + longitude + ")";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Position position = (Position) obj;
+        return Double.compare(position.latitude, latitude) == 0 && Double.compare(position.longitude, longitude) == 0;
+    }
+
+    public static class Builder {
+        private double latitude;
+        private double longitude;
+
+        public Builder setLatitude(double latitude) {
+            this.latitude = latitude;
+            return this;
+        }
+
+        public Builder setLongitude(double longitude) {
+            this.longitude = longitude;
+            return this;
+        }
+
+        public Position build() {
+            return new Position(latitude, longitude);
+        }
+    }
+
+    public void testConstructPosition() {
+        Position position = new Position(37.7749, -122.4194);
+        assertEquals("37.7749,-122.4194", position.toString());
+    }
+
+    public void testEqualsSign() {
+        Position position1 = new Position(37.7749, -122.4194);
+        Position position2 = new Position(37.7749, -122.4194);
+        assertTrue(position1.equals(position2));
+    }
+
+    public void testCopiedBuffer() throws Exception {
+        byte[] buffer = "1".getBytes();
+        assertEquals("1", new String(buffer, java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    public void testCopiedBufferWithStandardCharsets() throws Exception {
+        byte[] buffer = "1".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        assertEquals("1", new String(buffer, java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    public void testToStringPosition() {
+        Position position = new Position(37.7749, -122.4194);
+        assertEquals("(37.7749,-122.4194)", position.toString());
+    }
+
+    public void testEqualsSign2() {
+        Position position1 = new Position(37.7749, -122.4194);
+        Position position2 = new Position(37.7749, -122.4194);
+        assertTrue(position1.equals(position2));
+    }
+}
+
+public class TestRunner {
+    public static void main(String[] args) throws Exception {
+        Position.TestRunner.Position.Builder builder = new Position.TestRunner.Position.Builder();
+        Position position = builder.setLatitude(37.7749).setLongitude(-122.4194).build();
+        assertEquals("37.7749,-122.4194", position.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

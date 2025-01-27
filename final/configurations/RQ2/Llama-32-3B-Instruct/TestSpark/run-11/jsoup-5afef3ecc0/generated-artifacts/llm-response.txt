@@ -1,0 +1,322 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.helper;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.UnsupportedEncodingException;
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void ofUrlBuildsCorrectly() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertEquals(inputUrl.toExternalForm(), builder.build().toExternalForm());
+    }
+
+    @Test
+    public void withQueryAddsToUrlCorrectly() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://example.com");
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(kv);
+        assertEquals("http://example.com?key=value", builder.build().toExternalForm());
+    }
+
+    @Test
+    public void withQueryWithSameKeyAddsToUrlCorrectly() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://example.com");
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key1", "value2");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(kv1);
+        builder.appendKeyVal(kv2);
+        assertEquals("http://example.com?key1=value1&key1=value2", builder.build().toExternalForm());
+    }
+
+    @Test
+    public void withQueryWithNonStringValueAddsToUrlCorrectly() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://example.com");
+        Connection.KeyVal kv = new Connection.KeyVal("key", 123);
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(kv);
+        assertEquals("http://example.com?key=123", builder.build().toExternalForm());
+    }
+
+    @Test
+    public void withQueryWithNonStringValueAndOtherParamAddsToUrlCorrectly() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://example.com");
+        Connection.KeyVal kv = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", 123);
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(kv);
+        builder.appendKeyVal(kv2);
+        assertEquals("http://example.com?key1=value1&key2=123", builder.build().toExternalForm());
+    }
+
+    @Test
+    public void withQueryDecodesValueCorrectly() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://example.com");
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(kv);
+        assertEquals("http://example.com?key=value", builder.build().toExternalForm());
+    }
+
+    @Test
+    public void withQueryDecodesValueCorrectlyWithNonUTF8String() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://example.com");
+        Connection.KeyVal kv = new Connection.KeyVal("key", StringUtil.UTF_16);
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(kv);
+        assertEquals("http://example.com?key=utf-16", builder.build().toExternalForm());
+    }
+
+    @Test
+    public void withPathAddsToUrlCorrectly() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://example.com");
+        String path = "/path/to/resource";
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(Connection.KeyVal("key", "value"));
+        assertEquals("http://example.com/path/to/resource?key=value", builder.build().toExternalForm());
+    }
+
+    @Test
+    public void withPathAndQueryAddsToUrlCorrectly() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://example.com");
+        String path = "/path/to/resource";
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(kv);
+        assertEquals("http://example.com/path/to/resource?key=value", builder.build().toExternalForm());
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Connection;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.UnsupportedEncodingException;
+import org.jsoup.internal.StringUtil;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void ofUrlBuildsCorrectly() throws MalformedURLException {
+        String url = Connection.url("https://example.com");
+        assertNotNull(url);
+    }
+
+    @Test
+    public void appendQueryParamCorrectly() throws MalformedURLException, UnsupportedEncodingException {
+        String url = Connection.url("https://example.com").appendQueryParam("key", "value");
+        assertTrue(url.contains("?key=value"));
+    }
+
+    @Test
+    public void appendQueryParamsCorrectly() throws MalformedURLException, UnsupportedEncodingException {
+        String url = Connection.url("https://example.com")
+                .appendQueryParams(new java.util.HashMap<String, String>() {{
+                    put("key1", "value1");
+                    put("key2", "value2");
+                }});
+        assertTrue(url.contains("?key1=value1&key2=value2"));
+    }
+
+    @Test
+    public void appendFragmentCorrectly() throws MalformedURLException {
+        String url = Connection.url("https://example.com").appendFragment("#fragment");
+        assertTrue(url.contains("#fragment"));
+    }
+}
+
+public class Connection {
+
+    private static final java.net.URL base;
+
+    static {
+        try {
+            base = new java.net.URL("https://example.com");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String url(String path) throws MalformedURLException, UnsupportedEncodingException {
+        return base.resolve(path).toString();
+    }
+
+    public Connection appendQueryParam(String key, String value) throws MalformedURLException, UnsupportedEncodingException {
+        return appendQueryParams(new java.util.HashMap<String, String>() {{
+            put(key, value);
+        }});
+    }
+
+    public Connection appendQueryParams(java.util.Map<String, String> params) throws MalformedURLException, UnsupportedEncodingException {
+        if (params.isEmpty()) {
+            return this;
+        }
+        String query = "";
+        for (java.util.Map.Entry<String, String> entry : params.entrySet()) {
+            if (!query.isEmpty()) {
+                query += "&";
+            }
+            query += entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), "UTF-8");
+        }
+        return appendQuery(query);
+    }
+
+    public Connection appendFragment(String fragment) {
+        return this.appendFragment(fragment);
+    }
+
+    private Connection appendQuery(String query) throws MalformedURLException, UnsupportedEncodingException {
+        if (query.isEmpty()) {
+            return this;
+        }
+        return new Connection(base.resolve().resolve(query));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class BaseUrl {
+    private static final java.net.URL base;
+
+    static {
+        try {
+            base = new java.net.URL("https://example.com");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String url(String path) throws MalformedURLException, UnsupportedEncodingException {
+        return base.resolve(path).toString();
+    }
+
+    public static Connection appendQueryParam(Connection connection, String key, String value) throws MalformedURLException, UnsupportedEncodingException {
+        java.util.Map<String, String> params = new java.util.HashMap<>();
+        params.put(key, value);
+        return connection.appendQueryParams(params);
+    }
+
+    public static Connection appendQueryParams(Connection connection, java.util.Map<String, String> params) throws MalformedURLException, UnsupportedEncodingException {
+        if (params.isEmpty()) {
+            return connection;
+        }
+        String query = "";
+        for (java.util.Map.Entry<String, String> entry : params.entrySet()) {
+            if (!query.isEmpty()) {
+                query += "&";
+            }
+            query += entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), "UTF-8");
+        }
+        return appendQuery(connection, query);
+    }
+
+    public static Connection appendQuery(Connection connection, String query) throws MalformedURLException, UnsupportedEncodingException {
+        if (query.isEmpty()) {
+            return connection;
+        }
+        try {
+            java.net.URL parsedUrl = new java.net.URI(connection.url()).parse(query).getURL();
+            return new BaseUrl().url(parsedUrl.toString());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Connection appendFragment(Connection connection, String fragment) throws MalformedURLException, UnsupportedEncodingException {
+        try {
+            java.net.URL parsedUrl = new java.net.URI(connection.url()).parse(fragment).getURL();
+            return new BaseUrl().url(parsedUrl.toString());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+public class Connection {
+    private java.net.URL url;
+
+    public Connection(java.net.URL url) {
+        this.url = url;
+    }
+
+    public java.net.URL resolve(String path) throws MalformedURLException, UnsupportedEncodingException {
+        return url.resolve(path).toURI().toURL();
+    }
+
+    @Override
+    public String toString() {
+        return url.toString();
+    }
+}
+
+public class TestConnection {
+    @org.junit.Test
+    public void testUrl() throws Exception {
+        System.out.println(BaseUrl.url("path"));
+    }
+
+    @org.junit.Test
+    public void testAppendQueryParam() throws Exception {
+        Connection connection = new Connection(new java.net.URL("https://example.com/path"));
+        System.out.println(BaseUrl.appendQueryParam(connection, "key", "value"));
+    }
+
+    @org.junit.Test
+    public void testAppendQueryParams() throws Exception {
+        java.util.HashMap<String, String> params = new java.util.HashMap<>();
+        params.put("key", "value");
+        Connection connection = new Connection(new java.net.URL("https://example.com/path"));
+        System.out.println(BaseUrl.appendQueryParams(connection, params));
+    }
+
+    @org.junit.Test
+    public void testAppendQuery() throws Exception {
+        Connection connection = new Connection(new java.net.URL("https://example.com/path"));
+        System.out.println(BaseUrl.appendQuery(connection, "key=value"));
+    }
+
+    @org.junit.Test
+    public void testAppendFragment() throws Exception {
+        Connection connection = new Connection(new java.net.URL("https://example.com/path"));
+        System.out.println(BaseUrl.appendFragment(connection, "#fragment"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================

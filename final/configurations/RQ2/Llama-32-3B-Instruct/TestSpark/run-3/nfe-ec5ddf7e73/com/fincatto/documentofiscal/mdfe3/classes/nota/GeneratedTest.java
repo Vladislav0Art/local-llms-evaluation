@@ -1,0 +1,107 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Optional;
+import java.util.function.Consumer;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCodigoInternoEmptyString() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCodigoInterno("");
+        assertTrue(obj.getCodigoInterno().isEmpty());
+    }
+
+    @Test
+    public void setCodigoInternoNullValue() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCodigoInterno(null);
+        assertNull(obj.getCodigoInterno());
+    }
+
+    @Test
+    public void setPlacaEmptyString() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setPlaca("");
+        assertTrue(obj.getPlaca().isEmpty());
+    }
+
+    @Test
+    public void setPlacaNullValue() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setPlaca(null);
+        assertNull(obj.getPlaca());
+    }
+
+    @Test
+    public void setRenavamEmptyString() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setRenavam("");
+        assertTrue(obj.getRenavam().isEmpty());
+    }
+
+    @Test
+    public void setTaraEmptyString() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setTara("");
+        assertTrue(obj.getTara().isEmpty());
+    }
+
+    @Test
+    public void getCapacidadeKGReturnsEmptyString() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String result = obj.getCapacidadeKG();
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void setCapacidadeKGValidValue() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeKG("10");
+        assertEquals(10, Integer.parseInt(obj.getCapacidadeKG()));
+    }
+
+    @Test
+    public void setCapacidadeM3ValidValue() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeM3("10");
+        assertEquals(10, Double.parseDouble(obj.getCapacidadeM3()));
+    }
+
+    @Test
+    public void setCodigoInternoValidValue() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String code = "1234";
+        obj.setCodigoInterno(code);
+        assertEquals(code, obj.getCodigoInterno());
+    }
+
+    @Test
+    public void setPlacaValidValue() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String plate = "ABC123";
+        obj.setPlaca(plate);
+        assertEquals(plate, obj.getPlaca());
+    }
+
+    @Test
+    public void setRenavamValidValue() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String renavam = "1234567890";
+        obj.setRenavam(renavam);
+        assertEquals(renavam, obj.getRenavam());
+    }
+
+    @Test
+    public void setTaraValidValue() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String tara = "1000";
+        obj.setTara(tara);
+        assertEquals(tara, obj.getTara());
+    }
+
+}

@@ -1,0 +1,23 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
+import org.jsoup.UncheckedIOException;
+import org.jsoup.UnsupportedMimeTypeException;
+import org.jsoup.helper.HttpConnection;
+import org.jsoup.Method;
+import org.jsoup.Request;
+import org.jsoup.Response;
+import org.jsoup.KeyVal;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedMax_body_size {
+
+    @Test
+    public void max_body_size() {
+        Connection connection = new HttpConnection();
+        assert connection.maxBodySize(-1).equals(connection);
+    }
+
+}

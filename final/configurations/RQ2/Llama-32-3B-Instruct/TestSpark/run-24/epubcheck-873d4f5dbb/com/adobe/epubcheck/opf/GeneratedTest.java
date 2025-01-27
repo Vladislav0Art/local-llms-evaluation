@@ -1,0 +1,137 @@
+package com.adobe.epubcheck.opf;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private ValidationContext context;
+
+    @Mock
+    private Set<Reference> resources;
+
+    @Test
+    public void initHandler_NoExceptions() {
+        when(context.initHandler()).thenReturn(true);
+        boolean result = new OPFChecker30(context).initHandler();
+        assertTrue(result);
+    }
+
+    @Test
+    public void checkPackage_InvalidOPF() {
+        when(context.checkPackage()).thenReturn(false);
+        boolean result = new OPFChecker30(context).checkPackage();
+        assertFalse(result);
+    }
+
+    @Test
+    public void checkContent_InvalidOPF() {
+        when(context.checkContent()).thenReturn(false);
+        boolean result = new OPFChecker30(context).checkContent();
+        assertFalse(result);
+    }
+
+    @Test
+    public void checkItem_ValidOPF() {
+        when(context.checkItem(new OPFItem(), new OPFHandler())).thenReturn(true);
+        boolean result = new OPFChecker30(context).checkItem(new OPFItem(), new OPFHandler());
+        assertTrue(result);
+    }
+
+    @Test
+    public void checkItemAfterResourceValidation_InvalidOPF() {
+        when(context.checkItemAfterResourceValidation(new OPFItem())).thenReturn(false);
+        boolean result = new OPFChecker30(context).checkItemAfterResourceValidation(new OPFItem());
+        assertFalse(result);
+    }
+
+    @Test
+    public void checkSpineItem_ValidOPF() {
+        when(context.checkSpineItem(new OPFItem(), new OPFHandler())).thenReturn(true);
+        boolean result = new OPFChecker30(context).checkSpineItem(new OPFItem(), new OPFHandler());
+        assertTrue(result);
+    }
+
+    @Test
+    public void isAudioType_ValidOPF() {
+        when(context.isAudioType("audio")).thenReturn(true);
+        boolean result = OPFChecker30.isAudioType("audio");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isBlessedAudioType_ValidOPF() {
+        when(context.isBlessedAudioType("audio")).thenReturn(true);
+        boolean result = OPFChecker30.isBlessedAudioType("audio");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isVideoType_ValidOPF() {
+        when(context.isVideoType("video")).thenReturn(true);
+        boolean result = OPFChecker30.isVideoType("video");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isBlessedVideoType_ValidOPF() {
+        when(context.isBlessedVideoType("video")).thenReturn(true);
+        boolean result = OPFChecker30.isBlessedVideoType("video");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isCommonVideoType_ValidOPF() {
+        when(context.isCommonVideoType("video")).thenReturn(true);
+        boolean result = OPFChecker30.isCommonVideoType("video");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isFontType_ValidOPF() {
+        when(context.isFontType("font")).thenReturn(true);
+        boolean result = OPFChecker30.isFontType("font");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isBlessedFontType_ValidOPF() {
+        when(context.isBlessedFontType("font")).thenReturn(true);
+        boolean result = OPFChecker30.isBlessedFontType("font");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isBlessedScriptType_ValidOPF() {
+        when(context.isBlessedScriptType("script")).thenReturn(true);
+        boolean result = OPFChecker30.isBlessedScriptType("script");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isCoreMediaType_ValidOPF() {
+        when(context.isCoreMediaType("media")).thenReturn(true);
+        boolean result = OPFChecker30.isCoreMediaType("media");
+        assertTrue(result);
+    }
+
+    @Test
+    public void getPreferredMediaType_ValidOPF() {
+        when(context.getPreferredMediaType("media", "path")).thenReturn("type");
+        String result = OPFChecker30.getPreferredMediaType("media", "path");
+        assertEquals("type", result);
+    }
+
+}

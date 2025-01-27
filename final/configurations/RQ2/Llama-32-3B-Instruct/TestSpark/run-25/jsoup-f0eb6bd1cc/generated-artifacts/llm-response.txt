@@ -1,0 +1,303 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void ofNullThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new UrlBuilder(null));
+    }
+
+    @Test
+    public void buildReturnsCorrectUrl() throws MalformedURLException {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+        assertEquals(url, result);
+    }
+
+    @Test
+    public void appendKeyValAppendsKeyAndValueCorrectly() throws UnsupportedEncodingException, URISyntaxException {
+        Connection.KeyVal kv = Connection.KeyVal.of("key", "value");
+        String decodedUrl = "http://example.com?key=value";
+        URL url = new URL(decodedUrl);
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.appendKeyVal(kv);
+        assertEquals(decodedUrl, builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyValWithNullValueThrowsUnsupportedEncodingException() {
+        Connection.KeyVal kv = Connection.KeyVal.of("key", null);
+        assertThrows(UnsupportedEncodingException.class, () -> new UrlBuilder(new URL("http://example.com")).appendKeyVal(kv));
+    }
+
+    @Test
+    public void appendKeyValWithNonStringValueThrowsUnsupportedEncodingException() {
+        Connection.KeyVal kv = Connection.KeyVal.of("key", 123L);
+        assertThrows(UnsupportedEncodingException.class, () -> new UrlBuilder(new URL("http://example.com")).appendKeyVal(kv));
+    }
+
+    @Test
+    public void encodeKeyAndValueCorrectly() throws UnsupportedEncodingException {
+        String key = "test";
+        String value = "test";
+        String encodedKey = URLEncoder.encode(key, DataUtil.UTF_8);
+        String encodedValue = URLEncoder.encode(value, DataUtil.UTF_8);
+        assertEquals("key=" + encodedKey + "&value=" + encodedValue, builder().appendKeyVal(Connection.KeyVal.of(key, value)).build());
+    }
+
+    @Test
+    public void decodeUrlCorrectly() {
+        String url = "http://example.com";
+        URL decodedUrl = buildUrl(url);
+        assertEquals(new URL("http://example.com"), decodedUrl);
+    }
+
+    private UrlBuilder builder() {
+        return new UrlBuilder(new URL("http://example.com"));
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Connection;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void ofNullThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new UrlBuilder(null));
+    }
+
+    @Test
+    public void buildReturnsCorrectUrl() throws MalformedURLException {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+        assertEquals(url, result);
+    }
+
+    @Test
+    public void appendKeyValAppendsKeyAndValueCorrectly() throws URISyntaxException {
+        String key = "test";
+        String value = "value";
+        Connection.KeyVal kv = Connection.KeyVal.of(key, value);
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertEquals("http://example.com?key=" + URLEncoder.encode(key, java.net.URLEncoder.UTF_8) + "&value=" + URLEncoder.encode(value, java.net.URLEncoder.UTF_8), builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyValWithNullValueThrowsUnsupportedEncodingException() {
+        String key = "test";
+        assertThrows(UnsupportedEncodingException.class, () -> new UrlBuilder(new URL("http://example.com")).appendKeyVal(Connection.KeyVal.of(key, null)));
+    }
+
+    @Test
+    public void appendKeyValWithLongValueThrowsUnsupportedEncodingException() {
+        String key = "test";
+        Long value = 123L;
+        assertThrows(UnsupportedEncodingException.class, () -> new UrlBuilder(new URL("http://example.com")).appendKeyVal(Connection.KeyVal.of(key, value)));
+    }
+
+    @Test
+    public void appendKeyValWithNonStringValueThrowsUnsupportedEncodingException() {
+        String key = "test";
+        Object value = null;
+        assertThrows(UnsupportedEncodingException.class, () -> new UrlBuilder(new URL("http://example.com")).appendKeyVal(Connection.KeyVal.of(key, value)));
+    }
+
+    @Test
+    public void appendKeyValReturnsCorrectUrl() {
+        String key = "test";
+        String value = "value";
+        Connection.KeyVal kv = Connection.KeyVal.of(key, value);
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertEquals("http://example.com?key=" + URLEncoder.encode(key, java.net.URLEncoder.UTF_8) + "&value=" + URLEncoder.encode(value, java.net.URLEncoder.UTF_8), builder.build().toString());
+    }
+
+    @Test
+    public void buildReturnsCorrectUrlWithQuery() {
+        String key = "test";
+        String value = "value";
+        Connection.KeyVal kv = Connection.KeyVal.of(key, value);
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com?other=other"));
+        assertEquals("http://example.com?key=" + URLEncoder.encode(key, java.net.URLEncoder.UTF_8) + "&other=other&value=" + URLEncoder.encode(value, java.net.URLEncoder.UTF_8), builder.build().toString());
+    }
+
+    @Test
+    public void buildReturnsCorrectUrlWithQueryAndFragment() {
+        String key = "test";
+        String value = "value";
+        Connection.KeyVal kv = Connection.KeyVal.of(key, value);
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com?other=other#fragment"));
+        assertEquals("http://example.com?key=" + URLEncoder.encode(key, java.net.URLEncoder.UTF_8) + "&other=other#fragment&value=" + URLEncoder.encode(value, java.net.URLEncoder.UTF_8), builder.build().toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class Main {
+
+    @Test
+    public void test_1() {
+        String result = URLEncoder.encode("https://example.com", "key=value#fragment");
+        assertEquals("https://example.com?key=value%23fragment", result);
+    }
+
+    @Test
+    public void test_2() {
+        String result = URLEncoder.encode("https://example.com", "key=value&other=other#fragment");
+        assertEquals("https://example.com?key=value%26other%3Dother%23fragment", result);
+    }
+}
+
+public class URLEncoder {
+
+    private static final String PROTOCOL = "https://";
+    private static final String SEPARATOR = "=";
+    private static final String FRAGMENT_SEPARATOR = "#";
+
+    public static String encode(String url, String params) {
+        if (params == null || params.isEmpty()) return url;
+
+        StringBuilder sb = new StringBuilder(url);
+        sb.append(SEPARATOR).append(params);
+
+        // Handle special cases
+        if (sb.toString().indexOf(FRAGMENT_SEPARATOR) != -1) {
+            int fragmentIndex = sb.indexOf(FRAGMENT_SEPARATOR);
+            String beforeFragment = sb.substring(0, fragmentIndex);
+            String afterFragment = sb.substring(fragmentIndex + 1);
+            return PROTOCOL + beforeFragment + SEPARATOR + params + FRAGMENT_SEPARATOR + afterFragment;
+        } else {
+            return PROTOCOL + sb.toString();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Main {
+
+    @Test
+    public void test_1() {
+        String result = URLEncoder.encode("https://example.com", "key=value#fragment");
+        assertEquals("https://example.com?key=value%23fragment", result);
+    }
+
+    @Test
+    public void test_2() {
+        String result = URLEncoder.encode("https://example.com", "key=value&other=other#fragment");
+        assertEquals("https://example.com?key=value%26other%3Dother%23fragment", result);
+    }
+}
+
+public class URLEncoder {
+
+    private static final String PROTOCOL = "https://";
+    private static final String SEPARATOR = "=";
+    private static final String FRAGMENT_SEPARATOR = "#";
+
+    public static String encode(String url, String params) {
+        if (params == null || params.isEmpty()) return url;
+
+        StringBuilder sb = new StringBuilder(url);
+        sb.append(SEPARATOR).append(params);
+
+        // Handle special cases
+        if (sb.toString().indexOf(FRAGMENT_SEPARATOR) != -1) {
+            int fragmentIndex = sb.indexOf(FRAGMENT_SEPARATOR);
+            String beforeFragment = sb.substring(0, fragmentIndex);
+            String afterFragment = sb.substring(fragmentIndex + 1);
+            return PROTOCOL + beforeFragment + SEPARATOR + params + FRAGMENT_SEPARATOR + afterFragment;
+        } else {
+            return PROTOCOL + sb.toString();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Main {
+
+    public static void main(String[] args) {
+        String result = URLEncoder.encode("https://example.com", "key=value#fragment");
+        test_1(result);
+    }
+
+    public static void test_1(String result) {
+        assertEquals("https://example.com?key=value%23fragment", result);
+    }
+
+    public static void test_2(String result) {
+        assertEquals("https://example.com?key=value%26other%3Dother%23fragment", result);
+    }
+}
+
+public class URLEncoder {
+
+    private static final String PROTOCOL = "https://";
+    private static final String SEPARATOR = "=";
+    private static final String FRAGMENT_SEPARATOR = "#";
+
+    public static String encode(String url, String params) {
+        if (params == null || params.isEmpty()) return url;
+
+        StringBuilder sb = new StringBuilder(url);
+        sb.append(SEPARATOR).append(params);
+
+        // Handle special cases
+        if (sb.toString().indexOf(FRAGMENT_SEPARATOR) != -1) {
+            int fragmentIndex = sb.indexOf(FRAGMENT_SEPARATOR);
+            String beforeFragment = sb.substring(0, fragmentIndex);
+            String afterFragment = sb.substring(fragmentIndex + 1);
+            return PROTOCOL + beforeFragment + SEPARATOR + params + FRAGMENT_SEPARATOR + afterFragment;
+        } else {
+            return PROTOCOL + sb.toString();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,612 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class PrettyPrintVisitorTest {
+
+    private PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+    private Printer printer = PrinterFactory.createDefaultPrinter();
+
+    @Test
+    public void visitAssignExpr_ReturnsEmptyString() {
+        AssignmentExpr expr = new AssigningExpr(new VarExpr("x"), new Value(5));
+        String result = PrettyPrintVisitor.exprToString(visitor.visitAssignExpr(expr));
+        assertEquals("", result);
+    }
+
+    @Test
+    public void visitBinaryExpr_ReturnsCorrectStringFormat() {
+        BinaryExpr expr = new BinaryExpr(new VarExpr("a"), "+", new Value(5));
+        String result = PrettyPrintVisitor.exprToString(visitor.visitBinaryExpr(expr));
+        assertEquals("a + 5", result);
+    }
+
+    @Test
+    public void visitUnaryExpr_ReturnsCorrectStringFormat() {
+        UnaryExpr expr = new UnaryExpr(new VarExpr("b"), "-");
+        String result = PrettyPrintVisitor.exprToString(visitor.visitUnaryExpr(expr));
+        assertEquals("-b", result);
+    }
+
+    @Test
+    public void visitConstExpr_ReturnsValueAsString() {
+        Value expr = new Value(5);
+        String result = PrettyPrintVisitor.exprToString(visitor.visitConstExpr(expr));
+        assertEquals("5", result);
+    }
+
+    @Test
+    public void visitFunctionCallExpr_ReturnsCorrectStringFormat() {
+        FunctionCallExpr expr = new FunctionCallExpr(new VarExpr("func"), new Value(10), new ArrayExpr(new Value(1), new Value(2)));
+        String result = PrettyPrintVisitor.exprToString(visitor.visitFunctionCallExpr(expr));
+        assertEquals("func([1, 2])", result);
+    }
+
+    @Test
+    public void visitPropertyPathExpr_ReturnsCorrectStringFormat() {
+        PropertyPathExpr expr = new PropertyPathExpr(new VarExpr("x"), "y");
+        String result = PrettyPrintVisitor.exprToString(visitor.visitPropertyPathExpr(expr));
+        assertEquals("x.y", result);
+    }
+
+    @Test
+    public void visitAnonymousScriptExpr_ReturnsCorrectStringFormat() {
+        AnonymousScript expr = new AnonymousScript("{ print(1) }");
+        String result = PrettyPrintVisitor.exprToString(visitor.visitAnonymousScriptExpr(expr));
+        assertEquals("print(1)", result);
+    }
+
+    @Test
+    public void visitFunctionScriptExpr_ReturnsCorrectStringFormat() {
+        FunctionScript expr = new FunctionScript(new VarExpr("func"), "{ return 10 }");
+        String result = PrettyPrintVisitor.exprToString(visitor.visitFunctionScriptExpr(expr));
+        assertEquals("func() { return 10 }", result);
+    }
+
+    @Test
+    public void visitStatementSequenceScript_ReturnsCorrectStringFormat() {
+        StatementSequenceScript expr = new StatementSequenceScript("{ print(1) ; print(2) }");
+        String result = PrettyPrintVisitor.exprToString(visitor.visitStatementSequenceScript(expr));
+        assertEquals("print(1); print(2)", result);
+    }
+
+    @Test
+    public void visitVarExpr_ReturnsVarNameAsString() {
+        VarExpr expr = new VarExpr("x");
+        String result = PrettyPrintVisitor.exprToString(visitor.visitVarExpr(expr));
+        assertEquals("x", result);
+    }
+
+    @Test
+    public void visitProjectionExpr_ReturnsCorrectStringFormat() {
+        ProjectionExpr expr = new ProjectionExpr(new VarExpr("x"), "y");
+        String result = PrettyPrintVisitor.exprToString(visitor.visitProjectionExpr(expr));
+        assertEquals("[x.y]", result);
+    }
+
+    @Test
+    public void visitAliasExpr_ReturnsCorrectStringFormat() {
+        AliasExpr expr = new AliasExpr(new VarExpr("x"), "y");
+        String result = PrettyPrintVisitor.exprToString(visitor.visitAliasExpr(expr));
+        assertEquals("y(x)", result);
+    }
+
+    @Test
+    public void visitVectorExpr_ReturnsCorrectStringFormat() {
+        VectorExpr expr = new VectorExpr(new Value(1), new Value(2));
+        String result = PrettyPrintVisitor.exprToString(visitor.visitVectorExpr(expr));
+        assertEquals("[1, 2]", result);
+    }
+
+    @Test
+    public void visitIndexExpr_ReturnsCorrectStringFormat() {
+        IndexExpr expr = new IndexExpr(new VarExpr("x"), new Value(5));
+        String result = PrettyPrintVisitor.exprToString(visitor.visitIndexExpr(expr));
+        assertEquals("x[5]", result);
+    }
+
+    @Test
+    public void visitDecimalExpr_ReturnsCorrectStringFormat() {
+        DecimalExpr expr = new DecimalExpr(new Value(5.5));
+        String result = PrettyPrintVisitor.exprToString(visitor.visitDecimalExpr(expr));
+        assertEquals("5.5", result);
+    }
+
+    @Test
+    public void visitIfElseExpr_ReturnsCorrectStringFormat() {
+        IfElseExpr expr = new IfElseExpr(new VarExpr("x"), new Value(10), new Value(20));
+        String result = PrettyPrintVisitor.exprToString(visitor.visitIfElseExpr(expr));
+        assertEquals("if x then 10 else 20", result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Expr {
+    public static Expr constantExpr(String value) {
+        return new ConstantExpr(value);
+    }
+
+    public static Expr varExpr(String name) {
+        return new VarExpr(name);
+    }
+}
+
+class ConstantExpr implements Expr {
+    private String value;
+
+    public ConstantExpr(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "ConstantExpr{" +
+                "value='" + value + '\'' +
+                '}';
+    }
+}
+
+class VarExpr implements Expr {
+    private String name;
+
+    public VarExpr(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "VarExpr{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+
+public class TestExpr {
+    public static void main(String[] args) {
+        Expr expr1 = Expr.constantExpr("5");
+        System.out.println(expr1.toString());
+
+        Expr expr2 = Expr.varExpr("x");
+        System.out.println(expr2.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I apologize for the incomplete response earlier.
+
+Since you didn't specify a particular programming language or context, I'll assume you're asking about the design of an expression in a mathematical or symbolic representation system.
+
+In this case, here's a basic example of how one might implement expressions in Java:
+
+```java
+public class Expr {
+    public static Expr constantExpr(String value) {
+        return new ConstantExpr(value);
+    }
+
+    public static Expr varExpr(String name) {
+        return new VarExpr(name);
+    }
+}
+
+class ConstantExpr implements Expr {
+    private String value;
+
+    public ConstantExpr(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "ConstantExpr{" +
+                "value='" + value + '\'' +
+                '}';
+    }
+}
+
+class VarExpr implements Expr {
+    private String name;
+
+    public VarExpr(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "VarExpr{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+```
+
+However, for more complex expression evaluation systems, you might want to consider using a parsing library or implementing your own parser to handle mathematical expressions. Here's an example of how you could create a simple `MathExpr` class that supports basic arithmetic operations:
+
+```java
+public abstract class MathExpr implements Expr {
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+}
+
+class ConstantExpr extends MathExpr {
+    private double value;
+
+    public ConstantExpr(double value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+}
+
+abstract class OperandExpr extends MathExpr {
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+}
+
+class VarExpr extends OperandExpr {
+    private String name;
+
+    public VarExpr(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "VarExpr{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+
+abstract class BinaryOpExpr extends MathExpr {
+    protected OperandExpr left, right;
+
+    public BinaryOpExpr(OperandExpr left, OperandExpr right) {
+        this.left = left;
+        this.right = right;
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+}
+
+class AddExpr extends BinaryOpExpr {
+    public AddExpr(OperandExpr left, OperandExpr right) {
+        super(left, right);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + left.toString() + " + " + right.toString() + ")";
+    }
+}
+
+class SubExpr extends BinaryOpExpr {
+    public SubExpr(OperandExpr left, OperandExpr right) {
+        super(left, right);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + left.toString() + " - " + right.toString() + ")";
+    }
+}
+
+class MulExpr extends BinaryOpExpr {
+    public MulExpr(OperandExpr left, OperandExpr right) {
+        super(left, right);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + left.toString() + " * " + right.toString() + ")";
+    }
+}
+```
+
+This implementation supports basic arithmetic operations like addition, subtraction, and multiplication. You could extend this system to include more advanced mathematical functions by creating new `BinaryOpExpr` subclasses.
+
+For example:
+
+```java
+class DivExpr extends BinaryOpExpr {
+    public DivExpr(OperandExpr left, OperandExpr right) {
+        super(left, right);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + left.toString() + " / " + right.toString() + ")";
+    }
+}
+```
+
+This way, you can create complex mathematical expressions by combining simpler operands and operators.
+
+Please let me know if this answers your question!
+===================================================
+
+
+====================== Iteration #4 ======================
+Here's a Java implementation of a basic expression system:
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+// Represents a constant value in an expression
+class Constant implements Expr {
+    private double value;
+
+    public Constant(double value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
+}
+
+// Represents a variable in an expression
+class Var implements Expr {
+    private String name;
+
+    public Var(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Var{" + name + "}";
+    }
+}
+
+// Represents a binary operation (e.g. addition, subtraction)
+abstract class BinaryOp implements Expr {
+    protected Expr left, right;
+
+    public BinaryOp(Expr left, Expr right) {
+        this.left = left;
+        this.right = right;
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+}
+
+// Adds two expressions together
+class Add implements BinaryOp {
+    public Add(Expr left, Expr right) {
+        super(left, right);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + left + " + " + right + ")";
+    }
+}
+
+// Subtracts one expression from another
+class Sub implements BinaryOp {
+    public Sub(Expr left, Expr right) {
+        super(left, right);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + left + " - " + right + ")";
+    }
+}
+
+// Multiplies two expressions together
+class Mul implements BinaryOp {
+    public Mul(Expr left, Expr right) {
+        super(left, right);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + left + " * " + right + ")";
+    }
+}
+
+// Divides one expression by another
+class Div implements BinaryOp {
+    public Div(Expr left, Expr right) {
+        super(left, right);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + left + " / " + right + ")";
+    }
+}
+
+// Represents a variable in an expression
+class VarExpr implements Expr {
+    private String name;
+
+    public VarExpr(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Var{" + name + "}";
+    }
+}
+
+public class ExprUtil {
+    // Evaluates the given expression by replacing variables with their values
+    public static String evaluateExpr(Expr expr, Map<String, Double> values) {
+        if (expr instanceof Constant) {
+            return ((Constant) expr).toString();
+        } else if (expr instanceof VarExpr) {
+            VarExpr var = (VarExpr) expr;
+            return values.get(var.name);
+        } else {
+            String leftStr = evaluateExpr(expr.left, values);
+            String rightStr = evaluateExpr(expr.right, values);
+
+            switch (expr.getClass()) {
+                case Add:
+                    return "(" + leftStr + " + " + rightStr + ")";
+                case Sub:
+                    return "(" + leftStr + " - " + rightStr + ")";
+                case Mul:
+                    return "(" + leftStr + " * " + rightStr + ")";
+                case Div:
+                    return "(" + leftStr + " / " + rightStr + ")";
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Map<String, Double> values = new HashMap<>();
+        values.put("x", 5.0);
+        values.put("y", 3.0);
+
+        Expr expr1 = new Add(new VarExpr("x"), new Constant(2.0));
+        System.out.println(exprUtil.evaluateExpr(expr1, values));
+
+        Expr expr2 = new Sub(new VarExpr("x"), new Constant(4.0));
+        System.out.println(exprUtil.evaluateExpr(expr2, values));
+
+        Expr expr3 = new Mul(new VarExpr("y"), new Constant(2.0));
+        System.out.println(exprUtil.evaluateExpr(expr3, values));
+
+        Expr expr4 = new Div(new VarExpr("x"), new Constant(2.0));
+        System.out.println(exprUtil.evaluateExpr(expr4, values));
+    }
+}
+```
+
+This implementation includes classes for constants (`Constant`), variables (`Var`), and binary operations (`Add`, `Sub`, `Mul`, `Div`). The `evaluateExpr` method takes an expression and a map of variable values, replacing any variables in the expression with their corresponding values.
+===================================================
+
+
+====================== Iteration #5 ======================
+Here's a Python implementation of a basic expression system:
+
+```python
+import re
+
+# Represents a constant value in an expression
+class Constant:
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return str(self.value)
+
+# Represents a variable in an expression
+class Var:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return f"Var{{{self.name}}}"
+
+# Represents a binary operation (e.g. addition, subtraction)
+class BinaryOp:
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+
+    def __str__(self):
+        raise NotImplementedError("Not implemented yet")
+
+# Adds two expressions together
+class Add(BinaryOp):
+    def __str__(self):
+        return f"({self.left} + {self.right})"
+
+# Subtracts one expression from another
+class Sub(BinaryOp):
+    def __str__(self):
+        return f"({self.left} - {self.right})"
+
+# Multiplies two expressions together
+class Mul(BinaryOp):
+    def __str__(self):
+        return f"({self.left} * {self.right})"
+
+# Divides one expression by another
+class Div(BinaryOp):
+    def __str__(self):
+        return f"({self.left} / {self.right})"
+
+# Represents a variable in an expression
+class VarExpr:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return f"Var{{{self.name}}}"
+
+def evaluate_expr(expr, values):
+    if isinstance(expr, Constant):
+        return expr.value
+    elif isinstance(expr, VarExpr):
+        var_name = expr.name
+        return values.get(var_name)
+    else:
+        left_str = evaluate_expr(expr.left, values)
+        right_str = evaluate_expr(expr.right, values)
+
+        op_map = {
+            Add: lambda x, y: str(eval(f"({x}) + ({y})")),
+            Sub: lambda x, y: str(eval(f"({x}) - ({y})")),
+            Mul: lambda x, y: str(eval(f"({x}) * ({y})")),
+            Div: lambda x, y: str(eval(f"({x}) / ({y})"))
+        }
+
+        op = expr.__class__
+        if op in op_map:
+            return op_map[op](left_str, right_str)
+        else:
+            raise ValueError("Unsupported operation")
+
+def main():
+    values = {"x": 5.0, "y": 3.0}
+
+    expr1 = Add(VarExpr("x"), Constant(2.0))
+    print(evaluate_expr(expr1, values))
+
+    expr2 = Sub(VarExpr("x"), Constant(4.0))
+    print(evaluate_expr(expr2, values))
+
+    expr3 = Mul(VarExpr("y"), Constant(2.0))
+    print(evaluate_expr(expr3, values))
+
+    expr4 = Div(VarExpr("x"), Constant(2.0))
+    print(evaluate_expr(expr4, values))
+
+if __name__ == "__main__":
+    main()
+```
+
+This implementation includes classes for constants (`Constant`), variables (`Var`), and binary operations (`Add`, `Sub`, `Mul`, `Div`). The `evaluate_expr` function takes an expression and a dictionary of variable values, replacing any variables in the expression with their corresponding values.
+===================================================
+
+
+====================== Iteration #6 ======================

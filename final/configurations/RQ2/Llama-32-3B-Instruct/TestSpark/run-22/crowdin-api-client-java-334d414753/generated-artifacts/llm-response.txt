@@ -1,0 +1,504 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.impl.json.JacksonJsonTransformer;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class JacksonJsonTransformerTest {
+
+    @Mock
+    private ObjectMapper objectMapper;
+
+    @Test
+    public void parseToJson_WhenNoDataReturnsEmptyObject() {
+        when(objectMapper.createModule()).thenReturn(new SimpleModule());
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = transformer.parse("", Project.class);
+        assertEquals(null, project);
+    }
+
+    @Test
+    public void parseToJson_WhenDataReturnsValidProject() {
+        String json = "{\"id\": 1, \"name\": \"Crowdin\"}";
+        when(objectMapper.createModule()).thenReturn(new SimpleModule());
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = transformer.parse(json, Project.class);
+        assertEquals(1L, project.getId());
+        assertEquals("Crowdin", project.getName());
+    }
+
+    @Test
+    public void parseToJson_WhenDataReturnsInvalidProject_throwsException() {
+        String json = "{\"id\": \"abc\", \"name\": \"Crowdin\"}";
+        when(objectMapper.createModule()).thenReturn(new SimpleModule());
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        try {
+            transformer.parse(json, Project.class);
+            fail("Expected CrowdinApiException to be thrown");
+        } catch (CrowdinApiException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void convertToJson_WhenNoDataReturnsEmptyString() {
+        when(objectMapper.createModule()).thenReturn(new SimpleModule());
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = transformer.convert(null);
+        assertEquals("", json);
+    }
+
+    @Test
+    public void convertToJson_WhenDataReturnsValidProject() {
+        Project project = new Project(1L, "Crowdin");
+        when(objectMapper.createModule()).thenReturn(new SimpleModule());
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = transformer.convert(project);
+        assertEquals("{\"id\": 1, \"name\": \"Crowdin\"}", json);
+    }
+
+    @Test
+    public void convertToJson_WhenDataReturnsInvalidProject_throwsException() {
+        Project project = new Project(1L, " Crowdin");
+        when(objectMapper.createModule()).thenReturn(new SimpleModule());
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        try {
+            transformer.convert(project);
+            fail("Expected CrowdinApiException to be thrown");
+        } catch (CrowdinApiException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void convertToJson_WhenDataReturnsUnsupportedType_throwsException() {
+        Project project = new Object(1L, "Crowdin"); // not supported type
+        when(objectMapper.createModule()).thenReturn(new SimpleModule());
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        try {
+            transformer.convert(project);
+            fail("Expected CrowdinApiException to be thrown");
+        } catch (CrowdinApiException e) {
+            // expected
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class CrowdinApiTest {
+
+    @Test
+    public void testGetProject() {
+        // Given
+        Project project = new Project(1L, "Crowdin");
+        
+        // When
+        CrowdinApi crowdinApi = new CrowdinApi(project);
+        String response = crowdinApi.getProject();
+
+        // Then
+        assertEquals("Project-123", response);
+    }
+
+    @Test
+    public void testGetProjectException() {
+        // Given
+        CrowdinApi crowdinApi = new CrowdinApi(null);
+
+        // When
+        Exception exception = assertThrows(CrowdinApiException.class, () -> crowdinApi.getProject());
+
+        // Then
+        assertEquals("Project not found", exception.getMessage());
+    }
+
+    @Test
+    public void testAddProject() {
+        // Given
+        Project project = new Project(1L, "Crowdin");
+        
+        CrowdinApi crowdinApi = new CrowdinApi(project);
+
+        // When
+        String response = crowdinApi.addProject();
+
+        // Then
+        assertEquals("Project created", response);
+    }
+
+    @Test
+    public void testAddProjectException() {
+        // Given
+        CrowdinApi crowdinApi = new CrowdinApi(null);
+
+        // When
+        Exception exception = assertThrows(CrowdinApiException.class, () -> crowdinApi.addProject());
+
+        // Then
+        assertEquals("Project not found", exception.getMessage());
+    }
+}
+
+class Project {
+    private long id;
+    private String name;
+
+    public Project(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return id == project.id &&
+                Objects.equals(name, project.name);
+    }
+}
+
+class CrowdinApi {
+    private String projectName;
+
+    public CrowdinApi(Project project) {
+        this.projectName = project.getName();
+    }
+
+    public String getProject() throws Exception {
+        // Implementation to fetch the project
+    }
+
+    public String addProject() throws Exception {
+        // Implementation to create a new project
+    }
+}
+
+class CrowdinApiException extends Exception {
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class CrowdinApiTest {
+
+    @Test
+    public void testGetProject() {
+        // Given
+        Project project = new Project(1L, "Crowdin");
+        
+        // When
+        CrowdinApiClient crowdinClient = new CrowdinApiClient(project);
+        String response = crowdinClient.getProject();
+
+        // Then
+        assertEquals("Project-123", response);
+    }
+
+    @Test
+    public void testGetProjectException() {
+        // Given
+        CrowdinApiClient crowdinClient = new CrowdinApiClient(null);
+
+        // When
+        Exception exception = assertThrows(CrowdinApiException.class, () -> crowdinClient.getProject());
+
+        // Then
+        assertEquals("Project not found", exception.getMessage());
+    }
+
+    @Test
+    public void testAddProject() {
+        // Given
+        Project project = new Project(1L, "Crowdin");
+        
+        CrowdinApiClient crowdinClient = new CrowdinApiClient(project);
+
+        // When
+        String response = crowdinClient.addProject();
+
+        // Then
+        assertEquals("Project created", response);
+    }
+
+    @Test
+    public void testAddProjectException() {
+        // Given
+        CrowdinApiClient crowdinClient = new CrowdinApiClient(null);
+
+        // When
+        Exception exception = assertThrows(CrowdinApiException.class, () -> crowdinClient.addProject());
+
+        // Then
+        assertEquals("Project not found", exception.getMessage());
+    }
+}
+
+class Project {
+    public long id;
+    public String name;
+
+    public Project(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return id == project.id &&
+                Objects.equals(name, project.name);
+    }
+}
+
+class CrowdinApiClient {
+
+    private String projectName;
+
+    public CrowdinApiClient(Project project) {
+        this.projectName = project.getName();
+    }
+
+    public String getProject() throws Exception {
+        // Implementation to fetch the project
+        throw new Exception("Not implemented");
+    }
+
+    public String addProject() throws Exception {
+        // Implementation to create a new project
+        throw new Exception("Not implemented");
+    }
+}
+
+class CrowdinApiException extends Exception {
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Project {
+    public long id;
+    public String name;
+
+    public Project(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return id == project.id &&
+                Objects.equals(name, project.name);
+    }
+}
+
+public class CrowdinApiClient {
+
+    private String projectName;
+
+    public CrowdinApiClient(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getProject() throws Exception {
+        // Implementation to fetch the project
+        throw new Exception("Not implemented");
+    }
+
+    public String addProject() throws Exception {
+        // Implementation to create a new project
+        throw new Exception("Not implemented");
+    }
+}
+
+public class CrowdinApiException extends Exception {
+
+}
+
+public class CrowdinApiTest {
+
+    @Test
+    public void testGetProject() {
+        // Given
+        Project project = new Project(1L, "Crowdin");
+        
+        // When
+        CrowdinApiClient crowdinClient = new CrowdinApiClient("Crowdin");
+        String response = crowdinClient.getProject();
+
+        // Then
+        assertEquals("Project-123", response);
+    }
+
+    @Test
+    public void testGetProjectException() {
+        // Given
+        CrowdinApiClient crowdinClient = new CrowdinApiClient(null);
+
+        // When
+        Exception exception = assertThrows(CrowdinApiException.class, () -> crowdinClient.getProject());
+
+        // Then
+        assertEquals("Project not found", exception.getMessage());
+    }
+
+    @Test
+    public void testAddProject() {
+        // Given
+        Project project = new Project(1L, "Crowdin");
+        
+        CrowdinApiClient crowdinClient = new CrowdinApiClient(project.getName());
+        
+        // When
+        String response = crowdinClient.addProject();
+
+        // Then
+        assertEquals("Project created", response);
+    }
+
+    @Test
+    public void testAddProjectException() {
+        // Given
+        CrowdinApiClient crowdinClient = new CrowdinApiClient(null);
+
+        // When
+        Exception exception = assertThrows(CrowdinApiException.class, () -> crowdinClient.addProject());
+
+        // Then
+        assertEquals("Project not found", exception.getMessage());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Project {
+    private long id;
+    private String name;
+
+    public Project(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return id == project.id &&
+                Objects.equals(name, project.name);
+    }
+}
+
+public class CrowdinApiClient {
+
+    private String projectName;
+
+    public CrowdinApiClient(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getProject() throws Exception {
+        // Implementation to fetch the project
+        throw new Exception("Not implemented");
+    }
+
+    public String addProject() throws Exception {
+        // Implementation to create a new project
+        throw new Exception("Not implemented");
+    }
+}
+
+public class CrowdinApiException extends Exception {
+
+}
+
+public class CrowdinApiTest {
+
+    @Test
+    public void testGetProject() {
+        // Given
+        Project project = new Project(1L, "Crowdin");
+        
+        // When
+        CrowdinApiClient crowdinClient = new CrowdinApiClient("Crowdin");
+        String response = crowdinClient.getProject();
+
+        // Then
+        assertEquals("Project-123", response);
+    }
+
+    @Test
+    public void testGetProjectException() {
+        // Given
+        CrowdinApiClient crowdinClient = new CrowdinApiClient(null);
+
+        // When
+        Exception exception = assertThrows(CrowdinApiException.class, () -> crowdinClient.getProject());
+
+        // Then
+        assertEquals("Project not found", exception.getMessage());
+    }
+
+    @Test
+    public void testAddProject() {
+        // Given
+        Project project = new Project(1L, "Crowdin");
+        
+        // When
+        CrowdinApiClient crowdinClient = new CrowdinApiClient(project.getName());
+        String response = crowdinClient.addProject();
+
+        // Then
+        assertEquals("Project created", response);
+    }
+
+    @Test
+    public void testAddProjectException() {
+        // Given
+        CrowdinApiClient crowdinClient = new CrowdinApiClient(null);
+
+        // When
+        Exception exception = assertThrows(CrowdinApiException.class, () -> crowdinClient.addProject());
+
+        // Then
+        assertEquals("Project not found", exception.getMessage());
+    }
+}
+```
+===================================================
+

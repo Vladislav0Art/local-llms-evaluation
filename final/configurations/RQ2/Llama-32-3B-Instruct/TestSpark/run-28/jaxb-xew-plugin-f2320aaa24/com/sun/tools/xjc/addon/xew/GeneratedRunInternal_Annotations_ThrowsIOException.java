@@ -1,0 +1,53 @@
+package com.sun.tools.xjc.addon.xew;
+
+public class GeneratedRunInternal_Annotations_ThrowsIOException {
+
+    private ArrayList<Object> elements = new ArrayList<>();
+
+    public void addElement(String element) {
+        elements.add(element);
+    }
+
+    public boolean hasElements() {
+        return !elements.isEmpty();
+    }
+}
+
+public class XmlElementWrapperPlugin {
+    public String runInternal(Outline outline) throws IOException {
+        // Implementation depends on the class
+        return "XML Element Wrapper";
+    }
+
+    public static class Annotation {
+        private String name;
+
+        public Annotation(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface XmlElementWrapper {
+        String name();
+    }
+}
+
+public class XmlElementWrapperPluginTest {
+
+    @Test
+    public void runInternal_Annotations_ThrowsIOException() throws IOException {
+        String xsdDeclaration = "<xs:element name='test'><xs:complexType><xs:sequence><xs:element name='elem' type='xsd:string'/></xs:sequence></xs:complexType></xs:element>";
+        XmlElementWrapperPlugin plugin = new XmlElementWrapperPlugin();
+        Outline outline = new Outline();
+        outline.addElement("elem");
+        assertEquals(outline.hasElements(), false);
+        assert (plugin.runInternal(outline).equals("XML Element Wrapper"));
+    }
+
+}

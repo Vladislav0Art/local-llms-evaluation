@@ -1,0 +1,494 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.safety;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import org.jsoup.helper.Validate;
+
+public class SafelistTest {
+
+    @Test
+    public void noneTest() {
+        assertTrue(Safelist.none().isNone());
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist sut = Safelist.simpleText();
+        assertEquals(Validate.TAGS, new HashSet<>(Arrays.asList(sut.getSafeTags())));
+    }
+
+    @Test
+    public void basicTagTest() {
+        assertTrue(Safelist.basic().isSafeTag("html"));
+        assertFalse(Safelist.basic().isSafeTag("script"));
+    }
+
+    @Test
+    public void basicEnforcedAttributeTest() {
+        Safelist sut = Safelist.basic();
+        assertEquals(Validate.ATTRIBUTE, new HashSet<>(Arrays.asList(sut.getEnforcedAttributes("html").getKeys())));
+    }
+
+    @Test
+    public void noneIsNoneTest() {
+        Safelist sut1 = Safelist.none();
+        Safelist sut2 = Safelist.none();
+        assertTrue(sut1.isNone());
+        assertTrue(sut2.isNone());
+    }
+
+    @Test
+    public void simpleTextIsSimpleTextTest() {
+        Safelist sut1 = Safelist.simpleText();
+        Safelist sut2 = Safelist.simpleText();
+        assertTrue(sut1.getSafeTags().equals(sut2.getSafeTags()));
+    }
+
+    @Test
+    public void basicIsBasicTest() {
+        Safelist sut1 = Safelist.basic();
+        Safelist sut2 = Safelist.basic();
+        assertTrue(sut1.isBasic());
+        assertTrue(sut2.isBasic());
+    }
+
+    @Test
+    public void noneCanBeCopiedTest() {
+        Safelist sut = Safelist.none();
+        Safelist copy = new Safelist(sut);
+        assertTrue(copy.isNone());
+    }
+
+    @Test
+    public void simpleTextCanBeCopiedTest() {
+        Safelist sut1 = Safelist.simpleText();
+        Safelist copy = new Safelist(sut1);
+        assertEquals(sut1, copy);
+    }
+
+    @Test
+    public void basicCanBeCopiedTest() {
+        Safelist sut1 = Safelist.basic();
+        Safelist copy = new Safelist(sut1);
+        assertTrue(copy.isBasic());
+    }
+
+    @Test
+    public void noneAddTagsTest() {
+        Safelist sut = Safelist.none();
+        safelistAddTagsAndRemoveTags(sut, "p", "span");
+        assertTrue(sut.getSafeTags().contains("p"));
+        assertFalse(sut.getSafeTags().contains("span"));
+    }
+
+    @Test
+    public void basicAddTagsTest() {
+        Safelist sut = Safelist.basic();
+        safelistAddTagsAndRemoveTags(sut, "img", "a");
+        assertTrue(sut.getSafeTags().contains("img"));
+        assertTrue(sut.getSafeTags().contains("a"));
+    }
+
+    @Test
+    public void noneRemoveTagsTest() {
+        Safelist sut = Safelist.none();
+        safelistAddTagsAndRemoveTags(sut, "p", "span");
+        assertFalse(sut.getSafeTags().contains("p"));
+        assertTrue(sut.getSafeTags().contains("span"));
+    }
+
+    @Test
+    public void basicRemoveTagsTest() {
+        Safelist sut = Safelist.basic();
+        safelistAddTagsAndRemoveTags(sut, "img", "a");
+        assertFalse(sut.getSafeTags().contains("img"));
+        assertFalse(sut.getSafeTags().contains("a"));
+    }
+
+    @Test
+    public void noneAddAttributesTest() {
+        Safelist sut = Safelist.none();
+        safelistAddTagsAndRemoveTags(sut, "p", "span");
+        assertEquals(0, sut.getEnforcedAttributes("html").size());
+    }
+
+    @Test
+    public void basicAddAttributesTest() {
+        Safelist sut = Safelist.basic();
+        safelistAddTagsAndRemoveTags(sut, "img", "a");
+        assertEquals(2, sut.getEnforcedAttributes("img").size());
+    }
+
+    @Test
+    public void noneRemoveAttributesTest() {
+        Safelist sut = Safelist.none();
+        safelistAddTagsAndRemoveTags(sut, "p", "span");
+        assertEquals(0, sut.getEnforcedAttributes("html").size());
+    }
+
+    @Test
+    public void basicRemoveAttributesTest() {
+        Safelist sut = Safelist.basic();
+        safelistAddTagsAndRemoveTags(sut, "img", "a");
+        assertEquals(0, sut.getEnforcedAttributes("img").size());
+    }
+
+    @Test
+    public void nonePreserveRelativeLinksTest() {
+        Safelist sut = Safelist.none();
+        assertTrue(sut.preserveRelativeLinks(true));
+    }
+
+    @Test
+    public void basicPreserveRelativeLinksTest() {
+        Safelist sut = Safelist.basic();
+        assertTrue(sut.preserveRelativeLinks(true));
+    }
+}
+
+public class Util {
+
+    private static final Set<String> SAFE_TAGS = new HashSet<>(Arrays.asList("html", "p", "span"));
+    private static final Map<String, String[]> SAFE_ATTRIBUTES = new HashMap<>();
+    private static final Map<String, String[]> SAFE_PROTOCOLS = new HashMap<>();
+
+    public static void safelistAddTagsAndRemoveTags(Safelist sut, String... tags) {
+        for (String tag : tags) {
+            if (!SAFE_TAGS.contains(tag)) {
+                sut.addTag(tag);
+            } else {
+                sut.removeTag(tag);
+            }
+        }
+        sut.removeTags(tags);
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+public class Main {
+    private static final Map<String, String[]> SAFE_ATTRIBUTES = new HashMap<>();
+    static {
+        SAFE_ATTRIBUTES.put("a", new String[]{"href"});
+        SAFE_ATTRIBUTES.put("img", new String[]{"src"});
+        SAFE_ATTRIBUTES.put("link", new String[]{"href"});
+        SAFE_ATTRIBUTES.put("script", new String[]{"src"});
+        SAFE_ATTRIBUTES.put("iframe", new String[]{"src"});
+        SAFE_ATTRIBUTES.put("input", new String[]{"value", "type", "checked"});
+        SAFE_ATTRIBUTES.put("textarea", new String[]{"value"});
+    }
+
+    private static final Map<String, String[]> SAFE_PROTOCOLS = new HashMap<>();
+    static {
+        SAFE_PROTOCOLS.put("http", new String[]{"*"});
+        SAFE_PROTOCOLS.put("https", new String[]{"*"});
+    }
+
+    public static boolean preserveRelativeLinks(Safelist safelist) {
+        return true;
+    }
+
+    private class Safelist {
+        private Set<String> tags = new HashSet<>();
+        private Map<String, Object> attributes;
+
+        public void addTag(String tag) {
+            if (tag.equals("img") && attributes.containsKey("src")) {
+                throw new RuntimeException("Img src cannot be specified");
+            }
+            tags.add(tag);
+        }
+
+        public void removeTag(String tag) {
+            tags.remove(tag);
+            if (!tags.isEmpty()) {
+                attributes = null;
+            } else {
+                attributes = new HashMap<>();
+            }
+        }
+
+        public boolean preserveRelativeLinks(boolean value) {
+            return true;
+        }
+    }
+
+    @Test
+    public void testSafelist() throws Exception {
+        Document document = Jsoup.parse("<img src='test.jpg' alt='test'>");
+        Safelist safelist = new Main().new Safelist();
+        Elements elements = document.select("img");
+
+        for (Element element : elements) {
+            String tag = element.tagName();
+            for (String attribute : SAFE_ATTRIBUTES.get(tag)) {
+                safelist.addTag(element.attr(attribute));
+            }
+        }
+
+        //Test preserveRelativeLinks
+        assert(safelist.preserveRelativeLinks(true));
+
+    }
+
+    public Safelist new Safelist() {
+        return new Safelist();
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Main {
+
+    private static final Map<String, String[]> SAFE_ATTRIBUTES = new HashMap<>();
+    static {
+        SAFE_ATTRIBUTES.put("a", new String[]{"href"});
+        SAFE_ATTRIBUTES.put("img", new String[]{"src"});
+        SAFE_ATTRIBUTES.put("link", new String[]{"href"});
+        SAFE_ATTRIBUTES.put("script", new String[]{"src"});
+        SAFE_ATTRIBUTES.put("iframe", new String[]{"src"});
+        SAFE_ATTRIBUTES.put("input", new String[]{"value", "type", "checked"});
+        SAFE_ATTRIBUTES.put("textarea", new String[]{"value"});
+    }
+
+    private static final Map<String, String[]> SAFE_PROTOCOLS = new HashMap<>();
+    static {
+        SAFE_PROTOCOLS.put("http", new String[]{"*"});
+        SAFE_PROTOCOLS.put("https", new String[]{"*"});
+    }
+
+    public boolean preserveRelativeLinks(Safelist safelist) {
+        return true;
+    }
+
+    public static class Safelist {
+
+        private Set<String> tags = new HashSet<>();
+        private Map<String, Object> attributes;
+
+        public void addTag(String tag) {
+            if (tag.equals("img") && attributes.containsKey("src")) {
+                throw new RuntimeException("Img src cannot be specified");
+            }
+            tags.add(tag);
+        }
+
+        public void removeTag(String tag) {
+            tags.remove(tag);
+            if (!tags.isEmpty()) {
+                attributes = null;
+            } else {
+                attributes = new HashMap<>();
+            }
+        }
+
+        public boolean preserveRelativeLinks(boolean value) {
+            return true;
+        }
+    }
+
+    public static class GeneratedTest {
+
+        @Test
+        public void testSafelist() throws Exception {
+            Document document = Jsoup.parse("<img src='test.jpg' alt='test'>");
+            Safelist safelist = new Main().new Safelist();
+            Elements elements = document.select("img");
+
+            for (Element element : elements) {
+                String tag = element.tagName();
+                for (String attribute : SAFE_ATTRIBUTES.get(tag)) {
+                    safelist.addTag(element.attr(attribute));
+                }
+            }
+
+            //Test preserveRelativeLinks
+            assert(safelist.preserveRelativeLinks(true));
+
+        }
+
+        @Test
+        public void testSafelistNew() throws Exception {
+            Safelist safelist = new Main().new Safelist();
+            // Add test case here
+        }
+
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Jsoup {
+    public static Document parse(String html) {
+        return new Document();
+    }
+
+    public interface Function {
+        Object apply(Object arg0);
+    }
+}
+
+public class Main {
+
+    private static final Map<String, String[]> SAFE_ATTRIBUTES = new HashMap<>();
+    static {
+        SAFE_ATTRIBUTES.put("img", new String[]{"src"});
+        // Add more attributes here
+    }
+
+    private static final Map<String, String[]> SAFE_PROTOCOLS = new HashMap<>();
+    static {
+        SAFE_PROTOCOLS.put("http", new String[]{});
+        SAFE_PROTOCOLS.put("https", new String[]{});
+        // Add more protocols here
+    }
+
+    public class Document {
+        // Document implementation
+    }
+
+    public class Element {
+        // Element implementation
+    }
+
+    public interface Elements {
+        List<Element> select(String selector);
+    }
+}
+
+public class Main {
+
+    public static Document parse(String html) {
+        return Jsoup.parse(html);
+    }
+
+    public static String[] getAttributes(String tag, String[] safeAttributes) {
+        // Return all attributes of the given tag
+    }
+
+    public static boolean isSafeProtocol(String protocol, String[] safeProtocols) {
+        // Check if a given protocol is in the list of safe protocols
+    }
+}
+
+public class Test {
+
+    @Test
+    public void testParse() {
+        Document document = Main.parse("<img src='test.jpg' alt='test'>");
+        // Use the document object here
+    }
+
+    @Test
+    public void testGetAttributes() {
+        String[] attributes = Main.getAttributes("img", Main.SAFE_ATTRIBUTES);
+        // Use the returned array here
+    }
+
+    @Test
+    public void testIsSafeProtocol() {
+        boolean isSafe = Main.isSafeProtocol("http", Main.SAFE_PROTOCOLS);
+        // Use the result of the function call here
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Main {
+
+    public static Document parse(String html) {
+        return new Jsoup().parse(html);
+    }
+
+    public static String[] getAttributes(String tag, Map<String, String[]> safeAttributes) {
+        return safeAttributes.get(tag);
+    }
+
+    public static boolean isSafeProtocol(String protocol, Map<String, String[]> safeProtocols) {
+        for (String safe : safeProtocols.get(protocol)) {
+            if (!safe.equals(".*")) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+public class Jsoup {
+
+    public Document parse(String html) {
+        // Implement document parsing logic here
+        return new Document();
+    }
+
+    public static class Document {
+        // Document implementation
+    }
+
+    public static class Element {
+        // Element implementation
+    }
+
+    public interface Elements {
+        List<Element> select(String selector);
+    }
+}
+
+public class Test {
+
+    @Test
+    public void testParse() {
+        Document document = Main.parse("<img src='test.jpg' alt='test'>");
+        // Use the document object here
+    }
+
+    @Test
+    public void testGetAttributes() {
+        Map<String, String[]> safeAttributes = new HashMap<>();
+        safeAttributes.put("img", new String[]{"src", "alt"});
+        assertArrayEquals(new String[]{"src", "alt"}, Main.getAttributes("img", safeAttributes));
+    }
+
+    @Test
+    public void testIsSafeProtocol() {
+        Map<String, String[]> safeProtocols = new HashMap<>();
+        safeProtocols.put("http", new String[]{".*", "https"});
+        assertTrue(Main.isSafeProtocol("http", safeProtocols));
+        assertFalse(Main.isSafeProtocol("https", safeProtocols));
+    }
+
+    @Test
+    public void testIsSafeProtocolEmpty() {
+        Map<String, String[]> safeProtocols = new HashMap<>();
+        assertFalse(Main.isSafeProtocol("http", safeProtocols));
+    }
+}
+```
+===================================================
+

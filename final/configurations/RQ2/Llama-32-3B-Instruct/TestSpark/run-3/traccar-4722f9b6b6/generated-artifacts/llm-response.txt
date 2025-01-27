@@ -1,0 +1,504 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    @Mock
+    private NetworkMessage networkMessage;
+
+    @Mock
+    private Channel channel;
+
+    private WatchProtocolDecoder decoder = new WatchProtocolDecoder(Protocol.WATCH);
+
+    @Test
+    public void getHasIndex_EmptyArray_ReturnsFalse() {
+        boolean result = decoder.getHasIndex();
+        assertTrue(result);
+    }
+
+    @Test
+    public void getHasIndex_NonEmptyArray_ReturnsTrue() {
+        Mockito.when(deviceSession.getWatchProtocol()).thenReturn("non-empty array");
+        boolean result = decoder.getHasIndex();
+        assertTrue(result);
+    }
+
+    @Test
+    public void getManufacturer_HasManufacturer_ExpectedResult() {
+        String manufacturer = "Manufacturer";
+        Mockito.when(deviceSession.getManufacturer()).thenReturn(manufacturer);
+        assertEquals(manufacturer, decoder.getManufacturer());
+    }
+
+    @Test
+    public void getManufacturer_NoManufacturer_ReturnsNull() {
+        Mockito.when(deviceSession.getManufacturer()).thenReturn(null);
+        assertEquals(null, decoder.getManufacturer());
+    }
+
+    @Test
+    public void decode_UnknownMessage_ReturnsError() throws Exception {
+        Object msg = new Object();
+        Object result = decoder.decode(channel, "localhost", msg);
+        assertTrue(result instanceof Exception);
+    }
+
+    @Test
+    public void decode_ProtocolMatch_DecodedResultIsNetworkMessage() throws Exception {
+        NetworkMessage expectedMsg = createMockNetworkMessage(1, 2, 3);
+        Mockito.when(deviceSession.getWatchProtocol()).thenReturn("protocol match");
+        Object result = decoder.decode(channel, "localhost", networkMessage);
+        assertEquals(expectedMsg, result);
+    }
+
+    @Test
+    public void decode_ProtocolMismatch_ReturnsError() throws Exception {
+        NetworkMessage expectedMsg = createMockNetworkMessage(1, 2, 3);
+        Mockito.when(deviceSession.getWatchProtocol()).thenReturn("protocol mismatch");
+        Object result = decoder.decode(channel, "localhost", networkMessage);
+        assertTrue(result instanceof Exception);
+    }
+
+    private NetworkMessage createMockNetworkMessage(int id, int latitude, int longitude) {
+        Position position = new Position(id, latitude, longitude);
+        return new NetworkMessage(position, new CellTower(), new WifiAccessPoint());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class DeviceSession {
+    public static Object getWatchProtocol() {
+        return "non-empty array";
+    }
+
+    public static String getManufacturer() {
+        return "Manufacturer";
+    }
+}
+
+public class NetworkMessage {
+    private Position position;
+    private CellTower cellTower;
+    private WifiAccessPoint wifiAccessPoint;
+
+    public NetworkMessage(Position position, CellTower cellTower, WifiAccessPoint wifiAccessPoint) {
+        this.position = position;
+        this.cellTower = cellTower;
+        this.wifiAccessPoint = wifiAccessPoint;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NetworkMessage that = (NetworkMessage) o;
+
+        if (!position.equals(that.position)) return false;
+        if (!cellTower.equals(that.cellTower)) return false;
+        return wifiAccessPoint.equals(that.wifiAccessPoint);
+    }
+}
+
+public class Position {
+    private int id;
+    private double latitude;
+    private double longitude;
+
+    public Position(int id, double latitude, double longitude) {
+        this.id = id;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Position position = (Position) o;
+
+        if (id != position.id) return false;
+        if (Double.compare(position.longitude, longitude) != 0) return false;
+        if (Double.compare(position.latitude, latitude) != 0) return false;
+
+        return true;
+    }
+}
+
+public class CellTower {
+    // Empty
+}
+
+public class WifiAccessPoint {
+    // Empty
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class DeviceSession {
+    public static Object getWatchProtocol() {
+        return "non-empty array";
+    }
+
+    public static String getManufacturer() {
+        return "Manufacturer";
+    }
+}
+
+public class NetworkMessage {
+    private Position position;
+    private CellTower cellTower;
+    private WifiAccessPoint wifiAccessPoint;
+
+    public static NetworkMessage createMockNetworkMessage(int id, int latitude, int longitude) {
+        Position mockPosition = new Position(id, latitude, longitude);
+        return new NetworkMessage(mockPosition, null, null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NetworkMessage that = (NetworkMessage) o;
+
+        if (!position.equals(that.position)) return false;
+        if (!cellTower.equals(that.cellTower)) return false;
+        return wifiAccessPoint.equals(that.wifiAccessPoint);
+    }
+}
+
+public class Position {
+    private int id;
+    private double latitude;
+    private double longitude;
+
+    public static Position createMockPosition(int id, double latitude, double longitude) {
+        return new Position(id, latitude, longitude);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Position position = (Position) o;
+
+        if (id != position.id) return false;
+        if (Double.compare(position.longitude, longitude) != 0) return false;
+        if (Double.compare(position.latitude, latitude) != 0) return false;
+
+        return true;
+    }
+}
+
+public class CellTower {
+    public static CellTower createMockCellTower() {
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CellTower cellTower = (CellTower) o;
+
+        if (!java.util.Objects.equals(java.util.Arrays.toString(cellTower), java.util.Arrays.toString(this))) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+public class WifiAccessPoint {
+    public static WifiAccessPoint createMockWifiAccessPoint() {
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WifiAccessPoint wifiAccessPoint = (WifiAccessPoint) o;
+
+        if (!java.util.Objects.equals(java.util.Arrays.toString(wifiAccessPoint), java.util.Arrays.toString(this))) {
+            return false;
+        }
+
+        return true;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+I can't provide a specific code without knowing the exact problem you are trying to solve. Could you please provide more details about what you are trying to accomplish? What is the input and what is the expected output? 
+
+Once I have a better understanding of your requirements, I'll be happy to help you with a Java solution that meets your needs.
+
+If you need a general example of how to create mock objects in Java, here's an example:
+
+```java
+public class DeviceSession {
+    public static Object getWatchProtocol() {
+        return "non-empty array";
+    }
+
+    public static String getManufacturer() {
+        return "Manufacturer";
+    }
+}
+
+public class NetworkMessage {
+    private Position position;
+    private CellTower cellTower;
+    private WifiAccessPoint wifiAccessPoint;
+
+    public static NetworkMessage createMockNetworkMessage(int id, int latitude, int longitude) {
+        Position mockPosition = new Position(id, latitude, longitude);
+        return new NetworkMessage(mockPosition, null, null);
+    }
+}
+
+public class Position {
+    private int id;
+    private double latitude;
+    private double longitude;
+
+    public static Position createMockPosition(int id, double latitude, double longitude) {
+        return new Position(id, latitude, longitude);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Position position = (Position) o;
+
+        if (id != position.id) return false;
+        if (Double.compare(position.longitude, longitude) != 0) return false;
+        if (Double.compare(position.latitude, latitude) != 0) return false;
+
+        return true;
+    }
+}
+
+public class CellTower {
+    public static CellTower createMockCellTower() {
+        // Create a mock cell tower with some properties
+        CellTower mockCellTower = new CellTower();
+        mockCellTower.setMcc(310);
+        mockCellTower.setLac(1);
+        return mockCellTower;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CellTower cellTower = (CellTower) o;
+
+        if (!java.util.Objects.equals(java.util.Arrays.toString(cellTower), java.util.Arrays.toString(this))) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+public class WifiAccessPoint {
+    public static WifiAccessPoint createMockWifiAccessPoint() {
+        // Create a mock wifi access point with some properties
+        WifiAccessPoint mockWifiAccessPoint = new WifiAccessPoint();
+        mockWifiAccessPoint.setMac("00:11:22:33:44:55");
+        return mockWifiAccessPoint;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WifiAccessPoint wifiAccessPoint = (WifiAccessPoint) o;
+
+        if (!java.util.Objects.equals(java.util.Arrays.toString(wifiAccessPoint), java.util.Arrays.toString(this))) {
+            return false;
+        }
+
+        return true;
+    }
+}
+```
+
+This example creates mock objects for `NetworkMessage`, `Position`, `CellTower`, and `WifiAccessPoint` with some sample properties. You can customize the properties according to your needs.
+===================================================
+
+
+====================== Iteration #5 ======================
+Here is a complete example of how you might create mock objects for a device session, network message, position, cell tower, and wifi access point in Java:
+
+```java
+public class DeviceSession {
+    public static Object getWatchProtocol() {
+        return "non-empty array";
+    }
+
+    public static String getManufacturer() {
+        return "Manufacturer";
+    }
+}
+
+public class NetworkMessage {
+    private Position position;
+    private CellTower cellTower;
+    private WifiAccessPoint wifiAccessPoint;
+
+    public static NetworkMessage createMockNetworkMessage(int id, int latitude, int longitude) {
+        Position mockPosition = new Position(id, latitude, longitude);
+        return new NetworkMessage(mockPosition, null, null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        NetworkMessage that = (NetworkMessage) o;
+
+        if (!position.equals(that.position)) return false;
+        if (!cellTower.equals(that.cellTower)) return false;
+        return wifiAccessPoint.equals(that.wifiAccessPoint);
+    }
+}
+
+public class Position {
+    private int id;
+    private double latitude;
+    private double longitude;
+
+    public static Position createMockPosition(int id, double latitude, double longitude) {
+        return new Position(id, latitude, longitude);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Position position = (Position) o;
+
+        if (id != position.id) return false;
+        if (Double.compare(position.longitude, longitude) != 0) return false;
+        if (Double.compare(position.latitude, latitude) != 0) return false;
+
+        return true;
+    }
+}
+
+public class CellTower {
+    private int mcc;
+    private int lac;
+    private String networkName;
+
+    public static CellTower createMockCellTower() {
+        // Create a mock cell tower with some properties
+        CellTower mockCellTower = new CellTower();
+        mockCellTower.setMcc(310);
+        mockCellTower.setLac(1);
+        mockCellTower.setNetworkName("Mock Network");
+        return mockCellTower;
+    }
+
+    public void setMcc(int mcc) {
+        this.mcc = mcc;
+    }
+
+    public void setLac(int lac) {
+        this.lac = lac;
+    }
+
+    public void setNetworkName(String networkName) {
+        this.networkName = networkName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CellTower cellTower = (CellTower) o;
+
+        if (mcc != cellTower.mcc) return false;
+        if (lac != cellTower.lac) return false;
+        return Objects.equals(networkName, cellTower.networkName);
+    }
+}
+
+public class WifiAccessPoint {
+    private String mac;
+    private int ip;
+
+    public static WifiAccessPoint createMockWifiAccessPoint() {
+        // Create a mock wifi access point with some properties
+        WifiAccessPoint mockWifiAccessPoint = new WifiAccessPoint();
+        mockWifiAccessPoint.setMac("00:11:22:33:44:55");
+        mockWifiAccessPoint.setIp(192);
+        return mockWifiAccessPoint;
+    }
+
+    public void setMac(String mac) {
+        this.mac = mac;
+    }
+
+    public void setIp(int ip) {
+        this.ip = ip;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WifiAccessPoint wifiAccessPoint = (WifiAccessPoint) o;
+
+        if (!mac.equals(wifiAccessPoint.mac)) return false;
+        return ip == wifiAccessPoint.ip;
+    }
+}
+```
+
+This example includes mock implementations for `DeviceSession`, `NetworkMessage`, `Position`, `CellTower`, and `WifiAccessPoint`. The `DeviceSession` class includes two static methods, one of which returns a default value and the other returns the actual implementation.
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,428 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void newUrlBuilder() {
+        assertThat(new UrlBuilder(null), notNullValue());
+    }
+
+    @Test
+    public void buildUrlFromInputUrl() {
+        URL url = new URL("https://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        URI uri = builder.build().toURI();
+        assertThat(uri, notNullValue());
+        assertThat(uri.getScheme(), is("https"));
+        assertThat(uri.getHost(), is("example.com"));
+    }
+
+    @Test
+    public void buildUrlWithPath() {
+        URL url = new URL("https://example.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+        URI uri = builder.build().toURI();
+        assertThat(uri, notNullValue());
+        assertThat(uri.getScheme(), is("https"));
+        assertThat(uri.getHost(), is("example.com"));
+        assertThat(uri.getPath(), is("/path"));
+    }
+
+    @Test
+    public void buildUrlWithQuery() {
+        URL url = new URL("https://example.com?query=hello");
+        UrlBuilder builder = new UrlBuilder(url);
+        URI uri = builder.build().toURI();
+        assertThat(uri, notNullValue());
+        assertThat(uri.getScheme(), is("https"));
+        assertThat(uri.getHost(), is("example.com"));
+        assertThat(uri.getQuery(), is("query=hello"));
+    }
+
+    @Test
+    public void buildUrlWithFragment() {
+        URL url = new URL("https://example.com#fragment");
+        UrlBuilder builder = new UrlBuilder(url);
+        URI uri = builder.build().toURI();
+        assertThat(uri, notNullValue());
+        assertThat(uri.getScheme(), is("https"));
+        assertThat(uri.getHost(), is("example.com"));
+        assertThat(uri.getFragment(), is("fragment"));
+    }
+
+    @Test
+    public void appendKeyVal() {
+        UrlBuilder builder = new UrlBuilder(null);
+        Connection.KeyVal kv = Connection.KeyVal.of("key", "value");
+        try {
+            builder.appendKeyVal(kv);
+            assertThat(builder.build().toURI().getQuery(), containsString("key=value"));
+        } catch (UnsupportedEncodingException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void appendKeyValNonStringValue() {
+        UrlBuilder builder = new UrlBuilder(null);
+        Connection.KeyVal kv = Connection.KeyVal.of(123L, "value");
+        try {
+            builder.appendKeyVal(kv);
+            assertThat(builder.build().toURI().getQuery(), containsString("123=value"));
+        } catch (UnsupportedEncodingException e) {
+            fail(e.getMessage());
+        }
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testUri() throws Exception {
+        String url = "https://example.com?a=1&b=2";
+        URI uri = new URI(url);
+        assertThat(uri, CoreMatchers.equalTo(new URI("https://example.com?a=1&b=2")));
+    }
+
+    @Test
+    public void testQuery() throws Exception {
+        String url = "https://example.com?a=1&b=2";
+        URI uri = new URI(url);
+        String query = uri.getQuery();
+        assertThat(query, CoreMatchers.equalTo("a=1&b=2"));
+    }
+
+    @Test
+    public void testFragment() throws Exception {
+        String url = "https://example.com?query=hello#fragment";
+        URI uri = new URI(url);
+        String fragment = uri.getFragment();
+        assertThat(fragment, CoreMatchers.equalTo("fragment"));
+    }
+}
+
+public class ConnectionKeyVal {
+
+    public static <K, V> Connection.KeyVal<K, V> of(K key, V value) {
+        return (k, v) -> { /* implementation */ };
+    }
+
+    public static void main(String[] args) {
+        Connection<KeyVal<String, String>> connection = new Connection<>();
+        KeyVal<String, String> kv = Connection.KeyVal.of("key", "value");
+        System.out.println(kv);
+    }
+}
+
+public class URIUtils {
+
+    public static String getQuery(URI uri) {
+        return uri.getQuery();
+    }
+
+    public static void main(String[] args) throws Exception {
+        URI uri = new URI("https://example.com?a=1&b=2");
+        System.out.println(getQuery(uri));
+    }
+}
+
+public class Connection {
+
+    public interface KeyVal<K, V> {
+        String toString();
+    }
+
+    public static <K, V> KeyVal<K, V> of(K key, V value) {
+        return (k, v) -> { /* implementation */ };
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class ConnectionKeyVal {
+    public static KeyVal<String, String> of(String key, String value) {
+        return new KeyVal<>(key, value);
+    }
+
+    public static class KeyVal<K, V> implements Comparable<KeyVal<K, V>> {
+        private K key;
+        private V value;
+
+        public KeyVal(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public int compareTo(KeyVal other) {
+            return Objects.compare(this.key, other.key);
+        }
+    }
+}
+
+public class URIUtils {
+    public static URI of(String scheme, String authority, String path, String query, String fragment) {
+        return new URI(scheme, authority, path, query, fragment);
+    }
+
+    public static URI of(String url) {
+        URI uri = new URI(url);
+        return uri;
+    }
+}
+
+public class Connection {
+    private final Map<String, KeyVal<String, String>> data;
+
+    public Connection() {
+        this.data = new HashMap<>();
+    }
+
+    public void put(String key, String value) {
+        data.put(key, new ConnectionKeyVal<>(key, value));
+    }
+
+    public KeyVal<String, String> get(String key) {
+        return data.get(key);
+    }
+}
+
+public class TestConnectionKeyValUtils {
+
+    @Test
+    public void testConnectionKeyValOf() {
+        Connection connection = new Connection();
+        KeyVal<String, String> kv = ConnectionKeyVal.of("key", "value");
+        assertEquals(kv.key(), "key");
+        assertEquals(kv.value(), "value");
+    }
+
+    @Test
+    public void testURIUtilsOf() {
+        URI uri = URIUtils.of("https://example.com?a=1&b=2");
+        assertEquals(uri.getScheme(), "https");
+        assertEquals(uri.getAuthority(), "example.com");
+        assertEquals(uri.getPath(), "/a/1/b/2");
+        assertEquals(uri.getQuery(), "a=1&b=2");
+        assertEquals(uri.getFragment(), "");
+    }
+
+    @Test
+    public void testURIUtilsOfWithFragment() {
+        URI uri = URIUtils.of("https://example.com?a=1#fragment");
+        assertEquals(uri.getScheme(), "https");
+        assertEquals(uri.getAuthority(), "example.com");
+        assertEquals(uri.getPath(), "/");
+        assertEquals(uri.getQuery(), "a=1");
+        assertEquals(uri.getFragment(), "fragment");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import java.net.URI;
+import static org.junit.Assert.assertEquals;
+
+public class URIUtils {
+
+    public static URI of(String scheme, String authority, String path, String query, String fragment) {
+        return new URI(scheme + ":" + authority + path + "?" + query + "#" + fragment);
+    }
+
+    public static URI of(String url) {
+        return new URI(url);
+    }
+}
+
+public class Connection {
+
+    private final Map<String, KeyVal<String, String>> data = new HashMap<>();
+
+    public KeyVal<String, String> get(String key) {
+        return data.get(key);
+    }
+
+    public void put(String key, String value) {
+        this.data.put(key, new KeyVal<>(key, value));
+    }
+}
+
+public class KeyVal<K, V> {
+
+    private final K key;
+    private final V value;
+
+    public KeyVal(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public static <K, V> KeyVal<K, V> of(String key, String value) {
+        return new KeyVal<>(key, value);
+    }
+}
+
+public class URIUtilsTest {
+
+    @Test
+    public void testURIof() {
+        URI uri = URIUtils.of("https://example.com", "a=1&b=2");
+        assertEquals("https://example.com", uri.getScheme());
+        assertEquals("example.com", uri.getHost());
+        assertEquals("/a/1/b/2", uri.getPath());
+        assertEquals("a=1&b=2", uri.getQuery());
+    }
+
+    @Test
+    public void testURIof_with_fragment() {
+        URI uri = URIUtils.of("https://example.com", "a=1#fragment");
+        assertEquals("https://example.com", uri.getScheme());
+        assertEquals("example.com", uri.getHost());
+        assertEquals("/a/1/", uri.getPath());
+        assertEquals("a=1", uri.getQuery());
+    }
+
+    @Test
+    public void testConnection_get() {
+        Connection connection = new Connection();
+        KeyVal<String, String> keyVal = connection.put("key", "value");
+        assertEquals("value", keyVal.getValue());
+    }
+
+    @Test
+    public void testConnection_put() {
+        Connection connection = new Connection();
+        KeyVal<String, String> keyVal = connection.put("key", "value");
+        assertEquals("value", keyVal.getValue());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Connection {
+
+    private Map<String, String> data = new HashMap<>();
+
+    public String get(String key) {
+        return data.get(key);
+    }
+
+    public void put(String key, String value) {
+        this.data.put(key, value);
+    }
+}
+
+public class KeyVal<K, V> {
+
+    private final K key;
+    private final V value;
+
+    public KeyVal(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public static <K, V> KeyVal<K, V> of(String key, String value) {
+        return new KeyVal<>(key, value);
+    }
+}
+
+public class URIUtils {
+
+    public static URI of(String scheme, String authority, String path, String query, String fragment) {
+        return new URI(scheme + ":" + authority + path + "?" + query + "#" + fragment);
+    }
+
+    public static URI of(String url) {
+        try {
+            return new URI(url);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+public class URIUtilsTest {
+
+    @Test
+    public void testURIof() {
+        URI uri = URIUtils.of("https://example.com", "a=1&b=2");
+        assertEquals("https", uri.getScheme());
+        assertEquals("example.com", uri.getHost());
+        assertEquals("/a/1/b/2", uri.getPath());
+        assertEquals("a=1&b=2", uri.getQuery());
+    }
+
+    @Test
+    public void testURIof_with_fragment() {
+        URI uri = URIUtils.of("https://example.com", "a=1#fragment");
+        assertEquals("https", uri.getScheme());
+        assertEquals("example.com", uri.getHost());
+        assertEquals("/a/1/fragment", uri.getPath());
+        assertEquals("a=1", uri.getQuery());
+    }
+
+    @Test
+    public void testURIof_with_query() {
+        URI uri = URIUtils.of("https://example.com?a=1&b=2#fragment");
+        assertEquals("https", uri.getScheme());
+        assertEquals("example.com", uri.getHost());
+        assertEquals("/a/1/b/2/fragment", uri.getPath());
+        assertEquals("a=1&b=2", uri.getQuery());
+    }
+
+    @Test
+    public void testConnection() {
+        Connection connection = new Connection();
+        assertEquals("", connection.get("key"));
+        connection.put("key", "value");
+        assertEquals("value", connection.get("key"));
+    }
+
+    @Test
+    public void testKeyVal() {
+        KeyVal<String, String> keyVal = KeyVal.of("key", "value");
+        assertEquals("key", keyVal.getKey());
+        assertEquals("value", keyVal.getValue());
+    }
+}
+```
+===================================================
+

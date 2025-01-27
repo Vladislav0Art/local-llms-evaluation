@@ -1,0 +1,28 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.XmlTreeBuilder;
+import org.jsoup.nodes.Token;
+import org.jsoup.nodes.Parser;
+import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import org.mockito.Mockito;
+
+public class GeneratedParseReader_ParseSuccessful {
+
+    @Test
+    public void parseReader_ParseSuccessful() {
+        // Arrange
+        Parser parser = mock(Parser.class);
+        when(parser.parse(anyString())).thenReturn(new Document());
+
+        // Act
+        Document result = new XmlTreeBuilder().parse(reader, baseUri);
+
+        // Assert
+        verify(parser).parse(eq("<root><child></child></root>"));
+    }
+
+}

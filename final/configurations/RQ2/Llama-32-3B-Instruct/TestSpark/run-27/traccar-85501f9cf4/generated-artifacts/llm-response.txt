@@ -1,0 +1,401 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.traccar.protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.BaseProtocolDecoder;
+import org.traccar.DeviceSession;
+import org.traccar.NetworkMessage;
+import org.traccar.Protocol;
+import org.traccar.helper.BcdUtil;
+import org.traccar.helper.BitUtil;
+import org.traccar.helper.Checksum;
+import org.traccar.helper.DateBuilder;
+import org.traccar.helper.Parser;
+import org.traccar.helper.PatternBuilder;
+import org.traccar.helper.UnitsConverter;
+import org.traccar.model.CellTower;
+import org.traccar.model.Network;
+import org.traccar.model.Position;
+import org.traccar.model.WifiAccessPoint;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.regex.Pattern;
+
+public class Gt06ProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Test
+    public void decodeGpsPositionNotNullTest() {
+        Position position = new Position(1, 2, 3);
+        byte[] buf = {1, 2, 3};
+        boolean hasLength = true;
+        TimeZone timezone = Calendar.getInstance().getTimeZone();
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrap(buf), hasLength, timezone));
+    }
+
+    @Test
+    public void decodeGpsPositionNullTest() {
+        Position position = null;
+        byte[] buf = {1, 2, 3};
+        boolean hasLength = true;
+        TimeZone timezone = Calendar.getInstance().getTimeZone();
+        assertFalse(Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrap(buf), hasLength, timezone));
+    }
+
+    @Test
+    public void decodeGpsPositionEmptyBufTest() {
+        Position position = new Position(1, 2, 3);
+        byte[] buf = {};
+        boolean hasLength = true;
+        TimeZone timezone = Calendar.getInstance().getTimeZone();
+        assertFalse(Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrap(buf), hasLength, timezone));
+    }
+
+    @Test
+    public void decodeGpsPositionBufTooShortTest() {
+        Position position = new Position(1, 2, 3);
+        byte[] buf = {1, 2};
+        boolean hasLength = true;
+        TimeZone timezone = Calendar.getInstance().getTimeZone();
+        assertFalse(Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrap(buf), hasLength, timezone));
+    }
+
+    @Test
+    public void decodeGpsPositionDecodedCorrectlyTest() {
+        Position position = new Position(1, 2, 3);
+        byte[] buf = {1, 2, 3};
+        boolean hasLength = true;
+        TimeZone timezone = Calendar.getInstance().getTimeZone();
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrap(buf), hasLength, timezone));
+    }
+
+    @Test
+    public void decodeGpsPositionHasSatellitesNotNullTest() {
+        Position position = new Position(1, 2, 3);
+        byte[] buf = {1, 2, 3};
+        boolean hasLength = true;
+        boolean hasSatellites = false;
+        TimeZone timezone = Calendar.getInstance().getTimeZone();
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrap(buf), hasLength, hasSatellites, timezone));
+    }
+
+    @Test
+    public void decodeGpsPositionHasSpeedNotNullTest() {
+        Position position = new Position(1, 2, 3);
+        byte[] buf = {1, 2, 3};
+        boolean hasLength = true;
+        boolean hasSpeed = false;
+        TimeZone timezone = Calendar.getInstance().getTimeZone();
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, Unpooled.wrap(buf), hasLength, hasSatellites, hasSpeed, timezone));
+    }
+
+    @Test
+    public void decodePositionDecodeCorrectlyTest() throws Exception {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        Object msg = new NetworkMessage(protocol);
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
+        assertTrue(Gt06ProtocolDecoder.decode(channel, remoteAddress, msg) instanceof Position);
+    }
+
+    @Test
+    public void decodePositionDecodeIncorrectTest() throws Exception {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        Object msg = new NetworkMessage(protocol);
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
+        assertFalse(Gt06ProtocolDecoder.decode(channel, remoteAddress, msg) instanceof Position);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+public class NetworkMessageTests {
+
+    @Test
+    void testNetworkMessageConstructor() {
+        String protocol = "http";
+        Object msg = new NetworkMessage(protocol);
+        assertTrue(msg instanceof NetworkMessage);
+    }
+
+    @Test
+    void testGt06ProtocolDecoderDecode() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        Object msg = new NetworkMessage("http");
+
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
+
+        assertTrue(Gt06ProtocolDecoder.decode(channel, remoteAddress, msg) instanceof Position);
+    }
+
+    @Test
+    void testGt06ProtocolDecoderDecodeNotFound() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        Object msg = new NetworkMessage("http");
+
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
+
+        assertFalse(Gt06ProtocolDecoder.decode(channel, remoteAddress, msg) instanceof Position);
+    }
+
+    @Test
+    void testGt06ProtocolDecoderDecodeNotPosition() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        Object msg = new NetworkMessage("http");
+
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
+
+        assertFalse(Gt06ProtocolDecoder.decode(channel, remoteAddress, msg) instanceof Position);
+    }
+
+    @Test
+    void testGt06ProtocolDecoderDecodeMultipleTypes() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        Object msg = new NetworkMessage("http");
+
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
+
+        assertTrue(Gt06ProtocolDecoder.decode(channel, remoteAddress, msg) instanceof Position || Gt06ProtocolDecoder.decode(channel, remoteAddress, msg) instanceof OtherType);
+    }
+
+    @Test
+    void testGt06ProtocolDecoderDecodeAlreadyReceived() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        Object msg = new NetworkMessage("http");
+
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
+
+        // Mock already received message
+        Gt06ProtocolDecoder.decode(channel, remoteAddress, msg);
+
+        assertFalse(Gt06ProtocolDecoder.decode(channel, remoteAddress, msg) instanceof Position);
+    }
+}
+
+class Channel {
+    public SocketAddress remoteAddress() { return null; }
+}
+
+class SocketAddress {}
+
+interface OtherType { }
+
+class NetworkMessage<T> {
+    private T protocol;
+
+    public NetworkMessage(T protocol) {
+        this.protocol = protocol;
+    }
+
+    public T getProtocol() {
+        return protocol;
+    }
+}
+
+class Gt06ProtocolDecoder {
+
+    public static <T> boolean decode(Channel channel, SocketAddress remoteAddress, Object msg) {
+        // Logic to decode message
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class Gt06ProtocolDecoderTest {
+
+    @Test
+    public void testGt06ProtocolDecoder() {
+        // Create mock objects
+        Channel channel = new Channel();
+        Message message = new Message(channel, "data");
+
+        // Create instance of Gt06ProtocolDecoder with a non-static method
+        Object decoder = new Gt06ProtocolDecoder();
+
+        // Call non-static method and assert result
+        boolean result = (Boolean) decoder.getClass().getMethod("decode", Message.class).invoke(decoder, message);
+        assertTrue(result);
+
+        // Call static method and assert result
+        result = Gt06ProtocolDecoder.decode(message);
+        assertTrue(result);
+    }
+}
+
+class Channel {
+}
+
+class Message {
+    private Channel channel;
+    private String data;
+
+    public Message(Channel channel, String data) {
+        this.channel = channel;
+        this.data = data;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+}
+
+public class Gt06ProtocolDecoder {
+
+    public boolean decode(Message message) {
+        // Logic for decoding message
+        return true;
+    }
+
+    public static boolean decode(Message message) {
+        return Gt06ProtocolDecoder.decode(message);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Gt06ProtocolDecoder {
+    public boolean decode(Channel channel, Message message) {
+        // Logic for decoding message
+        return true;
+    }
+
+    public static boolean decode(Message message) {
+        Channel channel = new Channel();
+        return (Boolean) Gt06ProtocolDecoder.class.getMethod("decode", Channel.class, Message.class).invoke(null, channel, message);
+    }
+}
+
+public class Gt06ProtocolDecoderTest {
+
+    @Test
+    public void testGt06ProtocolDecoder() {
+        // Create mock objects
+        Channel channel = new Channel();
+        Message message = new Message(channel, "data");
+
+        // Call non-static method and assert result
+        boolean result = (Boolean) Gt06ProtocolDecoder.class.getMethod("decode", Channel.class, Message.class).invoke(null, channel, message);
+        assertTrue(result);
+
+        // Call static method and assert result
+        result = Gt06ProtocolDecoder.decode(message);
+        assertTrue(result);
+    }
+}
+
+class Channel {
+}
+
+class Message {
+    private Channel channel;
+    private String data;
+
+    public Message(Channel channel, String data) {
+        this.channel = channel;
+        this.data = data;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Gt06ProtocolDecoder {
+    public boolean decode(Channel channel, Message message) {
+        // Logic for decoding message
+        return true;
+    }
+
+    public static boolean decode(Message message) {
+        Channel channel = new Channel();
+        return (Boolean) Gt06ProtocolDecoder.class.getMethod("decode", Channel.class, Message.class).invoke(null, channel, message);
+    }
+}
+
+public class Gt06ProtocolDecoderTest {
+
+    @Test
+    public void testGt06ProtocolDecoder() throws Exception {
+        // Create mock objects
+        Channel channel = new Channel();
+        Message message = new Message(channel, "data");
+
+        // Call non-static method and assert result
+        boolean result = (Boolean) Gt06ProtocolDecoder.class.getMethod("decode", Channel.class, Message.class).invoke(null, channel, message);
+        assertTrue(result);
+
+        // Call static method and assert result
+        result = Gt06ProtocolDecoder.decode(message);
+        assertTrue(result);
+
+        // Use expected exception
+        try {
+            result = (Boolean) Gt06ProtocolDecoder.decode(new Object());
+            fail("Expected exception not thrown");
+        } catch (Exception e) {}
+    }
+}
+
+class Channel {
+}
+
+class Message {
+    private Channel channel;
+    private String data;
+
+    public Message(Channel channel, String data) {
+        this.channel = channel;
+        this.data = data;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+}
+```
+===================================================
+

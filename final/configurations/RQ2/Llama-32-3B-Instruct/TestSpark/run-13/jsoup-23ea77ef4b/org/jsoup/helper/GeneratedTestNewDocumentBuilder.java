@@ -1,0 +1,54 @@
+package org.jsoup.helper;
+
+public class GeneratedTestNewDocumentBuilder {
+
+    public static Builder newDocumentBuilder() {
+        return new Builder();
+    }
+}
+
+public class Builder {
+    public void parse(byte[] input) throws Exception {
+        // implementation
+    }
+
+    public Document build() throws Exception {
+        // implementation
+        return null;
+    }
+}
+
+public class Document {
+    // implementation
+}
+
+public class Node {
+    // implementation
+}
+
+public class W3CDom {
+    public static String asString(Document doc) {
+        return doc.toString();
+    }
+
+    public static Node contextNode(Document doc) {
+        return doc.getDocumentElement();
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void testNewDocumentBuilder() throws Exception {
+        // Arrange
+        String expected = "<html><body>Hello World!</body></html>";
+
+        // Act
+        DocumentBuilderFactory factory = new DocumentBuilderFactory();
+        Document doc = factory.newDocumentBuilder().parse(new ByteArrayInputStream(expected.getBytes()));
+
+        // Assert
+        assertEquals(expected, W3CDom.asString(doc));
+    }
+
+}

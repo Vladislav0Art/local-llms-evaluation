@@ -1,0 +1,63 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorUrlValidTest() {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder.build());
+    }
+
+    @Test
+    public void buildEmptyUrlTest() {
+        UrlBuilder builder = new UrlBuilder(null);
+        assertNull(builder.build());
+    }
+
+    @Test
+    public void appendKeyValStringKeyValidTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertEquals("key=value", builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyValStringKeyInvalidTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal(null, "value");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertEquals("key=value", builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyValNullValueTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", null);
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        try {
+            builder.appendKeyVal(kv);
+            fail();
+        } catch (UnsupportedEncodingException e) {
+        }
+    }
+
+    @Test
+    public void appendKeyValInvalidEncodingTest() throws UnsupportedEncodingException, URISyntaxException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value\u0000");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        try {
+            builder.appendKeyVal(kv);
+            fail();
+        } catch (UnsupportedEncodingException e) {
+        }
+    }
+
+}

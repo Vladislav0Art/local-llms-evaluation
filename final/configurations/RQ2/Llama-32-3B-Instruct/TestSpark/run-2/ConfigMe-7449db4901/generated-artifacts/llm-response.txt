@@ -1,0 +1,374 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CommentsConfigurationTest {
+
+    @Test
+    public void newCommentsConfigurationHasNoComments() {
+        // given
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+
+        // when
+        Map<String, List<String>> allComments = commentsConfig.getAllComments();
+
+        // then
+        assertThat(allComments.isEmpty(), is(true));
+    }
+
+    @Test
+    public void newCommentsConfigurationIsUnmodifiable() {
+        // given
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+
+        // when
+        Map<String, List<String>> allComments = commentsConfig.getAllComments();
+
+        // then
+        assertThat(commentsConfig.isUnmodifiable(), is(true));
+    }
+
+    @Test
+    public void existingCommentsConfigurationHasComments() {
+        // given
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration commentsConfig = new CommentsConfiguration(comments);
+
+        // when
+        Map<String, List<String>> allComments = commentsConfig.getAllComments();
+
+        // then
+        assertThat(allComments.size(), is(1));
+    }
+
+    @Test
+    public void existingCommentsConfigurationIsUnmodifiable() {
+        // given
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration commentsConfig = new CommentsConfiguration(comments);
+
+        // when
+        Map<String, List<String>> allComments = commentsConfig.getAllComments();
+
+        // then
+        assertThat(commentsConfig.isUnmodifiable(), is(true));
+    }
+
+    @Test
+    public void setCommentOverwritesExistingComments() {
+        // given
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration commentsConfig = new CommentsConfiguration(comments);
+
+        String path = "path";
+        String commentLine = "comment line";
+
+        // when
+        commentsConfig.setComment(path, commentLine);
+
+        // then
+        Map<String, List<String>> allComments = commentsConfig.getAllComments();
+        assertThat(allComments.get(path), is(Arrays.asList(commentLine)));
+    }
+
+    @Test
+    public void setCommentDoesNotAddNewLinesWithoutMarker() {
+        // given
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration commentsConfig = new CommentsConfiguration(comments);
+
+        String path = "path";
+        String commentLine = "";
+
+        // when
+        commentsConfig.setComment(path, commentLine);
+
+        // then
+        Map<String, List<String>> allComments = commentsConfig.getAllComments();
+        assertThat(allComments.get(path), is(Collections.singletonList(commentLine)));
+    }
+
+    @Test
+    public void setCommentAddsMultipleLinesWithMarker() {
+        // given
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration commentsConfig = new CommentsConfiguration(comments);
+
+        String path = "path";
+        String[] commentLines = {"comment line 1", "comment line 2"};
+
+        // when
+        commentsConfig.setComment(path, commentLines);
+
+        // then
+        Map<String, List<String>> allComments = commentsConfig.getAllComments();
+        assertThat(allComments.get(path), is(Arrays.asList(commentLines)));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class CommentComparator {
+    private final String comment;
+
+    public CommentComparator(String comment) {
+        this.comment = comment;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommentComparator that = (CommentComparator) o;
+        return comment.equals(that.comment);
+    }
+}
+
+public class CommentsComparator {
+    private final String comments;
+
+    public CommentsComparator(String comments) {
+        this.comments = comments;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommentsComparator that = (CommentsComparator) o;
+        return comments.equals(that.comments);
+    }
+}
+
+public class CommentComparatorTest {
+
+    @Test
+    public void testCommentComparator() {
+        String comment1 = "This is a comment";
+        String comment2 = "This is another comment";
+
+        CommentComparator comparator1 = new CommentComparator(comment1);
+        CommentComparator comparator2 = new CommentComparator(comment1);
+
+        assertTrue(comparator1.equals(comparator2));
+        assertFalse(comparator1.equals(new CommentComparator(comment2)));
+    }
+
+    @Test
+    public void testCommentsComparator() {
+        String comments1 = "This is a comment";
+        String comments2 = "Another comment";
+
+        CommentsComparator comparator1 = new CommentsComparator(comments1);
+        CommentsComparator comparator2 = new CommentsComparator(comments1);
+
+        assertTrue(comparator1.equals(comparator2));
+        assertFalse(comparator1.equals(new CommentsComparator(comments2)));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class CommentComparator {
+
+    private String comment;
+
+    public CommentComparator(String comment) {
+        this.comment = comment;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof CommentComparator)) return false;
+        CommentComparator other = (CommentComparator) obj;
+        return this.comment.equals(other.comment);
+    }
+}
+
+public class CommentsComparator {
+
+    private String comments;
+
+    public CommentsComparator(String comments) {
+        this.comments = comments;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof CommentsComparator)) return false;
+        CommentsComparator other = (CommentsComparator) obj;
+        return this.comments.equals(other.comments);
+    }
+}
+
+public class CommentComparatorTest {
+
+    @Test
+    public void testCommentComparator() {
+        String comment1 = "This is a comment";
+        String comment2 = "This is another comment";
+
+        CommentComparator comparator1 = new CommentComparator(comment1);
+        CommentComparator comparator2 = new CommentComparator(comment1);
+
+        assertTrue(comparator1.equals(comparator2));
+        assertFalse(comparator1.equals(new CommentComparator(comment2)));
+    }
+
+    @Test
+    public void testCommentsComparator() {
+        String comments1 = "This is a comment";
+        String comments2 = "Another comment";
+
+        CommentsComparator comparator1 = new CommentsComparator(comments1);
+        CommentsComparator comparator2 = new CommentsComparator(comments1);
+
+        assertTrue(comparator1.equals(comparator2));
+        assertFalse(comparator1.equals(new CommentsComparator(comments2)));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class CommentComparator {
+
+    private String comment;
+
+    public CommentComparator(String comment) {
+        this.comment = comment;
+    }
+
+    public static boolean equals(CommentComparator obj1, CommentComparator obj2) {
+        if (obj1 == obj2) return true;
+        if (!(obj1 instanceof CommentComparator)) return false;
+        if (!(obj2 instanceof CommentComparator)) return false;
+        return obj1.comment.equals(obj2.comment);
+    }
+}
+
+public class CommentsComparator {
+
+    private String comments;
+
+    public CommentsComparator(String comments) {
+        this.comments = comments;
+    }
+
+    public static boolean equals(CommentsComparator obj1, CommentsComparator obj2) {
+        if (obj1 == obj2) return true;
+        if (!(obj1 instanceof CommentsComparator)) return false;
+        if (!(obj2 instanceof CommentsComparator)) return false;
+        return obj1.comments.equals(obj2.comments);
+    }
+}
+
+public class CommentComparatorTest {
+
+    @Test
+    public void testCommentComparator() {
+        String comment1 = "This is a comment";
+        String comment2 = "This is another comment";
+
+        CommentComparator comparator1 = new CommentComparator(comment1);
+        CommentComparator comparator2 = new CommentComparator(comment1);
+
+        assertTrue(CommentComparator.equals(comparator1, comparator2));
+        assertFalse(CommentComparator.equals(comparator1, new CommentComparator(comment2)));
+    }
+
+    @Test
+    public void testCommentsComparator() {
+        String comments1 = "This is a comment";
+        String comments2 = "Another comment";
+
+        CommentsComparator comparator1 = new CommentsComparator(comments1);
+        CommentsComparator comparator2 = new CommentsComparator(comments1);
+
+        assertTrue(CommentsComparator.equals(comparator1, comparator2));
+        assertFalse(CommentsComparator.equals(comparator1, new CommentsComparator(comments2)));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class CommentComparator {
+
+    private String comment;
+
+    public static CommentComparator createCommentComparator(String comment) {
+        return new CommentComparator(comment);
+    }
+
+    public boolean equals(CommentComparator obj2) {
+        if (this == obj2) return true;
+        if (!(obj2 instanceof CommentComparator)) return false;
+        return this.comment.equals(obj2.comment);
+    }
+}
+
+public class CommentsComparator {
+
+    private String comments;
+
+    public static CommentsComparator createCommentsComparator(String comments) {
+        return new CommentsComparator(comments);
+    }
+
+    public boolean equals(CommentsComparator obj2) {
+        if (this == obj2) return true;
+        if (!(obj2 instanceof CommentsComparator)) return false;
+        return this.comments.equals(obj2.comments);
+    }
+}
+
+public class CommentComparatorTest {
+
+    @Test
+    public void testCommentComparator() {
+        String comment1 = "This is a comment";
+        String comment2 = "This is another comment";
+
+        CommentComparator comparator1 = CommentComparator.createCommentComparator(comment1);
+        CommentComparator comparator2 = CommentComparator.createCommentComparator(comment1);
+
+        assertTrue(CommentComparator.equals(comparator1, comparator2));
+        assertFalse(CommentComparator.equals(comparator1, new CommentComparator(comment2)));
+    }
+
+    @Test
+    public void testCommentsComparator() {
+        String comments1 = "This is a comment";
+        String comments2 = "Another comment";
+
+        CommentsComparator comparator1 = CommentsComparator.createCommentsComparator(comments1);
+        CommentsComparator comparator2 = CommentsComparator.createCommentsComparator(comments1);
+
+        assertTrue(CommentsComparator.equals(comparator1, comparator2));
+        assertFalse(CommentsComparator.equals(comparator1, new CommentsComparator(comments2)));
+    }
+}
+```
+===================================================
+

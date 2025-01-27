@@ -1,0 +1,454 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TextNodeTest {
+
+    @Test
+    public void nodeName_AlwaysReturnsText() {
+        // Given
+        TextNode node = new TextNode("Hello World");
+
+        // When
+        String result = node.nodeName();
+
+        // Then
+        assertEquals("text", result);
+    }
+
+    @Test
+    public void text_ReturnsEncodedText() {
+        // Given
+        TextNode node = new TextNode("<b>Hello</b> World");
+
+        // When
+        String result = node.text();
+
+        // Then
+        assertEquals("&lt;b&gt;Hello&lt;/b&gt; World", result);
+    }
+
+    @Test
+    public void text_setsText() {
+        // Given
+        TextNode node = new TextNode();
+        node.text("Hello World");
+
+        // When
+        String result = node.text();
+
+        // Then
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void getWholeText_ReturnsEncodedText() {
+        // Given
+        TextNode node = new TextNode("<b>Hello</b> World");
+
+        // When
+        String result = node.getWholeText();
+
+        // Then
+        assertEquals("&lt;b&gt;Hello&lt;/b&gt; World", result);
+    }
+
+    @Test
+    public void isBlank_ReturnsTrueForEmptyString() {
+        // Given
+        TextNode node = new TextNode("");
+
+        // When
+        boolean result = node.isBlank();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void isBlank_ReturnsFalseForNonEmptyString() {
+        // Given
+        TextNode node = new TextNode("Hello World");
+
+        // When
+        boolean result = node.isBlank();
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void splitText_splitsAtOffset() {
+        // Given
+        TextNode node = new TextNode("Hello World");
+        int offset = 6;
+
+        // When
+        TextNode result = node.splitText(offset);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(5, result.text().length());
+    }
+
+    @Test
+    public void outerHtmlHeadAddsProperHtmlTags() {
+        // Given
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = null;
+
+        TextNode node = new TextNode("Hello World");
+
+        // When
+        node.outerHtmlHead(accum, depth, out);
+
+        // Then
+        assertEquals("<p>Hello World</p>", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailAddsProperHtmlTags() {
+        // Given
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = null;
+
+        TextNode node = new TextNode("Hello World");
+
+        // When
+        node.outerHtmlTail(accum, depth, out);
+
+        // Then
+        assertEquals("<p>Hello World</p>", accum.toString());
+    }
+
+    @Test
+    public void clone_CreatesDeepCopy() {
+        // Given
+        TextNode node = new TextNode("Hello World");
+
+        // When
+        TextNode result = node.clone();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(node.text(), result.text());
+    }
+
+    @Test
+    public void createFromEncoded_ParsesEncodedText() {
+        // Given
+        String encodedText = "<b>Hello</b> World";
+
+        // When
+        TextNode result = TextNode.createFromEncoded(encodedText);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("&lt;b&gt;Hello&lt;/b&gt; World", result.text());
+    }
+
+    @Test
+    public void normaliseWhitespace_ImprovesWhitespaceConsistency() {
+        // Given
+        String text = "   Hello   World";
+
+        // When
+        String result = TextNode.normaliseWhitespace(text);
+
+        // Then
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void stripLeadingWhitespace_RemovesLeadingWhitespace() {
+        // Given
+        String text = "   Hello World";
+
+        // When
+        String result = TextNode.stripLeadingWhitespace(text);
+
+        // Then
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void lastCharIsWhitespace_ReturnsFalseForNonWhitespaceCharacter() {
+        // Given
+        StringBuilder sb = new StringBuilder();
+        sb.append('A');
+
+        // When
+        boolean result = TextNode.lastCharIsWhitespace(sb);
+
+        // Then
+        assertFalse(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class AccumulatorTest {
+
+    @Test
+    public void testAccumulator() {
+        Accumulator accumulator = new Accumulator();
+        String accum = "<p>Hello World</p>";
+        assertEquals(accum, accumulator.toString());
+    }
+
+    @Test
+    public void testAddText() {
+        Accumulator accumulator = new Accumulator();
+        String originalText = "Hello";
+        String newText = "World";
+        accumulator.addText(newText);
+        assertNotNull(accumulator.getResult());
+        assertEquals(originalText + " " + newText, accumulator.getResult().text());
+    }
+
+    @Test
+    public void testAccumulateMultipleElements() {
+        Accumulator accumulator = new Accumulator();
+        String text1 = "<p>Hello World</p>";
+        String text2 = "<p>This is another element</p>";
+        assertEquals(text1, accumulator.toString());
+        accumulator.addText(text2);
+        assertNotNull(accumulator.getResult());
+        assertEquals(text1 + " " + text2, accumulator.getResult().text());
+    }
+
+    @Test
+    public void testAccumulateEmpty() {
+        Accumulator accumulator = new Accumulator();
+        assertEquals("", accumulator.toString());
+    }
+}
+
+public class Accumulator {
+
+    private StringBuilder resultText = new StringBuilder();
+
+    public String toString() {
+        return resultText.toString();
+    }
+
+    public void addText(String text) {
+        if (!text.isEmpty()) {
+            resultText.append(text);
+            if (resultText.charAt(resultText.length() - 1) == '<') {
+                resultText.deleteCharAt(resultText.length() - 1);
+            }
+        } else {
+            resultText = new StringBuilder();
+        }
+    }
+
+    public String getResult() {
+        return resultText.toString();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Accumulator {
+
+    private StringBuilder resultText = new StringBuilder();
+
+    public void addText(String text) {
+        if (!text.isEmpty()) {
+            resultText.append(text);
+            if (resultText.charAt(resultText.length() - 1) == '<') {
+                resultText.deleteCharAt(resultText.length() - 1);
+            }
+        } else {
+            resultText = new StringBuilder();
+        }
+    }
+
+    public String getResult() {
+        return resultText.toString();
+    }
+}
+
+public class AccumulatorTest {
+
+    @Test
+    public void testAccumulator() {
+        Accumulator accumulator = new Accumulator();
+        String accum = "<p>Hello World</p>";
+        assertEquals(accum, accumulator.getResult());
+    }
+
+    @Test
+    public void testAddText() {
+        Accumulator accumulator = new Accumulator();
+        String originalText = "Hello";
+        String newText = "World";
+        accumulator.addText(newText);
+        assertNotNull(accumulator.getResult());
+        assertEquals(originalText + " " + newText, accumulator.getResult());
+    }
+
+    @Test
+    public void testAccumulateMultipleElements() {
+        Accumulator accumulator = new Accumulator();
+        String text1 = "<p>Hello World</p>";
+        String text2 = "<p>This is another element</p>";
+        assertEquals(text1, accumulator.getResult());
+        accumulator.addText(text2);
+        assertNotNull(accumulator.getResult());
+        assertEquals(text1 + " " + text2, accumulator.getResult());
+    }
+
+    @Test
+    public void testAccumulateEmpty() {
+        Accumulator accumulator = new Accumulator();
+        assertEquals("", accumulator.getResult());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Accumulator {
+
+    private StringBuilder resultText = new StringBuilder();
+
+    public void addText(String text) {
+        if (!text.isEmpty()) {
+            resultText.append(text);
+            if (resultText.charAt(resultText.length() - 1) == '<') {
+                resultText.deleteCharAt(resultText.length() - 1);
+            }
+        } else {
+            resultText = new StringBuilder();
+        }
+    }
+
+    public String getResult() {
+        return resultText.toString();
+    }
+}
+
+public class AccumulatorTest {
+
+    @org.junit.Test
+    public void testAccumulator() {
+        Accumulator accumulator = new Accumulator();
+        String accum = "<p>Hello World</p>";
+        assertEquals(accum, accumulator.getResult());
+    }
+
+    @org.junit.Test
+    public void testAddText() {
+        Accumulator accumulator = new Accumulator();
+        String originalText = "Hello";
+        String newText = "World";
+        accumulator.addText(newText);
+        assertNotNull(accumulator.getResult());
+        assertEquals(originalText + " " + newText, accumulator.getResult());
+    }
+
+    @org.junit.Test
+    public void testAccumulateMultipleElements() {
+        Accumulator accumulator = new Accumulator();
+        String text1 = "<p>Hello World</p>";
+        String text2 = "<p>This is a test</p>";
+        accumulator.addText(text1);
+        accumulator.addText(text2);
+        assertNotNull(accumulator.getResult());
+        assertEquals("<p>Hello World<p>This is a test</p>", accumulator.getResult());
+    }
+
+    @org.junit.Test
+    public void testAddEmptyText() {
+        Accumulator accumulator = new Accumulator();
+        String emptyText = "";
+        accumulator.addText(emptyText);
+        assertNotNull(accumulator.getResult());
+        assertEquals("", accumulator.getResult());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```
+public class Accumulator {
+
+    private StringBuilder resultText = new StringBuilder();
+
+    public void addText(String text) {
+        if (!text.isEmpty()) {
+            resultText.append(text);
+            if (resultText.charAt(resultText.length() - 1) == '<') {
+                resultText.deleteCharAt(resultText.length() - 1);
+            }
+        } else {
+            resultText = new StringBuilder();
+        }
+    }
+
+    public String getResult() {
+        return resultText.toString();
+    }
+}
+
+public class AccumulatorTest {
+
+    @org.junit.Test
+    public void testAccumulator() {
+        Accumulator accumulator = new Accumulator();
+        String accum = "<p>Hello World</p>";
+        assertEquals(accum, accumulator.getResult());
+    }
+
+    @org.junit.Test
+    public void testAddText() {
+        Accumulator accumulator = new Accumulator();
+        String originalText = "Hello";
+        String newText = "World";
+        accumulator.addText(newText);
+        assertNotNull(accumulator.getResult());
+        assertEquals(originalText + " ", accumulator.getResult());
+    }
+
+    @org.junit.Test
+    public void testAccumulateMultipleElements() {
+        Accumulator accumulator = new Accumulator();
+        String text1 = "<p>Hello World</p>";
+        String text2 = "<p>This is a test</p>";
+        accumulator.addText(text1);
+        accumulator.addText(text2);
+        assertNotNull(accumulator.getResult());
+        assertEquals("<p>Hello World<p>This is a test</p>", accumulator.getResult());
+    }
+
+    @org.junit.Test
+    public void testAddEmptyText() {
+        Accumulator accumulator = new Accumulator();
+        String emptyText = "";
+        accumulator.addText(emptyText);
+        assertNotNull(accumulator.getResult());
+        assertEquals("", accumulator.getResult());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,535 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.parser.XmlTreeBuilder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
+
+@RunWith(MockitoJUnitRunner.class)
+public class XmlTreeBuilderTest {
+
+    @Mock
+    private TreeBuilder treeBuilderMock;
+
+    public XmlTreeBuilder testInstance() {
+        return new XmlTreeBuilder(treeBuilderMock);
+    }
+
+    @Test
+    public void parseStringBasicTest() throws IOException {
+        String xml = "<html><body>Hello World!</body></html>";
+        Document document = testInstance().parse(xml, "");
+        assertEquals("html", document.documentElement.tagName());
+    }
+
+    @Test
+    public void parseStringCommentTest() throws IOException {
+        String xml = "<!-- This is a comment -->";
+        Document document = testInstance().parse(xml, "");
+        assertNull(document.body());
+    }
+
+    @Test
+    public void parseStringDoctypeTest() throws IOException {
+        String xml = "<?xml version=\"1.0\"?><!DOCTYPE html>";
+        Document document = testInstance().parse(xml, "");
+        assertEquals("html", document.documentElement.tagName());
+    }
+
+    @Test
+    public void parseReaderBasicTest() throws IOException {
+        Reader reader = new StringReader("<html><body>Hello World!</body></html>");
+        Document document = testInstance().parse(reader, "");
+        assertEquals("html", document.documentElement.tagName());
+    }
+
+    @Test
+    public void parseReaderCommentTest() throws IOException {
+        Reader reader = new StringReader("<!-- This is a comment -->");
+        Document document = testInstance().parse(reader, "");
+        assertNull(document.body());
+    }
+
+    @Test
+    public void parseReaderDoctypeTest() throws IOException {
+        Reader reader = new StringReader("<?xml version=\"1.0\"?><!DOCTYPE html>");
+        Document document = testInstance().parse(reader, "");
+        assertEquals("html", document.documentElement.tagName());
+    }
+
+    @Test
+    public void initialiseParseReaderInputBasicTest() {
+        Reader reader = new StringReader("<html><body>Hello World!</body></html>");
+        Parser parser = Mockito.mock(Parser.class);
+        XmlTreeBuilder treeBuilder = testInstance();
+        treeBuilder.initialiseParse(reader, "", parser);
+        assertFalse(treeBuilder.defaultSettings().useCdata());
+    }
+
+    @Test
+    public void initialiseParseReaderInputNoUriBasicTest() {
+        Reader reader = new StringReader("<html><body>Hello World!</body></html>");
+        Parser parser = Mockito.mock(Parser.class);
+        XmlTreeBuilder treeBuilder = testInstance();
+        treeBuilder.initialiseParse(reader, "", parser);
+        assertTrue(treeBuilder.defaultSettings().useCdata());
+    }
+
+    @Test
+    public void processEndTagBasicTest() {
+        Token token = new Token(Token.EndTag, "tag");
+        boolean result = testInstance().process(token);
+        assertTrue(result);
+    }
+
+    @Test
+    public void processCharacterBasicTest() {
+        Token token = new Token(Token.Character, 'a');
+        boolean result = testInstance().process(token);
+        assertFalse(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.mockito.Mockito;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void testDefaultXmlTreeBuilder() {
+        // Given
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        // When
+        Document document = xmlTreeBuilder.parse("<html><body>Hello World!</body></html>", "");
+
+        // Then
+        assertNotNull(document);
+    }
+
+    @Test
+    public void testDefaultXmlTreeBuilderWithCdata() {
+        // Given
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        xmlTreeBuilder.defaultSettings().useCdata(true);
+
+        // When
+        Document document = xmlTreeBuilder.parse("<html><body>Hello World!</body></html>", "");
+
+        // Then
+        assertNotNull(document);
+    }
+
+    @Test
+    public void testXmlTreeBuilderWithComment() {
+        // Given
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        String comment = "<!-- This is a comment -->";
+        Reader reader = new StringReader(comment);
+
+        // When
+        Document document = xmlTreeBuilder.parse(reader.toString(), "");
+
+        // Then
+        assertNotNull(document);
+    }
+
+    @Test
+    public void testXmlTreeBuilderWithCharacter() {
+        // Given
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        char character = 'a';
+        Reader reader = new StringReader(String.valueOf(character));
+
+        // When
+        Document document = xmlTreeBuilder.parse(reader.toString(), "");
+
+        // Then
+        assertNotNull(document);
+    }
+}
+
+public class Token {
+    public enum TokenType {
+        EndTag, Character
+    }
+
+    private TokenType type;
+    private Object value;
+
+    public Token(TokenType type, Object value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    public TokenType getType() {
+        return type;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+}
+
+public class ParseSettings {
+    public boolean useCdata;
+
+    public ParseSettings(boolean useCdata) {
+        this.useCdata = useCdata;
+    }
+
+    public boolean useCdata() {
+        return useCdata;
+    }
+}
+
+public class TreeBuilder {
+    private ParseSettings settings;
+
+    public TreeBuilder(ParseSettings settings) {
+        this.settings = settings;
+    }
+
+    public ParseSettings defaultSettings() {
+        return settings;
+    }
+}
+
+public class XmlTreeBuilder {
+    private TreeBuilder treeBuilder;
+
+    public XmlTreeBuilder(TreeBuilder treeBuilder) {
+        this.treeBuilder = treeBuilder;
+    }
+
+    public Document parse(String xml, String type) {
+        // implementation
+        return null;
+    }
+
+    public boolean useCdata() {
+        return defaultSettings().useCdata();
+    }
+}
+
+public class Document {
+    // implementation
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class GeneratedTest {
+    @org.junit.Test
+    public void testDefaultXmlTreeBuilder() {
+        // Given
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        // When
+        Document document = xmlTreeBuilder.parse("<html><body>Hello World!</body></html>", "");
+
+        // Then
+        assertNotNull(document);
+    }
+
+    @org.junit.Test
+    public void testDefaultXmlTreeBuilderWithCdata() {
+        // Given
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        ParseSettings parseSettings = new ParseSettings(true);
+        xmlTreeBuilder.defaultSettings().useCdata(parseSettings.useCdata());
+
+        // When
+        Document document = xmlTreeBuilder.parse("<html><body>Hello World!</body></html>", "");
+
+        // Then
+        assertNotNull(document);
+    }
+
+    @org.junit.Test
+    public void testXmlTreeBuilderWithComment() {
+        // Given
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        String comment = "<!-- This is a comment -->";
+        Reader reader = new StringReader(comment);
+
+        // When
+        Document document = xmlTreeBuilder.parse(reader.toString(), "");
+
+        // Then
+        assertNotNull(document);
+    }
+
+    @org.junit.Test
+    public void testXmlTreeBuilderWithCharacter() {
+        // Given
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        char character = 'a';
+        Reader reader = new StringReader(String.valueOf(character));
+
+        // When
+        Document document = xmlTreeBuilder.parse(reader.toString(), "");
+
+        // Then
+        assertNotNull(document);
+    }
+}
+
+public class TreeBuilder {
+    public ParseSettings defaultSettings() {
+        return null;
+    }
+}
+
+public class ParseSettings {
+    private boolean useCdata;
+
+    public ParseSettings(boolean useCdata) {
+        this.useCdata = useCdata;
+    }
+
+    public boolean useCdata() {
+        return useCdata;
+    }
+}
+
+public class XmlTreeBuilder {
+    private TreeBuilder treeBuilder;
+
+    public XmlTreeBuilder(TreeBuilder treeBuilder) {
+        this.treeBuilder = treeBuilder;
+    }
+
+    public Document parse(String xml, String type) {
+        // implementation
+        return null;
+    }
+}
+
+public class Document {
+    // implementation
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class TreeBuilder {
+    private ParseSettings settings;
+
+    public TreeBuilder(ParseSettings settings) {
+        this.settings = settings;
+    }
+
+    public ParseSettings defaultSettings() {
+        return settings;
+    }
+}
+
+public class ParseSettings {
+    private boolean useCdata;
+
+    public ParseSettings(boolean useCdata) {
+        this.useCdata = useCdata;
+    }
+
+    public boolean useCdata() {
+        return useCdata;
+    }
+
+    public static ParseSettings of(boolean useCdata) {
+        return new ParseSettings(useCdata);
+    }
+}
+
+public class XmlTreeBuilder {
+    private TreeBuilder treeBuilder;
+
+    public XmlTreeBuilder(TreeBuilder treeBuilder) {
+        this.treeBuilder = treeBuilder;
+    }
+
+    public Document parse(String xml, String type) {
+        // implementation
+        return null;
+    }
+
+    public ParseSettings defaultSettings() {
+        return new ParseSettings(false);
+    }
+}
+
+public class Document {
+    // implementation
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.mockito.Mockito;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void testDefaultXmlTreeBuilder() {
+        // Given
+        ParseSettings parseSettings = ParseSettings.of(false);
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        treeBuilderMock.defaultSettings().useCdata(parseSettings.useCdata());
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        // When
+        Document document = xmlTreeBuilder.parse("<html><body>Hello World!</body></html>", "");
+
+        // Then
+        assertNotNull(document);
+    }
+
+    @Test
+    public void testDefaultXmlTreeBuilderWithCdata() {
+        // Given
+        ParseSettings parseSettings = ParseSettings.of(true);
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        treeBuilderMock.defaultSettings().useCdata(parseSettings.useCdata());
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        // When
+        Document document = xmlTreeBuilder.parse("<html><body>Hello World!</body></html>", "");
+
+        // Then
+        assertNotNull(document);
+    }
+
+    @Test
+    public void testXmlTreeBuilderWithComment() {
+        // Given
+        ParseSettings parseSettings = ParseSettings.of(false);
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        treeBuilderMock.defaultSettings().useCdata(parseSettings.useCdata());
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        String comment = "<!-- This is a comment -->";
+        Reader reader = new StringReader(comment);
+
+        // When
+        Document document = xmlTreeBuilder.parse(reader.toString(), "");
+
+        // Then
+        assertNotNull(document);
+    }
+
+    @Test
+    public void testXmlTreeBuilderWithCharacter() {
+        // Given
+        ParseSettings parseSettings = ParseSettings.of(false);
+        TreeBuilder treeBuilderMock = Mockito.mock(TreeBuilder.class);
+        treeBuilderMock.defaultSettings().useCdata(parseSettings.useCdata());
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(treeBuilderMock);
+
+        char character = 'a';
+        Reader reader = new StringReader(String.valueOf(character));
+
+        // When
+        Document document = xmlTreeBuilder.parse(reader.toString(), "");
+
+        // Then
+        assertNotNull(document);
+    }
+}
+
+public class TreeBuilder {
+    private ParseSettings settings;
+
+    public TreeBuilder(ParseSettings settings) {
+        this.settings = settings;
+    }
+
+    public ParseSettings defaultSettings() {
+        return settings;
+    }
+}
+
+public class ParseSettings {
+    private boolean useCdata;
+
+    public ParseSettings(boolean useCdata) {
+        this.useCdata = useCdata;
+    }
+
+    public boolean useCdata() {
+        return useCdata;
+    }
+
+    public static ParseSettings of(boolean useCdata) {
+        return new ParseSettings(useCdata);
+    }
+}
+
+public class XmlTreeBuilder {
+    private TreeBuilder treeBuilder;
+
+    public XmlTreeBuilder(TreeBuilder treeBuilder) {
+        this.treeBuilder = treeBuilder;
+    }
+
+    public Document parse(String xml, String type) {
+        // implementation
+        Element element = new org.jsoup.nodes.Element("html");
+        return new Document(element);
+    }
+}
+
+public class Document {
+    private Element root;
+
+    public Document(Element root) {
+        this.root = root;
+    }
+
+    public void assertHasChild(Element child) {
+        assertEquals(root, child.parent());
+    }
+}
+```
+===================================================
+

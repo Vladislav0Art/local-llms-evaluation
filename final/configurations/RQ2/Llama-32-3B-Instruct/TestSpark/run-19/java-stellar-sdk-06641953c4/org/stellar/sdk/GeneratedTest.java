@@ -1,0 +1,107 @@
+package org.stellar.sdk;
+
+import net.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void newKeyPair_withPubliclyGeneratedKey_ReturnsNonNull() {
+        // Arrange
+        EdDSAPublicKey publicKey = KeyPairGenerator.generate();
+
+        // Act
+        KeyPair keyPair = new KeyPair(publicKey);
+
+        // Assert
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void canSign_withPubliclyGeneratedKey_ReturnsTrue() throws GeneralSecurityException {
+        // Arrange
+        EdDSAPublicKey publicKey = KeyPairGenerator.generate();
+
+        // Act and Assert
+        assertTrue(new KeyPair(publicKey).canSign());
+    }
+
+    @Test
+    public void fromSecretSeed_WithInvalidLength_ThrowsIllegalArgumentException() {
+        // Arrange
+        byte[] seed = new byte[0];
+
+        // Act
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+    }
+
+    @Test
+    public void fromAccountId_withExistingAccountID_ReturnsNonNullKeyPair() {
+        // Arrange
+        String accountId = "existing-account-id";
+
+        // Act and Assert
+        assertNotEquals(null, KeyPair.fromAccountId(accountId));
+    }
+
+    @Test
+    public void fromPublicKey_withCorrectlyEncodedPubliclyGeneratedKey_ReturnsNonNullKeyPair() {
+        // Arrange
+        byte[] publicKey = EdDSAPublicKey.encode(KeyPairGenerator.generate());
+
+        // Act and Assert
+        assertNotEquals(null, KeyPair.fromPublicKey(publicKey));
+    }
+
+    @Test
+    public void fromBip39Seed_withCorrectlyEncodedBip39Seed_ReturnsNonNullKeyPair() {
+        // Arrange
+        byte[] bip39Seed = new byte[]{0x01};
+        int accountNumber = 0;
+
+        // Act and Assert
+        assertNotEquals(null, KeyPair.fromBip39Seed(bip39Seed, accountNumber));
+    }
+
+    @Test
+    public void fromXdrPublicKey_withCorrectlyEncodedPublicKey_ReturnsNonNullKeyPair() {
+        // Arrange
+        byte[] publicKey = PublicKey.encode(KeyPairGenerator.generate());
+
+        // Act and Assert
+        assertNotEquals(null, KeyPair.fromXdrPublicKey(PublicKey.decode(publicKey)));
+    }
+
+    @Test
+    public void sign_withCorrectlyEncodedPayload_ReturnsNonNullSignature() throws GeneralSecurityException {
+        // Arrange
+        byte[] data = "Hello, world!".getBytes();
+
+        // Act and Assert
+        assertNotNull(new KeyPair(KeyPairGenerator.generate()).sign(data));
+    }
+
+    @Test
+    public void verify_withCorrectlyDecodedSignature_ReturnsTrue() throws GeneralSecurityException {
+        // Arrange
+        byte[] signature = new byte[]{0x01};
+        byte[] data = "Hello, world!".getBytes();
+
+        // Act and Assert
+        assertTrue(new KeyPair(KeyPairGenerator.generate()).verify(data, signature));
+    }
+
+    @Test
+    public void getAccountId_withPubliclyGeneratedKey_ReturnsCorrectlyEncodedId() {
+        // Arrange
+        EdDSAPublicKey publicKey = KeyPairGenerator.generate();
+
+        // Act and Assert
+        assertEquals(publicKey.encode(), new KeyPair(publicKey).getAccountId());
+    }
+
+}

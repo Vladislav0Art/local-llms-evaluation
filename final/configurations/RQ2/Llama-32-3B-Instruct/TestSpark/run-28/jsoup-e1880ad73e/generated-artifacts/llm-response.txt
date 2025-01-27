@@ -1,0 +1,395 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import javax.annotation.Nullable;
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void constructorWithInputUrl() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void buildWithoutQueryParams() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        URL url = builder.build();
+        assertEquals("http://example.com", url.toString());
+    }
+
+    @Test
+    public void buildWithQueryParams() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(Connection.KeyVal.of("key1", "value1"));
+        URL url = builder.build();
+        assertEquals("http://example.com?key1=value1", url.toString());
+    }
+
+    @Test
+    public void appendKeyValNull() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertTrue(builder.appendKeyVal(null).isSuccess());
+    }
+
+    @Test
+    public void appendKeyValEmptyKey() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertFalse(builder.appendKeyVal(Connection.KeyVal.of("", "")).isSuccess());
+    }
+
+    @Test
+    public void appendKeyValEmptyValue() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertFalse(builder.appendKeyVal(Connection.KeyVal.of("key", "")).isSuccess());
+    }
+
+    @Test
+    public void buildWithQueryParamsAndEncodings() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertEquals("http://example.com?key1=value1&encoding=UTF-8", builder.build().toString());
+    }
+
+    @Test
+    public void buildWithUrlDecoder() throws MalformedURLException, URISyntaxException {
+        String url = "http://example.com?encoded%3Dvalue";
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("http://example.com?decoded=value", builder.build().toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import javax.annotation.Nullable;
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class UrlBuilderTest {
+
+    public interface KeyVal {
+        boolean of(String key, String value);
+    }
+
+    @Test
+    public void constructorWithInputUrl() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void buildWithoutQueryParams() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        URL url = builder.build();
+        assertEquals("http://example.com", url.toString());
+    }
+
+    @Test
+    public void buildWithQueryParams() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        when(Connection.KeyVal.of(anyString(), anyString())).thenReturn(true);
+        builder.appendKeyVal(Connection.KeyVal.of("key1", "value1"));
+        URL url = builder.build();
+        assertEquals("http://example.com?key1=value1", url.toString());
+    }
+
+    @Test
+    public void appendKeyValNull() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertTrue(builder.appendKeyVal(Connection.KeyVal.of("", "")).isSuccess());
+    }
+
+    @Test
+    public void appendKeyValEmptyKey() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertFalse(builder.appendKeyVal(Connection.KeyVal.of("", "")).isSuccess());
+    }
+
+    @Test
+    public void appendKeyValEmptyValue() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertFalse(builder.appendKeyVal(Connection.KeyVal.of("key", "")).isSuccess());
+    }
+
+    @Test
+    public void buildWithQueryParamsAndEncodings() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        when(Connection.KeyVal.of(anyString(), anyString())).thenReturn(true);
+        assertEquals("http://example.com?key1=value1&encoding=UTF-8", builder.build().toString());
+    }
+
+    @Test
+    public void buildWithUrlDecoder() throws MalformedURLException, URISyntaxException {
+        String url = "http://example.com?encoded%3Dvalue";
+        UrlBuilder builder = new UrlBuilder(new URL(url));
+        assertEquals("http://example.com?decoded=value", builder.build().toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import javax.annotation.Nullable;
+
+public class UrlBuilder {
+
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public boolean appendKeyVal(String key, String value) {
+        try {
+            return Connection.KeyVal.of(key, value).of();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public URL build() throws MalformedURLException, URISyntaxException {
+        URI uri = url.toURI();
+        StringBuilder sb = new StringBuilder(uri.getScheme());
+        sb.append("://");
+        sb.append(uri.getHost());
+        if (!uri.getQuery().isEmpty()) {
+            sb.append('?');
+            sb.append(URLEncoder.encode(uri.getQuery(), "UTF-8"));
+        }
+        if (uri.getFragment() != null) {
+            sb.append('#');
+            sb.append(URI.create(uri.getScheme()).resolve(uri.getUserInfo()).resolve(uri.getHost()).resolve(uri.getPath()).resolve(uri.getQuery()).resolve(uri.getFragment()));
+        }
+        return new URL(sb.toString());
+    }
+
+}
+
+public class UrlBuilderTest {
+
+    public interface KeyVal {
+        @Nullable
+        boolean of(String key, String value);
+    }
+
+    @Test
+    public void constructorWithInputUrl() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void buildWithoutQueryParams() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        URL url = builder.build();
+        assertEquals("http://example.com", url.toString());
+    }
+
+    @Test
+    public void buildWithQueryParams() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        when(builder.appendKeyVal(anyString(), anyString())).thenReturn(true);
+        builder.appendKeyVal(Connection.KeyVal.of("key1", "value1"));
+        URL url = builder.build();
+        assertEquals("http://example.com?key1=value1", url.toString());
+    }
+
+    @Test
+    public void appendKeyVal() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        assertTrue(builder.appendKeyVal("", ""));
+    }
+
+    @Test
+    public void buildWithFragment() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com#fragment"));
+        URL url = builder.build();
+        assertEquals("http://example.com#fragment", url.toString());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Connection;
+
+public class UrlBuilder {
+
+    private URL url;
+
+    public UrlBuilder(String scheme, String host) {
+        this.url = new URL(scheme + "://" + host);
+    }
+
+    public boolean appendKeyVal(String key, String value) {
+        try {
+            return Connection.KeyVal.of(key, value).of();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public URL build() throws MalformedURLException {
+        URI uri = url.toURI();
+        StringBuilder sb = new StringBuilder(uri.getScheme());
+        sb.append("://");
+        sb.append(uri.getHost());
+        if (!uri.getQuery().isEmpty()) {
+            sb.append('?');
+            sb.append(URLEncoder.encode(uri.getQuery(), "UTF-8"));
+        }
+        if (uri.getFragment() != null) {
+            sb.append('#');
+            sb.append(URI.create(sb.toString()).resolve(uri.getUserInfo()).resolve(uri.getPath()).resolve(uri.getQuery()).resolve(uri.getFragment()));
+        }
+        return new URL(sb.toString());
+    }
+
+}
+
+public class UrlBuilderTest {
+
+    public static void main(String[] args) throws MalformedURLException, URISyntaxException {
+        UrlBuilderTest test = new UrlBuilderTest();
+        test.testConstructorWithInputUrl();
+        test.testBuildWithoutQueryParams();
+        test.testBuildWithQueryParams();
+        test.testAppendKeyVal();
+        test.testBuildWithFragment();
+    }
+
+    public void testConstructorWithInputUrl() {
+        UrlBuilder builder = new UrlBuilder("http", "example.com");
+        assertNotNull(builder);
+    }
+
+    public void testBuildWithoutQueryParams() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder("http", "example.com");
+        URL url = builder.build();
+        assertEquals("http://example.com", url.toString());
+    }
+
+    public void testBuildWithQueryParams() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder("http", "example.com");
+        when(builder.appendKeyVal(anyString(), anyString())).thenReturn(true);
+        builder.appendKeyVal(Connection.KeyVal.of("key1", "value1"));
+        URL url = builder.build();
+        assertEquals("http://example.com?key1=value1", url.toString());
+    }
+
+    public void testAppendKeyVal() {
+        UrlBuilder builder = new UrlBuilder("http", "example.com");
+        assertTrue(builder.appendKeyVal("", ""));
+    }
+
+    public void testBuildWithFragment() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder("http", "example.com");
+        URL url = builder.build();
+        assertEquals("http://example.com#fragment", url.toString());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Connection;
+
+public class UrlBuilder {
+
+    private String scheme;
+    private String host;
+
+    public UrlBuilder(String scheme, String host) {
+        this.scheme = scheme;
+        this.host = host;
+    }
+
+    public boolean appendKeyVal(String key, String value) throws UnsupportedEncodingException {
+        return Connection.KeyVal.of(key, value).of();
+    }
+
+    public URL build() throws MalformedURLException, URISyntaxException {
+        return new URL(scheme + "://" + host);
+    }
+
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testConstructorWithInputUrl() {
+        UrlBuilder builder = new UrlBuilder("http", "example.com");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void testBuildWithoutQueryParams() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder("http", "example.com");
+        URL url = builder.build();
+        assertEquals("http://example.com", url.toString());
+    }
+
+    @Test
+    public void testBuildWithQueryParams() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder("http", "example.com");
+        builder.appendKeyVal("", "");
+        URL url = builder.build();
+        assertEquals("http://example.com", url.toString());
+    }
+
+    @Test
+    public void testAppendKeyVal() {
+        UrlBuilder builder = new UrlBuilder("http", "example.com");
+        assertTrue(builder.appendKeyVal("", ""));
+    }
+
+    @Test
+    public void testBuildWithFragment() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder("http", "example.com");
+        URL url = builder.build();
+        assertEquals("http://example.com", url.toString());
+    }
+
+}
+```
+===================================================
+

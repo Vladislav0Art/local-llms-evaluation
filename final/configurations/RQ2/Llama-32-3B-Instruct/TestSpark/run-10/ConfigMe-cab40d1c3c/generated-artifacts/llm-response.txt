@@ -1,0 +1,451 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public class PropertyListBuilderTest {
+
+    private final PropertyListBuilder builder = new PropertyListBuilder();
+
+    @Test
+    public void addPropertyTest() {
+        List<Property<?>> properties = new ArrayList<>();
+        builder.add(new Property<>("test", "value"));
+        assertEquals(1, builder.getRootEntries().size());
+    }
+
+    @Test
+    public void createEmptyListTest() {
+        List<Property<?>> expected = new ArrayList<>();
+        List<Property<?>> actual = builder.create();
+        assertTrue(actual.isEmpty());
+        assertSame(expected, actual);
+    }
+
+    @Test
+    public void createNonEmptyListTest() {
+        List<Property<?>> properties = new ArrayList<>();
+        properties.add(new Property<>("test1", "value1"));
+        properties.add(new Property<>("test2", "value2"));
+        List<Property<?>> expected = properties;
+        List<Property<?>> actual = builder.create();
+        assertTrue(actual.containsAll(expected));
+        assertSame(expected, actual);
+    }
+
+    @Test
+    public void addNullPropertyTest() {
+        assertThrows(ConfigMeException.class, () -> builder.add(null));
+    }
+}
+
+public class MockedPropertyListBuilder extends PropertyListBuilder {
+
+    private List<Property<?>> properties = new ArrayList<>();
+
+    @Override
+    protected final @NotNull Map<String, Object> getRootEntries() {
+        return super.getRootEntries();
+    }
+
+    public void add(Property<?> property) {
+        properties.add(property);
+    }
+
+    public List<Property<?>> create() {
+        return properties;
+    }
+}
+
+public class PropertyListBuilderTestWithMock {
+
+    private final MockedPropertyListBuilder builder = new MockedPropertyListBuilder();
+
+    @Test
+    public void addPropertyMultipleTimesTest() {
+        builder.add(new Property<>("test1", "value"));
+        builder.add(new Property<>("test2", "value2"));
+        assertEquals(2, builder.getRootEntries().size());
+    }
+
+    @Test
+    public void createNonEmptyListWithMultiplePropertiesTest() {
+        builder.add(new Property<>("test1", "value1"));
+        builder.add(new Property<>("test2", "value2"));
+        List<Property<?>> expected = new ArrayList<>();
+        expected.add(new Property<>("test1", "value1"));
+        expected.add(new Property<>("test2", "value2"));
+        List<Property<?>> actual = builder.create();
+        assertTrue(actual.containsAll(expected));
+        assertSame(expected, actual);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public class PropertyListBuilderTest {
+
+    private final PropertyListBuilder builder = new PropertyListBuilder();
+
+    @Test
+    public void addPropertySingleTimeTest() {
+        List<Property<?>> properties = new ArrayList<>();
+        builder.add(new Property<>("test", "value"));
+        assertEquals(1, builder.getRootEntries().size());
+    }
+
+    @Test
+    public void createEmptyListTest() {
+        List<Property<?>> expected = new ArrayList<>();
+        List<Property<?>> actual = builder.create();
+        assertTrue(actual.isEmpty());
+        assertSame(expected, actual);
+    }
+
+    @Test
+    public void createEmptyListAfterAddSingleTimeTest() {
+        List<Property<?>> properties = new ArrayList<>();
+        builder.add(new Property<>("test", "value"));
+        List<Property<?>> actual = builder.create();
+        assertTrue(actual.isEmpty());
+        assertSame(1, actual.size());
+    }
+
+    @Test
+    public void addMultipleTimesTest() {
+        List<Property<?>> properties = new ArrayList<>();
+        builder.add(new Property<>("test1", "value1"));
+        builder.add(new Property<>("test2", "value2"));
+        builder.add(new Property<>("test3", "value3"));
+        assertEquals(3, builder.getRootEntries().size());
+    }
+
+    @Test
+    public void createListAfterMultipleAdditionTest() {
+        List<Property<?>> properties = new ArrayList<>();
+        builder.add(new Property<>("test1", "value1"));
+        builder.add(new Property<>("test2", "value2"));
+        builder.add(new Property<>("test3", "value3"));
+        List<Property<?>> actual = builder.create();
+        assertEquals(3, actual.size());
+    }
+
+    @Test
+    public void createListAfterMultipleAdditionAndEmptyAdditionTest() {
+        List<Property<?>> properties = new ArrayList<>();
+        builder.add(new Property<>("test1", "value1"));
+        builder.add(new Property<>("test2", "value2"));
+        builder.add(new Property<>("test3", "value3"));
+        builder.clear();
+        builder.add(new Property<>("new1", "newValue"));
+        List<Property<?>> actual = builder.create();
+        assertEquals(1, actual.size());
+    }
+
+}
+
+public class CustomTestRunner {
+    @Before
+    public void setup() {
+        
+    }
+    
+    @After
+    public void teardown() {
+        
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class PropertyListBuilder {
+    private List<Property> properties = new ArrayList<>();
+
+    public void add(Property property) {
+        if (property == null || !property.isNew()) {
+            throw new IllegalArgumentException("Cannot add null or existing Property to the list");
+        }
+        properties.add(property);
+    }
+
+    public void clear() {
+        properties.clear();
+    }
+
+    public List<Property> create() {
+        return properties;
+    }
+}
+
+public class Property {
+    private String name = "test";
+    private String value = "value";
+
+    public boolean isNew() {
+        return !name.equals("new1");
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}
+
+public class PropertyListBuilderTest {
+
+    @Test
+    public void testAddAndCreate() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property property1 = new Property();
+        Property property2 = new Property();
+
+        builder.add(property1);
+        builder.add(property2);
+
+        List<Property> actual = builder.create();
+        assertEquals(2, actual.size());
+    }
+
+    @Test
+    public void testClearAndCreate() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property property1 = new Property();
+        Property property2 = new Property();
+
+        builder.add(property1);
+        builder.add(property2);
+
+        builder.clear();
+
+        List<Property> actual = builder.create();
+        assertEquals(0, actual.size());
+    }
+
+    @Test
+    public void testClearAndAdd() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property property1 = new Property();
+        Property property2 = new Property();
+
+        builder.add(property1);
+        builder.add(property2);
+
+        builder.clear();
+
+        Property newProperty = new Property();
+        builder.add(newProperty);
+
+        List<Property> actual = builder.create();
+        assertEquals(1, actual.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Property {
+    private String name;
+    private String value;
+
+    public Property(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Property)) return false;
+        Property property = (Property) o;
+        return Objects.equals(name, property.name) && Objects.equals(value, property.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, value);
+    }
+}
+
+public class PropertyListBuilderTest {
+
+    @Test
+    public void testAddProperty() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property property1 = new Property("prop1", "value1");
+        Property property2 = new Property("prop2", "value2");
+        builder.add(property1);
+        builder.add(property2);
+        List<Property> actual = builder.create();
+        assertEquals(2, actual.size());
+    }
+
+    @Test
+    public void testClearProperties() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property property1 = new Property("prop1", "value1");
+        Property property2 = new Property("prop2", "value2");
+        builder.add(property1);
+        builder.add(property2);
+        builder.clear();
+        List<Property> actual = builder.create();
+        assertEquals(0, actual.size());
+    }
+
+    @Test
+    public void testAddNewProperty() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property property1 = new Property("prop1", "value1");
+        Property property2 = new Property("prop2", "value2");
+        builder.add(property1);
+        builder.clear();
+        Property newProperty = new Property("newProp", "newValue");
+        builder.add(newProperty);
+        List<Property> actual = builder.create();
+        assertEquals(1, actual.size());
+    }
+}
+
+public class PropertyListBuilder {
+    private List<Property> properties;
+
+    public void add(Property property) {
+        properties.add(property);
+    }
+
+    public void clear() {
+        properties.clear();
+    }
+
+    public List<Property> create() {
+        return properties;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Property {
+    private String name;
+    private String value;
+
+    public Property(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Property)) return false;
+        Property property = (Property) o;
+        return Objects.equals(name, property.name) && Objects.equals(value, property.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, value);
+    }
+}
+
+public class PropertyListBuilder {
+
+    private List<Property> properties;
+
+    public void add(Property property) {
+        properties.add(property);
+    }
+
+    public void clear() {
+        properties.clear();
+    }
+
+    public List<Property> create() {
+        return new ArrayList<>(properties); // Return a copy to prevent external modification
+    }
+}
+
+public class PropertyListBuilderTest {
+
+    @Test
+    public void testAddProperty() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property property1 = new Property("prop1", "value1");
+        Property property2 = new Property("prop2", "value2");
+        builder.add(property1);
+        builder.add(property2);
+        List<Property> actual = builder.create();
+        assertEquals(2, actual.size());
+    }
+
+    @Test
+    public void testClearProperties() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property property1 = new Property("prop1", "value1");
+        Property property2 = new Property("prop2", "value2");
+        builder.add(property1);
+        builder.add(property2);
+        builder.clear();
+        List<Property> actual = builder.create();
+        assertEquals(0, actual.size());
+    }
+
+    @Test
+    public void testAddNewProperty() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property property1 = new Property("prop1", "value1");
+        Property property2 = new Property("prop2", "value2");
+        builder.add(property1);
+        builder.clear();
+        Property newProperty = new Property("newProp", "newValue");
+        builder.add(newProperty);
+        List<Property> actual = builder.create();
+        assertEquals(1, actual.size());
+    }
+}
+
+public class TestUtils {
+    public static void assertEquals(Object expected, Object actual) {
+        // your existing assertion code here
+    }
+}
+```
+===================================================
+

@@ -1,0 +1,43 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedDecode_NullNetworkMessage_ThrowsException {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private NetworkMessage networkMessage;
+
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
+    }
+
+    public void setNetworkMessage(NetworkMessage networkMessage) {
+        this.networkMessage = networkMessage;
+    }
+
+    @Test
+    public void decode_NullNetworkMessage_ThrowsException() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+
+        when(protocol.getWatchProtocol()).thenReturn("[1]");
+        WatchProtocolDecoder watchProtocolDecoder = new WatchProtocolDecoder(protocol);
+
+        assertThrows(NullPointerException.class, () -> watchProtocolDecoder.decode(channel, remoteAddress, null));
+    }
+
+}

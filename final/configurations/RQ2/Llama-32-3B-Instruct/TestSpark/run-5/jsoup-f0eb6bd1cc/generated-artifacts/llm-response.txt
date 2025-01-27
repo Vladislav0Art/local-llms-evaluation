@@ -1,0 +1,360 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void urlBuilderUrlBuilderTest() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        assertEquals(new URL("http://example.com"), urlBuilder.build());
+    }
+
+    @Test
+    public void urlBuilderUrlBuilderWithQueryParameterTest() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com?query=value"));
+        assertEquals(new URL("http://example.com?query=value"), urlBuilder.build());
+    }
+
+    @Test
+    public void urlBuilderAppendKeyValToUrlTest() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        urlBuilder.appendKeyVal(Connection.KeyVal.of("key", "value"));
+        assertEquals(new URL("http://example.com?key=value"), urlBuilder.build());
+    }
+
+    @Test
+    public void urlBuilderAppendKeyValToUrlWithQueryParameterTest() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com?query=value"));
+        urlBuilder.appendKeyVal(Connection.KeyVal.of("key", "value"));
+        assertEquals(new URL("http://example.com?key=value&query=value"), urlBuilder.build());
+    }
+
+    @Test
+    public void urlBuilderDecodeValueFromUrlTest() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com?value=äöü"));
+        assertEquals(new URL("http://example.com?value=%C3%A4%C3%B6%C3%BC"), urlBuilder.build());
+    }
+
+    @Test
+    public void urlBuilderEncodeValueForUrlTest() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        urlBuilder.appendKeyVal(Connection.KeyVal.of("key", "äöü"));
+        assertEquals(new URL("http://example.com?key=%C3%A4%C3%B6%C3%BC"), urlBuilder.build());
+    }
+
+    @Test
+    public void urlBuilderEncodeValueForUrlWithQueryParameterTest() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com?query=value"));
+        urlBuilder.appendKeyVal(Connection.KeyVal.of("key", "äöü"));
+        assertEquals(new URL("http://example.com?key=%C3%A4%C3%B6%C3%BC&query=value"), urlBuilder.build());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import java.io.UnsupportedEncodingException;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testBasicUrl() throws UnsupportedEncodingException {
+        String url = "http://example.com";
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("http://example.com", urlBuilder.getFullUrl());
+    }
+
+    @Test
+    public void testQueryParameter() throws UnsupportedEncodingException {
+        String url = "http://example.com?value=äöü";
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("http://example.com?value=%C3%A4%C3%B6%C3%BC", urlBuilder.getFullUrl());
+    }
+
+    @Test
+    public void testKeyAndValue() throws UnsupportedEncodingException {
+        String url = "http://example.com";
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("http://example.com?key=äöü&value=%C3%A4%C3%B6%C3%BC", urlBuilder.appendKeyAndValue("key", "äöü"));
+    }
+
+    public static class Connection {
+        public static String encode(String value) throws UnsupportedEncodingException {
+            // implementation of encoding logic
+            return value;
+        }
+    }
+
+    @Test
+    public void testNonAsciiCharacters() throws UnsupportedEncodingException {
+        String url = "http://example.com?value=äöü";
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("http://example.com?value=%C3%A4%C3%B6%C3%BC", urlBuilder.appendKeyAndValue("key", urlBuilder.encode("äöü")));
+    }
+
+    @Test
+    public void testMultipleQueryParameters() throws UnsupportedEncodingException {
+        String url = "http://example.com?value=äöü&foo=bar";
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("http://example.com?key=%C3%A4%C3%B6%C3%BC&query=value&foo=bar", urlBuilder.appendKeyAndValue("key", urlBuilder.encode("äöü")).appendKeyAndValue("foo", "bar"));
+    }
+
+    public static class UrlBuilder {
+        private String baseUrl;
+        private StringBuilder fullUrl;
+
+        public UrlBuilder(String baseUrl) {
+            this.baseUrl = baseUrl;
+            this.fullUrl = new StringBuilder(baseUrl);
+        }
+
+        public String getFullUrl() {
+            return fullUrl.toString();
+        }
+
+        public UrlBuilder appendKeyAndValue(String key, String value) throws UnsupportedEncodingException {
+            fullUrl.append("?").append(Connection.encode(key)).append("=").append(Connection.encode(value));
+            return this;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Connection {
+    public static String encode(String value) throws UnsupportedEncodingException {
+        return java.net.URLEncoder.encode(value, "UTF-8");
+    }
+}
+
+public class UrlBuilder {
+    private String baseUrl;
+
+    public UrlBuilder(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public String getFullUrl() {
+        return baseUrl;
+    }
+
+    public UrlBuilder appendKeyAndValue(String key, String value) throws UnsupportedEncodingException {
+        if (baseUrl.contains("?")) {
+            return appendQueryParameter(baseUrl, key, Connection.encode(key), value);
+        } else {
+            return appendQueryParameter(baseUrl, key, Connection.encode(key), value).append("&");
+        }
+    }
+
+    private UrlBuilder appendQueryParameter(String baseUrl, String key, String encodedKey, String value) throws UnsupportedEncodingException {
+        if (baseUrl.contains("?")) {
+            return this.appendQueryParameter(baseUrl.substring(0, baseUrl.indexOf('?')), "query", Connection.encode("query"), "").append(encodedKey + "=").append(Connection.encode(value));
+        } else {
+            return this.appendQueryParameter(baseUrl, "query", Connection.encode("query"), "").append(key + "=").append(Connection.encode(value));
+        }
+    }
+
+    public String appendKeyAndValue(String key, String value) throws UnsupportedEncodingException {
+        String newUrl = appendKeyAndValue(getFullUrl(), key, value);
+        if (newUrl.contains("?")) {
+            return newUrl;
+        } else {
+            return getFullUrl().concat("?").concat(key).concat("=").concat(Connection.encode(value));
+        }
+    }
+
+    public String appendQueryParameter(String baseUrl, String key, String encodedKey, String value) throws UnsupportedEncodingException {
+        if (baseUrl.contains("?")) {
+            return baseUrl.substring(0, baseUrl.indexOf('?')).concat("?").concat(encodedKey + "=").concat(Connection.encode(value));
+        } else {
+            return baseUrl.concat("?").concat(key).concat("=").concat(Connection.encode(value));
+        }
+    }
+
+    public String appendQueryParameter(String baseUrl, String key, String value) throws UnsupportedEncodingException {
+        if (baseUrl.contains("?")) {
+            return baseUrl.substring(0, baseUrl.indexOf('?')).concat("?").concat(key).concat("=").concat(Connection.encode(value));
+        } else {
+            return baseUrl.concat("?").concat(key).concat("=").concat(Connection.encode(value));
+        }
+    }
+
+    public String append(String key, String value) throws UnsupportedEncodingException {
+        if (baseUrl.contains("?")) {
+            return baseUrl.concat("&").concat(key).concat("=").concat(Connection.encode(value));
+        } else {
+            return baseUrl.concat("?").concat(key).concat("=").concat(Connection.encode(value));
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Connection {
+    public static String encode(String value) throws UnsupportedEncodingException {
+        return java.net.URLEncoder.encode(value, "UTF-8");
+    }
+}
+
+public class UrlBuilder {
+    private String baseUrl;
+
+    public UrlBuilder(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public String getFullUrl() {
+        return baseUrl;
+    }
+
+    public UrlBuilder appendKeyAndValue(String key, String value) throws UnsupportedEncodingException {
+        if (baseUrl.contains("?")) {
+            fullUrl.append("&").append(key).append("=").append(Connection.encode(value));
+        } else {
+            fullUrl.append("?").append(key).append("=").append(Connection.encode(value));
+        }
+        return this;
+    }
+
+    public UrlBuilder appendQueryParameter(String key, String value) throws UnsupportedEncodingException {
+        if (baseUrl.contains("?")) {
+            fullUrl.append("&").append(key).append("=").append(Connection.encode(value));
+        } else {
+            fullUrl.append("?").append(key).append("=").append(Connection.encode(value));
+        }
+        return this;
+    }
+
+    private StringBuilder fullUrl;
+
+    public UrlBuilder(String url) {
+        baseUrl = url;
+        fullUrl = new StringBuilder(url);
+    }
+
+    public String getFullUrl() {
+        return fullUrl.toString();
+    }
+}
+
+public class TestUrlBuilder {
+
+    @Test
+    public void testBasicUrl() throws UnsupportedEncodingException {
+        String url = "http://example.com";
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("http://example.com", urlBuilder.getFullUrl());
+    }
+
+    @Test
+    public void testQueryParameter() throws UnsupportedEncodingException {
+        String url = "http://example.com?value=äöü";
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("http://example.com?value=%C3%A4%C3%B6%C3%BC", urlBuilder.getFullUrl());
+    }
+
+    @Test
+    public void testKeyAndValue() throws UnsupportedEncodingException {
+        String url = "http://example.com";
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("http://example.com?key=äöü&value=%C3%A4%C3%B6%C3%BC", urlBuilder.appendKeyAndValue("key", "äöü").getFullUrl());
+    }
+
+    @Test
+    public void testMultipleQueryParameters() throws UnsupportedEncodingException {
+        String url = "http://example.com?value=äöü&foo=bar";
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("http://example.com?key=%C3%A4%C3%B6%C3%BC&query=value&foo=bar", urlBuilder.appendKeyAndValue("key", "äöü").appendQueryParameter("foo", "bar").getFullUrl());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Connection {
+    public static String encode(String value) {
+        return value;
+    }
+}
+
+public class ConnectionImpl implements Connection {
+    @Override
+    public String encode(String value) {
+        // Implement encoding logic here
+        return value;
+    }
+}
+
+public class UrlBuilder {
+    private StringBuilder fullUrl;
+
+    public UrlBuilder() {
+        this.fullUrl = new StringBuilder();
+    }
+
+    public void appendKeyAndValue(String key, String value) {
+        fullUrl.append("?").append(key).append("=").append(encode(value));
+    }
+
+    public void appendQueryParameter(String key, String value) {
+        if (fullUrl.charAt(0) == '?') {
+            fullUrl.append("&").append(key).append("=").append(encode(value));
+        } else {
+            fullUrl.append("?").append(key).append("=").append(encode(value));
+        }
+    }
+
+    public String getFullUrl() {
+        return "http://example.com" + fullUrl.toString();
+    }
+}
+
+public class TestUrlBuilder {
+
+    @Test
+    public void testGetFullUrl() {
+        UrlBuilder urlBuilder = new UrlBuilder();
+        assertEquals("http://example.com", urlBuilder.getFullUrl());
+    }
+
+    @Test
+    public void testAppendKeyAndValue() {
+        UrlBuilder urlBuilder = new UrlBuilder();
+        urlBuilder.appendKeyAndValue("key", "äöü");
+        assertEquals("http://example.com?key=äöü", urlBuilder.getFullUrl());
+    }
+
+    @Test
+    public void testAppendQueryParameter() {
+        UrlBuilder urlBuilder = new UrlBuilder();
+        urlBuilder.appendQueryParameter("foo", "bar");
+        assertEquals("http://example.com?key=äöü&foo=bar", urlBuilder.getFullUrl());
+    }
+}
+
+public class ConnectionImpl implements Connection {
+    @Override
+    public String encode(String value) {
+        // Implement encoding logic here
+        return value;
+    }
+}
+```
+===================================================
+

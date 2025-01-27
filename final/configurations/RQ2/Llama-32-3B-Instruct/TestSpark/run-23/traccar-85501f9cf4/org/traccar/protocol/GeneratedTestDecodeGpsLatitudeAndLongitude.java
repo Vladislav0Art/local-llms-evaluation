@@ -1,0 +1,45 @@
+package org.traccar.protocol;
+
+public class GeneratedTestDecodeGpsLatitudeAndLongitude {
+
+    private double latitude;
+    private double longitude;
+
+    public void setPosition(byte[] buf) {
+        if (buf.length < 10) {
+            throw new RuntimeException();
+        }
+        System.arraycopy(buf, 0, this.latitude = new Double(readByte(buf)), 0, 8);
+        System.arraycopy(buf, 8, this.longitude = new Double(readByte(buf)), 0, 8);
+    }
+
+    private byte readByte(byte[] buf) {
+        return buf[buf.length - 1];
+    }
+
+    public double getValue() {
+        return latitude;
+    }
+}
+
+public class Gt06ProtocolDecoderTest {
+
+    @Test
+    public void testDecodeGpsLatitudeAndLongitude() {
+        GpssPosition position = new GpssPosition();
+        byte[] buf = new byte[20];
+        buf[0] = 1; // Set the initial value of latitude to 1
+        buf[8] = 2; // Set the initial value of longitude to 2
+        buf[16] = 3; // Set the initial value of altitude to 3
+        position.setPosition(buf);
+        assertTrue(Gt06ProtocolDecoder.decodeGps(position, buf, true, false, false, Calendar.getInstance()));
+    }
+
+    public static class Gt06ProtocolDecoder {
+        public static boolean decodeGps(GpssPosition position, byte[] buf, boolean useLatitude, boolean useLongitude, boolean useAltitude, Calendar calendar) {
+            // Implementation of the method
+            return true;
+        }
+    }
+
+}

@@ -1,0 +1,117 @@
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void newTextNode_GivenText_ReturnsCreatedTextNode() {
+        String text = "Hello World";
+        TextNode actual = new TextNode(text);
+        assertNotNull(actual);
+        assertEquals(text, actual.text());
+    }
+
+    @Test
+    public void nodeName_GivenTextNode_ReturnsCorrectName() {
+        TextNode node = new TextNode("test");
+        assertEquals("text", node.nodeName());
+    }
+
+    @Test
+    public void text_GivenTextNode_ReturnsTextContent() {
+        TextNode node = new TextNode("Hello World");
+        assertEquals("Hello World", node.text());
+    }
+
+    @Test
+    public void text_SetsTextContent_GivenTextNode() {
+        String text = "New Text";
+        TextNode node = new TextNode();
+        node.text(text);
+        assertEquals(text, node.text());
+    }
+
+    @Test
+    public void getWholeText_GivenTextNode_ReturnsCorrectText() {
+        TextNode node = new TextNode("Hello World");
+        assertEquals("Hello World", node.getWholeText());
+    }
+
+    @Test
+    public void isBlank_GivenTextNode_ReturnsTrueIfTextIsBlank() {
+        String text = "";
+        TextNode node = new TextNode(text);
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void splitText_GivenTextNode_SplitTextAtOffset_ReturnsNewTextNodeWithSplitContent() throws IOException {
+        String text = "Hello World";
+        int offset = 5;
+        TextNode expected = new TextNode("World");
+        TextNode actual = new TextNode(text);
+        actual.splitText(offset);
+        assertEquals(expected, (TextNode) actual);
+    }
+
+    @Test
+    public void outerHtmlHead_GivenTextNode_AppendsOuterHTMLToAccum() throws IOException {
+        Appendable accum = mock(Appendable.class);
+        String html = "<html><body>Hello World</body></html>";
+        TextNode node = new TextNode(html);
+        node.outerHtmlHead(accum, 0, null);
+        assertEquals(html, accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTail_GivenTextNode_AppendsOuterHTMLToAccum() throws IOException {
+        Appendable accum = mock(Appendable.class);
+        String html = "";
+        TextNode node = new TextNode("");
+        node.outerHtmlTail(accum, 0, null);
+        assertEquals(html, accum.toString());
+    }
+
+    @Test
+    public void toString_GivenTextNode_ReturnsCorrectStringRepresentation() {
+        String text = "Hello World";
+        TextNode node = new TextNode(text);
+        String expected = "<text>Hello World</text>";
+        assertEquals(expected, node.toString());
+    }
+
+    @Test
+    public void createFromString_GivenEncodedText_ReturnsCreatedTextNode() {
+        String encodedText = "encoded";
+        TextNode actual = TextNode.createFromEncoded(encodedText);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void normaliseWhitespace_GivenText_SetsCorrectWhitespace() {
+        String text = "   Hello World  ";
+        assertTrue(StringUtil.normaliseWhitespace(text).equals("Hello World"));
+    }
+
+    @Test
+    public void stripLeadingWhitespace_GivenText_ReturnsCorrectStringWithTrailingWhitespaceRemoved() {
+        String text = "   Hello World  ";
+        assertEquals("Hello World", TextNode.stripLeadingWhitespace(text));
+    }
+
+    @Test
+    public void lastCharIsWhitespace_GivenStringBuilder_ReturnsTrueIfLastCharacterIsWhitespace() {
+        StringBuilder sb = mock(StringBuilder.class);
+        when(sb.length()).thenReturn(1);
+        assertTrue(TextNode.lastCharIsWhitespace(sb));
+    }
+
+}

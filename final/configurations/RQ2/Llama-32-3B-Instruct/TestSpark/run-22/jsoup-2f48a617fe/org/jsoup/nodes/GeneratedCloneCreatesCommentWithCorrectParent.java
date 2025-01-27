@@ -1,0 +1,33 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Map;
+
+public class GeneratedCloneCreatesCommentWithCorrectParent {
+
+    @Test
+    public void cloneCreatesCommentWithCorrectParent() {
+        Document document = new Document();
+        Appendable accum = new ByteArrayOutputStream();
+        int depth = 0;
+        Comment comment = new Comment("");
+        comment.outerHtmlHead(accum, depth, new Document.OutputSettings());
+        Element parent = ((Element) comment.getParent()).asXmlDeclaration().getDeclaration();
+        Comment clonedComment = comment.clone();
+        assertThat(clonedComment.getData(), is(parent));
+    }
+
+}

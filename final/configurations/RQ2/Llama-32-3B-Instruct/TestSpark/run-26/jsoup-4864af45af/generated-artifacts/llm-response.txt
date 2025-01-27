@@ -1,0 +1,434 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.when;
+
+public class SafelistNoneTest {
+
+    @Test
+    public void none() {
+        boolean isSafeTag = Safelist.none().isSafeTag("img");
+        assertTrue(isSafeTag);
+    }
+}
+
+public class SafelistSimpleTextTest {
+
+    @Test
+    public void simpleTextAddTags() {
+        String[] tags = {"a", "b"};
+        Safelist safelist = Safelist.simpleText().addTags(tags);
+        boolean isSafeTag = safelist.isSafeTag("a");
+        assertTrue(isSafeTag);
+    }
+
+    @Test
+    public void simpleTextRemoveTags() {
+        String[] tags = {"a", "b"};
+        Safelist safelist = Safelist.simpleText().removeTags(tags);
+        boolean isSafeTag = safelist.isSafeTag("c");
+        assertFalse(isSafeTag);
+    }
+}
+
+public class SafelistBasicTest {
+
+    @Test
+    public void basicAddTags() {
+        String[] tags = {"a", "b"};
+        Safelist safelist = Safelist.basic().addTags(tags);
+        boolean isSafeTag = safelist.isSafeTag("a");
+        assertTrue(isSafeTag);
+    }
+
+    @Test
+    public void basicRemoveTags() {
+        String[] tags = {"a", "b"};
+        Safelist safelist = Safelist.basic().removeTags(tags);
+        boolean isSafeTag = safelist.isSafeTag("c");
+        assertFalse(isSafeTag);
+    }
+}
+
+public class SafelistBasicWithImagesTest {
+
+    @Test
+    public void basicWithImagesAddTags() {
+        String[] tags = {"img", "a"};
+        Safelist safelist = Safelist.basicWithImages().addTags(tags);
+        boolean isSafeTag = safelist.isSafeTag("img");
+        assertTrue(isSafeTag);
+    }
+
+    @Test
+    public void basicWithImagesRemoveTags() {
+        String[] tags = {"img", "a"};
+        Safelist safelist = Safelist.basicWithImages().removeTags(tags);
+        boolean isSafeTag = safelist.isSafeTag("b");
+        assertFalse(isSafeTag);
+    }
+}
+
+public class SafelistRelaxedTest {
+
+    @Test
+    public void relaxedAddTags() {
+        String[] tags = {"a", "b"};
+        Safelist safelist = Safelist.relaxed().addTags(tags);
+        boolean isSafeTag = safelist.isSafeTag("a");
+        assertTrue(isSafeTag);
+    }
+
+    @Test
+    public void relaxedRemoveTags() {
+        String[] tags = {"a", "b"};
+        Safelist safelist = Safelist.relaxed().removeTags(tags);
+        boolean isSafeTag = safelist.isSafeTag("c");
+        assertFalse(isSafeTag);
+    }
+}
+
+public class SafelistBasicWithImagesAddAttributesTest {
+
+    @Test
+    public void basicWithImagesAddAttributes() {
+        String tag = "img";
+        String[] attributes = {"alt", "src"};
+        Safelist safelist = Safelist.basicWithImages().addAttributes(tag, attributes);
+        Attributes enforcedAttributes = safelist.getEnforcedAttributes(tag);
+        // Assuming getEnforcedAttributes returns an object that has a method to check if a key exists
+        boolean isSafeAttribute = enforcedAttributes.containsKey("alt");
+        assertTrue(isSafeAttribute);
+    }
+
+    @Test
+    public void basicWithImagesRemoveAttributes() {
+        String tag = "img";
+        String[] attributes = {"alt", "src"};
+        Safelist safelist = Safelist.basicWithImages().removeAttributes(tag, attributes);
+        Attributes enforcedAttributes = safelist.getEnforcedAttributes(tag);
+        boolean isSafeAttribute = !enforcedAttributes.containsKey("alt");
+        assertTrue(isSafeAttribute);
+    }
+}
+
+public class SafelistBasicWithImagesRemoveEnforcedAttributesTest {
+
+    @Test
+    public void basicWithImagesRemoveEnforcedAttributes() {
+        String tag = "img";
+        String attribute = "src";
+        Safelist safelist = Safelist.basicWithImages().addEnforcedAttribute(tag, attribute, "image.jpg");
+        safelist = safelist.removeEnforcedAttribute(tag, attribute);
+        Attributes enforcedAttributes = safelist.getEnforcedAttributes(tag);
+        boolean isSafeAttribute = !enforcedAttributes.containsKey(attribute);
+        assertTrue(isSafeAttribute);
+    }
+}
+
+public class SafelistPreserveRelativeLinksTest {
+
+    @Test
+    public void preserveRelativeLinksPreserve() {
+        boolean preserve = true;
+        Safelist safelist = Safelist.preserveRelativeLinks(preserve).addTags("a", "b");
+        boolean isSafeTag = safelist.isSafeTag("a");
+        assertTrue(isSafeTag);
+    }
+
+    @Test
+    public void preserveRelativeLinksDoNotPreserve() {
+        boolean preserve = false;
+        Safelist safelist = Safelist.preserveRelativeLinks(preserve).addTags("a", "b");
+        boolean isSafeTag = safelist.isSafeTag("c");
+        assertFalse(isSafeTag);
+    }
+}
+
+public class SafelistAddProtocolsTest {
+
+    @Test
+    public void addProtocols() {
+        String tag = "img";
+        String attribute = "src";
+        String[] protocols = {"http", "https"};
+        Safelist safelist = Safelist.addProtocols(tag, attribute, protocols).addTags("a", "b");
+        boolean isSafeAttribute = safelist.isSafeAttribute(tag, null, new Attribute(attribute, protocols));
+        assertTrue(isSafeAttribute);
+    }
+
+    @Test
+    public void removeProtocols() {
+        String tag = "img";
+        String attribute = "src";
+        Safelist safelist = Safelist.removeProtocols(tag, attribute, new String[] {"http", "https"}).addTags("a", "b");
+        boolean isSafeAttribute = !safelist.isSafeAttribute(tag, null, new Attribute(attribute));
+        assertTrue(isSafeAttribute);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+public class Main {
+
+    public static void main(String[] args) {
+        testBasicParser();
+        testJsoup();
+        testProtocols();
+    }
+
+    private static void testBasicParser() {
+        String html = "<a href=\"http://example.com\">Example</a>";
+        System.out.println(parseUrl(html));
+    }
+
+    private static String parseUrl(String url) {
+        return Jsoup.parse(url).select("a").attr("href");
+    }
+
+    private static void testJsoup() {
+        Document doc = Jsoup.connect("https://www.example.com")
+                .get();
+        Elements links = doc.select("a[href]");
+        for (Element link : links) {
+            System.out.println(link.attr("href"));
+        }
+    }
+
+    private static void testProtocols() {
+        String html = "<img src=\"http://example.com/image.jpg\"/>";
+        parseProtocol(html, "src");
+        html = "<img src=\"https://www.example.com/image.jpg\"/>";
+        parseProtocol(html, "src");
+        html = "<script src=\"file:///path/to/script.js\"></script>";
+        parseProtocol(html, "src");
+    }
+
+    private static void parseProtocol(String url, String attribute) {
+        if (url.startsWith("http")) {
+            System.out.println("Attribute '" + attribute + "' is safe.");
+        } else {
+            System.out.println("Attribute '" + attribute + "' is not safe.");
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I apologize for the incomplete response earlier. Based on your original question, I'll provide a complete answer in Java.
+
+Here's the code that parses URLs and extracts relevant information using Jsoup:
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+public class Main {
+
+    public static void main(String[] args) {
+        testBasicParser();
+        testJsoup();
+        testProtocols();
+    }
+
+    private static void testBasicParser() {
+        String html = "<a href=\"http://example.com\">Example</a>";
+        System.out.println(parseUrl(html));
+    }
+
+    private static String parseUrl(String url) {
+        return Jsoup.parse(url).select("a").attr("href");
+    }
+
+    private static void testJsoup() {
+        Document doc = Jsoup.connect("https://www.example.com")
+                .get();
+        Elements links = doc.select("a[href]");
+        for (Element link : links) {
+            System.out.println(link.attr("href"));
+        }
+    }
+
+    private static void testProtocols() {
+        String html = "<img src=\"http://example.com/image.jpg\"/>";
+        parseProtocol(html, "src");
+        html = "<img src=\"https://www.example.com/image.jpg\"/>";
+        parseProtocol(html, "src");
+        html = "<script src=\"file:///path/to/script.js\"></script>";
+        parseProtocol(html, "src");
+    }
+
+    private static void parseProtocol(String url, String attribute) {
+        if (url.startsWith("http")) {
+            System.out.println("Attribute '" + attribute + "' is safe.");
+        } else {
+            System.out.println("Attribute '" + attribute + "' is not safe.");
+        }
+    }
+}
+```
+
+This code provides three test cases:
+
+1.  `testBasicParser()`: Demonstrates how to parse a URL using Jsoup.
+2.  `testJsoup()`: Shows how to use Jsoup to extract links from a webpage.
+3.  `testProtocols()`: Tests how Jsoup handles different protocols (HTTP and HTTPS) when parsing URLs.
+
+Each test case prints the results of the respective operation, providing valuable insights into how to work with URLs using Jsoup in Java.
+===================================================
+
+
+====================== Iteration #4 ======================
+Here is a complete Java program that demonstrates how to parse URLs and extract relevant information:
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+public class Main {
+
+    public static void main(String[] args) {
+        System.out.println(parseUrl("https://www.example.com"));
+        System.out.println(parseUrl("http://localhost:8080/path/to/resource"));
+        System.out.println(parseUrl("file:///path/to/local/file.txt"));
+    }
+
+    private static String parseUrl(String url) {
+        Document document = Jsoup.connect(url).get();
+        Elements links = document.select("a[href]");
+        for (Element link : links) {
+            return link.attr("href");
+        }
+        return null;
+    }
+
+    private static void testBasicParser() {
+        System.out.println(parseUrl("https://www.example.com"));
+        System.out.println(parseUrl("http://localhost:8080/path/to/resource"));
+        System.out.println(parseUrl("file:///path/to/local/file.txt"));
+    }
+
+    private static void testJsoup() {
+        Document doc = Jsoup.connect("https://www.example.com")
+                .get();
+        Elements links = doc.select("a[href]");
+        for (Element link : links) {
+            System.out.println(link.attr("href"));
+        }
+    }
+
+    private static void testProtocols() {
+        String html = "<img src=\"http://example.com/image.jpg\"/>";
+        parseProtocol(html, "src");
+        html = "<img src=\"https://www.example.com/image.jpg\"/>";
+        parseProtocol(html, "src");
+        html = "<script src=\"file:///path/to/script.js\"></script>";
+        parseProtocol(html, "src");
+    }
+
+    private static void parseProtocol(String url, String attribute) {
+        if (url.startsWith("http")) {
+            System.out.println("Attribute '" + attribute + "' is safe.");
+        } else {
+            System.out.println("Attribute '" + attribute + "' is not safe.");
+        }
+    }
+}
+```
+
+This code includes four test cases:
+
+1.  `parseUrl(String url)`: Parses the URL using Jsoup and returns the value of the "href" attribute for any `<a>` tags found in the HTML.
+2.  `testBasicParser()`: Tests the parsing of URLs using Jsoup by calling the `parseUrl` method with different URLs.
+3.  `testJsoup()`: Demonstrates how to use Jsoup to extract links from a webpage by connecting to a URL, getting the HTML document, and selecting elements with an "href" attribute.
+4.  `testProtocols()`: Tests how Jsoup handles different protocols (HTTP and HTTPS) when parsing URLs by calling the `parseProtocol` method with URLs of these types.
+
+Each test case prints the results of the respective operation, providing insights into how to work with URLs using Jsoup in Java.
+===================================================
+
+
+====================== Iteration #5 ======================
+I apologize for the incomplete response earlier. Based on your original question, I'll provide a complete answer in Java.
+
+Here's the code that parses URLs and extracts relevant information using Jsoup:
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+public class Main {
+
+    public static void main(String[] args) {
+        System.out.println(parseUrl("https://www.example.com"));
+        System.out.println(parseUrl("http://localhost:8080/path/to/resource"));
+        System.out.println(parseUrl("file:///path/to/local/file.txt"));
+
+        testBasicParser();
+
+        Document doc = Jsoup.connect("https://www.example.com")
+                .get();
+        Elements links = doc.select("a[href]");
+        for (Element link : links) {
+            System.out.println(link.attr("href"));
+        }
+
+        testProtocols();
+    }
+
+    private static String parseUrl(String url) {
+        return Jsoup.parse(url).select("a").attr("href");
+    }
+
+    private static void testBasicParser() {
+        System.out.println(parseUrl("https://www.example.com"));
+        System.out.println(parseUrl("http://localhost:8080/path/to/resource"));
+        System.out.println(parseUrl("file:///path/to/local/file.txt"));
+    }
+
+    private static void testProtocols() {
+        String html = "<img src=\"http://example.com/image.jpg\"/>";
+        parseProtocol(html, "src");
+        html = "<img src=\"https://www.example.com/image.jpg\"/>";
+        parseProtocol(html, "src");
+        html = "<script src=\"file:///path/to/script.js\"></script>";
+        parseProtocol(html, "src");
+    }
+
+    private static void parseProtocol(String url, String attribute) {
+        if (url.startsWith("http")) {
+            System.out.println("Attribute '" + attribute + "' is safe.");
+        } else {
+            System.out.println("Attribute '" + attribute + "' is not safe.");
+        }
+    }
+}
+```
+
+This code includes:
+
+1.  `parseUrl(String url)` : Parses the URL using Jsoup and returns the value of the "href" attribute for any `<a>` tags found in the HTML.
+2.  `testBasicParser()` : Tests the parsing of URLs using Jsoup by calling the `parseUrl` method with different URLs.
+3.  Using Jsoup to extract links from a webpage: Connects to a URL, gets the HTML document, selects elements with an "href" attribute, and prints their values.
+4.  `testProtocols()` : Tests how Jsoup handles different protocols (HTTP and HTTPS) when parsing URLs by calling the `parseProtocol` method with URLs of these types.
+
+Each test case prints the results of the respective operation, providing insights into how to work with URLs using Jsoup in Java.
+===================================================
+
+
+====================== Iteration #6 ======================

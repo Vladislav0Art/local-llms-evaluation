@@ -1,0 +1,476 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettings_ReturnsDefaultParseSettings() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        ParseSettings settings = builder.defaultSettings();
+        Assert.assertTrue(settings.getParser().getTagHandler().isPresent());
+    }
+
+    @Test
+    public void initialiseParse_InitialisesParseSettingsCorrectly() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<xml><foo>bar</foo></xml>");
+        baseUri = "https://example.com";
+        Parser parser = new Parser();
+        builder.initialiseParse(input, baseUri, parser);
+    }
+
+    @Test
+    public void parse_ThrowsWhenInputIsEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("");
+        Assert.assertThrows(InvalidXmlException.class, () -> builder.parse(input, "https://example.com"));
+    }
+
+    @Test
+    public void parse_ReturnsDocumentWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<xml><foo>bar</foo></xml>");
+        Document document = builder.parse(input, "https://example.com");
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void parseFragment_ReturnsEmptyListWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<xml><foo>bar</foo></xml>";
+        Document document = builder.parseFragment(inputFragment, "https://example.com", new Parser());
+        List<Node> nodes = document.childNodes();
+        Assert.isEmpty(nodes);
+    }
+
+    @Test
+    public void parseFragment_ReturnsNodesWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<xml><foo>bar</foo></xml>";
+        Document document = builder.parseFragment(inputFragment, "https://example.com", new Parser());
+        List<Node> nodes = document.childNodes();
+        Assert.isNotEmpty(nodes);
+    }
+
+    @Test
+    public void insertNode_InsertsNodeIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Node node = new TextNode("hello");
+        Document document = new Document();
+        builder.insertNode(document, node);
+        List<Node> nodes = document.childNodes();
+        Assert.containsExactly(nodes, node);
+    }
+
+    @Test
+    public void insertElement_ReturnsElementWhenTokenIsStartTag() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.StartTag startTag = new Token.StartTag();
+        Element element = builder.insert(startTag);
+        Assert.assertNotNull(element);
+    }
+
+    @Test
+    public void insertComment_InsertsCommentIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Comment commentToken = new Token.Comment();
+        Document document = new Document();
+        builder.insert(commentToken);
+        List<Comment> comments = document.comments();
+        Assert.containsExactly(comments, commentToken);
+    }
+
+    @Test
+    public void insertCharacter_InsertsCharacterIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Character character = new Token.Character('a');
+        Document document = new Document();
+        builder.insert(character);
+        ListTextNode> textNodes = document.childNodes().stream()
+                .filter(Node::instanceof TextNode).collect(Collectors.toList());
+        Assert.containsExactly(textNodes, new TextNode("a"));
+    }
+
+    @Test
+    public void insertDoctype_InsertsDoctypeIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Doctype doctype = new Token.Doctype();
+        Document document = new Document();
+        builder.insert(doctype);
+        List<XmlDeclaration> declarations = document.declarations().stream()
+                .filter(declaration -> declaration instanceof XmlDeclaration).collect(Collectors.toList());
+        Assert.containsExactly(declarations, new XmlDeclaration("1.0", "http://www.w3.org/TR/REC-xml/"));
+    }
+
+    @Test
+    public void popStackToClose_InsertsEndTagIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.EndTag endTag = new Token.EndTag();
+        Document document = new Document();
+        builder.popStackToClose(endTag);
+        List<Token> tokens = document.tokens().stream()
+                .filter(token -> token instanceof Token.EndTag).collect(Collectors.toList());
+        Assert.containsExactly(tokens, endTag);
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettings_ReturnsDefaultParseSettings() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        ParseSettings settings = builder.defaultSettings();
+        Assert.assertTrue(settings.getParser().getTagHandler().isPresent());
+    }
+
+    @Test
+    public void initialiseParse_InitialisesParseSettingsCorrectly() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<xml><foo>bar</foo></xml>");
+        baseUri = "https://example.com";
+        Parser parser = new Parser();
+        builder.initialiseParse(input, baseUri, parser);
+    }
+
+    @Test
+    public void parse_ThrowsWhenInputIsEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("");
+        Assert.assertThrows(InvalidXmlException.class, () -> builder.parse(input, "https://example.com"));
+    }
+
+    @Test
+    public void parse_ReturnsDocumentWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<xml><foo>bar</foo></xml>");
+        Document document = builder.parse(input, "https://example.com");
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void parseFragment_ReturnsEmptyListWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<xml><foo>bar</foo></xml>";
+        Document document = builder.parseFragment(inputFragment, "https://example.com", new Parser());
+        List<Node> nodes = document.childNodes().stream()
+                .filter(node -> node instanceof org.jsoup.nodes.TextNode)
+                .collect(Collectors.toList());
+        Assert.isEmpty(nodes);
+    }
+
+    @Test
+    public void parseFragment_ReturnsNodesWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<xml><foo>bar</foo></xml>";
+        Document document = builder.parseFragment(inputFragment, "https://example.com", new Parser());
+        List<Node> nodes = document.childNodes().stream()
+                .filter(node -> node instanceof org.jsoup.nodes.TextNode)
+                .collect(Collectors.toList());
+        Assert.isNotEmpty(nodes);
+    }
+
+    @Test
+    public void insertNode_InsertsNodeIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token token = Token(tokenType, "someValue");
+        Document document = builder.insertToken(token);
+        List<Node> nodes = document.childNodes().stream()
+                .filter(node -> node instanceof org.jsoup.nodes.TextNode)
+                .collect(Collectors.toList());
+        Assert.assertEquals(1, nodes.size());
+    }
+
+    @Test
+    public void insertCharacter_InsertsCharacterIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token token = Token(tokenType, "a");
+        Document document = builder.insertToken(token);
+        ListTextNode> textNodes = document.childNodes().stream()
+                .filter(Node::instanceof TextNode)
+                .collect(Collectors.toList());
+        Assert.assertEquals(1, textNodes.size());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class XmlTreeBuilderTest {
+
+    public void defaultSettings_ReturnsDefaultParseSettings() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        ParseSettings settings = builder.defaultSettings();
+        Assert.assertTrue(settings.getParser().getTagHandler().isPresent());
+    }
+
+    public void initialiseParse_InitialisesParseSettingsCorrectly() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<xml><foo>bar</foo></xml>");
+        baseUri = "https://example.com";
+        Parser parser = new Parser();
+        builder.initialiseParse(input, baseUri, parser);
+    }
+
+    public void parse_ThrowsWhenInputIsEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("");
+        Assert.assertThrows(InvalidXmlException.class, () -> builder.parse(input, "https://example.com"));
+    }
+
+    public void parse_ReturnsDocumentWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<xml><foo>bar</foo></xml>");
+        Document document = builder.parse(input, "https://example.com");
+        Assert.assertNotNull(document);
+    }
+
+    public void parseFragment_ReturnsEmptyListWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<xml><foo>bar</foo></xml>";
+        Document document = builder.parseFragment(inputFragment, "https://example.com", new Parser());
+        List<Node> nodes = new ArrayList<>();
+        for (org.jsoup.nodes.Node node : document.childNodes()) {
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                nodes.add(node);
+            }
+        }
+        Assert.isEmpty(nodes);
+    }
+
+    public void parseFragment_ReturnsNodesWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<xml><foo>bar</foo></xml>";
+        Document document = builder.parseFragment(inputFragment, "https://example.com", new Parser());
+        List<Node> nodes = new ArrayList<>();
+        for (org.jsoup.nodes.Node node : document.childNodes()) {
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                nodes.add(node);
+            }
+        }
+        Assert.isNotEmpty(nodes);
+    }
+
+    public void insertNode_InsertsNodeIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token token = Token.tokenType, "someValue";
+        Document document = builder.insertToken(token);
+        List<Node> nodes = new ArrayList<>();
+        for (org.jsoup.nodes.Node node : document.childNodes()) {
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                nodes.add(node);
+            }
+        }
+        Assert.assertEquals(1, nodes.size());
+    }
+
+    public void insertCharacter_InsertsCharacterIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token token = Token.tokenType, "a";
+        Document document = builder.insertToken(token);
+        ListTextNode> textNodes = new ArrayList<>();
+        for (org.jsoup.nodes.Node node : document.childNodes()) {
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                textNodes.add((org.jsoup.nodes.TextNode)node);
+            }
+        }
+        Assert.assertEquals(1, textNodes.size());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class XmlTreeBuilderTest {
+
+    private static String baseUri = "https://example.com";
+
+    public void testParse() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<xml><foo>bar</foo></xml>");
+        Document document = builder.parse(input, baseUri);
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void defaultSettings_ReturnsDefaultParseSettings() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        ParseSettings settings = builder.defaultSettings();
+        Assert.assertTrue(settings.getParser().getTagHandler().isPresent());
+    }
+
+    @Test
+    public void initialiseParse_InitialisesParseSettingsCorrectly() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<xml><foo>bar</foo></xml>");
+        baseUri = "https://example.com";
+        Parser parser = new Parser();
+        builder.initialiseParse(input, baseUri, parser);
+    }
+
+    @Test
+    public void parse_ThrowsWhenInputIsEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("");
+        Assert.assertThrows(InvalidXmlException.class, () -> builder.parse(input, "https://example.com"));
+    }
+
+    @Test
+    public void parseFragment_ReturnsEmptyListWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<xml><foo>bar</foo></xml>";
+        Document document = builder.parseFragment(inputFragment, baseUri, new Parser());
+        List<Node> nodes = new ArrayList<>();
+        for (org.jsoup.nodes.Node node : document.childNodes()) {
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                nodes.add(node);
+            }
+        }
+        Assert.isEmpty(nodes);
+    }
+
+    @Test
+    public void parseFragment_ReturnsNodesWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<xml><foo>bar</foo></xml>";
+        Document document = builder.parseFragment(inputFragment, baseUri, new Parser());
+        List<Node> nodes = new ArrayList<>();
+        for (org.jsoup.nodes.Node node : document.childNodes()) {
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                nodes.add(node);
+            }
+        }
+        Assert.isNotEmpty(nodes);
+    }
+
+    @Test
+    public void insertNode_InsertsNodeIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token token = Token.tokenType, "someValue";
+        Document document = builder.insertToken(token);
+        List<Node> nodes = new ArrayList<>();
+        for (org.jsoup.nodes.Node node : document.childNodes()) {
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                nodes.add(node);
+            }
+        }
+        Assert.assertEquals(1, nodes.size());
+    }
+
+    @Test
+    public void insertCharacter_InsertsCharacterIntoDocument() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token token = Token.tokenType, "a";
+        Document document = builder.insertToken(token);
+        ListTextNode> textNodes = new ArrayList<>();
+        for (org.jsoup.nodes.Node node : document.childNodes()) {
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                textNodes.add((org.jsoup.nodes.TextNode)node);
+            }
+        }
+        Assert.assertEquals(1, textNodes.size());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class XmlTreeBuilderTest {
+
+    private static String baseUri = "https://example.com";
+
+    public void testParse() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<xml><foo>bar</foo></xml>");
+        Document document = builder.parse(input, baseUri);
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void defaultSettings_ReturnsDefaultParseSettings() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        ParseSettings settings = builder.defaultSettings();
+        Assert.assertTrue(settings.getParser().getTagHandler().isPresent());
+    }
+
+    @Test
+    public void initialiseParse_InitialisesParseSettingsCorrectly() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("<xml><foo>bar</foo></xml>");
+        baseUri = "https://example.com";
+        Parser parser = new Parser();
+        builder.initialiseParse(input, baseUri, parser);
+    }
+
+    @Test
+    public void parse_ThrowsWhenInputIsEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Reader input = new StringReader("");
+        Assert.assertThrows(InvalidXmlException.class, () -> builder.parse(input, "https://example.com"));
+    }
+
+    @Test
+    public void parseFragment_ReturnsEmptyListWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<xml><foo>bar</foo></xml>";
+        Document document = builder.parseFragment(inputFragment, baseUri, new Parser());
+        List<Node> nodes = new ArrayList<>();
+        for (org.jsoup.nodes.Node node : document.childNodes()) {
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                nodes.add(node);
+            }
+        }
+        Assert.isEmpty(nodes);
+    }
+
+    @Test
+    public void parseFragment_ReturnsNodesWhenInputIsNotEmpty() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String inputFragment = "<xml><foo>bar</foo></xml>";
+        Document document = builder.parseFragment(inputFragment, baseUri, new Parser());
+        List<Node> nodes = new ArrayList<>();
+        for (org.jsoup.nodes.Node node : document.childNodes()) {
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                nodes.add(node);
+            }
+        }
+        Assert.isNotEmpty(nodes);
+    }
+
+    @Test
+    public void insertToken_ReturnsDocumentWithToken() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token token = Token.tokenType;
+        Document document = builder.insertToken(token, "someValue");
+        Assert.assertNotNull(document);
+        Assert.assertEquals("someValue", document.body().text());
+    }
+
+    @Test
+    public void insertCharacter_ReturnsDocumentWithChar() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        char character = 'a';
+        Document document = builder.insertToken(Token.tokenType, Character.toString(character));
+        Assert.assertNotNull(document);
+        Assert.assertEquals(Character.toString(character), document.body().text());
+    }
+
+}
+```
+===================================================
+
