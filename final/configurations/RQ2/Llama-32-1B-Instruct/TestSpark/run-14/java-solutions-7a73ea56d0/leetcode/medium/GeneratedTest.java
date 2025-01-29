@@ -1,0 +1,119 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void testMaximizingLineCoverage_SimpleScenario() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {7, 1, 5, 3, 6, 4};
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(2, result.length);
+        assertEquals(4, result[0]);
+        assertEquals(8, result[1]);
+    }
+
+    @Test
+    public void testMaximizingLineCoverage_SinglePrice() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {10};
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(1, result.length);
+        assertEquals(0, result[0]);
+    }
+
+    @Test
+    public void testMaximizingLineCoverage_MultiplePrices() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {7, 1, 5, 3, 6, 4};
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(2, result.length);
+        assertEquals(8, result[0]);
+        assertEquals(14, result[1]);
+    }
+
+    @Test
+    public void testMaximizingLineCoverage_SingleIndex() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {10};
+        int index = 2;
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(0, result[index - 1]);
+        assertEquals(3, result[index]);
+    }
+
+    @Test
+    public void testMaximizingLineCoverage_SingleIndexWithNegativePrice() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {-10};
+        int index = 2;
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(0, result[index - 1]);
+        assertEquals(-4, result[index]);
+    }
+
+    @Test
+    public void testMaximizingLineCoverage_MultipleNegativePrices() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {-10, -5, 3, 6, 8};
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(2, result.length);
+        assertEquals(-4, result[0]);
+        assertEquals(7, result[1]);
+    }
+
+    @Test
+    public void testMaximizingLineCoverage_SingleNegativePriceIndex() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {-10};
+        int index = 3;
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(0, result[index - 1]);
+        assertEquals(-5, result[index]);
+    }
+
+    @Test
+    public void testMaximizingLineCoverage_SingleNegativePriceIndexWithZeroPrice() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {-10, 0};
+        int index = 2;
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(1, result[index - 1]);
+        assertEquals(-3, result[index]);
+    }
+
+    @Test
+    public void testMaximizingLineCoverage_SingleZeroPrice() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {0};
+        int index = 2;
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(1, result[index - 1]);
+        assertEquals(-3, result[index]);
+    }
+
+    @Test
+    public void testMaximizingLineCoverage_MultipleZeroPrices() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {0, 0};
+        int index = 2;
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(1, result[index - 1]);
+        assertEquals(-3, result[index]);
+    }
+
+    @Test
+    public void testMaximizingLineCoverage_SingleZeroIndex() {
+        OnlineStockSpan solver = new OnlineStockSpan();
+        int[] prices = {0};
+        int index = 1;
+        int[] result = solver.calculateSpans(prices);
+        assertEquals(0, result[index - 1]);
+        assertEquals(-3, result[index]);
+    }
+
+}

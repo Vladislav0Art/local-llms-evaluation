@@ -1,0 +1,271 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class PrettyPrintVisitor {
+    private Printer printer;
+
+    public PrettyPrintVisitor(Printer printer) {
+        this.printer = printer;
+    }
+
+    public String exprToString(Expression e) {
+        return printer.print(e);
+    }
+
+    @Test
+    public void testVisitAssignExpr() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printerFactory);
+        Expression e = new AssignExpr(new VarExpr("x"), 5.0, new BinaryExpr(new PlusExpr(new UnaryExpr(new NameExpr("x")), 3), new MulExpr(new ConstExpr(2), new ConstExpr(3))));
+        assertEquals("5 + 3 x", visitor.visitAssignExpr(e));
+    }
+
+    @Test
+    public void testVisitBinaryExpr() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printerFactory);
+        Expression e = new BinaryExpr(new MulExpr(new PlusExpr(new UnaryExpr(new NameExpr("x")), 2), new ConstExpr(3)), new ConstExpr(4));
+        assertEquals("x + (y * 2) 4", visitor.visitBinaryExpr(e));
+    }
+
+    @Test
+    public void testVisitUnaryExpr() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printerFactory);
+        Expression e = new UnaryExpr(new NameExpr("x"), new ConstExpr(3));
+        assertEquals("(y + x) 3", visitor.visitUnaryExpr(e));
+    }
+}
+
+class PrettyPrintVisitorTest {
+    public static PrettyPrintVisitor prettyPrintVisitor = new PrettyPrintVisitor(PrinterFactory.create());
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+public class PrettyPrintVisitorTest {
+    @ParameterizedTest
+    @MethodSource("getExpressions")
+    public void testVisitAssignExpr(Expression e) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.create());
+        assertEquals("5 + 3 * x", visitor.visitAssignExpr(e));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getExpressions")
+    public void testVisitBinaryExpr(Expression e) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.create());
+        assertEquals("(x + y) * 2", visitor.visitBinaryExpr(e));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getExpressions")
+    public void testVisitUnaryExpr(Expression e) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.create());
+        assertEquals("(y + x)", visitor.visitUnaryExpr(e));
+    }
+
+    private Expression[] getExpressions() {
+        return new Expression[]{
+            new AssignExpr(new VarExpr("x"), 5.0, new BinaryExpr(new PlusExpr(new UnaryExpr(new NameExpr("x")), 3), new ConstExpr(4))),
+            new AddExpr(new MultExpr(new ConstExpr(2), new ConstExpr(3)), 6),
+            new PlusExpr(new BinaryExpr(new MulExpr(new ConstExpr(1), new ConstExpr(5)), new ConstExpr(7)), new ConstExpr(9))
+        };
+    }
+}
+
+class PrettyPrintVisitor {
+    private Printer printer;
+
+    public PrettyPrintVisitor(Printer printer) {
+        this.printer = printer;
+    }
+
+    public String exprToString(Expression e) {
+        return printer.print(e);
+    }
+
+    @Override
+    public void visitAssignExpr(AssingExpr expr) {
+        print("x");
+        print("=");
+        print(expr.getKey());
+        print(" ");
+        print(expr.getValue().toString());
+        print(";");
+    }
+
+    private void print(String s) {
+        System.out.println(s);
+    }
+}
+
+class PrinterFactory {
+    public static Printer create() {
+        return new Printer();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.eclipse.collections.api.list.ListIterable;
+import org.eclipse.collections.impl.iterators.CollectingIterator;
+
+public class PrettyPrintVisitorTest {
+    @BeforeEach
+    public void setup() {
+        printerFactory = PrinterFactory.create();
+    }
+
+    private final Printer printer = printerFactory.create();
+
+    public String exprToString(Expression e) {
+        return printer.print(e);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getExpressions")
+    public void testVisitAssignExpr(String key, Object value) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        Expression e = new AssignExpr(new VarExpr(key), 5.0, new BinaryExpr(new PlusExpr(new UnaryExpr(new NameExpr(key)), 3), new ConstExpr(4)));
+        assertEquals("x=" + key + "; " + value.toString(), visitor.visitAssignExpr(e));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getExpressions")
+    public void testVisitBinaryExpr(String left, String right) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        Expression e = new BinaryExpr(new MultExpr(new ConstExpr(2), new ConstExpr(3)), 6);
+        assertEquals("(x + y)*2;", visitor.visitBinaryExpr(e));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getExpressions")
+    public void testVisitUnaryExpr(String operand) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        Expression e = new UnaryExpr(new NameExpr(operand), 3);
+        assertEquals("(x + y)", visitor.visitUnaryExpr(e));
+    }
+
+    private List<String> getExpressions() {
+        return ListIterable.of(
+                "x=" + "x",
+                "y=" + "y",
+                "+=" + "6",
+                "*=" + "2*3"
+        );
+    }
+}
+
+class PrettyPrintVisitorTest {
+    public static PrettyPrintVisitor prettyPrintVisitor = new PrettyPrintVisitor(PrinterFactory.create());
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.eclipse.collections.api.list.ListIterable;
+import org.eclipse.collections.impl.iterators.CollectingIterator;
+
+public class PrettyPrintVisitorTest {
+    private final Printer printer = PrinterFactory.create();
+
+    @BeforeEach
+    public void setup() {
+        printerFactory = PrinterFactory.create();
+    }
+
+    @ParameterizedTest
+    @MethodSource("getExpressions")
+    public void testVisitAssignExpr(String key, Object value) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        Expression e = new AssignExpr(new VarExpr(key), 5.0, new BinaryExpr(new PlusExpr(new UnaryExpr(new NameExpr(key)), 3), new ConstExpr(4)));
+        assertEquals("x=" + key + "; " + value.toString(), visitor.visitAssignExpr(e));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getExpressions")
+    public void testVisitBinaryExpr(String left, String right) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        Expression e = new BinaryExpr(new MultExpr(new ConstExpr(2), new ConstExpr(3)), 6);
+        assertEquals("(x + y)*2;", visitor.visitBinaryExpr(e));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getExpressions")
+    public void testVisitUnaryExpr(String operand) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        Expression e = new UnaryExpr(new NameExpr(operand), 3);
+        assertEquals("(y + x)", visitor.visitUnaryExpr(e));
+    }
+
+    private List<String> getExpressions() {
+        return ListIterable.of(
+                "x=" + "x",
+                "y=" + "y",
+                "+=" + "6",
+                "*=" + "2*3"
+        );
+    }
+}
+
+class PrettyPrintVisitorTest {
+    public static PrettyPrintVisitor prettyPrintVisitor = new PrettyPrintVisitor(PrinterFactory.create());
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.provider.MethodSource;
+
+class Printer {
+    public String print(Object obj) {
+        return "" + obj;
+    }
+}
+
+public class PrettyPrintVisitorTest {
+    @Test
+    public void testVisitAssignExpr() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new Printer());
+        Expression e = new AssignExpr(new VarExpr("x"), 5.0, new BinaryExpr(new PlusExpr(new UnaryExpr(new NameExpr("x")), 3), new ConstExpr(4)));
+        assertEquals("x=", "x" + "=" + "5.0" + "; " + new PrettyPrintVisitor().visitAssignExpr(e));
+    }
+
+    @Test
+    public void testVisitBinaryExpr() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new Printer());
+        Expression e = new BinaryExpr(new MultExpr(new ConstExpr(2), new ConstExpr(3)), 6);
+        assertEquals("(x + y)*2;", "x=" + "x" + "=" + "5.0" + "; " + new PrettyPrintVisitor().visitBinaryExpr(e));
+    }
+
+    @Test
+    public void testVisitUnaryExpr() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new Printer());
+        Expression e = new UnaryExpr(new NameExpr("x"), 3);
+        assertEquals("(y + x)", "y=" + "y" + "=" + "5.0" + "; " + new PrettyPrintVisitor().visitUnaryExpr(e));
+    }
+
+    @Test
+    public void testVisitNumberExpression() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new Printer());
+        Expression e = new Number(5);
+        assertEquals("5", "x=" + "x");
+    }
+}
+```
+===================================================
+

@@ -1,0 +1,510 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.parser;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.CDataNode;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entities;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.XmlDeclaration;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+public class XmlTreeBuilderTest {
+
+    public static void main(String[] args) {
+        String baseUri = "http://example.com";
+        Document doc = buildDocument(baseUri);
+        parse(doc, baseUri);
+
+        // Test insertNode
+        Element child = new Element("child");
+        parent.insert(child);
+        assert insertsOrReturnsNull(null, null, child);
+
+        // Test insertNode with token
+        String token = "token";
+        Node node = parent.insert(token, element);
+        assert insertsOrReturnsNull(node, null, element);
+
+        // Test insertToken
+        insertComment(doc, baseUri + "/comment", commentToken -> {
+            validateComment(commentToken);
+            return true;
+        });
+
+        // Test parseFragment
+        String inputFragment = "<fragment>fragment</fragment>";
+        String outputFragment = doc.toString();
+        List<Node> nodes = parseFragment(inputFragment, baseUri, parser);
+        assert equals(nodes, outputFragment.split("\n"));
+
+        // Test parseFragment with context
+        String inputFragment = "<fragment>fragment</fragment>", element = new Element("element");
+        parent.insert(element);
+        Element rootElement = parent.parse(inputFragment, element);
+        assert insertsOrReturnsNull(rootElement, null, element);
+
+    }
+
+    public static Document buildDocument(String baseUri) {
+        return new Document();
+    }
+
+    @Test
+    void testInsertNode() {
+        Element child = new Element("child");
+        parent.insert(child);
+        assertTrue(null != insertsOrReturnsNull(null, null, child));
+    }
+
+    @Test
+    void testInsertNodeWithToken() {
+        String token = "token";
+        Node node = parent.insert(token, element);
+        assertTrue(null != insertsOrReturnsNull(node, null, element));
+    }
+
+    @Test
+    void testInsertComment() {
+        Element commentToken = new Comment("comment");
+        parse(commentToken, baseUri + "/comment");
+        validateComment(commentToken);
+    }
+
+    public static Document parse(String input, String baseUri) {
+        return doc.parse(input, baseUri);
+    }
+
+    public static List<Node> parseFragment(String inputFragment, String baseUri, Parser parser) {
+        return parser.parseFragment(inputFragment, baseUri);
+    }
+
+    @Test
+    void testInsertToken() {
+        String token = "token";
+        insert(token, commentToken -> {
+            validateComment(commentToken);
+            return true;
+        });
+        assertTrue(null != insertsOrReturnsNull(null, null, element));
+    }
+
+    public static Document doc;
+
+    @Before
+    void setup() {
+        doc = buildDocument(baseUri);
+    }
+
+    @After
+    void tearDown() {
+    }
+
+    private static boolean insertsOrReturnsNull(Node node, Object... args) {
+        if (node != null && node instanceof Token) {
+            Token token = (Token) node;
+            return insert(token.token(), element -> {
+                validateElement(element);
+                return true;
+            });
+        }
+        return false;
+    }
+
+    private static boolean insertsOrReturnsNull(Node node, Object... args) {
+        if (node != null && node instanceof EntityList) {
+            EntityList entityList = (EntityList) node;
+            for (int i = 0; i < entityList.getLength(); i++) {
+                Node element = entityList.get(i);
+                return insert(element, element -> {
+                    validateElement(element);
+                    return true;
+                });
+            }
+        }
+        return false;
+    }
+
+    private static boolean insertsOrReturnsNull(Node node, Object... args) {
+        if (node != null && node instanceof TextNode) {
+            TextNode textNode = (TextNode) node;
+            return insert(textNode, element -> {
+                validateElement(element);
+                return true;
+            });
+        }
+        return false;
+    }
+
+    private static boolean insertsOrReturnsNull(Node node, Object... args) {
+        if (node != null && node instanceof Document) {
+            Document document = (Document) node;
+            return insert(document, element -> {
+                validateElement(element);
+                return true;
+            });
+        }
+        return false;
+    }
+
+    private static boolean insertsOrReturnsNull(Token token, Element parent) {
+        if (token instanceof Token.StartTag) {
+            Token.StartTag startTag = (Token.StartTag) token;
+            insert(startTag, element -> {
+                validateElement(element);
+                return true;
+            });
+            return true;
+        } else if (token instanceof Token.EndTag) {
+            Token.EndTag endTag = (Token.EndTag) token;
+            popStackToClose(endTag);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean insertsOrReturnsNull(CDataNode node, Element parent) {
+        if (node != null && node instanceof Node) {
+            insert(node, element -> {
+                validateElement(element);
+                return true;
+            });
+            return true;
+        } else if (node instanceof CDataNode) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean insertsOrReturnsNull(Comment commentToken, Element parent) {
+        if (commentToken instanceof Token.Comment) {
+            Token.Comment comment = (Token.Comment) commentToken;
+            insert(comment, element -> {
+                validateElement(element);
+                return true;
+            });
+            return true;
+        } else if (commentToken instanceof Comment) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean insertsOrReturnsNull(Character token, Element parent) {
+        if (token != null && !token.isWhitespace()) {
+            insert(token, element -> {
+                validateElement(element);
+                return true;
+            });
+            return true;
+        } else if (token != null && token == '\n') {
+            popStackToClose(new Token.Comment());
+            return true;
+        }
+        return false;
+    }
+
+    private static void validateComment(Comment commentToken) {
+        // Implement logic to validate a comment
+    }
+
+    private static boolean validateElement(Node node) {
+        // Implement logic to validate an element
+    }
+
+    @Test
+    void testParseFragment() {
+        String inputFragment = "<fragment>fragment</fragment>";
+        String outputFragment = doc.toString();
+        List<Node> nodes = parseFragment(inputFragment, baseUri, parser);
+        assert equals(nodes, outputFragment.split("\n"));
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Parser {
+    public Node parseFragment(String inputFragment, String baseUri) {
+        return parse(inputFragment, baseUri);
+    }
+
+    private Node parse(String inputFragment, String baseUri) {
+        // parse the fragment using the Jsoup library
+        List<Node> nodes = parseFragment(inputFragment, baseUri);
+
+        // add a public comment to indicate that the parsing was done with Jsoup
+        nodes.add(new Comment("Parsed with Jsoup"));
+
+        return null;
+    }
+
+    private void popStackToClose(EndTag endTag) {
+        // implement popStackToClose method according to your requirements
+        System.out.println("Pop stack to close " + endTag);
+    }
+}
+
+class Comment extends Parser {
+    @Override
+    public void insert(Character c, Node node) {
+        if (c == '\n') {
+            System.out.println("Newline comment added");
+        } else if (c >= 'A' && c <= 'Z') {
+            popStackToClose(new Character(c));
+        }
+    }
+
+    @Override
+    public Node parseFragment(String inputFragment, String baseUri) {
+        super.parse(inputFragment, baseUri);
+        return null;
+    }
+}
+
+class EndTag extends Parser {
+    @Override
+    public void insert(Character c, Node node) {
+        if (c == ' ') {
+            System.out.println("Closing tag added");
+        } else if (c >= 'A' && c <= 'Z') {
+            popStackToClose(new Character(c));
+        }
+    }
+
+    @Override
+    public Node parseFragment(String inputFragment, String baseUri) {
+        super.parse(inputFragment, baseUri);
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+Here's a Java code snippet that demonstrates how to parse HTML fragments using Jsoup and add public comments:
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class HtmlParser {
+    public static void main(String[] args) {
+        String inputFragment = "<html><body><p>Hello World!</p></body></html>";
+        String baseUri = "http://example.com";
+
+        Document doc = Jsoup.parse(inputFragment, baseUri);
+
+        // add a comment before parsing the fragment
+        System.out.println("Comment before parsing: ");
+
+        // parse the HTML fragment using Jsoup
+        Node result = parseHtml(doc, inputFragment, baseUri);
+        System.out.println(result.toString());
+
+        if (result != null) {
+            // insert comments into the parsed HTML
+            Element pElement = doc.selectFirst("p").first();
+            Comment comment = new Comment();
+            comment.insert(pElement.text(), pElement);
+
+            // print updated HTML with comments
+            System.out.println(comment.toString());
+        } else {
+            System.out.println("No HTML to parse.");
+        }
+    }
+
+    public static Node parseHtml(Document doc, String inputFragment, String baseUri) {
+        Elements elements = doc.getAllElements();
+        for (Element element : elements) {
+            if (element.tagName().equals("p")) {
+                // add a comment before parsing the paragraph
+                System.out.println("Comment before parsing: " + element.text());
+                Comment comment = new Comment();
+                comment.insert(element.text(), element);
+
+                // insert comments into the parsed HTML
+                element.insertBefore(comment, element);
+            }
+        }
+
+        return null;
+    }
+}
+
+class Comment {
+    private String text;
+
+    public void insert(String text, Element parentElement) {
+        parentElement.appendChild(document.createTextNode(text));
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "text='" + text + '\'' +
+                '}';
+    }
+}
+```
+
+This Java code snippet demonstrates how to parse HTML fragments using Jsoup and add comments. It iterates over the elements in the parsed HTML, finds paragraphs (represented by `<p>` tags), adds a comment before parsing each paragraph, and inserts the comment into the parsed HTML.
+
+The `Comment` class is used to represent comments in the code. It has an `insert` method that appends text to the parent element using `appendChild`. The `toString` method returns a string representation of the comment object.
+
+In the `main` method, it creates a Jsoup document from the input HTML fragment and calls the `parseHtml` method to parse the HTML. Finally, it prints the updated HTML with comments in real-time using `insertBefore`.
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class JsoupHtmlParser {
+    public static void main(String[] args) {
+        String inputFragment = "<html><body><p>Hello World!</p></body></html>";
+        String baseUri = "http://example.com";
+
+        Document doc = Jsoup.parse(inputFragment, baseUri);
+
+        System.out.println("Parsed HTML:");
+        System.out.println(doc.html());
+
+        // add a comment before parsing the fragment
+        System.out.println("\nComment before parsing: ");
+
+        // parse the HTML fragment using Jsoup
+        Node result = parseHtml(doc, inputFragment, baseUri);
+        if (result != null) {
+            System.out.println("Parsed HTML with comments:");
+            System.out.println(result.toString());
+        } else {
+            System.out.println("No HTML to parse.");
+        }
+    }
+
+    public static Node parseHtml(Document doc, String inputFragment, String baseUri) {
+        // get all elements
+        Elements elements = doc.getAllElements();
+
+        // find paragraphs and add comments before parsing them
+        for (Element element : elements) {
+            if (element.tagName().equals("p")) {
+                System.out.println("Comment before parsing: " + element.text());
+                Comment comment = new Comment();
+                comment.insert(element.text(), element);
+                element.insertBefore(comment, element);
+            }
+        }
+
+        // insert comments into the parsed HTML
+        for (Element element : elements) {
+            if (element.tagName().equals("p")) {
+                Element parentElement = element.parentElement();
+                parentElement.appendChild(document.createTextNode(doc.html()));
+            } else if (element.tagName().equals("body")) {
+                parentElement.appendChild(document.body());
+            }
+        }
+
+        return null;
+    }
+}
+
+class Comment {
+    private String text;
+
+    public void insert(String text, String parentString) {
+        document.appendText(text);
+        document.delete(0, document.length() - parentString.length());
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "text='" + text + '\'' +
+                '}';
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class HtmlParser {
+    public static void main(String[] args) {
+        String inputFragment = "<html><body><p>Hello World!</p></body></html>";
+
+        // parse the HTML fragment using Jsoup
+        Document doc = Jsoup.parse(inputFragment);
+
+        System.out.println("Parsed HTML:");
+        System.out.println(doc.html());
+
+        // find all elements and add comments before parsing them
+        Elements elements = doc.getAllElements();
+        for (Element element : elements) {
+            if (element.tagName().equals("p")) {
+                Comment comment = new Comment();
+                comment.insert(element.text(), element);
+                element.insertBefore(comment, element);
+            }
+        }
+
+        // insert comments into the parsed HTML
+        Elements updatedElements = new Elements(doc.getAllElements());
+        for (Element element : updatedElements) {
+            if (element.tagName().equals("p")) {
+                Element parentElement = element.parentElement();
+                parentElement.appendChild(document.createTextNode(doc.html()));
+            } else if (element.tagName().equals("body")) {
+                parentElement.appendChild(document.body());
+            }
+        }
+
+        // print the updated HTML
+        System.out.println("\nUpdated HTML:");
+        System.out.println(updatedElements.toString());
+    }
+}
+
+class Comment {
+    private String text;
+
+    public void insert(String text, Element parentElement) {
+        parentElement.appendChild(document.createTextNode(text));
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "text='" + text + '\'' +
+                '}';
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

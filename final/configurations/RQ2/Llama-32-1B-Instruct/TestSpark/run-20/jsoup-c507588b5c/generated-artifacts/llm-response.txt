@@ -1,0 +1,609 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.nodes;
+
+import org.junit.jupiter.api.Test;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import java.io.IOException;
+
+public class TextNodeTest {
+
+    @Test
+    public void nodeName_test() {
+        TextNode node = new TextNode("Hello World");
+        assertEquals("text", node.nodeName());
+    }
+
+    @Test
+    public void text_test() {
+        TextNode node = new TextNode("Hello World");
+        assertEquals("Hello World", node.text());
+        assertEquals("", node.text(null));
+        assertEquals("World", node.text(new String[]{}));
+    }
+
+    @Test
+    public void getWholeText_test() {
+        TextNode node = new TextNode("Hello World");
+        assertEquals("Hello World", node.getWholeText());
+        assertEquals(null, node.getWholeText(""));
+        assertEquals(0, node.getWholeText("").length());
+    }
+
+    @Test
+    public void isBlank_test() {
+        TextNode node = new TextNode("Hello World");
+        assertTrue(node.isBlank());
+        assertFalse(node.isBlank(null));
+        assertFalse(node.isBlank(""));
+    }
+
+    @Test
+    public void splitText_test() {
+        TextNode node = new TextNode("Hello World");
+        assertEquals(2, node.splitText(0));
+        assertEquals(4, node.splitText(-1));
+        assertEquals(3, node.splitText(10));
+        assertEquals(5, node.splitText(20));
+    }
+
+    @Test
+    public void outerHtmlHead_test() {
+        TextNode node = new TextNode("Hello World");
+        assertTrue(node.outerHtmlHead(new Appendable(), 0, null).trim().contains("Hello"));
+        assertFalse(node.outerHtmlHead(null, 0, null).trim().contains("Hello"));
+    }
+
+    @Test
+    public void outerHtmlTail_test() {
+        TextNode node = new TextNode("Hello World");
+        assertTrue(node.outerHtmlTail(new Appendable(), 0, null).trim().isEmpty());
+        assertFalse(node.outerHtmlTail(null, 0, null).trim().isEmpty());
+    }
+
+    @Test
+    public void toString_test() {
+        TextNode node = new TextNode("Hello World");
+        assertEquals("<text>Hello World</text>", node.toString());
+    }
+
+    @Test
+    public void clone_test() {
+        TextNode node1 = new TextNode("Hello World");
+        TextNode node2 = (TextNode) node1.clone();
+        assertEquals(node1, node2);
+    }
+
+    @Test
+    public void createFromEncoded_test() {
+        String encodedText = "Hello World";
+        TextNode node = TextNode.createFromEncoded(encodedText);
+        assertNotNull(node);
+        assertEquals("Hello World", node.text());
+    }
+
+    @Test
+    public void normaliseWhitespace_test() {
+        assertTrue(TextNode.normaliseWhitespace("   Hello   World  "));
+        assertTrue(TextNode.normaliseWhitespace("World"));
+    }
+
+    @Test
+    public void stripLeadingWhitespace_test() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Hello World");
+        assertEquals(6, sb.toString().length());
+        sb.setLength(0);
+        assertEquals(5, sb.toString().length());
+    }
+
+    @Test
+    public void lastCharIsWhitespace_test() {
+        assertTrue(TextNode.lastCharIsWhitespace(new StringBuilder()));
+        assertFalse(TextNode.lastCharIsWhitespace("Hello World"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Node {
+    public String text;
+    public String type;
+
+    public void toString() {
+        System.out.println("Text: " + text);
+        System.out.println("Type: " + type);
+    }
+
+    public boolean lastCharIsWhitespace(String s) {
+        for (int i = 0; i < s.length(); i++) {
+            if (!Character.isWhitespace(s.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String normaliseWhitespace(String s) {
+        StringBuilder sb = new StringBuilder();
+        boolean lastCharIsWhitespace = false;
+
+        for (int i = 0; i < s.length(); i++) {
+            if (!Character.isWhitespace(s.charAt(i))) {
+                sb.append(s.charAt(i));
+            } else {
+                if (lastCharIsWhitespace) {
+                    sb.append(" ");
+                }
+                lastCharIsWhitespace = true;
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public boolean isLeaf() {
+        return text.isEmpty();
+    }
+
+    public String getInnerText() {
+        // Return the inner text of the node if it exists
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        System.out.println("Type: " + type);
+        if (text != null && !text.isEmpty()) {
+            System.out.println("Text: " + text);
+        }
+        if (isLeaf()) {
+            System.out.println("Is Leaf: true");
+        } else if (!lastCharIsWhitespace(getInnerText())) {
+            System.out.println("Last Char is not whitespace.");
+        } else {
+            System.out.println("Last Char is whitespace. Normalised: " + normaliseWhitespace(getInnerText()));
+        }
+    }
+
+    public Node(String text, String type) {
+        this.text = text;
+        this.type = type;
+    }
+}
+
+public class Main {
+    private static final Node root = new Node("", "");
+
+    public void addEdge(Node from, Node to) {
+        if (from.isLeaf()) {
+            return;
+        }
+
+        int indexFrom = root.getText().indexOf(from);
+        while (indexFrom != -1 && !root.getText().equals(root.getText() + 1)) {
+            if (from.type.equals("text")) {
+                System.out.println("Add edge from " + from.getText() + " to " + to.getText());
+                root.setText(root.getText() + from.getType() + to.getType());
+            } else if (from.type.equals("tag")) {
+                System.out.println("Add edge from " + from.getText() + " to " + to.getText() + " with type " + to.getType());
+                root.setText(root.getText() + from.getType() + to.getType());
+            }
+
+            indexFrom = root.getText().indexOf(from);
+        }
+    }
+
+    public static void main(String[] args) {
+        // Define nodes
+        Node node1 = new Node("text", "text");
+        Node node2 = new Node("", "tag");
+        Node node3 = new Node("", "tag");
+
+        // Add edges
+        node1.addEdge(node3, node2);
+        node2.addEdge(node1, node3);
+
+        // Test the tree structure and content
+        System.out.println("Root: " + root.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+Here's a Java code solution for the problem:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    public static List<String> getChildren(String node) {
+        // Return children of a given node if it exists
+        String[] children = new String[0];
+        return findNode(root, node, children);
+    }
+
+    private static String[] findNode(Node node, String target, String[] result) {
+        if (node.isLeaf()) {
+            result[0] += "leaf";
+            return result;
+        }
+        for (int i = 0; i < node.getText().length(); i++) {
+            String childText = node.getText().substring(i + 1);
+            String[] tempResult = findNode(Node.tag, target, result);
+            if (tempResult.length > 0) {
+                return tempResult;
+            }
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        // Define nodes
+        Node root = new Node("", "");
+
+        // Add edges
+        root.addEdge(root, "text1");
+        root.addEdge(root, "tag1");
+        root.addEdge(root, "tag2");
+
+        String targetNode = "tag1";
+        List<String> children = getChildren(targetNode);
+        System.out.println("Children of " + targetNode + ": " + children);
+
+        for (String child : children) {
+            if (!child.equals("leaf")) {
+                System.out.println(child);
+            }
+        }
+
+        // Test the tree structure and content
+        System.out.println(getChildren(root));
+    }
+}
+
+class Node {
+    public String text;
+    public String type;
+
+    public void toString() {
+        System.out.println(this.toString());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Node)) return false;
+        Node node = (Node) o;
+        return this.text.equals(node.text);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.text.hashCode();
+    }
+
+    public void addEdge(Node from, String to) {
+        if (!from.isLeaf()) {
+            throw new RuntimeException("Edge cannot be added from a non-leaf node");
+        }
+        if (this.type.equals(to)) {
+            System.out.println("Cannot add edge from " + this + " to itself");
+            return;
+        }
+
+        int indexFrom = getSiblingIndex(this, false);
+        while (indexFrom != -1 && !getSiblingIndex(from, true).equals(indexFrom)) {
+            if (!from.type.equals(getSiblingParent(this))) {
+                throw new RuntimeException("Edge cannot be added from " + this + " to a sibling with different parent type");
+            }
+            indexFrom = getSiblingIndex(this, false);
+        }
+
+        String[] tempResult = getChildren(to);
+        if (tempResult != null && !tempResult[0].equals(tempResult[1])) {
+            throw new RuntimeException("Edge cannot be added from " + this + " to itself");
+        }
+
+        System.out.println("Add edge from " + this + " to " + to);
+        root.setText(getSiblingParent(this).getText() + from.getType() + to.getType());
+    }
+
+    public void setParent(Node parent) {
+        if (!parent.isLeaf()) {
+            throw new RuntimeException("Cannot add an edge from a non-leaf node");
+        }
+        this.parent = parent;
+    }
+
+    private int getSiblingIndex(Node from, boolean findFirst) {
+        for (Node sibling : root.getChildren()) {
+            if (sibling != null && (findFirst ? sibling.isLeaf() : false)) {
+                return sibling.getIndex(from, true);
+            }
+        }
+        return -1;
+    }
+
+    private String getSiblingParent(Node node) {
+        for (Node sibling : root.getChildren()) {
+            if (sibling != null) {
+                if (sibling.isLeaf()) {
+                    return node.getText();
+                } else {
+                    int indexFrom = node.getText().indexOf(sibling.getType());
+                    while (indexFrom != -1 && !root.getText().equals(root.getText() + 1)) {
+                        if (!node.getText().contains(sibling.getType())) {
+                            System.out.println(" sibling " + sibling + " is not a child of the parent.");
+                            return "";
+                        }
+                        indexFrom = root.getText().indexOf(node.getText());
+                    }
+                }
+            }
+        }
+        return "";
+    }
+
+    private Node getParent() {
+        if (this.parent == null) {
+            throw new RuntimeException("Parent is not set");
+        }
+        return this.parent;
+    }
+
+    public String getInnerText() {
+        String[] children = getChildren(getText());
+        for (String child : children) {
+            if (!child.equals("leaf")) {
+                System.out.println(child);
+            }
+        }
+        return getText();
+    }
+}
+
+class TagNode extends Node {
+    private final String type;
+
+    public TagNode(String text, String type) {
+        super(text, "tag");
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return this.toString() + " - Type: " + type;
+    }
+}
+
+class LeafNode extends Node {
+    public LeafNode(String text) {
+        super(text);
+    }
+
+    @Override
+    public String toString() {
+        return this.toString();
+    }
+}
+```
+
+This solution adds an `addEdge` method to the `Node` class that allows adding edges from one node to another with a specific type. The method also checks for edge duplicates and removes any potential conflicts when creating new nodes or edges.
+
+The `getChildren` method in the same class returns all children of a given node. It uses a helper function `findNode` to recursively search through the tree structure.
+
+The main method creates some sample nodes and adds edges between them, then prints out the children of a target node. Finally, it tests the edge creation functionality by creating a new leaf node and an existing tag node, then checks for any potential conflicts when adding edges.
+===================================================
+
+
+====================== Iteration #4 ======================
+Here's a Java code solution for the problem:
+
+```java
+import java.util.*;
+
+public class Main {
+    public static Map<String, List<Node>> getChildren(String node, String target) {
+        // Return children of a given node if it exists
+        return getNodes(root, node);
+    }
+
+    private static Map<String, List<Node>> getNodes(Node node) {
+        Map<String, List<Node>> children = new HashMap<>();
+        for (Node child : root.getChildren()) {
+            if (child.getText().equals(node)) {
+                children.computeIfAbsent(child.getText(), k -> new ArrayList<>()).add(node);
+            } else {
+                children.put(child.getText(), getNodes(child));
+            }
+        }
+        return children;
+    }
+
+    public static void main(String[] args) {
+        // Create sample nodes and edges
+        List<Node> leafNodes = Arrays.asList(
+            new LeafNode("L1"),
+            new LeafNode("L2")
+        );
+        List<Node> tagNodes = Arrays.asList(
+            new TagNode("T1", "tag"),
+            new TagNode("T2", "tag")
+        );
+
+        // Add edges
+        leafNodes.get(0).addTagNodes(tagNodes.get(0));
+        tagNodes.get(0).addLeafNodes(leafNodes.get(0));
+
+        // Get children of a target node
+        Map<String, List<Node>> children = getChildren("L1", "T1");
+        for (Map.Entry<String, List<Node>> entry : children.entrySet()) {
+            System.out.println(entry.getKey() + ":");
+            for (Node node : entry.getValue()) {
+                System.out.println(node.toString());
+            }
+        }
+
+        // Test the edge creation functionality
+        leafNodes.get(0).addTagNodes(tagNodes.get(1));
+    }
+}
+
+class Node {
+    public String text;
+    public List<Node> children;
+
+    public void addEdge(Node from) {
+        if (!from.isLeaf()) {
+            throw new RuntimeException("Edge cannot be added from a non-leaf node");
+        }
+        this.children.add(from);
+    }
+
+    public static Map<String, List<Node>> getNodes(Node node) {
+        Map<String, List<Node>> children = new HashMap<>();
+        for (Node child : root.getChildren()) {
+            if (child.getText().equals(node)) {
+                children.computeIfAbsent(child.getText(), k -> new ArrayList<>()).add(node);
+            } else {
+                children.put(child.getText(), getNodes(child));
+            }
+        }
+        return children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Node)) return false;
+        Node node = (Node) o;
+        return this.text.equals(node.text);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.text.hashCode();
+    }
+}
+
+class TagNode extends Node {
+    private String type;
+
+    public TagNode(String text, String type) {
+        super(text, "tag");
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return this.toString() + " - Type: " + type;
+    }
+}
+```
+
+This solution uses a recursive approach to traverse the tree structure and returns all children of a given node. It also checks for edge duplicates and removes any potential conflicts when creating new nodes or edges.
+
+The main method creates some sample nodes, adds edges between them, then prints out the children of a target node. Finally, it tests the edge creation functionality by adding an edge from one tag node to another leaf node.
+===================================================
+
+
+====================== Iteration #5 ======================
+Here's a Java code solution for the problem:
+
+```java
+import java.util.*;
+
+public class Main {
+    public static Map<String, List<Edge>> getEdges(String startNode, String target) {
+        // Return edges of a given node if it exists
+        return getNodes(root, startNode);
+    }
+
+    private static Map<String, List<Edge>> getNodes(Node node) {
+        Map<String, List<Edge>> edges = new HashMap<>();
+        for (Edge edge : root.getEdges()) {
+            if (edge.getSource().equals(node)) {
+                edges.computeIfAbsent(edge.getTarget(), k -> new ArrayList<>()).add(edge);
+            } else {
+                edges.put(edge.getTarget(), getNodes(edge.getTarget()));
+            }
+        }
+        return edges;
+    }
+
+    public static void main(String[] args) {
+        // Create sample nodes and edges
+        List<Edge> leafEdges = Arrays.asList(
+            new Edge("L1", "T1"),
+            new Edge("L2", "T1")
+        );
+        List<Edge> tagEdges = Arrays.asList(
+            new Edge("T1", "L1"),
+            new Edge("T1", "L2"),
+            new Edge("T2", "L1")
+        );
+
+        // Add edges
+        root.addEdge(new Edge("L1", "T1"));
+        root.addEdge(new Edge("L2", "T1"));
+        leafEdges.get(0).setTarget(root);
+        tagEdges.get(0).setSource(root);
+
+        // Get edges of a target node
+        Map<String, List<Edge>> edges = getEdges("L1", "T1");
+        for (Map.Entry<String, List<Edge>> entry : edges.entrySet()) {
+            System.out.println(entry.getKey() + ":");
+            for (Edge edge : entry.getValue()) {
+                System.out.println(edge.toString());
+            }
+        }
+
+        // Test the edge creation functionality
+        root.addEdge(new Edge("L3", "T1"));
+    }
+}
+
+class Node {
+    public String text;
+    public List<Edge> edges;
+
+    public void addEdge(Edge edge) {
+        this.edges.add(edge);
+    }
+}
+
+class Edge {
+    public String source;
+    public String target;
+
+    public Edge(String source, String target) {
+        this.source = source;
+        this.target = target;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + source + ", " + target + ")";
+    }
+}
+```
+
+This solution adds an `addEdge` method to the `Node` class that allows adding edges between nodes. The `getEdges` method in the same class returns all edges of a given node.
+
+The main method creates some sample nodes, adds edges between them, then prints out the edges of a target node and tests the edge creation functionality by adding an edge from one node to another.
+
+Note: This solution assumes that the edges are directed (i.e., a source is connected to a single target). If you need to support undirected edges, you'll need to modify the `addEdge` method accordingly.
+===================================================
+
+
+====================== Iteration #6 ======================

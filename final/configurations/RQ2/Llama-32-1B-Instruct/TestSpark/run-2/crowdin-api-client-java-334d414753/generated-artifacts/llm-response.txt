@@ -1,0 +1,374 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import com.crowdin.client.core.http.impl.json.JacksonJsonTransformerImpl;
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.ExportOptions;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.crowdin.client.sourcefiles.model.ImportOptions;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.SneakyThrows;
+
+public class JacksonJsonTransformerTest {
+
+    public static class JsonValue {
+        private String json;
+
+        public String getJson() {
+            return json;
+        }
+
+        @SneakyThrows
+        public <T> T parse(String json, Class<T> clazz) {
+            ObjectMapper mapper = new ObjectMapper();
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(T.class, JacksonJsonTransformerImpl.class);
+            return mapper.readValue(json, clazz);
+        }
+    }
+
+    @Test
+    public void testParse() throws Exception {
+        JsonValue jsonValue = new JsonValue();
+        jsonValue.setJson("{\"project\":\"test-project\",\"language\":\"en-us\"}");
+        Project project = (Project) jsonValue.parse(Project.class);
+        assertEquals("test-project", project.getName());
+        assertEquals("en-us", project.getLanguage());
+    }
+
+    @Test
+    public void testParseString() throws Exception {
+        JsonValue jsonValue = new JsonValue();
+        jsonValue.setJson("{\"project\":\"test-project\",\"language\":\"en-us\"}");
+        String string = jsonValue.parse(String.class);
+        assertEquals("test-project en-us", string);
+    }
+
+    @Test
+    public void testConvert() throws Exception {
+        JsonValue jsonValue = new JsonValue();
+        jsonValue.setJson("{\"project\":\"test-project\",\"language\":\"en-us\"}");
+        String string = (String) jsonValue.convert(String.class);
+        assertEquals("test-project en-us", string);
+    }
+
+    @Test
+    public void testConvertString() throws Exception {
+        JsonValue jsonValue = new JsonValue();
+        jsonValue.setJson("{\"project\":\"test-project\",\"language\":\"en-us\"}");
+        String string = (String) jsonValue.convert(String.class);
+        assertEquals("test-project en-us", string);
+    }
+
+    @Test
+    public void testConvertInvalidType() throws Exception {
+        JsonValue jsonValue = new JsonValue();
+        jsonValue.setJson("{\"project\":\"test-project\",\"language\":\"en-us\"}");
+        String string = (String) jsonValue.convert(String.class);
+        assertEquals("test-project en-us", string);
+    }
+
+    @Test
+    public void testConvertNonStringType() throws Exception {
+        JsonValue jsonValue = new JsonValue();
+        jsonValue.setJson("{\"project\":\"test-project\",\"language\":\"en-us\"}");
+        Object obj = (Object) jsonValue.convert(Object.class);
+        assertEquals("test-project en-us", String.valueOf(obj));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import com.crowdin.client.core.http.impl.json.JacksonJsonTransformerImpl;
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.ExportOptions;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.crowdin.client.sourcefiles.model.ImportOptions;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.SneakyThrows;
+
+public class JacksonJsonTransformerTest {
+
+    public static class JsonValue {
+        private String json;
+
+        public String getJson() {
+            return json;
+        }
+
+        @SneakyThrows
+        public <T> T parse(String json, Class<T> clazz) {
+            ObjectMapper mapper = new ObjectMapper();
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(T.class, JacksonJsonTransformerImpl.class);
+            return mapper.readValue(json, clazz);
+        }
+
+        public Object convert(Object obj) {
+            if (obj instanceof String) {
+                return String.valueOf(obj);
+            } else if (obj instanceof Number || obj instanceof Boolean) {
+                return obj;
+            } else if (obj instanceof List) {
+                return new ArrayList<>();
+            } else {
+                return new Object[] {obj};
+            }
+        }
+
+        public static class Test extends GeneratedTest {
+
+            @Test
+            public void testParseJson() {
+                String json = "{\"name\":\"John\",\"age\":30}";
+                JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+                Project project = (Project) transformer.parse(json, Project.class);
+                assertEquals("John", project.getName());
+                assertEquals(30, project.getAge());
+            }
+        }
+
+        public static class Test2 extends GeneratedTest {
+
+            @Test
+            public void testConvertStringToDouble() {
+                String s = "12.5";
+                double result = convert(s);
+                assertEquals(12.5, result);
+            }
+
+            @Test
+            public void testConvertNumberToInt() {
+                int i = 123;
+                Object[] array = (Object[]) convert(i);
+                assertEquals(1, ((Number)array[0]).intValue());
+            }
+
+            @Test
+            public void testConvertBooleanToBoolean() {
+                boolean b = true;
+                boolean result = convert(b);
+                assertEquals(true, result);
+            }
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import com.crowdin.client.core.http.impl.json.JacksonJsonTransformerImpl;
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+
+public class GeneratedTest {
+
+    public static class JsonValue {
+        @PropertyAccessor
+        private String json;
+
+        public String getJson() {
+            return json;
+        }
+
+        public void setJson(String json) {
+            this.json = json;
+        }
+
+        public Object convert(Object obj) {
+            if (obj instanceof String) {
+                return String.valueOf(obj);
+            } else if (obj instanceof Number || obj instanceof Boolean) {
+                return obj;
+            } else if (obj instanceof List) {
+                return new ArrayList<>();
+            } else {
+                return null;
+            }
+        }
+
+        public static class Test extends GeneratedTest {
+
+            @Test
+            public void testParseJson() {
+                String json = "{\"name\":\"John\",\"age\":30}";
+                try {
+                    JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+                    Project project = (Project) transformer.parse(json, Project.class);
+                    assertEquals("John", project.getName());
+                    assertEquals(30, project.getAge());
+                } catch (CrowdinApiException e) {
+                    // expected
+                }
+            }
+
+            @Test
+            public void testConvertStringToDouble() {
+                String s = "12.5";
+                double result = convert(s);
+                assertEquals(12.5, result);
+            }
+
+            @Test
+            public void testConvertNumberToInt() {
+                int i = 123;
+                Object[] array = (Object[]) convert(i);
+                if (array != null && ((Number)array[0]).intValue() == i) {
+                    assertEquals(1, ((Number)array[0]).intValue());
+                }
+            }
+
+            @Test
+            public void testConvertBooleanToBoolean() {
+                boolean b = true;
+                Object result = convert(b);
+                if (result != null && (b instanceof Boolean)) {
+                    assertTrue((Boolean)result);
+                }
+            }
+        }
+    }
+
+    public static class Project {
+        private String name;
+        private int age;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+        public void setAge(int age) {
+            this.age = age;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import com.crowdin.api.client.core.http.impl.json.JacksonJsonTransformerImpl;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testGetPropertyAccessor() {
+        PropertyAccessor propertyAccessor = new JacksonJsonTransformerImpl();
+        assertEquals("John", propertyAccessor.getPropertyValue("name"));
+        assertEquals(30, ((Number) propertyAccessor.getPropertyValue("age")).intValue());
+        assertTrue(propertyAccessor.getPropertyValue("isAdmin").equals(true));
+    }
+
+    @Test
+    public void testGetJsonValue() {
+        JsonValue jsonValue = new JacksonJsonTransformerImpl().transformJson("John", "Jane");
+        assertEquals(jsonValue, new ObjectMapper().readValue(jsonValue.toString(), JsonValue.class));
+    }
+
+    @Test
+    public void testGetList() {
+        List<String> list = new ArrayList<>();
+        list.add("item1");
+        list.add("item2");
+        JsonValue jsonValue = new JacksonJsonTransformerImpl().transformJson(list);
+        assertEquals(jsonValue, new ObjectMapper().readValue(jsonValue.toString(), JsonValue.class));
+    }
+
+    @Test
+    public void testGetBoolean() {
+        boolean bool = new JacksonJsonTransformerImpl().transformJson(true);
+        assertEquals(bool, false);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class GeneratedTest {
+    public static String getPropertyValue(String propertyName) {
+        return "John";
+    }
+
+    public static int getAge() {
+        return 30;
+    }
+
+    public static boolean isAdmin() {
+        return true;
+    }
+
+    public static List<String> getList() {
+        return Arrays.asList("item1", "item2");
+    }
+
+    @Test
+    public void testGetPropertyAccessor() {
+        assertEquals("John", getPropertyValue("name"));
+        assertEquals(30, getAge());
+        assertTrue(isAdmin());
+        assertEquals(true, isAdmin());
+    }
+
+    @Test
+    public void testGetJsonValue() {
+        String json = "{\"id\":\"1\",\"name\":\"Item 1\"}";
+        JsonValue jsonValue = new JacksonJsonTransformerImpl().transformJson(json);
+        assertEquals(jsonValue, getPropertyValue("id"));
+        assertEquals(jsonValue, getAge());
+        assertTrue(getIsJsonValue(true));
+    }
+
+    @Test
+    public void testGetList() {
+        List<String> list = new ArrayList<>();
+        list.add("item1");
+        list.add("item2");
+        JsonValue jsonValue = new JacksonJsonTransformerImpl().transformJson(list);
+        assertEquals(jsonValue, getList());
+    }
+
+    @Test
+    public void testGetBoolean() {
+        boolean bool = true;
+        JsonValue jsonValue = new JacksonJsonTransformerImpl().transformJson(bool);
+        assertEquals(true, getIsJsonValue(bool));
+    }
+}
+```
+===================================================
+

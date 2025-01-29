@@ -1,0 +1,112 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testBuildUrl() {
+        String inputUrl = "https://example.com/path?param1=value1&param2=value2";
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(inputUrl));
+        String expectedOutput = "https://example.com/path?param1=value1&param2=value2";
+        when(urlBuilder.build()).thenReturn(URISyntaxException.class.isInstance(new URLSearchParams(inputUrl).getValuesMap()));
+        String actualOutput = urlBuilder.build();
+        assertEquals(expectedOutput, actualOutput);
+    }
+
+    @Test
+    public void testAppendKeyVal() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com/path?param1=value1&param2=value2"));
+        when(urlBuilder.appendKeyVal(mock(Connection.KeyVal.class))).thenReturn(true);
+
+        String expectedOutput = "https://example.com/path?param1=value1&param2=value2";
+        String actualOutput = urlBuilder.appendKeyVal(new Connection.KeyVal("param1", "value1"));
+        assertEquals(expectedOutput, actualOutput);
+    }
+
+    @Test
+    public void testAppendKeyVal_FailingToCreateURL() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com/path?param1=value1&param2=value2"));
+        when(urlBuilder.appendKeyVal(mock(Connection.KeyVal.class))).thenReturn(true);
+
+        String expectedOutput = "https://example.com/path?param1=value1&param2=value2";
+        assertThrows(UnsupportedEncodingException.class, () -> urlBuilder.appendKeyVal(new Connection.KeyVal("", "")));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testBuildUrl() {
+        String inputUrl = "https://example.com/path?param1=value1&param2=value2";
+        UrlBuilder urlBuilder = new UrlBuilder(mock(URL.class));
+        when(urlBuilder.build()).thenReturn(new URISyntaxException(inputUrl, 0));
+        String expectedOutput = "https://example.com/path?param1=value1&param2=value2";
+        String actualOutput = urlBuilder.build();
+        assertEquals(expectedOutput, actualOutput);
+    }
+
+    @Test
+    public void testAppendKeyVal_Succeeds() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com/path?param1=value1&param2=value2"));
+        when(urlBuilder.appendKeyVal(mock(Connection.KeyVal.class))).thenReturn(true);
+        String actualOutput = urlBuilder.appendKeyVal(new Connection.KeyVal("param1", "value1"));
+        assertTrue(actualOutput.equals("param1=value1&param2=value2"));
+    }
+
+    @Test
+    public void testAppendKeyVal_Fails() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com/path?param1=value1&param2=value2"));
+        when(urlBuilder.appendKeyVal(mock(Connection.KeyVal.class))).thenThrow(UnsupportedEncodingException.class);
+        assertThrows(UnsupportedEncodingException.class, () -> urlBuilder.appendKeyVal(new Connection.KeyVal("param1", "value1")));
+    }
+
+    @Test
+    public void testAppendKeyVal_CausesException() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com/path?param1=value1&param2=value2"));
+        when(urlBuilder.appendKeyVal(mock(Connection.KeyVal.class))).thenThrow(UnsupportedEncodingException.class);
+        assertThrows(UnsupportedEncodingException.class, () -> urlBuilder.appendKeyVal(new Connection.KeyVal("", "")));
+    }
+
+    @Test
+    public void testBuildUrl_NullUrl() {
+        UrlBuilder urlBuilder = new UrlBuilder(null);
+        when(urlBuilder.build()).thenReturn(new URISyntaxException("https://example.com/path?param1=value1&param2=value2", 0));
+        String expectedOutput = "https://example.com/path?param1=value1&param2=value2";
+        String actualOutput = urlBuilder.build();
+        assertEquals(expectedOutput, actualOutput);
+    }
+
+    @Test
+    public void testAppendKeyVal_NullInput() {
+        UrlBuilder urlBuilder = new UrlBuilder(mock(URL.class));
+        when(urlBuilder.appendKeyVal(null)).thenReturn(true);
+        assertThrows(NullPointerException.class, () -> urlBuilder.appendKeyVal(new Connection.KeyVal("param1", "value1")));
+    }
+
+    @Test
+    public void testAppendKeyVal_NullConnection() {
+        UrlBuilder urlBuilder = new UrlBuilder(mock(URL.class));
+        when(urlBuilder.appendKeyVal(null)).thenReturn(true);
+        assertThrows(NullPointerException.class, () -> urlBuilder.appendKeyVal(new Connection()));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================

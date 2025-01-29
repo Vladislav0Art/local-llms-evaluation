@@ -1,0 +1,12 @@
+package org.traccar.protocol;
+
+public class GeneratedTestGetManufacturer {
+
+    @Test
+    public void testGetManufacturer() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        String result = decoder.getManufacturer();
+        assertEquals("Traccar", result);
+    }
+
+}

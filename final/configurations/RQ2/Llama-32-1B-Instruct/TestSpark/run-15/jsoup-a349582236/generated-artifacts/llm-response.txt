@@ -1,0 +1,298 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class Tag {
+    private static final Map<String, String> tagNames = new HashMap<>();
+
+    static {
+        tagNames.put("b", "body");
+        tagNames.put("em", "font em");
+        tagNames.put("i", "font i");
+        tagNames.put("u", "span u");
+        tagNames.put("s", "abbr");
+        tagNames.put("samp", "code");
+        // Add more tags as needed
+    }
+
+    private String tagName;
+    private String name;
+
+    public Tag(String tagName) {
+        this.tagName = tagName;
+        String tagNameLower = normalizeTagName(tagName.toLowerCase());
+        if (tagNames.containsKey(tagNameLower)) {
+            this.name = tagNames.get(tagNameLower);
+        } else {
+            throw new IllegalArgumentException("Unknown tag: " + tagName);
+        }
+    }
+
+    public static Tag valueOf(String tagName) {
+        return new Tag(tagNames.get(tagName));
+    }
+
+    private String normalizeTagName(String tagName) {
+        for (char c : tagName.toCharArray()) {
+            if (!Character.isLetterOrDigit(c)) {
+                tagName = tagName.replaceFirst("^[a-zA-Z]", "");
+                break;
+            }
+        }
+        return tagName.toLowerCase();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isBlock() {
+        return "block".equals(tagName);
+    }
+
+    public boolean formatAsBlock() {
+        return true;
+    }
+
+    public boolean isInline() {
+        return false;
+    }
+
+    public boolean isEmpty() {
+        return tagName.isEmpty();
+    }
+
+    public boolean isSelfClosing() {
+        return false;
+    }
+
+    public boolean isKnownTag() {
+        return true; // All tags are known
+    }
+
+    public static boolean isKnownTag(String tagName) {
+        return tagNames.containsKey(tagName);
+    }
+
+    public boolean preserveWhitespace() {
+        return false;
+    }
+
+    public boolean isFormListed() {
+        return false;
+    }
+
+    public boolean isFormSubmittable() {
+        return false;
+    }
+
+    public Tag setSelfClosing() {
+        tagName = "self";
+        name = tagNames.get(tagNameLower);
+        return this;
+    }
+}
+
+public class TestTag {
+    private Tag tag;
+
+    public void testTagToString() {
+        assertEquals("body", tag.getName());
+    }
+
+    public void testTagIsBlock() {
+        assertTrue(tag.isBlock());
+    }
+
+    public void testTagIsInline() {
+        assertFalse(tag.isInline());
+    }
+
+    public void testEmptyString() {
+        tag = Tag.valueOf("");
+        assertTrue(tag.isEmpty());
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class NormalizerTest {
+
+    @Test
+    public void testNormalizeTagName_BeforeNormalization() {
+        assertEquals("body", Tag.Normalizer.normalizeTagName("b"));
+    }
+
+    @Test
+    public void testNormalizeTagName_EmptyString() {
+        assertEquals("", Tag.Normalizer.normalizeTagName(""));
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class TagNormalizerTest {
+
+    @Test
+    public void testNormalizeTagName_BeforeNormalization() {
+        assertEquals("body", Tag.Normalizer.normalizeTagName("b"));
+    }
+
+    @Test
+    public void testNormalizeTagName_EmptyString() {
+        assertEquals("", Tag.Normalizer.normalizeTagName(""));
+        assertTrue(Tag.Normalizer.normalizeTagName("").equals(""));
+    }
+
+    @Test
+    public void testNormalizeTagName_DotNotation() {
+        assertEquals("body", Tag.Normalizer.normalizeTagName(".b"));
+        assertEquals("", Tag.Normalizer.normalizeTagName("..b"));
+        assertEquals("body", TagNormalizer.normalizeTagName("\"b\""));
+        assertEquals("", TagNormalizer.normalizeTagName("."));
+    }
+
+    @Test
+    public void testNormalizeTagName_DotCommaNotation() {
+        assertEquals("b", Tag.Normalizer.normalizeTagName("b,"));
+        assertEquals("b", Tag.Normalizer.normalizeTagName(",b"));
+        assertEquals("body", Tag Normalizer.normalizeTagName("body,"));
+        assertEquals("", TagNormalizer.normalizeTagName(","));
+    }
+
+    @Test
+    public void testNormalizeTagName_SemicolonNotation() {
+        assertEquals("b; body", Tag.Normalizer.normalizeTagName("b;b"));
+        assertEquals("b body", TagNormalizer.normalizeTagName(";b"));
+        assertEquals("body", Tag Normalizer.normalizeTagName(";b"));
+        assertEquals("", TagNormalizer.normalizeTagName(";"));
+    }
+
+    @Test
+    public void testNormalizeTagName_CommaNotation() {
+        assertEquals("b, body", Tag.Normalizer.normalizeTagName(",b"));
+        assertEquals("b; body", Tag Normalizer.normalizeTagName(";b"));
+        assertEquals("b b", Tag Normalizer.normalizeTagName(","));
+
+        assertEquals("", TagNormalizer.normalizeTagName(""));
+        assertEquals("body", TagNormalizer.normalizeTagName(""));
+    }
+
+    @Test
+    public void testNormalizeTagName_DotNotationWithComma() {
+        assertEquals("b," + "body", Tag.Normalizer.normalizeTagName(".b;"));
+        assertEquals("b body", TagNormalizer.normalizeMethodName(".b;b"));
+        assertEquals("", TagNormalizer.normalizeMethodName(";b"));
+
+        assertEquals("b", Tag Normalizer.normalizeMethodName(""));
+    }
+
+    @Test
+    public void testNormalizeTagName_DotCommaNotation() {
+        assertEquals("\"b\" + \"body\"", Tag.Normalizer.normalizeMethodName("\"b\",\"body\"");
+        assertEquals("\"b body\"".split("\\s+").length, TagNormalizer.normalizeMethodName("\"b;\"").split("\\s+").length);
+        assertEquals("body", Tag Normalizer.normalizeMethodName("body"));
+
+        assertEquals("", TagNormalizer.normalizeMethodName(""));
+    }
+
+    @Test
+    public void testNormalizeTagName_SemicolonNotationWithComma() {
+        assertEquals("b + body", Tag.Normalizer.normalizeMethodName(";b;"));
+        assertEquals("b body +", Tag Normalizer.normalizeMethodName(";b;"));
+        assertEquals("body", Tag Normalizer.normalizeMethodName(";b;b"));
+
+        assertEquals("", TagNormalizer.normalizeMethodName(""));
+    }
+
+    @Test
+    public void testNormalizeTagName_CommaNotationWithSemicolon() {
+        assertEquals("b , body", Tag.Normalizer.normalizeMethodName(",b"));
+        assertEquals("b; body", Tag Normalizer.normalizeMethodName(";b"));
+
+        assertEquals("body", Tag Normalizer.normalizeMethodName("");
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class GeneratedTest {
+    public static void main(String[] args) throws Exception {
+        String body = Jsoup.parse("body").text();
+        Document doc = Jsoup.parse("html", "", "");
+        Elements elements = doc.getElementsByTag("b");
+
+        for (Element element : elements) {
+            assertEquals(body, Tag Normalizer.normalizeTagName(element.tagName()));
+            assertEquals(body, Tag Normalizer.normalizeMethodName(element.name()));
+        }
+
+        String methodBody = Jsoup.parse("//body").text();
+        Document doc2 = Jsoup.parse("//html", "", "");
+        Elements methods = doc2.getElementsByTag("b");
+
+        for (Element element : methods) {
+            assertEquals(methodBody, Tag Normalizer.normalizeMethodName(element.tagName()));
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class GeneratedTest {
+    public static void main(String[] args) throws Exception {
+        String body = Jsoup.parse("body").text();
+        Document doc = Jsoup.parse("html", "", "");
+        Elements elements = doc.getElementsByTag("b");
+
+        for (Element element : elements) {
+            assertEquals(body, Tag Normalizer.normalizeTagName(element.tagName()));
+            assertEquals(body, Tag Normalizer.normalizeMethodName(element.name()));
+        }
+
+        String methodBody = Jsoup.parse("//body").text();
+        Document doc2 = Jsoup.parse("//html", "", "");
+        Elements methods = doc2.getElementsByTag("b");
+
+        for (Element element : methods) {
+            assertEquals(methodBody, Tag Normalizer.normalizeMethodName(element.tagName()));
+        }
+    }
+
+    public static String tagName(String tagName) {
+        return tagName.substring(0, 1).toUpperCase() + tagName.substring(1);
+    }
+
+    public static String methodName(String methodName) {
+        return methodName.substring(0, 1).toUpperCase() + methodName.substring(1);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

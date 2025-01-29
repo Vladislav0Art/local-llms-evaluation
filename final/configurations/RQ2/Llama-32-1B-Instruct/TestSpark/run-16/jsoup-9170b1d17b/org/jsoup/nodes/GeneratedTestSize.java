@@ -1,0 +1,27 @@
+package org.jsoup.nodes;
+
+public class GeneratedTestSize {
+
+    private Attributes attributes;
+
+    @BeforeEach
+    void init() {
+        String key = "testKey";
+        Object value = "testValue";
+        this.attributes = new Attributes("key", value);
+    }
+
+    public void testGet(String key) {
+        assertEquals(key, this.attributes.get(key));
+    }
+
+    public void testGetIgnoreCase(String key) {
+        assertEquals(key, this.attributes.getIgnoreCase(key));
+    }
+
+    @Test
+    public void testSize() {
+        assertEquals(0, this.attributes.size());
+    }
+
+}

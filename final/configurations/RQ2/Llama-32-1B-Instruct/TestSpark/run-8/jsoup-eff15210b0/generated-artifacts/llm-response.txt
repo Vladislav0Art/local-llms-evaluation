@@ -1,0 +1,382 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.helper.HttpConnection;
+import org.junit.Test;
+
+public class HttpHelperTest {
+
+    @Test
+    public void testConnect() {
+        Connection connection = new HttpConnection();
+        System.out.println(connection.connect("https://www.example.com"));
+    }
+
+    @Test
+    public void testConnectUrl() {
+        URL url = new URL("https://www.example.com");
+        Connection connection = connect(url);
+        System.out.println(connection.url(url));
+    }
+
+    @Test
+    public void testHttpConnectionConstructor() {
+        HttpConnection connection = new HttpConnection();
+        System.out.println(connection.url(new URL("https://www.example.com")));
+        System.out.println(connection.request());
+        System.out.println(connection.response());
+        System.out.println(connection.postDataCharset("utf-8"));
+    }
+
+    @Test
+    public void testIgnoreHttpErrors() {
+        Connection connection = new HttpConnection();
+        connection.ignoreHttpErrors(true);
+        try {
+            connection.execute();
+        } catch (IOException e) {
+            // Expected exception
+        }
+    }
+
+    @Test
+    public void testIgnoreContentType() {
+        Connection connection = new HttpConnection();
+        connection.ignoreContentType(false);
+        try {
+            connection.execute();
+        } catch (IOException e) {
+            // Expected exception
+        }
+    }
+
+    @Test
+    public void testCookieManager() {
+        CookieStore cookieStore = new CookieManager();
+        System.out.println(cookieStore.get());
+    }
+
+    @Test
+    public void testCookieStore() {
+        CookieStore cookieStore = new CookieStore();
+        System.out.println(cookieStore);
+    }
+
+    @Test
+    public void testParser() {
+        Parser parser = new Parser();
+        System.out.println(parser.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.ConnectionBuilder;
+import org.jsoup.ConnectionOptions;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class HttpHelperTest {
+
+    public static Connection connect(String url) {
+        return new Connection.Builder()
+                .build().connect(url);
+    }
+
+    @Test
+    public void testConnect() {
+        Document doc = Jsoup.connect("https://www.example.com").get();
+        System.out.println(doc.body());
+    }
+
+    @Test
+    public void testConnectUrl() {
+        URL url = new URL("https://www.example.com");
+        Connection connection = connect(url);
+        System.out.println(connection.url(url));
+    }
+
+    @Test
+    public void testHttpConnectionConstructor() {
+        Document doc = Jsoup.connect("https://www.example.com").get();
+        System.out.println(doc.body());
+        // String response = doc.toString();
+        // System.out.println(response);
+        System.out.println("Response: " + doc.status());
+        System.out.println("Status Code: " + doc.statusCode());
+    }
+
+    @Test
+    public void testIgnoreHttpErrors() {
+        Connection connection = connect("https://www.example.com");
+        try {
+            if (connection.isRedirect()) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testIgnoreContentType() {
+        CookieStore cookieStore = new CookieManager();
+        String cookies = "session_id=1234567890; _csrf_token=abcdefg";
+        for (String cookie : cookies.split("; ")) {
+            cookieStore.set(cookie, true);
+        }
+        try {
+            connection = new HttpConnection("https://www.example.com");
+            connection.execute();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testCookieManager() {
+        CookieStore cookieStore = new CookieManager();
+        String cookies = "session_id=1234567890; _csrf_token=abcdefg";
+        for (String cookie : cookies.split("; ")) {
+            cookieStore.set(cookie, true);
+        }
+        System.out.println(cookieStore.get());
+    }
+
+    @Test
+    public void testParser() {
+        Parser parser = new Parser();
+        String response = Jsoup.connect("https://www.example.com").execute().body();
+        System.out.println(response);
+        // System.out.println(response.toString());
+        // System.out.println(response.html());
+        // System.out.println(response.text());
+        String cookie = cookieStore.get("session_id");
+        if (cookie != null) {
+            Element element = doc.selectFirst(".session_id").first();
+            System.out.println(element.attr("value"));
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+public class Example {
+    @Before
+    public void setup() {
+        // Initialize the CookieStore instance
+        CookieStore cookieStore = new CookieManager();
+    }
+
+    @Test
+    public void testParseRequest() throws Exception {
+        String url = "https://www.example.com";
+        Request request = new Request(url);
+        Response response = new Response();
+
+        // Add a cookie
+        request.addCookie(new Cookie("session_id", "12345"));
+
+        // Send the request and get the response
+        response = (Response) request.send();
+
+        // Verify that the cookie was set in the response
+        String cookies = response.getCookies();
+        if (!cookies.contains("session_id")) {
+            throw new RuntimeException("Cookie 'session_id' not found in response");
+        }
+
+        // Verify that the correct value was stored as a string
+        String expectedValue = "12345";
+        boolean isString = false;
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("session_id")) {
+                isString = true;
+                break;
+            }
+        }
+        assert isString == true;
+
+        // Verify that the correct value was stored as a string
+        String actualValue = response.getValue();
+        boolean isCorrectValue = false;
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("session_id")) {
+                isCorrectValue = true;
+                break;
+            }
+        }
+        assert isCorrectValue == true;
+
+        // Remove the cookie
+        request.removeCookie(new Cookie("session_id", "12345"));
+    }
+
+    @Test
+    public void testGetCookie() throws Exception {
+        String url = "https://www.example.com";
+        Request request = new Request(url);
+        Response response = new Response();
+
+        // Add a session ID as a cookie
+        request.addCookie(new Cookie("session_id", "12345"));
+
+        // Send the request and get the cookies
+        cookies = response.getCookies();
+        String expectedValue = "12345";
+
+        // Verify that the correct value was stored in the response
+        if (!cookies.contains("session_id")) {
+            throw new RuntimeException("Cookie 'session_id' not found in response");
+        }
+
+        // Verify that the correct value is returned from getCookie()
+        assert expectedValue.equals(cookies.get("session_id"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class GeneratedTest {
+    private static CookieStore cookieStore = new CookieManager();
+    private static Response response;
+
+    public void testCookieAdd() {
+        Request request = new Request(url);
+        cookies.add(cookieStore.addCookie("session_id", "12345"));
+    }
+
+    public void testGetResponse() {
+        request = new Request(url);
+        response = (Response) request.send();
+    }
+
+    public void testCheckCookiesContains() {
+        if (!cookies.contains("session_id")) {
+            throw new AssertionError("Expected 'session_id' to be in the cookies");
+        }
+    }
+
+    public static void main(String[] args) {
+        GeneratedTest test = new GeneratedTest();
+        test.testCookieAdd();
+        test.testGetResponse();
+        test.testCheckCookiesContains();
+
+        // Additional tests
+        test.testRemoveCookie();
+        test.testGetResponseAfterRemoveCookie();
+        test.testCheckCookiesContainsAfterRemoveCookie();
+    }
+
+    public void testRemoveCookie() {
+        Request request = new Request(url);
+        cookies.remove(cookieStore.addCookie("session_id", "12345"));
+        assert response == null;
+    }
+
+    public void testGetResponseAfterRemoveCookie() {
+        Response response = (Response) request.send();
+        if (!response.isSuccessful()) {
+            throw new AssertionError("Expected 'response' to be successful");
+        }
+    }
+
+    public void testCheckCookiesContainsAfterRemoveCookie() {
+        Cookie cookie = new Cookie("session_id", "12345");
+        cookies.add(cookie);
+        assert !cookies.contains(cookie);
+    }
+
+    @Test
+    public void testGetResponseOnlyWithOneCookie() {
+        Request request = new Request(url);
+        Response response = (Response) request.send();
+        assertEquals(200, response.getStatus());
+        assertNotNull(response.getContent());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class TestClass {
+    public static String getCookie() {
+        return "session_id=12345";
+    }
+
+    public static Response post(String url, Map<String, String> data) {
+        // Create a new Request object
+        Request request = new Request(url);
+        
+        // Add the cookie to the request
+        request.addHeader("Cookie", getCookie());
+        
+        // Send the POST request and get the response
+        Response response = server.execute(request, data);
+        
+        return response;
+    }
+
+    public static void main(String[] args) {
+        String url = "http://example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("key", "value");
+
+        Response response = post(url, data);
+
+        // Check the cookie
+        assert !response.getCookie().containsKey("session_id");
+    }
+}
+
+class Request {
+    private final HttpUrl url;
+
+    public Request(String url) {
+        this.url = HttpUrl.parse(url);
+    }
+
+    public void addHeader(String key, String value) {
+        URL locationUrl = url.getScheme() + "://" + url.getHost() + "/login";
+        request = new Request(locationUrl);
+        request.addHeader(key, value);
+    }
+}
+
+class Response {
+    private final Map<String, String> cookies;
+
+    public Response(Map<String, String> cookies) {
+        this.cookies = cookies;
+    }
+
+    public boolean containsKey(String key) {
+        return cookies.containsKey(key);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

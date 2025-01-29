@@ -1,0 +1,656 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class Attribute {
+    private static final Map<String, Integer> internalKey = new HashMap<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Attribute that = (Attribute) o;
+
+        return Objects.equals(key, that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
+    }
+}
+
+public class AttributesImpl implements Iterable<Attribute>, Cloneable {
+    private final List<Attribute> attributes;
+
+    public static String checkNotNull(@Nullable Object val) {
+        if (val == null) {
+            throw new NullPointerException("Value is null");
+        }
+        internalKey.put(lowerCase(val.toString()), 1);
+        return val.toString();
+    }
+
+    @Override
+    public Iterator<Attribute> iterator() {
+        return attributes.iterator();
+    }
+
+    public String get(String key) {
+        if (internalKey.containsKey(key)) {
+            return CheckNotNull(this.key).charAt(0).toString();
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    @Nullable
+    public Object getUserData(String key) {
+        if (internalKey.containsKey(key)) {
+            return internalKey.get(lowerCase(key));
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    public AttributesImpl add(String key, @Nullable String value) {
+        CheckNotNull(value);
+        attributes.add(new Attribute());
+        internalKey.put(lowerCase(key), 1);
+        return this;
+    }
+
+    public void put(String key, @Nullable String value) {
+        CheckNotNull(value);
+        internalKey.put(lowerCase(key), 1);
+        attribute().put(value);
+    }
+
+    public AttributesImpl putUserData(String key, Object value) {
+        CheckNotNull(value);
+        attributes.add(new Attribute());
+        internalKey.put(lowerCase(key), 1);
+        attribute().put(value);
+        return this;
+    }
+
+    void putIgnoreCase(String key, @Nullable String value) {
+        if (internalKey.containsKey(key)) {
+            internalKey.put(lowerCase(key), internalKey.get(key) + 1);
+            return;
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    public AttributesImpl put(String key, boolean value) {
+        CheckNotNull(value);
+        internalKey.put(lowerCase(key), 1);
+        attribute().put(value);
+        return this;
+    }
+
+    @Override
+    public void remove(String key) {
+        if (internalKey.containsKey(key)) {
+            internalKey.remove(lowerCase(key));
+            attributes.remove(attribute());
+            return;
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    @Override
+    public boolean hasKey(String key) {
+        return internalKey.containsKey(key);
+    }
+
+    @Override
+    public boolean hasKeyIgnoreCase(String key) {
+        return internalKey.containsKey(lowerCase(key));
+    }
+
+    @Override
+    public boolean hasDeclaredValueForKey(String key) {
+        return attribute().hasDeclaredValueForKey(key);
+    }
+
+    @Override
+    public boolean hasDeclaredValueForKeyIgnoreCase(String key) {
+        return attribute().hasDeclaredValueForKeyIgnoreCase(key);
+    }
+
+    public int size() {
+        return attributes.size();
+    }
+
+    public boolean isEmpty() {
+        return attributes.isEmpty();
+    }
+
+    @Override
+    public Iterator<Attribute> iterator() {
+        return attributes.iterator();
+    }
+
+    public List<Attribute> asList() {
+        List<Attribute> list = new ArrayList<>(attributes);
+        internalKey.forEach((key, count) -> list.add(new Attribute(key)));
+        return list;
+    }
+
+    private Attribute attribute() {
+        AttributesImpl current = this;
+        while (current != null) {
+            if (!current.hasDeclaredValueForKey(current.key)) {
+                break;
+            }
+            current = current.attribute();
+        }
+        return current;
+    }
+
+    @Override
+    public String toString() {
+        List<Attribute> attributes = new ArrayList<>();
+        for (Attribute attribute : attributes) {
+            attributes.add(attribute.toString());
+        }
+        return String.join("\n", attributes);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AttributesImpl that = (AttributesImpl) o;
+
+        return attribute().equals(that.attribute());
+    }
+
+    @Override
+    public int hashCode() {
+        return attribute().hashCode();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class AttrValue implements Cloneable, Iterable<String> {
+    private static final Set<AttrValue> internalValues = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AttrValue that = (AttrValue) o;
+
+        return Objects.equals(key, that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
+    }
+}
+
+public class AttributesImpl implements Iterable<String>, Cloneable {
+    private final Map<String, List<AttrValue>> values;
+    private String key;
+    private final Attributes attributes;
+
+    public static String checkNotNull(@Nullable Object val) {
+        if (val == null) {
+            throw new NullPointerException("Value is null");
+        }
+        internalKey.put(lowerCase(val.toString()), 1);
+        return val.toString();
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return values.keySet().iterator();
+    }
+
+    private AttrValue getUserData(String key) {
+        if (values.containsKey(key)) {
+            for (AttrValue attribute : values.get(key)) {
+                if (attribute.equals(key)) {
+                    return attribute;
+                }
+            }
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    public AttrValue add(String key, @Nullable String value) {
+        CheckNotNull(value);
+        internalKey.put(lowerCase(key), 1);
+        values.computeIfAbsent(lowerCase(key), k -> Collections.singletonList(new AttrValue(AttrValue.class)).toArray()[0]).add(value);
+        return this;
+    }
+
+    public void put(String key, @Nullable String value) {
+        CheckNotNull(value);
+        internalKey.put(lowerCase(key), 1);
+        attribute().put(value);
+    }
+
+    private AttributesImpl putUserData(String key, Object value) {
+        CheckNotNull(value);
+        values.computeIfAbsent(lowerCase(key), k -> Collections.singletonList(new AttrValue(AttrValue.class)).toArray()[0]).add(getUserData(key));
+        return this;
+    }
+
+    void putIgnoreCase(String key, @Nullable String value) {
+        if (values.containsKey(key)) {
+            for (AttrValue attribute : values.get(key)) {
+                if (attribute.equals(key)) {
+                    internalKey.put(lowerCase(key), internalKey.get(key) + 1);
+                    return;
+                }
+            }
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    public AttrValue get(String key) {
+        if (values.containsKey(key)) {
+            for (AttrValue attribute : values.get(key)) {
+                if (attribute.equals(key)) {
+                    return attribute;
+                }
+            }
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    @Override
+    public void remove(String key) {
+        if (values.containsKey(key)) {
+            values.get(lowerCase(key)).remove(get(key));
+            internalKey.remove(lowerCase(key));
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    private AttrValue attribute() {
+        AttributesImpl current = this;
+        while (current != null) {
+            if (!current.hasDeclaredValueForKey(current.key)) {
+                break;
+            }
+            current = current.attribute();
+        }
+        return current;
+    }
+
+    @Override
+    public String toString() {
+        List<String> values = new ArrayList<>();
+        for (AttrValue attribute : values) {
+            values.add(attribute.toString());
+        }
+        return String.join("\n", values);
+    }
+
+    private final Attributes attributes;
+
+    public AttrValueImpl(String key, Attributes attributes) {
+        this.key = key;
+        this.attributes = attributes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AttrValueImpl that = (AttrValueImpl) o;
+
+        return internalKey.equals(that.internalKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return internalKey.hashCode();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Key {
+    private static final Set<String> internalKeys = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Key that = (Key) o;
+
+        return Objects.equals(key, that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
+    }
+}
+
+public class AttributesImpl implements Iterable<String>, Cloneable {
+    private final Map<String, List<AttrValue>> values;
+    private String key;
+    private final Attributes attributes;
+
+    public static Key checkNotNull(@Nullable Object val) {
+        if (val == null) {
+            throw new NullPointerException("Key is null");
+        }
+        internalKey.put(key, 1);
+        return val instanceof String ? (String) val : val.getClass().getName();
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return values.keySet().iterator();
+    }
+
+    private AttrValue getUserData(String key) {
+        if (values.containsKey(key)) {
+            for (AttrValue attribute : values.get(key)) {
+                if (attribute.equals(key)) {
+                    return attribute;
+                }
+            }
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    public AttrValue add(String key, @Nullable String value) {
+        CheckNotNull(value);
+        internalKey.put(key, 1);
+        values.computeIfAbsent(key, k -> Collections.singletonList(new AttrValue(AttrValue.class)).toArray()[0]).add(getUserData(key));
+        return this;
+    }
+
+    public void put(String key, @Nullable String value) {
+        CheckNotNull(value);
+        internalKey.put(key, 1);
+        attribute().put(value);
+    }
+
+    private AttributesImpl putUserData(String key, Object value) {
+        CheckNotNull(value);
+        values.computeIfAbsent(key, k -> Collections.singletonList(new AttrValue(AttrValue.class)).toArray()[0]).add(getUserData(key));
+        return this;
+    }
+
+    void putIgnoreCase(String key, @Nullable String value) {
+        if (values.containsKey(key)) {
+            for (AttrValue attribute : values.get(key)) {
+                if (attribute.equals(key)) {
+                    internalKey.put(key, internalKey.get(key) + 1);
+                    return;
+                }
+            }
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    public AttrValue get(String key) {
+        if (values.containsKey(key)) {
+            for (AttrValue attribute : values.get(key)) {
+                if (attribute.equals(key)) {
+                    return attribute;
+                }
+            }
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    @Override
+    public void remove(String key) {
+        internalKey.remove(key);
+    }
+
+    private AttrValue attribute() {
+        AttributesImpl current = this;
+        while (current != null) {
+            if (!current.hasDeclaredValueForKey(current.key)) {
+                break;
+            }
+            current = current.attribute();
+        }
+        return current;
+    }
+
+    @Override
+    public String toString() {
+        List<String> values = new ArrayList<>();
+        for (AttrValue attribute : values) {
+            values.add(attribute.toString());
+        }
+        return String.join("\n", values);
+    }
+
+    private final Attributes attributes;
+
+    public AttrValueImpl(String key, Attributes attributes) {
+        this.key = key;
+        this.attributes = attributes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AttrValueImpl that = (AttrValueImpl) o;
+
+        return internalKey.equals(that.internalKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return internalKey.hashCode();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class AttrValueImpl implements Cloneable, Iterable<String> {
+    private static final Set<AttrValueImpl> internalValues = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AttrValueImpl that = (AttrValueImpl) o;
+
+        return internalKey.equals(that.internalKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return internalKey.hashCode();
+    }
+}
+
+public class AttributesImpl implements Iterable<String>, Cloneable {
+    private final Map<String, List<AttrValueImpl>> values;
+    private String key;
+    private final Set<String> internalKeys = new HashSet<>();
+    private final Attributes attributes;
+
+    public static Key checkNotNull(@Nullable Object val) {
+        if (val == null) {
+            throw new NullPointerException("Key is null");
+        }
+        for (String s : internalKeys) {
+            internalKeys.remove(s);
+        }
+        return val instanceof String ? (String) val : val.getClass().getName();
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return values.keySet().iterator();
+    }
+
+    private AttrValueImpl getUserData(String key) {
+        if (values.containsKey(key)) {
+            for (AttrValueImpl attribute : values.get(key)) {
+                if (attribute.equals(key)) {
+                    return attribute;
+                }
+            }
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    public AttrValueImpl add(String key, @Nullable String value) {
+        CheckNotNull(value);
+        for (AttrValueImpl attribute : values.get(key)) {
+            if (!attribute.equals(key)) {
+                return attribute;
+            }
+        }
+        internalKey.add(key);
+        return this;
+    }
+
+    public void put(String key, @Nullable String value) {
+        CheckNotNull(value);
+        for (AttrValueImpl attribute : values.get(key)) {
+            if (!attribute.equals(key)) {
+                attribute.put(value);
+            }
+        }
+    }
+
+    private AttrValueImpl putUserData(String key, Object value) {
+        CheckNotNull(value);
+        for (AttrValueImpl attribute : values.get(key)) {
+            if (!attribute.equals(key)) {
+                attribute.put(value);
+            }
+        }
+        return this;
+    }
+
+    void putIgnoreCase(String key, @Nullable String value) {
+        for (AttrValueImpl attribute : values.get(key)) {
+            if (!attribute.equals(key)) {
+                attribute.put(value);
+            }
+        }
+    }
+
+    public AttrValueImpl get(String key) {
+        if (values.containsKey(key)) {
+            for (AttrValueImpl attribute : values.get(key)) {
+                if (attribute.equals(key)) {
+                    return attribute;
+                }
+            }
+        } else {
+            throw new RuntimeException("No attribute found with name '" + key + "'");
+        }
+    }
+
+    @Override
+    public void remove(String key) {
+        internalKey.remove(key);
+    }
+
+    private AttrValueImpl attribute() {
+        AttributesImpl current = this;
+        while (current != null) {
+            if (!current.hasDeclaredValueForKey(current.key)) {
+                break;
+            }
+            current = current.attribute();
+        }
+        return current;
+    }
+
+    @Override
+    public String toString() {
+        List<String> values = new ArrayList<>();
+        for (AttrValueImpl attribute : values) {
+            values.add(attribute.toString());
+        }
+        return String.join("\n", values);
+    }
+
+    private final Set<String> internalKeys;
+
+    public AttrValueImplImpl(String key, Attributes attributes) {
+        this.key = key;
+        this.attributes = attributes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AttrValueImplImpl that = (AttrValueImplImpl) o;
+
+        return key.equals(that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return key.hashCode();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Main {
+    public static void main(String[] args) {
+        AttrValueImplImpl attr = new AttrValueImplImpl("key1", new AttributesImpl());
+        System.out.println(attr.toString());
+
+        attr.put("value1", "value1");
+        attr.put("value2", "value2");
+
+        System.out.println(attr.getUserData("value1"));
+
+        for (AttrValueImplImpl attribute : attr.values()) {
+            System.out.println(attribute);
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

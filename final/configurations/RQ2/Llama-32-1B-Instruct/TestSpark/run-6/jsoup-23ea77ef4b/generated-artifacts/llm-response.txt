@@ -1,0 +1,398 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class W3CDomTest {
+
+    @Test
+    public void testNamespaceAware() {
+        Properties properties = new HashMap<>();
+        properties.put("http://example.com", "namespace");
+        Properties expectedProperties = new HashMap<>();
+        expectedProperties.put("xmlns:", "namespace");
+        expectedProperties.put("href:", "http://example.com");
+        W3CDom.W3CDom propertiesToUse = new W3CDom();
+        Assert.assertTrue(properties.equals(propertiesToUse.namespaceAware(true)));
+    }
+
+    @Test
+    public void testNamespaceAwareFalse() {
+        Properties properties = new HashMap<>();
+        properties.put("http://example.com", "namespace");
+        Properties expectedProperties = new HashMap<>();
+        expectedProperties.put("xmlns:", "namespace");
+        expectedProperties.put("href:", "http://example.com");
+        W3CDom.W3CDom propertiesToUse = new W3CDom();
+        Assert.assertFalse(properties.equals(propertiesToUse.namespaceAware(false)));
+    }
+
+    @Test
+    public void testNamespaceAwareProperties() {
+        Properties properties = new HashMap<>();
+        properties.put("http://example.com", "namespace");
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("xmlns:", "namespace");
+        expectedMap.put("href:", "http://example.com");
+        Assert.assertTrue(properties.equals(W3CDom.propertiesFromMap(expectedMap)));
+    }
+
+    @Test
+    public void testOutputHtml() {
+        StringWriter writer = new StringWriter();
+        Document doc = new org.jsoup.nodes.DocumentBuilder().build(neworg.jsoup.nodes.Document("<html><body>test</body></html>"));
+        W3CDom.W3CDom.fromJsoup(doc);
+        String html = writer.toString();
+        Assert.assertTrue(html.contains("http://example.com"));
+    }
+
+    @Test
+    public void testOutputXml() {
+        StringWriter writer = new StringWriter();
+        Document doc = new org.jsoup.nodes.DocumentBuilder().build(neworg.jsoup.nodes.Document("<html><body>test</body></html>"));
+        W3CDom.W3CDom.fromJsoup(doc);
+        String xml = writer.toString();
+        Assert.assertTrue(xml.contains("http://example.com") && xml.contains("/namespace"));
+    }
+
+    @Test
+    public void testFromJsoup() {
+        org.jsoup.nodes.Document doc = new org.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        W3CDom.W3CDom.fromJsoup(doc);
+        Assert.assertEquals("http://example.com", W3CDom.fromJsoup(neworg.jsoup.nodes.Element(doc)).getAttributes().getNamedItem("xmlns").getValue());
+    }
+
+    @Test
+    public void testFromJsoupElement() {
+        org.jsoup.nodes.Document doc = new org.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        W3CDom.W3CDom.fromJsoup(doc.createDocumentFragment().addChild(neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html"))));
+        Assert.assertEquals("http://example.com", W3CDom.fromJsoup(new org.jsoup.nodes.Element(doc)).getAttributes().getNamedItem("xmlns").getValue());
+    }
+
+    @Test
+    public void testSelectXpath() {
+        org.jsoup.nodes.Document doc = new org.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        NodeList nodeList = W3CDom.selectXpath("comment", doc);
+        Assert.assertTrue(nodeList.getLength() == 1);
+    }
+
+    @Test
+    public void testSelectXpathWithContextNode() {
+        org.jsoup.nodes.Document doc = new org.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        org.jsoup.nodes.Document contextDoc = doc;
+        NodeList nodeList = W3CDom.selectXpath("comment", contextDoc);
+        Assert.assertTrue(nodeList.getLength() == 1);
+    }
+
+    @Test
+    public void testSourceNodes() {
+        List<String> sourceNodes = new ArrayList<>();
+        String html = "<html><body>test</body></html>";
+        NodeList nodeList = W3CDom.sourceNodes(NodeList.from(html), String.class);
+        Assert.assertEquals(2, nodeList.getLength());
+        for (String node : nodeList) {
+            sourceNodes.add(node.getTextContent().trim());
+        }
+    }
+
+    @Test
+    public void testContextNode() {
+        org.jsoup.nodes.Document doc = new org.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        Node contextNode = W3CDom.contextNode(doc);
+        Assert.assertNotNull(contextNode);
+    }
+
+    @Test
+    public void testAsString() {
+        Document doc = new org.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        String html = W3CDom.asString(doc);
+        Assert.assertEquals("http://example.com", html);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class W3CDomTest {
+
+    @Test
+    public void testFromJsoup() {
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        W3CDom.W3CDom fromJsoupDoc = W3CDom.fromJsoup(doc);
+        Assert.assertEquals("http://example.com", fromJsoupDoc.getAttributes().getNamedItem("xmlns").getValue());
+    }
+
+    @Test
+    public void testFromJsoupElement() {
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        W3CDom.W3CDom fromJsoupDoc = W3CDom.fromJsoup(doc.createDocumentFragment().addChild(neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html"))));
+        Assert.assertEquals("http://example.com", fromJsoupDoc.getAttributes().getNamedItem("xmlns").getValue());
+    }
+
+    @Test
+    public void testSelectXpath() {
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        String html = "<html><body>comment1<comment2/>(<span>test</span>)</span>";
+        NodeList nodeList = W3CDom.selectXpath("comment", doc);
+        Assert.assertTrue(nodeList.getLength() == 4);
+    }
+
+    @Test
+    public void testSelectXpathWithContextNode() {
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        String html = "<html><body>comment1<comment2/>(<span>test</span>)</span>";
+        org.jsoup.nodes.Document contextDoc = doc;
+        NodeList nodeList = W3CDom.selectXpath("comment", contextDoc);
+        Assert.assertTrue(nodeList.getLength() == 4);
+    }
+
+    @Test
+    public void testSourceNodes() {
+        String html = "<html><body>test</body></html>";
+        List<String> sourceNodes = new ArrayList<>();
+        NodeList nodeList = W3CDom.sourceNodes(NodeList.from(html), String.class);
+        Assert.assertEquals(2, nodeList.getLength());
+        for (String node : nodeList) {
+            sourceNodes.add(node.getTextContent().trim());
+        }
+    }
+
+    @Test
+    public void testContextNode() {
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        Node contextNode = W3CDom.contextNode(doc);
+        Assert.assertNotNull(contextNode);
+    }
+
+    @Test
+    public void testAsString() {
+        String html = "<html><body>test</body></html>";
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build(html);
+        String asString = W3CDom.asString(doc);
+        Assert.assertEquals("http://example.com", asString);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class W3CDomTest {
+
+    @Test
+    public void testFromJsoup() {
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        W3CDom.W3CDom fromJsoupDoc = W3CDom.fromJsoup(doc);
+        Assert.assertEquals("http://example.com", fromJsoupDoc.getAttributes().getNamedItem("xmlns").getValue());
+    }
+
+    @Test
+    public void testFromJsoupElement() {
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        W3CDom.W3CDom fromJsoupDoc = W3CDom.fromJsoup(doc.createDocumentFragment().addChild(neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html"))));
+        Assert.assertEquals("http://example.com", fromJsoupDoc.getAttributes().getNamedItem("xmlns").getValue());
+    }
+
+    @Test
+    public void testSelectXpath() {
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>comment1<comment2/>(<span>test</span>)</span>");
+        String html = "<html><body>comment1<comment2/>(<span>test</span>)</span>";
+        NodeList nodeList = W3CDom.selectXpath("comment", doc);
+        Assert.assertTrue(nodeList.getLength() == 4);
+    }
+
+    @Test
+    public void testSelectXpathWithContextNode() {
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        String html = "<html><body>comment1<comment2/>(<span>test</span>)</span>";
+        org.jsoup.nodes.Document contextDoc = doc;
+        NodeList nodeList = W3CDom.selectXpath("comment", contextDoc);
+        Assert.assertTrue(nodeList.getLength() == 4);
+    }
+
+    @Test
+    public void testSourceNodes() {
+        String html = "<html><body>test</body></html>";
+        List<String> sourceNodes = new ArrayList<>();
+        NodeList nodeList = W3CDom.sourceNodes(NodeList.from(html), String.class);
+        Assert.assertEquals(2, nodeList.getLength());
+        for (String node : nodeList) {
+            sourceNodes.add(node.getTextContent().trim());
+        }
+    }
+
+    @Test
+    public void testContextNode() {
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        Node contextNode = W3CDom.contextNode(doc);
+        Assert.assertNotNull(contextNode);
+    }
+
+    @Test
+    public void testAsString() {
+        String html = "<html><body>test</body></html>";
+        org.jsoup.nodes.Document doc = neworg.jsoup.nodes.DocumentBuilder().build(html);
+        String asString = W3CDom.asString(doc);
+        Assert.assertEquals("http://example.com", asString);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.DocumentBuilder;
+import org.jsoup.nodes.DocumentFragment;
+import org.jsoup.nodes.DocumentBuilder.Element;
+
+public class W3CDomTest {
+
+    @Test
+    public void testFromJsoup() {
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        W3CDom.W3CDom fromJsoupDoc = W3CDom.fromJsoup(doc);
+        Assert.assertEquals("http://example.com", fromJsoupDoc.getAttributes().getNamedItem("xmlns").getValue());
+    }
+
+    @Test
+    public void testFromJsoupElement() {
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        W3CDom.W3CDom fromJsoupDoc = W3CDom.fromJsoup(doc.createDocumentFragment().addChild(neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html"))));
+        Assert.assertEquals("http://example.com", fromJsoupDoc.getAttributes().getNamedItem("xmlns").getValue());
+    }
+
+    @Test
+    public void testSelectXpath() {
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>comment1<comment2/>(<span>test</span>)</span>");
+        String html = "<html><body>comment1<comment2/>(<span>test</span>)</span>";
+        NodeList nodeList = W3CDom.selectXpath("comment", doc);
+        Assert.assertTrue(nodeList.getLength() == 4);
+    }
+
+    @Test
+    public void testSelectXpathWithContextNode() {
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        String html = "<html><body>comment1<comment2/>(<span>test</span>)</span>";
+        org.jsoup.nodes.Document contextDoc = doc;
+        NodeList nodeList = W3CDom.selectXpath("comment", contextDoc);
+        Assert.assertTrue(nodeList.getLength() == 4);
+    }
+
+    @Test
+    public void testSourceNodes() {
+        String html = "<html><body>test</body></html>";
+        List<String> sourceNodes = new ArrayList<>();
+        NodeList nodeList = W3CDom.sourceNodes(NodeList.from(html), String.class);
+        Assert.assertEquals(2, nodeList.getLength());
+        for (String node : nodeList) {
+            sourceNodes.add(node.getTextContent().trim());
+        }
+    }
+
+    @Test
+    public void testContextNode() {
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        Node contextNode = W3CDom.contextNode(doc);
+        Assert.assertNotNull(contextNode);
+    }
+
+    @Test
+    public void testAsString() {
+        String html = "<html><body>test</body></html>";
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build(html);
+        String asString = W3CDom.asString(doc);
+        Assert.assertEquals("http://example.com", asString);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.DocumentFragment;
+import org.jsoup.nodes.DocumentBuilder;
+
+public class W3CDomTest {
+
+    @Test
+    public void testFromJsoup() {
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        W3CDom.W3CDom fromJsoupDoc = W3CDom.fromJsoup(doc);
+        Assert.assertEquals("http://example.com", fromJsoupDoc.getAttributes().getNamedItem("xmlns").getValue());
+    }
+
+    @Test
+    public void testFromJsoupElement() {
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        W3CDom.W3CDom fromJsoupDoc = W3CDom.fromJsoup(doc.createDocumentFragment().addChild(neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html"))));
+        Assert.assertEquals("http://example.com", fromJsoupDoc.getAttributes().getNamedItem("xmlns").getValue());
+    }
+
+    @Test
+    public void testSelectXpath() {
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>comment1<comment2/>(<span>test</span>)</span>");
+        String html = "<html><body>comment1<comment2/>(<span>test</span>)</span>";
+        NodeList nodeList = W3CDom.selectXpath("comment", doc);
+        Assert.assertTrue(nodeList.getLength() == 4);
+    }
+
+    @Test
+    public void testSelectXpathWithContextNode() {
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        String html = "<html><body>comment1<comment2/>(<span>test</span>)</span>";
+        org.jsoup.nodes.Document contextDoc = doc;
+        NodeList nodeList = W3CDom.selectXpath("comment", contextDoc);
+        Assert.assertTrue(nodeList.getLength() == 4);
+    }
+
+    @Test
+    public void testSourceNodes() {
+        String html = "<html><body>test</body></html>";
+        List<String> sourceNodes = new ArrayList<>();
+        NodeList nodeList = W3CDom.sourceNodes(NodeList.from(html), String.class);
+        Assert.assertEquals(2, nodeList.getLength());
+        for (String node : nodeList) {
+            sourceNodes.add(node.getTextContent().trim());
+        }
+    }
+
+    @Test
+    public void testContextNode() {
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build("<html><body>test</body></html>");
+        Node contextNode = W3CDom.contextNode(doc);
+        Assert.assertNotNull(contextNode);
+    }
+
+    @Test
+    public void testAsString() {
+        String html = "<html><body>test</body></html>";
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build(html);
+        String asString = W3CDom.asString(doc);
+        Assert.assertEquals("http://example.com", asString);
+    }
+
+    @Test
+    public void testIsText() {
+        String html = "<p>This is a <span>test</span> string.</p>";
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build(html);
+        Node node = W3CDom.isText(doc, 1);
+        Assert.assertTrue(node instanceof org.jsoup.nodes.TextNode);
+    }
+
+    @Test
+    public void testIsWhitespace() {
+        String html = "<p>This is a <span>test</span> string.</p>";
+        Document doc = neworg.jsoup.nodes.DocumentBuilder().build(html);
+        Node node = W3CDom.isWhitespace(doc, 1);
+        Assert.assertTrue(node instanceof org.jsoup.nodes.TextNode);
+    }
+}
+```
+===================================================
+

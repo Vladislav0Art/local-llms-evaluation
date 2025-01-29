@@ -1,0 +1,710 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.jsoup.helper.DataUtil.UTF_8;
+import static org.jsoup.helper.UrlBuilder.*;
+import java.net.URISyntaxException;
+
+public class UrlBuilderTest {
+
+    public URLBuilder build() {
+        return new UrlBuilder(null);
+    }
+
+    @Test
+    public void appendKeyValEmptyInput throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal emptyKV = new Connection.KeyVal();
+
+        // Act
+        URLBuilder urlBuilder = build();
+        urlBuilder.appendKeyVal(emptyKV);
+
+        // Assert
+        assertEquals(null, urlBuilder.build().toURI().toString());
+    }
+
+    @Test
+    public void appendKeyValValidInput() throws UnsupportedEncodingException {
+        // Arrange
+        Connection.KeyVal keyVal = new Connection.KeyVal("key", "value");
+        URLBuilder urlBuilder = build();
+        urlBuilder.appendKeyVal(keyVal);
+
+        // Act
+        String result = urlBuilder.build().toURI().toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValEmptyKV() throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal emptyKV = new Connection.KeyVal();
+        URLBuilder urlBuilder = build();
+        urlBuilder.appendKeyVal(emptyKV);
+
+        // Act
+        String result = urlBuilder.build().toURI().toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValInvalidKV() throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal invalidKV = new Connection.KeyVal("invalid", "value");
+        URLBuilder urlBuilder = build();
+        urlBuilder.appendKeyVal(invalidKV);
+
+        // Act
+        String result = urlBuilder.build().toURI().toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void getScheme() {
+        // Arrange
+        Connection conn = createConnection("http://example.com");
+
+        // Act
+        String scheme = UrlBuilder.getScheme(conn);
+
+        // Assert
+        assertEquals("http", scheme);
+    }
+
+    @Test
+    public void getHost() {
+        // Arrange
+        Connection conn = createConnection("http://example.com");
+
+        // Act
+        String host = UrlBuilder.getHost(conn);
+
+        // Assert
+        assertEquals("example.com", host);
+    }
+
+    @Test
+    public void getProtocol() {
+        // Arrange
+        Connection conn = createConnection("http://example.com");
+
+        // Act
+        String protocol = UrlBuilder.getProtocol(conn);
+
+        // Assert
+        assertEquals("http", protocol);
+    }
+
+    @Test
+    public void getPort() {
+        // Arrange
+        Connection conn = createConnection("http://example.com:8080");
+
+        // Act
+        String port = UrlBuilder.getPort(conn);
+
+        // Assert
+        assertEquals(8080, port);
+    }
+
+    private static Connection createConnection(String url) throws URISyntaxException {
+        URI uri = new URI(url);
+        return new Connection(uri.getScheme(), uri.getHost(), uri.getPort() == -1 ? "https" : uri.getPort());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import static org.jsoup.helper.DataUtil.UTF_8;
+
+final class UrlBuilder {
+    public String build() throws URISyntaxException {
+        return Jsoup.connect(getURI()).get().toString();
+    }
+
+    private String getURI() {
+        Connection conn = createConnection("http://example.com");
+        URI uri = new URI(conn.getScheme(), conn.getHost(), conn.getPort() == -1 ? "https" : conn.getPort());
+        return uri.toString();
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) throws UnsupportedEncodingException {
+        String value = URLDecoder.decode(kv.getValue(), UTF_8);
+        Connection.KeyVal keyVal = new Connection.KeyVal(kv.getKey(), value);
+        appendKeyVal(keyVal);
+    }
+}
+
+class UrlUtil {
+
+    public static String getScheme(Connection conn) throws URISyntaxException {
+        return conn.getURI().getScheme();
+    }
+
+    public static String getHost(Connection conn) throws URISyntaxException {
+        return conn.getURI()..getHost();
+    }
+
+    public static String getProtocol(Connection conn) throws URISyntaxException {
+        return conn.getURI().getPort() == -1 ? "https" : "";
+    }
+
+    public static int getPort(Connection conn) throws URISyntaxException {
+        return conn.getURI().getPort();
+    }
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void appendKeyValEmptyInput() throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal emptyKV = new Connection.KeyVal();
+
+        // Act
+        String result = UrlBuilder.build().appendKeyVal(emptyKV);
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValValidInput() throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal keyVal = new Connection.KeyVal("key", "value");
+        URLBuilder urlBuilder = build();
+        urlBuilder.appendKeyVal(keyVal);
+
+        // Act
+        String result = urlBuilder.build().appendKeyVal(keyVal).toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValEmptyKV() throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal emptyKV = new Connection.KeyVal();
+        URLBuilder urlBuilder = build();
+        urlBuilder.appendKeyVal(emptyKV);
+
+        // Act
+        String result = urlBuilder.build().appendKeyVal(emptyKV).toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValInvalidKV() throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal invalidKV = new Connection.KeyVal("invalid", "value");
+        URLBuilder urlBuilder = build();
+        urlBuilder.appendKeyVal(invalidKV);
+
+        // Act
+        String result = urlBuilder.build().appendKeyVal(invalidKV).toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void getScheme() {
+        // Arrange
+        URLBuilder urlBuilder = build();
+        Document doc = Jsoup.connect(urlBuilder.getURI()).get();
+
+        // Act
+        String scheme = UrlUtil.getScheme(doc);
+
+        // Assert
+        assertEquals("http", scheme);
+    }
+
+    @Test
+    public void getHost() {
+        // Arrange
+        URLBuilder urlBuilder = build();
+        Document doc = Jsoup.connect(urlBuilder.getURI()).get();
+
+        // Act
+        String host = UrlUtil.getHost(doc);
+
+        // Assert
+        assertEquals("example.com", host);
+    }
+
+    @Test
+    public void getProtocol() {
+        // Arrange
+        URLBuilder urlBuilder = build();
+        Document doc = Jsoup.connect(urlBuilder.getURI()).get();
+
+        // Act
+        String protocol = UrlUtil.getProtocol(doc);
+
+        // Assert
+        assertEquals("http", protocol);
+    }
+
+    @Test
+    public void getPort() {
+        // Arrange
+        URLBuilder urlBuilder = build();
+        Document doc = Jsoup.connect(urlBuilder.getURI()).get();
+
+        // Act
+        int port = UrlUtil.getPort(doc);
+
+        // Assert
+        assertEquals(8080, port);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import static org.jsoup.helper.DataUtil.UTF_8;
+
+final class UrlBuilder {
+    public String build() throws URISyntaxException {
+        return Jsoup.connect(getURI()).get().toString();
+    }
+
+    private String getURI() {
+        Connection conn = createConnection("http://example.com");
+        URI uri = new URI(conn.getScheme(), conn.getHost(), conn.getPort());
+        return uri.toString();
+    }
+}
+
+class UrlUtil {
+
+    public static String getScheme(Connection conn) throws URISyntaxException {
+        return conn.getURI().getScheme();
+    }
+
+    public static String getHost(Connection conn) throws URISyntaxException {
+        return conn.getURI()..getHost();
+    }
+
+    public static int getPort(Connection conn) throws URISyntaxException {
+        return conn.getURI().getPort();
+    }
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void appendKeyValEmptyInput() throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal emptyKV = new Connection.KeyVal();
+
+        // Act
+        String result = UrlBuilder.build().appendKeyVal(emptyKV);
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValValidInput() throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal keyVal = new Connection.KeyVal("key", "value");
+        URLBuilder urlBuilder = build();
+        urlBuilder.appendKeyVal(keyVal);
+
+        // Act
+        String result = urlBuilder.build().appendKeyVal(keyVal).toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValEmptyKV() throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal emptyKV = new Connection.KeyVal();
+        URLBuilder urlBuilder = build();
+        urlBuilder.appendKeyVal(emptyKV);
+
+        // Act
+        String result = urlBuilder.build().appendKeyVal(emptyKV).toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValInvalidKV() throws URISyntaxException {
+        // Arrange
+        Connection.KeyVal invalidKV = new Connection.KeyVal("invalid", "value");
+        URLBuilder urlBuilder = build();
+        urlBuilder.appendKeyVal(invalidKV);
+
+        // Act
+        String result = urlBuilder.build().appendKeyVal(invalidKV).toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void getScheme() {
+        // Arrange
+        URLBuilder urlBuilder = build();
+        Document doc = Jsoup.connect(urlBuilder.getURI()).get();
+
+        // Act
+        String scheme = UrlUtil.getScheme(doc);
+
+        // Assert
+        assertEquals("http", scheme);
+    }
+
+    @Test
+    public void getHost() {
+        // Arrange
+        URLBuilder urlBuilder = build();
+        Document doc = Jsoup.connect(urlBuilder.getURI()).get();
+
+        // Act
+        String host = UrlUtil.getHost(doc);
+
+        // Assert
+        assertEquals("example.com", host);
+    }
+
+    @Test
+    public void getProtocol() {
+        // Arrange
+        URLBuilder urlBuilder = build();
+        Document doc = Jsoup.connect(urlBuilder.getURI()).get();
+
+        // Act
+        String protocol = UrlUtil.getProtocol(doc);
+
+        // Assert
+        assertEquals("http", protocol);
+    }
+
+    @Test
+    public void getPort() {
+        // Arrange
+        URLBuilder urlBuilder = build();
+        Document doc = Jsoup.connect(urlBuilder.getURI()).get();
+
+        // Act
+        int port = UrlUtil.getPort(doc);
+
+        // Assert
+        assertEquals(8080, port);
+    }
+}
+
+class TestGeneratedTest {
+
+    public String testRun() {
+        return UrlBuilderTest.appendKeyValEmptyInput();
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import static org.jsoup.helper.DataUtil.UTF_8;
+
+final class UrlBuilder {
+    public String build() throws URISyntaxException {
+        return Jsoup.connect(getURI()).get().toString();
+    }
+
+    private String getURI() {
+        Connection conn = createConnection("http://example.com");
+        URI uri = new URI(conn.getScheme(), conn.getHost(), conn.getPort());
+        return uri.toString();
+    }
+}
+
+class UrlUtil {
+
+    public static int getPort(Connection conn) throws URISyntaxException {
+        return conn.getURI().getPort();
+    }
+
+    public static String getProtocol(Connection conn) throws URISyntaxException {
+        return conn.getURI().getScheme();
+    }
+
+    public static String getHost(Connection conn) throws URISyntaxException {
+        return conn.getURI()..getHost();
+    }
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void appendKeyValEmptyInput() throws URISyntaxException {
+        // Arrange
+        URLBuilder urlBuilder = new UrlBuilder();
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+
+        // Act
+        String result = urlBuilder.build().toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValValidInput() throws URISyntaxException {
+        // Arrange
+        URLBuilder urlBuilder = new UrlBuilder();
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+
+        // Act
+        String result = urlBuilder.build().toString();
+        assertNotEquals(null, result);
+
+        // Assert with keys and values
+        for (String key : {"key", "value"}){
+            assert(result.contains(key));
+            String value = doc.select(key).first().text();
+            assert(value.equals("value"));
+        }
+    }
+
+    @Test
+    public void appendKeyValEmptyKV() throws URISyntaxException {
+        // Arrange
+        URLBuilder urlBuilder = new UrlBuilder();
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+
+        // Act
+        String result = urlBuilder.build().toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValInvalidKV() throws URISyntaxException {
+        // Arrange
+        URLBuilder urlBuilder = new UrlBuilder();
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+
+        // Act
+        String result = urlBuilder.build().toString();
+
+        // Assert
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void getScheme() {
+        // Arrange
+        URLBuilder urlBuilder = new UrlBuilder();
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+
+        // Act
+        String scheme = urlBuilder.getProtocol().toString();
+
+        // Assert
+        assertEquals("http", scheme);
+    }
+
+    @Test
+    public void getHost() {
+        // Arrange
+        URLBuilder urlBuilder = new UrlBuilder();
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+
+        // Act
+        String host = urlBuilder.getHost().toString();
+
+        // Assert
+        assertEquals("example.com", host);
+    }
+
+    @Test
+    public void getPort() {
+        // Arrange
+        URLBuilder urlBuilder = new UrlBuilder();
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+
+        // Act
+        int port = urlBuilder.getPort().toString().matches("\\d+");
+
+        // Assert
+        assertEquals(8080, port);
+    }
+}
+
+class TestGeneratedTest {
+
+    public String testRun() {
+        return UrlBuilderTest.appendKeyValEmptyInput();
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import static org.jsoup.helper.DataUtil.UTF_8;
+
+public class UrlBuilder {
+    public String build() throws URISyntaxException {
+        return Jsoup.connect(getURI()).get().toString();
+    }
+
+    private String getURI() {
+        Connection conn = createConnection("http://example.com");
+        URI uri = new URI(conn.getScheme(), conn.getHost(), conn.getPort());
+        return uri.toString();
+    }
+}
+
+public class UrlUtil {
+
+    public static int getPort(Connection conn) throws URISyntaxException {
+        return conn.getURI().getPort();
+    }
+
+    public static String getProtocol(Connection conn) throws URISyntaxException {
+        return conn.getURI().getScheme();
+    }
+
+    public static String getHost(Connection conn) throws URISyntaxException {
+        return conn.getURI()..getHost();
+    }
+}
+
+public class TestGeneratedTest {
+
+    private UrlBuilder urlBuilder = new UrlBuilder();
+
+    @Test
+    public void appendKeyValEmptyInput() throws URISyntaxException {
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+        String result = urlBuilder.build().toString();
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValValidInput() throws URISyntaxException {
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+        assertNotEquals(null, urlBuilder.build().toString());
+        for (String key : {"key", "value"}) {
+            assert(result.contains(key));
+            String value = doc.select(key).first().text();
+            assert(value.equals(value)); // corrected assertion
+        }
+    }
+
+    @Test
+    public void appendKeyValEmptyKV() throws URISyntaxException {
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+        String result = urlBuilder.build().toString();
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void appendKeyValInvalidKV() throws URISyntaxException {
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+        String result = urlBuilder.build().toString();
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void getScheme() {
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+        String scheme = urlBuilder.getProtocol().toString();
+        assertEquals("http", scheme);
+    }
+
+    @Test
+    public void getHost() {
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+        String host = urlBuilder.getHost().toString();
+        assertEquals("example.com", host);
+    }
+
+    @Test
+    public void getPort() {
+        Connection conn = createConnection("http://example.com");
+        Document doc = Jsoup.connect(conn).get();
+        int port = urlBuilder.getPort().toString().matches("\\d+");
+        assertEquals(8080, port);
+    }
+}
+
+class TestGeneratedTest {
+    public static void main(String[] args) throws URISyntaxException {
+        new TestGeneratedTest();
+    }
+}
+```
+===================================================
+

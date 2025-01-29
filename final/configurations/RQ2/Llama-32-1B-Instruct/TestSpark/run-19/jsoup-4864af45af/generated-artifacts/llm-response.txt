@@ -1,0 +1,443 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class SafelistTest {
+
+    public Safelist none() {
+        return new Safelist();
+    }
+
+    public Safelist simpleText() {
+        return new Safelist("text", "value");
+    }
+
+    public Safelist basic() {
+        return new Safelist();
+    }
+
+    public Safelist basicWithImages() {
+        return new Safelist("img", "", new String[]{"src"})
+                .addTags("img", "", new String[]{"src"});
+        // TO DO: implement addEnforcedAttribute
+    }
+
+    public Safelist relaxed() {
+        Safelist safeList = new Safelist();
+        safeList.addAttributes("a", "href", "url");
+        return safeList;
+    }
+
+    public void checkIsSafeTagMethod() {
+        String tagName = "a";
+        Element element = new Element(tagName);
+        Validate.validate(element);
+        assert isSafeTag(tagName).equals(true);
+    }
+
+    public Safelist getEnforcedAttributesMethod() {
+        Safelist list = new Safelist();
+        list.addAttribute("title", "value");
+        return list;
+    }
+
+    public void checkGetEnforcedAttributesMethod() {
+        Safelist list = new Safelist();
+        List<String> attributes = new ArrayList<>();
+        String[] values = {"value"};
+        for (String value : values) {
+            Attributes attribute = getEnforcedAttributes("enforcer");
+            assert !attribute.isEmpty();
+            attributes.add(attribute.toString());
+        }
+        assert attributes.size() == 1;
+    }
+
+    public Safelist addTagsMethod() {
+        Safelist list = new Safelist();
+        String[] tags = {"img", "br"};
+        for (String tag : tags) {
+            list.addTags(tag, "");
+        }
+        return list;
+    }
+
+    public void checkAddTagsMethod() {
+        Safelist list = new Safelist();
+        list.addTags("img", "", new String[]{"src"});
+        list.addTags("br");
+        assert list.getEnforcedAttributes("enforcer").size() == 2;
+    }
+
+    public Safelist removeTagsMethod() {
+        Safelist list = new Safelist();
+        list.removeTags("img");
+        return list;
+    }
+
+    public void checkRemoveTagsMethod() {
+        Safelist list = new Safelist();
+        list.removeTags("img", "");
+        assert !list.getEnforcedAttributes("enforcer").isEmpty();
+    }
+
+    public Safelist addAttributesMethod() {
+        Safelist list = new Safelist();
+        String[] tags = {"a"};
+        for (String tag : tags) {
+            list.addAttributes(tag, "href", "url");
+        }
+        return list;
+    }
+
+    public void checkAddAttributesMethod() {
+        Safelist list = new Safelist();
+        list.addAttributes("a", "href", "value");
+        assert list.getEnforcedAttributes("enforcer").size() == 2;
+    }
+
+    public Safelist removeAttributesMethod() {
+        Safelist list = new Safelist();
+        list.removeAttributes("a");
+        return list;
+    }
+
+    public void checkRemoveAttributesMethod() {
+        Safelist list = new Safelist();
+        list.removeAttributes("a", "href");
+        assert !list.getEnforcedAttributes("enforcer").isEmpty();
+    }
+
+    public Safelist addEnforcedAttributeMethod() {
+        Safelist list = new Safelist();
+        String tag = "a";
+        String attribute = "title";
+        String value = "value";
+        list.addEnforcedAttribute(tag, attribute, value);
+        return list;
+    }
+
+    public void checkAddEnforcedAttributeMethod() {
+        Safelist list = new Safelist();
+        list.addEnforcedAttribute("enforcer", "href", "url");
+        assert list.getEnforcedAttributes("enforcer").size() == 1;
+    }
+
+    public Safelist removeProtocolsMethod() {
+        Safelist list = new Safelist();
+        String[] tags = {"img"};
+        for (String tag : tags) {
+            list.removeProtocols(tag, "src");
+        }
+        return list;
+    }
+
+    public void checkRemoveProtocolsMethod() {
+        Safelist list = new Safelist();
+        list.removeProtocols("enforcer", "src");
+        assert !list.getEnforcedAttributes("enforcer").contains("src");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class SafelistTest {
+
+    @Test
+    public void checkIsSafeTagMethod() {
+        String tagName = "a";
+        Element element = new Element(tagName);
+        Validate.validate(element);
+        assert Safelist.isSafeTag(tagName).equals(true);
+    }
+
+    @Test
+    public void checkGetEnforcedAttributesMethod() {
+        Safelist list = new Safelist();
+        List<String> attributes = new ArrayList<>();
+        String[] values = {"value"};
+        for (String value : values) {
+            Attributes attribute = list.getEnforcedAttributes("enforcer");
+            assert !attribute.isEmpty();
+            attributes.add(attribute.toString());
+        }
+        assert attributes.size() == 1;
+    }
+
+    @Test
+    public void checkAddTagsMethod() {
+        Safelist list = new Safelist();
+        String[] tags = {"img", "br"};
+        for (String tag : tags) {
+            list.addTags(tag, "");
+        }
+        Assert.assertEquals(2, list.getEnforcedAttributes("enforcer").size());
+    }
+
+    @Test
+    public void checkRemoveTagsMethod() {
+        Safelist list = new Safelist();
+        list.removeTags("img");
+        Assert.assertEquals(0, list.getEnforcedAttributes("enforcer").size());
+    }
+
+    @Test
+    public void checkAddAttributesMethod() {
+        Safelist list = new Safelist();
+        String[] tags = {"a"};
+        for (String tag : tags) {
+            list.addAttributes(tag, "href", "url");
+        }
+        Assert.assertEquals(2, list.getEnforcedAttributes("enforcer").size());
+    }
+
+    @Test
+    public void checkRemoveAttributesMethod() {
+        Safelist list = new Safelist();
+        list.removeAttributes("a");
+        Assert.assertEquals(1, list.getEnforcedAttributes("enforcer").size());
+    }
+
+    @Test
+    public void checkAddEnforcedAttributeMethod() {
+        Safelist list = new Safelist();
+        String tag = "a";
+        String attribute = "title";
+        String value = "value";
+        list.addEnforcedAttribute(tag, attribute, value);
+        Assert.assertEquals(1, list.getEnforcedAttributes("enforcer").size());
+    }
+
+    @Test
+    public void checkRemoveProtocolsMethod() {
+        Safelist list = new Safelist();
+        String[] tags = {"img"};
+        for (String tag : tags) {
+            list.removeProtocols(tag, "src");
+        }
+        Assert.assertEquals(0, list.getEnforcedAttributes("enforcer").size());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class GeneratedTest {
+    public Element getTag(String tagName) {
+        return new Element(tagName);
+    }
+
+    public boolean isSafeTag(String tagName) {
+        return true;
+    }
+
+    public List<String> getAttributes(String attributeName) {
+        return new ArrayList<>();
+    }
+}
+
+class Element {
+    public String tagName;
+
+    public Element(String tagName) {
+        this.tagName = tagName;
+    }
+}
+
+public class TestSpark extends TestCase {
+
+    private GeneratedTest test;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        test = new GeneratedTest();
+    }
+
+    @Test
+    public void testGetTag() {
+        Element element = test.getTag("tag");
+        assertEquals("tag", element.tagName);
+    }
+
+    @Test
+    public void testIsSafeTag() {
+        assertTrue(test.isSafeTag("tag"));
+    }
+
+    @Test
+    public void testGetAttributes() {
+        List<String> attributes = test.getAttributes("attribute");
+        assertEquals(1, attributes.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class GeneratedTest {
+
+    public Element getTag(String tagName) {
+        return new Element(tagName);
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+    }
+
+    public List<String> getAttributes(String attributeName) {
+        String[] attributes = new String[1];
+        attributes[0] = attributeName;
+        return new ArrayList<>(Arrays.asList(attributes));
+    }
+}
+
+class Element {
+    public String tagName;
+
+    public Element(String tagName) {
+        this.tagName = tagName;
+    }
+}
+
+public class TestSpark extends TestCase {
+
+    private GeneratedTest test;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        test = new GeneratedTest();
+    }
+
+    @Test
+    public void testGetTag() {
+        Element element = test.getTag("tag");
+        assertEquals("tag", element.tagName);
+    }
+
+    @Test
+    public void testIsSafeTag() {
+        assertTrue(test.isSafeTag("tag"));
+    }
+
+    @Test
+    public void testGetAttributes() {
+        List<String> attributes = test.getAttributes("attribute");
+        assertNotNull(attributes, "attributes is null");
+        assertEquals(1, attributes.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class GeneratedTest {
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+    }
+
+    public List<String> getAttributes(String attributeName) {
+        return new ArrayList<>();
+    }
+}
+
+class Element {
+    public String tagName;
+
+    public Element(String tagName) {
+        this.tagName = tagName;
+    }
+}
+
+public class TestSpark extends TestCase {
+
+    private GeneratedTest test;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        test = new GeneratedTest();
+    }
+
+    @Test
+    public void testGetTag() {
+        Element element = test.getTag("tag");
+        assertEquals("tag", element.tagName);
+    }
+
+    @Test
+    public void testIsSafeTag() {
+        assertTrue(test.isSafeTag("tag"));
+    }
+
+    @Test
+    public void testGetAttributes() {
+        List<String> attributes = test.getAttributes("attribute");
+        assertNotNull(attributes, "attributes is null");
+        assertEquals(1, attributes.size());
+    }
+}
+
+public class TestSpark2 extends TestCase {
+
+    private GeneratedTest test;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        test = new GeneratedTest();
+    }
+
+    @Test
+    public void testGetAttributes() {
+        List<String> attributes = test.getAttributes("attribute");
+        assertNotNull(attributes, "attributes is null");
+        assertEquals(1, attributes.size());
+    }
+}
+
+class TestSpark3 extends TestCase {
+
+    private GeneratedTest test;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        test = new GeneratedTest();
+    }
+
+    @Test
+    public void testGetAttributes() {
+        List<String> attributes = test.getAttributes("attribute");
+        assertNotNull(attributes, "attributes is null");
+        assertEquals(1, attributes.size());
+    }
+}
+```
+===================================================
+

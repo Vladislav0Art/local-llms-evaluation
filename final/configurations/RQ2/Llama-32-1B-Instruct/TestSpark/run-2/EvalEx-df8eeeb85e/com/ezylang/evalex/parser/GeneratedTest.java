@@ -1,0 +1,100 @@
+package com.ezylang.evalex.parser;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testExpressionConfiguration() {
+        EvalConfig evalConfig = new EvalConfig();
+        evalConfig.addProperty("name", "eval_config");
+
+        Map<String, Object> properties = (Map<String, Object>) evalConfig.getProperty("name");
+        ((EvalConfig.EvalConfig.Properties) properties.get("properties")).addProperty("name", "eval_properties");
+    }
+
+    @Test
+    public void testFunctionDictionaryIfc() {
+        EvalConfig evalConfig = new EvalConfig();
+
+        FunctionDictionaryIfc functionDict = new EvalEx.FunctionDictionaryIfc();
+        String addStr = "int a, int b -> return a + b";
+        EvalEx.EvalFunc evalFunc = new EvalEx.EvalFunc(functionDict);
+        ((EvalEx.EvalFunc) evalFunc).addFunction("add", addStr);
+
+        mapPropertyAndSetValue(evalConfig, functionDict, "functions");
+    }
+
+    @Test
+    public void testOperatorDictionaryIfc() {
+        EvalConfig evalConfig = new EvalConfig();
+
+        OperatorDictionaryIfc operatorDict = new EvalEx.OperatorDictionaryIfc();
+        String eqStr = "int a, int b -> return a == b";
+        EvalEx.EvalFunc evalFunc = new EvalEx.EvalFunc(operatorDict);
+        ((EvalEx.EvalFunc) evalFunc).addOperator("eq", eqStr);
+
+        mapPropertyAndSetValue(evalConfig, operatorDict, "operators");
+    }
+
+    public void mapPropertyAndSetValue(EvalConfig config, Object dictionary, String key) {
+        if (config.getProperty(key) instanceof Map) {
+            ((Map<String, Object>) config.getProperty(key)).putAll((Map<String, Object>) dictionary);
+        } else {
+            config.setProperty(key, dictionary);
+        }
+    }
+
+    public static class EvalConfig {
+        private Properties properties = new Properties();
+
+        @Override
+        public void put(String key, Object value) {
+            this.properties.put(key, value);
+        }
+
+        @Override
+        public Map<String, Object> getProperty(String key) {
+            return (Map<String, Object>) this.properties.get(key);
+        }
+    }
+
+    public static class EvalEx {
+        public static class FunctionDictionaryIfc {
+            private Properties properties = new Properties();
+
+            public void addProperty(String key, Object value) {
+                properties.put(key, value);
+            }
+
+            public Map<String, Object> getProperties() {
+                return properties;
+            }
+        }
+
+        public static class EvalFunc {
+            private Map<String, String> functions = new HashMap<>();
+            private Map<String, Object> operators = new HashMap<>();
+
+            public void addFunction(String funcName, String funcStr) {
+                functions.put(funcName, funcStr);
+            }
+
+            @Override
+            public Map<String, String> getProperties() {
+                return functions;
+            }
+        }
+    }
+
+    @Test
+    public void testExpressionConfiguration() {
+        EvalConfig evalConfig = new EvalConfig();
+
+        evalConfig.addProperty("name", "eval_config");
+
+        Map<String, Object> properties = (Map<String, Object>) evalConfig.getProperty("name");
+        ((EvalConfig.EvalConfig.Properties) properties.get("properties")).addProperty("name", "eval_properties");
+    }
+
+}

@@ -1,0 +1,611 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class GrammaticalTermMapImplTest {
+
+    private Map<String, T> mockMap;
+    private GrammaticalTermMap<T> actual;
+
+    @Before
+    public void setUp() {
+        mockMap = new HashMap<>();
+        String[] terms = {"term1", "term2", "term3"};
+        for (String term : terms) {
+            actual = new GrammaticalTermMapImpl<>(mockMap, true);
+            T termObject = new Noun().setName(term).build();
+            actual.put(term, termObject);
+        }
+    }
+
+    @Test
+    public void testGetByName() throws IOException {
+        String expectedName = "term1";
+        T expectedTerm = mockMap.get(expectedName);
+        assertEquals(expectedTerm, actual.get(expectedName));
+    }
+
+    @Test
+    public void testContainsKeyByName() {
+        String key = "expectedKey";
+        boolean result = actual.containsKey(key);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testKeySet() {
+        Set<String> expectedKeys = new HashSet<>(Arrays.asList("term1", "term2"));
+        assertEquals(expectedKeys, actual.keySet());
+    }
+
+    @Test
+    public void testValues() {
+        Collection<T> expectedValues = Arrays.asList(mockMap.get("term1"), mockMap.get("term2"));
+        assertEquals(expectedValues, actual.values());
+    }
+
+    @Test
+    public void testPutByName() throws IOException {
+        String key = "expectedKey";
+        T value = new Noun().setName("expectedValue").build();
+        actual.put(key, value);
+        T resultValue = mockMap.get(key);
+        assertSame(value, resultValue);
+    }
+
+    @Test
+    public void testPutAll() {
+        // Mock multiple collections
+        mockMap.put("term1", new Noun().setName("value1").build());
+        mockMap.put("term2", new Noun().setName("value2").build());
+
+        GrammaticalTerm term = new Noun().setName("expectedValue").build();
+        actual.putAll(mockMap);
+        T resultTerm = actual.get(term);
+        assertNotNull(resultTerm);
+    }
+
+    @Test
+    public void testMakeSkinny() {
+        GrammaticalTermMap<T> expected = mockMap;
+        setExpectedEmptyTerms(expected, "term1", "term2");
+        actual.makeSkinny();
+
+        // Check that empty terms are removed
+        assertEquals(mockMap, expected);
+    }
+
+    private void setExpectedEmptyTerms(GrammaticalTermMap<T> expected, String... names) {
+        Set<String> expectedTerms = new HashSet<>(Arrays.asList(names));
+        for (T term : mockMap.values()) {
+            boolean isExpectedTerm = false;
+            for (String name : names) {
+                if (term.getName().equals(name)) {
+                    isExpectedTerm = true;
+                    break;
+                }
+            }
+            if (!isExpectedTerm) {
+                expectedTerms.remove(term.getName());
+            }
+        }
+
+        expectedTerms.forEach((key, value) -> actual.put(key, value));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.util.HashSet;
+import java.util.Set;
+
+public class GrammaticalTermMap {
+
+    private Set<GrammaticalTerm> terms;
+
+    public GrammaticalTermMap() {
+        this.terms = new HashSet<>();
+    }
+
+    public void addTerm(GrammaticalTerm term) {
+        terms.add(term);
+    }
+
+    public boolean contains(Term term) {
+        return terms.contains(term);
+    }
+}
+
+class Term {
+    private String name;
+
+    public Term(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Term that = (Term) o;
+        return Objects.equals(name, that.name);
+    }
+}
+
+class GrammaticalTerm extends Term {
+    private int index;
+
+    public GrammaticalTerm(String name, int index) {
+        super(name);
+        this.index = index;
+    }
+
+    @Override
+    public String toString() {
+        return "GrammaticalTerm{" +
+                "name='" + name + '\'' +
+                ", index=" + index +
+                '}';
+    }
+}
+
+public class TestGrammaticalTermMap {
+
+    private GrammaticalTermMap map;
+
+    public TestGrammaticalTermMap() {
+        this.map = new GrammaticalTermMap();
+    }
+
+    public void addTerm(GrammaticalTerm term) {
+        map.addTerm(term);
+    }
+
+    @Test
+    public void test_contains() {
+        Term term1 = new Term("test");
+        Term term2 = new Term("test2");
+
+        map.addTerm(term1);
+        map.addTerm(term2);
+
+        System.out.println(map.contains(term1)); // true
+        System.out.println(map.contains(term2)); // false
+
+        map.addTerm(term2); // This should raise an exception
+
+        try {
+            map.contains(term1);
+        } catch (Exception e) {
+            System.out.println(e.getMessage()); // "Value is null"
+        }
+    }
+
+    @Test
+    public void testAdd() {
+        Term term = new Term("test");
+        map.addTerm(term);
+
+        System.out.println(map.terms); // contains all terms
+
+        map.addTerm(new GrammaticalTerm("test2", 1));
+        System.out.println(map.terms.size()); // 2
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.apache.spark.api.java.JavaSparkContext;
+
+public class TestGrammaticalTermMap {
+
+    public static void main(String[] args) {
+        JavaSparkContext sc = new JavaSparkContext();
+        TestGrammaticalTermMap map = new TestGrammaticalTermMap();
+
+        map.addTerm(new GrammaticalTerm("test", 0));
+        map.addTerm(new GrammaticalTerm("test2", 1));
+
+        System.out.println(map.terms);
+
+        map.addTerm(new GrammaticalTerm("test3", 2));
+
+        try {
+            System.out.println(map.contains(new GrammaticalTerm("test4", 3)));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void testAdd() {
+        TestGrammaticalTermMap map = new TestGrammaticalTermMap();
+
+        map.addTerm(new GrammaticalTerm("test1", 0));
+        map.addTerm(new GrammaticalTerm("test2", 1));
+
+        System.out.println(map.terms);
+
+        try {
+            map.addTerm(new GrammaticalTerm("test3", 3));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void testContains() {
+        TestGrammaticalTermMap map = new TestGrammaticalTermMap();
+
+        map.addTerm(new GrammaticalTerm("test1", 0));
+
+        System.out.println(map.contains(new GrammaticalTerm("test2", 1)));
+        System.out.println(map.contains(new GrammaticalTerm("test3", 2)));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.apache.spark.api.java.JavaSparkContext;
+
+class GrammaticalTerm {
+    private String name;
+    private int index;
+
+    public GrammaticalTerm(String name, int index) {
+        this.name = name;
+        this.index = index;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GrammaticalTerm that = (GrammaticalTerm) o;
+        return Objects.equals(name, that.name) && index == that.index;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, index);
+    }
+
+    @Override
+    public String toString() {
+        return "GrammaticalTerm{" +
+                "name='" + name + '\'' +
+                ", index=" + index +
+                '}';
+    }
+}
+
+public class Term {
+
+    private String name;
+    private int index;
+
+    public Term(String name, int index) {
+        this.name = name;
+        this.index = index;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Term that = (Term) o;
+        return Objects.equals(name, that.name) && index == that.index;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, index);
+    }
+
+    @Override
+    public String toString() {
+        return "Term{" +
+                "name='" + name + '\'' +
+                ", index=" + index +
+                '}';
+    }
+}
+
+class GrammaticalTermMap {
+
+    private Set<GrammaticalTerm> terms;
+
+    public void addTerm(GrammaticalTerm term) {
+        terms.add(term);
+    }
+
+    public boolean contains(Term term) {
+        return terms.contains(term);
+    }
+}
+
+public class TestGrammaticalTermMap {
+
+    public static void main(String[] args) {
+        GrammaticalTermMap map = new GrammaticalTermMap();
+
+        map.addTerm(new GrammaticalTerm("test", 0));
+        map.addTerm(new GrammaticalTerm("test2", 1));
+
+        System.out.println(map.terms);
+
+        try {
+            map.addTerm(new GrammaticalTerm("test3", 2));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void testAdd() {
+        TestGrammaticalTermMap map = new TestGrammaticalTermMap();
+
+        map.addTerm(new GrammaticalTerm("test1", 0));
+        map.addTerm(new GrammaticalTerm("test2", 1));
+
+        System.out.println(map.terms);
+
+        try {
+            map.addTerm(new GrammaticalTerm("test3", 3));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void testContains() {
+        TestGrammaticalTermMap map = new TestGrammaticalTermMap();
+
+        map.addTerm(new GrammaticalTerm("test1", 0));
+
+        System.out.println(map.contains(new GrammaticalTerm("test2", 1)));
+        System.out.println(map.contains(new GrammaticalTerm("test3", 2)));
+
+        map.addTerm(new GrammaticalTerm("newTest", 0));
+    }
+
+    public static void testGetTerms() {
+        TestGrammaticalTermMap map = new TestGrammaticalTermMap();
+
+        for (int i = 0; i < 10; i++) {
+            map.addTerm(new GrammaticalTerm("test" + i, i));
+        }
+
+        System.out.println(map.terms);
+
+        try {
+            map.addTerm(new GrammaticalTerm("notTest", 10));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void testGetIndex() {
+        TestGrammaticalTermMap map = new TestGrammaticalTermMap();
+
+        for (int i = 0; i < 10; i++) {
+            map.addTerm(new GrammaticalTerm("test" + i, i));
+        }
+
+        System.out.println(map.terms);
+
+        try {
+            map.addTerm(new GrammaticalTerm("notTest", 10));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.apache.spark.api.java.JavaSparkContext;
+
+class GrammaticalTerm {
+    public static String toString(int index) {
+        return "GrammaticalTerm{" +
+                "index=" + index +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GrammaticalTerm that = (GrammaticalTerm) o;
+        return Objects.equals(name, that.name) && index == that.index;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, index);
+    }
+}
+
+public class Term {
+    private String name;
+
+    public Term(String name) {
+        this.name = name;
+    }
+
+    public String toString() {
+        return "Term{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+
+class GrammaticalTermMap {
+
+    private Map<Integer, GrammaticalTerm> terms;
+
+    public void addTerm(int index, GrammaticalTerm term) {
+        if (terms.containsKey(index)) {
+            System.out.println("Error: Term with index " + index + " already exists.");
+            return;
+        }
+        terms.put(index, term);
+    }
+
+    public boolean contains(int index) {
+        return terms.containsKey(index);
+    }
+
+    @Override
+    protected void write(Object[] os) throws Exception {
+        for (int i = 0; i < os.length; i++) {
+            GrammaticalTerm term = (GrammaticalTerm) os[i];
+            System.out.println(toString(term.index) + " - " + term);
+        }
+    }
+}
+
+public class TestGrammaticalTermMap {
+
+    public static void main(String[] args) throws Exception {
+        JavaSparkContext sc = new JavaSparkContext();
+
+        GrammaticalTermMap map = new GrammaticalTermMap();
+        map.addTerm(0, new GrammaticalTerm("test1"));
+        map.addTerm(10, new GrammaticalTerm("newTest"));
+
+        System.out.println(map.terms);
+
+        sc.parallelize(List.of(1, 2, 3), new JavaRDD[Int]());
+
+        int[] array = {4, 5, 6};
+        sc.parallelize(array, 1).collectAsMap(Map.Entry::getKey, (key, value) -> key, Map.Entry::getValue);
+    }
+
+    public static void testAdd() {
+        TestGrammaticalTermMap map = new GrammaticalTermMap();
+
+        for (int i = 0; i < 10; i++) {
+            int index = i;
+            String name = "test" + i;
+            map.addTerm(index, new GrammaticalTerm(name));
+        }
+    }
+
+    public static void testContains() {
+        TestGrammaticalTermMap map = new GrammaticalTermMap();
+
+        for (int i = 0; i < 10; i++) {
+            int index = i;
+            String name = "test" + i;
+            if (!map.contains(index)) {
+                System.out.println(name);
+            }
+        }
+
+        map.addTerm(5, new GrammaticalTerm("newTest"));
+
+        try {
+            map.contains(6);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void testGetTerms() throws Exception {
+        TestGrammaticalTermMap map = new GrammaticalTermMap();
+
+        for (int i = 0; i < 10; i++) {
+            int index = i;
+            String name = "test" + i;
+
+            map.addTerm(index, new GrammaticalTerm(name));
+
+            System.out.println(map.terms);
+        }
+
+        sc.parallelize(List.of(1, 2, 3), new JavaRDD[Int]());
+
+        for (int i = 0; i < 10; i++) {
+            int index = i;
+            String name = "test" + i;
+
+            map.addTerm(index, new GrammaticalTerm(name));
+
+            System.out.println(map.terms);
+        }
+    }
+
+    public static void testGetIndex() throws Exception {
+        TestGrammaticalTermMap map = new GrammaticalTermMap();
+
+        for (int i = 0; i < 10; i++) {
+            int index = i;
+            String name = "test" + i;
+
+            map.addTerm(index, new GrammaticalTerm(name));
+
+            System.out.println(map.terms);
+
+            map.addTerm(1, new GrammaticalTerm("newTest"));
+
+            try {
+                System.out.println(map.terms.get(10));
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        sc.parallelize(List.of(1, 2, 3), new JavaRDD[Int]());
+
+        for (int i = 0; i < 10; i++) {
+            int index = i;
+            String name = "test" + i;
+
+            map.addTerm(index, new GrammaticalTerm(name));
+
+            System.out.println(map.terms);
+
+            map.addTerm(1, new GrammaticalTerm("newTest"));
+
+            try {
+                System.out.println(map.terms.get(10));
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    public static void testParallelRDD() throws Exception {
+        TestGrammaticalTermMap map = new GrammaticalTermMap();
+
+        for (int i = 0; i < 100; i++) {
+            int index = i;
+            String name = "test" + i;
+
+            map.addTerm(index, new GrammaticalTerm(name));
+        }
+
+        List<Integer> array = List.of(4, 5, 6);
+        List<String> values = array.stream().map(String::valueOf).collect(Collectors.toList());
+        Map.Entry[] entries = values.entrySet();
+
+        for (Entry entry : entries) {
+            System.out.println(entry.getKey() + " - " + entry.getValue());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

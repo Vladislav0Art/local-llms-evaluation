@@ -1,0 +1,237 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.NodeResult;
+
+public class TextNodeTest {
+
+    @Test
+    public void nodeName_test() {
+        // Arrange
+        String text = "Hello World";
+        NodeResult nodeResult = createTextNode(text);
+
+        // Act
+        String nodeName = nodeResult.nodeName();
+
+        // Assert
+        assertEquals("text", nodeName);
+    }
+
+    @Test
+    public void text_test() {
+        // Arrange
+        String text = "Hello World";
+
+        // Act
+        TextNode node = new TextNode(text);
+
+        // Assert
+        assertEquals(text, node.text());
+    }
+
+    @Test
+    public void text_text_set_test() {
+        // Arrange
+        String text = "Hello World";
+        TextNode node = new TextNode(text);
+        node.setText("Goodbye World");
+
+        // Act
+        String result = node.text();
+
+        // Assert
+        assertEquals("Goodbye World", result);
+    }
+
+    @Test
+    public void getWholeText_test() {
+        // Arrange
+        String text = "Hello World";
+
+        // Act
+        TextNode node = new TextNode(text);
+
+        // Assert
+        assertEquals(text, node.getWholeText());
+    }
+
+    @Test
+    public void isBlank_test() {
+        // Arrange
+        String text = "";
+
+        // Act
+        TextNode node = new TextNode(text);
+        boolean result = node.isBlank();
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    public void splitText_test() {
+        // Arrange
+        String text = "Hello World";
+        int offset = 5;
+        NodeResult nodeResult = createTextNode(text);
+
+        // Act
+        TextNode subNode = nodeResult.splitText(offset);
+
+        // Assert
+        assertEquals("World", subNode.text());
+    }
+
+    @Test
+    public void outerHtmlHead_test() {
+        // Arrange
+        String text = "";
+        Document document = new Document();
+        Appendable accum = document.appendNode(new TextNode(text));
+
+        // Act
+        String result = getOuterHtmlHead(accum);
+
+        // Assert
+        assertEquals("<html><head></head>", result);
+    }
+
+    @Test
+    public void outerHtmlTail_test() {
+        // Arrange
+        String text = "";
+        Document document = new Document();
+        Appendable accum = document.appendNode(new TextNode(text));
+        int depth = 1;
+        Document.OutputSettings out = Document.OutputSettings.INDENT_NONE;
+
+        // Act
+        String result = getOuterHtmlTail(accum, depth, out);
+
+        // Assert
+        assertEquals("<html><head></head>", result);
+    }
+
+    @Test
+    public void toString_test() {
+        // Arrange
+        String text = "Hello World";
+
+        // Act
+        String result = new TextNode(text).toString();
+
+        // Assert
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void clone_test() {
+        // Arrange
+        String text = "Hello World";
+        TextNode node = new TextNode(text);
+
+        // Act
+        TextNode clonedNode = new TextNode(node.clone());
+
+        // Assert
+        assertEquals(node, clonedNode);
+    }
+
+    private static Node createTextNode(String text) {
+        Document document = new Document();
+        Appendable accum = document.appendNode(new TextNode(text));
+        return nodeResult -> new TextNode(text).setWholeText(nodeResult.getWholeText());
+    }
+
+    private String getOuterHtmlHead(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        StringBuilder result = new StringBuilder("  ");
+        while (depth > 0) {
+            result.append("<").append(getOuterHtmlTail(accum, depth - 1, out)).append("\n");
+            if (depth > 1) {
+                result.append("</").append(getOuterHtmlHead(accum, depth - 2, out)).append(">\n");
+            }
+        }
+        return result.toString();
+    }
+
+    private String getOuterHtmlTail(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        StringBuilder result = new StringBuilder("\n");
+        while (depth > 0) {
+            if (depth == 1) {
+                result.append("  <").append(getHead(accum)).append("</head>");
+            } else {
+                result.append("  <").append(getTail(accum, depth - 2, out)).append("</body>\n");
+            }
+        }
+        return result.toString();
+    }
+
+    private String getHead(Appendable accum) throws IOException {
+        Appendable firstNode = null;
+        while (accum != null && !accum.isEmpty()) {
+            if (firstNode == null || firstNode.getWholeText().isEmpty()) {
+                firstNode = new TextNode(accum.nextLine());
+            } else {
+                break;
+            }
+        }
+
+        return firstNode != null ? "<!" + firstNode.nodeName() + ">" : "";
+    }
+
+    private String getTail(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        StringBuilder result = new StringBuilder();
+        while (accum != null && !accum.isEmpty()) {
+            if (depth == 1) {
+                result.append("<").append(accum.nextLine()).append("</head>");
+            } else {
+                result.append("  <").append(accum.nextLine()).append("</body>\n");
+            }
+        }
+
+        return result.toString();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+
+public class Solution {
+    @Test
+    public void testGenerateHtml() {
+        String input = "<p>Hello World!</p>";
+        System.out.println(generateHtml(input));
+    }
+
+    private String generateHtml(String input) {
+        StringBuilder builder = new StringBuilder();
+        if (input.contains("<!")) {
+            builder.append("<head>").append("\n");
+            for (int i = 1; i < input.length(); i++) {
+                if (!Character.isWhitespace(input.charAt(i))) {
+                    builder.append("    <").append("\n").append("      ").append(input.substring(i, i + 2)).append("</").append(">\n");
+                }
+            }
+            builder.append("</head>");
+        } else {
+            for (int i = 0; i < input.length(); i++) {
+                if (!Character.isWhitespace(input.charAt(i))) {
+                    builder.append("<!").append("\n").append(input.substring(i, i + 2)).append(">").append(input.substring(0, i)).append("</").append("!");
+                }
+            }
+        }
+
+        return builder.toString();
+    }
+}
+```
+===================================================
+

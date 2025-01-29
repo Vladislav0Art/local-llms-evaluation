@@ -1,0 +1,368 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.helper.HttpConnection;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class HttpConnectionTest {
+    @Test
+    public void testConnect() {
+        String url = "http://example.com";
+        HttpConnection connection = HttpConnection.connect(url);
+        assertEquals(true, connection instanceof Connection);
+    }
+
+    @Test
+    public void testConnectWithProxy() {
+        String url = "http://proxy.example.com:8080";
+        HttpConnection connection = HttpConnection.connect(url, null);
+        assertEquals(true, connection instanceof HttpConnection.Proxy);
+    }
+
+    @Test
+    public void testConnectWithCookieManager() throws InterruptedException {
+        CookieManager cookieManager = new CookieManager();
+        URL url = new URL("http://example.com");
+        HttpConnection connection = (HttpConnection) HttpConnection.connect(url, null);
+        assertEquals(true, connection instanceof HttpConnection.CookieStore);
+        cookieManager.setCookies(null);
+
+        Thread.sleep(5000);
+
+        String cookies = cookieManager.getCookieString();
+
+        assertEquals(cookies, "some-cookies", "Unexpected cookies");
+    }
+
+    @Test
+    public void testConnectWithCookieStore() throws InterruptedException {
+        CookieStore cookieStore = new CookieStore();
+        URL url = new URL("http://example.com");
+        HttpConnection connection = (HttpConnection) HttpConnection.connect(url, null);
+        assertEquals(true, connection instanceof HttpConnection.CookieStore);
+
+        cookieStore.setCookies(null);
+
+        Thread.sleep(5000);
+
+        String cookies = cookieStore.getCookieString();
+
+        assertEquals(cookies, "some-cookies", "Unexpected cookies");
+    }
+
+    @Test
+    public void testConnectWithResponse() throws InterruptedException {
+        URL url = new URL("http://example.com");
+        HttpConnection connection = (HttpConnection) HttpConnection.connect(url);
+        assertEquals(true, connection instanceof Connection);
+
+        String response = connection.response().toString();
+
+        assertEquals("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n", response, "Unexpected response");
+    }
+
+    @Test
+    public void testConnectWithResponseCharset() throws InterruptedException {
+        URL url = new URL("http://example.com");
+        HttpConnection connection = (HttpConnection) HttpConnection.connect(url);
+        assertEquals(true, connection instanceof Connection);
+
+        String response = connection.response().toString();
+
+        assertEquals("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\n", response, "Unexpected response");
+    }
+
+    @Test
+    public void testConnectWithResponsePostDataCharset() throws InterruptedException {
+        URL url = new URL("http://example.com");
+        HttpConnection connection = (HttpConnection) HttpConnection.connect(url);
+        assertEquals(true, connection instanceof Connection);
+
+        String response = connection.response().toString();
+
+        assertEquals("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\n", response, "Unexpected response");
+    }
+
+    @Test
+    public void testConnectWithHeader() throws InterruptedException {
+        URL url = new URL("http://example.com");
+        HttpConnection connection = (HttpConnection) HttpConnection.connect(url);
+        assertEquals(true, connection instanceof Connection);
+
+        String header = connection.header("X-Example", "some-value");
+
+        assertEquals("X-Example:some-value\r\n", header, "Unexpected header");
+    }
+
+    @Test
+    public void testConnectWithResponseKeyvals() throws InterruptedException {
+        URL url = new URL("http://example.com");
+        HttpConnection connection = (HttpConnection) HttpConnection.connect(url);
+        assertEquals(true, connection instanceof Connection);
+
+        String response = connection.response().toString();
+
+        assertEquals("{\"key\":\"value\"}", response, "Unexpected response");
+    }
+
+    @Test
+    public void testConnectWithData() throws InterruptedException {
+        URL url = new URL("http://example.com");
+        HttpConnection connection = (HttpConnection) HttpConnection.connect(url);
+        assertEquals(true, connection instanceof Connection);
+
+        String data = "{\"key\":\"value\"}";
+
+        connection.data(data);
+        assertEquals(true, data instanceof String, "Unexpected response");
+
+        Thread.sleep(5000);
+
+        String response = connection.response().toString();
+
+        assertEquals("{\"key\":\"value\"}", response, "Unexpected response");
+    }
+
+    @Test
+    public void testConnectWithKeyvals() throws InterruptedException {
+        URL url = new URL("http://example.com");
+        HttpConnection connection = (HttpConnection) HttpConnection.connect(url);
+        assertEquals(true, connection instanceof Connection);
+
+        String[] keyvals = {"key1", "value1"};
+
+        for (String keyval : keyvals) {
+            connection.data(keyval);
+        }
+
+        assertEquals(2, connection.request().keys().size(), "Unexpected number of key-value pairs");
+
+        Thread.sleep(5000);
+
+        String response = connection.response().toString();
+
+        assertEquals("{\"key1\":\"value1\"}", response, "Unexpected response");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+public class MyServiceTest {
+
+    @Test
+    public void testGetResponse() {
+        String response = MyService.get("https://jsonplaceholder.typicode.com/posts/1");
+        assertThat(response, is("{\"id\":1,\"title\":\"Hello World\",\"body\":\"This is a demo post\"}");
+    }
+
+    @Test
+    public void testGetResponseWithKeyValues() {
+        Map<String, Object> request = new HashMap<>();
+        request.put("key", "value");
+
+        String response = MyService.get("https://jsonplaceholder.typicode.com/posts/1");
+        assertThat(response, is("{\"key\":\"value\"}");
+    }
+
+    @Test
+    public void testGetResponseWithMultipleKeys() {
+        Map<String, Object> request = new HashMap<>();
+        request.put("key1", "value1");
+        request.put("key2", "value2");
+
+        String response = MyService.get("https://jsonplaceholder.typicode.com/posts/1");
+        assertThat(response, is("{\"key1\":\"value1\",\"key2\":\"value2\"}");
+    }
+
+    @Test
+    public void testGetResponseWithNullValues() {
+        String response = MyService.get("https://jsonplaceholder.typicode.com/posts/1").getOrDefault("null", "default value");
+        assertThat(response, is(null));
+    }
+
+    @Test
+    public void testGetResponseWithEmptyStringValues() {
+        String response = MyService.get("https://jsonplaceholder.typicode.com/posts/1").getOrDefault("", "default value");
+        assertThat(response, is(""));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+public class MyServiceTest {
+
+    @Test
+    public void testGetResponse() {
+        String response = MyService.get("https://jsonplaceholder.typicode.com/posts/1").getBody();
+        assertThat(response, is("{\"id\":1,\"title\":\"Hello World\",\"body\":\"This is a demo post\"}");
+    }
+
+    @Test
+    public void testGetResponseWithKeyValues() {
+        String response = MyService.get("https://jsonplaceholder.typicode.com/posts/1")
+                .getOrDefault(Maps.toString(), "\"\"");
+        assertThat(response, is("{\"key\":1,\"title\":\"Hello World\",\"body\":\"This is a demo post\"}");
+    }
+
+    @Test
+    public void testGetResponseWithMultipleKeys() {
+        String response = MyService.get("https://jsonplaceholder.typicode.com/posts/1")
+                .getOrDefault(Maps.toString(), "\"\"");
+        assertThat(response, is("{\"key1\":1,\"title\":\"Hello World\",\"body\":\"This is a demo post\"}");
+    }
+
+    @Test
+    public void testGetResponseWithNullValues() {
+        String response = MyService.get("https://jsonplaceholder.typicode.com/posts/1").getOrDefault("", "\"\"");
+        assertThat(response, is("\"\"");
+    }
+
+    @Test
+    public void testGetResponseWithEmptyStringValues() {
+        String response = MyService.get("https://jsonplaceholder.typicode.com/posts/1").getOrDefault("", "default value");
+        assertThat(response, is("default value"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+public class MyServiceTest {
+
+    @Test
+    public void testGetResponse() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", 1);
+        response.put("title", "Hello World");
+        response.put("body", "This is a demo post");
+
+        String json = MyService.get("https://jsonplaceholder.typicode.com/posts/1").toString();
+        assertThat(json, is("{\"id\":1,\"title\":\"Hello World\",\"body\":\"This is a demo post\"}");
+    }
+
+    @Test
+    public void testGetResponseWithKeyValues() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("key", "value");
+
+        String json = MyService.get("https://jsonplaceholder.typicode.com/posts/1")
+                .getOrDefault(Maps.toString(), "\"\"");
+        assertThat(json, is("{\"key\":\"value\"}");
+    }
+
+    @Test
+    public void testGetResponseWithMultipleKeys() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("key1", 1);
+        response.put("key2", "value");
+
+        String json = MyService.get("https://jsonplaceholder.typicode.com/posts/1")
+                .getOrDefault(Maps.toString(), "\"\"");
+        assertThat(json, is("{\"key1\":1,\"key2\":\"value\"}");
+    }
+
+    @Test
+    public void testGetResponseWithNullValues() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("null", "default value");
+
+        String json = MyService.get("https://jsonplaceholder.typicode.com/posts/1").getOrDefault("", "\"\"");
+        assertThat(json, is("\"\"");
+    }
+
+    @Test
+    public void testGetResponseWithEmptyStringValues() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("", "default value");
+
+        String json = MyService.get("https://jsonplaceholder.typicode.com/posts/1").getOrDefault("", "default value");
+        assertThat(json, is("default value"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+public class MyServiceTest {
+
+    @Test
+    public void testGetJson() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", 1);
+        response.put("title", "Hello World");
+        response.put("body", "This is a demo post");
+
+        String json = MyService.get("https://jsonplaceholder.typicode.com/posts/1").toString();
+        assertThat(json, is("{\"id\":1,\"title\":\"Hello World\",\"body\":\"This is a demo post\"}");
+    }
+
+    @Test
+    public void testGetJsonWithKeyValues() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("key", "value");
+
+        String json = MyService.get("https://jsonplaceholder.typicode.com/posts/1")
+                .getOrDefault(Maps.toString(), "\"\"");
+        assertThat(json, is("{\"key\":\"value\"}");
+    }
+
+    @Test
+    public void testGetJsonWithMultipleKeys() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("key1", 1);
+        response.put("key2", "value");
+
+        String json = MyService.get("https://jsonplaceholder.typicode.com/posts/1")
+                .getOrDefault(Maps.toString(), "\"\"");
+        assertThat(json, is("{\"key1\":1,\"key2\":\"value\"}");
+    }
+
+    @Test
+    public void testGetJsonWithNullValues() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("null", "default value");
+
+        String json = MyService.get("https://jsonplaceholder.typicode.com/posts/1").getOrDefault("", "\"\"");
+        assertThat(json, is("\"\"");
+    }
+
+    @Test
+    public void testGetJsonWithEmptyStringValues() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("", "default value");
+
+        String json = MyService.get("https://jsonplaceholder.typicode.com/posts/1").getOrDefault("", "default value");
+        assertThat(json, is("default value"));
+    }
+}
+```
+===================================================
+

@@ -1,0 +1,419 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class SafelistTest {
+
+    @Test
+    public void simpleText_SafeList() {
+        Safelist list = Safelist.simpleText();
+        Assert.assertTrue(list.isSafeTag("a"));
+        Assert.assertFalse(list.isSafeTag("p"));
+        Assert.assertFalse(list.isSafeTag(""));
+    }
+
+    @Test
+    public void basic_Safelist() {
+        Safelist list = Safelist.basic();
+        Assert.assertTrue(list.isSafeTag("img"));
+        Assert.assertFalse(list.isSafeTag(""));
+    }
+
+    @Test
+    public void relaxed_Safelist() {
+        Safelist list = Safelist.relaxed();
+        Assert.assertTrue(list.isSafeTag("a"));
+        Assert.assertTrue(list.isSafeTag("<p>");
+        Assert.assertFalse(list.isSafeTag(""));
+    }
+
+    @Test
+    public void basicWithImages_Safelist() {
+        Safelist list = Safelist.basicWithImages();
+        Assert.assertTrue(list.isSafeTag("img"));
+        Assert.assertTrue(list.isSafeTag("<img"));
+        Assert.assertFalse(list.isSafeTag(""));
+    }
+
+    @Test
+    public void addTags_Safelist() {
+        Safelist list = Safelist.none();
+        list.addTags("a", "b");
+        Assert.assertTrue(list.isSafeTag("a"));
+        Assert.assertFalse(list.isSafeTag("c"));
+        Assert.assertTrue(list.isSafeTag("<p>");
+    }
+
+    @Test
+    public void removeTags_Safelist() {
+        Safelist list = Safelist.none();
+        list.removeTags("a");
+        Assert.assertFalse(list.isSafeTag("a"));
+        Assert.assertTrue(list.isSafeTag("<p>");
+    }
+
+    @Test
+    public void addAttributes_Safelist() {
+        Safelist list = Safelist.none();
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        list.addAttributes(tags);
+        Assert.assertFalse(list.isSafeAttribute("a"));
+        Assert.assertTrue(list.isSafeAttribute("href=\"https://example.com\""));
+    }
+
+    @Test
+    public void removeAttributes_Safelist() {
+        Safelist list = Safelist.none();
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        list.removeAttributes(tags);
+        Assert.assertFalse(list.isSafeAttribute("a"));
+        Assert.assertTrue(list.isSafeAttribute("href=\"https://example.com\""));
+    }
+
+    @Test
+    public void addEnforcedAttribute_Safelist() {
+        Safelist list = Safelist.none();
+        List<String> tags = new ArrayList<>();
+        tags.add("img", "alt=\"Image\"");
+        list.addEnforcedAttribute(tags);
+        Assert.assertFalse(list.isSafeTag("p"));
+        Assert.assertTrue(list.isSafeTag("<img"));
+    }
+
+    @Test
+    public void removeEnforcedAttribute_Safelist() {
+        Safelist list = Safelist.none();
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        list.removeEnforcedAttribute(tags);
+        Assert.assertFalse(list.isSafeTag("p"));
+        Assert.assertTrue(list.isSafeTag("<img"));
+    }
+
+    @Test
+    public void preserveRelativeLinks_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(true);
+        Assert.assertTrue(list.isSafeTag("a", "href=\"https://example.com\"");
+        Assert.assertFalse(list.isSafeTag("p", "href=\"https://example.com\""));
+    }
+
+    @Test
+    public void addProtocols_Safelist() {
+        Safelist list = Safelist.none();
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"", "rel=\"stylesheet\"");
+        list.addProtocols(tags);
+        Assert.assertFalse(list.isSafeTag("p"));
+    }
+
+    @Test
+    public void removeProtocols_Safelist() {
+        Safelist list = Safelist.none();
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"", "rel=\"stylesheet\"");
+        list.removeProtocols(tags);
+        Assert.assertFalse(list.isSafeTag("p"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.api.Safelist;
+import org.jsoup.nodes.Document;
+
+public class SafelistTest {
+
+    private Document document;
+
+    @Test
+    public void simpleText_SafeList() {
+        Safelist list = Safelist.none();
+        Safelist innerList = Safelist.simpleText();
+        Assert.assertTrue(list.isSafeTag("a"));
+        Assert.assertFalse(list.isSafeTag("p"));
+        Assert.assertFalse(innerList.isSafeTag(""));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void basic_Safelist() {
+        Safelist list = Safelist.basic();
+        Safelist innerList = Safelist.none();
+        Assert.assertTrue(list.isSafeTag("img"));
+        Assert.assertFalse(list.isSafeTag(""));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void relaxed_Safelist() {
+        Safelist list = Safelist.relaxed();
+        Safelist innerList = Safelist.basicWithImages();
+        Assert.assertTrue(list.isSafeTag("a"));
+        Assert.assertTrue(list.isSafeTag("<p>");
+        Assert.assertFalse(list.isSafeTag(""));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void basicWithImages_Safelist() {
+        Safelist list = Safelist.basicWithImages();
+        Safelist innerList = Safelist.none();
+        Assert.assertTrue(list.isSafeTag("img"));
+        Assert.assertFalse(list.isSafeTag(""));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void addProtocols_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(true);
+        Safelist innerList = Safelist.none();
+        innerList.addProtocol("rel=\"stylesheet\"");
+        Assert.assertTrue(list.isSafeTag("p"));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void removeProtocols_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(false);
+        Safelist innerList = Safelist.none();
+        innerList.removeProtocol("rel=\"stylesheet\"");
+        Assert.assertFalse(list.isSafeTag("p"));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void addEnforcedAttribute_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(true);
+        Safelist innerList = Safelist.none();
+        List<String> tags = new ArrayList<>();
+        tags.add("img", "alt=\"Image\"");
+        Assert.assertTrue(list.isSafeTag("p"));
+    }
+
+    @Test
+    public void removeEnforcedAttribute_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(false);
+        Safelist innerList = Safelist.none();
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        Assert.assertFalse(list.isSafeTag("p"));
+    }
+
+    @Test
+    public void preserveRelativeLinks_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(true);
+        Safelist innerList = Safelist.getDocument(Safelist.simpleText());
+        Assert.assertTrue(innerList.isSafeTag("a", "href=\"https://example.com\"");
+        Assert.assertFalse(innerList.isSafeTag("p", "href=\"https://example.com\""));
+    }
+
+    @Test
+    public void addProtocols_Safelist() {
+        Safelist list = Safelist.getDocument(Safelist.basicWithImages());
+        List<String> tags = new ArrayList<>();
+        tags.add("img", "src=\"image.jpg\"");
+        Assert.assertTrue(list.isSafeTag("p"));
+    }
+
+    @Test
+    public void removeProtocols_Safelist() {
+        Safelist list = Safelist.getDocument(Safelist.relaxed());
+        List<String> tags = new ArrayList<>();
+        tags.add("img", "src=\"image.jpg\"");
+        Assert.assertFalse(list.isSafeTag("p"));
+    }
+
+    private Document getDocument(Safelist list) {
+        document = Safelist.getDocument(list);
+        return document;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class SafelistTest {
+
+    private Document document;
+
+    @Test
+    public void simpleText_SafeList() {
+        Safelist list = Safelist.none();
+        Assert.assertTrue(list.isSafeTag("a"));
+        Assert.assertFalse(list.isSafeTag("p"));
+        Assert.assertFalse(list.isSafeTag(""));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void basic_Safelist() {
+        Safelist list = Safelist.basic();
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        Assert.assertTrue(list.isSafeTag(tags));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void relaxed_Safelist() {
+        Safelist list = Safelist.relaxed();
+        List<String> tags = new ArrayList<>();
+        tags.add("img", "src=\"image.jpg\"");
+        Assert.assertTrue(list.isSafeTag(tags));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void basicWithImages_Safelist() {
+        Safelist list = Safelist.basicWithImages();
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        Assert.assertTrue(list.isSafeTag(tags));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void addProtocols_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(true);
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        Assert.assertTrue(list.isSafeTag(tags));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void removeProtocols_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(false);
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        Assert.assertFalse(list.isSafeTag(tags));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void addEnforcedAttribute_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(true);
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        Assert.assertTrue(list.isSafeTag(tags, true));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void removeEnforcedAttribute_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(false);
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        Assert.assertFalse(list.isSafeTag(tags, false));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void preserveRelativeLinks_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(true);
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        Assert.assertTrue(list.isSafeTag(tags));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void addProtocols_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(true);
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        Assert.assertTrue(list.isSafeTag(tags, true));
+        document = Safelist.getDocument(list);
+    }
+
+    @Test
+    public void removeProtocols_Safelist() {
+        Safelist list = Safelist.preserveRelativeLinks(false);
+        List<String> tags = new ArrayList<>();
+        tags.add("a", "href=\"https://example.com\"");
+        Assert.assertFalse(list.isSafeTag(tags, false));
+        document = Safelist.getDocument(list);
+    }
+
+    private Document getDocument(Safelist list) {
+        return Jsoup.parse(Jsoup.append("html", "<body><p>Hello World!</p></body>").text(), list);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class JsoupTest {
+
+    public static void main(String[] args) {
+        String html = "<html><head></head><body>Hello World!</body></html>";
+        Document doc = Jsoup.parse(html);
+        System.out.println(doc.text());
+    }
+
+    public static String append(String text, Document listElement) {
+        return listElement.html(text);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+Here is a Java program that uses Jsoup to parse HTML and extract the text of all elements on a webpage:
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class JsoupTest {
+
+    public static void main(String[] args) {
+        String html = "<html><body>Hello World!</body></html>";
+        Document doc = Jsoup.parse(html);
+        
+        // Find all paragraph elements on the webpage
+        Element paragraphElement1 = doc.select("p").first();
+        System.out.println(append(paragraphElement1.text(), paragraphElement1));
+    }
+
+    public static String append(String text, Element element) {
+        return append(text, element.html());
+    }
+}
+```
+
+This program will print "Hello World!" to the console.
+===================================================
+
+
+====================== Iteration #6 ======================

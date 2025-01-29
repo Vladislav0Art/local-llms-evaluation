@@ -1,0 +1,507 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class EpubChecker {
+    private static final Locale LOCALE = Locale.getDefault();
+
+    public String getLocale() {
+        return LOCALE.toString();
+    }
+
+    public int run(String[] args) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Deprecated
+    public int processEpubFile(String[] args) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public void validateEpubFile(String path, EPUBVersion version, Report report, EPUBProfile profile) {
+        EpubChecker checker = new EpubChecker();
+        checkFile(path, version, report, checker);
+    }
+
+    private void checkFile(String path, EPUBVersion version, Report report, EpubChecker checker) {
+        File file = new File(path);
+        if (!file.exists()) {
+            throw new RuntimeException("Epub file not found at " + path);
+        }
+        EpubCheckFactory factory = new EpubCheckFactory();
+        EpubCheck check = factory.create(checker.getLocale());
+        check.addValidationContext(new ValidationContextBuilder().setPath(path).build());
+        CheckerReport reportBuilder = new CheckerReport();
+        reportBuilder.setValidationContext(check.getValidationContext());
+        try (PrintWriter writer = new PrintWriter(new FileWriter(reportBuilder.getOutputFile(), true))) {
+            checker.validateEpubFile(path, version, reportBuilder, factory);
+            report = reportBuilder.build();
+            return reportCode(report);
+        } catch (IOException e) {
+            throw new RuntimeException("Error validating Epub file: " + e.getMessage());
+        }
+    }
+
+    public void validateEpubFile(String path, EPUBVersion version, Report report, String[] additionalData) {
+        EpubChecker checker = new EpubChecker();
+        checkFile(path, version, report, checker);
+    }
+
+    private int reportCode(Report report) {
+        return 0;
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class EpubChecker {
+    @Test
+    public void validateEpubFileTest() {
+        String[] args = {};
+        EpubChecker checker = new EpubChecker();
+        // test: "validateEpubFile"
+        checkEpubFile(checker, args);
+    }
+
+    private void checkEpubFile(EpubChecker checker, String[] args) {
+        String path = "path_to_ftp_file";
+        EPUBVersion version = new EPUBVersion("3.0");
+        Report report = new DefaultReportImpl();
+        EpubCheckFactory factory = new EpubCheckFactory();
+        EpubCheck check = factory.create(checker.getLocale());
+        ValidationContextBuilder validationContextBuilder = new ValidationContextBuilder().setPath(path);
+        check.addValidationContext(validationContextBuilder.build());
+        CheckerReport checkerReport = new CheckerReport();
+        checker.validateEpubFile(path, version, checkerReport, factory);
+    }
+
+    @Test
+    public void validateEpubFileNoCheckPathTest() {
+        String[] args = {};
+        EpubChecker checker = new EpubChecker();
+        // test: "validateEpubFileNoCheckPath"
+        checkEpubFile(checker, args);
+    }
+
+    private void checkEpubFile(EpubChecker checker, String[] args) {
+        String path = "";
+        try {
+            FileResourceProvider resourceProvider = new DefaultResourceProvider();
+            Archive archive = resourceProvider.getArchive(path);
+            if (archive != null && archive.isDirectory()) {
+                for (File file : archive.listFiles()) {
+                    if (file.isFile() && file.getName().endsWith(".epub")) {
+                        EpubChecker.EpubCheck check = checker.checkEpubFile(file.getAbsolutePath());
+                        if (check == null) {
+                            throw new RuntimeException("Epub file is not a valid EPUB file");
+                        }
+                    }
+                }
+            } else {
+                throw new RuntimeException("Invalid archive path: " + path);
+            }
+        } catch (Exception e) {
+            // test: "reportCode"
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void validateEpubFileWithAdditionalDataTest() {
+        String[] args = {"-a", "-d"};
+        EpubChecker checker = new EpubChecker();
+        // test: "validateEpubFileWithAdditionalData"
+        checkEpubFile(checker, args);
+    }
+
+    private void checkEpubFile(EpubChecker checker, String[] args) {
+        String path = "path_to_ftp_file";
+        EPUBVersion version = new EPUBVersion("3.0");
+        Report report = new DefaultReportImpl();
+        EpubCheckFactory factory = new EpubCheckFactory();
+        EpubCheck check = factory.create(checker.getLocale());
+        ValidationContextBuilder validationContextBuilder = new ValidationContextBuilder().setPath(path);
+        check.addValidationContext(validationContextBuilder.build());
+        CheckerReport checkerReport = new CheckerReport();
+        checker.validateEpubFile(path, version, checkerReport, factory);
+    }
+
+    @Test
+    public void validateEpubFileWithInvalidVersionTest() {
+        String[] args = {"-a", "-d"};
+        EpubChecker checker = new EpubChecker();
+        // test: "validateEpubFileWithInvalidVersion"
+        checkEpubFile(checker, args);
+    }
+
+    private int reportCode(Report report) {
+        return 0;
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class TestUtils {
+    public static boolean isPublic(Class<?> clazz) {
+        return clazz.getSuperclass() == Object.class;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isPublic(DefaultTestConfig.class));
+        System.out.println(isPublic(TestConfig.class));
+        System.out.println(isPublic(AppClass.class));
+        // Add more public classes and methods as needed
+    }
+}
+
+public class DefaultTestConfig {
+    @FunctionalInterface
+    public interface TestFunction {
+        void test();
+    }
+
+    public static void main(String[] args) {
+        @FunctionalInterface
+        public interface TestMethod {
+            default void test() {
+                System.out.println("Default method");
+            }
+        }
+
+        TestMethod testMethod = new TestMethod() {
+            @Override
+            default void test() {
+                System.out.println("Default method");
+            }
+        };
+
+        DefaultTestConfig config = new DefaultTestConfig();
+        System.out.println(config.isPublic(DefaultTestConfig.class));
+    }
+}
+
+public class AppClass {}
+
+class TestConfig extends Class<?> {
+    public static void main(String[] args) {
+        // No-op
+    }
+
+    @Override
+    public String getName() {
+        return "TestConfig";
+    }
+}
+
+class AppClass {
+    @FunctionalInterface
+    public interface Method {
+        default void test() {
+            System.out.println("Method");
+        }
+    }
+
+    public static void main(String[] args) {
+        // No-op
+    }
+
+    @Override
+    public String getName() {
+        return "AppClass";
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+Here is a new response in the same format as before:
+
+```java
+public class TestUtils {
+    public static boolean isEmpty(Class<?> clazz) {
+        return clazz.getName().equals("Object");
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isEmpty(DefaultTestConfig.class));
+        System.out.println(isEmpty(TestConfig.class));
+        System.out.println(isEmpty(AppClass.class));
+        // Add more empty classes and methods as needed
+    }
+}
+
+class DefaultTestConfig {}
+```
+
+```java
+public class TestUtils {
+    public static boolean isConstructor(Class<?> clazz) {
+        return clazz.getSuperclass() == Constructor.class;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isConstructor(DefaultTestConfig.class));
+        System.out.println(isConstructor(TestConfig.class));
+        System.out.println(isConstructor(AppClass.class));
+        // Add more constructors as needed
+    }
+}
+
+public class DefaultTestConfig extends Constructor {}
+```
+
+```java
+public class TestUtils {
+    public static boolean isFinal(Class<?> clazz) {
+        return clazz.isPrimitive() || (clazz.getName().contains("$") && !clazz.getSuperclass().getName().contains("$"));
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isFinal(DefaultTestConfig.class));
+        System.out.println(isFinal(TestConfig.class));
+        System.out.println(isFinal(AppClass.class));
+        // Add more final classes as needed
+    }
+}
+
+public class DefaultTestConfig {}
+```
+
+```java
+public class TestUtils {
+    public static boolean isStatic(Class<?> clazz) {
+        return clazz.getSuperclass() == Void.class || (clazz.getName().contains("$") && !clazz.getSuperclass().getName().contains("$"));
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isStatic(DefaultTestConfig.class));
+        System.out.println(isStatic(TestConfig.class));
+        System.out.println(isStatic(AppClass.class));
+        // Add more static classes as needed
+    }
+}
+
+public class DefaultTestConfig {}
+```
+
+```java
+public class TestUtils {
+    public static boolean isAbstract(Class<?> clazz) {
+        return !clazz.isInterface() && !clazz.getName().startsWith("$");
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isAbstract(DefaultTestConfig.class));
+        System.out.println(isAbstract(TestConfig.class));
+        System.out.println(isAbstract(AppClass.class));
+        // Add more abstract classes as needed
+    }
+}
+
+public class DefaultTestConfig {}
+```
+
+```java
+public class TestUtils {
+    public static boolean isEnum(Class<?> clazz) {
+        return clazz.isEnum();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isEnum(DefaultTestConfig.class));
+        System.out.println(isEnum(TestConfig.class));
+        System.out.println(isEnum(AppClass.class));
+        // Add more enum classes as needed
+    }
+}
+
+public class DefaultTestConfig {}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+Here is a new response in the same format as before:
+
+```java
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
+public class TestUtils {
+    public static boolean isEmpty(Class<?> clazz) {
+        Constructor<?> constructor = null;
+        try {
+            constructor = clazz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            // If the class has no constructors, it's not an object
+        }
+
+        if (constructor == null) {
+            return false;
+        }
+
+        Method method = null;
+        try {
+            method = constructor.newInstance().getClass().getMethod("getDeclaringClass");
+        } catch (Exception e) {
+            // If there is no getDeclaringClass, it's not an object
+        }
+
+        if (method == null) {
+            return false;
+        }
+
+        Class<?> declaringClass = (Class<?>) method.invoke(constructor.newInstance());
+        return declaringClass.isPrimitive() || (declaringClass.getName().contains("$") && !declaringClass.getSuperclass().getName().contains("$"));
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isEmpty(DefaultTestConfig.class));
+        System.out.println(isEmpty(TestConfig.class));
+        System.out.println(isEmpty(AppClass.class));
+        // Add more classes as needed
+    }
+}
+
+public class DefaultTestConfig {}
+```
+
+```java
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
+public class TestUtils {
+    public static boolean isFinal(Class<?> clazz) {
+        Constructor<?> constructor = null;
+        try {
+            constructor = clazz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            // If the class has no constructors, it's not final
+        }
+
+        if (constructor == null) {
+            return false;
+        }
+
+        Method method = null;
+        try {
+            method = constructor.newInstance().getClass().getMethod("isFinal");
+        } catch (Exception e) {
+            // If there is no isFinal, it's not final
+        }
+
+        if (method == null) {
+            return false;
+        }
+
+        return clazz.isPrimitive() || (clazz.getName().contains("$") && !clazz.getSuperclass().getName().contains("$"));
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isFinal(DefaultTestConfig.class));
+        System.out.println(isFinal(TestConfig.class));
+        System.out.println(isFinal(AppClass.class));
+        // Add more classes as needed
+    }
+}
+
+public class DefaultTestConfig {}
+```
+
+```java
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
+public class TestUtils {
+    public static boolean isStatic(Class<?> clazz) {
+        Constructor<?> constructor = null;
+        try {
+            constructor = clazz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            // If the class has no constructors, it's not static
+        }
+
+        if (constructor == null) {
+            return false;
+        }
+
+        Method method = null;
+        try {
+            method = constructor.newInstance().getClass().getMethod("isStatic");
+        } catch (Exception e) {
+            // If there is no isStatic, it's not static
+        }
+
+        if (method == null) {
+            return false;
+        }
+
+        return !clazz.isInterface() && !clazz.getName().startsWith("$");
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isStatic(DefaultTestConfig.class));
+        System.out.println(isStatic(TestConfig.class));
+        System.out.println(isStatic(AppClass.class));
+        // Add more classes as needed
+    }
+}
+
+public class DefaultTestConfig {}
+```
+
+```java
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
+public class TestUtils {
+    public static boolean isEnum(Class<?> clazz) {
+        Constructor<?> constructor = null;
+        try {
+            constructor = clazz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            // If the class has no constructors, it's not an enum
+        }
+
+        if (constructor == null) {
+            return false;
+        }
+
+        Method method = null;
+        try {
+            method = constructor.newInstance().getClass().getMethod("getName");
+        } catch (Exception e) {
+            // If there is no getName, it's not an enum
+        }
+
+        if (method == null) {
+            return false;
+        }
+
+        String name = (String) method.invoke(constructor.newInstance());
+        return clazz.isEnum(name);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isEnum(DefaultTestConfig.class));
+        System.out.println(isEnum(TestConfig.class));
+        System.out.println(isEnum(AppClass.class));
+        // Add more enums as needed
+    }
+}
+
+public class DefaultTestConfig {}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

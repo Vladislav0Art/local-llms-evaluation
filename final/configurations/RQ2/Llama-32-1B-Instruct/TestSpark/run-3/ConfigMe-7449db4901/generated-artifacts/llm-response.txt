@@ -1,0 +1,378 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CommentsConfigurationTest {
+
+    @Mock
+    private Map<String, List<String>> comments;
+
+    @InjectMocks
+    private CommentsConfiguration commentsConfiguration;
+
+    @Test
+    public void testGetAllComments() {
+        Map<String, List<String>> commentsMap = new HashMap<>();
+        commentsMap.put("path1", Arrays.asList("line1", "line2"));
+        commentsMap.put("path2", Collections.singletonList(""));
+        commentsConfiguration.setComment("path1", "commentLine1");
+        commentsConfiguration.setComment("path2", "commentLine2");
+
+        Map<String, List<String>> result = commentsConfiguration.getAllComments();
+        assertNotNull(result);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testSetCommentSingleNewLine() {
+        when(comments.anyString()).thenReturn(Collections.singletonList(""));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        commentsConfiguration.setComment("path", "singleNewline");
+        String result = commentsConfiguration.getAllComments().get("path").get(0);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testSetCommentMultipleLines() {
+        when(comments.anyString()).thenReturn(Collections.singletonList(""));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        commentsConfiguration.setComment("path", Arrays.asList("", "commentLine1", "commentLine2"));
+        String result = commentsConfiguration.getAllComments().get("path").get(0);
+        assertTrue(result.equals("commentLine1"));
+    }
+
+    @Test
+    public void testSetCommentMultipleLinesSoleNewLine() {
+        when(comments.anyString()).thenReturn(Collections.singletonList(""));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        commentsConfiguration.setComment("path", Arrays.asList("", "line1", "line2"));
+        String result = commentsConfiguration.getAllComments().get("path").get(0);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testSetCommentNoLines() {
+        when(comments.anyString()).thenReturn(Collections.emptyList());
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        commentsConfiguration.setComment("path", Arrays.asList("", "", ""));
+
+        Map<String, List<String>> result = commentsConfiguration.getAllComments().get("path");
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.*;
+
+public class CommentsConfigurationTest {
+
+    @Mock
+    private Map<String, List<String>> comments;
+
+    @InjectMocks
+    private CommentsConfiguration commentsConfiguration;
+
+    @Test
+    public void testGetAllComments() {
+        Map<String, List<String>> commentsMap = new HashMap<>();
+        commentsMap.put("path1", Arrays.asList("line1", "line2"));
+        commentsMap.put("path2", Collections.singletonList(""));
+        commentsConfiguration.setComment("path1", "comment1");
+        commentsConfiguration.setComment("path2", new String[]{});
+
+        Map<String, List<String>> result = commentsConfiguration.getAllComments();
+        assertNotNull(result);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testSetComment() {
+        commentsConfiguration.setComment("path1", "comment");
+        Map<String, List<String>> result = commentsConfiguration.getAllComments();
+
+        assertTrue(result.containsKey("path1"));
+        assertTrue(result.get("path1").size() == 2);
+    }
+
+    @Test
+    public void testGetAllCommentsError() {
+        Map<String, List<String>> result = null;
+        commentsConfiguration.setComment("path", new String[]{});
+
+        try {
+            commentsConfiguration.getAllComments();
+            fail("Expected NullPointerException");
+        } catch (NullPointerException e) {}
+
+        result = commentsConfiguration.getAllComments();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.*;
+
+public class CommentsConfigurationTest {
+
+    @Mock
+    public Map<String, List<String>> getComments() {
+        return new HashMap<>();
+    }
+
+    @InjectMocks
+    private CommentsConfiguration commentsConfiguration;
+
+    @Test
+    public void testGetAllComments() {
+        CommentsConfiguration.Result result = new CommentsConfiguration.Result();
+        when(comments.getComments()).thenReturn(result);
+        Map<String, List<String>> commentsMap = new HashMap<>();
+        commentsMap.put("path1", Arrays.asList("line1", "line2"));
+        commentsMap.put("path2", Collections.singletonList(""));
+        commentsConfiguration.setComment("path1", "comment");
+        commentsConfiguration.setComment("path2", new String[]{});
+
+        Map<String, List<String>> result = commentsConfiguration.getAllComments();
+        assertNotNull(result);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testSetComment() {
+        CommentsConfiguration.Result result = new CommentsConfiguration.Result();
+        when(comments.getComments()).thenReturn(result);
+        commentsConfiguration.setComment("path1", "comment");
+        Map<String, List<String>> commentsMap = new HashMap<>();
+        commentsMap.put("path1", Arrays.asList("line1", "line2"));
+        commentsConfiguration.getAllComments().setComment("path1", result);
+
+        assertTrue(commentsConfiguration.getAllComments().getComment("path1").size() == 3);
+    }
+
+    @Test
+    public void testGetAllCommentsError() {
+        CommentsConfiguration.Result result = new CommentsConfiguration.Result();
+        when(getComments()).thenReturn(result);
+        commentsConfiguration.setComment("path", Collections.emptyList());
+
+        try {
+            commentsConfiguration.getAllComments();
+            fail("Expected NullPointerException");
+        } catch (NullPointerException e) {}
+
+        commentsConfiguration.setComment("path", Arrays.asList("line1"));
+        Map<String, List<String>> result = commentsConfiguration.getAllComments();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import org.junit.Test;
+
+public class CommentsConfigurationTest {
+
+    @Mock
+    public Map<String, List<String>> getComments() {
+        return new HashMap<>();
+    }
+
+    @InjectMocks
+    private CommentsConfiguration commentsConfiguration;
+
+    @Test
+    public void testGetAllComments() {
+        CommentsConfiguration.Result result = new CommentsConfiguration.Result();
+        when(comments.getComments()).thenReturn(result);
+        Map<String, List<String>> commentsMap = new HashMap<>();
+        commentsMap.put("path1", Arrays.asList("line1", "line2"));
+        commentsMap.put("path2", Collections.singletonList(""));
+        commentsConfiguration.setComment("path1", "comment");
+        commentsConfiguration.setComment("path2", new String[]{});
+
+        Map<String, List<String>> result = commentsConfiguration.getAllComments();
+        assertNotNull(result);
+        assertEquals(3, result.size());
+    }
+
+    @Test
+    public void testSetComment() {
+        CommentsConfiguration.Result result = new CommentsConfiguration.Result();
+        when(comments.getComments()).thenReturn(result);
+
+        commentsConfiguration.setComment("path", Collections.emptyList());
+        Map<String, List<String>> commentsMap = new HashMap<>();
+        commentsMap.put("path1", Arrays.asList("line1", "line2"));
+        commentsMap.put("path2", new String[]{});
+        commentsConfiguration.setComment("path1", "comment");
+        commentsConfiguration.setComment("path2", new String[]{});
+
+        assertEquals(3, comments.getComments().size());
+    }
+
+    @Test
+    public void testGetComment() {
+        CommentsConfiguration.Result result = new CommentsConfiguration.Result();
+        when(comments.getComments()).thenReturn(result);
+
+        commentsConfiguration.setComment("path", Collections.emptyList());
+
+        assertEquals(null, comments.getComments().get("path"));
+    }
+
+    @Test
+    public void testGetAllCommentsByPath() {
+        CommentsConfiguration.Result result = new CommentsConfiguration.Result();
+        when(comments.getComments()).thenReturn(result);
+
+        Map<String, List<String>> commentsMap = new HashMap<>();
+        commentsMap.put("path1", Arrays.asList("line1"));
+        commentsMap.put("path2", Collections.emptyList());
+
+        commentsConfiguration.setComment("path1", commentsMap.get("path1"));
+        commentsConfiguration.setComment("path2", commentsMap.get("path2"));
+
+        assertEquals(3, comments.getComments().size());
+    }
+
+    @Test
+    public void testSetAllCommentsByPath() {
+        CommentsConfiguration.Result result = new CommentsConfiguration.Result();
+        when(comments.getComments()).thenReturn(result);
+
+        commentsConfiguration.setComment("path1", Collections.emptyList());
+        commentsConfiguration.setComment("path2", Arrays.asList("line1"));
+
+        assertEquals(3, comments.getComments().size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+public class TestClass {
+
+    public void test() {
+        System.out.println("Test method executed");
+    }
+
+    public void mainMethod() {
+        System.out.println("Main method executed");
+    }
+}
+
+class Module1 {
+    private String module1Name = "Module 1";
+
+    public String getModuleName() {
+        return module1Name;
+    }
+}
+
+class Module2 {
+    private String module2Name = "Module 2";
+
+    public String getModuleName() {
+        return module2Name;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.module2Name = moduleName;
+    }
+}
+
+public class Main {
+
+    public static String executeTest() {
+        return "";
+    }
+
+    public static String testExecute() {
+        System.out.println("Testing executed");
+        String result = Main.executeTest();
+        if (result != null && !result.isEmpty()) {
+            try {
+                Class<?> clazz = Main.class;
+                Method[] methods = clazz.getMethods();
+
+                for (Method method : methods) {
+                    if ("executeTest".equals(method.getName())) {
+                        System.out.println("Testing executed");
+                        return "";
+                    }
+                }
+
+                fail();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        testExecute();
+
+        Main.mainMethod();
+
+        Module1 module1 = new Module1();
+        System.out.println(module1.getModuleName());
+
+        Module2 module2 = new Module2();
+        module2.setModuleName("Module 3");
+
+        String moduleName = module2.getModuleName();
+        if (moduleName.equals("Module 3")) {
+            System.out.println("Module 3 found");
+        } else {
+            System.out.println("Module 1 or 2 found");
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

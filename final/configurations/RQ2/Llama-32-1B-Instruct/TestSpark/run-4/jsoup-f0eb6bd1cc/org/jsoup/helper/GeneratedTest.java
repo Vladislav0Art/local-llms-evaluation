@@ -1,0 +1,68 @@
+package org.jsoup.helper;
+
+import org.junit.jupiter.api.Test;
+import org.jsoup.Connection;
+import org.jsoup.html.parser.HtmlParserBuilder;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import static org.jsoup.helper.DataUtil.UTF_8;
+import static org.junit.Assert.*;
+
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildUrl_Simple() {
+        URLBuilder builder = new UrlBuilder(new URI("http://example.com"));
+        Document doc = HtmlParserBuilder.createDocument().build();
+        assertEquals("http://example.com", builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyVal_FieldsOnly() throws UnsupportedEncodingException {
+        String key = "field1";
+        String value = "value1";
+        UrlBuilder builder = new UrlBuilder(new URI("http://example.com"));
+        builder.appendKeyVal(KeyUtil.fromString(key, value));
+        assertEquals(IDN.toNumber(key), getIDNValue(builder.build()));
+    }
+
+    @Test
+    public void appendKeyVal_MultipleFields() throws UnsupportedEncodingException {
+        String key1 = "field1";
+        String key2 = "field2";
+        String value1 = "value1";
+        String value2 = "value2";
+        UrlBuilder builder = new UrlBuilder(new URI("http://example.com"));
+        builder.appendKeyVal(KeyUtil.fromString(key1, key2), value1, value2);
+        assertEquals(IDN.toNumber(key1), getIDNValue(builder.build()));
+    }
+
+    @Test
+    public void appendKeyVal_SingleArgument() throws UnsupportedEncodingException {
+        String key = "field";
+        String value = "value";
+        UrlBuilder builder = new UrlBuilder(new URI("http://example.com"));
+        builder.appendKeyVal(KeyUtil.fromString(key, value));
+        assertEquals(IDN.toNumber(key), getIDNValue(builder.build()));
+    }
+
+    @Test
+    public void appendKeyVal_NullArgument() {
+        UrlBuilder builder = new UrlBuilder(null);
+        assertNull(builder.appendKeyVal(null));
+    }
+
+    private String getIDNValue(URL url) {
+        URI uri = URLDecoder.decode(url.toString(), UTF_8);
+        return IDN.toNumber(uri.getScheme());
+    }
+
+}

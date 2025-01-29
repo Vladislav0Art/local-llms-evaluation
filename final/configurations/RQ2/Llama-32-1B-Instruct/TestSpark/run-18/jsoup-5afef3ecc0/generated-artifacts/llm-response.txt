@@ -1,0 +1,304 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```
+public class UrlBuilderImpl implements UrlBuilder {
+
+    private static final String BASE_URL = "https://example.com";
+    private URL currentUrl;
+
+    @Override
+    public void appendKeyVal(Connection.KeyVal kv) {
+        // Implementation
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.BASE_URL = baseUrl;
+    }
+
+    @Override
+    public URL build() throws UnsupportedEncodingException {
+        if (currentUrl == null || !BASE_URL.equals(currentUrl.toString())) {
+            currentUrl = new URL(BASE_URL);
+            System.out.println("Base URL updated");
+        }
+        return currentUrl;
+    }
+
+    private String encode(String str) {
+        try {
+            return URLEncoder.encode(str, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testBuild() {
+        UrlBuilderImpl urlBuilder = new UrlBuilderImpl();
+        String baseUrl = "https://example.com";
+        URL expectedUrl = new URL(baseUrl);
+        URL actualUrl = urlBuilder.build();
+        Assert.assertEquals(expectedUrl, actualUrl);
+    }
+
+    @Test
+    public void testAppendKeyVal() throws UnsupportedEncodingException {
+        UrlBuilderImpl urlBuilder = new UrlBuilderImpl();
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        urlBuilder.appendKeyVal(kv);
+        String encodedKeyValue = encode(kv.getKey());
+        Assert.assertEquals(encodedKeyValue, urlBuilder.encode("key,value"));
+    }
+
+    @Test
+    public void testSetBaseUrl() {
+        UrlBuilderImpl urlBuilder = new UrlBuilderImpl();
+        String baseUrl = "";
+        urlBuilder.setBaseUrl(baseUrl);
+        Assert.assertEquals(baseUrl, urlBuilder.BASE_URL);
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.net.URI;
+import java.net.URISyntaxException;
+
+public class Main {
+    public static String buildUrl(String baseUrl, String key) throws URISyntaxException {
+        URI uri = new URI(baseUrl);
+        return new URI(uri.getScheme(), uri.getHost(), uri.getPath(), uri.getQuery(), uri.getFragment()).toString();
+    }
+
+    public static void main(String[] args) throws URISyntaxException {
+        // Create instances of the classes
+        URL expectedUrl = buildUrl("http://example.com", "key");
+        
+        // Test methods
+        assert expectedUrl.equals(buildUrl("http://example.com", "key")) : "Expected strings are not equal";
+        assert (expectedUrl.length() == 23) : "Length is incorrect";
+        
+        // More tests
+        URL actualUrl = buildUrl("http://example.com/12345", "key");
+        Assert.assertEquals(expectedUrl, actualUrl);
+
+        String encodedKeyValue = new Connection.KeyVal("key", "value").encode();
+        URL actualUrl2 = buildUrl("http://example.com/12345", encodedKeyValue);
+        Assert.assertEquals(expectedUrl, actualUrl2);
+
+        URI actualUrl3 = new URI("http://example.com", "/abc", "def", null, null).toString();
+        assert (actualUrl3.length() == 26) : "Length is incorrect";
+
+        System.out.println("All tests passed");
+    }
+}
+
+class Connection {
+    public String keyVal(String key, String value) {
+        return new Connection.KeyVal(key, value);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+Here's a Java code that uses the URI class to create URLs from base URLs and keys:
+
+```java
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Main {
+    public static String buildUrl(String baseUrl, Map<String, String> keyPairs) throws URISyntaxException {
+        URI uri = new URI(baseUrl);
+        StringBuilder queryStringBuilder = new StringBuilder();
+        for (Map.Entry<String, String> entry : keyPairs.entrySet()) {
+            if (queryStringBuilder.length() > 0) {
+                queryStringBuilder.append("&");
+            }
+            queryStringBuilder.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+
+        return uri.getScheme() + "://" + uri.getHost() + "?" + queryStringBuilder.toString().toLowerCase();
+    }
+
+    public static void main(String[] args) throws URISyntaxException {
+        // Create instances of the classes
+        String baseUrl = "http://example.com";
+        Map<String, String> keyPairs = new HashMap<>();
+        keyPairs.put("key1", "value1");
+        keyPairs.put("key2", "value2");
+
+        // Test methods
+        String actualUrl = buildUrl(baseUrl, keyPairs);
+        System.out.println(actualUrl);
+
+        assert actualUrl.equals(buildUrl("http://example.com", keyPairs)) : "Expected strings are not equal";
+    }
+}
+
+class Connection {
+    public Map<String, String> getKeys() {
+        return new HashMap<>();
+    }
+
+    private class KeyVal {
+        private final String key;
+        private final String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+}
+```
+
+In this code:
+
+*   We define a method `buildUrl` that takes a base URL and a map of key-value pairs as parameters. It creates a new URI object from the base URL and appends the key-value pairs to the query string.
+*   In the `main` method, we create an instance of the `Connection` class with two key-value pairs.
+*   We test whether two different methods return the same result for the same input.
+===================================================
+
+
+====================== Iteration #4 ======================
+Here's a Java code that uses the URI class to create URLs from base URLs and keys, and also demonstrates how to parse query strings:
+
+```java
+import java.net.URI;
+import java.net.URISyntaxException;
+
+public class Main {
+    public static String buildUrl(String baseUrl, Map<String, String> keyPairs) throws URISyntaxException {
+        URI uri = new URI(baseUrl);
+        StringBuilder queryStringBuilder = new StringBuilder();
+        for (Map.Entry<String, String> entry : keyPairs.entrySet()) {
+            if (queryStringBuilder.length() > 0) {
+                queryStringBuilder.append("&");
+            }
+            queryStringBuilder.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+
+        return uri.getScheme() + "://" + uri.getHost() + "?" + queryStringBuilder.toString().toLowerCase();
+    }
+
+    public static void main(String[] args) throws URISyntaxException {
+        // Create instances of the classes
+        String baseUrl = "http://example.com";
+        Map<String, String> keyPairs = new HashMap<>();
+        keyPairs.put("key1", "value1");
+        keyPairs.put("key2", "value2");
+
+        System.out.println(buildUrl(baseUrl, keyPairs));
+    }
+}
+
+class Connection {
+    public Map<String, String> getKeys() {
+        return new HashMap<>();
+    }
+
+    private class KeyVal {
+        private final String key;
+        private final String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+}
+```
+
+In this code:
+
+*   We use the `URI` constructor to create a new URI object from the base URL.
+*   The query string is appended using the `getScheme()` and `getHost()` methods, followed by an ampersand (`&`) to separate key-value pairs. Each pair is converted into a string with a key and value separated by an equals sign (`=`) before being appended to the query string.
+*   The parsed query string is then converted back to lowercase using the `toLowerCase()` method before being concatenated with the rest of the URI.
+
+This code demonstrates how to build URLs from base URLs and keys, as well as how to parse query strings.
+===================================================
+
+
+====================== Iteration #5 ======================
+Here's a Java code that uses the URI class to create URLs from base URLs and keys, and also demonstrates how to parse query strings:
+
+```java
+import java.net.URI;
+import java.net.URISyntaxException;
+
+public class Main {
+    public static String buildUrl(String baseUrl, Map<String, String> keyPairs) throws URISyntaxException {
+        URI uri = new URI(baseUrl);
+        StringBuilder queryStringBuilder = new StringBuilder();
+        for (Map.Entry<String, String> entry : keyPairs.entrySet()) {
+            if (queryStringBuilder.length() > 0) {
+                queryStringBuilder.append("&");
+            }
+            queryStringBuilder.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+
+        return uri.getScheme() + "://" + uri.getHost() + "?" + queryStringBuilder.toString().toLowerCase();
+    }
+
+    public static void main(String[] args) throws URISyntaxException {
+        // Create instances of the classes
+        String baseUrl = "http://example.com";
+        Map<String, String> keyPairs = new HashMap<>();
+        keyPairs.put("key1", "value1");
+        keyPairs.put("key2", "value2");
+
+        System.out.println(buildUrl(baseUrl, keyPairs));
+    }
+
+    public static void parseQuery(String queryString) throws URISyntaxException {
+        URI uri = new URI(queryString);
+        System.out.println(uri.getScheme());
+        System.out.println(uri.getHost());
+        System.out.println(uri.getPath());
+        System.out.println(uri.getQuery());
+        System.out.println(uri.getFragment());
+    }
+}
+
+class Connection {
+    public Map<String, String> getKeys() {
+        return new HashMap<>();
+    }
+
+    private class KeyVal {
+        private final String key;
+        private final String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+}
+```
+
+In this code:
+
+*   We use the `URI` constructor to create a new URI object from the base URL.
+*   The query string is appended using the `getScheme()`, `getHost()`, `getPath()`, `getQuery()`, and `getFragment()` methods, respectively.
+*   In the `parseQuery` method, we demonstrate how to parse the query string by creating a new URI object from it and accessing its various components.
+
+This code provides an example of using URIs in Java, as well as a simple demonstration of parsing query strings.
+===================================================
+
+
+====================== Iteration #6 ======================

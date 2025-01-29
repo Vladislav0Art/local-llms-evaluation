@@ -1,0 +1,423 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class HttpConnectionTest {
+    private static final String URL = "https://example.com";
+    private static final String USER_AGENT = "Mozilla/5.0";
+
+    @Test
+    public void testConnect() throws IOException {
+        HttpConnection connection = HttpConnection.connect(URL);
+        assert connection != null;
+    }
+
+    @Test
+    public void testConnectWithProxy() throws IOException {
+        HttpConnection connection = HttpConnection.connect(new URL("http://proxy.example.com:8080"));
+        assert connection.getProxy() != null;
+    }
+
+    @Test
+    public void testGetCookieStore() throws IOException {
+        CookieManager cookieManager = new DefaultCookieManager();
+        HttpConnection connection = HttpConnection.connect(URL);
+        CookieStore cookieStore = connection.getCookieStore();
+        assert cookieStore != null;
+    }
+
+    @Test
+    public void testGetParser() throws IOException {
+        HttpConnection connection = HttpConnection.connect(new URL("https://example.com?param=value"));
+        Parser parser = connection.getParser();
+        assert parser != null;
+    }
+
+    @Test
+    public void testGetPostDataCharset() throws IOException {
+        HttpConnection connection = HttpConnection.post(URL, "data", "charset=utf-8");
+        assert connection.getDataCharset() == "utf-8";
+    }
+
+    @Test
+    public void testExecuteResponse() throws IOException {
+        HttpConnection connection = HttpConnection.connect(new URL("https://example.com"));
+        Connection.Response response = connection.execute();
+        assert response != null;
+    }
+
+    @Test
+    public void testRequestWithMethod() throws IOException {
+        Request request = new Request();
+        Request response = new Request();
+        request.setMethod(Method.HEAD);
+        HttpConnection connection = HttpConnection.connect(new URL("https://example.com"));
+        assert connection.request(request) == response;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.util.Scanner;
+
+public class Main {
+    private static final String URL = "https://example.com";
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("Enter a command:");
+            System.out.println("1. GET");
+            System.out.println("2. POST");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1:
+                    get(url);
+                    break;
+                case 2:
+                    post(url, scanner.nextLine());
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+
+            System.out.println("Do you want to continue? (y/n)");
+            String response = scanner.next().toLowerCase();
+            while (!response.equals("y") && !response.equals("n")) {
+                System.out.println("Invalid input. Please enter y for yes or n for no.");
+                response = scanner.next().toLowerCase();
+            }
+
+            if (!response.equals("y")) {
+                break;
+            }
+        }
+    }
+
+    private static void get(String url) {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+        try {
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(HttpResponse::body)
+                    .map(String::trim)
+                    .forEach(System.out::println);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void post(String url, String data) {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .POST(HttpRequest.BodyPublishers.ofString(data).build())
+                .build();
+
+        try {
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(HttpResponse::body)
+                    .map(String::trim)
+                    .forEach(System.out::println);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I can provide a Java program that allows you to interactively choose between two actions: GET and POST requests.
+
+**Program**
+```java
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Choose an action:");
+        System.out.println("1. GET");
+        System.out.println("2. POST");
+
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume newline left-over
+
+        String response;
+        switch (choice) {
+            case 1:
+                get(scanner);
+                break;
+            case 2:
+                post(scanner);
+                break;
+            default:
+                System.out.println("Invalid choice.");
+        }
+
+        while (true) {
+            System.out.println("Do you want to continue? (y/n)");
+            response = scanner.next().toLowerCase();
+            while (!response.equals("y") && !response.equals("n")) {
+                System.out.println("Invalid input. Please enter y for yes or n for no.");
+                response = scanner.next().toLowerCase();
+            }
+
+            if (!response.equals("y")) {
+                break;
+            }
+        }
+    }
+
+    private static void get(Scanner scanner) {
+        try {
+            System.out.println("Enter the URL:");
+            String url = scanner.nextLine();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(HttpResponse::body)
+                    .map(String::trim)
+                    .forEach(System.out::println);
+
+            System.out.println("Response: " + response.body());
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void post(Scanner scanner) {
+        try {
+            System.out.println("Enter the URL:");
+            String url = scanner.nextLine();
+
+            System.out.println("Enter the data:");
+            String data = scanner.nextLine();
+            System.out.println("Enter a message (optional):");
+            if (scanner.hasNextLine()) {
+                data = scanner.nextLine();
+            }
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .POST(HttpRequest.BodyPublishers.ofString(data).build())
+                    .build();
+
+            HttpResponse<String> response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(HttpResponse::body)
+                    .map(String::trim)
+                    .forEach(System.out::println);
+
+            System.out.println("Response: " + response.body());
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+}
+```
+This program uses a `Scanner` to get user input and then sends an HTTP GET or POST request with the user's input. The response is printed to the console.
+
+You can run this program and interactively choose between two actions by entering 1 for GET or 2 for POST. After each action, you will be asked if you want to continue.
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.io.IOException;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class Main {
+    private static final String URL = "https://example.com";
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        Map<String, Map<String, String>> actions = new HashMap<>();
+        actions.put("GET", createActionMap("get"));
+        actions.put("POST", createActionMap("post"));
+
+        while (true) {
+            System.out.println("Choose an action:");
+            for (String key : actions.keySet()) {
+                System.out.println(key + ": " + actions.get(key).size());
+            }
+
+            String choice = scanner.next();
+            if (actions.containsKey(choice)) {
+                Map<String, String> actionMap = actions.get(choice);
+                System.out.println("Enter the URL:");
+                String url = scanner.nextLine();
+
+                try {
+                    System.out.println("Enter the data:");
+                    String data = scanner.nextLine();
+
+                    for (Map.Entry<String, String> entry : actionMap.entrySet()) {
+                        if (!entry.getValue().equals("")) {
+                            System.out.println(entry.getKey() + ": " + entry.getValue());
+                            break;
+                        }
+                    }
+
+                    HttpClient client = HttpClient.newHttpClient();
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create(url))
+                            .POST(HttpRequest.BodyPublishers.ofString(data).build())
+                            .build();
+
+                    HttpResponse<String> response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                            .thenApply(HttpResponse::body)
+                            .map(String::trim)
+                            .forEach(System.out::println);
+                } catch (IOException e) {
+                    System.err.println("Error: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Invalid choice.");
+            }
+
+            System.out.println("Do you want to continue? (y/n)");
+            String response = scanner.next().toLowerCase();
+            while (!response.equals("y") && !response.equals("n")) {
+                System.out.println("Invalid input. Please enter y for yes or n for no.");
+                response = scanner.next().toLowerCase();
+            }
+
+            if (!response.equals("y")) {
+                break;
+            }
+        }
+    }
+
+    private static Map<String, String> createActionMap(String action) {
+        Map<String, String> actionMap = new HashMap<>();
+        switch (action) {
+            case "get":
+                return createGetActionMap();
+            case "post":
+                return createPostActionMap();
+            default:
+                System.out.println("Invalid action.");
+                return null;
+        }
+    }
+
+    private static Map<String, String> createGetActionMap() {
+        Map<String, String> map = new HashMap<>();
+        map.put("url", URL);
+        map.put("data", "");
+
+        return map;
+    }
+
+    private static Map<String, String> createPostActionMap() {
+        Map<String, String> map = new HashMap<>();
+        map.put("url", URL);
+
+        // Add data
+        map.put("data", "Hello, World!");
+
+        return map;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        Map<String, String> actions = new HashMap<>();
+        actions.put("GET", "https://example.com");
+        actions.put("POST", "https://example.com");
+
+        while (true) {
+            System.out.println("Choose an action:");
+            for (Map.Entry<String, String> entry : actions.entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+
+            String choice = scanner.next();
+            if (actions.containsKey(choice)) {
+                System.out.println("Enter the URL:");
+                String url = scanner.nextLine();
+
+                try {
+                    System.out.println("Enter the data (optional):");
+                    String data = scanner.nextLine();
+                    // Add data to the action map
+                    actions.putAll(createActionMap(choice, data));
+                } catch (IOException e) {
+                    System.err.println("Error: " + e.getMessage());
+                }
+
+                if (actions.containsKey(choice)) {
+                    HttpClient client = HttpClient.newHttpClient();
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create(url))
+                            .post(HttpRequest.BodyPublishers.ofString(actions.get(choice)))
+                            .build();
+
+                    HttpResponse<String> response = client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                            .thenApply(HttpResponse::body)
+                            .map(String::trim)
+                            .forEach(System.out::println);
+                }
+            } else {
+                System.out.println("Invalid choice.");
+            }
+
+            System.out.println("Do you want to continue? (y/n)");
+            String response = scanner.next().toLowerCase();
+            while (!response.equals("y") && !response.equals("n")) {
+                System.out.println("Invalid input. Please enter y for yes or n for no.");
+                response = scanner.next().toLowerCase();
+            }
+
+            if (!response.equals("y")) {
+                break;
+            }
+        }
+    }
+
+    private static Map<String, String> createActionMap(String action, String data) {
+        return new HashMap<>();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

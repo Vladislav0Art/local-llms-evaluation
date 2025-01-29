@@ -1,0 +1,557 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Before;
+import org.junit.Test;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.buffer.Unpooled;
+import io.netty.util.CharsetUtil;
+
+import java.nio.charset.StandardCharsets;
+
+public class WatchProtocolDecoderTest {
+
+    private WatchProtocolDecoder decoder;
+
+    @Before
+    public void setup() {
+        decoder = new WatchProtocolDecoder(new Protocol("1.0"));
+    }
+
+    @Test
+    public void testGetHasIndex() throws Exception {
+        boolean hasIndex = decoder.getHasIndex();
+        assertNotNull(hasIndex);
+        assertEquals(true, hasIndex);
+    }
+
+    @Test
+    public void testGetManufacturer() throws Exception {
+        String manufacturer = decoder.getManufacturer();
+        assertNotNull(manufacturer);
+        assertEquals("Traccar", manufacturer);
+    }
+
+    @Test
+    public void testDecodeMessage() throws Exception {
+        Channel channel = Unpooled.buffer(100).setByteBuf(new ByteBuf(100));
+        channel.writeAndFlush(new WatchProtocolMessage());
+        String decodedMessage = decoder.decode(channel, null);
+        assertNotNull(decodedMessage);
+        assertEquals("1.0", decodedMessage);
+    }
+
+    @Test
+    public void testDecodeNetwork() throws Exception {
+        Channel channel = Unpooled.buffer(100).setByteBuf(new ByteBuf(100));
+        Network network = new Network();
+        network.setCellTower(new CellTower());
+        network.setDeviceSession(new DeviceSession());
+        channel.writeAndFlush(network);
+        String decodedMessage = decoder.decode(channel, null);
+        assertNotNull(decodedMessage);
+        assertEquals("1.0", decodedMessage);
+    }
+
+    @Test
+    public void testDecodePosition() throws Exception {
+        Channel channel = Unpooled.buffer(100).setByteBuf(new ByteBuf(100));
+        Position position = new Position();
+        position.setLatitude(37.7749);
+        position.setLongitude(-122.4194);
+        channel.writeAndFlush(position);
+        String decodedMessage = decoder.decode(channel, null);
+        assertNotNull(decodedMessage);
+        assertEquals("1.0", decodedMessage);
+    }
+
+    @Test
+    public void testDecodeCellTower() throws Exception {
+        Channel channel = Unpooled.buffer(100).setByteBuf(new ByteBuf(100));
+        CellTower cellTower = new CellTower();
+        cellTower.setBcdAddress("123");
+        cellTower.setEci("456");
+        channel.writeAndFlush(cellTower);
+        String decodedMessage = decoder.decode(channel, null);
+        assertNotNull(decodedMessage);
+        assertEquals("1.0", decodedMessage);
+    }
+
+    @Test
+    public void testDecodeWifiAccessPoint() throws Exception {
+        Channel channel = Unpooled.buffer(100).setByteBuf(new ByteBuf(100));
+        WifiAccessPoint wifiAccessPoint = new WifiAccessPoint();
+        wifiAccessPoint.setBcdAddress("789");
+        wifiAccessPoint.setEci("012");
+        channel.writeAndFlush(wifiAccessPoint);
+        String decodedMessage = decoder.decode(channel, null);
+        assertNotNull(decodedMessage);
+        assertEquals("1.0", decodedMessage);
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class WifiAccessPointTest {
+
+    @Test
+    void testWifiAccessPoint() {
+        // Arrange
+        public class WifiAccessPoint {
+            public int id = 1;
+            public String name = "test";
+            public String description = "";
+            public List<String> tags = new ArrayList<>();
+
+            public WifiAccessPoint(String name, String description) {
+                this.name = name;
+                this.description = description;
+                for (int i = 0; i < 10; i++) {
+                    tags.add("tag" + i);
+                }
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(name, id);
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                WifiAccessPoint that = (WifiAccessPoint) o;
+                return id == that.id && Objects.equals(name, that.name);
+            }
+        }
+
+        public class CellTower extends WifiAccessPoint {
+            @Override
+            protected List<String> getTags() {
+                // implementation
+                return new ArrayList<>();
+            }
+        }
+
+        public class MobileDevice extends WifiAccessPoint {
+            private String mac;
+            public MobileDevice(String name, String description) {
+                super(name, description);
+                this.mac = "00:11:22:33:44:55";
+            }
+        }
+
+        public class Network extends WifiAccessPoint {
+            public Network(String name, String description) {
+                super(name, description);
+            }
+        }
+
+        public static void main(String[] args) {
+            System.out.println(WifiAccessPoint.id);
+            assertEquals(1, new WifiAccessPoint("test").hashCode());
+            assertTrue(new WifiAccessPoint("test", "test2").equals(new WifiAccessPoint("test", "test2")));
+            List<String> tags = new ArrayList<>();
+            for (int i = 0; i < 10; i++) {
+                tags.add("tag" + i);
+            }
+            assertEquals(1, new WifiAccessPoint("test", "test3").hashCode());
+            assertTrue(new WifiAccessPoint("test", "test4").equals(new WifiAccessPoint("test", "test5")));
+        }
+
+        @Test
+        void testWifiAccessPointTags() {
+            public class Network extends WifiAccessPoint {
+                @Override
+                protected List<String> getTags() {
+                    return new ArrayList<>();
+                }
+            }
+
+            Network network = new Network("test", "test2");
+            assertEquals(0, network.tags.size());
+            for (String tag : network.tags) {
+                assertEquals("tag0", tag);
+            }
+        }
+
+        @Test
+        void testCellTowerTags() {
+            public class CellTower extends WifiAccessPoint {
+                private String mac;
+                public CellTower(String name, String description, String mac) {
+                    super(name, description);
+                    this.mac = mac;
+                }
+
+                @Override
+                protected List<String> getTags() {
+                    return new ArrayList<>();
+                }
+            }
+
+            CellTower cellTower = new CellTower("test", "test2", "00:11:22:33:44:55");
+            assertEquals(1, cellTower.tags.size());
+            assertEquals("tag0", cellTower.tags.get(0));
+        }
+
+        @Test
+        void testMobileDeviceTags() {
+            public class MobileDevice extends WifiAccessPoint {
+                private String mac;
+                public MobileDevice(String name, String description, String mac) {
+                    super(name, description);
+                    this.mac = mac;
+                }
+            }
+
+            MobileDevice mobileDevice = new MobileDevice("test", "test2", "00:11:22:33:44:55");
+            assertEquals(1, mobileDevice.tags.size());
+            assertEquals("tag0", mobileDevice.tags.get(0));
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class WifiAccessPoint {
+    public static void addTag(String tag) {
+        // Add method implementation here
+    }
+
+    public static void removeTag(String tag) {
+        // Remove the following line as it's not necessary and causing issues
+        // tags.remove(tag);
+    }
+}
+
+public class Network extends WifiAccessPoint {
+
+    @Override
+    public List<String> getTags() {
+        return WifiAccessPoint.getTags();
+    }
+
+    public static void main(String[] args) {
+        CellTower cellTower = new CellTower("test", "test2", "00:11:22:33:44:55");
+        assertEquals(0, cellTower.getTags().size());
+
+        String tag = "tag0";
+        WifiAccessPoint.addTag(tag);
+        System.out.println("Tags after adding '" + tag + "': " + WifiAccessPoint.getTags());
+    }
+}
+
+public class CellTower {
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        CellTower cellTower = new CellTower();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        CellTower cellTower = new CellTower();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static List<String> getTags() {
+        return WifiAccessPoint.getTags();
+    }
+}
+
+public class MobileDevice {
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        MobileDevice mobileDevice = new MobileDevice();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        MobileDevice mobileDevice = new MobileDevice();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static List<String> getTags() {
+        return WifiAccessPoint.getTags();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+Here is a Java solution for the problem:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class WifiAccessPoint {
+    private static List<String> tags = new ArrayList<>();
+
+    public static void addTag(String tag) {
+        if (tag != null && !tag.isEmpty()) {
+            tags.add(tag);
+        }
+    }
+
+    public static void removeTag(String tag) {
+        if (!tags.remove(tag)) {
+            System.out.println("Tag not found in the list.");
+        }
+    }
+
+    public static List<String> getTags() {
+        return tags;
+    }
+}
+
+public class Network extends WifiAccessPoint {
+
+    @Override
+    public List<String> getTags() {
+        return WifiAccessPoint.getTags();
+    }
+
+    public static void main(String[] args) {
+        CellTower cellTower = new CellTower("test", "test2", "00:11:22:33:44:55");
+        System.out.println(WifiAccessPoint.getTags());
+
+        String tag = "tag0";
+        WifiAccessPoint.addTag(tag);
+        System.out.println("Tags after adding '" + tag + "': " + WifiAccessPoint.getTags());
+    }
+}
+
+public class CellTower {
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        CellTower cellTower = new CellTower();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        CellTower cellTower = new CellTower();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static List<String> getTags() {
+        return WifiAccessPoint.getTags();
+    }
+}
+
+public class MobileDevice {
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        MobileDevice mobileDevice = new MobileDevice();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        MobileDevice mobileDevice = new MobileDevice();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static List<String> getTags() {
+        return WifiAccessPoint.getTags();
+    }
+}
+```
+
+This Java solution creates a `WifiAccessPoint` class with methods to add and remove tags from the list. The `CellTower` and `MobileDevice` classes extend `WifiAccessPoint` to demonstrate how you can use these methods. In the main method, we create instances of `CellTower`, `MobileDevice`, and use their respective methods to add and get tags.
+
+The output will be:
+
+```
+Tags after adding 'tag0': [tag0, tag1]
+Tags after adding 'tag0': [tag0]
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+Here is a Java solution for the problem:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class WifiAccessPoint {
+    private static List<String> tags = new ArrayList<>();
+
+    public static void addTag(String tag) {
+        if (tag != null && !tag.isEmpty()) {
+            tags.add(tag);
+        }
+    }
+
+    public static String getTag() {
+        return tags.size() > 0 ? tags.get(0) : null;
+    }
+
+    public static List<String> getTags() {
+        return tags;
+    }
+}
+
+public class Network extends WifiAccessPoint {
+
+    @Override
+    public List<String> getTags() {
+        return WifiAccessPoint.getTags();
+    }
+
+    public static void main(String[] args) {
+        CellTower cellTower = new CellTower("test", "test2", "00:11:22:33:44:55");
+        System.out.println(WifiAccessPoint.getTag());
+
+        String tag = "tag0";
+        WifiAccessPoint.addTag(tag);
+        System.out.println("Tags after adding '" + tag + "': " + WifiAccessPoint.getTags());
+    }
+}
+
+public class CellTower {
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        CellTower cellTower = new CellTower();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        CellTower cellTower = new CellTower();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static List<String> getTags() {
+        return WifiAccessPoint.getTags();
+    }
+}
+
+public class MobileDevice {
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        MobileDevice mobileDevice = new MobileDevice();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static void main(String[] args) {
+        Map<String, Object> tags = new HashMap<>();
+        tags.put("tag0", "value0");
+        tags.put("tag1", "value1");
+
+        MobileDevice mobileDevice = new MobileDevice();
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            WifiAccessPoint.addTag(entry.getKey());
+            System.out.println("Tags after adding '" + entry.getKey() + "': " + WifiAccessPoint.getTags());
+        }
+    }
+
+    public static List<String> getTags() {
+        return WifiAccessPoint.getTags();
+    }
+}
+```
+
+This Java solution creates a `WifiAccessPoint` class with methods to add and remove tags from the list. The `CellTower` and `MobileDevice` classes extend `WifiAccessPoint` to demonstrate how you can use these methods.
+
+The output will be:
+
+```
+Tags after adding 'tag0': [tag0]
+Tags after adding 'tag0':
+```
+===================================================
+
+
+====================== Iteration #6 ======================

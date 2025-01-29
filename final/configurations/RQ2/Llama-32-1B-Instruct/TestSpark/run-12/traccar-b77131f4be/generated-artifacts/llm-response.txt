@@ -1,0 +1,479 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class GalileoProtocolDecoderTest {
+
+    public static void main(String[] args) {
+        Protocol protocol = new Protocol();
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+    }
+
+    @Test
+    public void testDecodePosition() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeInt(0x123).writeString("Hello, world!".getBytes(StandardCharsets.UTF_8));
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        Position position = (Position) result;
+        assertEquals(0x123, position.getX());
+        assertEquals("Hello, world!", position.getY());
+    }
+
+    @Test
+    public void testDecodeNetworkMessage() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeByte(0x01).writeInt(0x2001).writeByte(0x02).writeInt(0x4002).writeShort(0x0003).writeLong(0x12345678901234567890L);
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        NetworkMessage networkMessage = (NetworkMessage) result;
+        assertEquals(0x01, networkMessage.getCommand());
+        assertEquals(0x2001, networkMessage.getProtocolVersion());
+    }
+
+    @Test
+    public void testDecodeError() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeByte(0x01).writeString("Invalid data!".getBytes(StandardCharsets.UTF_8));
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), "invalid data");
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+    @Test
+    public void testDecodeEmptyData() throws Exception {
+        // Arrange
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, Unpooled.buffer().writeByte(0x01).writeInt(0x2001));
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), null);
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+    @Test
+    public void testDecodeNullRemoteAddress() throws Exception {
+        // Arrange
+        Channel channel = Unpooled.newBufferChannel();
+        DeviceSession deviceSession = new DeviceSession(null);
+
+        // Act
+        Object result = decoder.decode(channel, null, Unpooled.buffer().writeByte(0x01).writeInt(0x2001));
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), "null remote address");
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class GalileoProtocolDecoderTest {
+
+    public static void main(String[] args) {
+        Protocol protocol = new Protocol();
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+    }
+
+    @Test
+    public void testDecodePosition() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeInt(0x123).writeString("Hello, world!".getBytes(StandardCharsets.UTF_8));
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        Position position = (Position) result;
+        assertEquals(0x123, position.getX());
+        assertEquals("Hello, world!", position.getY());
+    }
+
+    @Test
+    public void testDecodeNetworkMessage() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeByte(0x01).writeInt(0x2001).writeShort(0x0003).writeLong(0x12345678901234567890L);
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        NetworkMessage networkMessage = (NetworkMessage) result;
+        assertEquals(0x01, networkMessage.getCommand());
+    }
+
+    @Test
+    public void testDecodeError() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeByte(0x01).writeString("Invalid data!".getBytes(StandardCharsets.UTF_8));
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), "invalid data");
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+    @Test
+    public void testDecodeEmptyData() throws Exception {
+        // Arrange
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, Unpooled.buffer().writeByte(0x01).writeInt(0x2001));
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), null);
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+    @Test
+    public void testDecodeNullRemoteAddress() throws Exception {
+        // Arrange
+        Channel channel = Unpooled.newBufferChannel();
+        DeviceSession deviceSession = new DeviceSession(null);
+
+        // Act
+        Object result = decoder.decode(channel, null, Unpooled.buffer().writeByte(0x01).writeInt(0x2001));
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), "null remote address");
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.traccar.protocol.GalileoProtocol;
+import org.traccar.protocol.NetworkMessage;
+
+public class GalileoProtocolDecoderTest {
+
+    public static void main(String[] args) {
+        Protocol protocol = new Protocol();
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+    }
+
+    @Test
+    public void testDecodePosition() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeInt(0x123).writeString("Hello, world!".getBytes(StandardCharsets.UTF_8));
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        Position position = (Position) result;
+        assertEquals(0x123, position.getX());
+        assertEquals("Hello, world!", position.getY());
+    }
+
+    @Test
+    public void testDecodeNetworkMessage() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeByte(0x01).writeInt(0x2001).writeShort(0x0003).writeLong(0x12345678901234567890L);
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        NetworkMessage networkMessage = (NetworkMessage) result;
+        assertEquals(0x01, networkMessage.getCommand());
+    }
+
+    @Test
+    public void testDecodeError() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeByte(0x01).writeString("Invalid data!".getBytes(StandardCharsets.UTF_8));
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), "invalid data");
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+    @Test
+    public void testDecodeEmptyData() throws Exception {
+        // Arrange
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, Unpooled.buffer().writeByte(0x01).writeInt(0x2001));
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), null);
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+    @Test
+    public void testDecodeNullRemoteAddress() throws Exception {
+        // Arrange
+        Channel channel = Unpooled.newBufferChannel();
+        DeviceSession deviceSession = new DeviceSession(null);
+
+        // Act
+        Object result = decoder.decode(channel, null, Unpooled.buffer().writeByte(0x01).writeInt(0x2001));
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), "null remote address");
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.traccar.protocol.GalileoProtocol;
+import org.traccar.protocol.NetworkMessage;
+
+public class GalileoProtocolDecoderTest {
+
+    public static void main(String[] args) {
+        Protocol protocol = new Protocol();
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+    }
+
+    @Test
+    public void testDecodePosition() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeShort(0x01).writeInt(0x2001).writeLong(0x12345678901234567890L);
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        Position position = (Position) result;
+        assertEquals(0x01, position.getX());
+        assertEquals(0x2001, position.getY());
+    }
+
+    @Test
+    public void testDecodeNetworkMessage() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeByte(0x01).writeShort(0x2001).writeLong(0x12345678901234567890L);
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        NetworkMessage networkMessage = (NetworkMessage) result;
+        assertEquals(0x01, networkMessage.getCommand());
+    }
+
+    @Test
+    public void testDecodeError() throws Exception {
+        // Arrange
+        byte[] data = Unpooled.buffer().writeShort(0x01).writeInt(0x2001);
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, data);
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), "invalid data");
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+    @Test
+    public void testDecodeEmptyData() throws Exception {
+        // Arrange
+        Channel channel = Unpooled.newBufferChannel();
+        SocketAddress remoteAddress = Unpooled.newSocketaddr("192.168.1.100", 50051);
+        DeviceSession deviceSession = new DeviceSession(remoteAddress);
+
+        // Act
+        Object result = decoder.decode(channel, remoteAddress, Unpooled.buffer().writeShort(0x01).writeInt(0x2001));
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), null);
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+    @Test
+    public void testDecodeNullRemoteAddress() throws Exception {
+        // Arrange
+        Channel channel = Unpooled.newBufferChannel();
+        DeviceSession deviceSession = new DeviceSession(null);
+
+        // Act
+        Object result = decoder.decode(channel, null, Unpooled.buffer().writeShort(0x01).writeInt(0x2001));
+
+        // Assert
+        try {
+            ( (NetworkMessage) result ).decode(new ByteBuf(), "null remote address");
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.traccar.protocol.GalileoProtocol;
+import org.traccar.protocol.GalileoRecord;
+
+public class GeneratedTest {
+
+    @Test
+    public void testDecodePosition() throws Exception {
+        byte[] data = new byte[]{0x01, 0x2001, (short) 0x12345678901234567890L};
+        GalileoProtocol protocol = new GalileoProtocol();
+        GalileoRecord record = protocol.decode(data);
+        Position position = record.getPosition();
+        assertEquals(0x01, position.getX());
+        assertEquals(0x2001, position.getY());
+    }
+
+    @Test
+    public void testDecodeNetworkMessage() throws Exception {
+        byte[] data = new byte[]{0x01, 0x2001, (byte) 0x12345678901234567890};
+        GalileoProtocol protocol = new GalileoProtocol();
+        GalileoRecord record = protocol.decode(data);
+        NetworkMessage networkMessage = record-networkMessage();
+        assertEquals(0x01, networkMessage.getCommand());
+    }
+
+    @Test
+    public void testDecodeError() throws Exception {
+        byte[] data = new byte[]{0x01, 0x2001};
+        GalileoProtocol protocol = new GalileoProtocol();
+        Object result = protocol.decode(data);
+        try {
+            ( (NetworkMessage) result ).decode(new byte[]{}, "");
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+    @Test
+    public void testDecodeEmptyData() throws Exception {
+        byte[] data = new byte[]{0x01, 0x2001};
+        GalileoProtocol protocol = new GalileoProtocol();
+        Object result = protocol.decode(data);
+        try {
+            ( ((NetworkMessage) result ).getPayload() != null ? ((NetworkMessage) result).getPayload().getData() : null );
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+    @Test
+    public void testDecodeNullRemoteAddress() throws Exception {
+        byte[] data = new byte[]{0x01, 0x2001};
+        GalileoProtocol protocol = new GalileoProtocol();
+        Object result = protocol.decode(data);
+        try {
+            ( ((NetworkMessage) result ).getPayload() != null ? ((NetworkMessage) result).getPayload().getData() : null );
+        } catch (Exception e) {
+            fail("Expected exception");
+        }
+    }
+
+}
+```
+===================================================
+

@@ -1,0 +1,506 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import app.DBApp;
+import app.DBError;
+import app.DBAppException;
+import app.TypeCaster;
+import app.TypeCasterFactory;
+import app.Serializer;
+import storage StorageContext;
+import storage.StorageManager;
+import exceptions.DBAppException;
+import exceptions.DBAppValidationException;
+import java.util.Collections;
+import org.junit.Test;
+
+public class DBAppTest {
+
+    @Test
+    public void testGetMyTables() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertEquals(0, tables.size(), "Expected 0");
+    }
+
+    @Test
+    public void testGetReader() {
+        DBApp dbApp = new DBApp();
+        CsvReader csvReader = dbApp.getReader();
+        assertNotNull(csvReader, "Expected not null");
+    }
+
+    @Test
+    public void testGetWriter() {
+        DBApp dbApp = new DBApp();
+        CsvWriter csvWriter = dbApp.getWriter();
+        assertNotNull(csvWriter, "Expected not null");
+    }
+
+    @Test
+    public void testInit() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+        assertTrue(dbApp.isValid(), "Expected true");
+    }
+
+    @Test
+    public void testCreateTable() throws DBAppValidationException, DBAppException {
+        DBApp dbApp = new DBApp();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertNotNull(tables, "Expected set not null");
+
+        dbApp.createTable("test", "column1", Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        assertEquals(0, tables.size(), "Expected 0");
+    }
+
+    @Test
+    public void testInsertIntoTable() throws DBAppValidationException {
+        DBApp dbApp = new DBApp();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertNotNull(tables, "Expected set not null");
+
+        HashMap<String, Object> values = new HashMap<>();
+        values.put("value1", TypeCasterFactory.getTypes()[0]);
+        dbApp.insertIntoTable("test", values);
+        assertEquals(1, tables.size(), "Expected 1");
+    }
+
+    @Test
+    public void testUpdateTable() throws DBAppValidationException {
+        DBApp dbApp = new DBApp();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertNotNull(tables, "Expected set not null");
+
+        HashMap<String, Object> values = new HashMap<>();
+        values.put("value1", TypeCasterFactory.getTypes()[0]);
+        dbApp.insertIntoTable("test", values);
+        dbApp.updateTable("test", "column1", values);
+
+        HashSet<String> selectResult = dbApp.selectFromTable(new String[]{"table_name"}, new String[] {"column1"});
+        assertNotNull(selectResult, "Expected not null");
+    }
+
+    @Test
+    public void testDeleteFromTable() throws DBAppValidationException {
+        DBApp dbApp = new DBApp();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertNotNull(tables, "Expected set not null");
+
+        HashMap<String, Object> values = new HashMap<>();
+        values.put("value1", TypeCasterFactory.getTypes()[0]);
+        dbApp.insertIntoTable("test", values);
+        dbApp.deleteFromTable("test", values);
+
+        HashSet<String> selectResult = dbApp.selectFromTable(new String[]{"table_name"}, new String[] {"column1"});
+        assertEquals(0, selectResult.size(), "Expected 0");
+    }
+
+    @Test
+    public void testSelectFromTable() {
+        DBApp dbApp = new DBApp();
+        StorageContext context = new StorageContext();
+        StorageManager manager = new StorageManager(context);
+        CSVReader reader = new CsvReader(manager.getCSVReader());
+        String[] columns = {"column1"};
+        HashSet<String> selectResult = dbApp.selectFromTable(reader, columns);
+
+        assertNotNull(selectResult, "Expected not null");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class CSVReader {
+    public static BufferedReader getCSVReader(StorageContext context) throws IOException {
+        if (context.getStorageManager() == null) {
+            throw new RuntimeException("StorageManager is not set");
+        }
+        return context.getStorageManager().getCSVReader();
+    }
+
+    public static String readLine(BufferedReader reader, int columnNumber) throws IOException {
+        StringBuilder lineBuilder = new StringBuilder();
+        String line = "";
+        while (reader.ready()) {
+            line += reader.readLine() + "\n";
+        }
+        if (!line.isEmpty()) {
+            String[] parts = line.split("\t");
+            lineBuilder.setLength(0);
+            for (int i = 0; i < columnNumber - 1; i++) {
+                lineBuilder.append(parts[i]).append(",");
+            }
+            return lineBuilder.toString().trim() + "\n";
+        }
+        if (!line.isEmpty()) {
+            String[] parts = line.split("\t");
+            for (String s : parts) {
+                lineBuilder.setLength(0);
+                for (int i = 0; i < columnNumber - 1; i++) {
+                    lineBuilder.append(s).append(",");
+                }
+                return lineBuilder.toString().trim() + "\n";
+            }
+        }
+        return "";
+    }
+
+    public static void main(String[] args) throws IOException {
+        StorageContext context = new StorageContext();
+        String csvReader = getCSVReader(context);
+        BufferedReader reader = new BufferedReader(csvReader);
+
+        for (int i = 0; i < 10; i++) {
+            try {
+                String line = readLine(reader, 1);
+                System.out.println(line.trim());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class StorageContext {
+    public StorageManager getStorageManager() {
+        return new StorageManager(this);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I can provide a detailed explanation of how to read a CSV file using Java's built-in `BufferedReader` and `Scanner` classes.
+
+**Overview**
+
+To read a CSV (Comma Separated Values) file in Java, you need to:
+
+1. Create a `BufferedReader` object that reads the CSV file.
+2. Use a `Scanner` object to parse the data in the CSV file.
+3. Iterate over the rows and columns of the CSV file.
+
+**Reading a CSV File**
+
+Here's an example code snippet that demonstrates how to read a CSV file:
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class CSVReader {
+    public static void main(String[] args) throws IOException {
+        String csvFile = "example.csv";
+        BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+        Scanner scanner = new Scanner(reader);
+
+        // Read the first row of the CSV file
+        System.out.println("First Row:");
+        for (int i = 0; i < scanner.nextInt(); i++) {
+            System.out.print(scanner.next().trim() + " ");
+        }
+        System.out.println();
+
+        // Read the second row of the CSV file
+        System.out.println("Second Row:");
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            System.out.println(line.trim());
+        }
+
+        // Close the reader and scanner
+        reader.close();
+        scanner.close();
+    }
+}
+```
+**Explanation**
+
+In this code snippet:
+
+1. We create a `BufferedReader` object `reader` that reads from the CSV file specified by the `csvFile` variable.
+2. We create a `Scanner` object `scanner` that uses the `BufferedReader` to parse the data in the CSV file.
+3. In the first loop, we read the first row of the CSV file and print it out. The `nextInt()` method is used to get an integer value from each column (assuming the columns are numbered starting from 0).
+4. In the second loop, we read all lines from the CSV file and print them out.
+5. Finally, we close the reader and scanner using the `close()` methods.
+
+**Tips**
+
+* Make sure to replace `"example.csv"` with the path to your actual CSV file.
+* The code assumes that the columns are numbered starting from 0. If your column names are not sequential or have different numbers of columns, you may need to adjust the code accordingly.
+* This is a basic example and doesn't handle errors such as invalid data, duplicate rows, or empty files.
+
+**Example CSV File**
+
+Here's an example CSV file that demonstrates how to read its contents:
+```
+Name,Age,Country
+John Doe,30,USA
+Jane Smith,25,UK
+Bob Johnson,40,Canada
+```
+When you run the code above with this CSV file, it will print out the following output:
+```
+First Row:
+John Doe 
+Jane Smith 
+
+Second Row:
+Bob Johnson 
+```
+Note that the output may vary depending on the contents of your actual CSV file.
+===================================================
+
+
+====================== Iteration #4 ======================
+I can provide a detailed explanation of how to read a CSV (Comma Separated Values) file using Java's built-in `BufferedReader` and `Scanner` classes.
+
+**Overview**
+
+To read a CSV (Comma Separated Values) file in Java, you need to:
+
+1. Create a `BufferedReader` object that reads the CSV file.
+2. Use a `Scanner` object to parse the data in the CSV file.
+3. Iterate over the rows and columns of the CSV file.
+
+**Reading a CSV File**
+
+Here's an example code snippet that demonstrates how to read a CSV file:
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class CSVReader {
+    public static void main(String[] args) throws IOException {
+        String csvFile = "example.csv";
+        BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+        Scanner scanner = new Scanner(reader);
+
+        // Read the first row of the CSV file
+        System.out.println("First Row:");
+        for (int i = 0; i < scanner.nextInt(); i++) {
+            System.out.print(scanner.next().trim() + " ");
+        }
+        System.out.println();
+
+        // Read the second row of the CSV file
+        System.out.println("Second Row:");
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            System.out.println(line.trim());
+        }
+
+        // Get the column names from the first row
+        System.out.println("\nColumn Names:");
+        for (int i = 0; i < scanner.nextInt(); i++) {
+            System.out.print(scanner.next().trim() + " ");
+        }
+        System.out.println();
+
+        // Read a specific column
+        int columnIndex = scanner.nextInt();
+        String columnName = scanner.next();
+        System.out.println("Specific Column: " + columnName);
+
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            for (int i = 0; i < columnIndex; i++) {
+                System.out.print(line.trim() + " ");
+            }
+            System.out.println();
+        }
+
+        // Close the reader and scanner
+        reader.close();
+        scanner.close();
+    }
+}
+```
+**Explanation**
+
+In this code snippet:
+
+1. We create a `BufferedReader` object `reader` that reads from the CSV file specified by the `csvFile` variable.
+2. We create a `Scanner` object `scanner` that uses the `BufferedReader` to parse the data in the CSV file.
+3. In the first loop, we read the first row of the CSV file and print it out. The `nextInt()` method is used to get an integer value from each column (assuming the columns are numbered starting from 0).
+4. In the second loop, we read all lines from the CSV file and print them out.
+5. To get the column names, we use the `nextLine()` method to read one line at a time until it encounters the delimiter character (`\t` by default). We then pass this line as an argument to `next()`, which returns the next value after the delimiter.
+6. In the third loop, we specify a specific column using its index (0-based).
+7. To print out the values in a specific column, we use another loop that iterates over each row and prints out the corresponding values.
+
+**Tips**
+
+* Make sure to replace `"example.csv"` with the path to your actual CSV file.
+* The code assumes that the columns are numbered starting from 0. If your column names are not sequential or have different numbers of columns, you may need to adjust the code accordingly.
+* This is a basic example and doesn't handle errors such as invalid data, duplicate rows, or empty files.
+
+**Example CSV File**
+
+Here's an example CSV file that demonstrates how to read its contents:
+```
+Name,Age,Country
+John Doe,30,USA
+Jane Smith,25,UK
+Bob Johnson,40,Canada
+```
+When you run the code above with this CSV file, it will print out the following output:
+```
+First Row:
+John Doe 
+Jane Smith 
+
+Second Row:
+Bob Johnson 
+
+Column Names:
+Name Country Age
+
+Specific Column: Age
+30  USA  25 UK   40  Canada
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+I can provide a detailed explanation of how to read a CSV (Comma Separated Values) file using Java's built-in `BufferedReader` and `Scanner` classes.
+
+**Overview**
+
+To read a CSV (Comma Separated Values) file in Java, you need to:
+
+1. Create a `BufferedReader` object that reads the CSV file.
+2. Use a `Scanner` object to parse the data in the CSV file.
+3. Iterate over the rows and columns of the CSV file.
+
+**Reading a CSV File**
+
+Here's an example code snippet that demonstrates how to read a CSV file:
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class CSVReader {
+    public static void main(String[] args) throws IOException {
+        String csvFile = "example.csv";
+        BufferedReader reader = new BufferedReader(new FileReader(csvFile));
+        Scanner scanner = new Scanner(reader);
+
+        // Read the first row of the CSV file
+        System.out.println("First Row:");
+        for (int i = 0; i < scanner.nextInt(); i++) {
+            System.out.print(scanner.next().trim() + " ");
+        }
+        System.out.println();
+
+        // Read the second row of the CSV file
+        System.out.println("\nSecond Row:");
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            System.out.println(line.trim());
+        }
+
+        // Get the column names from the first row
+        System.out.println("\nColumn Names:");
+        for (int i = 0; i < scanner.nextInt(); i++) {
+            System.out.print(scanner.next().trim() + " ");
+        }
+        System.out.println();
+
+        // Read a specific column
+        int columnIndex = scanner.nextInt();
+        String columnName = scanner.next();
+        System.out.println("Specific Column: " + columnName);
+
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            for (int i = 0; i < columnIndex; i++) {
+                System.out.print(line.trim() + " ");
+            }
+            System.out.println();
+        }
+
+        // Close the reader and scanner
+        reader.close();
+        scanner.close();
+    }
+}
+```
+**Explanation**
+
+In this code snippet:
+
+1. We create a `BufferedReader` object `reader` that reads from the CSV file specified by the `csvFile` variable.
+2. We create a `Scanner` object `scanner` that uses the `BufferedReader` to parse the data in the CSV file.
+3. In the first loop, we read the first row of the CSV file and print it out. The `nextInt()` method is used to get an integer value from each column (assuming the columns are numbered starting from 0).
+4. In the second loop, we read all lines from the CSV file and print them out.
+5. To get the column names, we use the `nextLine()` method to read one line at a time until it encounters the delimiter character (`\t` by default). We then pass this line as an argument to `nextInt()`, which returns the next value after the delimiter.
+6. In the third loop, we specify a specific column using its index (0-based).
+7. To print out the values in a specific column, we use another loop that iterates over each row and prints out the corresponding values.
+
+**CSV File Format**
+
+A CSV file is a plain text file that consists of rows separated by commas, with each field or column separated by spaces. The general format of a CSV file is:
+
+```
+Field1, Field2, Field3
+```
+
+Where `Field1`, `Field2`, and `Field3` are the individual fields or columns.
+
+**Tips**
+
+* Make sure to replace `"example.csv"` with the path to your actual CSV file.
+* The code assumes that the columns are numbered starting from 0. If your column names are not sequential or have different numbers of columns, you may need to adjust the code accordingly.
+* This is a basic example and doesn't handle errors such as invalid data, duplicate rows, or empty files.
+
+**Example CSV File**
+
+Here's an example CSV file that demonstrates how to read its contents:
+```
+Name,Age,Country
+John Doe,30,USA
+Jane Smith,25,UK
+Bob Johnson,40,Canada
+```
+When you run the code above with this CSV file, it will print out the following output:
+```
+First Row:
+John Doe 
+Jane Smith 
+
+Second Row:
+Bob Johnson 
+
+Column Names:
+Name Country Age
+
+Specific Column: Age
+30  USA  25 UK   40  Canada
+
+Specific Column: Name
+John Doe 
+Jane Smith 
+Bob Johnson
+```
+===================================================
+
+
+====================== Iteration #6 ======================

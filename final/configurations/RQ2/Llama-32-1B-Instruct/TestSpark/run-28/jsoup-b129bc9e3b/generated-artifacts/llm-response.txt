@@ -1,0 +1,954 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
+import org.jsoup.UncheckedIOException;
+import org.jsoup.UnsupportedMimeTypeException;
+import org.jsoup.internal.ConstrainableInputStream;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.TokenQueue;
+import javax.annotation.Nullable;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.CookieManager;
+import java.net.CookieStore;
+import java.net.HttpURLConnection;
+import java.net.IDN;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
+import static org.jsoup.Connection.Method.HEAD;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class HttpConnection implements Connection {
+
+    public String buildRequest(Method method, Connection.Request request) {
+        return method.make().url(request.url());
+    }
+
+    @Override
+    public Connection data(String key, Map<String, String> data) {
+        Document doc = new Document();
+        for (Map.Entry<String, String> entry : data.entrySet()) {
+            doc.appendTag(entry.getKey(), entry.getValue());
+        }
+        return document(doc);
+    }
+
+    private static class Response implements Connection.Response {
+        private final Connection.Response response;
+
+        public Response(Connection.Response response) {
+            this.response = response;
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return response.getInputStream();
+        }
+
+        @Override
+        public boolean isSuccessful() {
+            return true;
+        }
+    }
+
+    @Override
+    public Connection execute() throws IOException {
+        Connection.Request request = new Request();
+        try {
+            return buildRequest(new Method(), request);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean isSuccessful() {
+        return true;
+    }
+
+    private static class Document implements Connection.Document {
+        private final Document document;
+
+        public Document(Document document) {
+            this.document = document;
+        }
+
+        @Override
+        public String toString() {
+            return document.toString();
+        }
+    }
+
+    public static void testConnect(String url) throws IOException {
+        HttpConnection connection = new HttpConnection();
+        try (InputStream inputStream = connection.connect(url)) {
+            Document document = new Document(inputStream);
+            System.out.println(document.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testConnect() throws IOException {
+        testConnect("https://www.example.com");
+    }
+
+    private static class Request implements Connection.Request {
+
+        public String url(String url) {
+            return "http://" + url;
+        }
+
+        @Override
+        public boolean isAbsolute() {
+            return false;
+        }
+
+        @Override
+        public boolean isAbsolutePath() {
+            return true;
+        }
+
+        @Override
+        public Method method(Method method) {
+            return method;
+        }
+    }
+
+    private static class Method implements Connection.Method {
+
+        @Override
+        public String toString() {
+            return "HEAD";
+        }
+    }
+
+    @Test
+    public void testMethod() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Request request = new Request().method(Method.HEAD);
+        try (InputStream inputStream = connection.execute()) {
+            Document document = new Document(inputStream);
+            System.out.println(document.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static class RequestBody implements Connection.Request.Body {
+
+        @Override
+        public InputStream get() throws IOException {
+            return null;
+        }
+    }
+
+    @Test
+    public void testRequestBody() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        RequestBody requestBody = new RequestBody().request("GET", "/path");
+        try (InputStream inputStream = connection.execute()) {
+            Document document = new Document(inputStream);
+            System.out.println(document.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testHeaders() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Request request = new Request().headers("Header1", "Value1");
+        try (InputStream inputStream = connection.execute()) {
+            Document document = new Document(inputStream);
+            System.out.println(document.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testResponse() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Response response = new Response().response(new Response.ResponseBuilder().build());
+
+        // Set the method to HEAD.
+        Method method = new Method().method(Method.HEAD);
+
+        // Send a GET request with the headers set by the Request
+        Connection.Request request = new Request(method, response);
+        try (InputStream inputStream = connection.execute()) {
+            Document document = new Document(inputStream);
+            System.out.println(document.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testResponseBuilder() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", new String[] {"header1", "header2"}, new String[]{"data1", "data2"})
+                .setMethod(Method.HEAD)
+                .addHeader("Content-Type", "text/plain")
+                .addHeader("Accept", "application/json"))
+                .addBody(new RequestBody().request("POST", "/path", Collections.singletonMap("body", Arrays.asList("json1")))));
+
+        // Send a GET request with the headers set by the Request
+        Connection.Request request = new Request(response);
+        try (InputStream inputStream = connection.execute()) {
+            Document document = new Document(inputStream);
+            System.out.println(document.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testBuildRequest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Request request = new Request();
+        try (InputStream inputStream = connection.execute()) {
+            Document document = new Document(inputStream);
+            System.out.println(document.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testDocument() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Request request = new Request().method(Method.HEAD).buildRequest(request);
+        try (InputStream inputStream = connection.execute()) {
+            Document document = new Document(inputStream);
+            System.out.println(document.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static class ResponseBuilder {
+
+        public ResponseResponse build() throws IOException {
+            return new Response.ResponseBuilder().build();
+        }
+
+        public ResponseResponse addHeader(String header, String value) throws IOException {
+            return new Response.ResponseBuilder()
+                    .setHeader(header, value)
+                    .build();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.jsoup.helper;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import java.io.ByteArrayInputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestHttpConnection {
+
+    public static String testConnect(String url) throws IOException {
+        Document document = Jsoup.connect(url).get();
+        return document.toString();
+    }
+
+    @Test
+    public void testMethod() throws IOException {
+        String response = testConnect("https://www.example.com");
+        System.out.println(response);
+    }
+
+    @Test
+    public void testRequestBody() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .addHeader("Content-Type", "application/json")
+                .setBody(200, new String[] {"OK"}, new String[]{"data1", "data2"}).build());
+        System.out.println(response);
+    }
+
+    @Test
+    public void testHeaders() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .addHeader("Content-Type", "application/json")
+                .setBody(200, new String[] {"OK"}, new String[]{"data1", "data2"}).build());
+        System.out.println(response);
+    }
+
+    @Test
+    public void testResponse() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.HEAD)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain"));
+        System.out.println(response);
+    }
+
+    @Test
+    public void testResponseBuilder() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.HEAD)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain")
+                .addBody(new RequestBody().request("POST", "/path", Collections.singletonMap("body", Arrays.asList("json1")))));
+        System.out.println(response);
+    }
+
+    @Test
+    public void testGetResponse() throws IOException {
+        String response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.HEAD)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain"));
+        System.out.println(response);
+    }
+
+    @Test
+    public void testGetWithMethod() throws IOException {
+        String response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.HEAD)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain")).get();
+        System.out.println(response);
+    }
+
+    @Test
+    public void testGetWithMethodAndBody() throws IOException {
+        String response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.HEAD)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain"))
+                .addBody(new RequestBody().request("POST", "/path", Collections.singletonMap("body", Arrays.asList("json1")))));
+        System.out.println(response);
+    }
+
+    public static void main(String[] args) throws IOException {
+        String url = "https://www.example.com";
+        String response = testConnect(url);
+        System.out.println(response);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package org.jsoup.helper;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import java.io.ByteArrayInputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestHttpConnection {
+
+    public static String testConnect(String url) throws IOException {
+        Document document = Jsoup.connect(url).get();
+        return document.toString();
+    }
+
+    @Test
+    public void testGetMethod() throws IOException {
+        String response = testConnect("https://www.example.com");
+        System.out.println(response);
+    }
+
+    @Test
+    public void testGetWithBody() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.GET)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain")).get();
+        System.out.println(response);
+    }
+
+    @Test
+    public void testPostMethod() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.POST)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain")).get();
+        System.out.println(response);
+    }
+
+    @Test
+    public void testDeleteMethod() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.DELETE)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain")).get();
+        System.out.println(response);
+    }
+
+    @Test
+    public void testPatchMethod() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.PATCH)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain")).get();
+        System.out.println(response);
+    }
+
+    @Test
+    public void testPutMethod() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.PUT)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain")).get();
+        System.out.println(response);
+    }
+
+    @Test
+    public void testPutWithBody() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.PUT)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain"))
+                .addBody(new RequestBody().request("POST", "/path", Collections.singletonMap("body", Arrays.asList("json1")))))
+                .get();
+        System.out.println(response);
+    }
+
+    @Test
+    public void testPatchWithBody() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.PATCH)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "text/plain"))
+                .addBody(new RequestBody().request("POST", "/path", Collections.singletonMap("body", Arrays.asList("json1")))))
+                .get();
+        System.out.println(response);
+    }
+
+    @Test
+    public void testHeadMethod() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.HEAD)).get();
+        System.out.println(response);
+    }
+
+    @Test
+    public void testOptionsMethod() throws IOException {
+        Response response = new Response().response(new Response.ResponseBuilder()
+                .build(200, "OK", Collections.singletonMap("header1", "value1"), Collections.singletonMap("header2", "value2"))
+                .setMethod(Method.OPTIONS)).get();
+        System.out.println(response);
+    }
+
+    @Test
+    public void testGetWithQueryParams() throws IOException {
+        String query = "param=value&foo=bar";
+        URL url = new URL("https://www.example.com");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(Method.GET);
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        byte[] data = url.openStream().readAllBytes();
+        String response = new String(data, "UTF-8");
+        System.out.println(response);
+    }
+
+    @Test
+    public void testPostWithQueryParams() throws IOException {
+        String query = "param=value&foo=bar";
+        URL url = new URL("https://www.example.com");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(Method.POST);
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(query.getBytes());
+        outputStream.close();
+        int responseCode = connection.getResponseCode();
+        System.out.println("Response Code: " + responseCode);
+    }
+
+    @Test
+    public void testDeleteWithQueryParams() throws IOException {
+        String query = "param=value&foo=bar";
+        URL url = new URL("https://www.example.com");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(Method.DELETE);
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(query.getBytes());
+        outputStream.close();
+        int responseCode = connection.getResponseCode();
+        System.out.println("Response Code: " + responseCode);
+    }
+
+    @Test
+    public void testPatchWithQueryParams() throws IOException {
+        String query = "param=value&foo=bar";
+        URL url = new URL("https://www.example.com");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(Method.PATCH);
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(query.getBytes());
+        outputStream.close();
+        int responseCode = connection.getResponseCode();
+        System.out.println("Response Code: " + responseCode);
+    }
+
+    @Test
+    public void testPutWithQueryParams() throws IOException {
+        String query = "param=value&foo=bar";
+        URL url = new URL("https://www.example.com");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(Method.PUT);
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(query.getBytes());
+        outputStream.close();
+        int responseCode = connection.getResponseCode();
+        System.out.println("Response Code: " + responseCode);
+    }
+
+    @Test
+    public void testPutWithBodyAndQueryParams() throws IOException {
+        String query = "param=value&foo=bar";
+        URL url = new URL("https://www.example.com");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(Method.PUT);
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        outputStream = connection.getOutputStream();
+        outputStream.write(query.getBytes());
+        outputStream.close();
+        int responseCode = connection.getResponseCode();
+        System.out.println("Response Code: " + responseCode);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package org.jsoup.helper;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    public void testGet() {
+        String url = "https://www.example.com";
+        Document doc = Jsoup.connect(url).get();
+        System.out.println(doc.html());
+    }
+
+    public void testPost() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "value");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data).post();
+        System.out.println(doc.html());
+    }
+
+    public void testDelete() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "value");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data).delete();
+        System.out.println(doc.html());
+    }
+
+    public void testPatch() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "value");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data).patch();
+        System.out.println(doc.html());
+    }
+
+    public void testPutWithBody() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "value");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPutWithQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "value");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPostWithQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "value");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testDeleteWithQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "value");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPatchWithQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "value");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPutWithBodyAndQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "value");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+package org.jsoup.helper;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    public void testGet() {
+        String url = "https://www.example.com";
+        Document doc = Jsoup.connect(url).get();
+        System.out.println(doc.html());
+    }
+
+    public void testPostJson() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPostXml() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "<xml><key>value</key></xml>");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPostXmlWithBody() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "<xml><key>value</key></xml>");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPostWithQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPostWithJsonBody() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testDelete() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "value");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPatch() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPut() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPutWithBody() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPutWithQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPatchWithQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPutWithJsonBody() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testDeleteWithQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPatchWithQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "{\"key\":\"value\"}");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPutWithXmlBody() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "<xml><key>value</key></xml>");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testDeleteWithXmlBody() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "<xml><key>value</key></xml>");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPutWithXmlBodyAndQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "<xml><key>value</key></xml>");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPostWithXmlBodyAndQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "<xml><key>value</key></xml>");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+
+    public void testPutWithXmlBodyAndQueryParams() {
+        String url = "https://www.example.com";
+        Map<String, String> data = new HashMap<>();
+        data.put("param", "<xml><key>value</key></xml>");
+        data.put("foo", "bar");
+
+        Document doc = Jsoup.connect(url).data(data);
+        System.out.println(doc.html());
+    }
+}
+}
+
+class Person {
+    private String name;
+
+    public Person(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+class PersonBuilder {
+    private String name;
+
+    public PersonBuilder(String name) {
+        this.name = name;
+    }
+
+    public PersonBuilder withName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public Person build() {
+        return new Person(name);
+    }
+}
+===================================================
+
+
+====================== Iteration #6 ======================

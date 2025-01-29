@@ -1,0 +1,24 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.time.ZoneOffset;
+import java.util.UUID;
+
+public class GeneratedTestCalculateSolarPosition_mismatchedTemperatureAndPressure {
+
+    @Test
+    public void testCalculateSolarPosition_mismatchedTemperatureAndPressure() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 52.52083333;
+        double longitude = -13.40527778;
+
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 288, 101325);
+
+        assertTrue(result.getR() > 0);
+        assertTrue(result.getTheta() > 0);
+    }
+
+}

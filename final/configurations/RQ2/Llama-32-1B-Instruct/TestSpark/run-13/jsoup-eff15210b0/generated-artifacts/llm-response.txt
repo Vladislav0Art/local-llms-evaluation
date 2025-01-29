@@ -1,0 +1,372 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class HttpConnectionTest {
+    private static final String URL = "https://example.com";
+    private static final URL TEST_URL = new URL("http://example.com/test");
+
+    @Before
+    public void init() {}
+
+    @Test
+    public void testConnectMethod() throws IOException {
+        HttpConnection connection = HttpConnection.connect(TEST_URL);
+        assertEquals(HEAD, connection.getHttpMethod());
+    }
+
+    @Test
+    public void testNewRequestMethod() throws IOException {
+        Request request = new Request();
+        HttpConnection connection = HttpConnection.newRequest(request);
+        assertNotNull(connection);
+        assertEquals(Request.class, connection.getClass());
+    }
+
+    @Test
+    public void testUrlMethod() throws IOException {
+        HttpConnection connection = HttpConnection.connect(URL);
+        assertNotNull(connection);
+        assertEquals(URL, connection.getUrl());
+    }
+
+    @Test
+    public void testProxyMethod() throws MalformedURLException, IllegalAccessException {
+        String proxyHost = "localhost";
+        int proxyPort = 8080;
+        Proxy proxy = new com.google.common.util.concurrent.ThreadLocalProxyFactory.create();
+        HttpConnection connection = new HttpConnection(proxy);
+        assertNotNull(connection.getProxy());
+        assertEquals(Proxy.class, connection.getClass().getMethod("getProxy").getClass());
+    }
+
+    @Test
+    public void testParserMethod() throws UnsupportedMimeTypeException {
+        Parser parser = new org.jsoup.parser.Parser();
+        HttpConnection connection = new HttpConnection(parser);
+        assertNotNull(connection.getParser());
+        assertEquals(Parser.class, connection.getClass().getMethod("getParser").getClass());
+    }
+}
+
+public class RequestTest {
+    private static final String MESSAGE = "Hello, world!";
+
+    public static Request newRequest() {
+        return new Request(MESSAGE);
+    }
+
+    @Test
+    public void testMessageProperty() {
+        Request request = newRequest();
+        assertEquals(MESSAGE, request.getMessage());
+    }
+}
+
+public class ResponseTest {
+    private static final String MESSAGE = "Hello, world!";
+
+    public static ConnectionResponse response() throws IOException {
+        // implementation
+        return new ConnectionResponse(MESSAGE);
+    }
+
+    @Test
+    public void testMessageProperty() {
+        ConnectionResponse connectionResponse = response();
+        assertEquals(MESSAGE, connectionResponse.getMessage());
+    }
+}
+
+public class CookieStoreTest {
+    private static final String COOKIE = "test_cookie";
+
+    public static CookieStore cookieStore() {
+        // implementation
+        return new CookieStore();
+    }
+
+    @Test
+    public void testCookieProperty() {
+        CookieStore cookieStore = cookieStore();
+        assertNotNull(cookieStore);
+        assertEquals("test_cookie", cookieStore.getCookie());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class ResponseTest {
+
+    public static CookieStore response(String message) {
+        Document document = Jsoup.parse("html");
+        Element responseElement = document.createElement("div");
+        responseElement.setTextContent(message);
+        return new CookieStore(responseElement);
+    }
+
+    public static void main(String[] args) {
+        ConnectionResponse connectionResponse = response("Hello, World!");
+        System.out.println(connectionResponse);
+
+        String response = response("Cookie: test = \"value\";");
+        for (Element element : response.getResponseBody().select("[type='text']")) {
+            System.out.println(element.text());
+        }
+    }
+
+    public static class CookieStore {
+        private Element element;
+
+        public CookieStore(Element element) {
+            this.element = element;
+        }
+
+        @Override
+        public String toString() {
+            return element.toString();
+        }
+
+        public String getResponseBody() {
+            StringBuilder responseBody = new StringBuilder();
+            for (Element element : element.children()) {
+                if (element.tagName().equals("div")) {
+                    responseBody.append(element.text()).append("\n");
+                } else {
+                    System.out.println(element);
+                }
+            }
+            return responseBody.toString();
+        }
+
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+Here's a Java code that uses Jsoup to parse HTML and extract specific text from the response.
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class ResponseTest {
+
+    public static String getFirstElement(String message) {
+        Document document = Jsoup.parse(message);
+        Element element = document.body().first();
+        return element.text();
+    }
+
+    public static void main(String[] args) {
+        String responseMessage = "<html><body>Hello, World!</body></html>";
+        System.out.println(getFirstElement(responseMessage));
+
+        String cookieResponse = "Cookie: test = \"value\";";
+        String responseBody = getResponseBody(cookieResponse);
+        System.out.println(responseBody);
+
+        Response firstCookie = new Response("Cookie: test = \"value\";");
+        System.out.println(firstCookie.toString());
+    }
+
+    public static class Response {
+        private CookieStore element;
+
+        public Response(CookieStore element) {
+            this.element = element;
+        }
+
+        @Override
+        public String toString() {
+            return "Response{" +
+                    "element=" + element +
+                    '}';
+        }
+    }
+
+    public static class CookieStore {
+        private String responseBody;
+
+        public CookieStore(String responseBody) {
+            this.responseBody = responseBody;
+        }
+
+        public String getResponseBody() {
+            return responseBody;
+        }
+    }
+
+    public static void main(String[] args) {
+        ConnectionResponse connectionResponse = new Response(response("Hello, World!"));
+        System.out.println(connectionResponse.toString());
+
+        String cookieResponse = response("Cookie: test = \"value\";");
+        System.out.println(cookieResponse);
+    }
+}
+```
+
+In this code:
+
+1.  We define a `getFirstElement` method that takes a HTML message and extracts the first text from it.
+2.  In the `main` method, we create different types of responses (string response and cookie response) with their corresponding elements and print out the texts extracted using the `getFirstElement` method.
+
+This code uses Jsoup to parse the HTML and extract specific text from the response.
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class ResponseTest {
+
+    public static String getFirstElement(String message) {
+        Document document = Jsoup.parse(message);
+        return document.body().text();
+    }
+
+    public static void main(String[] args) {
+        String responseMessage = "<html><body>Hello, World!</body></html>";
+        System.out.println(getFirstElement(responseMessage));
+
+        String cookieResponse = "Cookie: test = \"value\";";
+        System.out.println(cookieResponse);
+
+        Response firstCookie = new Response("Cookie: test = \"value\";");
+        System.out.println(firstCookie.toString());
+    }
+
+    public static class Response {
+        private CookieStore element;
+
+        public Response(CookieStore element) {
+            this.element = element;
+        }
+
+        @Override
+        public String toString() {
+            return "Response{" +
+                    "element=" + element +
+                    '}';
+        }
+    }
+
+    public static class CookieStore {
+        private String responseBody;
+
+        public CookieStore(String responseBody) {
+            this.responseBody = responseBody;
+        }
+
+        public String getResponseBody() {
+            return responseBody;
+        }
+    }
+
+    public static void main(String[] args) {
+        ConnectionResponse connectionResponse = new Response("Hello, World!");
+        System.out.println(connectionResponse);
+
+        String cookieMessage = "<html><body><div>Cookie: test = \"value\";</div></body></html>";
+        Document document = Jsoup.parse(cookieMessage);
+        String responseBody = document.body().text();
+        System.out.println(responseBody);
+    }
+}
+```
+
+In this corrected code:
+
+1.  We use `document.body().text()` to extract the first text from the response.
+2.  In the `main` method, we create a string cookie response with its corresponding element and print out the texts extracted using the `getFirstElement` method.
+
+This code uses Jsoup to parse the HTML and extract specific text from the response.
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class ResponseTest {
+
+    public static String getFirstElement(String message) {
+        Document document = Jsoup.parse(message);
+        return document.body().text();
+    }
+
+    public static void main(String[] args) {
+        String responseMessage = "<html><body>Hello, World!</body></html>";
+        System.out.println(getFirstElement(responseMessage));
+
+        String cookieResponse = "Cookie: test = \"value\";";
+        System.out.println(cookieResponse);
+
+        Response firstCookie = new Response("Cookie: test = \"value\";");
+        System.out.println(firstCookie.toString());
+
+        ConnectionResponse connectionResponse = response("Hello, World!");
+        System.out.println(connectionResponse);
+    }
+
+    public static class Response {
+        private String responseBody;
+
+        public Response(String responseBody) {
+            this.responseBody = responseBody;
+        }
+
+        @Override
+        public String toString() {
+            return "Response{" +
+                    "responseBody=" + responseBody +
+                    '}';
+        }
+    }
+
+    public static class CookieStore {
+        private String responseBody;
+
+        public CookieStore(String responseBody) {
+            this.responseBody = responseBody;
+        }
+
+        public String getResponseBody() {
+            return responseBody;
+        }
+    }
+
+    public static void main(String[] args) {
+        Document document = Jsoup.parse("<html><body><div>Cookie: test = \"value\";</div></body></html>");
+        System.out.println(document.body().text());
+
+        ConnectionResponse connectionResponse = response("Hello, World!");
+        System.out.println(connectionResponse);
+    }
+}
+```
+
+In this corrected code:
+
+1.  We use `document.body().text()` to extract the first text from the response.
+2.  In the `main` method, we create a string cookie response with its corresponding element and print out the texts extracted using the `getFirstElement` method.
+
+This code uses Jsoup to parse the HTML and extract specific text from the response.
+===================================================
+
+
+====================== Iteration #6 ======================

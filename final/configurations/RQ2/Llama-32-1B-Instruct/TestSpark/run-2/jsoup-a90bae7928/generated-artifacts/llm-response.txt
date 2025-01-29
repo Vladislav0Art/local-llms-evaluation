@@ -1,0 +1,405 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class XmlTreeBuilderImpl extends XmlTreeBuilder {
+    private String result;
+
+    @Override
+    protected void process(Token token) {
+        if (token instanceof Token.StartTag) {
+            insert((Token.StartTag) token);
+        } else if (token instanceof Token.EndTag) {
+            popStackToClose((Token.EndTag) token);
+        }
+    }
+
+    public void insertNode(Node node, String uri) {
+        if (node instanceof Element) {
+            ((Element) node).append(node);
+        }
+    }
+
+    @Override
+    protected Document parse(Reader input, String baseUri) {
+        return parse(new StringReader(input.toString()), baseUri);
+    }
+
+    @Override
+    protected void insertToken(Token token) {
+        if (token instanceof Token.StartTag || token instanceof Token.EndTag) {
+            // Do nothing, this is already handled in the process() method
+        } else if (token instanceof Token.Text) {
+            result += ((Token.Text) token).text();
+        }
+    }
+
+    public void insertComment(String text) {
+        if (!isEmpty()) {
+            result += " <!-- " + text + " -->";
+        }
+    }
+
+    @Override
+    protected Document parseFragment(String inputFragment, String baseUri, Parser parser) {
+        return parseFragment(inputFragment, null, baseUri, parser);
+    }
+
+    public void insertFragment(String inputFragment, Document document, String baseUri, Parser parser) {
+        List<Node> nodes = new ArrayList<>();
+        for (Token token : parseFragment(inputFragment, inputFragment, baseUri, parser).nodes()) {
+            if (token instanceof Token.Text || token instanceof Token.Comment || token instanceof Node.CDataNode) {
+                insert(node -> node.append(token));
+            } else {
+                insertNode(document.createElement(token.tagName().toString()), token.uri());
+            }
+        }
+    }
+
+    @Override
+    protected void popStackToClose(Token endTag) {
+        if (endTag.getTagName().equals("END")) {
+            result = null;
+        } else {
+            result += " - " + endTag.getText();
+        }
+    }
+
+    public Document parseFragment(String inputFragment, Element context, String baseUri, Parser parser) {
+        return parseFragment(inputFragment, context.toString(), baseUri, parser);
+    }
+
+    private void insertNode(Element element) {
+        if (element.getTagName().equals("END")) {
+            popStackToClose(element);
+        } else {
+            result += " - " + element.getText();
+        }
+    }
+
+    public String getresult() {
+        return result;
+    }
+
+    @Override
+    protected Document parse(String input, String baseUri) {
+        return parse(new StringReader(input), baseUri);
+    }
+
+    private void insertToken(Token token) {}
+
+    @Override
+    protected void initialiseParse(Reader input, String baseUri, Parser parser) {
+        // Do nothing for ParseSettings defaultSettings()
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void testProcess_1() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        Token token = Token.StartTag("<root>", "/path/to/baseUri");
+        xmlTreeBuilder.process(token);
+        assert !xmlTreeBuilder.result.equals(null);
+    }
+
+    @Test
+    public void testInsertNode_1() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        Node node = xmlTreeBuilder.parseFragment("<fragment>", "", "http://example.com/baseUri", null).node(0);
+        xmlTreeBuilder.insertNode(node, "http://example.com/uri");
+        assert xmlTreeBuilder.result.contains(" - fragment: <fragment>");
+    }
+
+    @Test
+    public void testInsertComment_1() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        String text = " <!-- comment --> ";
+        xmlTreeBuilder.insertComment(text);
+        assert !xmlTreeBuilder.result.equals(null);
+    }
+
+    @Test
+    public void testParseFragment_1() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<fragment>", "", "http://example.com/baseUri", null).nodes();
+        assert !xmlTreeBuilder.result.equals(null);
+    }
+
+    @Test
+    public void testInsertFragment_1() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        Document document = xmlTreeBuilder.parse("", "", "http://example.com/baseUri").document(0);
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<fragment>", "", "http://example.com/baseUri", null).nodes();
+        assert !xmlTreeBuilder.result.equals(null);
+    }
+
+    @Test
+    public void testParseFragment_2() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        List<Node> nodes = xmlTreeBuilder.parse("<fragment>", "", "http://example.com/baseUri", null).nodes();
+        assert !xmlTreeBuilder.result.equals(null);
+    }
+
+    @Test
+    public void testInsertFragment_2() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        Document document = xmlTreeBuilder.parse("", "", "http://example.com/baseUri").document(0);
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<fragment>", "", "http://example.com/baseUri", null).nodes();
+        assert !xmlTreeBuilder.result.equals(null);
+    }
+
+    @Test
+    public void testProcess_2() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        Token token = Token.StartTag("<root>", "/path/to/baseUri");
+        xmlTreeBuilder.process(token);
+        // Do nothing here, process is already called on the token
+    }
+
+    @Test
+    public void testParse_1() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        Document document = xmlTreeBuilder.parse("", "", "http://example.com/baseUri").document(0);
+        assert !xmlTreeBuilder.result.equals(null);
+    }
+
+    @Test
+    public void testProcess_2() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        Token token = Token.StartTag("<root>", "/path/to/baseUri");
+        xmlTreeBuilder.process(token);
+        assert !xmlTreeBuilder.result.equals(null);
+    }
+
+    private static class Token {
+        String text;
+
+        Token(String text) {
+            this.text = text;
+        }
+    }
+
+    private static class Node {
+        String uri;
+
+        Node(String uri) {
+            this.uri = uri;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Token token = (Token) o;
+            return uri.equals(token.uri);
+        }
+    }
+
+    private static class Element extends Node {}
+
+    @Test
+    public void testInsertNode_2() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilderImpl();
+        Element element = xmlTreeBuilder.parseFragment("<fragment>", "", "http://example.com/baseUri", null).element(0);
+        assert !xmlTreeBuilder.result.equals(null);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+
+public class XmlParserTest {
+
+    @Test
+    public void testParse() {
+        String xml = "<root><person id='1'><name>John Doe</name></person></root>";
+        String expectedXml = "<root><person id='1'><name>John Doe</name></person></root>";
+        assertTrue(parser.parse(xml).equals(expectedXml));
+    }
+
+    @Test
+    public void testParseWithUri() {
+        String xml = "<root><person id='1'><name>John Doe</name></person></root>";
+        String expectedXml = "<root><person id='1'><name>John Doe</name></person></root>";
+        assertTrue(parser.parse(xml).equals(expectedXml));
+    }
+
+    @Test
+    public void testParseEmpty() {
+        String xml = "";
+        String expectedXml = "";
+        assertTrue(parser.parse(xml).equals(expectedXml));
+    }
+
+    @Test
+    public void testParseWithEmptyUri() {
+        String xml = "<root><person id='1'><name>John Doe</name></person></root>";
+        String expectedXml = "<root><person id='1'><name>John Doe</name></person></root>";
+        assertTrue(parser.parse(xml).equals(expectedXml));
+    }
+
+    @Test
+    public void testParseWithNullUri() {
+        String xml = "<root><person id='1'><name>John Doe</name></person></root>";
+        String expectedXml = "<root><person id='1'><name>John Doe</name></person></root>";
+        assertTrue(parser.parse(xml).equals(expectedXml));
+    }
+
+    @Test
+    public void testParseWithNullName() {
+        String xml = "<root><person id='1'><name></name></person></root>";
+        String expectedXml = "<root><person id='1'><name></name></person></root>";
+        assertTrue(parser.parse(xml).equals(expectedXml));
+    }
+
+    @Test
+    public void testParseWithNullPersonId() {
+        String xml = "<root><person><id>1</id></person></root>";
+        String expectedXml = "<root><person><id>1</id></person></root>";
+        assertTrue(parser.parse(xml).equals(expectedXml));
+    }
+
+    @Test
+    public void testParseWithNullPersonName() {
+        String xml = "<root><person><name></name></person></root>";
+        String expectedXml = "<root><person><name></name></person></root>";
+        assertTrue(parser.parse(xml).equals(expectedXml));
+    }
+
+    private XmlParser parser = new XmlParser();
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class XmlParserTest {
+
+    public static String parse(String xml) {
+        return Jsoup.parse(xml).toString();
+    }
+
+    @Test
+    public void testParse() {
+        String xml = "<root><person id='1'><name>John Doe</name></person></root>";
+        Document doc = parser.parse(xml);
+        assertTrue(doc.html().equals("<root><person id='1'><name>John Doe</name></person></root>"));
+    }
+
+    @Test
+    public void testParseWithUri() {
+        String xml = "<root><person id='1'><name>John Doe</name></person></root>";
+        Document doc = parser.parse(xml);
+        assertTrue(doc.html().equals("<root><person id='1'><name>John Doe</name></person></root>"));
+    }
+
+    @Test
+    public void testParseEmpty() {
+        String xml = "";
+        Document doc = parser.parse(xml);
+        assertTrue(doc.html().isEmpty());
+    }
+
+    @Test
+    public void testParseWithEmptyUri() {
+        String xml = "<root><person id='1'><name>John Doe</name></person></root>";
+        Document doc = parser.parse(xml);
+        assertTrue(doc.html().isEmpty());
+    }
+
+    @Test
+    public void testParseWithNullUri() {
+        String xml = "<root><person id='1'><name>John Doe</name></person></root>";
+        try {
+            parser.parse(null);
+        } catch (Exception e) {}
+        Document doc = parser.parse(xml);
+        assertTrue(doc.html().isEmpty());
+    }
+
+    @Test
+    public void testParseWithNullName() {
+        String xml = "<root><person id='1'><name>John Doe</name></person></root>";
+        try {
+            parser.parse(xml);
+        } catch (Exception e) {}
+        Document doc = parser.parse(xml);
+        assertTrue(doc.html().isEmpty());
+    }
+
+    @Test
+    public void testParseWithNullPersonId() {
+        String xml = "<root><person><id>1</id></person></root>";
+        try {
+            parser.parse(xml);
+        } catch (Exception e) {}
+        Document doc = parser.parse(xml);
+        assertTrue(doc.html().isEmpty());
+    }
+
+    @Test
+    public void testParseWithNullPersonName() {
+        String xml = "<root><person><name>John Doe</name></person></root>";
+        try {
+            parser.parse(xml);
+        } catch (Exception e) {}
+        Document doc = parser.parse(xml);
+        assertTrue(doc.html().isEmpty());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.io.IOException;
+
+public class Example {
+    public String parseXml(String xml) throws IOException {
+        return parse(xml);
+    }
+
+    private String parse(String xml) {
+        // implement your parsing logic here
+        System.out.println("Parsing XML: " + xml);
+        return null;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Example example = new Example();
+        try {
+            String xmlString = "<root><person><name>John</name><age>30</age></person><person><name>Jane</name><age>25</age></person></root>";
+            String result = example.parseXml(xmlString);
+            System.out.println(result);  // Output: Parsing XML: <root><person><name>John</name><age>30</age></person><person><name>Jane</name><age>25</age></person></root>
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

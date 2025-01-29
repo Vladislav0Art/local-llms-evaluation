@@ -1,0 +1,21 @@
+package org.jsoup.nodes;
+
+public class GeneratedTestTextFromEncoded {
+
+    private LeafNode leafNode;
+
+    @Before
+    public void setup() throws IOException {
+        Document document = new Document();
+        Appendable appendable = document.append("Hello World!");
+        leafNode = TextNode.createFromEncoded(toString(appendable));
+    }
+
+    @Test
+    public void testTextFromEncoded() {
+        String encodedText = "Hello World!";
+        TextNode createdTextNode = TextNode.createFromEncoded(encodedText);
+        assertEquals(leafNode, createdTextNode);
+    }
+
+}

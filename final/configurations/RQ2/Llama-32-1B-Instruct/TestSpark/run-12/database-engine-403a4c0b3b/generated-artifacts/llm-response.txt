@@ -1,0 +1,419 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package app;
+
+import com.opencsv.exceptions.CsvValidationException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import java.io.IOException;
+import java.util.*;
+
+@RunWith(MockitoJUnit4Class.class)
+public class DBAppTest {
+
+    @Mock
+    private CSVReader csvReader;
+
+    @Mock
+    private CSVWriter csvWriter;
+
+    public void testGetMyTables() throws Exception {
+        DBApp dbApp = new DBApp();
+        HashSet<String> myTables = new HashSet<>();
+        myTables.add("table1");
+        when(csvReader.getRows()).thenReturn(myTables);
+        String[] columns = {"column1", "column2"};
+        dbApp.init();
+        dbApp.createTable("my_table_name", columns, null, null, null);
+        TreeSet<String> result = new TreeSet<>(dbApp.getMyTables());
+        assertEquals(myTables, result);
+    }
+
+    @Test
+    public void testGetReader() {
+        DBApp dbApp = new DBApp();
+        when(csvReader.getRows()).thenReturn(null);
+        CsvReader csvReaderMock = Mockito.mock(CsvReader.class);
+        MockitoAnnotations.initMocks(this);
+        dbApp.init();
+        dbApp.getReader().setCsvReader(csvReaderMock);
+        dbApp.createTable("my_table_name", null, null, null, null);
+        String[] columns = {"column1", "column2"};
+        when(csvReader.getRows()).thenReturn(columns);
+        dbApp.init();
+        String[] result = dbApp.selectFromTable(new SQLTerm[]{}, new String[]{"", ""});
+        assertEquals(columns, result);
+    }
+
+    @Test
+    public void testGetWriter() {
+        DBApp dbApp = new DBApp();
+        when(csvWriter.getRows()).thenReturn(null);
+        CsvWriter csvWriterMock = Mockito.mock(CsvWriter.class);
+        MockitoAnnotations.initMocks(this);
+        dbApp.init();
+        dbApp.createTable("my_table_name", null, null, null, null);
+        String[] columns = {"column1", "column2"};
+        when(csvWriter.getRows()).thenReturn(columns);
+        dbApp.init();
+        csvWriterMock.setCsvWriter(csvWriter);
+        String[] result = dbApp.selectFromTable(new SQLTerm[]{}, new String[]{"", ""});
+        assertEquals(columns, result);
+    }
+
+    @Test
+    public void testInit() {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+        Mockito.verify(dbApp).init();
+    }
+
+    @Test
+    public void testCreateTable() throws Exception {
+        DBApp dbApp = new DBApp();
+        TreeSet<String> columns = new TreeSet<>();
+        columns.add("column1");
+        columns.add("column2");
+        when(csvReader.getRows()).thenReturn(null);
+        when(csvWriter.getRows()).thenReturn(null);
+        String[] columnNames = {"column1", "column2"};
+        dbApp.init();
+        dbApp.createTable("my_table_name", columnNames, null, null, null);
+        HashSet<String> result = new HashSet<>();
+        for (String column : columns) {
+            result.add(column);
+        }
+        assertEquals(columns, result);
+    }
+
+    @Test
+    public void testInsertIntoTable() throws Exception {
+        DBApp dbApp = new DBApp();
+        TreeSet<String> columns = new TreeSet<>();
+        columns.add("column1");
+        columns.add("column2");
+        when(csvReader.getRows()).thenReturn(null);
+        when(csvWriter.getRows()).thenReturn(null);
+        String[] columnNames = {"column1", "column2"};
+        dbApp.init();
+        dbApp.createTable("my_table_name", columnNames, null, null, null);
+        List<Object> values = new ArrayList<>();
+        values.add("value1");
+        values.add("value2");
+        dbApp.insertIntoTable("my_table_name", values);
+        assertEquals(2, dbApp.selectFromTable(new SQLTerm[]{}, new String[]{"", ""}).size());
+    }
+
+    @Test
+    public void testUpdateTable() throws Exception {
+        DBApp dbApp = new DBApp();
+        TreeSet<String> columns = new TreeSet<>();
+        columns.add("column1");
+        columns.add("column2");
+        when(csvReader.getRows()).thenReturn(null);
+        when(csvWriter.getRows()).thenReturn(null);
+        String[] columnNames = {"column1", "column2"};
+        dbApp.init();
+        dbApp.createTable("my_table_name", columnNames, null, null, null);
+        List<Object> values = new ArrayList<>();
+        values.add("value1");
+        values.add("value2");
+        dbApp.insertIntoTable("my_table_name", values);
+        when(dbApp.updateTable("my_table_name", "column1", values)).thenReturn(true);
+        dbApp.updateTable("my_table_name", "column1", values);
+        assertEquals(1, dbApp.selectFromTable(new SQLTerm[]{}, new String[]{"", ""}).size());
+    }
+
+    @Test
+    public void testDeleteFromTable() throws Exception {
+        DBApp dbApp = new DBApp();
+        TreeSet<String> columns = new TreeSet<>();
+        columns.add("column1");
+        columns.add("column2");
+        when(csvReader.getRows()).thenReturn(null);
+        when(csvWriter.getRows()).thenReturn(null);
+        String[] columnNames = {"column1", "column2"};
+        dbApp.init();
+        dbApp.createTable("my_table_name", columnNames, null, null, null);
+        List<Object> values = new ArrayList<>();
+        values.add("value1");
+        values.add("value2");
+        dbApp.insertIntoTable("my_table_name", values);
+        when(dbApp.deleteFromTable("my_table_name", values)).thenReturn(true);
+        dbApp.updateTable("my_table_name", null, values);
+        assertEquals(0, dbApp.selectFromTable(new SQLTerm[]{}, new String[]{"", ""}).size());
+    }
+
+    @Test
+    public void testSelectFromTable() throws Exception {
+        DBApp dbApp = new DBApp();
+        TreeSet<String> columns = new TreeSet<>();
+        columns.add("column1");
+        columns.add("column2");
+        when(csvReader.getRows()).thenReturn(null);
+        when(csvWriter.getRows()).thenReturn(null);
+        String[] columnNames = {"column1", "column2"};
+        dbApp.init();
+        dbApp.createTable("my_table_name", columnNames, null, null, null);
+        List<Object> values = new ArrayList<>();
+        values.add("value1");
+        values.add("value2");
+        dbApp.insertIntoTable("my_table_name", values);
+        String[] result = dbApp.selectFromTable(new SQLTerm[]{}, new String[]{"", ""});
+        assertEquals(columns, result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class Database {
+    public ArrayList<String> selectFromTable(ArrayList<String> columns, String query) {
+        // implementation to be implemented in the test class
+    }
+
+    public void insertIntoTable(ArrayList<String> values) {
+        // implementation to be implemented in the test class
+    }
+
+    public void updateFromTable(ArrayList<String> columns, ArrayList<String> rows) {
+        // implementation to be implemented in the test class
+    }
+
+    public int deleteFromTable(ArrayList<String> columns, ArrayList<String> rows) {
+        return 0;
+    }
+}
+
+public class DatabaseTest {
+
+    private Database db = new Database();
+
+    @Test
+    public void testSelect() {
+        ArrayList<String> columns = Arrays.asList("column1", "column2");
+        String query = "SELECT * FROM table";
+        ArrayList<String> result = db.selectFromTable(columns, query);
+        System.out.println(result);
+    }
+
+    @Test
+    public void testInsert() {
+        ArrayList<String> values = new ArrayList<>();
+        values.add("value1");
+        values.add("value2");
+        String row = "row1, row2";
+        db.insertIntoTable(values);
+        // implementation to be implemented in the test class
+    }
+
+    @Test
+    public void testUpdate() {
+        ArrayList<String> columns = Arrays.asList("column1", "column2");
+        ArrayList<String> rows = new ArrayList<>();
+        String[] values = {"value3", "value4"};
+        db.updateFromTable(columns, rows);
+        // implementation to be implemented in the test class
+    }
+
+    @Test
+    public void testDelete() {
+        ArrayList<String> columns = Arrays.asList("column1");
+        ArrayList<String> rows = new ArrayList<>();
+        String[] values = {"value5", "value6"};
+        db.deleteFromTable(columns, rows);
+        // implementation to be implemented in the test class
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class DatabaseTest {
+
+    private static final String DB_NAME = "test_database";
+
+    @Test
+    public void testSelect() {
+        Database db = new Database();
+        ArrayList<String> columns = Arrays.asList("column1", "column2");
+        String query = "SELECT * FROM table";
+        ArrayList<String> result = db.selectFromTable(columns, query);
+        System.out.println(result);
+    }
+
+    @Test
+    public void testInsert() {
+        Database db = new Database();
+        ArrayList<String> values = Arrays.asList("value1", "value2");
+        String row = "row1, row2";
+        try {
+            db.insertIntoTable(values);
+            db.deleteFromTable(Arrays.asList("column1"), Arrays.asList(row));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdate() {
+        Database db = new Database();
+        ArrayList<String> columns = Arrays.asList("column1", "column2");
+        ArrayList<String> rows = Arrays.asList("row3", row);
+        try {
+            String[] values = {"value3", "value4"};
+            db.updateFromTable(columns, rows);
+            System.out.println(rows[0]);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDelete() {
+        Database db = new Database();
+        ArrayList<String> columns = Arrays.asList("column1");
+        ArrayList<String> rows = Arrays.asList("row5", row);
+        try {
+            String[] values = {"value6"};
+            db.deleteFromTable(columns, rows);
+            System.out.println(rows[0]);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Database {
+    private String name;
+    private String[][] data;
+
+    public Database(String name) {
+        this.name = name;
+        this.data = new String[0][0];
+    }
+
+    public void addData(String[] row) {
+        if (row.length != 2) {
+            throw new IllegalArgumentException("Invalid input. Expected two columns.");
+        }
+        String[] column1 = row[0].split(",");
+        String[] column2 = row[1].split(",");
+
+        data = append(data, name, column1);
+    }
+
+    public void printData() {
+        System.out.println(name + " has the following rows:");
+        for (String[] row : data) {
+            if (row.length < 2) {
+                throw new IllegalArgumentException("Invalid input. Expected at least two columns.");
+            }
+            String[] columns = row;
+            System.out.println(columns[0] + ", " + columns[1]);
+        }
+    }
+
+    private void append(String[][] data, String name, String[] column1) {
+        for (String[] row : data) {
+            if (!row[0].equals(column1[0]) || !row[1].equals(column1[1])) {
+                System.out.println("Invalid input. The first and second columns in the row must match.");
+                return;
+            }
+            String[][] newRow = new String[data.length + 1][2];
+            System.arraycopy(row, 0, newRow, 0, column1.length);
+            newRow[newRow.length - 1] = new String[]{name, column1[0], column1[1]};
+            data = append(data, name, newRow);
+        }
+    }
+
+    public static void main(String[] args) {
+        Database db1 = new Database("db1");
+        db1.addData(new String[]{"A", "B"});
+        db1.addData(new String[]{"C", "D"});
+
+        Database db2 = new Database("db2");
+        db2.addData(new String[]{"X", "Y"});
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+I can provide a Java implementation of the described database system.
+
+Here's the code:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Database {
+    private String name;
+    private List<List<String[]>> data;
+
+    public Database(String name) {
+        this.name = name;
+        this.data = new ArrayList<>();
+    }
+
+    public void addData(List<List<String>> row) {
+        if (row.size() != 2 || row.get(0).size() != 2) {
+            throw new IllegalArgumentException("Invalid input. Expected two columns.");
+        }
+        List<String[]> column1 = row.get(0);
+        List<String> column2 = row.get(1);
+
+        data.add(new ArrayList<>(column1));
+    }
+
+    public void printData() {
+        System.out.println(name + " has the following rows:");
+        for (List<List<String[]>> row : data) {
+            if (row.size() < 2) {
+                throw new IllegalArgumentException("Invalid input. Expected at least two columns.");
+            }
+            String[][] columns = row.get(0);
+            StringBuilder sb = new StringBuilder();
+            for (String[] column : columns) {
+                sb.append(column[0] + ", ");
+                for (String element : column) {
+                    sb.append(element).append(",");
+                }
+                System.out.println(sb.toString().trim());
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Database db1 = new Database("db1");
+        db1.addData(List.of(List.of("A", "B"), List.of("C", "D")));
+
+        Database db2 = new Database("db2");
+        db2.addData(List.of(List.of("X", "Y")));
+    }
+}
+```
+
+This implementation creates a `Database` class with methods to add rows and print the data. The database is represented as a list of lists, where each inner list contains two elements (columns) and one element (row).
+===================================================
+
+
+====================== Iteration #6 ======================

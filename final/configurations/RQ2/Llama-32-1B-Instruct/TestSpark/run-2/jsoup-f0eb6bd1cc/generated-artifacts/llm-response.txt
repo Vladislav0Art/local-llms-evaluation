@@ -1,0 +1,325 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection.KeyVal mockKeyVal;
+
+    @Test
+    public void testAppendKeyVal_SimpleCase() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=2");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("a", "1");
+        kv.put("b", "2");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("https://example.com/path?a%3D1&b%3D2", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_DotSeparatedKeys() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1.2&a3=4");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("a", "1.2");
+        kv.put("b", "4");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("https://example.com/path?a%3D1.2%26b%3D4", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_HexadecimalKeys() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?A=12&B=34");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("A", "12");
+        kv.put("B", "34");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("https://example.com/path%3DA12%26B34", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_Prefixes() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?prefix=abc&key=value");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("key", "value");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("https://example.com/path/abc(prefix=abc)%3Dkey%26value", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MalformedKey() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?malformed=a&b=2");
+        Map<String, String> kv = new HashMap<>();
+        urlBuilder.appendKeyVal(kv);
+        try {
+            assertEquals("https://example.com/path%3Falformed%26b%3D2", urlBuilder.build().toString());
+        } catch (UnsupportedEncodingException e) {
+            fail("Expected UnsupportedEncodingException");
+        }
+    }
+
+    @Test
+    public void testAppendKeyVal_NullInputUrl() {
+        UrlBuilder urlBuilder = new UrlBuilder(null);
+        Map<String, String> kv = new HashMap<>();
+        urlBuilder.appendKeyVal(kv);
+        assertNull(urlBuilder.build());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+public class UrlBuilderTest {
+
+    @Mock
+    public static Connection.KeyVal mockKeyVal;
+
+    @Test
+    public void testAppendKeyVal_SimpleCase() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=2");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("a", "1");
+        kv.put("b", "2");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("https://example.com/path?a%3D1&b%3D2", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_EmptyMap() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path");
+        Map<String, String> kv = new HashMap<>();
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MissingKey() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=2");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("c", "3");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MissingValue() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("a", "1");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MultipleQueries() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=2&c=3&a=4");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("a", "1");
+        kv.put("b", "2");
+        kv.put("c", "3");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("https://example.com/path?a%3D1&b%3D2&c%3D3&a%3D4", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MultipleQueries_MissingKey() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=2");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("c", "3");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MultipleQueries_MissingValue() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("a", "1");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MultipleQueries_Quiet() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=2&c=3&a=4");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("a", "1");
+        kv.put("b", "2");
+        kv.put("c", "3");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("https://example.com/path?a%3D1&b%3D2&c%3D3&a%3D4", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MultipleQueries_Quiet_MissingKey() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=2");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("c", "3");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MultipleQueries_Quiet_MissingValue() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("a", "1");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MultipleQueriesQuiet_MultipleQueries() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=2&c=3&a=4");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("a", "1");
+        kv.put("b", "2");
+        kv.put("c", "3");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("https://example.com/path?a%3D1&b%3D2&c%3D3&a%3D4", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MultipleQueriesQuiet_MultipleQueries_MissingKey() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=2");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("c", "3");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_MultipleQueriesQuiet_MultipleQueries_MissingValue() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://example.com/path?a=1&b=");
+        Map<String, String> kv = new HashMap<>();
+        kv.put("a", "1");
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("", urlBuilder.build().toString());
+    }
+}
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestUrlBuilder {
+    private String input;
+    private int offset;
+
+    public String build() {
+        return input + offset;
+    }
+
+    public void setInput(String input) {
+        this.input = input;
+        offset = 0;
+    }
+
+    @Test
+    public void testBuild_Personalize() {
+        input = "a";
+        assertEquals("a0", build());
+        input = "b";
+        assertEquals("ab0", build());
+    }
+
+    @Test
+    public void testBuild_MustBeInteger() {
+        int[] nums = {1, 2, 3};
+        String output = (String) build(nums);
+        assertNotNull(output);
+        assertEquals(4, Integer.parseInt(output));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class TestUrlBuilder {
+    public static String build(String input, int offset) {
+        return Jsoup.parse(input + offset).toString();
+    }
+
+    @Test
+    public void testBuild_Personalize() {
+        setInput("a");
+        assertEquals("ab0", build("a", 0));
+        setInput("b");
+        assertEquals("ab1", build("a", 0));
+        setInput("c");
+        assertEquals("abc2", build("a", 0));
+    }
+
+    public void setInput(String input) {
+        this.input = input;
+    }
+}
+
+public class GeneratedTest extends TestUrlBuilder {
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestUrlBuilder {
+    public String build() {
+        return "a0";
+    }
+
+    public void setInput(String input) {
+        this.input = input;
+    }
+}
+
+class GeneratedTest extends TestUrlBuilder {
+    @Override
+    public String build() {
+        return super.build();
+    }
+
+    public static void main(String[] args) {
+        TestUrlBuilder builder = new TestUrlBuilder();
+        for (int i = 0; i < 10; i++) {
+            builder.setInput("a" + i);
+            System.out.println(builder.build());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

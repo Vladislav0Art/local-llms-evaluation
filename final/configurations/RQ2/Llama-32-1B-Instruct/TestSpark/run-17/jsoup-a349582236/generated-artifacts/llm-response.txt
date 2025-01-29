@@ -1,0 +1,441 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TagImpl implements Tag {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tag)) return false;
+
+        Tag tag = (Tag) o;
+
+        if (!getTagName().equals(tag.getTagName())) return false;
+        if (!getAttributes().equals(tag.getAttributes())) return false;
+
+        return getSelfClosing() == tag.getSelfClosing();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+
+        result = prime * result + getTagName().hashCode();
+
+        result = prime * result + getAttributes().hashCode();
+
+        result = prime * result + (selfClosing() ? 1 : 0);
+
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> entry : getAttributes().entrySet()) {
+            builder.append(entry.getKey()).append(": ").append(entry.getValue()).append(", ");
+        }
+        return builder.toString().trim();
+    }
+
+    private static final Map<String, Object> EMPTYAttributes = new HashMap<>();
+
+    @Override
+    public Tag clone() {
+        return new TagImpl(getTagName(), getAttributes());
+    }
+}
+
+public class TagValueImpl implements Tag {
+    private String tagName;
+    private ParseSettings settings;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tag)) return false;
+
+        Tag tag = (Tag) o;
+
+        if (!getTagName().equals(tag.getTagName())) return false;
+        if (!getAttributes().equals(tag.getAttributes())) return false;
+        if (!settings.equals(tag.settings)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+
+        result = prime * result + getTagName().hashCode();
+        result = prime * result + getAttributes().hashCode();
+        result = prime * result + settings.hashCode();
+
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> entry : getAttributes().entrySet()) {
+            builder.append(entry.getKey()).append(": ").append(entry.getValue()).append(", ");
+        }
+        return builder.toString().trim();
+    }
+
+    public TagValueImpl(String tagName, ParseSettings settings) {
+        this.tagName = tagName;
+        this.settings = settings;
+    }
+
+    public String getTagName() {
+        return tagName;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        Map<String, Object> attributes = new HashMap<>();
+        for (Map.Entry<String, Object> entry : getTagSettings().entrySet()) {
+            if (entry.getValue() instanceof TagValueImpl) {
+                attributes.put(entry.getKey(), ((TagValueImpl) entry.getValue()).getTagName());
+            }
+        }
+
+        return EMPTYAttributes;
+    }
+
+    public void setSelfClosing(boolean selfClosing) {
+        this.selfClosing = selfClosing;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TagValueImpl)) return false;
+
+        TagValueImpl tag = (TagValueImpl) o;
+
+        if (!getTagName().equals(tag.tagName)) return false;
+        if (!getAttributes().equals(tag.attributes)) return false;
+
+        return selfClosing == tag.selfClosing();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+
+        result = prime * result + getTagName().hashCode();
+        result = prime * result + getAttributes().hashCode();
+
+        result = prime * result + selfClosing ? 1 : 0;
+
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> entry : getTagSettings().entrySet()) {
+            builder.append(entry.getKey()).append(": ").append(entry.getValue()).append(", ");
+        }
+        return builder.toString().trim();
+    }
+
+    private Map<String, TagValueImpl> getTagSettings() {
+        Map<String, TagValueImpl> settings = new HashMap<>();
+        for (Map.Entry<String, Object> entry : getAttributes().entrySet()) {
+            if (entry.getValue() instanceof TagValueImpl) {
+                settings.put(entry.getKey(), (TagValueImpl) entry.getValue());
+            }
+        }
+
+        return settings;
+    }
+}
+
+public class TagParser {
+
+    public static Tag valueOf(String tagName, ParseSettings settings) {
+        return new TagImpl(tagName, settings);
+    }
+
+    public static Tag valueOf(String tagName) {
+        return new TagValueImpl(tagName, null);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class ParseSettings {
+    private boolean allowComments;
+}
+
+public class Tag implements Cloneable {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tag)) return false;
+
+        Tag tag = (Tag) o;
+
+        if (!getTagName().equals(tag.getTagName())) return false;
+        if (!getAttributes().equals(tag.getAttributes())) return false;
+        if (!tag.settings.equals(settings())) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+
+        result = prime * result + getTagName().hashCode();
+        result = prime * result + getAttributes().hashCode();
+
+        result = prime * result + (selfClosing() ? 1 : 0);
+
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> entry : getAttributes().entrySet()) {
+            if (entry.getValue() instanceof TagValueImpl) {
+                builder.append(entry.getKey()).append(": ").append(((TagValueImpl) entry.getValue()).getTagName()).append(", ");
+            } else {
+                builder.append(entry.getKey()).append(": ").append(entry.getValue());
+            }
+        }
+        return builder.toString().trim();
+    }
+
+    public static Map<String, Object> getAttributes() {
+        Map<String, Object> attributes = new HashMap<>();
+
+        if (selfClosing()) {
+            attributes.put("type", "block");
+        } else {
+            attributes.put("type", "inline");
+        }
+
+        for (Map.Entry<String, Object> entry : getTagSettings().entrySet()) {
+            if (entry.getValue() instanceof TagValueImpl) {
+                attributes.put(entry.getKey(), ((TagValueImpl) entry.getValue()).getTagName());
+            }
+        }
+
+        return attributes;
+    }
+
+    public static Map<String, String> getTagSettings() {
+        Map<String, Object> settings = new HashMap<>();
+        for (Map.Entry<String, Object> entry : getAttributes().entrySet()) {
+            if (entry.getValue() instanceof TagValueImpl) {
+                settings.put(entry.getKey(), ((TagValueImpl) entry.getValue()).getTagName());
+            }
+        }
+
+        return settings;
+    }
+
+    public boolean isBlock() { return selfClosing(); }
+    public boolean formatAsBlock() { return !isInline(); }
+    public boolean isInline() { return false; }
+    public boolean isEmpty() { return true; }
+    public boolean isSelfClosing() { return getTagSettings().containsKey("type"); }
+    public boolean isKnownTag() { return true; }
+    public static boolean isKnownTag(String tagName) {
+        if (tagName.equals("img") || tagName.equals("input")) {
+            return true;
+        }
+
+        try {
+            ParseSettings settings = new ParseSettings();
+            return valueOf(tagName, settings).isKnownTag();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class TagValueImpl implements Cloneable {
+    private String tagName;
+
+    public TagValueImpl(String tagName, ParseSettings settings) {
+        this.tagName = tagName;
+        this.settings = settings;
+    }
+
+    public String getTagName() {
+        return tagName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TagValueImpl)) return false;
+
+        TagValueImpl tag = (TagValueImpl) o;
+
+        if (!getTagName().equals(tag.tagName)) return false;
+        if (!getAttributes().equals(tag.attributes())) return false;
+
+        return selfClosing() == tag.selfClosing();
+    }
+
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+
+        result = prime * result + getTagName().hashCode();
+
+        result = prime * result + getAttributes().hashCode();
+
+        result = prime * result + (selfClosing() ? 1 : 0);
+
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> entry : getTagSettings().entrySet()) {
+            if (entry.getValue() instanceof TagValueImpl) {
+                builder.append(entry.getKey()).append(": ").append(((TagValueImpl) entry.getValue()).getTagName()).append(", ");
+            } else {
+                builder.append(entry.getKey()).append(": ").append(entry.getValue());
+            }
+        }
+
+        return builder.toString().trim();
+    }
+
+    private static final Map<String, Object> EMPTYAttributes = new HashMap<>();
+
+    public void setSelfClosing(boolean selfClosing) {
+        this.selfClosing = selfClosing;
+    }
+
+    private boolean selfClosing() { return getTagSettings().containsKey("type"); }
+}
+
+public class ParseSettings {
+    private boolean allowComments;
+
+    public ParseSettings(boolean allowComments) {
+        this.allowComments = allowComments;
+    }
+
+    public boolean isAllowComments() {
+        return allowComments;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class TagParser {
+    private Map<String, ParseSettings> settings;
+
+    public TagParser(Map<String, ParseSettings> settings) {
+        this.settings = settings;
+    }
+
+    public ParseSettings getSettings() {
+        return settings;
+    }
+
+    public void setAllowComments(boolean allowComments) {
+        settings.put("allow_comments", allowComments);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TagParser)) return false;
+
+        TagParser parser = (TagParser) o;
+
+        if (!getSettings().equals(parser.getSettings())) return false;
+
+        return settings.equals(parser.getSettings());
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+
+        result = prime * result + getSettings().hashCode();
+
+        return result;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Tag {
+    public static String getTagName(String tagName) {
+        if (tagName.equals("img") || tagName.equals("input")) {
+            return tagName;
+        }
+
+        try {
+            Tag tag = new ParseSettings();
+            return valueOf(tagName, tag).getTagName();
+        } catch (Exception e) {
+            return tagName;
+        }
+    }
+
+    public static String getAttributes(String tagName) {
+        if (tagName.equals("img") || tagName.equals("input")) {
+            return null;
+        }
+
+        try {
+            ParseSettings settings = new ParseSettings();
+            return valueOf(tagName, settings).getAttributes().toString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static TagValueImpl createTagValue(String tagName, String attributes) {
+        if (tagName.equals("img") || tagName.equals("input")) {
+            return new TagValueImpl(tagName, new ParseSettings());
+        }
+
+        try {
+            ParseSettings settings = new ParseSettings();
+            return valueOf(tagName, settings).createTagValue(attributes);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

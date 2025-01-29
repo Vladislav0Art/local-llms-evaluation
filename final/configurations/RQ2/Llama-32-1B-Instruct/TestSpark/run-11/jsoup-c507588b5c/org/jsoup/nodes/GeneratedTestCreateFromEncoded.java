@@ -1,0 +1,29 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.jupiter.api.Test;
+import org.jsoup.nodes.TextNode;
+
+public class GeneratedTestCreateFromEncoded {
+
+    public static void main(String[] args) {
+        new TextNodeTest().run();
+    }
+
+    @Test
+    public void testCreateFromEncoded() {
+        Document document = new Document();
+        Element element = document.createElement("text");
+        element.setText("test");
+
+        TextNode textNode = new TextNode(document, element);
+
+        try {
+            TextNode createdTextNode = TextNode.createFromEncoded("test");
+        } catch (Exception e) {
+            fail("Failed to throw exception when calling createFromEncoded() method");
+        }
+    }
+
+}

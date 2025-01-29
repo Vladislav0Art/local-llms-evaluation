@@ -1,0 +1,21 @@
+package com.sun.tools.xjc.addon.xew;
+
+public class GeneratedTestXmlElementSetChildren {
+
+    @Test
+    public void testXmlElementSetChildren() {
+        CommonUtils.addAnnotation(XmlElement.class, "xew");
+        CommonUtils.copyAnnotationMemberValue(XmlElement.class, "children", Element.class);
+
+        JAnnotatable annot = new JAnnotatable();
+        annot.addAnnotation(XmlElementWrapper.class);
+
+        ElementWrapper wrapper = getTestElementWrapper();
+        assertEquals(Element.class, wrapper.getChildren().get(0));
+    }
+
+    private ElementWrapper getTestElementWrapper() {
+        // implementation of getTestElementWrapper method
+    }
+
+}

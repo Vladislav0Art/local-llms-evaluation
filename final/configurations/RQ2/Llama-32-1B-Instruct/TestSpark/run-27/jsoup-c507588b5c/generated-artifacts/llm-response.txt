@@ -1,0 +1,332 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TextNodeTest {
+
+    @Test
+    public void testnodeName() {
+        TextNode node = new TextNode("Hello");
+        assertEquals("TEXT_NODE", node.nodeName());
+    }
+
+    @Test
+    public void testText() {
+        TextNode node = new TextNode("Hello, World!");
+        assertEquals("HELLO WORLD!", node.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        TextNode node = new TextNode("Hello, World!");
+        assertEquals("HELLO WORLD!", node.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        TextNode node = new TextNode("");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        TextNode node = new TextNode("Hello, World!");
+        assertEquals("HELLO", node.splitText(7));
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        TextNode node = new TextNode("Hello");
+        Appendable accum = new StringBuilder();
+        outerHtmlHead(accum, 0, null);
+        assertTrue(accum.toString().contains("</head>"));
+    }
+
+    @Test
+    public void testOuterHtmlTail() throws IOException {
+        TextNode node = new TextNode("Hello World!");
+        Appendable accum = new StringBuilder();
+        outerHtmlTail(accum, 0, null);
+        assertTrue(accum.toString().contains("</body>"));
+    }
+}
+
+class MutableStringBuilder {
+
+    private final StringBuilder builder;
+
+    public MutableStringBuilder() {
+        this.builder = new StringBuilder();
+    }
+
+    public void append(CharSequence csq) {
+        builder.append(csq);
+    }
+
+    @Override
+    public int length() {
+        return builder.length();
+    }
+
+    public String toString() {
+        return builder.toString();
+    }
+}
+
+class MockDocumentOutputSettings {
+
+    private final Document.OutputSettings outputSettings;
+
+    public MockDocumentOutputSettings(Document.OutputSettings outputSettings) {
+        this.outputSettings = outputSettings;
+    }
+
+    public OutputSettingsOutput getOutputSettingsOutput() {
+        return outputSettings;
+    }
+
+    @Override
+    public boolean includeComment(char ch) {
+        // Do nothing, as we're mocking OutputSettingsOutput
+        return false;
+    }
+}
+
+class MockDocument {
+
+    private final DocumentOutputSettings outputSettings;
+
+    public MockDocument(DocumentOutputSettings outputSettings) {
+        this.outputSettings = outputSettings;
+    }
+
+    @Override
+    public void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        // Do nothing, as we're mocking DocumentOutputSettingsOutput
+        return null;
+    }
+}
+
+class MockAppendable {
+
+    private final Appendable appendable;
+
+    public MockAppendable(Appendable appendable) {
+        this.appendable = appendable;
+    }
+
+    @Override
+    public void append(CharSequence csq) {
+        // Do nothing, as we're mocking Appendable
+    }
+
+    @Override
+    public int length() {
+        return 0;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class NodeTest {
+
+    @Test
+    public void testNodeToString() {
+        Node root = new Root();
+        String expected = "<div id=\"root\" class=\"container\">";
+        assertEquals(expected, root.toString());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Node root = new Root();
+        root.addChild(new Left("left", null));
+        root.addChild(new Right("right", null));
+
+        Node head = (Node) root.outerHtmlHead(0).getLeft().getBody().getTextContent();
+        assertTrue(head.toString().contains("</head>"));
+
+        Node body = (Node) root.outerHtmlTail(0).getRight().getBody().getTextContent();
+        assertTrue(body.toString().contains("</body>"));
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Node root = new Root();
+        root.addChild(new Left("left", null));
+        root.addChild(new Right("right", null));
+
+        Node head = (Node) root.outerHtmlHead(0).getLeft().getBody().getTextContent();
+        assertTrue(head.toString().contains("</head>"));
+
+        Node body = (Node) root.outerHtmlTail(0).getRight().getBody().getTextContent();
+        assertTrue(body.toString().contains("</body>"));
+    }
+
+    @Test
+    public void testIsBlank() {
+        Node node = new Root();
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        Node root = new Root();
+        root.addChild(new Left("left", null));
+        root.addChild(new Right("right", null));
+
+        String expected = "left<br>right";
+        assertEquals(expected, root.getWholeText());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
+
+public class NodeTest {
+
+    public static void main(String[] args) {
+        Document document = generateJsoupHtml();
+        Elements elements = document.select("div[id='root']");
+
+        for (Element element : elements) {
+            System.out.println(element.outerHtml());
+        }
+    }
+
+    private static Document generateJsoupHtml() throws IOException {
+        Document document = new Document();
+
+        // Create root node
+        Element root = new Element("div");
+        root.id("root");
+        document.appendChild(root);
+
+        // Add some HTML content to the root node
+        root.append("<p>This is a paragraph.</p>");
+        root.append("<input type='button' value='Click me!' onclick='console.log(\"Hello World!\");'>");
+
+        return document;
+    }
+
+    public static String getWholeText(Element element) {
+        return element.text().trim();
+    }
+
+    public static boolean isBlank(String text) {
+        return text.isEmpty();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class NodeTest {
+
+    private static Document generateJsoupHtml() throws IOException {
+        Document document = new Document();
+
+        // Create root node
+        Element root = new Element("div");
+        root.id("root");
+
+        // Add some HTML content to the root node
+        root.append("<p>This is a paragraph.</p>");
+        root.append("<input type='button' value='Click me!' onclick='console.log(\"Hello World!\");'>");
+
+        document.appendChild(root);
+
+        return document;
+    }
+
+    public static String getWholeText(Element element) {
+        // Use select method to find all elements with the id 'root'
+        Elements elements = document.select("div[id='root']");
+        
+        // Return the text content of the first element
+        if (!elements.isEmpty()) {
+            return elements.first().text();
+        } else {
+            return "";
+        }
+    }
+
+    public static boolean isBlank(String text) {
+        // Use trim method to remove leading and trailing whitespaces
+        String trimmedText = text.trim();
+
+        // Check if the string is empty or contains only spaces
+        return trimmedText.isEmpty() || text.replaceAll("\\s+", "").equals("");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String html = generateJsoupHtml();
+        System.out.println(html);
+    }
+
+    private static String generateJsoupHtml() {
+        Document document = Jsoup.create("div", "root");
+        
+        Elements elements = document.select("input[type=button]");
+        
+        for (Element element : elements) {
+            element.attr("onclick", "console.log('Hello World!');");
+        }
+        
+        return document.toString();
+    }
+
+    public static String getWholeText(Element element) {
+        // Use select method to find all elements with the id 'root'
+        Elements elements = Jsoup.parse(element.attr("id")).select("div[id='root']");
+        
+        // Return the text content of the first element
+        if (!elements.isEmpty()) {
+            return elements.first().text();
+        } else {
+            return "";
+        }
+    }
+
+    public static boolean isBlank(String text) {
+        // Use trim method to remove leading and trailing whitespaces
+        String trimmedText = text.trim();
+        
+        // Check if the string is empty or contains only spaces
+        return trimmedText.isEmpty() || text.replaceAll("\\s+", "").equals("");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

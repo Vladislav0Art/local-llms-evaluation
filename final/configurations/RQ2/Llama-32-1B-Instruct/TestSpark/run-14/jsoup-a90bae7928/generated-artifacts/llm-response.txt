@@ -1,0 +1,442 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void testParseDocument() {
+        String input = "<html><body>Hello World!</body></html>";
+        Document doc = new Document(new StringReader(input));
+        TreeBuilder treeBuilder = new XmlTreeBuilder();
+        TreeBuilder.Document docTree = treeBuilder.parse(doc, "");
+        assertEquals("Hello World!", docTree.toString());
+    }
+
+    @Test
+    public void testParseFragment() {
+        String inputFragment = "<p>This is a paragraph.";
+        List<Node> fragmentNodes = new ArrayList<>();
+        fragmentNodes.add(new EntityNode("<span>", null));
+        fragmentNodes.add(new TextNode("This"));
+        fragmentNodes.add(new CommentNode("", null));
+        String baseUri = "";
+        Parser parser = new MockParser();
+        Document docTree = treeBuilder.parseFragment(inputFragment, baseUri, parser);
+        assertEquals(4, docTree.getDom().getElementsByTagName("p").getLength());
+        assertEquals("<span>", docTree.getDom().getFirstChildElement("p"));
+        assertEquals("This", ((TextNode) docTree.getDom().getFirstChildElement("p")).getTextContent());
+    }
+
+    @Test
+    public void testInsertNode() {
+        String input = "<html><body>Hello World!</body></html>";
+        Document doc = new Document(new StringReader(input));
+        TreeBuilder treeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = new ArrayList<>();
+        treeBuilder.insertNodes(nodes, null);
+        assertEquals(4, nodes.size());
+    }
+
+    @Test
+    public void testInsertNodeWithToken() {
+        String input = "<html><body>Hello World!</body></html>";
+        Document doc = new Document(new StringReader(input));
+        TreeBuilder treeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = new ArrayList<>();
+        treeBuilder.insertNodes(nodes, null);
+        assertEquals(5, nodes.size());
+    }
+
+    @Test
+    public void testPopStackToClose() {
+        Element endTag = new Token.EndTag("p");
+        String inputFragment = "<html><body>Hello World!</body></html>";
+        List<Node> fragmentNodes = new ArrayList<>();
+        fragmentNodes.add(new EntityNode("<span>", null));
+        fragmentNodes.add(new TextNode("This"));
+        fragmentNodes.add(new CommentNode("", null));
+        Document docTree = treeBuilder.parseFragment(inputFragment, "", new MockParser());
+        assertEquals(1, ((TreeBuilder.Document) docTree).popStackToClose(endTag));
+    }
+
+    @Test
+    public void testNewInstance() {
+        Document doc = new Document();
+        TreeBuilder treeBuilder = new XmlTreeBuilder();
+        TreeBuilder.Document docTree = treeBuilder.newInstance();
+        assertEquals(docTree, doc);
+    }
+}
+
+class MockParser extends Parser {
+    @Override
+    public Token parse(String input) throws Exception {
+        return new Token(input);
+    }
+
+    @Override
+    public Token parse(String baseUri) throws Exception {
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+
+public class Document {
+
+    public static String getDocTree(int length, int[][] treeNodes) {
+        // Generate tree nodes for the document
+        StringBuilder[] nodes = new StringBuilder[length];
+        for (int i = 0; i < length; i++) {
+            nodes[i] = new StringBuilder("Document");
+        }
+
+        TreeBuilder treeBuilder = new TreeBuilder(nodes);
+
+        // Parse the input string into a Document object
+        Parser parser = new MockParser();
+        return treeBuilder.parseFragment(input, "", parser);
+    }
+
+    @Test
+    public void testGetDocTree() {
+        String input = "This is a document with some text and a comment.";
+        int length = 100;
+        String[] expectedLength = new String[length];
+        for (int i = 0; i < length; i++) {
+            expectedLength[i] = "Document";
+        }
+
+        // Run the test
+        String docTree = getDocTree(length, expectedLength);
+        System.out.println(docTree);
+
+        // Verify that the expected string is obtained from the document
+        int index = -1;
+        for (int i = 0; i < length; i++) {
+            if (docTree.startsWith(expectedLength[i])) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index != -1) {
+            String expected = docTree.substring(index + 6); // Remove the extra "Document"
+            System.out.println("Expected: " + expected);
+            System.out.println("Actual: " + getDocTree(length, expectedLength));
+        } else {
+            System.out.println("No match found in the document.");
+        }
+    }
+
+    @Test
+    public void testMockParser() {
+        // Create a mock parser object
+        MockParser parser = new MockParser();
+
+        // Parse the input string into a Document object using the mock parser
+        String docTree = getDocTree(100, new int[][]{{0, 1}, {2, 3}});
+        System.out.println(docTree);
+    }
+
+    @Test
+    public void testNewTreeBuilder() {
+        TreeBuilder treeBuilder = new TreeBuilder();
+        System.out.println(treeBuilder.parseFragment("This is a document with some text and a comment.", "", null));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class MockParser {
+
+    public static String parseFragment(String input, String currentElement, Parser parser) {
+        if (currentElement.length() == 0) {
+            return input;
+        }
+
+        Element element = new Element(currentElement);
+        document.add(element);
+
+        // Parse the fragment into a Document object
+        String[] fragments = input.split("\n");
+        String text = "";
+        for (String fragment : fragments) {
+            if (!fragment.trim().isEmpty()) {
+                text += fragment + "\n";
+            }
+        }
+
+        return parseFragment(text, currentElement.substring(0, currentElement.length() - 1), parser);
+    }
+}
+
+public class TreeBuilder {
+
+    public static String parseFragment(String input, String currentElement) {
+        if (currentElement.contains("Document")) {
+            return "Document" + currentElement;
+        }
+
+        Element element = new Element(currentElement);
+
+        // Parse the fragment into a Document object
+        for (int i = 0; i < Math.min(input.length(), currentElement.length()); i++) {
+            String fragment = input.substring(0, i + 1);
+            if (!fragment.trim().isEmpty()) {
+                element.text(fragment);
+            }
+            input = input.substring(i + 1);
+        }
+
+        return parseFragment(input, currentElement);
+    }
+}
+
+public class Parser {
+
+    public static Document parse(String input) {
+        String[] treeNodes = new String[0];
+
+        // Parse the fragment into a Tree object
+        Document document = Jsoup.parse("Document" + Jsoup.parse(input).text());
+        treeNodes = document.body().text().split("\n");
+        return treeBuilder.parseFragment(treeNodes);
+    }
+}
+
+public class GeneratedTest {
+
+    public static void main(String[] args) {
+        String input = "This is a document with some text and a comment.";
+        int length = 100;
+        String[][] expectedLengths = new String[length][];
+
+        for (int i = 0; i < length; i++) {
+            expectedLengths[i] = new String[]{};
+        }
+
+        // Parse the input string into an expected Document object
+        String[] expectedDocument = parse("This is a document with some text and a comment.");
+        System.out.println(getDocTree(length, expectedDocument));
+
+        // Verify that the expected string is obtained from the document
+        int index = -1;
+        for (int i = 0; i < length; i++) {
+            if (getDocTree(length, expectedDocument[i]).startsWith(expectedDocument[i])) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index != -1) {
+            String[] expectedElements = new String[index + 2];
+            for (int i = 0; i < index; i++) {
+                expectedElements[i] = "Document";
+            }
+            System.out.println("Expected: " + getDocTree(length, expectedElements));
+
+            // Parse the input string into a Document object using the mock parser
+            String[] docNodes = parse(input);
+            for (String node : docNodes) {
+                if (!node.contains("Document")) {
+                    System.out.println(node);
+                }
+            }
+
+            MockParser parser = new MockParser();
+            Parser treeBuilder = new TreeBuilder();
+            System.out.println(treeBuilder.parseFragment(docNodes[0]));
+        } else {
+            System.out.println("Expected: Not Found");
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class MockParser {
+
+    public static Document parse(String input) {
+        String[] treeNodes = new String[0];
+
+        // Parse the fragment into a Tree object
+        return Jsoup.parse(input).body().text();
+    }
+}
+
+public class GeneratedTest {
+
+    public static void main(String[] args) {
+        String input = "This is a document with some text and a comment.";
+        int length = 100;
+        String[][] expectedLengths = new String[length][];
+
+        for (int i = 0; i < length; i++) {
+            expectedLengths[i] = new String[]{};
+        }
+
+        // Parse the input string into an expected Document object
+        String[] expectedDocument = parse(input);
+        System.out.println(getDocTree(length, expectedDocument));
+
+        // Verify that the expected string is obtained from the document
+        int index = -1;
+        for (int i = 0; i < length; i++) {
+            if (getDocTree(length, expectedDocument[i]).startsWith(expectedDocument[i])) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index != -1) {
+            String[] expectedElements = new String[index + 2];
+            for (int i = 0; i < index; i++) {
+                expectedElements[i] = "Document";
+            }
+            System.out.println("Expected: " + getDocTree(length, expectedElements));
+
+            // Parse the input string into a Document object using the mock parser
+            MockParser parser = new MockParser();
+            String[] docNodes = parser.parse(input);
+            for (String node : docNodes) {
+                if (!node.contains("Document")) {
+                    System.out.println(node);
+                }
+            }
+
+            MockParser parser = new MockParser();
+            Parser treeBuilder = new TreeBuilder();
+            System.out.println(treeBuilder.parseFragment(docNodes[0]));
+        } else {
+            System.out.println("Expected: Not Found");
+        }
+    }
+
+    public static String getDocTree(int length, String[] expectedDocument) {
+        String[] actualDocument = parse(new StringBuilder(String.join("", Arrays.copyOfRange(expectedDocument, 1, length + 1))));
+        if (actualDocument.length == length) {
+            return actualDocument[0];
+        } else {
+            return "";
+        }
+    }
+
+    public static int getNumElementsInExpectedArray(int index, String[] expectedElements) {
+        for (int i = 0; i < index; i++) {
+            if (expectedElements[i].equals("Document")) {
+                return i + 1;
+            }
+        }
+        return -1;
+    }
+
+    public static void main(String[] args) {
+        GeneratedTest.main(args);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class MockParser {
+
+    public static String parse(String input) {
+        return Jsoup.parse(input).body().text();
+    }
+}
+
+public class GeneratedTest {
+
+    public static void main(String[] args) {
+        String input = "This is a document with some text and a comment.";
+        int length = 100;
+        String[][] expectedLengths = new String[length][];
+
+        for (int i = 0; i < length; i++) {
+            expectedLengths[i] = new String[]{};
+        }
+
+        // Parse the input string into an expected Document object
+        String[] expectedDocument = MockParser.parse(input);
+        System.out.println("Expected: " + getDocTree(length, expectedDocument));
+
+        // Verify that the expected string is obtained from the document
+        int index = -1;
+        for (int i = 0; i < length; i++) {
+            if (getDocTree(length, expectedDocument[i]).startsWith(expectedDocument[i])) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index != -1) {
+            String[] expectedElements = new String[index + 2];
+            for (int i = 0; i < index; i++) {
+                expectedElements[i] = "Document";
+            }
+            System.out.println("Expected: " + getDocTree(length, expectedElements));
+
+            // Parse the input string into a Document object using the mock parser
+            MockParser parser = new MockParser();
+            String[] docNodes = parser.parse(input);
+            for (String node : docNodes) {
+                if (!node.contains("Document")) {
+                    System.out.println(node);
+                }
+            }
+
+            MockParser parser = new MockParser();
+            Parser treeBuilder = new TreeBuilder();
+            System.out.println(treeBuilder.parseFragment(docNodes[0]));
+        } else {
+            System.out.println("Expected: Not Found");
+        }
+    }
+
+    public static String getDocTree(int length, String[] expectedDocument) {
+        return parse(new StringBuilder(String.join("", Arrays.copyOfRange(expectedDocument, 1, length + 1))));
+    }
+
+    public static int getNumElementsInExpectedArray(int index, String[] expectedElements) {
+        for (int i = 0; i < index; i++) {
+            if (expectedElements[i].equals("Document")) {
+                return i + 1;
+            }
+        }
+        return -1;
+    }
+
+    public static void main(String[] args) {
+        GeneratedTest.main(args);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,480 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package com.netflix.frigga.ami;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class AppVersionTest {
+
+    @Test
+    public void testParseName() {
+        AppVersion appVersion = new AppVersion(AppVersion.parseName("test-ami-name"));
+        assertEquals("test-ami-name", appVersion.getPackageName());
+    }
+
+    @Test
+    public void testGetPackageVersionPattern() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        assertTrue(pattern.matcher("test-ami-name").matches());
+        assertFalse(pattern.matcher("another-test-ami-name").matches());
+    }
+
+    @Test
+    public void testGetVersion() {
+        AppVersion appVersion = new AppVersion(AppVersion.parseName("test-ami-version"));
+        assertEquals("test-ami-version", appVersion.getVersion());
+    }
+
+    @Test
+    public void testGetBuildJobName() {
+        AppVersion appVersion = new AppVersion(AppVersion.parseName("test-build-job-name"));
+        assertEquals("test-build-job-name", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void testGetBuildNumber() {
+        AppVersion appVersion = new AppVersion(AppVersion.parseName("test-build-number"));
+        assertEquals("test-build-number", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void testGetCommit() {
+        AppVersion appVersion = new AppVersion(AppVersion.parseName("test-commit"));
+        assertEquals("test-commit", appVersion.getCommit());
+    }
+
+    @Test
+    public void testGetChangelist() {
+        String changelist = "test-changelist";
+        assertTrue(AppVersion.getAppVersionPattern().matcher(changelist).matches());
+        assertFalse(AppVersion.getAppVersionPattern().matcher(changelist + "-unknown").matches());
+    }
+
+    @Test
+    public void testToString() {
+        AppVersion appVersion = new AppVersion(AppVersion.parseName("test-ami-name"));
+        assertEquals("test-ami-name", appVersion.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class BuildVersion {
+    private String buildJobName;
+    private int buildNumber;
+    private String commit;
+    private List<String> changelist = new ArrayList<>();
+
+    public void setBuildJobName(String buildJobName) {
+        this.buildJobName = buildJobName;
+    }
+
+    public void setBuildNumber(int buildNumber) {
+        this.buildNumber = buildNumber;
+    }
+
+    public void addChangelist(String changelist) {
+        this.changelist.add(changelist);
+    }
+
+    public String toString() {
+        return "buildJobName=" + buildJobName +
+                ", buildNumber=" + buildNumber +
+                ", commit=" + commit +
+                ", changelist=" + changelist;
+    }
+}
+
+public class VersionChecker {
+    private BuildVersion buildVersion;
+
+    public void setBuildVersion(BuildVersion buildVersion) {
+        this.buildVersion = buildVersion;
+    }
+
+    public String checkBuildJobName(String buildJobName) {
+        if (buildVersion != null && !buildVersion.toString().contains(buildJobName)) {
+            return "The build job name '" + buildJobName + "' does not match the current version.";
+        } else if (buildVersion == null) {
+            return buildJobName;
+        }
+        return "";
+    }
+
+    public String checkBuildNumber(int buildNumber) {
+        for (String changelist : buildVersion.changelist) {
+            if (changelist.contains(buildNumber + "-unknown")) {
+                return "The build number '" + buildNumber + "' is unknown in the current version.";
+            }
+        }
+        return "";
+    }
+
+    public String checkCommit(String commit) {
+        for (String changelist : buildVersion.changelist) {
+            if (changelist.contains(commit + "-unknown")) {
+                return "The commit '" + commit + "' is unknown in the current version.";
+            }
+        }
+        return "";
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        BuildVersion buildVersion = new BuildVersion();
+        buildVersion.setBuildJobName("test-job");
+        buildVersion.setBuildNumber(1);
+        buildVersion.addChangelist("change-1");
+
+        VersionChecker versionChecker = new VersionChecker();
+        System.out.println(versionChecker.checkBuildJobName(buildVersion.buildJobName));
+        System.out.println(versionChecker.checkBuildNumber(buildVersion.buildNumber));
+        System.out.println(versionChecker.checkCommit(buildVersion.commit));
+
+        // Test with no match
+        buildVersion = null;
+        System.out.println(versionChecker.checkBuildJobName("test-job"));
+        System.out.println(versionChecker.checkBuildNumber(1));
+        System.out.println(versionChecker.checkCommit("unknown-commit"));
+
+        // Test with unknown number
+        buildVersion = new BuildVersion();
+        buildVersion.setChangelist(new String[]{"change-2"});
+        System.out.println(versionChecker.checkBuildJobName(buildVersion.buildJobName));
+
+        // Test with unknown commit
+        buildVersion = new BuildVersion();
+        buildVersion.setCommit("unknown-commit");
+        System.out.println(versionChecker.checkBuildNumber(1));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+Here is the answer in the same format as your original request:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class BuildVersion {
+    private String buildJobName;
+    private int buildNumber;
+    private String commit;
+    private List<String> changelist = new ArrayList<>();
+
+    public void setBuildJobName(String buildJobName) {
+        this.buildJobName = buildJobName;
+    }
+
+    public void setBuildNumber(int buildNumber) {
+        this.buildNumber = buildNumber;
+    }
+
+    public void addChangelist(String changelist) {
+        this.changelist.add(changelist);
+    }
+
+    public String toString() {
+        return "buildJobName=" + buildJobName +
+                ", buildNumber=" + buildNumber +
+                ", commit=" + commit +
+                ", changelist=" + changelist;
+    }
+}
+
+public class VersionChecker {
+    private BuildVersion buildVersion;
+
+    public void setBuildVersion(BuildVersion buildVersion) {
+        this.buildVersion = buildVersion;
+    }
+
+    public String checkBuildJobName(String buildJobName) {
+        if (buildVersion != null && !buildVersion.toString().contains(buildJobName)) {
+            return "The build job name '" + buildJobName + "' does not match the current version.";
+        } else if (buildVersion == null) {
+            return buildJobName;
+        }
+        return "";
+    }
+
+    public String checkBuildNumber(int buildNumber) {
+        for (String changelist : buildVersion.changelist) {
+            if (changelist.contains(buildNumber + "-unknown")) {
+                return "The build number '" + buildNumber + "' is unknown in the current version.";
+            }
+        }
+        return "";
+    }
+
+    public String checkCommit(String commit) {
+        for (String changelist : buildVersion.changelist) {
+            if (changelist.contains(commit + "-unknown")) {
+                return "The commit '" + commit + "' is unknown in the current version.";
+            }
+        }
+        return "";
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        BuildVersion buildVersion = new BuildVersion();
+        buildVersion.setBuildJobName("test-job");
+        buildVersion.setBuildNumber(1);
+        buildVersion.addChangelist("change-1");
+
+        VersionChecker versionChecker = new VersionChecker();
+        System.out.println(versionChecker.checkBuildJobName(buildVersion.buildJobName));
+        System.out.println(versionChecker.checkBuildNumber(buildVersion.buildNumber));
+        System.out.println(versionChecker.checkCommit(buildVersion.commit));
+
+        // Test with no match
+        buildVersion = null;
+        System.out.println(versionChecker.checkBuildJobName("test-job"));
+        System.out.println(versionChecker.checkBuildNumber(1));
+        System.out.println(versionChecker.checkCommit("unknown-commit"));
+
+        // Test with unknown number
+        buildVersion = new BuildVersion();
+        buildVersion.setChangelist(new String[]{"change-2"});
+        System.out.println(versionChecker.checkBuildJobName(buildVersion.buildJobName));
+
+        // Test with unknown commit
+        buildVersion = new BuildVersion();
+        buildVersion.setCommit("unknown-commit");
+        System.out.println(versionChecker.checkBuildNumber(1));
+    }
+}
+```
+
+This code defines a `BuildVersion` class to store the current build version, and a `VersionChecker` class to check if the build job name, build number, or commit is unknown in the current version. The `Main` class demonstrates how to use these classes.
+===================================================
+
+
+====================== Iteration #4 ======================
+Here's a new attempt at answering your question:
+
+```java
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class BuildVersion {
+    private String buildJobName;
+    private int buildNumber;
+    private Map<String, Integer> commitMap = new HashMap<>();
+
+    public void setBuildJobName(String buildJobName) {
+        this.buildJobName = buildJobName;
+    }
+
+    public void setBuildNumber(int buildNumber) {
+        if (commitMap.containsKey(buildJobName)) {
+            commitMap.put(buildJobName, buildNumber);
+        } else {
+            buildNumber = 0;
+        }
+    }
+
+    public void addChangelist(String changelist) {
+        for (String key : commitMap.keySet()) {
+            String[] parts = key.split("-");
+            if (parts[1].contains("unknown")) {
+                System.out.println("Build number " + parts[2] + " is unknown in the current version.");
+                buildNumber = 0;
+                break;
+            }
+        }
+        for (String part : changelist.split(",")) {
+            String[] splitPart = part.split("-");
+            if (splitPart[1].contains("unknown")) {
+                System.out.println("Commit '" + part + "' is unknown in the current version.");
+                buildNumber = 0;
+                break;
+            }
+        }
+    }
+
+    public String toString() {
+        return "buildJobName=" + buildJobName +
+                ", buildNumber=" + buildNumber +
+                ", commitMap=" + commitMap;
+    }
+}
+
+public class VersionChecker {
+    private BuildVersion buildVersion;
+
+    public void setBuildVersion(BuildVersion buildVersion) {
+        this.buildVersion = buildVersion;
+    }
+
+    public String checkBuildJobName(String buildJobName) {
+        if (buildVersion != null && !buildVersion.toString().contains(buildJobName)) {
+            return "The build job name '" + buildJobName + "' does not match the current version.";
+        } else if (buildVersion == null) {
+            return buildJobName;
+        }
+        return "";
+    }
+
+    public String checkBuildNumber(int buildNumber) {
+        for (Map.Entry<String, Integer> entry : commitMap.entrySet()) {
+            if (entry.getValue() == buildNumber) {
+                return "The build number " + buildNumber + " is known in the current version.";
+            }
+        }
+        return "";
+    }
+
+    public String checkCommit(String commit) {
+        for (String key : commitMap.keySet()) {
+            if (key.contains(commit)) {
+                return "The commit '" + commit + "' is known in the current version.";
+            }
+        }
+        return "";
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        BuildVersion buildVersion = new BuildVersion();
+        buildVersion.setBuildJobName("test-job");
+        buildVersion.setBuildNumber(1);
+        buildVersion.addChangelist("change-1");
+
+        VersionChecker versionChecker = new VersionChecker();
+        System.out.println(versionChecker.checkBuildJobName(buildVersion.buildJobName));
+        System.out.println(versionChecker.checkBuildNumber(buildVersion.buildNumber));
+
+        buildVersion.setBuildJobName("test-job");
+        buildVersion.setBuildNumber(0);
+        buildVersion.addChangelist("change-1");
+
+        versionChecker.checkBuildJobName(buildVersion.buildJobName);
+        System.out.println(versionChecker.checkBuildNumber(1));
+        System.out.println(versionChecker.checkCommit("change-2"));
+    }
+}
+```
+
+This code defines a `BuildVersion` class to store the current build version, and a `VersionChecker` class to check if the build job name, build number, or commit is unknown in the current version. The `Main` class demonstrates how to use these classes.
+===================================================
+
+
+====================== Iteration #5 ======================
+Here's a new attempt at answering your question:
+
+```java
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class BuildVersion {
+    private String buildJobName;
+    private int buildNumber;
+    private Map<String, Integer> commitMap = new HashMap<>();
+
+    public void setBuildJobName(String buildJobName) {
+        this.buildJobName = buildJobName;
+    }
+
+    public void setBuildNumber(int buildNumber) {
+        if (commitMap.containsKey(buildJobName)) {
+            commitMap.put(buildJobName, buildNumber);
+        } else {
+            buildNumber = 0;
+        }
+    }
+
+    public int getBuildNumber() {
+        return commitMap.getOrDefault(buildJobName, 0);
+    }
+
+    @Override
+    public String toString() {
+        return "buildJobName=" + buildJobName +
+                ", buildNumber=" + buildNumber +
+                ", commitMap=" + commitMap;
+    }
+}
+
+public class VersionChecker {
+    private BuildVersion buildVersion;
+
+    public void setBuildVersion(BuildVersion buildVersion) {
+        this.buildVersion = buildVersion;
+    }
+
+    public String checkBuildJobName(String buildJobName) {
+        if (buildVersion != null && !buildVersion.toString().contains(buildJobName)) {
+            return "The build job name '" + buildJobName + "' does not match the current version.";
+        } else if (buildVersion == null) {
+            return buildJobName;
+        }
+        return "";
+    }
+
+    public String checkBuildNumber(int buildNumber) {
+        for (Map.Entry<String, Integer> entry : commitMap.entrySet()) {
+            if (entry.getValue() == buildNumber) {
+                return "The build number " + buildNumber + " is known in the current version.";
+            }
+        }
+        return "";
+    }
+
+    public String checkCommit(String commit) {
+        for (String key : commitMap.keySet()) {
+            if (key.contains(commit)) {
+                return "The commit '" + commit + "' is known in the current version.";
+            }
+        }
+        return "";
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        BuildVersion buildVersion = new BuildVersion();
+        buildVersion.setBuildJobName("test-job");
+        buildVersion.setBuildNumber(1);
+        buildVersion.addChangelist("change-1");
+
+        VersionChecker versionChecker = new VersionChecker();
+        System.out.println(versionChecker.checkBuildJobName(buildVersion.buildJobName));
+        System.out.println(versionChecker.checkBuildNumber(buildVersion.getBuildNumber()));
+
+        buildVersion.setBuildJobName("test-job");
+        buildVersion.setBuildNumber(0);
+        buildVersion.addChangelist("change-1");
+
+        versionChecker.checkBuildJobName(buildVersion.buildJobName);
+        System.out.println(versionChecker.checkBuildNumber(1));
+        System.out.println(versionChecker.checkCommit("change-2"));
+    }
+}
+```
+
+This code defines a `BuildVersion` class to store the current build version, and a `VersionChecker` class to check if the build job name, build number, or commit is unknown in the current version. The `Main` class demonstrates how to use these classes.
+===================================================
+
+
+====================== Iteration #6 ======================

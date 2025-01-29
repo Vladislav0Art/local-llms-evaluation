@@ -1,0 +1,370 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TagImplTest {
+
+    @Test
+    public void testEquals() {
+        String[] tags = {"img", "div"};
+        Tag tag1 = new Tag("img");
+        Tag tag2 = new Tag("div");
+
+        Assert.assertTrue(tag1.equals(tag2));
+    }
+
+    @Test
+    public void testHashCode() {
+        String[] tags = {"img", "div"};
+        Map<String, Object> map = new HashMap<>();
+        map.put("img", new TagImpl("img"));
+        map.put("div", new TagImpl("div"));
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            Object value = entry.getValue();
+            Assert.assertEquals(entry.getKey(), (String) value);
+        }
+    }
+
+    @Test
+    public void testToString() {
+        String[] tags = {"img", "div"};
+        Tag tag1 = new Tag("img");
+        Tag tag2 = new TagImpl("img");
+
+        assertEquals(tag1.toString(), tag2.toString());
+    }
+
+    @Test
+    public void testClone() {
+        String[] tags = {"img", "div"};
+        Tag tag1 = new Tag("img");
+        Tag tag2 = new TagImpl("img");
+
+        Assert.assertNotSame(tag1, tag2);
+    }
+}
+
+class TagImpl implements Tag {
+    private String tagName;
+
+    public Tag(String tagName) {
+        this.tagName = tagName;
+    }
+
+    @Override
+    public String toString() {
+        return "Tag{" +
+                "tagName='" + tagName + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TagImpl that = (TagImpl) o;
+
+        if (!Objects.equals(tagName, that.tagName)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tagName);
+    }
+
+    @Override
+    public void clone() {
+        // Not implemented to avoid copying TagImpl's state.
+    }
+}
+
+public interface ParseSettings {
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.jsoup.parser;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TagImplTest {
+
+    @Test
+    public void testTagNameEquals() {
+        String[] tags = {"img", "div"};
+        Tag tag1 = new Tag("img");
+        Tag tag2 = new Tag("div");
+
+        Assert.assertEquals(tag1.getName(), tag2.getName());
+    }
+
+    @Test
+    public void testTagNameHashCode() {
+        String[] tags = {"img", "div"};
+        Map<String, Object> map = new HashMap<>();
+        map.put("img", new TagImpl("img"));
+        map.put("div", new TagImpl("div"));
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            Object value = entry.getValue();
+            Assert.assertEquals(entry.getKey(), (String) value);
+        }
+    }
+
+    @Test
+    public void testTagToString() {
+        String[] tags = {"img", "div"};
+        Tag tag1 = new Tag("img");
+        Tag tag2 = new TagImpl("img");
+
+        assertEquals(tag1.toString(), tag2.toString());
+    }
+
+    @Test
+    public void testClone() {
+        String[] tags = {"img", "div"};
+        Tag tag1 = new Tag("img");
+        Tag tag2 = new TagImpl("img");
+
+        Assert.assertNotSame(tag1, tag2);
+    }
+}
+
+class TagImpl implements Tag {
+    private final String tagName;
+
+    public TagImpl(String tagName) {
+        this.tagName = tagName;
+    }
+
+    @Override
+    public String getName() {
+        return tagName;
+    }
+
+    @Override
+    public String normalName() {
+        return Normalizer.normalize(tagName, Normalizer.NFD);
+    }
+
+    @Override
+    public boolean isBlock() {
+        // Block tags are assumed to be non-self-closing and do not have an 'isSelfClosing' method.
+        return false;
+    }
+
+    @Override
+    public boolean formatAsBlock() {
+        // Format tags as block elements unless they are self-closing or inline.
+        return !isSelfClosing();
+    }
+
+    @Override
+    public boolean isInline() {
+        // Inline tags are assumed to be self-closing.
+        return isSelfClosing();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        // Empty tags have an empty name and a tag name of 'html'.
+        return !tagName.equals("html") && tagName.isEmpty();
+    }
+
+    @Override
+    public boolean isSelfClosing() {
+        // Self-closing tags are assumed to be all HTML tags except for comments and metadata.
+        return false; // Changed from true to false
+    }
+
+    @Override
+    public boolean isKnownTag() {
+        // Known tag names have a 'name' field, but this implementation does not provide any information about the type of known tags.
+        return false;
+    }
+
+    @Override
+    public static boolean isKnownTag(String tagName) {
+        // This method needs to be implemented according to your requirements.
+        return true; // Changed from "false" to "true"
+    }
+
+    @Override
+    public boolean preserveWhitespace() {
+        // Tags that are not self-closing do not have a 'isSelfClosing' method and therefore cannot preserve whitespace.
+        return false;
+    }
+
+    @Override
+    public boolean isFormListed() {
+        // Form tags are assumed to be block elements, so they are listed as form elements.
+        return true;
+    }
+
+    @Override
+    public boolean isFormSubmittable() {
+        // This method needs to be implemented according to your requirements.
+        return false; // Changed from "true" to "false"
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.Matchers.is;
+
+public class NormalizerTest {
+
+    @Test
+    public void testNormalize() {
+        // Arrange
+        String input = "Hello, World!";
+        String expectedOutput = "Hello, \u00e0orld!";
+
+        // Act
+        Normalizer.normalize(input, Normalizer.NFD);
+
+        // Assert
+        assertThat(expectedOutput, is(input));
+    }
+
+    @Test
+    public void testNormalizeSpaceInString() {
+        // Arrange
+        String input = "Hello   World!";
+        String expectedOutput = "Hello \u00e0orld!";
+
+        // Act
+        Normalizer.normalize(input, Normalizer.NFD);
+
+        // Assert
+        assertThat(expectedOutput, is(input));
+    }
+
+    @Test
+    public void testNormalizeNonAsciiChar() {
+        // Arrange
+        String input = "\u00a0World!";
+        String expectedOutput = "Hello, World!";
+
+        // Act
+        Normalizer.normalize(input, Normalizer.NFD);
+
+        // Assert
+        assertThat(expectedOutput, is(input));
+    }
+
+    @Test
+    public void testNormalizeNoSpaces() {
+        // Arrange
+        String input = "Hello";
+        String expectedOutput = "Hello";
+
+        // Act
+        Normalizer.normalize(input, Normalizer.NFD);
+
+        // Assert
+        assertThat(expectedOutput, is(input));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+public class NormalizerTest {
+
+    @Test
+    public void testNormalize() {
+        String input = "Hello, World!";
+        Normalizer.normalize(input, Normalizer.NFD);
+        assertThat(input, is("Hello, \\u00e0orld!"));
+    }
+
+    @Test
+    public void testNormalizeSpaceInString() {
+        String input = "Hello   World!";
+        Normalizer.normalize(input, Normalizer.NFD);
+        assertThat(input, is("Hello \u00e0orld!"));
+    }
+
+    @Test
+    public void testNormalizeNonAsciiChar() {
+        String input = "\u00a0World!";
+        Normalizer.normalize(input, Normalizer.NFD);
+        assertThat(input, is("Hello, World!"));
+    }
+
+    @Test
+    public void testNormalizeNoSpaces() {
+        String input = "Hello";
+        Normalizer.normalize(input, Normalizer.NFD);
+        assertThat(input, is("Hello"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.Matchers.is;
+
+public class NormalizerTest {
+
+    @Test
+    public void testNormalize() {
+        String input = "Hello, World!";
+        Normalizer.normalize(input, Normalizer.NFD);
+        String expected = "Hello, \\u00e0orld!";
+        assertThat(input, is(expected));
+    }
+
+    @Test
+    public void testNormalizeSpaceInString() {
+        String input = "Hello   World!";
+        Normalizer.normalize(input, Normalizer.NFD);
+        String expected = "Hello \u00e0orld!";
+        assertThat(input, is(expected));
+    }
+
+    @Test
+    public void testNormalizeNonAsciiChar() {
+        String input = "\u00a0World!";
+        Normalizer.normalize(input, Normalizer.NFD);
+        String expected = "Hello, World!"; // Replace \\u00a0 with an actual non-ASCII character
+        assertThat(input, is(expected));
+    }
+
+    @Test
+    public void testNormalizeNoSpaces() {
+        String input = "Hello";
+        Normalizer.normalize(input, Normalizer.NFD);
+        String expected = "Hello"; // No spaces should be preserved
+        assertThat(input, is(expected));
+    }
+}
+```
+===================================================
+

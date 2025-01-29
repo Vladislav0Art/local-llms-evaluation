@@ -1,0 +1,395 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.ExportOptions;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.crowdin.client.sourcefiles.model.ImportOptions;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.SneakyThrows;
+
+public class JacksonJsonTransformerImpl implements JsonTransformer {
+    private ObjectMapper objectMapper = new ObjectMapper();
+    private SimpleModule simpleModule = new SimpleModule();
+
+    public JacksonJsonTransformerImpl() { }
+
+    @Override
+    @SneakyThrows
+    public <T> T parse(String json, Class<T> clazz) {
+        return objectMapper.readValue(json, clazz);
+    }
+
+    @Override
+    @SneakyThrows
+    public <T> String convert(T obj) {
+        if (obj instanceof Project) {
+            return JacksonJsonTransformerImpl.toProjectString(obj);
+        } else if (obj instanceof FileInfo) {
+            return JacksonJsonTransformerImpl.toFileInfoString(obj);
+        } else if (obj instanceof ExportOptions) {
+            return JacksonJsonTransformerImpl.toExportOptionsString(obj);
+        } else if (obj instanceof ImportOptions) {
+            return JacksonJsonTransformerImpl.toImportOptionsString(obj);
+        } else if (obj instanceof LanguageTranslations) {
+            return JacksonJsonTransformerImpl.toLanguageTranslationsString(obj);
+        } else {
+            return null;
+        }
+    }
+
+    private String toProjectString(Project project) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return objectMapper.writeValueAsString(project, simpleModule);
+    }
+
+    private String toFileInfoString(FileInfo fileInfo) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return objectMapper.writeValueAsString(fileInfo, simpleModule);
+    }
+
+    private String toExportOptionsString(ExportOptions exportOptions) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return objectMapper.writeValueAsString(exportOptions, simpleModule);
+    }
+
+    private String toImportOptionsString(ImportOptions importOptions) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return objectMapper.writeValueAsString(importOptions, simpleModule);
+    }
+
+    private String toLanguageTranslationsString(LanguageTranslations languageTranslations) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return objectMapper.writeValueAsString(languageTranslations, simpleModule);
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.ExportOptions;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.crowdin.client.sourcefiles.model.ImportOptions;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.SneakyThrows;
+
+public class JacksonJsonTransformerTest {
+    @Test
+    public void testParse() {
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+        Project project = new Project("test", "test");
+        String json = transformer.parse("{\"name\":\"test\",\"id\":123}", Project.class);
+        assert not (json.equals(""));
+    }
+
+    @Test
+    public void testConvert() {
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+        Project project = new Project("test", "test");
+        String json = "{\"name\":\"test\",\"id\":123}";
+        Object result = transformer.parse(json, Project.class);
+        assert not (result instanceof String || result.getClass().equals(Project.class));
+    }
+
+    @Test
+    public void testConvertObject() {
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+        FileInfo fileInfo = new FileInfo(1L, "test", new Date());
+        String json = "{\"id\":123,\"name\":\"test\",\"timestamp\":\"2022-01-01T00:00:00\"}";
+        Object result = transformer.parse(json, FileInfo.class);
+        assert not (result instanceof String || result.getClass().equals(FileInfo.class));
+    }
+
+    @Test
+    public void testConvertObjectCustom() {
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+        ExportOptions exportOptions = new ExportOptions("test", "test");
+        String json = "{\"id\":123,\"name\":\"test\",\"timestamp\":\"2022-01-01T00:00:00\"}";
+        Object result = transformer.parse(json, ExportOptions.class);
+        assert not (result instanceof String || result.getClass().equals(ExportOptions.class));
+    }
+
+    @Test
+    public void testConvertObjectNull() {
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+        nullify(() -> {"test"}, Project.class);
+        String json = "{\"id\":123,\"name\":\"test\",\"timestamp\":\"2022-01-01T00:00:00\"}";
+        Object result = transformer.parse(json, Project.class);
+        assert result == null;
+    }
+
+    private void nullify(Object obj, Class<?> clazz) {
+        if (obj instanceof String && ((String) obj).trim().isEmpty()) {
+            return;
+        }
+        try {
+            clazz.newInstance();
+        } catch (Exception e) {
+            // Ignore
+        }
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.ExportOptions;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.crowdin.client.sourcefiles.model.ImportOptions;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+
+public class Test {
+    @Test
+    public void testParse() {
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+        Project project = new Project("test", "test");
+        String json = "{\"name\":\"test\",\"id\":123,\"createdDate\":\"2022-01-01T00:00:00\"}";
+        assert (transformer.parse(json, Project.class).equals(project));
+    }
+
+    @Test
+    public void testConvert() {
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+        Project project = new Project("test", "test");
+        String json = "{\"name\":\"test\",\"id\":123,\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Object result = transformer.parse(json, Project.class);
+        assert (result instanceof Project && ((Project) result).equals(project));
+    }
+
+    @Test
+    public void testConvertObject() {
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+        FileInfo fileInfo = new FileInfo(1L, "test", new Date());
+        String json = "{\"id\":123,\"name\":\"test\",\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Object result = transformer.parse(json, FileInfo.class);
+        assert (result instanceof FileInfo && ((FileInfo) result).equals(fileInfo));
+    }
+
+    @Test
+    public void testConvertObjectCustom() {
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+        ExportOptions exportOptions = new ExportOptions("test", "test");
+        String json = "{\"id\":123,\"name\":\"test\",\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Object result = transformer.parse(json, ExportOptions.class);
+        assert (result instanceof ExportOptions && ((ExportOptions) result).equals(exportOptions));
+    }
+
+    @Test
+    public void testConvertObjectNull() {
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+        nullify(() -> "{\"name\":\"test\",\"id\":123,\"createdDate\":\"2022-01-01T00:00:00\"}", Project.class);
+        String json = "{\"id\":123,\"name\":\"test\",\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Object result = transformer.parse(json, Project.class);
+        assert (result == null);
+    }
+
+    private void nullify(String str, Class<?> clazz) {
+        if (str != null && !str.trim().isEmpty()) {
+            return;
+        }
+        try {
+            clazz.newInstance();
+        } catch (Exception e) {
+            // Ignore
+        }
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.ExportOptions;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.crowdin.client.sourcefiles.model.ImportOptions;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+
+public class Test {
+    public static void main(String[] args) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+
+        Project project = new Project("test", "test");
+        String json = "{\"name\":\"test\",\"id\":123,\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(project, mapper.readValue(json, Project.class));
+
+        FileInfo fileInfo = new FileInfo(1L, "test", new Date());
+        String json = "{\"id\":123,\"name\":\"test\",\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(fileInfo, mapper.readValue(json, FileInfo.class));
+    }
+
+    @Test
+    public void testParse() {
+        TestTest transformer = new TestTest();
+        Project project = new Project("test", "test");
+        String json = "{\"name\":\"test\",\"id\":123,\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(project, transformer.parse(json, Project.class));
+    }
+
+    @SneakyThrows
+    public static void testConvert() {
+        TestTest transformer = new TestTest();
+        Project project = new Project("test", "test");
+        String json = "{\"name\":\"test\",\"id\":123,\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(project, transformer.convert(json, Project.class));
+    }
+
+    @SneakyThrows
+    public static void testConvertObject() {
+        TestTest transformer = new TestTest();
+        FileInfo fileInfo = new FileInfo(1L, "test", new Date());
+        String json = "{\"id\":123,\"name\":\"test\",\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(fileInfo, transformer.convert(json, FileInfo.class));
+    }
+
+    @SneakyThrows
+    public static void testConvertObjectCustom() {
+        TestTest transformer = new TestTest();
+        ExportOptions exportOptions = new ExportOptions("test", "test");
+        String json = "{\"id\":123,\"name\":\"test\",\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(exportOptions, transformer.convert(json, ExportOptions.class));
+    }
+
+    @SneakyThrows
+    public static void testConvertObjectNull() {
+        TestTest transformer = new TestTest();
+        Project project = null;
+        String json = "{\"name\":\"test\",\"id\":123,\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(project, transformer.convert(json, Project.class));
+    }
+
+    private static class TestTest {
+        public Project parse(String json) throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(json, Project.class);
+        }
+
+        @SneakyThrows
+        public FileInfo convert(String json, Class<?> clazz) throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(json, clazz);
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.ExportOptions;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+
+public class GeneratedTest {
+    public static void main(String[] args) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        JacksonJsonTransformerImpl transformer = new JacksonJsonTransformerImpl();
+
+        Project project = new Project("test", "test");
+        String json = "{\"name\":\"test\",\"id\":123,\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(project, mapper.readValue(json, Project.class));
+
+        FileInfo fileInfo = new FileInfo(1L, "test", new Date());
+        String json = "{\"id\":123,\"name\":\"test\",\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(fileInfo, mapper.readValue(json, FileInfo.class));
+    }
+
+    @Test
+    public void testParse() {
+        Project project = new Project("test", "test");
+        String json = "{\"id\":123,\"name\":\"test\",\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(project, transformer.parse(json, Project.class));
+    }
+
+    @SneakyThrows
+    public static void testConvert() {
+        Project project = new Project("test", "test");
+        String json = "{\"name\":\"test\",\"id\":123,\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(project, transformer.convert(json, Project.class));
+    }
+
+    @SneakyThrows
+    public static void testConvertObject() {
+        FileInfo fileInfo = new FileInfo(1L, "test", new Date());
+        String json = "{\"id\":123,\"name\":\"test\",\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(fileInfo, transformer.convert(json, FileInfo.class));
+    }
+
+    @SneakyThrows
+    public static void testConvertObjectCustom() {
+        ExportOptions exportOptions = new ExportOptions("test", "test");
+        String json = "{\"id\":123,\"name\":\"test\",\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(exportOptions, transformer.convert(json, ExportOptions.class));
+    }
+
+    @SneakyThrows
+    public static void testConvertObjectNull() {
+        Project project = null;
+        String json = "{\"name\":\"test\",\"id\":123,\"createdDate\":\"2022-01-01T00:00:00\"}";
+        Assert.assertEquals(project, transformer.convert(json, Project.class));
+    }
+}
+```
+===================================================
+

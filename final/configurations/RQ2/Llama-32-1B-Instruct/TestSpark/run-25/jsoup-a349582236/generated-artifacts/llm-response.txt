@@ -1,0 +1,596 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.parser;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Map;
+
+import static org.jsoup.parser.Tag.*;
+import static org.mockito.Mockito.verify;
+
+public class Tag {
+
+    @Mock
+    private ParseSettings settings;
+
+    @ParameterizedTest
+    @CsvSource({
+            "block, true",
+            "inline, false"
+        })
+    public void isBlock(boolean block) {
+        setSelfClosing(block);
+        verify(selfClosing()).isBlock();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "block, true",
+            "inline, false"
+        })
+    public void formatAsBlock(boolean block) {
+        setSelfClosing(false);
+        setFormatAsBlock(block);
+        verify(selfClosing()).formatAsBlock();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "true, true",
+            "false, false"
+        })
+    public void isInline(boolean inline) {
+        setSelfClosing(true);
+        setInline(inline);
+        verify(selfClosing()).isInline();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "", "text",
+            "html",
+            "<script>alert('Hello World!')</script>"
+        })
+    public void isEmpty(boolean isEmpty) {
+        setSelfClosing(false);
+        setEmpty(isEmpty);
+        verify(empty()).isEmpty();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            true, false
+        })
+    public void isSelfClosing(boolean selfClosing) {
+        setSelfClosing(true);
+        setSelfClosing(false);
+        verify(selfClosing()).isSelfClosing();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "", ""
+        })
+    public void isKnownTag(String tagName) {
+        Tag tag = valueOf(tagName);
+        assertTrue(isKnownTag(tagName));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "block, true",
+            "inline, false"
+        })
+    public void preserveWhitespace(boolean preserveWhitespace) {
+        setSelfClosing(false);
+        setPreserveWhitespace(preserveWhitespace);
+        verify(selfClosing()).preserveWhitespace();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            true, false
+        })
+    public void isFormListed(boolean listed) {
+        setSelfClosing(false);
+        setFormListed(listed);
+        verify(selfClosing()).isFormListed();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            true, "form",
+            "input",
+            "<form>"
+        })
+    public void isFormSubmittable(boolean submittable) {
+        setSelfClosing(false);
+        setFormSubmittable(submittable);
+        verify(selfClosing()).isFormSubmittable();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "", ""
+        })
+    public void setSelfClosing(boolean selfClosing) {
+        setSelfClosing(true);
+        verify(selfClosing());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tag)) return false;
+        Tag tag = (Tag) o;
+        return selfClosing() == tag.selfClosing() &&
+                isEmpty() == tag.isEmpty();
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(selfClosing()) + Long.hashCode(isEmpty());
+    }
+
+    @Override
+    public String toString() {
+        if (!isEmpty()) return "<Tag selfClosing=" + selfClosing() +
+                ", inline=" + isInline() +
+                ", empty=" + isEmpty();
+        else return "<Tag selfClosing=" + selfClosing() +
+                ">";
+    }
+
+    protected Tag clone() {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("selfClosing", false);
+        attributes.put("inline", true);
+        attributes.put("empty", false);
+        setSelfClosing(false);
+        setInline(true);
+        setEmpty(false);
+        return valueOf(null, attributes);
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.jsoup.parser;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
+
+public class Tag {
+
+    @Mock
+    private ParseSettings settings;
+
+    @Test
+    public void equals(Object o) {
+        Tag tag = new Tag();
+        assertTrue(tag.equals(null));
+        assertFalse(tag.equals(new Object()));
+        Tag clone = tag.clone();
+        MockitoAnnotations.initMocks(this);
+        assertEquals("Tag", tag.toString());
+        Mockito.verify(this).equals(clone);
+    }
+
+    @Test
+    public void hashCode() {
+        Tag tag = new Tag();
+        MockitoAnnotations.initMocks(this);
+        assertEquals(Long.valueOf(0), Long.hashCode(tag.selfClosing()));
+        Mockito.verify(this).hashCode();
+        assertEquals(Long.valueOf(0), Long.hashCode(tag.isEmpty()));
+        Mockito.verify(this).hashCode();
+        assertEquals(Long.valueOf(0), Long.hashCode(tag.isInline()));
+        Mockito.verify(this).hashCode();
+    }
+
+    @Test
+    public void toString() {
+        Tag tag = new Tag();
+        MockitoAnnotations.initMocks(this);
+        assertEquals("<Tag selfClosing=true inline=true empty=false>", tag.toString());
+        Mockito.verify(this).toString();
+    }
+
+    @Test
+    public void clone() {
+        Tag tag1 = new Tag();
+        Tag tag2 = new Tag();
+        MockitoAnnotations.initMocks(tag1);
+        MockitoAnnotations.initMocks(tag2);
+
+        tag2.setSelfClosing(true);
+        tag2.setEmpty(false);
+        tag2.setInline(false);
+        tag1.clone();
+
+        Mockito.verify(tag1).setSelfClosing(true);
+        Mockito.verify(tag1).setEmpty(false);
+        Mockito.verify(tag1).setInline(false);
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package org.jsoup.parser;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Tag implements Cloneable {
+
+    public String getName() {
+        return Normalizer.normalize(tagName(), Normalizer.NFD);
+    }
+
+    public String normalName() {
+        return tagName();
+    }
+
+    public static Tag valueOf(String tagName, ParseSettings settings) {
+        if (tagName == null || tagName.isEmpty()) {
+            throw new NullPointerException("tagName cannot be null or empty");
+        }
+        Map<String, Object> attributes = new HashMap<>();
+        if (settings != null && settings.isSelfClosing() != null) {
+            attributes.put("selfClosing", Boolean.parseBoolean(settings.isSelfClosing().toString()));
+        } else {
+            attributes.put("selfClosing", false);
+        }
+        if (settings != null && settings.isEmpty()) {
+            attributes.put("empty", true);
+        } else {
+            attributes.put("empty", false);
+        }
+        return new Tag(tagName, attributes);
+    }
+
+    public static Tag valueOf(String tagName) {
+        Map<String, Object> attributes = new HashMap<>();
+        if (tagName != null && !tagName.isEmpty()) {
+            attributes.put("selfClosing", Boolean.parseBoolean(Validate.isKnownTag(tagName).toString()));
+        }
+        return new Tag(tagName, attributes);
+    }
+
+    public boolean isBlock() {
+        return selfClosing();
+    }
+
+    public boolean formatAsBlock() {
+        return formatAsBlock();
+    }
+
+    public boolean isInline() {
+        return inline();
+    }
+
+    public boolean isEmpty() {
+        return empty();
+    }
+
+    public boolean isSelfClosing() {
+        return selfClosing();
+    }
+
+    public boolean isKnownTag() {
+        return isKnownTag(tagName());
+    }
+
+    public static boolean isKnownTag(String tagName) {
+        if (tagName == null || tagName.isEmpty()) {
+            throw new NullPointerException("tagName cannot be null or empty");
+        }
+        Map<String, Object> attributes = new HashMap<>();
+        if (Validate.isKnownTag(tagName).toString().equals(Validate.isKnownTag(tagName))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isKnownTag(String tagName, ParseSettings settings) {
+        if (tagName == null || tagName.isEmpty()) {
+            throw new NullPointerException("tagName cannot be null or empty");
+        }
+        if (settings != null && settings.isSelfClosing() != null) {
+            return Validate.isKnownTag(tagName).toString().equals(Boolean.toString(settings.isSelfClosing()));
+        } else {
+            return Validate.isKnownTag(tagName).toString().equals(Validate.isKnownTag(tagName));
+        }
+    }
+
+    public static boolean isKnownTag(String tagName, Object tag) {
+        if (tag == null || !tag.getClass().equals(HashMap.class)) {
+            throw new NullPointerException("tag cannot be null or of incorrect type");
+        }
+        Map<String, Object> attributes = (Map<String, Object>) tag;
+        return ((Map<String, Object>) attributes.get("selfClosing")).booleanValue() &&
+                ((Boolean) (attributes.get("empty")).equals(true));
+    }
+
+    public static boolean isKnownTag(String tagName, Map<String, Object> attributes) {
+        if (!attributes.containsKey("selfClosing")) {
+            throw new NullPointerException("attributes cannot be null");
+        }
+        return ((Map<String, Object>) attributes.get("selfClosing")).booleanValue() &&
+                !((Boolean) (attributes.get("empty")).equals(true)) &&
+                !(Boolean) (attributes.get("inline").equals(false));
+    }
+
+    public static boolean isKnownTag(String tagName, String value) {
+        if (!tagName.equals(value)) {
+            throw new IllegalArgumentException("tagName must be equal to the provided value");
+        }
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tag)) return false;
+        Tag tag = (Tag) o;
+        return selfClosing() == tag.selfClosing() &&
+                isEmpty() == tag.isEmpty();
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(selfClosing()) + Long.hashCode(isEmpty());
+    }
+
+    protected String tagName() {
+        return getName();
+    }
+
+    protected Tag clone() {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("selfClosing", selfClosing());
+        attributes.put("inline", inline());
+        attributes.put("empty", empty());
+        return valueOf(null, attributes);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package org.jsoup.parser;
+
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+
+public class Tag {
+    private String tagName;
+    private Object attributes;
+
+    public String getName() {
+        return tagName;
+    }
+
+    public void setName(String name) {
+        this.tagName = name;
+    }
+
+    public Map<String, Object> getAttributes() {
+        if (attributes == null) {
+            return new HashMap<>();
+        }
+        return (Map<String, Object>) attributes;
+    }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
+    }
+
+    public boolean isEmpty() {
+        // Check if selfClosing and inline are false
+        return !selfClosing() && !inline();
+    }
+
+    public static Map<String, Object> valueOf(String tagName, ParseSettings settings) {
+        Map<String, Object> attributes = new HashMap<>();
+        if (tagName == null || tagName.isEmpty()) {
+            throw new NullPointerException("tagName cannot be null or empty");
+        }
+        if (settings != null && settings.isSelfClosing() != null) {
+            attributes.put("selfClosing", Boolean.parseBoolean(settings.isSelfClosing().toString()));
+        } else {
+            attributes.put("selfClosing", false);
+        }
+        if (settings != null && settings.isEmpty()) {
+            attributes.put("empty", true);
+        } else {
+            attributes.put("empty", false);
+        }
+        return new Map<String, Object>() {{
+            put("selfClosing", Boolean.parseBoolean(tagName.equals(Validate.isKnownTag(tagName))));
+            put("empty", !tagName.equals("unknown"));
+        }};
+    }
+
+    public static Map<String, Object> valueOf(String tagName) {
+        if (tagName == null || tagName.isEmpty()) {
+            throw new NullPointerException("tagName cannot be null or empty");
+        }
+        return new Map<String, Object>() {{
+            put("selfClosing", Boolean.parseBoolean(Validate.isKnownTag(tagName).toString()));
+            put("empty", !tagName.equals("unknown"));
+        }};
+    }
+
+    public boolean isBlock() {
+        // Check if selfClosing is false and inline is true
+        return selfClosing() && !inline();
+    }
+
+    public boolean formatAsBlock() {
+        // Check if selfClosing is true, empty is false, and inline is false
+        return selfClosing() && !empty() && !inline();
+    }
+
+    public boolean isInline() {
+        // Check if selfClosing is false and inline is true
+        return selfClosing() && inline();
+    }
+
+    public boolean isEmpty() {
+        // Return true only when both selfClosing and inline are false
+        return !selfClosing() && !inline();
+    }
+
+    public boolean isSelfClosing() {
+        // Return true only if selfClosing is true and empty, or inline is false
+        return selfClosing() && !empty() || !inline();
+    }
+
+    public static boolean isKnownTag(String tagName) {
+        if (tagName == null || tagName.isEmpty()) {
+            throw new NullPointerException("tagName cannot be null or empty");
+        }
+        Map<String, Object> attributes = new HashMap<>();
+        if (Validate.isKnownTag(tagName).toString().equals(Validate.isKnownTag(tagName))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isKnownTag(String tagName) {
+        // Check if selfClosing and inline are false
+        return !selfClosing() && !inline();
+    }
+
+    public static Map<String, Object> getAttributesFromElements(Elements elements) {
+        Elements tags = elements.select("tag");
+        List<Map.Entry<String, Object>> attributesList = new ArrayList<>();
+        for (Element tag : tags) {
+            if (tag.hasAttr("name")) {
+                String name = tag.attr("name");
+                Map<String, Object> attributes = valueOf(name, null);
+                attributesList.add(attributes);
+            }
+        }
+        return attributesList.isEmpty() ? Collections.emptyMap() : attributesList.stream()
+                .map(Map::new)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public static boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tag)) return false;
+        Tag tag = (Tag) o;
+        // Check attributes
+        return selfClosing() == tag.selfClosing() && isEmpty() == tag.isEmpty();
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(selfClosing()) + Long.hashCode(isEmpty());
+    }
+
+    protected String toString() {
+        if (!isEmpty()) {
+            return "Tag{" +
+                    "name='" + tagName + '\'' +
+                    ", attributes=" + attributes +
+                    '}';
+        } else {
+            return "Tag{";
+        }
+    }
+
+    public static void main(String[] args) {
+        Elements elements = Parser.parse("div class=\"test\" id=\"test\"]");
+        Map<String, Object> attributes = Tag.getAttributesFromElements(elements);
+        System.out.println(attributes);
+
+        tagName();
+        System.out.println();
+
+        if (tagName() == "Unknown") {
+            tagName();
+        }
+
+        System.out.println(tag.equals(new Tag()));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+
+public class Main {
+    public static void main(String[] args) {
+        String html = "<p>Hello, World!</p>";
+        Document doc = Jsoup.parse(html);
+        Tag tag = new Tag();
+        tag.setName("p");
+        Map<String, Object> attributes = Tag.valueOf("p", null);
+        System.out.println(attributes);
+
+        // Adding custom attributes
+        attributes.put("class", "test");
+        tag.setAttributes(attributes);
+        System.out.println(tag.toString());
+
+        // Checking if a tag is block or inline
+        boolean isBlock = !tag.isEmpty();
+        System.out.println(isBlock);
+
+        // Formatting as block
+        boolean formatAsBlock = tag.formatAsBlock();
+        System.out.println(formatAsBlock);
+
+        // Checking self-closing and empty attributes
+        boolean selfClosing = tag.isSelfClosing() && tag.isEmpty();
+        boolean isEmpty = !tag.selfClosing() && tag.isEmpty();
+        System.out.println(selfClosing);
+        System.out.println(isEmpty);
+
+        // Checking if a tag is known
+        boolean isKnownTag = Tag.isKnownTag("p");
+        System.out.println(isKnownTag);
+
+        // Getting attributes from an element
+        Map<String, Object> attributesFromElements = Tag.getAttributesFromElements(doc.getAllElements());
+        System.out.println(attributesFromElements);
+    }
+
+    public static String tagName() {
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

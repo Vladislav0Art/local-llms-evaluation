@@ -1,0 +1,298 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.helper.HttpConnection;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+
+public class HttpConnectionTest {
+
+    private HttpConnection connection;
+    private URL url;
+
+    @Before
+    public void setup() {
+        url = new URL("https://example.com");
+    }
+
+    @Test
+    public void testConnect_WithoutParams() throws Exception {
+        connection = HttpConnection.connect(url);
+        assertTrue(connection instanceof Connection);
+    }
+
+    @Test
+    public void testConnect_WithHttpOnlyParams() throws Exception {
+        String params = "param1=value1&param2=value2";
+        connection = HttpConnection.connect(url, params);
+        assertTrue(params.startsWith("HTTPONLY"));
+    }
+
+    @Test
+    public void testConnect_WithQueryString() throws Exception {
+        String urlStr = "https://example.com?param1=value1&param2=value2";
+        connection = HttpConnection.connect(new URL(urlStr));
+        assertTrue(connection instanceof Connection);
+    }
+
+    @Test
+    public void testConnect_WithPathParams() throws Exception {
+        String urlStr = "/path/to/resource?param1=value1&param2=value2";
+        connection = HttpConnection.connect(new URL(urlStr));
+        assertTrue(connection instanceof Connection);
+    }
+
+    @Test
+    public void testConnect_WithQueryParams() throws Exception {
+        String urlStr = "https://example.com?param1=value1&param2=value2#fragment";
+        connection = HttpConnection.connect(new URL(urlStr));
+        assertTrue(connection instanceof Connection);
+    }
+
+    @Test
+    public void testConnect_WithoutCookies() throws Exception {
+        String cookieStore = null;
+        connection = HttpConnection.connect(url, cookieStore);
+        assertTrue(connection instanceof Connection);
+    }
+
+    @Test
+    public void testConnect_WithCookies() throws Exception {
+        CookieManager cookieManager = new CookieManager();
+        connection = HttpConnection.connect(url, cookieManager);
+        assertTrue(connection instanceof Connection);
+    }
+
+    @Test
+    public void testGet() throws Exception {
+        String responseText = "Hello World!";
+        connection = (HttpConnection) new Request().setEntity(new StringReader(responseText));
+        assertEquals("Hello World!", new BufferedReader(new InputStreamReader(connection.get()))!!.readLine());
+    }
+
+    @Test
+    public void testPost() throws Exception {
+        String responseText = "Hello World!";
+        Request request = new Request();
+        connection = (HttpConnection) request.get().setEntity(new StringReader(responseText));
+        assertEquals("Hello World!", new BufferedReader(new InputStreamReader(connection.post().get()))!!.readLine());
+    }
+
+    @Test
+    public void testResponse() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        Request request = new Request();
+        connection = (HttpConnection) request.get().setEntity(new StringReader(responseText));
+        assertEquals("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!", new BufferedReader(new InputStreamReader(connection.response().get()))!!.readLine());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import static org.junit.Assert.assertEquals;
+
+public class TestHttpConnection {
+    private Document doc;
+
+    @Before
+    public void setup() {
+        String url = "https://example.com";
+        try {
+            doc = Jsoup.connect(url).get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testGet_WithoutParams() throws Exception {
+        assertEquals("Hello World!", doc.text().trim());
+    }
+
+    @Test
+    public void testPost_WithoutHttpOnlyParams() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        Document requestDoc = Jsoup.connect(new URL("https://example.com?param1=value1&param2=value2")).get();
+        assertEquals("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!", requestDoc.html());
+    }
+
+    @Test
+    public void testPost_WithQueryString() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        Document requestDoc = Jsoup.connect(new URL("https://example.com?param1=value1&param2=value2#fragment")).get();
+        assertEquals("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!", requestDoc.html());
+    }
+
+    @Test
+    public void testPost_WithHttpOnlyParams() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        Document requestDoc = Jsoup.connect(new URL("https://example.com?param1=value1&param2=value2;httponly").get());
+        assertEquals("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!", requestDoc.html());
+    }
+
+    @Test
+    public void testGet_WithCookies() throws Exception {
+        CookieManager cookieManager = new CookieManager();
+        Document requestDoc = Jsoup.connect(new URL("https://example.com?param1=value1&param2=value2", cookieManager).get());
+        assertEquals("Hello World!", requestDoc.html());
+    }
+
+    @Test
+    public void testPost_WithCookies() throws Exception {
+        CookieManager cookieManager = new CookieManager();
+        Document requestDoc = Jsoup.connect(new URL("https://example.com?param1=value1&param2=value2", cookieManager).get());
+        assertEquals("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!", requestDoc.html());
+    }
+
+    @Test
+    public void testResponse_WithoutQueryParams() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        assertEquals("Hello World!", new BufferedReader(new InputStreamReader(connection.response().get()))!!.readLine());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class TestHttpConnection {
+    private Document doc;
+
+    @Before
+    public void setup() throws Exception {
+        String url = "https://example.com";
+        try (Document document = Jsoup.connect(url).get()) {
+            this.doc = document;
+        }
+    }
+
+    @Test
+    public void testGet_WithoutParams() {
+        assertEquals("Hello World!", doc.text().trim());
+    }
+
+    @Test
+    public void testPost_WithoutHttpOnlyParams() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        assertEquals(responseText, new String(doc.body().text()));
+    }
+
+    @Test
+    public void testPost_WithQueryString() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        assertEquals(responseText, new String(doc.body().text()));
+    }
+
+    @Test
+    public void testGet() {
+        assertEquals("Hello World!", doc.text().trim());
+    }
+
+    @Test
+    public void testPost_WithCookies() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        assertEquals(responseText, new String(doc.body().text()));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class TestHttpConnection {
+    private Document doc;
+
+    @Before
+    public void setup() throws Exception {
+        String url = "https://example.com";
+        try (Document document = Jsoup.connect(url).get()) {
+            this.doc = document;
+        }
+    }
+
+    public static void testGetWithoutParams() {
+        assertEquals("Hello World!", doc.text().trim());
+    }
+
+    public static void testPostWithoutHttpOnlyParams() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        assertEquals(responseText, new String(doc.body().text()));
+    }
+
+    public static void testPostWithQueryString() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        assertEquals(responseText, new String(doc.body().text()));
+    }
+
+    public static void testGet() {
+        assertEquals("Hello World!", doc.text().trim());
+    }
+
+    public static void testPostWithCookies() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        assertEquals(responseText, new String(doc.body().text()));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Before {
+    public void setup() throws Exception {
+        // Test setup code here
+    }
+}
+
+public class TestGetWithoutParams extends Before {
+    @Test
+    public void testGetWithoutParams() {
+        assertEquals("Hello World!", doc.text().trim());
+    }
+
+    @Test
+    public void testPostWithQueryString() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        assertEquals(responseText, new String(doc.body().text()));
+    }
+}
+
+public class TestPostWithoutHttpOnlyParams extends Before {
+    @Test
+    public void testGet() {
+        assertEquals("Hello World!", doc.text().trim());
+    }
+
+    @Test
+    public void testPostWithCookies() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        assertEquals(responseText, new String(doc.body().text()));
+    }
+}
+
+public class TestGetWithoutCookies extends Before {
+    @Test
+    public void testPostWithQueryString() throws Exception {
+        String responseText = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nHello World!";
+        assertEquals(responseText, new String(doc.body().text()));
+    }
+}
+```
+===================================================
+

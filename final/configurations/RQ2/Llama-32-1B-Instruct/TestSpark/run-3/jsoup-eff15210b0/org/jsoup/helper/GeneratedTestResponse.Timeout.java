@@ -1,0 +1,31 @@
+package org.jsoup.helper;
+
+public class GeneratedTestResponse.
+
+Timeout {
+
+    private MockHttpConnection mockHttpConnection;
+
+    @Before
+    public void setUp () {
+        mockHttpConnection = new MockHttpConnection();
+    }
+
+    @Test
+    public void testResponse.Timeout() throws IOException {
+        when(mockHttpConnection.connect(URL.parseString("http://example.com"))).thenReturn(new Connection() {
+            @Override
+            public HttpURLConnection request() {
+                throw new java.net.SocketTimeoutException();
+            }
+        });
+
+        try {
+            mockHttpConnection.newRequest();
+            fail("Expected exception to be thrown");
+        } catch (SocketTimeoutException e) {
+            // expected
+        }
+    }
+
+}

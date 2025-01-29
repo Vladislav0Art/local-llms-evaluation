@@ -1,0 +1,17 @@
+package org.jsoup.parser;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTestIsInline {
+
+    @Test
+    public void testIsInline() {
+        String tagName = "div";
+        Tag tag = new Tag();
+        assertTrue(tag.isInline());
+    }
+
+}

@@ -1,0 +1,242 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class CssFormatterTest {
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_init")
+    public void testCssFormatterInit() throws IOException {
+        final InputSource inputSource = new InputSource(new StringReader("/* This is a sample CSS code */"));
+        final ConfigurationSource cfg = new ConfigurationSource();
+        final CssFormatter formatter = new CssFormatter(cfg);
+        formatter.init(inputSource, null);
+    }
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_doFormat")
+    public void testCssFormatterDoFormat() throws IOException {
+        final InputSource inputSource = new InputSource(new StringReader("/* This is a sample CSS code */"));
+        final ConfigurationSource cfg = new ConfigurationSource();
+        final CssFormatter formatter = new CssFormatter(cfg);
+        when(inputSource.getSystemEncoding()).thenReturn("UTF-8");
+        when(cssOMParser.parse(inputSource)).thenReturn(new CSSOMParser());
+        when(sacparserCSS3.getStylesheet()).thenReturn(new SACParserCSS3());
+
+        final String formattedCode = formatter.doFormat(inputSource, LineEnding.CRLF);
+        assertEquals("/* This is a sample CSS code */", formattedCode);
+    }
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_isInitialized")
+    public void testCssFormatterIsInitialized() throws IOException {
+        final ConfigurationSource cfg = new ConfigurationSource();
+        final CssFormatter formatter = new CssFormatter(cfg);
+
+        when(formatter.isInitialized()).thenReturn(true);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class CssFormatterTest {
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_init")
+    public void testCssFormatterInit() {
+        final InputSource inputSource = new InputSource(new StringReader("/* This is a sample CSS code */"));
+        when(cfg.getConfigurationSource()).thenReturn(inputSource);
+        when(cssOMParser.parse(inputSource)).thenThrow(new IOException());
+        when(sacparserCSS3.getStylesheet()).thenReturn(null);
+        final CssFormatter formatter = new CssFormatter();
+        verifyNoException(when, then);
+    }
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_doFormat")
+    public void testCssFormatterDoFormat() {
+        final InputSource inputSource = new InputSource(new StringReader("/* This is a sample CSS code */"));
+        when(cfg.getConfigurationSource()).thenReturn(inputSource);
+        when(cssOMParser.parse(inputSource)).thenReturn(new CSSOMParser());
+        when(sacparserCSS3.getStylesheet()).thenReturn(null);
+
+        final String formattedCode = cssFormatter.doFormat(inputSource, LineEnding.CRLF);
+        assertEquals("/* This is a sample CSS code */", formattedCode);
+    }
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_isInitialized")
+    public void testCssFormatterIsInitialized() {
+        when(cfg.getConfigurationSource()).thenReturn(new ConfigurationSource());
+        final CssFormatter formatter = new CssFormatter();
+        verifyNoException(when, then);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class CssFormatterTest {
+
+    @Mocked
+    private InputSource inputSource;
+
+    @Mocked
+    private ConfigurationSource cfg;
+
+    @InjectMocks
+    private CssFormatter cssFormatter;
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_init")
+    public void testCssFormatterInit() {
+        when(cfg.getConfigurationSource()).thenReturn(inputSource);
+        final CssFormatter formatter = new CssFormatter();
+        try {
+            formatter.init(inputSource, null);
+            fail("Expected IOException");
+        } catch (IOException e) {
+            // expected
+        }
+    }
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_doFormat")
+    public void testCssFormatterDoFormat() {
+        when(cfg.getConfigurationSource()).thenReturn(inputSource);
+        when(cssOMParser.parse(inputSource)).thenReturn(new CSSOMParser());
+        when(sacparserCSS3.getStylesheet()).thenReturn(null);
+
+        final InputSource expectedInput = new InputSource(new StringReader("/* This is a sample CSS code */"));
+        when(cssOMParser.parse(expectedInput)).thenReturn(cssFormatter.doFormat(expectedInput, LineEnding.CRLF));
+        verify(inputSource, times(1)).getSystemEncoding();
+        verify(sacparserCSS3, times(1)).getStylesheet();
+    }
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_isInitialized")
+    public void testCssFormatterIsInitialized() {
+        final ConfigurationSource expectedConfig = new ConfigurationSource();
+        when(cfg.getConfigurationSource()).thenReturn(expectedConfig);
+
+        when(cssOMParser.parse(any(InputSource.class))).thenReturn(null);
+        when(sacparserCSS3.getStylesheet()).thenReturn(new SACParserCSS3());
+
+        cssFormatter.init(any(InputSource.class), any(ConfigurationSource.class));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class CssFormatterTest {
+
+    @Mocked
+    private SACParserCSS3 sacparserCSS3;
+
+    @InjectMocks
+    private CssFormatter cssFormatter;
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_init")
+    public void testCssFormatterInit() {
+        when(sacparserCSS3.getStylesheet()).thenReturn(null);
+        try {
+            initMock(sacparserCSS3);
+            fail("Expected IOException");
+        } catch (IOException e) {
+            // expected
+        }
+    }
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_doFormat")
+    public void testCssFormatterDoFormat() {
+        when(sacparserCSS3.getStylesheet()).thenReturn(new SACParserCSS3());
+        final InputSource input = new InputSource(new StringReader("/* This is a sample CSS code */"));
+        final ConfigurationSource config = new ConfigurationSource();
+        cssFormatter.init(input, config);
+
+        verifyMock(sacparserCSS3);
+    }
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_isInitialized")
+    public void testCssFormatterIsInitialized() {
+        when(cssOMParser.parse(any(InputSource.class))).thenReturn(null);
+        final InputSource input = new InputSource(new StringReader("/* This is a sample CSS code */"));
+        cssFormatter.init(input, null);
+
+        verifyNoException(whenMock(cssOMParser, sacparserCSS3));
+    }
+}
+
+private void initMock(SACParserCSS3 mock SACParserCSS3) {
+    MockitoAnnotations.initMocks(this);
+    mockSAParserCSS3 = Mockito.mock(SACParserCSS3.class);
+}
+
+private void verifyMock(CSSOMParser mock CSSOMParser) {
+    MockitoAnnotations.initMocks(this);
+    when(mockCSSOMParser.parse(any(InputSource.class))).thenReturn(cssFormatter.doFormat(any(InputSource.class), LineEnding.CRLF));
+}
+
+private void verifyNoException(When any, When any) {
+    // no exception expected
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class CssFormatterTest {
+
+    @Mocked
+    private CSSOMParser cssOMParser;
+
+    @InjectMocks
+    private CssFormatter cssFormatter;
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_init")
+    public void testCssFormatterInit() {
+        when(cssOMParser.parse(any(InputSource.class))).thenThrow(new IOException());
+        try {
+            initMock(cssOMParser);
+            fail("Expected IOException");
+        } catch (IOException e) {
+            // expected
+        }
+    }
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_doFormat")
+    public void testCssFormatterDoFormat() {
+        when(cssOMParser.parse(any(InputSource.class))).thenReturn(new CSSOMParser());
+        final InputSource input = new InputSource(new StringReader("/* This is a sample CSS code */"));
+        cssFormatter.init(input, null);
+
+        verifyMock(cssOMParser);
+    }
+
+    @MethodUnderTest(cssFormatter, "cssFormatter_isInitialized")
+    public void testCssFormatterIsInitialized() {
+        when(cssOMParser.parse(any(InputSource.class))).thenReturn(null);
+        final InputSource input = new InputSource(new StringReader("/* This is a sample CSS code */"));
+        cssFormatter.init(input, null);
+
+        verifyNoException(whenMock(cssOMParser, cssFormatter.doFormat.anyInput(), LineEnding.CRLF));
+    }
+}
+
+private void initMock(CSSOMParser mock CSSOMParser) {
+    MockitoAnnotations.initMocks(this);
+    cssOMParser = Mockito.mock(CSSOMParser.class);
+}
+
+private void verifyMock(CSSOMParser cssOMParser) {
+    // no exception expected
+}
+
+private void verifyNoException(When any, When any) {
+    // no exception expected
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

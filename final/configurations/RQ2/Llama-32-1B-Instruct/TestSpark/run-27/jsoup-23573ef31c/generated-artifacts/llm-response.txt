@@ -1,0 +1,533 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class Document {
+
+    private String baseUri;
+    private Connection connection;
+
+    public Document(String baseUri) {
+        this.baseUri = baseUri;
+        initConnection();
+    }
+
+    public static Document createShell(String baseUri) {
+        return new Document(baseUri);
+    }
+
+    @Before("document")
+    public void setUp() {}
+
+    public String location() {
+        try {
+            Document document = parseDocument();
+            return document.location();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Connection connection() {
+        try {
+            return parseConnection();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String outerHtml() {
+        try {
+            Document document = parseDocument();
+            return document.outerHtml();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Element text(String text) {
+        try {
+            Document document = parseDocument();
+            Element element = document.text(text);
+            if (element == null || element instanceof FormElement) {
+                return null;
+            } else {
+                return element;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String nodeName() {
+        try {
+            Document document = parseDocument();
+            return document.nodeName();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void charset(Charset charset) {
+        if (connection != null && connection.getCharset() == null || !charset.equals(connection.getCharset())) {
+            connection.updateMetaCharsetElement(true);
+        }
+    }
+
+    @Override
+    public Document clone() {
+        try {
+            return parseDocument();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Document shallowClone() {
+        try {
+            return parseDocument();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public OutputSettings outputSettings() {
+        if (connection != null && connection.getOutputSettings() == null || !connection.getOutputSettings().equals(this.outputSettings())) {
+            connection.updateMetaCharsetElement(true);
+        }
+        return this.outputSettings();
+    }
+
+    @Override
+    public Document outputSettings(OutputSettings outputSettings) {
+        if (outputSettings != null) {
+            outputSettings = outputSettings.copy();
+            if (connection == null || !connection.getOutputSettings().equals(outputSettings)) {
+                connection.updateMetaCharsetElement(true);
+            }
+        }
+        return this.outputSettings();
+    }
+
+    public QuirksMode quirksMode() {
+        try {
+            Document document = parseDocument();
+            return document.quirksMode();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Document quirksMode(QuirksMode quirksMode) {
+        if (connection == null || !connection.getQuirksMode().equals(quirksMode)) {
+            connection.updateMetaCharsetElement(true);
+        }
+        return this.quirksMode();
+    }
+
+    private Connection parseConnection() throws Exception {
+        if (connection == null) {
+            String url = "http://" + baseUri;
+            return Jsoup.connect(url).get();
+        } else {
+            return connection;
+        }
+    }
+
+    @Test
+    public void test_location() {
+        Document document = createShell("https://www.example.com");
+        assertEquals("https://www.example.com", document.location());
+    }
+
+    @Test
+    public void test_connection() {
+        try {
+            Document document = parseDocument();
+            Connection connection = document.connection();
+            assertNotNull(connection);
+            assertEquals(0, connection.getCharset().length());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+public class QuirksMode {
+
+    public String quirksMode() {
+        return "standard";
+    }
+
+    @Override
+    public Document quirksMode(QuirksMode quirksMode) {
+        return this.quirksMode();
+    }
+
+    @Test
+    public void test_quirksMode() {
+        QuirksMode standard = new QuirksMode("standard");
+        QuirksMode custom = new QuirksMode("custom");
+
+        Document document1 = createShell("https://www.example.com", "https://example.com/standard.css").quirsksMode(standard);
+        Document document2 = createShell("https://www.example.com", "https://example.com/custom.css").quirksMode(custom);
+
+        assertEquals(QuirksMode.QUIRKS_MODE_STANDARD, standard.quirksMode());
+        assertEquals(QuirksMode.QUIRKS_MODE_CUSTOM, custom.quirksMode());
+
+        Document document3 = createShell("https://www.example.com").quirksMode(standard);
+        assertEquals(QuirksMode.QUIRKS_MODE_STANDARD, standard.quirksMode());
+
+        try {
+            QuirksMode.QUIRKS_MODE_INVALID quirkMode = new QuirksMode("invalid");
+            Document document4 = createShell("https://www.example.com").quirksMode(quirkMode);
+            assert false;
+        } catch (IllegalArgumentException e) {
+            assertEquals("Invalid quirks mode", e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        QuirksMode quirkMode = (QuirksMode) other;
+        return this.quirksMode().equals(quirkMode);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((this.quirksMode() == null || getClass().getClassId() != 0 ? 0 : getClass().hashCode()) * 17);
+
+        return result;
+    }
+}
+
+public class FormElement {
+
+    @Override
+    public String nodeName() {
+        return "form";
+    }
+
+    @Override
+    public Document text(String text) {
+        return null;
+    }
+
+    @Test
+    public void test_text() {
+        FormElement form = createShell("https://www.example.com").expectForm("#myForm").text("Hello, World!");
+        assert not form.text.isEmpty();
+    }
+}
+
+public class OutputSettings {
+
+    private boolean update = false;
+
+    public Document outputSettings() {
+        return new Document(baseUri).outputSettings(update);
+    }
+
+    @Override
+    public QuirksMode quirksMode() {
+        return null;
+    }
+
+    @Override
+    public String nodeName() {
+        return "document";
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class TestJsoup {
+
+    public static Document testLocation() {
+        return Jsoup.connect("https://www.example.com").get();
+    }
+
+    public static void testConnection() {
+        try {
+            Document document = Jsoup.connect("https://www.example.com").get();
+            Connection connection = document.connection();
+            System.out.println(connection.getCharset());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static QuirksMode testQuirksMode() {
+        return null;
+    }
+
+    public static void testNodeName() {
+        try {
+            Document document = Jsoup.connect("https://www.example.com").get();
+            assertEquals("https://www.example.com", document.nodeName());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String text(String text) {
+        return null;
+    }
+
+    @Test
+    public void testText() {
+        Document document = Jsoup.connect("https://www.example.com").get();
+        assertEquals("Hello, World!", document.text(text("Hello, World!")));
+    }
+
+    public static void printString(Object s) {
+        System.out.println(s);
+    }
+
+    @Test
+    public void testPrintString() {
+        printString("Hello, World!");
+    }
+}
+
+public class Document {
+
+    private String baseUri;
+    private Connection connection;
+
+    public Document(String baseUri) {
+        this.baseUri = baseUri;
+        initConnection();
+    }
+
+    public static Document createShell(String baseUri) {
+        return new Document(baseUri);
+    }
+
+    @Before("document")
+    public void setUp() {}
+
+    public String location() {
+        try {
+            Document document = parseDocument();
+            return document.location();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Connection connection() {
+        if (connection == null || !connection.getCharset().equals()) {
+            connection.updateMetaCharsetElement(true);
+        }
+        return connection;
+    }
+
+    @Override
+    public String nodeName() {
+        return "document";
+    }
+
+    @Override
+    public Document text(String text) {
+        Document document = Jsoup.connect("https://www.example.com").get();
+        Element element = document.selectFirst("form");
+        if (element != null) {
+            element.attr("data-name", element.attr("name") + "_text");
+        }
+        return new Document(baseUri).outputSettings().outputSettings().output(document, text);
+    }
+
+    @Override
+    public QuirksMode quirksMode() {
+        return null;
+    }
+
+    private void initConnection() {}
+
+    @Test
+    public void testTextMethod() {
+        Document document = Jsoup.connect("https://www.example.com").get();
+        assertEquals("Hello, World!", document.text(text("Hello, World!")));
+    }
+}
+
+public class FormElement {
+
+    @Override
+    public String nodeName() {
+        return "form";
+    }
+
+    @Test
+    public void testNodeNameMethod() {
+        Document document = Jsoup.connect("https://www.example.com").get();
+        assertEquals("myForm", document.nodeName());
+    }
+}
+
+public class OutputSettings {
+
+    private boolean update;
+
+    public Document outputSettings(boolean update) {
+        this.update = update;
+        return new Document(baseUri).outputSettings().outputSettings();
+    }
+
+    @Override
+    public QuirksMode quirksMode() {
+        return null;
+    }
+
+    @Test
+    public void testOutputSettingsMethod() {
+        OutputSettings settings = new Document("https://www.example.com").outputSettings(true);
+        assertEquals(true, settings.update);
+    }
+}
+
+public class Connection {
+
+    private String charset;
+
+    public Connection(String charset) {
+        this.charset = charset;
+    }
+
+    @Override
+    public String getCharset() {
+        return charset;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        Connection connection = (Connection) other;
+        return this.charset.equals(connection.charset);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+
+public class TestPublicClasses {
+
+    @Test
+    public void testCreateOutputSettings() {
+        Document document = new Document();
+        OutputSettings settings = new Document("https://www.example.com").outputSettings(true);
+        assertEquals(true, settings.update());
+    }
+
+    @Test
+    public void testGetOutputSettingsTextContent() {
+        Document document = new Document();
+        OutputSettings settings = new Document("https://www.example.com").outputSettings(true);
+        String text = settings.output(document, "form");
+        assertEquals("Hello, World!", text);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class TestPublicClasses {
+
+    public static void main(String[] args) {
+        Document document = new Document();
+        OutputSettings settings = new Document("https://www.example.com").outputSettings(true);
+        assertEquals(true, settings.update());
+
+        String text = Settings.output(document, "form");
+        assertEquals("Hello, World!", text);
+
+        return;
+    }
+
+    public static class Document {}
+
+    public static class OutputSettings {
+        public boolean update() { return true; }
+    }
+
+    public static String output(Document document, String contentType) {
+        return Jsoup.parse(document).text();
+    }
+
+    public static String Settings.output(Document document, String content) {
+        return Jsoup.parse(document).output(content);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class TestPublicClasses {
+
+    public static void main(String[] args) {
+        Document document = new Document();
+        OutputSettings settings = new Document("https://www.example.com").outputSettings(true);
+        assertEquals(true, settings.update());
+
+        String text = Settings.output(document, "form");
+        System.out.println(text);
+
+        return;
+    }
+
+    public interface OutputSettings {
+        boolean update();
+    }
+
+    public static class Document {}
+
+    public static void testCreateOutputSettings() {
+        Document document = new Document("https://www.example.com");
+        OutputSettings settings = new Document().outputSettings(true);
+        assertEquals(true, settings.update());
+    }
+
+    public static String output(String content) {
+        return Jsoup.parse(content).text();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

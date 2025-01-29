@@ -1,0 +1,229 @@
+package org.stellar.sdk;
+
+public class GeneratedTest {
+
+    @Test
+    public void testCanSign() {
+        // Arrange
+        EdDSAPublicKey publicKey = new EdDSAPublicKey();
+        KeyPair keyPair = KeyPair.fromPublicKey(publicKey.getEncoded());
+
+        // Act
+        boolean canSign = keyPair.canSign();
+
+        // Assert
+        Preconditions.checkNotNull(canSign, "keyPair should not be null");
+    }
+
+    @Test
+    public void testFromSecretSeed() {
+        // Arrange
+        char[] seed = new byte[32];
+        String seedStr = "secret seed";
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+
+        // Act
+        EdDSAPublicKey publicKey = keyPair.getPublicKey();
+
+        // Assert
+        Preconditions.checkNotNull(publicKey, "keyPair should not be null");
+    }
+
+    @Test
+    public void testFromSecretSeed_bytes() {
+        // Arrange
+        byte[] seed = new byte[32];
+        String seedStr = "secret seed";
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+
+        // Act
+        EdDSAPublicKey publicKey = keyPair.getPublicKey();
+
+        // Assert
+        Preconditions.checkNotNull(publicKey, "keyPair should not be null");
+    }
+
+    @Test
+    public void testFromAccountId() {
+        // Arrange
+        String accountId = "account id";
+        KeyPair keyPair = KeyPair.fromAccountId(accountId);
+
+        // Act
+        byte[] publicKey = keyPair.getPublicKey();
+
+        // Assert
+        Preconditions.checkNotNull(publicKey, "keyPair should not be null");
+    }
+
+    @Test
+    public void testFromBip39Seed() {
+        // Arrange
+        String bip39Seed = "bip39 seed";
+        int accountNumber = 1;
+        KeyPair keyPair = KeyPair.fromBip39Seed(bip39Seed, accountNumber);
+
+        // Act
+        EdDSAPublicKey publicKey = keyPair.getPublicKey();
+
+        // Assert
+        Preconditions.checkNotNull(publicKey, "keyPair should not be null");
+    }
+
+    @Test
+    public void testRandom() {
+        // Arrange
+        KeyPair keyPair = KeyPair.random();
+
+        // Act
+        EdDSAPublicKey publicKey = keyPair.getPublicKey();
+
+        // Assert
+        Preconditions.checkNotNull(publicKey, "keyPair should not be null");
+    }
+
+    @Test
+    public void testGetAccountId() {
+        // Arrange
+        String accountId = "account id";
+        KeyPair keyPair = KeyPair.fromAccountId(accountId);
+
+        // Act
+        String getAccountId = keyPair.getAccountId();
+
+        // Assert
+        Preconditions.checkNotNull(getAccountId, "keyPair should not be null");
+    }
+
+    @Test
+    public void testGetSecretSeed() {
+        // Arrange
+        char[] seed = new byte[32];
+        String seedStr = "secret seed";
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+
+        // Act
+        char[] getSecretSeed = keyPair.getSecretSeed();
+
+        // Assert
+        Preconditions.checkNotNull(getSecretSeed, "keyPair should not be null");
+    }
+
+    @Test
+    public void testGetPublicKey() {
+        // Arrange
+        byte[] publicKey = new byte[32];
+        KeyPair keyPair = KeyPair.fromPublicKey(publicKey);
+
+        // Act
+        byte[] getPublicKey = keyPair.getPublicKey();
+
+        // Assert
+        Preconditions.checkNotNull(getPublicKey, "keyPair should not be null");
+    }
+
+    @Test
+    public void testGetSignatureHint() {
+        // Arrange
+        EdDSAPublicKey publicKey = new EdDSAPublicKey();
+        KeyPair keyPair = KeyPair.fromPublicKey(publicKey.getEncoded());
+
+        // Act
+        SignatureHint getSignatureHint = keyPair.getSignatureHint();
+
+        // Assert
+        Preconditions.checkNotNull(getSignatureHint, "keyPair should not be null");
+    }
+
+    @Test
+    public void testGetXdrPublicKey() {
+        // Arrange
+        byte[] publicKey = new byte[32];
+        KeyPair keyPair = KeyPair.fromPublicKey(publicKey);
+
+        // Act
+        PublicKey getXdrPublicKey = keyPair.getXdrPublicKey();
+
+        // Assert
+        Preconditions.checkNotNull(getXdrPublicKey, "keyPair should not be null");
+    }
+
+    @Test
+    public void testGetSignerKey() {
+        // Arrange
+        EdDSAPublicKey publicKey = new EdDSAPublicKey();
+        KeyPair keyPair = KeyPair.fromPublicKey(publicKey.getEncoded());
+
+        // Act
+        SignerKey getXdrSignerKey = keyPair.getXdrSignerKey();
+
+        // Assert
+        Preconditions.checkNotNull(getXdrSignerKey, "keyPair should not be null");
+    }
+
+    @Test
+    public void testFromXdrPublicKey() {
+        // Arrange
+        PublicKey publicKey = new EdDSAPublicKey();
+        KeyPair keyPair = KeyPair.fromXdrPublicKey(publicKey);
+
+        // Act
+        EdDSAPublicKey getXdrPublicKey = keyPair.getXdrPublicKey();
+
+        // Assert
+        Preconditions.checkNotNull(getXdrPublicKey, "keyPair should not be null");
+    }
+
+    @Test
+    public void testFromXdrSignerKey() {
+        // Arrange
+        SignerKey signerKey = new SignerKey();
+        KeyPair keyPair = KeyPair.fromXdrSignerKey(signerKey);
+
+        // Act
+        EdDSAPublicKey getXdrSignerKey = keyPair.getXdrSignerKey();
+
+        // Assert
+        Preconditions.checkNotNull(getXdrSignerKey, "keyPair should not be null");
+    }
+
+    @Test
+    public void testSign() {
+        // Arrange
+        char[] seed = new byte[32];
+        String seedStr = "secret seed";
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+
+        byte[] data = new byte[32];
+        SignerKey signerKey = new EdDSAPublicKey();
+        SignatureHint signatureHint = new EdDSAPrivateKeySpec(seed);
+        byte[] publicKey = new byte[32];
+        keyPair.getXdrPublicKey().getEncoded(publicKey);
+
+        // Act
+        byte[] signedData = keyPair.sign(data, signerKey, signatureHint);
+
+        // Assert
+        Preconditions.checkNotNull(signedData, "signedData should not be null");
+    }
+
+    @Test
+    public void testGetXDRSign() {
+        // Arrange
+        char[] seed = new byte[32];
+        String seedStr = "secret seed";
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+
+        byte[] data = new byte[32];
+        SignerKey signerKey = new EdDSAPublicKey();
+        SignatureHint signatureHint = new EdDSAPrivateKeySpec(seed);
+        keyPair.getXdrPublicKey().getEncoded(data);
+
+        // Act
+        byte[] signedData = keyPair.getSignerXDR(data, signerKey, signatureHint);
+
+        // Assert
+        Preconditions.checkNotNull(signedData, "signedData should not be null");
+    }
+
+}

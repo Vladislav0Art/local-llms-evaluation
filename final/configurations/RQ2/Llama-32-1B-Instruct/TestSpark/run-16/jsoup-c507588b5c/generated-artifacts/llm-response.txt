@@ -1,0 +1,653 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.IOException;
+
+public class TextNodeTest {
+
+    @Test
+    public void test nodeName() {
+        // Arrange
+        String text = "Hello World";
+
+        // Act
+        TextNode textNode = new TextNode(text);
+        String nodeName = textNode.getNodeName();
+
+        // Assert
+        assertEquals("text", nodeName);
+    }
+
+    @Test
+    public void test text() {
+        // Arrange
+        String text = "Hello World";
+
+        // Act
+        TextNode textNode = new TextNode(text);
+        String textContent = textNode.getText();
+
+        // Assert
+        assertNotNull(contentText);
+        assertEquals("Hello World", contentText);
+    }
+
+    @Test
+    public void test splitText() {
+        // Arrange
+        int offset = 5;
+        String text = "Hello World";
+
+        // Act
+        TextNode textNode = new TextNode(text);
+        TextNode result = textNode.splitText(offset);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Hello", result.getText());
+    }
+
+    @Test
+    public void test outerHtmlHead() {
+        // Arrange
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings(2048, false);
+
+        // Act
+        TextNode textNode = new TextNode("Hello World");
+        textNode.outerHtmlHead(accum, depth, out);
+
+        // Assert
+        assertEquals("Hello World", accum.toString());
+    }
+
+    @Test
+    public void test outerHtmlTail() {
+        // Arrange
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings(2048, false);
+
+        // Act
+        TextNode textNode = new TextNode("Hello World");
+        textNode.outerHtmlTail(accum, depth, out);
+
+        // Assert
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void test toString() {
+        // Arrange
+        String text = "Hello World";
+
+        // Act
+        TextNode textNode = new TextNode(text);
+        String result = textNode.toString();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void test clone() {
+        // Arrange
+        String text = "Hello World";
+        TextNode expected = new TextNode(text);
+
+        // Act
+        TextNode actual = new TextNode(text).clone();
+
+        // Assert
+        assertNotNull(actual);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void test createFromEncoded() {
+        // Arrange
+        String encodedText = "Hello World";
+
+        // Act
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+
+        // Assert
+        assertNotNull(textNode);
+        assertEquals("Hello World", textNode.getText());
+    }
+
+    @Test
+    public void test normaliseWhitespace() {
+        // Arrange
+        String text = "   Hello World  ";
+
+        // Act
+        String result = TextNode.normaliseWhitespace(text);
+
+        // Assert
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void test stripLeadingWhitespace() {
+        // Arrange
+        StringBuilder sb = new StringBuilder();
+        sb.append("   Hello World  ");
+
+        // Act
+        String result = TextNode.stripLeadingWhitespace(sb.toString());
+
+        // Assert
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void test lastCharIsWhitespace() {
+        // Arrange
+        StringBuilder sb = new StringBuilder();
+        sb.append( "   Hello" );
+
+        // Act
+        boolean result = TextNode.lastCharIsWhitespace(sb);
+
+        // Assert
+        assertTrue(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+
+public class TextNode {
+
+    public static class InnerText {
+        private String text;
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+    }
+
+    public static String createFromEncoded(String encodedText) {
+        Document document = new Document();
+        document.parse(new Parser().buildReader(encodedText));
+        Element root = document.body().firstChild();
+        return root.text();
+    }
+
+    public static InnerText stripLeadingWhitespace(Element element) {
+        int indentLevel = 0;
+        for (int i = 0; i < element.toString().length(); i++) {
+            if (element.toString()[i] == ' ') {
+                ++indentLevel;
+            } else if (indentLevel > 0) {
+                break;
+            }
+        }
+        return new InnerText(element.text().substring(indentLevel));
+    }
+
+    public static InnerText lastCharIsWhitespace(Element element) {
+        String text = element.text();
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) != ' ') {
+                return new InnerText(text.substring(0, i));
+            }
+        }
+        return null;
+    }
+
+    public static String toString(Element element) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < element.toString().length(); i++) {
+            if (element.toString()[i] != ' ') {
+                builder.append(element.toString()[i]);
+            } else {
+                builder.append(' ');
+            }
+        }
+        return builder.toString();
+    }
+
+    public static String toLowerCase(Element element) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < element.toString().length(); i++) {
+            if (element.toString()[i].equals(' ')) {
+                builder.append(element.toString()[i].toLowerCase());
+            } else {
+                builder.append(element.toString()[i]);
+            }
+        }
+        return builder.toString();
+    }
+
+    public static String toUpperCase(Element element) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < element.toString().length(); i++) {
+            if (element.toString()[i].equals(' ')) {
+                builder.append(element.toString()[i]).append(' ');
+            } else {
+                builder.append(element.toString()[i]);
+            }
+        }
+        return builder.toString();
+    }
+
+    public static String format(String... strings) {
+        StringBuilder builder = new StringBuilder();
+        for (String s : strings) {
+            builder.append(s).append(" ");
+        }
+        return builder.toString().trim();
+    }
+
+    public static void main(String[] args) {
+        // Test 1: nodeName
+        Element element = document.createElement("a");
+        element.text = "Hello";
+        System.out.println(nodeName(element));
+
+        // Test 2: toString
+        String str = toLowerCase(document.body());
+        System.out.println(toString(str));
+
+        // Test 3: stripLeadingWhitespace
+        element = document.createElement("b");
+        Element inner = document.createElement("p").firstChild();
+        inner.setText(str.stripLeadingWhitespace(inner));
+        element.appendChild(inner);
+        System.out.println(toString(element));
+
+        // Test 4: lastCharIsWhitespace
+        element = document.createElement("div");
+        InnerText innerText = lastCharIsWhitespace(element);
+        if (innerText != null) {
+            System.out.println(innerText.getText());
+        } else {
+            System.out.println("None");
+        }
+
+        // Test 5: toLowerCase
+        String lowerCaseStr = toLowerCase(document.body());
+        System.out.println(lowerCaseStr);
+
+        // Test 6: toUpperCase
+        String upperCaseStr = toUpperCase(document.body());
+        System.out.println(upperCaseStr);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+
+public class TextNode {
+
+    public static class InnerText {
+        private String text;
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+    }
+
+    public static String format(String... strings) {
+        StringBuilder builder = new StringBuilder();
+        for (String s : strings) {
+            builder.append(s).append(" ");
+        }
+        return builder.toString().trim();
+    }
+
+    public static InnerText toString(Element element) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < element.toString().length(); i++) {
+            if (element.toString()[i] != ' ') {
+                builder.append(element.toString()[i]);
+            } else {
+                builder.append(' ');
+            }
+        }
+        return new InnerText(builder.toString());
+    }
+
+    public static String stripLeadingWhitespace(Element element) {
+        int indentLevel = 0;
+        for (int i = 0; i < element.toString().length(); i++) {
+            if (element.toString()[i] == ' ') {
+                ++indentLevel;
+            } else if (indentLevel > 0) {
+                break;
+            }
+        }
+        return element.toString().substring(indentLevel);
+    }
+
+    public static String toLowerCase(Element element) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < element.toString().length(); i++) {
+            if (element.toString()[i].equals(' ')) {
+                builder.append(element.toString()[i].toLowerCase());
+            } else {
+                builder.append(element.toString()[i]);
+            }
+        }
+        return builder.toString();
+    }
+
+    public static String toUpperCase(Element element) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < element.toString().length(); i++) {
+            if (element.toString()[i].equals(' ')) {
+                builder.append(element.toString()[i]).append(' ');
+            } else {
+                builder.append(element.toString()[i]);
+            }
+        }
+        return builder.toString().trim();
+    }
+
+    public static String toLowercase(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i).equals(' ')) {
+                str = str.substring(0, i).toLowerCase() + str.substring(i + 1);
+            }
+        }
+        return str;
+    }
+
+    public static String toTitleCase(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i).equals(' ')) {
+                str = str.substring(0, i).toUpperCase() + str.substring(i + 1);
+            }
+        }
+        return str;
+    }
+
+    public static String replaceFirst(String str, String old, String newStr) {
+        int pos = 0;
+        while (pos < str.length()) {
+            if (str.charAt(pos).equals(old)) {
+                str = str.substring(0, pos) + newStr + str.substring(pos + old.length());
+                break;
+            }
+            pos++;
+        }
+        return str;
+    }
+
+    public static String appendToString(StringBuilder builder, String s) {
+        while (!s.isEmpty()) {
+            builder.append(s);
+            s = s.substring(1);
+        }
+        return builder.toString();
+    }
+
+    public static void main(String[] args) {
+        // Test 1: nodeName
+        Element element = document.createElement("a");
+        element.text = "Hello";
+        System.out.println(nodeName(element));
+
+        // Test 2: toString
+        String str = toLowerCase(document.body());
+        System.out.println(toString(str));
+
+        // Test 3: stripLeadingWhitespace
+        element = document.createElement("b");
+        Element inner = document.createElement("p").firstChild();
+        inner.setText(toLowercase(str.stripLeadingWhitespace(inner)));
+        element.appendChild(inner);
+        System.out.println(toString(element));
+
+        // Test 4: lastCharIsWhitespace
+        element = document.createElement("div");
+        InnerText innerText = lastCharIsWhitespace(element);
+        if (innerText != null) {
+            System.out.println(innerText.getText());
+        } else {
+            System.out.println("None");
+        }
+
+        // Test 5: toLowerCase
+        String lowerCaseStr = toLowerCase(document.body());
+        System.out.println(lowerCaseStr);
+
+        // Test 6: toUpperCase
+        String upperCaseStr = toUpperCase(document.body());
+        System.out.println(upperCaseStr);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+
+public class TextNode {
+
+    public static class InnerText {
+        private String text;
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+    }
+
+    public static String appendToString(InnerText innerText, StringBuilder builder) {
+        while (!innerText.getText().isEmpty()) {
+            builder.append(innerText.getText());
+            innerText.setText(innerText.getText().substring(0, 1).toUpperCase() + innerText.getText().substring(1));
+        }
+        return builder.toString();
+    }
+
+    public static String toString(StringBuilder builder) {
+        for (int i = 0; i < builder.length(); i++) {
+            if (builder.charAt(i) != ' ') {
+                builder.append(builder.charAt(i));
+            } else {
+                builder.append(' ');
+            }
+        }
+        return builder.toString();
+    }
+
+    public static String stripLeadingWhitespace(StringBuilder builder, int indentLevel) {
+        while (indentLevel-- > 0) {
+            if (builder.length() > 0 && builder.charAt(0) == ' ') {
+                builder.deleteCharAt(0);
+            }
+        }
+        return builder.toString();
+    }
+
+    public static String toTitleCase(String str) {
+        StringBuilder builder = new StringBuilder(str);
+        for (int i = 0; i < str.length(); i++) {
+            if (Character.isUpperCase(str.charAt(i))) {
+                if (i != 0 && Character.toLowerCase(str.charAt(i - 1)) == ' ') {
+                    builder.insert(0, str.substring(0, i).toUpperCase() + " ");
+                } else {
+                    builder.insert(0, str.charAt(i).toUpperCase());
+                }
+            } else {
+                builder.insert(0, str.charAt(i));
+            }
+        }
+        return builder.toString();
+    }
+
+    public static String replaceFirst(String str, String old, String newStr) {
+        int pos = 0;
+        while (pos < str.length()) {
+            if (str.charAt(pos).equals(old)) {
+                str = str.substring(0, pos) + newStr + str.substring(pos + old.length());
+                break;
+            }
+            pos++;
+        }
+        return str;
+    }
+
+    public static String reverse(StringBuilder builder) {
+        while (builder.length() > 0) {
+            builder.insert(builder.length() - 1, "");
+        }
+        return builder.toString();
+    }
+
+    public static void main(String[] args) {
+        // Test 1: nodeName
+        Element element = document.createElement("a");
+        element.text = "Hello";
+        System.out.println(nodeName(element));
+
+        // Test 2: toString
+        String str = toLowerCase(document.body());
+        System.out.println(toString(str));
+
+        // Test 3: stripLeadingWhitespace
+        StringBuilder builder = new StringBuilder();
+        element.appendToString(builder);
+        System.out.println(stripLeadingWhitespace(builder, 0));
+
+        // Test 4: lastCharIsWhitespace
+        element = document.createElement("div");
+        InnerText innerText = lastCharIsWhitespace(element);
+        if (innerText != null) {
+            System.out.println(innerText.getText());
+        } else {
+            System.out.println("None");
+        }
+
+        // Test 5: toLowerCase
+        String lowerCaseStr = toLowerCase(document.body());
+        System.out.println(lowerCaseStr);
+
+        // Test 6: toUpperCase
+        String upperCaseStr = toUpperCase(document.body());
+        System.out.println(upperCaseStr);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+
+public class TextNode {
+
+    public static class InnerText {
+        private String text;
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+    }
+
+    public static InnerText splitStringIntoNodes(String str, int splitPoint) {
+        if (str.isEmpty()) {
+            return new InnerText();
+        } else if (splitPoint < 0 || splitPoint >= str.length() - 1) {
+            return new InnerText();
+        }
+        String firstPart = str.substring(0, splitPoint + 1);
+        String secondPart = str.substring(splitPoint + 1);
+        Element firstElement = document.createElement("p");
+        firstElement.appendToString(firstPart);
+        Element secondElement = document.createElement("p");
+        secondElement.appendToString(secondPart);
+        return new InnerText().setText(String.join("", new String[]{firstElement, secondElement}));
+    }
+
+    public static void main(String[] args) {
+        // Test 1: nodeName
+        Document document = new Document();
+        Element element = document.createElement("a");
+        element.text = "Hello";
+        System.out.println(nodeName(element));
+
+        // Test 2: toString
+        String str = toLowerCase(document.body());
+        System.out.println(toString(str));
+
+        // Test 3: splitStringIntoNodes
+        StringBuilder builder = new StringBuilder();
+        Element firstElement = splitStringIntoNodes("Hello, World!", 13);
+        Element secondElement = splitStringIntoNodes("Hello, ", -1);
+        String result = appendToString(firstElement, builder);
+        String result2 = appendToString(secondElement, builder);
+        System.out.println(result);
+        System.out.println(result2);
+
+        // Test 4: stripLeadingWhitespace
+        StringBuilder builder1 = new StringBuilder();
+        element.appendToString(builder1);
+        System.out.println(stripLeadingWhitespace(builder1, 0));
+
+        // Test 5: lastCharIsWhitespace
+        Element element1 = document.createElement("div");
+        InnerText innerText1 = lastCharIsWhitespace(element1);
+        if (innerText1 != null) {
+            System.out.println(innerText1.getText());
+        } else {
+            System.out.println("None");
+        }
+
+        // Test 6: toLowerCase
+        String lowerCaseStr = toLowerCase(document.body());
+        System.out.println(lowerCaseStr);
+
+        // Test 7: toUpperCase
+        String upperCaseStr = toUpperCase(document.body());
+        System.out.println(upperCaseStr);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,457 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class XmlTreeBuilderTest {
+    @Mock
+    private Token CommentToken;
+
+    @Mock
+    private Token CharacterToken;
+    @Mock
+    private Token DoctypeD;
+
+    @InjectMocks
+    private XmlTreeBuilder xmlTreeBuilder;
+
+    public void testParseElement() throws Exception {
+        // Arrange
+        Document document = new Document();
+        CDataNode cdataNode = new CDataNode("test");
+        Element element = new Element(document, "test");
+
+        // Act
+        String result = xmlTreeBuilder.parse(element, "test");
+        
+        // Assert
+        assertTrue(result.startsWith("<![CDATA["));
+    }
+
+    public void testParseComment() throws Exception {
+        // Arrange
+        Document document = new Document();
+        Comment commentNode = new Comment(document, "test");
+
+        // Act
+        String result = xmlTreeBuilder.parse(commentNode, "test");
+        
+        // Assert
+        assertTrue(result.startsWith("<!--"));
+    }
+
+    public void testParseDocument() throws Exception {
+        // Arrange
+        Document document = new Document();
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("1.0", "UTF-8");
+
+        // Act
+        String result = xmlTreeBuilder.parse(document, "test");
+        
+        // Assert
+        assertTrue(result.startsWith("<!DOCTYPE html>"));
+    }
+
+    public void testParseFragment() throws Exception {
+        // Arrange
+        Document document = new Document();
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("1.0", "UTF-8");
+
+        // Act
+        String result = xmlTreeBuilder.parseFragment("", "test", "test");
+        
+        // Assert
+        assertTrue(result.length() > 10);
+    }
+
+    public void testInsertNode() throws Exception {
+        // Arrange
+        Element element = new Element(new Document(), "test");
+        Token token = new Token("new-element");
+
+        // Act
+        String result = xmlTreeBuilder.insert(element, token);
+        
+        // Assert
+        assertTrue(result.startsWith("<!DOCTYPE html>"));
+    }
+
+    public void testInsertComment() throws Exception {
+        // Arrange
+        Element element = new Element(new Document(), "test");
+        Comment commentNode = new Comment(new Document(), "test");
+
+        // Act
+        String result = xmlTreeBuilder.insert(commentNode, commentToken);
+        
+        // Assert
+        assertTrue(result.startsWith("<!--"));
+    }
+
+    public void testInsertCharacter() throws Exception {
+        // Arrange
+        Element element = new Element(new Document(), "test");
+        CharacterToken token = new CharacterToken("test");
+
+        // Act
+        String result = xmlTreeBuilder.insert(token);
+        
+        // Assert
+        assertTrue(result.startsWith("test"));
+    }
+
+    public void testInsertDoctype() throws Exception {
+        // Arrange
+        Element element = new Element(new Document(), "test");
+        Token token = new Token("DOCTYPE");
+
+        // Act
+        String result = xmlTreeBuilder.insert(token);
+
+        // Assert
+        assertTrue(result.startsWith("<!DOCTYPE html>"));
+    }
+
+    public void testProcess() throws Exception {
+        // Arrange
+        Token token = new Token("test");
+
+        // Act
+        boolean result = xmlTreeBuilder.process(token);
+        
+        // Assert
+        assertTrue(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class XmlTreeBuilderTest {
+    @Before
+    public void setup() {
+        // Arrange
+        String input = "test";
+        String baseUri = "";
+        Parser parser = new Parser();
+
+        Mockito.mockStatic(XmlParser.class);
+    }
+
+    public void testParseElement() throws Exception {
+        // Act and Assert
+        Document document = xmlTreeBuilder.parse(new InputStreamReader(System.in), baseUri, parser);
+        assertTrue(document.getNode().getNodeName().equals("test"));
+    }
+
+    public void testParseComment() throws Exception {
+        // Act and Assert
+        String result = xmlTreeBuilder.parse(new CommentToken(), "test");
+        assertEquals("<!--", result.substring(3));
+    }
+
+    public void testParseDocument() throws Exception {
+        // Act and Assert
+        Document document = xmlTreeBuilder.parse(new XmlDeclaration("1.0", "UTF-8"), baseUri);
+        assertEquals("<!DOCTYPE html>", document.getNode().getNodeName());
+    }
+
+    public void testParseFragment() throws Exception {
+        // Arrange
+        String input = "";
+        String baseUri = "";
+        Parser parser = new Parser();
+
+        Mockito.mockStatic(XmlParser.class);
+
+        // Act and Assert
+        Document document = xmlTreeBuilder.parseFragment(input, baseUri, parser);
+        assertEquals(1, document.getNode().getNodeName().length());
+    }
+
+    public void testInsertNode() throws Exception {
+        // Arrange
+        String input = "";
+        Element element = new Element(new Document(), "test");
+        Token token = new Token("new-element");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(element, token);
+        assertEquals("<!DOCTYPE html>test", result);
+    }
+
+    public void testInsertComment() throws Exception {
+        // Arrange
+        String input = "";
+        Element element = new Element(new Document(), "test");
+        Comment commentNode = new Comment(new Document(), "test");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(commentNode, commentToken);
+        assertEquals("<!--", result.substring(3));
+    }
+
+    public void testInsertCharacter() throws Exception {
+        // Arrange
+        Element element = new Element(new Document(), "test");
+        CharacterToken token = new CharacterToken("test");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(token);
+        assertEquals("test", result.substring(0, 1));
+    }
+
+    public void testInsertDoctype() throws Exception {
+        // Arrange
+        Element element = new Element(new Document(), "test");
+        Token token = new Token("DOCTYPE");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(token);
+        assertEquals("<!DOCTYPE html>", result.substring(3));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.parser.XmlParser;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entity;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.XmlDeclaration;
+
+public class XmlTreeBuilderTest {
+    @Mock
+    private Token CommentToken;
+
+    @InjectMocks
+    private XmlTreeBuilder xmlTreeBuilder;
+
+    public void testParse() throws Exception {
+        // Arrange
+        Document document = new Document();
+        Element element = new Element(document, "test");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.parse(element, "");
+        assertEquals("test", result);
+    }
+
+    public void testInsert() throws Exception {
+        // Arrange
+        Element element = new Element(new Document(), "test");
+        Token token = new Token("test");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(token);
+        assertEquals("<!DOCTYPE html>test", result);
+    }
+
+    public void testParseFragment() throws Exception {
+        // Arrange
+        Document document = new Document();
+        Element element = new Element(document, "test");
+        Comment commentToken = new Comment(new Document(), "test");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.parseFragment(commentToken, "");
+        assertEquals("test", result);
+    }
+
+    public void testInsertNode() throws Exception {
+        // Arrange
+        String input = "";
+        Element element = new Element(new Document(), "test");
+        Node node = new Entity("new-tag", "<new-value>" + input + "</new-value>");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(node, "");
+        assertEquals("<!DOCTYPE html>test<new-tag>value</new-tag>", result);
+    }
+
+    public void testParseEntity() throws Exception {
+        // Arrange
+        Element element = new Element(new Document(), "test");
+        Comment commentToken = new Comment(new Document(), "");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.parse(commentToken, "");
+        assertEquals("<new-value>", result.substring(1));
+    }
+
+    public void testInsertEntity() throws Exception {
+        // Arrange
+        Element element = new Element(new Document(), "test");
+        Token token = new Token("<entity>value</entity>");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(token);
+        assertEquals("value<new-value>", result.substring(4));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.parser.XmlParser;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entity;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+
+public class XmlTreeBuilderTest {
+    @Before
+    public void setup() {
+        // Arrange
+        String input = "<root><person><name>John</name><age>30</age></person></root>";
+        Document document = new Document();
+        document.parse(input);
+        Element element = document.getDocumentElement();
+
+        Mockito.mockStatic(XmlParser.class);
+
+        XmlDeclaration xmlDeclaration = new XmlDeclaration("1.0", "UTF-8");
+        Mockito.when(XmlParser.parseString(xmlDeclaration.toString())).thenReturn(document);
+    }
+
+    public void testParse() throws Exception {
+        // Act and Assert
+        String result = xmlTreeBuilder.parse(element, "");
+        assertEquals("<root><person><name>John</name><age>30</age></person></root>", result);
+    }
+
+    public void testInsert() throws Exception {
+        // Arrange
+        Element element = new Element(document, "test");
+        Token token = new Token("test");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(token);
+        assertEquals("<!DOCTYPE html><html><head><title>Test</title></head><body><p test='test'>Value</p></body></html>", result);
+    }
+
+    public void testParseFragment() throws Exception {
+        // Act and Assert
+        String result = xmlTreeBuilder.parseFragment(new Comment(document, "test"), "");
+        assertEquals("<root><person><name>John</name><age>30</age></person></root>", result);
+    }
+
+    public void testInsertNode() throws Exception {
+        // Arrange
+        String input = "<person><name>John</name><age>30</age></person>";
+        Element element = new Element(document, "test");
+        Node node = new Entity("new-tag", "<new-value>" + input + "</new-value>");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(node, "");
+        assertEquals("<!DOCTYPE html><html><head><title>Test</title></head><body><p test='test' content='value'/><span new-tag='new-value'>Value</span></body></html>", result);
+    }
+
+    public void testParseEntity() throws Exception {
+        // Act and Assert
+        String result = xmlTreeBuilder.parse(new Comment(document, "test"), "");
+        assertEquals("<new-value>value<entity>value</entity>", result.substring(1));
+    }
+
+    public void testInsertEntity() throws Exception {
+        // Arrange
+        Element element = new Element(document, "test");
+        Token token = new Token("entity");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(token);
+        assertEquals("value<new-value>", result.substring(4));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entity;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+
+public class XmlTreeBuilderTest {
+    @Before
+    public void setup() {
+        // Arrange
+        String input = "<root><person><name>John</name><age>30</age></person></root>";
+        Document document = new Document();
+        document.parse(input);
+
+        Element element = document.getDocumentElement();
+
+        Mockito.mockStatic(XmlParser.class);
+    }
+
+    public void testParse() throws Exception {
+        // Act and Assert
+        String result = xmlTreeBuilder.parse(element, "");
+        assertEquals("<root><person><name>John</name><age>30</age></person></root>", result);
+    }
+
+    public void testInsert() throws Exception {
+        // Arrange
+        Element element = new Element(document, "test");
+        Token token = new Token("test");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(token);
+        assertEquals("<!DOCTYPE html><html><head><title>Test</title></head><body><p test='test'>Value</p></body></html>", result);
+    }
+
+    public void testParseFragment() throws Exception {
+        // Act and Assert
+        String result = xmlTreeBuilder.parseFragment(new Comment(document, "test"), "");
+        assertEquals("<root><person><name>John</name><age>30</age></person></root>", result);
+    }
+
+    public void testInsertNode() throws Exception {
+        // Arrange
+        String input = "<person><name>John</name><age>30</age></person>";
+        Element element = new Element(document, "test");
+        Node node = new Entity("new-tag", "<new-value>" + input + "</new-value>");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(node, "");
+        assertEquals("<!DOCTYPE html><html><head><title>Test</title></head><body><p test='test' content='value'/><span new-tag='new-value'>Value</span></body></html>", result);
+    }
+
+    public void testParseEntity() throws Exception {
+        // Act and Assert
+        String result = xmlTreeBuilder.parse(new Comment(document, "test"), "");
+        assertEquals("<entity>value<entity>value</entity>", result.substring(1));
+    }
+
+    public void testInsertEntity() throws Exception {
+        // Arrange
+        Element element = new Element(document, "test");
+        Token token = new Token("entity");
+
+        // Act and Assert
+        String result = xmlTreeBuilder.insert(token);
+        assertEquals("value<new-value>", result.substring(4));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

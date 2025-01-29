@@ -1,0 +1,698 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.nodes;
+
+import org.jsoup.parser.ParseSettings;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class AttributesImpl implements Iterable<Attribute>, Cloneable {
+    private final Map<String, Object> attributesMap = new HashMap<>();
+
+    public String get(String key) {
+        return (String) this.attributesMap.get(key);
+    }
+
+    public String getIgnoreCase(String key) {
+        return lowerCase(get(key));
+    }
+
+    @Nullable
+    public Object getUserData(String key) {
+        return this.attributesMap.get(key);
+    }
+
+    public Attributes add(String key, @Nullable String value) {
+        if (value != null) {
+            attributesMap.put(key, value);
+        }
+        return this;
+    }
+
+    public Attributes put(String key, @Nullable String value) {
+        this.attributesMap.put(key, value);
+        return this;
+    }
+
+    public Attributes putUserData(String key, Object value) {
+        this.attributesMap.put(key, value);
+        return this;
+    }
+
+    void putIgnoreCase(String key, @Nullable String value) {
+        if (value != null) {
+            attributesMap.put(lowerCase(key), value);
+        }
+    }
+
+    public Attributes put(String key, boolean value) {
+        this.attributesMap.put(key, Boolean.valueOf(value));
+        return this;
+    }
+
+    public Attributes put(Attribute attribute) {
+        for (Attribute a : this) {
+            if (!a.equals(attribute)) {
+                throw new RuntimeException("Attribute name must be unique");
+            }
+        }
+        attributesMap.put(attribute.getKey(), attribute.getValue());
+        return this;
+    }
+
+    void remove(String key) {
+        if (this.attributesMap.containsKey(key)) {
+            this.attributesMap.remove(key);
+        }
+    }
+
+    void removeIgnoreCase(String key) {
+        for (Map.Entry<String, Object> entry : this.attributesMap.entrySet()) {
+            if (lowerCase(key).equals(entry.getKey())) {
+                this.attributesMap.remove(entry.getKey());
+            }
+        }
+    }
+
+    public boolean hasKey(String key) {
+        return this.attributesMap.containsKey(key);
+    }
+
+    public boolean hasKeyIgnoreCase(String key) {
+        for (Map.Entry<String, Object> entry : this.attributesMap.entrySet()) {
+            if (lowerCase(key).equals(entry.getKey())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasDeclaredValueForKey(String key) {
+        for (Attribute a : this) {
+            if (a.get(key) != null && a.get(key).getClass().isArray()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasDeclaredValueForKeyIgnoreCase(String key) {
+        for (Map.Entry<String, Object> entry : this.attributesMap.entrySet()) {
+            if (lowerCase(key).equals(entry.getKey())) {
+                for (Object v : entry.getValue()) {
+                    if (v instanceof Array && ((Array)v).length > 0) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public int size() {
+        return this.attributesMap.size();
+    }
+
+    public boolean isEmpty() {
+        return this.attributesMap.isEmpty();
+    }
+
+    public void addAll(Attributes incoming) {
+        for (Attribute a : incoming) {
+            this.add(a.getKey(), a.getValue());
+        }
+    }
+
+    @Override
+    public Iterator<Attribute> iterator() {
+        return new AttributeIterator(this);
+    }
+
+    @Override
+    public List<Attribute> asList() {
+        return new ArrayList<>(this);
+    }
+
+    @Override
+    public Map<String, String> dataset() {
+        return this.attributesMap;
+    }
+
+    @Override
+    public String html(Appendable accum, Document.OutputSettings out) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        for (Attribute a : this) {
+            if (a.get().length() > 0 && !this.isEmpty()) {
+                builder.append(a.getKey()).append("=").append(String.valueOf(a.getValue()));
+                if (out != null) {
+                    out.write(builder.toString());
+                }
+                builder.setLength(0);
+            }
+        }
+        return StringUtil.toHtml(builder, this.dataset(), this.htmlSettings());
+    }
+
+    private class AttributeIterator implements Iterator<Attribute> {
+        private final Attributes attributes;
+        private final StringBuilder currentBuilder;
+
+        public AttributeIterator(Attributes attributes) {
+            this.attributes = attributes;
+            this.currentBuilder = new StringBuilder();
+        }
+
+        @Override
+        public boolean hasNext() {
+            while (this.currentBuilder.length() > 0 && !this.attributes.isEmpty()) {
+                String key = lowerCase(this.currentBuilder.toString());
+                for (Map.Entry<String, Object> entry : this.attributes.attributesMap.entrySet()) {
+                    if (lowerCase(key).equals(entry.getKey())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public Attribute next() {
+            while (this.hasNext()) {
+                String key = lowerCase(this.currentBuilder.toString());
+                for (Map.Entry<String, Object> entry : this.attributes.attributesMap.entrySet()) {
+                    if (lowerCase(key).equals(entry.getKey())) {
+                        try {
+                            return new Attribute(key, entry.getValue());
+                        } catch (RuntimeException e) {
+                            // Ignore
+                        }
+                    }
+                }
+            }
+            throw new RuntimeException("No matching attribute found");
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private static String lowerCase(String str) {
+        return org.jsoup.util.CharsetUtil.normalize(str, org.jsoup.internal.Normalizer.NFD);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.jsoup.nodes;
+
+import org.jsoup.parser.ParseSettings;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class Attributes {
+    private final Map<String, Object> attributes = new HashMap<>();
+
+    public String append(String key, Object value) {
+        this.attributes.put(key, value);
+        return null; // No-op
+    }
+
+    public void remove(String key) {
+        if (this.attributes.containsKey(key)) {
+            this.attributes.remove(key);
+        }
+    }
+
+    public boolean containsKey(String key) {
+        for (Map.Entry<String, Object> entry : this.attributes.entrySet()) {
+            if (lowerCase(key).equals(entry.getKey())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void clear() {
+        this.attributes.clear();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> entry : this.attributes.entrySet()) {
+            if (builder.length() > 0) {
+                builder.append("\n");
+            }
+            builder.append(entry.getKey()).append("=").append(String.valueOf(entry.getValue()));
+        }
+        return builder.toString();
+    }
+
+    public static void main(String[] args) {
+        Attributes attributes = new Attributes();
+
+        attributes.append("name", "John Doe");
+        attributes.append("age", 30);
+        attributes.append("city", "New York");
+
+        System.out.println(attributes);
+
+        attributes.remove("age");
+
+        System.out.println(attributes);
+
+        attributes.clear();
+
+        System.out.println(attributes);
+
+        System.out.println(attributes.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package org.jsoup.nodes;
+
+import org.jsoup.parser.ParseSettings;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class AttributesImpl implements Iterable<Attribute>, Cloneable {
+    private final Map<String, Object> attributesMap = new HashMap<>();
+
+    public String get(String key) {
+        return (String) this.attributesMap.get(key);
+    }
+
+    public String getIgnoreCase(String key) {
+        return lowerCase(get(key));
+    }
+
+    @Nullable
+    public Object getUserData(String key) {
+        return this.attributesMap.get(key);
+    }
+
+    public Attributes add(String key, @Nullable String value) {
+        if (value != null) {
+            attributesMap.put(key, value);
+        }
+        return this;
+    }
+
+    public Attributes put(String key, @Nullable String value) {
+        this.attributesMap.put(key, value);
+        return this;
+    }
+
+    public Attributes putUserData(String key, Object value) {
+        this.attributesMap.put(key, value);
+        return this;
+    }
+
+    void putIgnoreCase(String key, @Nullable String value) {
+        if (value != null) {
+            attributesMap.put(lowerCase(key), value);
+        }
+    }
+
+    public Attributes put(String key, boolean value) {
+        this.attributesMap.put(key, Boolean.valueOf(value));
+        return this;
+    }
+
+    public Attributes put(Attribute attribute) {
+        for (Attribute a : this) {
+            if (!a.equals(attribute)) {
+                throw new RuntimeException("Attribute name must be unique");
+            }
+        }
+        attributesMap.put(attribute.getKey(), attribute.getValue());
+        return this;
+    }
+
+    void remove(String key) {
+        if (this.attributesMap.containsKey(key)) {
+            this.attributesMap.remove(key);
+        }
+    }
+
+    public boolean containsKey(String key) {
+        for (Map.Entry<String, Object> entry : this.attributesMap.entrySet()) {
+            if (lowerCase(key).equals(entry.getKey())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> entry : this.attributesMap.entrySet()) {
+            if (builder.length() > 0) {
+                builder.append("\n");
+            }
+            builder.append(entry.getKey()).append("=").append(String.valueOf(entry.getValue()));
+        }
+        return builder.toString();
+    }
+
+    public static void main(String[] args) {
+        Attributes attributes = new Attributes();
+
+        attributes.append("name", "John Doe");
+        attributes.append("age", 30);
+        attributes.append("city", "New York");
+
+        System.out.println(attributes);
+
+        attributes.remove("age");
+
+        System.out.println(attributes);
+
+        attributes.clear();
+
+        System.out.println(attributes);
+
+        System.out.println(attributes.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package org.jsoup.nodes;
+
+import org.jsoup.parser.ParseSettings;
+import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class Attributes implements Iterable<Attribute> {
+    private final Map<String, Object> attributesMap = new HashMap<>();
+
+    @Override
+    public boolean add(Attribute attribute) {
+        for (Attribute a : this) {
+            if (!a.equals(attribute)) {
+                throw new RuntimeException("Attribute name must be unique");
+            }
+        }
+        attributesMap.put(attribute.getKey(), attribute.getValue());
+        return true;
+    }
+
+    @Override
+    public boolean remove(String key) {
+        if (this.attributesMap.containsKey(key)) {
+            this.attributesMap.remove(key);
+        }
+        return false;
+    }
+
+    @Override
+    public Iterator<Attribute> iterator() {
+        return new AttributeIterator(this);
+    }
+
+    public static void main(String[] args) {
+        Attributes attributes = new Attributes();
+
+        attributes.append("name", "John Doe");
+        attributes.append("age", 30);
+        attributes.append("city", "New York");
+
+        System.out.println(attributes);
+
+        attributes.remove("age");
+
+        System.out.println(attributes);
+
+        attributes.clear();
+
+        System.out.println(attributes);
+
+        Set<String> keys = attributes.keys();
+        System.out.println(keys);
+    }
+
+    private static class AttributeIterator implements Iterator<Attribute> {
+        final Attributes attrs;
+
+        public AttributeIterator(Attributes attrs) {
+            this.attrs = attrs;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return true; // All attributes are added
+        }
+
+        @Override
+        public Attribute next() {
+            if (this.hasNext()) {
+                return this.attrs.attributesMap.get(new StringBuilder().append(key).append("="));
+            } else {
+                throw new NoSuchElementException();
+            }
+        }
+    }
+
+    private static class Attribute implements Cloneable {
+        String key;
+        Object value;
+
+        public Attribute(String key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            Attribute attribute = (Attribute) obj;
+            return Objects.equals(key, attribute.key);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((key == null) ? 0 : key.hashCode());
+            result = prime * result + (value != null ? value.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Attribute{" +
+                    "key='" + key + '\'' +
+                    ", value=" + value +
+                    '}';
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+package org.jsoup.nodes;
+
+import org.jsoup.parser.ParseSettings;
+import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class AttributesImpl implements Iterable<Attribute>, Cloneable {
+    private final Map<String, Object> attributesMap = new HashMap<>();
+
+    public String append(String key, Object value) {
+        this.attributesMap.put(key, value);
+        return null; // No-op
+    }
+
+    public void remove(String key) {
+        if (this.attributesMap.containsKey(key)) {
+            this.attributesMap.remove(key);
+        }
+    }
+
+    @Override
+    public boolean containsKey(String key) {
+        for (Map.Entry<String, Object> entry : this.attributesMap.entrySet()) {
+            if (lowerCase(key).equals(entry.getKey())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void clear() {
+        this.attributesMap.clear();
+    }
+
+    @Override
+    public Iterator<Attribute> iterator() {
+        return new AttributeIterator(this);
+    }
+
+    private static class Attribute implements Cloneable {
+        String key;
+        Object value;
+
+        public Attribute(String key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            Attribute attribute = (Attribute) obj;
+            return Objects.equals(key, attribute.key);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((key == null) ? 0 : key.hashCode());
+            result = prime * result + (value != null ? value.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Attribute{" +
+                    "key='" + key + '\'' +
+                    ", value=" + value +
+                    '}';
+        }
+    }
+
+    private static class AttributeIterator implements Iterator<Attribute> {
+        final Attributes attrs;
+
+        public AttributeIterator(Attributes attrs) {
+            this.attrs = attrs;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return true; // All attributes are added
+        }
+
+        @Override
+        public Attribute next() {
+            if (this.hasNext()) {
+                return this.attrs.attributesMap.get(new StringBuilder().append(key).append("="));
+            } else {
+                throw new NoSuchElementException();
+            }
+        }
+    }
+
+    private static void printAttributes(Attributes attrs) {
+        System.out.println(attrs);
+        for (Attribute attribute : attrs) {
+            System.out.println(attribute);
+        }
+    }
+
+    public static void main(String[] args) {
+        Attributes attributes = new Attributes();
+
+        attributes.append("name", "John Doe");
+        attributes.append("age", 30);
+        attributes.append("city", "New York");
+
+        printAttributes(attributes);
+
+        attributes.remove("age");
+
+        printAttributes(attributes);
+
+        attributes.clear();
+
+        printAttributes(attributes);
+
+        Set<String> keys = attributes.keys();
+        System.out.println(keys);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

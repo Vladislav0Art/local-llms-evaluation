@@ -1,0 +1,1064 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class DataFrame {
+    private List<DataFrameRow> rows;
+    private String name;
+    private int size;
+
+    public DataFrame(String name) {
+        this.name = name;
+        this.rows = new ArrayList<>();
+    }
+
+    public void addRow(DataFrameRow row) {
+        rows.add(row);
+    }
+
+    public List<DataFrameRow> getRows() {
+        return rows;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (DataFrameRow row : getRows()) {
+            sb.append(row.toString()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    public void sortColumns(String[] columns) {
+        for (DataFrameColumn column : getColumnNames()) {
+            column.sort(columns);
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        DataFrame other = (DataFrame) obj;
+        return size == other.size && columns.equals(other.columns);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * size + getColumns().hashCode();
+    }
+
+    private List<DataFrameColumn> getColumnNames() {
+        List<DataFrameColumn> columnNames = new ArrayList<>();
+        for (DataFrameRow row : rows) {
+            columnNames.add(row.getColumn());
+        }
+        return columnNames;
+    }
+
+    public void renameColumns(String[] columnsToRename) {
+        for (DataFrameColumn column : getColumnNames()) {
+            column.setName(columnsToRename);
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public List<DataFrameRow> getRowsForIndex(List<String> indexColumns) {
+        for (DataFrameRow row : rows) {
+            if (indexColumns.contains(row.getColumn())) {
+                return new ArrayList<>(row.rows);
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    public void addFlag(String columnName, boolean value) {
+        for (DataFrameRow row : getRows()) {
+            if (row.getColumnName().equals(columnName)) {
+                row.setFlag(value);
+            }
+        }
+    }
+
+    public DataFrameRow getFirstRow() {
+        if (!rows.isEmpty()) {
+            return rows.get(0);
+        } else {
+            throw new RuntimeException("No rows in DataFrame");
+        }
+    }
+
+    @Override
+    public String toString(String separator) {
+        StringBuilder sb = new StringBuilder();
+        for (DataFrameRow row : getRows()) {
+            sb.append(row.toString()).append(separator).append("\n");
+        }
+        return sb.toString().trim();
+    }
+
+    public static class DataFrameColumn {
+        private List<DataFrameCell> cells;
+        private String name;
+
+        public DataFrameColumn(String name) {
+            this.name = name;
+            this.cells = new ArrayList<>();
+        }
+
+        public void addCell(DataFrameCell cell) {
+            cells.add(cell);
+        }
+
+        public void sort(List<String> columns) {
+            for (DataFrameCell cell : cells) {
+                if (columns.contains(cell.getColumn())) {
+                    cell.sort(columns);
+                }
+            }
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (DataFrameCell cell : cells) {
+                sb.append(cell.toString()).append("\n");
+            }
+            return sb.toString().trim();
+        }
+    }
+
+    public static class DataFrameRow {
+        private List<DataFrameColumn> columns;
+
+        public DataFrameRow(DataFrameColumn[] columns) {
+            this.columns = columns;
+        }
+
+        public DataFrameRow(DataFrameCell[] cells) {
+            this.cells = cells;
+        }
+
+        public void setColumn(DataFrameColumn column, int index) {
+            if (index < 0 || index >= columns.length) {
+                throw new RuntimeException("Invalid column index");
+            }
+            columns[index].set(column);
+        }
+
+        public DataFrameRow(int size) {
+            this.columns = new DataFrameColumn[size];
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (DataFrameCell cell : cells) {
+                sb.append(cell.toString()).append("\n");
+            }
+            return sb.toString().trim();
+        }
+    }
+
+    public static class DataFrameCell implements Comparable<DataFrameCell> {
+        private int index;
+        private DataFrameRow row;
+        private DataFrameColumn column;
+
+        public DataFrameCell(int index, DataFrameRow row, DataFrameColumn column) {
+            this.index = index;
+            this.row = row;
+            this.column = column;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public DataFrameRow getRow() {
+            return row;
+        }
+
+        public DataFrameColumn getColumn() {
+            return column;
+        }
+
+        @Override
+        public int compareTo(DataFrameCell other) {
+            if (index != other.index) {
+                return Integer.compare(index, other.index);
+            } else {
+                for (DataFrameColumn c : column.getColumns()) {
+                    if (!other.column.getColumns().contains(c)) {
+                        return 1;
+                    }
+                }
+                return -1;
+            }
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (DataFrameCell cell : cells) {
+                sb.append(cell.toString()).append("\n");
+            }
+            return sb.toString().trim();
+        }
+    }
+
+    public static class DataFrameRowBuilder {
+        private List<DataFrameColumn> columns;
+        private int size;
+
+        public DataFrameRowBuilder(int size) {
+            this.size = size;
+            this.columns = new ArrayList<>();
+        }
+
+        public DataFrameRowBuilder addColumn(DataFrameColumn column) {
+            columns.add(column);
+            return this;
+        }
+
+        public DataFrameRowBuilder setColumn(DataFrameColumn column, int index) {
+            columns.set(index, column);
+            return this;
+        }
+
+        public DataFrameRowBuilder setRows(DataFrameCell[] cells) {
+            for (DataFrameCell cell : rows) {
+                if (rows.contains(cell)) {
+                    throw new RuntimeException("Duplicate row");
+                }
+                rows.add(cell);
+            }
+            return this;
+        }
+
+        public DataFrameRow build() {
+            return new DataFrameRow(columns);
+        }
+
+        public void setRows(DataFrameCell[] cells) {
+            for (DataFrameCell cell : rows) {
+                if (!rows.contains(cell)) {
+                    throw new RuntimeException("Duplicate row");
+                }
+            }
+            rows = cells;
+        }
+
+        public List<DataFrameCell> getCells() {
+            return rows;
+        }
+    }
+
+    public static class DataFrameColumnBuilder {
+        private List<DataFrameRow> columns;
+
+        public DataFrameColumnBuilder(int size) {
+            this.columns = new ArrayList<>();
+        }
+
+        public DataFrameColumnBuilder addColumn(DataFrameColumn column) {
+            if (column.size != 1) {
+                throw new RuntimeException("Only one cell per column");
+            }
+            columns.add(column);
+            return this;
+        }
+
+        public DataFrameRowBuilder setColumns(List<DataFrameColumn> columns) {
+            for (DataFrameColumn column : columns) {
+                if (!columns.contains(column)) {
+                    throw new RuntimeException("Duplicate column");
+                }
+            }
+            columns = columns;
+            return this;
+        }
+
+        public DataFrameColumnBuilder setRows(DataFrameCell[] cells) {
+            for (DataFrameRow row : rows) {
+                if (!rows.contains(row)) {
+                    throw new RuntimeException("Duplicate row");
+                }
+            }
+            rows = cells;
+            return this;
+        }
+
+        public List<DataFrameRow> getColumns() {
+            return columns;
+        }
+
+        public DataFrameRowBuilder setRows(DataFrameCell[] cells) {
+            for (DataFrameRow row : rows) {
+                if (!rows.contains(row)) {
+                    throw new RuntimeException("Duplicate row");
+                }
+            }
+            rows = cells;
+            return this;
+        }
+
+        public int getSize() {
+            return columns.size();
+        }
+
+        public DataFrameRowBuilder setIndex(int index) {
+            for (DataFrameColumn column : columns) {
+                if (!column.getColumns().contains(column)) {
+                    throw new RuntimeException("Duplicate column");
+                }
+            }
+            columns.set(index, columns.get(0));
+            return this;
+        }
+
+        public DataFrameCell[] getCells() {
+            List<DataFrameRow> cells = new ArrayList<>(rows);
+            for (DataFrameColumn column : columns) {
+                cells.addAll(column.getRowsForIndex(new String[]{column.getName()}));
+            }
+            return cells.toArray(new DataFrameCell[0]);
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+            for (DataFrameRow row : rows) {
+                if (!rows.contains(row)) {
+                    throw new RuntimeException("Duplicate row");
+                }
+            }
+            rows.clear();
+            rows.add(index, columns.get(0));
+            return this;
+        }
+
+        public DataFrameRow build() {
+            return new DataFrameRowBuilder(getSize()).setRows(getCells()).build();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+I'll provide a detailed explanation of how to create and manipulate DataFrames in Java, following the specified formats.
+
+**Creating a DataFrame**
+
+A DataFrame is a data structure that allows you to store and manipulate tabular data. Here's an example of creating a simple DataFrame:
+
+```java
+import org.apache.commons.lang3.tuple.Pair;
+
+public class DataFrame {
+    private List<DataFrameRow> rows;
+    private String name;
+    private int size;
+
+    public DataFrame(String name) {
+        this.name = name;
+        this.rows = new ArrayList<>();
+    }
+
+    public void addRow(DataFrameRow row) {
+        rows.add(row);
+    }
+
+    public List<DataFrameRow> getRows() {
+        return rows;
+    }
+
+    public Pair<String, String> getFirstColumn() {
+        return new Pair<>(rows.get(0).getColumns().stream().findFirst().orElse(null), rows.get(0).getValue(0));
+    }
+}
+```
+
+This example creates a DataFrame with one column and one row. The `getFirstColumn` method returns the first column value as a pair.
+
+**Manipulating Data in a DataFrame**
+
+To manipulate data in a DataFrame, you can use various methods provided by the DataFrame class:
+
+```java
+public void setColumn(DataFrameRow row, String columnName, DataFrameRow newColumn) {
+    for (int i = 0; i < rows.size(); i++) {
+        if (rows.get(i).equals(row)) {
+            rows.set(i, newColumn);
+        }
+    }
+}
+```
+
+This method sets a value in the specified column of the specified row.
+
+```java
+public void addColumn(DataFrameRow newRow) {
+    columns.add(newRow.getValue(0));
+    for (int i = 1; i < columns.size(); i++) {
+        if (columns.get(i - 1).equals(columns.get(i))) {
+            columns.set(i, new DataFrameRow(columns.get(i), null));
+        }
+    }
+}
+```
+
+This method adds a new row to the DataFrame.
+
+**Getting Data from a DataFrame**
+
+To get data from a DataFrame, you can use various methods provided by the DataFrame class:
+
+```java
+public void printRows() {
+    for (DataFrameRow row : rows) {
+        System.out.println(row);
+    }
+}
+```
+
+This method prints all rows in the DataFrame to the console.
+
+**Creating a DataFrame with Data**
+
+To create a DataFrame with data, you can use the `DataFrameBuilder` class:
+
+```java
+public static void main(String[] args) {
+    DataFrame df = new DataFrame("My DataFrame");
+    Pair<String, String> column1 = new Pair<>("Column 1", "Value 1");
+    Pair<String, String> column2 = new Pair<>("Column 2", "Value 2");
+    DataFrameRow row = new DataFrameRow(df, column1);
+    df.addRow(row);
+
+    Pair<String, String> column3 = new Pair<>("Column 3", "Value 3");
+    df.addColumn(new DataFrameRow(column3));
+
+    System.out.println(df.getRows().get(0).getValue(0));
+}
+```
+
+This example creates a DataFrame with two columns and adds data to it using the `DataFrameBuilder` class.
+
+**Updating Data in a DataFrame**
+
+To update data in a DataFrame, you can use various methods provided by the DataFrame class:
+
+```java
+public void setColumn(DataFrameRow row, String columnName, DataFrameRow newColumn) {
+    for (int i = 0; i < rows.size(); i++) {
+        if (rows.get(i).equals(row)) {
+            rows.set(i, newColumn);
+        }
+    }
+}
+```
+
+This method sets a value in the specified column of the specified row.
+
+```java
+public void addRow(DataFrameRow newRow) {
+    columns.add(newRow.getValue(0));
+    for (int i = 1; i < columns.size(); i++) {
+        if (columns.get(i - 1).equals(columns.get(i))) {
+            columns.set(i, new DataFrameRow(columns.get(i), null));
+        }
+    }
+}
+```
+
+This method adds a new row to the DataFrame.
+
+**Getting Data from a Row**
+
+To get data from a row, you can use various methods provided by the DataFrame class:
+
+```java
+public DataFrameRow getRow(int index) {
+    return rows.get(index);
+}
+```
+
+This method returns the specified row in the DataFrame.
+
+```java
+public void printRow(DataFrameRow row) {
+    System.out.println(row);
+}
+```
+
+This method prints all columns in the specified row to the console.
+
+**Creating a DataFrame from an ArrayList**
+
+To create a DataFrame from an ArrayList, you can use the `DataFrameBuilder` class:
+
+```java
+public static void main(String[] args) {
+    ArrayList<DataFrameRow> rows = new ArrayList<>();
+    DataFrameRow row1 = new DataFrameRow(rows, new String[]{"Column 1", "Value 1"});
+    row1.add(new DataFrameRow(new int[]{1}, new Object[]{"Value 2"}));
+    rows.add(row1);
+
+    ArrayList<DataFrameRow> columns = new ArrayList<>();
+    for (int i = 0; i < Math.min(5, rows.size()); i++) {
+        columns.add(rows.get(i).getValue(0));
+    }
+    DataFrameBuilder builder = new DataFrameBuilder(columns);
+    DataFrame df = builder.build();
+
+    System.out.println(df.getRows().get(0).getValue(0));
+}
+```
+
+This example creates a DataFrame from an ArrayList of rows and columns, with a specified number of rows.
+
+**Using JXL**
+
+JXL is a Java library for reading and writing Excel files. Here's an example of creating and manipulating data in a JXL file:
+
+```java
+import org.jxl.Workbook;
+import org.jxl.value.CellValue;
+import org.jxl.value.Content;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Workbook workbook = Workbook.createWorkbook(new File("input.xlsm"));
+        CellValue cell1 = Content.createCell(0, 0, "Column 1", false);
+        CellValue cell2 = Content.createCell(0, 1, "Value 1", true);
+        CellValue cell3 = Content.createCell(1, 0, "Column 2", false);
+        CellValue cell4 = Content.createCell(1, 1, "Value 2", true);
+
+        workbook.addContent(cell1);
+        workbook.addContent(cell2);
+        workbook.addContent(content2);
+        workbook.addContent(cell3);
+        workbook.addContent(content3);
+        workbook.addContent(cell4);
+
+        workbook.close();
+    }
+}
+```
+
+This example creates a JXL file with two columns and adds data to it.
+
+**Using Apache POI**
+
+Apache POI is a Java library for reading and writing Excel files. Here's an example of creating and manipulating data in a POI file:
+
+```java
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Workbook workbook = new ApachePOISSFWorkbook();
+        Cell cell1 = workbook.getSheetAt(0).getRow(0).getCell(0);
+        CellValue cell2 = cell1.getValue();
+
+        System.out.println(cell2.toString());
+    }
+}
+```
+
+This example creates a POI file with one row and one column, and prints the value of the first cell.
+===================================================
+
+
+====================== Iteration #3 ======================
+**Creating a DataFrame**
+
+A DataFrame is a data structure that allows you to store and manipulate tabular data. Here's an example of creating a simple DataFrame:
+
+```java
+import org.apache.commons.lang3.tuple.Pair;
+
+public class DataFrame {
+    private List<DataFrameRow> rows;
+    private String name;
+    private int size;
+
+    public DataFrame(String name) {
+        this.name = name;
+        this.rows = new ArrayList<>();
+    }
+
+    public void addRow(DataFrameRow row) {
+        rows.add(row);
+    }
+
+    public List<DataFrameRow> getRows() {
+        return rows;
+    }
+
+    public Pair<String, String> getFirstColumn() {
+        return new Pair<>(rows.get(0).getColumns().stream().findFirst().orElse(null), rows.get(0).getValue(0));
+    }
+}
+```
+
+This example creates a DataFrame with one column and one row. The `getFirstColumn` method returns the first column value as a pair.
+
+**Manipulating Data in a DataFrame**
+
+To manipulate data in a DataFrame, you can use various methods provided by the DataFrame class:
+
+```java
+public void setColumn(DataFrameRow row, String columnName, DataFrameRow newColumn) {
+    for (int i = 0; i < rows.size(); i++) {
+        if (rows.get(i).equals(row)) {
+            rows.set(i, newColumn);
+        }
+    }
+}
+```
+
+This method sets a value in the specified column of the specified row.
+
+```java
+public void addColumn(DataFrameRow newRow) {
+    columns.add(newRow.getValue(0));
+    for (int i = 1; i < columns.size(); i++) {
+        if (columns.get(i - 1).equals(columns.get(i))) {
+            columns.set(i, new DataFrameRow(columns.get(i), null));
+        }
+    }
+}
+```
+
+This method adds a new row to the DataFrame.
+
+**Getting Data from a DataFrame**
+
+To get data from a DataFrame, you can use various methods provided by the DataFrame class:
+
+```java
+public void printRows() {
+    for (DataFrameRow row : rows) {
+        System.out.println(row);
+    }
+}
+```
+
+This method prints all rows of the DataFrame.
+
+**Using JXL**
+
+JXL is a Java library for reading and writing Excel files. Here's an example of creating and manipulating data in a JXL file:
+
+```java
+import org.jxl.Workbook;
+import org.jxl.value.CellValue;
+import org.jxl.value.Content;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Workbook workbook = Workbook.createWorkbook(new File("input.xlsm"));
+        CellValue cell1 = Content.createCell(0, 0, "Column 1", false);
+        CellValue cell2 = Content.createCell(0, 1, "Value 1", true);
+        CellValue cell3 = Content.createCell(1, 0, "Column 2", false);
+        CellValue cell4 = Content.createCell(1, 1, "Value 2", true);
+
+        workbook.addContent(cell1);
+        workbook.addContent(cell2);
+        workbook.addContent(Content.createSheet("Sheet1"));
+        workbook.getSheetAt(0).addContent(cell3);
+        workbook.getSheetAt(0).addContent(cell4);
+
+        workbook.close();
+    }
+}
+```
+
+This example creates a JXL file with two sheets, one containing a single row and one containing multiple rows. It prints the value of the first cell in the second sheet.
+
+**Using Apache POI**
+
+Apache POI is a Java library for reading and writing Excel files. Here's an example of creating and manipulating data in a POI file:
+
+```java
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Workbook workbook = new ApachePOISSFWorkbook();
+        Cell cell1 = workbook.getSheetAt(0).getRow(0).getCell(0);
+        CellValue cell2 = cell1.getValue();
+
+        System.out.println(cell2.toString());
+    }
+}
+```
+
+This example creates a POI file with one sheet, and prints the value of the first cell.
+===================================================
+
+
+====================== Iteration #4 ======================
+**Creating a CSV File**
+
+A CSV (Comma Separated Values) file is a plain text file that contains data in a table format. Here's an example of creating a simple CSV file:
+
+```java
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+
+public class CSVFile {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.csv";
+        CSVParser parser = new CSVParser(new java.io.BufferedReader(new java.io.InputStreamReader(new File(filePath))));
+
+        CSVRecord record = parser.getRecords()[0];
+        System.out.println(record.toString());
+    }
+}
+```
+
+This example creates a CSV file with one row and prints the contents of the first row.
+
+**Parsing a CSV File**
+
+To parse a CSV file, you can use various methods provided by the CSVParser class:
+
+```java
+public void readCSVFile(String filePath) throws Exception {
+    CSVParser parser = new CSVParser(new java.io.BufferedReader(new java.io.InputStreamReader(new File(filePath))));
+    int lineNumber = 0;
+    while (parser.getRecords() != null && lineNumber < parser.getRecords().size()) {
+        System.out.println(parser.getRecords().get(lineNumber));
+        lineNumber++;
+    }
+}
+```
+
+This method reads a CSV file and prints the contents of each row.
+
+**Converting to a CSV File**
+
+To convert data to a CSV file, you can use various methods provided by the CSVWriter class:
+
+```java
+public void writeCSVFile(String filePath) throws Exception {
+    CSVFormat format = CSVFormat.DEFAULT;
+    String fieldSeparator = ",";
+
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+        for (DataFrameRow row : rows) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < row.getValue(0).size(); i++) {
+                sb.append(row.getValue(0).get(i));
+                if (i < row.getValue(0).size() - 1) {
+                    sb.append(fieldSeparator);
+                }
+            }
+            writer.write(sb.toString());
+        }
+    } catch (Exception e) {
+        System.out.println("Error writing CSV file: " + e.getMessage());
+    }
+}
+```
+
+This method writes data to a CSV file.
+
+**Using Apache POI**
+
+Apache POI is a Java library for reading and writing Excel files. Here's an example of creating and manipulating data in a POI file:
+
+```java
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Workbook workbook = new ApachePOISSFWorkbook();
+        Sheet sheet = workbook.getSheetAt(0);
+
+        Cell cell1 = sheet.getRow(0).getCell(0);
+        CellValue cell2 = cell1.getValue();
+
+        System.out.println(cell2.toString());
+    }
+}
+```
+
+This example creates a POI file with one sheet, and prints the value of the first cell.
+
+**Using Apache CSV**
+
+Apache CSV is a Java library for reading and writing CSV files. Here's an example of creating and manipulating data in a CSV file:
+
+```java
+import org.apache.csv.core.CsvRecord;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.csv";
+        CsvReader csvReader = new ApacheCSVFileReader(filePath);
+
+        while (csvReader.hasNext()) {
+            System.out.println(csvReader.next());
+        }
+    }
+}
+```
+
+This example reads a CSV file and prints the contents of each row.
+
+**Using Jackson**
+
+Jackson is a Java library for serializing and deserializing data. Here's an example of creating and manipulating data in a JSON file:
+
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.json";
+        ObjectMapper mapper = new ObjectMapper();
+
+        DataFrame df = mapper.readTree(filePath);
+
+        System.out.println(df);
+    }
+}
+```
+
+This example reads a JSON file and prints the contents of the data.
+
+**Using XML Schema**
+
+XML schema is a language for defining the structure of XML documents. Here's an example of creating and manipulating data in an XML file:
+
+```java
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.xml";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Document document = factory.newDocumentBuilder().parse(new java.io.FileReader(filePath));
+
+        Element root = document.getDocumentElement();
+
+        // Accessing elements
+        System.out.println(root.getName());
+        System.out.println(root.getTextContent());
+
+        // Manipulating XML nodes
+        // ...
+    }
+}
+```
+
+This example parses an XML file and prints the contents of each element.
+
+**Using XLSX**
+
+XLSX is a Java library for reading and writing Excel files. Here's an example of creating and manipulating data in an XLSX file:
+
+```java
+import com.h2p.xlsx.XlsxWriter;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.xlsx";
+        XlsxWriter writer = new XlsxWriter();
+
+        // Adding a row to the sheet
+        writer.addRow(new Object[]{1, 2, 3});
+
+        // Writing data to the file
+        writer.write("Sheet1", new int[][]{{1, 4}, {5, 6}});
+    }
+}
+```
+
+This example adds a row to an XLSX file and writes data to it.
+===================================================
+
+
+====================== Iteration #5 ======================
+**Using CSVWriter**
+
+CSVWriter is a Java class for writing data to a CSV file. Here's an example of using CSVWriter:
+
+```java
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.csv";
+        CSVFormat format = CSVFormat.DEFAULT;
+        String fieldSeparator = ",";
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (int i = 0; i < 10; i++) {
+                writer.write(String.format("%d,%d,%s", i, i + 1, fieldSeparator));
+                writer.newLine();
+            }
+        } catch (Exception e) {
+            System.out.println("Error writing CSV file: " + e.getMessage());
+        }
+    }
+}
+```
+
+This example writes data to a CSV file with multiple rows and columns.
+
+**Using Apache POI**
+
+Apache POI is a Java library for reading and writing Excel files. Here's an example of using POI:
+
+```java
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.xlsx";
+        Sheet sheet = new XlsxWriter().createSheetAt(0);
+
+        for (int i = 1; i <= 10; i++) {
+            Row row = sheet.createRow(i);
+            Cell cell = row.createCell(0);
+            cell.setCellValue("Name");
+            cell = row.createCell(1);
+            cell.setCellValue("Age");
+            cell = row.createCell(2);
+            cell.setCellValue(String.valueOf(i));
+        }
+    }
+}
+```
+
+This example adds data to an Excel file.
+
+**Using Apache CSV**
+
+Apache CSV is a Java library for reading and writing CSV files. Here's an example of using CSV:
+
+```java
+import org.apache.csv.CsvRecord;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.csv";
+        CsvReader csvReader = new ApacheCSVFileReader(filePath);
+
+        while (csvReader.hasNext()) {
+            System.out.println(csvReader.next());
+        }
+    }
+}
+```
+
+This example reads a CSV file and prints the contents of each row.
+
+**Using Jackson**
+
+Jackson is a Java library for serializing and deserializing data. Here's an example of using Jackson:
+
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.json";
+        ObjectMapper mapper = new ObjectMapper();
+
+        try (JsonNode jsonNode = mapper.readTree(filePath)) {
+            System.out.println(jsonNode);
+        }
+    }
+}
+```
+
+This example reads a JSON file and prints the contents of it.
+
+**Using XML Schema**
+
+XML schema is a language for defining the structure of XML documents. Here's an example of using XML schema:
+
+```java
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.xml";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Document document = factory.newDocumentBuilder().parse(new java.io.FileReader(filePath));
+
+        Element root = document.getDocumentElement();
+
+        // Accessing elements
+        System.out.println(root.getName());
+        System.out.println(root.getTextContent());
+
+        // Manipulating XML nodes
+        // ...
+    }
+}
+```
+
+This example parses an XML file and prints the contents of each element.
+
+**Using XLSX**
+
+XLSX is a Java library for reading and writing Excel files. Here's an example of using XLSX:
+
+```java
+import com.h2p.xlsx.XlsxWriter;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String filePath = "data.xlsx";
+        XlsxWriter writer = new XlsxWriter();
+
+        // Adding a row to the sheet
+        writer.addRow(new Object[]{1, 2, 3});
+
+        // Writing data to the file
+        writer.write("Sheet1", new int[][]{{1, 4}, {5, 6}});
+    }
+}
+```
+
+This example adds a row to an XLSX file and writes data to it.
+===================================================
+
+
+====================== Iteration #6 ======================

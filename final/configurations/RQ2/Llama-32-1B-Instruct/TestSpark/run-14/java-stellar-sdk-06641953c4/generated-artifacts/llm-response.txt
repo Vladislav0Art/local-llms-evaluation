@@ -1,0 +1,502 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.stellar.sdk;
+
+import com.google.common.base.Preconditions;
+import net.i2p.crypto.eddsa.EdDSAEngine;
+import net.i2p.crypto.eddsa.EdDSAPrivateKey;
+import net.i2p.crypto.eddsa.EdDSAPublicKey;
+import net.i2p.crypto.eddsa.KeyPairGenerator;
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveSpec;
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
+import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec;
+import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
+import org.stellar.sdk.xdr.DecoratedSignature;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.PublicKeyType;
+import org.stellar.sdk.xdr.SignatureHint;
+import org.stellar.sdk.xdr.SignerKey;
+import org.stellar.sdk.xdr.SignerKeyType;
+import org.stellar.sdk.xdr.Uint256;
+import org.stellar.sdk.xdr.XdrDataOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.Signature;
+import java.security.SignatureException;
+
+public class KeyPair {
+
+    public static class KeyPairGeneratorBuilder {
+        private EdDSAPublicKey publicKey;
+        private byte[] secretSeed;
+
+        public KeyPairGeneratorBuilder withPublicKey(EdDSAEngine engine, PublicKey publicKey) {
+            this.publicKey = checkNotNull(publicKey);
+            return this;
+        }
+
+        public KeyPairGeneratorBuilder withSecretSeed(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty");
+            this.secretSeed = checkNotNull(secretSeed);
+            return this;
+        }
+    }
+
+    public static class RandomKeyPairGenerator {
+
+        private byte[] secretSeed;
+
+        public RandomKeyPairGenerator(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty");
+            this.secretSeed = checkNotNull(secretSeed);
+        }
+
+        public KeyPair generate() {
+            return new KeyPair(new EdDSAPublicKey(this.secretSeed), new KeypairBuilder().build());
+        }
+    }
+
+    private static class KeypairBuilder {
+
+        public static KeyPair builder() {
+            return new KeypairBuilder();
+        }
+
+        private byte[] secretSeed;
+
+        public KeypairBuilder withSecretSeed(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty");
+            this.secretSeed = checkNotNull(secretSeed);
+            return this;
+        }
+    }
+
+    public static class FromXdrKeyPair {
+
+        private KeyPair fromXdrPublicKey(PublicKey publicKey) {
+            return new KeyPair(publicKey, new KeypairBuilder().buildFromEdDSA().build());
+        }
+
+        private KeyPair fromXdrSignerKey(SignerKey key) {
+            return new KeyPair(new EdDSAPrivateKey(key), new KeypairBuilder().buildFromEdDSA().build());
+        }
+    }
+
+    public static class FromSecretSeedKeyPair {
+
+        private KeyPair fromSecretSeed(byte[] seed) {
+            return new KeyPair(fromXdrPublicKey(EddsaEngine.createXdrSeed(seed)), fromBip39Seed(XdrDataInputStream.create(new ByteArrayInputStream(seed))));
+        }
+
+        private KeyPair fromSecretSeed(String seed) {
+            byte[] secretSeed = XdrDataInputStream.create(new ByteArrayInputStream(seed));
+            return new KeypairGeneratorBuilder().withSecretSeed(secretSeed).withPublicKey(EdDSAEngine.createXdrSeed(secretSeed)).build();
+        }
+    }
+
+    public static class FromAccountIdKeyPair {
+
+        private KeyPair fromAccountId(String accountId) {
+            return new KeyPair(new EdDSAPublicKey(XdrDataInputStream.create(new ByteArrayInputStream(accountId))), new KeypairBuilder().withPublicKey(EdDSAEngine.createXdrSeed(XdrDataInputStream.create(new ByteArrayInputStream(accountId)))).build());
+        }
+
+        private KeyPair fromBip39Seed(byte[] bip39Seed, int accountNumber) {
+            byte[] secretSeed = XdrDataInputStream.create(new ByteArrayInputStream(bip39Seed));
+            return new KeypairGeneratorBuilder().withSecretSeed(secretSeed).buildFromEdDSA().build();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.stellar.sdk;
+
+import com.google.common.base.Preconditions;
+import net.i2p.crypto.eddsa.EdDSAEngine;
+import net.i2p.crypto.eddsa.EdDSAPrivateKey;
+import net.i2p.crypto.eddsa.EdDSAPublicKey;
+import net.i2p.crypto.eddsa.KeyPairGenerator;
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveSpec;
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
+import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec;
+import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
+import org.stellar.sdk.xdr.DecoratedSignature;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.PublicKeyType;
+import org.stellar.sdk.xdr.SignatureHint;
+import org.stellar.sdk.xdr.SignerKey;
+import org.stellar.sdk.xdr.SignerKeyType;
+import org.stellar.sdk.xdr.Uint256;
+import org.stellar.sdk.xdr.XdrDataOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.Signature;
+import java.security.SignatureException;
+
+public class KeyPair {
+
+    public static class KeyPairGeneratorBuilder {
+        private EdDSAPublicKey publicKey;
+        private byte[] secretSeed;
+
+        public KeyPairGeneratorBuilder withPublicKey(EdDSAEngine engine, PublicKey publicKey) {
+            Preconditions.checkArgument(checkNotNull(publicKey), "public key is required");
+            this.publicKey = checkNotNull(publicKey);
+            return this;
+        }
+
+        public KeyPairGeneratorBuilder withSecretSeed(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty and not empty");
+            if (checkNotNull(secretSeed)) {
+                this.secretSeed = checkNotNull(secretSeed);
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+            return this;
+        }
+    }
+
+    public static class RandomKeyPairGenerator {
+
+        private byte[] secretSeed;
+
+        public RandomKeyPairGenerator(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty and not empty");
+            this.secretSeed = checkNotNull(secretSeed);
+        }
+
+        public KeyPair generate() {
+            return new Keypair(new EdDSAPublicKey(this.secretSeed), new KeypairBuilder().buildFromEdDSA());
+        }
+    }
+
+    private static class KeypairBuilder {
+
+        private byte[] secretSeed;
+
+        public KeypairBuilder withSecretSeed(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty and not empty");
+            if (checkNotNull(secretSeed)) {
+                this.secretSeed = checkNotNull(secretSeed);
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+            return this;
+        }
+
+        public KeyPair build() {
+            return new KeyPair(new EdDSAPrivateKey(this.secretSeed), new KeypairBuilder().buildFromEdDSA());
+        }
+    }
+
+    public static class FromXdrKeyPair {
+
+        private KeyPair fromXdrPublicKey(PublicKey publicKey) {
+            return new KeyPair(publicKey, new KeypairGeneratorBuilder().withSecretSeed(XdrDataInputStream.create(new ByteArrayInputStream(this.secretSeed))).buildFromEdDSA());
+        }
+
+        private KeyPair fromXdrSignerKey(SignerKey key) {
+            return new KeyPair(EdDSAEngine.createXdrSeed(this.secretSeed), key);
+        }
+    }
+
+    public static class FromSecretSeedKeyPair {
+
+        private KeyPair fromSecretSeed(byte[] seed) {
+            if (checkNotNull(seed)) {
+                Preconditions.checkArgument(!checkNotNull(seed.length), "secret seed must be non-empty and have length greater than 0");
+                return new KeypairGeneratorBuilder().withSecretSeed(XdrDataInputStream.create(new ByteArrayInputStream(seed))).buildFromEdDSA();
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+        }
+
+        private KeyPair fromSecretSeed(String seed) {
+            if (checkNotNull(seed)) {
+                byte[] secretSeed = XdrDataInputStream.create(new ByteArrayInputStream(this.secretSeed));
+                return this.buildFromEdDSA().build();
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+        }
+
+        private KeyPair fromSecretSeedFromBip39Seed(byte[] bip39Seed, int accountNumber) {
+            if (checkNotNull(bip39Seed)) {
+                Preconditions.checkArgument(checkNotNull(bip39Seed.length), "secret seed must be non-empty and have length greater than 0");
+                return new KeypairGeneratorBuilder().withSecretSeed(XdrDataInputStream.create(new ByteArrayInputStream(this.secretSeed))).buildFromEdDSA();
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+        }
+
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package org.stellar.sdk;
+
+import com.google.common.base.Preconditions;
+import net.i2p.crypto.eddsa.EdDSAEngine;
+import net.i2p.crypto.eddsa.EdDSANamedCurveSpec;
+import net.i2p.crypto.eddsa.EdDSANamedCurveTable;
+import net.i2p.crypto.eddsa.SignatureAlgorithm;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.SignerKeyType;
+import org.stellar.sdk.xdr.SignatureHint;
+
+public class Keypair {
+
+    public static class KeyPairGeneratorBuilder {
+        private EdDSAPublicKey publicKey;
+        private byte[] secretSeed;
+
+        public KeyPairGeneratorBuilder withPublicKey(EdDSAEngine engine, PublicKey publicKey) {
+            Preconditions.checkArgument(checkNotNull(publicKey), "public key is required");
+            this.publicKey = checkNotNull(publicKey);
+            return this;
+        }
+
+        public KeyPairGeneratorBuilder withSecretSeed(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty and not empty");
+            if (checkNotNull(secretSeed)) {
+                this.secretSeed = checkNotNull(secretSeed);
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+            return this;
+        }
+
+        public KeyPairGeneratorBuilder withSecretSeedFromBip39Seed(byte[] bip39Seed, int accountNumber) {
+            Preconditions.checkArgument(checkNotNull(bip39Seed), "secret seed is required");
+            if (checkNotNull(bip39Seed)) {
+                byte[] secretSeed = XdrDataInputStream.create(new ByteArrayInputStream(this.secretSeed));
+                return this.withSecretSeed(secretSeed).withPublicKey(EdDSAEngine.createEd25519KeyPair(bip39Seed)).build();
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+        }
+
+        public KeyPair build() {
+            if (checkNotNull(publicKey)) {
+                return this.withPublicKey(EdDSAEngine.createEd25519KeyPair(this.secretSeed)).build();
+            } else {
+                throw new IllegalArgumentException("public key is required");
+            }
+        }
+    }
+
+    public static class KeypairBuilder {
+
+        private byte[] secretSeed;
+
+        public KeypairBuilder withSecretSeed(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty and not empty");
+            if (checkNotNull(secretSeed)) {
+                this.secretSeed = checkNotNull(secretSeed);
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+            return this;
+        }
+
+        public Keypair build() {
+            if (checkNotNull(this.secretSeed)) {
+                return new Keypair(new EdDSAPrivateKey(this.secretSeed), this.buildFromEdDSA());
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+        }
+
+        private PublicKey buildFromEdDSA() {
+            byte[] publicKeyBytes = XdrDataOutputStream.create(XdrDataOutputStream.create(
+                    XdrDataInputStream.create(
+                            new ByteArrayInputStream(this.secretSeed)
+                        ))
+                    )
+            );
+            return EdDSAEngine.getInstance(EdDSANamedCurveSpec.P256).sign(publicKeyBytes, SignatureAlgorithm.STANDARD, SignatureHint.DEFAULT);
+        }
+
+    }
+}
+```
+
+Please note that I've updated the `buildFromEdDSA()` method in the `KeypairBuilder` class to generate a key using the public seed. 
+
+Also, please make sure you have the necessary dependencies and setup for your project.
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package org.stellar.sdk;
+
+import com.google.common.base.Preconditions;
+import net.i2p.crypto.eddsa.EdDSAEngine;
+import net.i2p.crypto.eddsa.EdDSANamedCurveSpec;
+import net.i2p.crypto.eddsa.EdDSANamedCurveTable;
+import net.i2p.crypto.eddsa.SignatureAlgorithm;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.SignerKeyType;
+
+public class Keypair {
+
+    public static class KeyPairGeneratorBuilder {
+        private EdDSAEngine engine;
+        private byte[] secretSeed;
+
+        public KeyPairGeneratorBuilder withEdDSAEngine(EdDSAEngine engine) {
+            Preconditions.checkArgument(checkNotNull(engine), "eddsa engine is required");
+            this.engine = checkNotNull(engine);
+            return this;
+        }
+
+        public KeypairGeneratorBuilder withSecretSeed(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty and not empty");
+            if (checkNotNull(secretSeed)) {
+                this.secretSeed = checkNotNull(secretSeed);
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+            return this;
+        }
+
+        public KeyPairGeneratorBuilder withSecretSeedFromBip39Seed(byte[] bip39Seed, int accountNumber) {
+            Preconditions.checkArgument(checkNotNull(bip39Seed), "secret seed from bip39 is required");
+            if (checkNotNull(bip39Seed)) {
+                byte[] secretSeed = XdrDataInputStream.create(new ByteArrayInputStream(this.secretSeed));
+                return this.withSecretSeed(secretSeed).withEdDSAEngine(EdDSAEngine.createEd25519KeyPair(bip39Seed)).build();
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+        }
+
+        public Keypair build() {
+            if (checkNotNull(engine)) {
+                return this.withEdDSAEngine(this.secretSeed).withPublicKey(EdDSAEngine.createEd25519KeyPair(this.secretSeed)).build();
+            } else {
+                throw new IllegalArgumentException("eddsa engine is required");
+            }
+        }
+    }
+
+    public static class KeypairBuilder {
+
+        private byte[] secretSeed;
+
+        public KeypairBuilder withSecretSeed(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty and not empty");
+            if (checkNotNull(secretSeed)) {
+                this.secretSeed = checkNotNull(secretSeed);
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+            return this;
+        }
+
+        public Keypair build() {
+            if (checkNotNull(this.secretSeed)) {
+                byte[] publicKeyBytes = XdrDataOutputStream.create(XdrDataOutputStream.create(
+                        XdrDataInputStream.create(
+                                new ByteArrayInputStream(this.secretSeed)
+                            ))
+                        )
+                );
+                return EdDSAEngine.getInstance(EdDSANamedCurveSpec.P256).sign(publicKeyBytes, SignatureAlgorithm.STANDARD, SignatureHint.DEFAULT);
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+        }
+
+    }
+}
+```
+
+Please note that I've updated the `buildFromEdDSA()` method in the `KeypairBuilder` class to generate a key using the public seed. 
+
+Also, please make sure you have the necessary dependencies and setup for your project.
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+package org.stellar.sdk;
+
+import com.google.common.base.Preconditions;
+import net.i2p.crypto.eddsa.EdDSAEngine;
+import net.i2p.crypto.eddsa.EdDSANamedCurveSpec;
+import net.i2p.crypto.eddsa.EdDSANamedCurveTable;
+import net.i2p.crypto.edrsa.XdrDataOutputStream;
+import net.i2p.crypto.edrsa.XdrDataInputStream;
+
+public class Keypair {
+
+    public static class EdDSAEngineKeyPairGeneratorBuilder {
+        private EdDSAEngine engine;
+
+        public EdDSAEngineKeyPairGeneratorBuilder withEdDSAEngine(EdDSAEngine engine) {
+            Preconditions.checkArgument(checkNotNull(engine), "eddsa engine is required");
+            this.engine = checkNotNull(engine);
+            return this;
+        }
+
+        public Keypair build() {
+            if (checkNotNull(engine)) {
+                byte[] publicKeyBytes = XdrDataOutputStream.create(XdrDataOutputStream.create(
+                        XdrDataInputStream.create(
+                                new ByteArrayInputStream(this.secretSeed)
+                            ))
+                        )
+                );
+                return EdDSAEngine.getInstance(EdDSANamedCurveSpec.P256).sign(publicKeyBytes, SignatureAlgorithm.STANDARD);
+            } else {
+                throw new IllegalArgumentException("eddsa engine is required");
+            }
+        }
+
+        public KeypairBuilder withSecretSeedFromBip39Seed(byte[] bip39Seed, int accountNumber) {
+            Preconditions.checkArgument(checkNotNull(bip39Seed), "secret seed from bip39 is required");
+            if (checkNotNull(bip39Seed)) {
+                byte[] secretSeed = XdrDataInputStream.create(new ByteArrayInputStream(this.secretSeed));
+                return this.withEdDSAEngine(EdDSAEngine.createEd25519KeyPair(bip39Seed)).build();
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+        }
+
+    }
+
+    public static class KeypairGeneratorBuilder {
+
+        private byte[] secretSeed;
+
+        public KeypairGeneratorBuilder withSecretSeed(byte[] secretSeed) {
+            Preconditions.checkArgument(secretSeed.length > 0, "secret seed must be non-empty and not empty");
+            if (checkNotNull(secretSeed)) {
+                this.secretSeed = checkNotNull(secretSeed);
+            } else {
+                throw new IllegalArgumentException("secret seed cannot be empty or null");
+            }
+            return this;
+        }
+
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,593 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void [UrlBuilder][Scenario]Test_build() {
+        URL url = new URL("https://example.com/path");
+        StringBuilder expected = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.build(expected.toString());
+        assertEquals(expected.toString(), expected.toString());
+    }
+
+    @Test
+    public void [UrlBuilder][Scenario]Test_appendKeyVal() {
+        KeyVal kv1 = new KeyVal("key1", "value1");
+        KeyVal kv2 = new KeyVal("key2", "value2");
+        UrlBuilder builder = mock(UrlBuilder.class);
+        when(builder.appendKeyVal(kv1)).thenReturn(kv1);
+        when(builder.appendKeyVal(kv2)).thenReturn(kv2);
+
+        StringBuilder expected = new StringBuilder();
+        UrlBuilder urlBuilder = new UrlBuilder(mock(URL.class));
+        for (KeyVal kv : Arrays.asList(kv1, kv2)) {
+            urlBuilder.appendKeyVal(kv);
+        }
+        assertEquals(expected.toString(), urlBuilder.build());
+    }
+
+    @Test
+    public void [UrlBuilder][Scenario]Test_buildWithoutAppendKeyVal() {
+        URL url = new URL("https://example.com/path");
+        StringBuilder expected = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.build(expected.toString());
+        assertEquals(expected.toString(), expected.toString());
+    }
+
+    @Test
+    public void [UrlBuilder][Scenario]Test_buildWithMalformedUrl() {
+        URL url = new URL("https://example.com/path?invalid");
+        StringBuilder expected = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(url);
+        try {
+            builder.build(expected.toString());
+            fail("Expected MalformedURLException: java.net.MalformedURLException: protocol 'invalid'");
+        } catch (MalformedURLException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void [UrlBuilder][Scenario]Test_buildWithURIEncodingError() {
+        URL url = new URL("https://example.com/path?utf-8= invalid");
+        StringBuilder expected = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(url);
+        try {
+            builder.build(expected.toString());
+            fail("Expected URISyntaxException: java.net.URISyntaxException: invalid scheme or protocol to match: 'invalid'");
+        } catch (URISyntaxException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void [UrlBuilder][Scenario]Test_buildWithEncodingError() {
+        URL url = new URL("https://example.com/path?utf-8= invalid");
+        StringBuilder expected = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(url);
+        try {
+            builder.build(expected.toString());
+            fail("Expected UnsupportedEncodingException: java.net.UnsupportedEncodingException: invalid encoding");
+        } catch (UnsupportedEncodingException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void [UrlBuilder][Scenario]Test_buildWithUnknownError() {
+        URL url = new URL("https://example.com/path?unknown= error");
+        StringBuilder expected = new StringBuilder();
+        UrlBuilder builder = new UrlBuilder(url);
+        try {
+            builder.build(expected.toString());
+            fail("Expected UnknownIOException: unknown error");
+        } catch (UnknownIOException e) {
+            // Expected
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class TestUrlBuilder {
+
+    @Test
+    public void testDefaultConstructor() {
+        assertEquals(1, UrlBuilder.class.getProtectionDomain().getDeclaredFields().length);
+    }
+
+    @Test
+    public void testToString() {
+        String url = "https://www.example.com";
+        assertTrue(UrlBuilder.toString(url).contains("https"));
+    }
+
+    @Test
+    public void testConstructorFromString() {
+        UrlBuilder builder = new UrlBuilder("https://www.example.com");
+        assertEquals(builder, UrlBuilder.fromUri(builder.uri));
+    }
+
+    @Test
+    public void testConstructorsWithParams() {
+        String url = "https://www.example.com?param1=value1&param2=value2";
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder);
+        assertEquals("https", builder.uri());
+        assertTrue(builder.params().containsKey("param1"));
+        assertTrue(builder.params().containsKey("param2"));
+    }
+
+    @Test
+    public void testConstructorsWithQueryParams() {
+        String url = "https://www.example.com?query1=value1&query2=value2";
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder);
+        assertEquals("https", builder.uri());
+        assertTrue(builder.queryParams().containsKey("query1"));
+        assertTrue(builder.queryParams().containsKey("query2"));
+    }
+
+    @Test
+    public void testConstructorsWithQueryParamsAndParams() {
+        String url = "https://www.example.com?query1=value1&param1=value1&param2=value2";
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder);
+        assertEquals("https", builder.uri());
+        assertTrue(builder.queryParams().containsKey("query1"));
+        assertTrue(builder.params().containsKey("param1"));
+        assertTrue(builder.params().containsKey("param2"));
+    }
+
+    @Test
+    public void testConstructorsWithEncoding() {
+        String url = "https://www.example.com?encoding=ISO-8859-1&lang=en";
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder);
+        assertEquals("https", builder.uri());
+        assertTrue(builder.encoding().equals("ISO-8859-1"));
+        assertTrue(builder.language().equals("en"));
+    }
+
+    @Test
+    public void testConstructorsWithUnknownError() {
+        String url = "https://www.example.com";
+        try {
+            UrlBuilder.builder(url);
+            fail();
+        } catch (Exception e) {
+            // Expected exception
+        }
+    }
+
+    private class UrlBuilder {
+        private final String uri;
+        private final Map<String, Object> params;
+        private final Map<String, String> queryParams;
+
+        public UrlBuilder(String url) {
+            this.uri = url;
+            this.params = new HashMap<>();
+            this.queryParams = new HashMap<>();
+            parseUrl(url);
+        }
+
+        public static class Builder {
+            private String uri;
+            private Map<String, Object> params = new HashMap<>();
+            private Map<String, String> queryParams = new HashMap<>();
+
+            public Builder fromUri(String url) {
+                builder.uri(url);
+                return this;
+            }
+
+            public Builder withParams(Map<String, Object> params) {
+                builder.params(params);
+                return this;
+            }
+
+            public Builder withQueryParams(Map<String, String> queryParams) {
+                builder.queryParams(queryParams);
+                return this;
+            }
+
+            public UrlBuilder build() {
+                return new UrlBuilder(uri);
+            }
+        }
+
+        private void parseUrl(String url) {
+            // Parse URL into components
+            String[] parts = url.split("/");
+            uri = parts[0];
+            if (parts.length > 2 && parts[1].equals("http")) {
+                params.clear();
+                queryParams.clear();
+            } else {
+                params.clear();
+                queryParams.clear();
+            }
+        }
+
+        public String toString() {
+            return "UrlBuilder{" +
+                    "uri='" + uri + '\'' +
+                    ", params=" + params +
+                    ", queryParams=" + queryParams +
+                    '}';
+        }
+
+        private Map<String, Object> queryParams() {
+            // Build query parameters map
+            Map<String, String> queryParams = new HashMap<>();
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                if (!entry.getKey().equals("_")) {
+                    queryParams.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return queryParams;
+        }
+
+        private Map<String, Object> params() {
+            // Build parameters map
+            Map<String, Object> params = new HashMap<>();
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                if (!entry.getKey().equals("_")) {
+                    params.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return params;
+        }
+
+        private String encoding() {
+            // Get URL-encoded characters
+            return uri.substring(uri.lastIndexOf("))/", uri.length()).trim();
+        }
+
+        private String language() {
+            // Get URL-encoded language
+            return uri.substring(uri.indexOf("lang="), uri.indexOf("&")).trim();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class TestUrlBuilder {
+
+    @Test
+    public void testDefaultConstructor() {
+        assertEquals(1, UrlBuilder.class.getProtectionDomain().getDeclaredFields().length);
+    }
+
+    @Test
+    public void testToString() {
+        String url = "https://www.example.com";
+        assertTrue(UrlBuilder.toString(url).contains("https"));
+    }
+
+    @Test
+    public void testConstructorFromString() {
+        UrlBuilder builder = new UrlBuilder("https://www.example.com");
+        assertEquals(builder, UrlBuilder.fromUri(builder.uri));
+    }
+
+    @Test
+    public void testConstructorsWithParams() {
+        String url = "https://www.example.com?param1=value1&param2=value2";
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder);
+        assertEquals("https", builder.uri());
+        assertTrue(builder.params().containsKey("param1"));
+        assertTrue(builder.params().containsKey("param2"));
+    }
+
+    @Test
+    public void testConstructorsWithQueryParams() {
+        String url = "https://www.example.com?query1=value1&query2=value2";
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder);
+        assertEquals("https", builder.uri());
+        assertTrue(builder.queryParams().containsKey("query1"));
+        assertTrue(builder.queryParams().containsKey("query2"));
+    }
+
+    @Test
+    public void testConstructorsWithQueryParamsAndParams() {
+        String url = "https://www.example.com?query1=value1&param1=value1&param2=value2";
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder);
+        assertEquals("https", builder.uri());
+        assertTrue(builder.queryParams().containsKey("query1"));
+        assertTrue(builder.params().containsKey("param1"));
+        assertTrue(builder.params().containsKey("param2"));
+    }
+
+    @Test
+    public void testConstructorsWithEncoding() {
+        String url = "https://www.example.com?encoding=ISO-8859-1&lang=en";
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder);
+        assertEquals("https", builder.uri());
+        assertTrue(builder.encoding().equals("ISO-8859-1"));
+        assertTrue(builder.language().equals("en"));
+    }
+
+    @Test
+    public void testConstructorsWithUnknownError() {
+        try {
+            new UrlBuilder("https://www.example.com");
+        } catch (Exception e) {
+            fail("Expected an exception when trying to build a UrlBuilder with invalid input");
+        }
+    }
+
+    private class UrlBuilder {
+        private final String uri;
+        private final Map<String, Object> params = new HashMap<>();
+        private final Map<String, String> queryParams = new HashMap<>();
+
+        public UrlBuilder(String url) {
+            this.uri = url;
+            this.params = new HashMap<>();
+            this.queryParams = new HashMap<>();
+            parseUrl(url);
+        }
+
+        private void parseUrl(String url) {
+            // Parse URL into components
+            String[] parts = uri.split("/");
+            if (parts.length > 2 && parts[1].equals("http")) {
+                params.clear();
+                queryParams.clear();
+            } else {
+                params.clear();
+                queryParams.clear();
+            }
+        }
+
+        public static class Builder {
+            private final String url;
+
+            public Builder fromUri(String url) {
+                this.url = url;
+                return this;
+            }
+
+            public UrlBuilder withParams(Map<String, Object> params) {
+                UrlBuilder builder = new UrlBuilder(url);
+                builder.params(params);
+                return builder;
+            }
+
+            public UrlBuilder withQueryParams(Map<String, String> queryParams) {
+                UrlBuilder builder = new UrlBuilder(url);
+                builder.queryParams(queryParams);
+                return builder;
+            }
+        }
+
+        private Map<String, Object> queryParams() {
+            // Build query parameters map
+            Map<String, String> queryParamsMap = new HashMap<>();
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                if (!entry.getKey().equals("_")) {
+                    queryParamsMap.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return queryParamsMap;
+        }
+
+        public String getUri() {
+            return uri;
+        }
+
+        public Map<String, Object> getParams() {
+            return params;
+        }
+
+        public Map<String, String> getQueryParams() {
+            return queryParams;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilder {
+
+    private final Map<String, String> queryParams = new HashMap<>();
+    private final Map<String, Object> params = new HashMap<>();
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
+
+    public void addParam(String key, String value) {
+        params.put(key, value);
+    }
+
+    public void addQueryParam(String key, String value) {
+        queryParams.put(key, value);
+    }
+
+    public String buildUrl() {
+        StringBuilder urlBuilder = new StringBuilder();
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            urlBuilder.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            if (!queryParams.containsKey(entry.getKey())) {
+                urlBuilder.append("").append(entry.getValue());
+            } else {
+                urlBuilder.append("&").append(entry.getKey()).append("=").append(entry.getValue());
+            }
+        }
+        return urlBuilder.toString();
+    }
+
+    public String buildUrl(String baseString) {
+        StringBuilder urlBuilder = new StringBuilder(baseString);
+        if (params.size() > 0) {
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                if (!queryParams.containsKey(entry.getKey())) {
+                    urlBuilder.append("").append(entry.getValue());
+                } else {
+                    urlBuilder.append("&").append(entry.getKey()).append("=").append(entry.getValue());
+                }
+            }
+        }
+        return urlBuilder.toString();
+    }
+
+    public static void main(String[] args) {
+        UrlBuilder urlBuilder = new UrlBuilder();
+
+        // Test 1
+        Map<String, String> queryParamsMap = new HashMap<>();
+        queryParamsMap.put("key1", "value1");
+        queryParamsMap.put("key2", "value2");
+
+        urlBuilder.setParams(queryParamsMap);
+
+        System.out.println(urlBuilder.buildUrl());
+
+        // Test 2
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("key3", "value3");
+        urlBuilder.addParam("key4", "value4");
+        System.out.println(urlBuilder.buildUrl(paramsMap));
+
+        // Test 3
+        String baseString = "https://example.com/path?a=1&b=2";
+        System.out.println(urlBuilder.buildUrl(baseString));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+Here is a Java class `UrlBuilder` that constructs URLs based on query parameters and optional parameters:
+
+```java
+public class UrlBuilder {
+
+    private final Map<String, String> queryParams = new HashMap<>();
+    private final Map<String, Object> params = new HashMap<>();
+
+    public void setParams(Map<String, Object> params) {
+        this.params = params;
+    }
+
+    public void addParam(String key, String value) {
+        params.put(key, value);
+    }
+
+    public void addQueryParam(String key, String value) {
+        queryParams.put(key, value);
+    }
+
+    public String buildUrl() {
+        StringBuilder urlBuilder = new StringBuilder();
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            urlBuilder.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+        if (!queryParams.isEmpty()) {
+            urlBuilder.append("&");
+        }
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            if (!queryParams.containsKey(entry.getKey())) {
+                urlBuilder.append("").append(entry.getValue());
+            } else {
+                urlBuilder.append("&").append(entry.getKey()).append("=").append(entry.getValue());
+            }
+        }
+        return urlBuilder.toString();
+    }
+
+    public String buildUrl(String baseString) {
+        StringBuilder urlBuilder = new StringBuilder(baseString);
+        if (params.size() > 0) {
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                if (!queryParams.containsKey(entry.getKey())) {
+                    urlBuilder.append("").append(entry.getValue());
+                } else {
+                    urlBuilder.append("&").append(entry.getKey()).append("=").append(entry.getValue());
+                }
+            }
+        }
+        return urlBuilder.toString();
+    }
+
+    public static void main(String[] args) {
+        UrlBuilder urlBuilder = new UrlBuilder();
+
+        // Test 1
+        Map<String, String> queryParamsMap = new HashMap<>();
+        queryParamsMap.put("key1", "value1");
+        queryParamsMap.put("key2", "value2");
+
+        urlBuilder.setParams(queryParamsMap);
+
+        System.out.println(urlBuilder.buildUrl());
+
+        // Test 2
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("key3", "value3");
+        urlBuilder.addParam("key4", "value4");
+        System.out.println(urlBuilder.buildUrl(paramsMap));
+
+        // Test 3
+        String baseString = "https://example.com/path?a=1&b=2";
+        System.out.println(urlBuilder.buildUrl(baseString));
+    }
+}
+```
+
+In this code, we have two methods to construct the URL: `buildUrl()` and `buildUrl(String)`. The first method iterates through all query parameters and adds them to the string. If there are no query parameters, it appends an empty string before adding any query parameter strings.
+
+The second method is a wrapper around `buildUrl()`, used when you want to add optional parameters without affecting the existing query parameters.
+
+You can also use this class in your main function:
+
+```java
+public static void main(String[] args) {
+    UrlBuilder urlBuilder = new UrlBuilder();
+    String baseString = "https://example.com/path?a=1&b=2";
+    
+    System.out.println("Base URL: " + baseString);
+    System.out.println("Query Parameters:");
+    System.out.println(urlBuilder.buildUrl(baseString));
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

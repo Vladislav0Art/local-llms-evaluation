@@ -1,0 +1,250 @@
+package org.stellar.sdk;
+
+public class GeneratedTest {
+
+    @Test
+    public void testCanSign() {
+        // Arrange
+        EdDSAPublicKey publicKey = new EdDSAPublicKey(new byte[]{'a', 'b', 'c'}));
+
+        // Act
+        boolean canSign = KeyPair.canSign(publicKey);
+
+        // Assert
+        Preconditions.checkThat(canSign, isTrue);
+    }
+
+    @Test
+    public void testNoCanSign() {
+        // Arrange
+        EdDSAPublicKey publicKey = new EdDSAPublicKey(new byte[]{'a', 'b'}));
+
+        // Act
+        boolean canSign = KeyPair.canSign(publicKey);
+
+        // Assert
+        Preconditions.checkThat(canSign, isFalse);
+    }
+
+    @Test
+    public void testFromSecretSeed() {
+        // Arrange
+        char[] seed = {'x', 'y'};
+        String accountNumber = "someAccountNumber";
+
+        // Act
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getAccountId(), isStringWithLength(2));
+        Preconditions.checkThat(keyPair.getSecretSeed(), checkArrayIsEqual('x', 'y'));
+    }
+
+    @Test
+    public void testFromSecretSeed() {
+        // Arrange
+        char[] seed = {'a', 'b'};
+
+        // Act
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getAccountId(), isStringWithLength(2));
+        Preconditions.checkThat(keyPair.getSecretSeed(), checkArrayIsEqual('a', 'b'));
+    }
+
+    @Test
+    public void testFromSecretSeed() {
+        // Arrange
+        byte[] seed = {'c', 'd'};
+
+        // Act
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getAccountId(), isStringWithLength(2));
+        Preconditions.checkThat(keyPair.getSecretSeed(), checkArrayIsEqual('c', 'd'));
+    }
+
+    @Test
+    public void testFromAccountId() {
+        // Arrange
+        String accountId = "someAccountNumber";
+
+        // Act
+        KeyPair keyPair = KeyPair.fromAccountId(accountId);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getAccountId(), isStringWithLength(2));
+    }
+
+    @Test
+    public void testFromPublicKey() {
+        // Arrange
+        byte[] publicKey = new byte[]{1, 2, 3};
+
+        // Act
+        KeyPair keyPair = KeyPair.fromPublicKey(publicKey);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getAccountId(), isNull());
+        Preconditions.checkThat(keyPair.getSecretSeed(), checkArrayIsEqual('a', 'b'));
+    }
+
+    @Test
+    public void testFromBip39Seed() {
+        // Arrange
+        byte[] bip39Seed = {'x', 'y'};
+
+        // Act
+        KeyPair keyPair = KeyPair.fromBip39Seed(bip39Seed);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getAccountId(), isStringWithLength(2));
+    }
+
+    @Test
+    public void testRandom() {
+        // Arrange
+        int seed = 42;
+
+        // Act
+        KeyPair keyPair = KeyPair.random();
+
+        // Assert
+        Preconditions.checkThat(keyPair.getAccountId(), isNull());
+        Preconditions.checkThat(keyPair.getSecretSeed(), checkArrayIsEqual('x', 'y'));
+    }
+
+    @Test
+    public void testGetAccountId() {
+        // Arrange
+        String accountId = "someAccountNumber";
+
+        // Act
+        char[] secretSeed = KeyPair.fromAccountId(accountId).getSecretSeed();
+
+        // Assert
+        Preconditions.checkThat(secretSeed, checkArrayIsEqual('x', 'y'));
+    }
+
+    @Test
+    public void testGetPublicKey() {
+        // Arrange
+        byte[] publicKey = new byte[]{1, 2, 3};
+
+        // Act
+        PublicKey keyPair = KeyPair.fromPublicKey(publicKey);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getXdrPublicKey(), isNotNull());
+    }
+
+    @Test
+    public void testXdrPublicKey() {
+        // Arrange
+        byte[] publicKey = new byte[]{1, 2, 3};
+
+        // Act
+        KeyPair keyPair = KeyPair.fromXdrPublicKey(publicKey);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getXdrSignerKey(), isNotNull());
+    }
+
+    @Test
+    public void testFromXdrPublicKey() {
+        // Arrange
+        PublicKey publicKey = new EdDSAPublicKey(new byte[]{1, 2, 3});
+
+        // Act
+        KeyPair keyPair = KeyPair.fromXdrPublicKey(publicKey);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getXdrSignerKey(), isNotNull());
+    }
+
+    @Test
+    public void testFromXdrSignerKey() {
+        // Arrange
+        EdDSAPrivateKeySpec privateKeySpec = new EdDSAPrivateKeySpec(new byte[]{4, 5, 6});
+
+        // Act
+        KeyPair keyPair = KeyPair.fromXdrSignerKey(privateKeySpec);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getXdrPublicKey(), isNotNull());
+    }
+
+    @Test
+    public void testFromBip39Seed() {
+        // Arrange
+        byte[] seed = {'x', 'y'};
+
+        // Act
+        KeyPair keyPair = KeyPair.fromBip39Seed(seed);
+
+        // Assert
+        Preconditions.checkThat(keyPair.getAccountId(), isStringWithLength(2));
+    }
+
+    @Test
+    public void testSign() {
+        // Arrange
+        byte[] data = new byte[]{1, 2};
+
+        // Act
+        Signature signature = KeyPair.sign(data);
+
+        // Assert
+        Preconditions.checkThat(signature, isNotNull());
+    }
+
+    @Test
+    public void testXdrSignature() {
+        // Arrange
+        byte[] data = new byte[]{1, 2};
+
+        // Act
+        KeyPair keyPair = KeyPair.fromXdrPublicKey(new EdDSAPublicKey(new byte[]{3, 4, 5}));
+        Signature signature = keyPair.sign(data);
+
+        // Assert
+        Preconditions.checkThat(signature, isNotNull());
+    }
+
+    @Test
+    public void testXdrSignature() {
+        // Arrange
+        byte[] data = new byte[]{1, 2};
+
+        // Act
+        KeyPair keyPair = KeyPair.fromBip39Seed(new byte[]{3, 4, 5});
+        Signature signature = keyPair.sign(data);
+
+        // Assert
+        Preconditions.checkThat(signature, isNotNull());
+    }
+
+    @Test
+    public void testXdrSignature() {
+        // Arrange
+        byte[] data = new byte[]{1, 2};
+
+        // Act
+        KeyPair keyPair = KeyPair.fromBip39Seed(new byte[]{3, 4});
+        Signature signature = keyPair.sign(data);
+
+        // Assert
+        Preconditions.checkThat(signature, isNotNull());
+    }
+
+    private boolean checkArrayIsEqual(String... strings) {
+        return Arrays.stream(strings).allMatch(s -> Objects.equals(s, "x"));
+    }
+
+    private byte[] checkArrayIsEqual(byte[] array) {
+        return array;
+    }
+
+}

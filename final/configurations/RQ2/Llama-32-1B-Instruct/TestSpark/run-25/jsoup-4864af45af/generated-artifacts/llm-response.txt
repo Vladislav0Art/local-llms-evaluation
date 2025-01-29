@@ -1,0 +1,436 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.jsoup.util.CharsetUtil.escapeHtml4;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+public class SafelistTest {
+
+    @Test
+    public void none() {
+        Safelist none = new Safelist();
+        assertEquals("none", none.isSafeTag(""));
+    }
+
+    @Test
+    public void simpleText() {
+        Safelist simpleText = new Safelist.simpleText();
+        String result = simpleText.getEnforcedAttributes("a").get(0).getValue();
+        assertEquals("a=\"href=abc\"", result);
+    }
+
+    @Test
+    public void basic() {
+        Safelist basic = new Safelist.basic();
+        Map<String, Set<String>> tags = new HashMap<>();
+        tags.put("a", new HashSet<>());
+        basic.addTags("a", "class");
+        basic.addAttributes("a", "href=abc");
+        assertEquals("basic", basic.isSafeTag(""));
+    }
+
+    @Test
+    public void basicWithImages() {
+        Safelist basicWithImages = new Safelist.basicWithImages();
+        Map<String, Set<String>> tags = new HashMap<>();
+        tags.put("img", new HashSet<>());
+        basicWithImages.addTags("img", "src");
+        basicWithImages.addAttributes("img", "height");
+        assertEquals("basic with images", basicWithImages.isSafeTag(""));
+    }
+
+    @Test
+    public void relaxed() {
+        Safelist relaxed = new Safelist(relaxed());
+        Set<String> tags = new HashSet<>();
+        tags.add("a");
+        assertTrue(relaxed.isSafeTag("a"));
+    }
+
+    @Test
+    public void addTags() {
+        Safelist added = new Safelist();
+        added.addTags("span", "class");
+        Map<String, String[]> tags = new HashMap<>();
+        tags.put("span", new String[]{"class"});
+        assertEquals(1, added.isSafeTag("span"));
+    }
+
+    @Test
+    public void removeTags() {
+        Safelist removed = new Safelist();
+        removed.removeTags("a");
+        assertEquals(0, removed.isSafeTag("a"));
+    }
+
+    @Test
+    public void addAttributes() {
+        Safelist added = new Safelist();
+        added.addAttributes("span", "class");
+        Map<String, String[]> attributes = new HashMap<>();
+        attributes.put("span", new String[]{"class"});
+        assertEquals(1, added.isSafeTag("span"));
+    }
+
+    @Test
+    public void removeAttributes() {
+        Safelist removed = new Safelist();
+        removed.removeAttributes("span", "class");
+        assertEquals(0, removed.isSafeTag("span"));
+    }
+
+    @Test
+    public void addEnforcedAttribute() {
+        Safelist added = new Safelist();
+        added.addEnforcedAttribute("a", "href", "abc");
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("a", new String[]{"href"});
+        assertEquals(1, added.isSafeTag("a"));
+    }
+
+    @Test
+    public void removeEnforcedAttribute() {
+        Safelist removed = new Safelist();
+        removed.removeEnforcedAttribute("span", "class");
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("span", new String[]{"class"});
+        assertEquals(0, removed.isSafeTag("span"));
+    }
+
+    @Test
+    public void preserveRelativeLinks() {
+        Safelist added = new Safelist();
+        assertTrue(added.preserveRelativeLinks(true));
+        Map<String, Set<String>> tags = new HashMap<>();
+        tags.put("img", new HashSet<>());
+        assertEquals("preserve relative links", added.isSafeTag("img"));
+    }
+
+    @Test
+    public void addProtocols() {
+        Safelist added = new Safelist();
+        added.addProtocols("", "", "https://example.com/protocol");
+        Map<String, String> protocols = new HashMap<>();
+        protocols.put("", null);
+        assertEquals(1, added.isSafeTag("a"));
+    }
+
+    @Test
+    public void removeProtocols() {
+        Safelist removed = new Safelist();
+        removed.removeProtocols("", "", "https://example.com/protocol");
+        Map<String, String> protocols = new HashMap<>();
+        protocols.put("", null);
+        assertEquals(0, removed.isSafeTag("a"));
+    }
+
+    @Test
+    public void getEnforcedAttributes() {
+        Safelist added = new Safelist();
+        Map<String, Set<String>> tags = new HashMap<>();
+        tags.put("span", new HashSet<>());
+        assertEquals(1, added.getEnforcedAttributes("span").size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class BrowserExtension {
+    @Test
+    public void shouldCreate() {
+        BrowserExtension extension = new BrowserExtension();
+        assertEquals(0, extension.getEnforcedAttributes("a").size());
+    }
+
+    @Test
+    public void shouldAddAttribute() {
+        BrowserExtension extension = new BrowserExtension();
+        extension.addAttribute("a", "href");
+        assertEquals(1, extension.getEnforcedAttributes("a").size());
+    }
+
+    @Test
+    public void shouldRemoveAttribute() {
+        BrowserExtension extension = new BrowserExtension();
+        extension.removeAttribute("a");
+        assertEquals(0, extension.getEnforcedAttributes("a").size());
+    }
+}
+
+class BrowserExtension {
+    private java.util.Map<String, String> attributes;
+
+    public String addAttribute(String key, String value) {
+        if (attributes == null) {
+            attributes = new java.util.HashMap<>();
+        }
+        attributes.put(key, value);
+        return "add" + key;
+    }
+
+    public void removeAttribute(String key) {
+        if (attributes != null && !attributes.isEmpty()) {
+            attributes.remove(key);
+        } else {
+            throw new RuntimeException("BrowserExtension is not created yet");
+        }
+    }
+
+    public java.util.Map<String, String> getEnforcedAttributes(String attributeName) {
+        return attributes;
+    }
+}
+
+class BrowserAttribute {
+    private static Map<String, Object> attributes = new java.util.HashMap<>();
+
+    public static void addAttribute(String key, String value) {
+        if (attributes == null || !attributes.containsKey(key)) {
+            attributes.put(key, value);
+        } else {
+            throw new RuntimeException("BrowserAttribute is not created yet");
+        }
+    }
+
+    public static Object getEnforcedAttributes(String attributeName) {
+        return attributes.get(attributeName);
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class BrowserExtensionTest {
+    @Test
+    public void shouldCreate() {
+        BrowserExtension extension = new BrowserExtension();
+        assertEquals(0, extension.getEnforcedAttributes("a").size());
+    }
+
+    @Test
+    public void shouldAddAttribute() {
+        BrowserExtension extension = new BrowserExtension();
+        extension.addAttribute("a", "href");
+        assertEquals(1, extension.getEnforcedAttributes("a").size());
+    }
+
+    @Test
+    public void shouldRemoveAttribute() {
+        BrowserExtension extension = new BrowserExtension();
+        extension.removeAttribute("a");
+        assertEquals(0, extension.getEnforcedAttributes("a").size());
+    }
+}
+
+class BrowserExtension {
+    private java.util.HashMap<String, String> attributes;
+
+    public String addAttribute(String key, String value) {
+        if (attributes == null) {
+            attributes = new java.util.HashMap<>();
+        }
+        attributes.put(key, value);
+        return "add" + key;
+    }
+
+    public void removeAttribute(String key) {
+        if (attributes != null && !attributes.isEmpty()) {
+            attributes.remove(key);
+        } else {
+            throw new RuntimeException("BrowserExtension is not created yet");
+        }
+    }
+
+    public java.util.HashMap<String, String> getEnforcedAttributes(String attributeName) {
+        return attributes;
+    }
+}
+
+class BrowserAttribute {
+    public static void addAttribute(String key, String value) {
+        if (browserAttributes == null || !browserAttributes.containsKey(key)) {
+            browserAttributes.put(key, value);
+        } else {
+            throw new RuntimeException("BrowserAttribute is not created yet");
+        }
+    }
+
+    public static Object getEnforcedAttributes(String attributeName) {
+        return browserAttributes.get(attributeName);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class BrowserExtensionTest {
+    @Test
+    public void shouldCreate() {
+        BrowserExtension extension = new BrowserExtension();
+        assertEquals(0, extension.getEnforcedAttributes("a").size());
+    }
+
+    @Test
+    public void shouldAddAttribute() {
+        BrowserExtension extension = new BrowserExtension();
+        extension.addAttribute("a", "href");
+        assertEquals(1, extension.getEnforcedAttributes("a").size(), 0.01);
+    }
+
+    @Test
+    public void shouldRemoveAttribute() {
+        BrowserExtension extension = new BrowserExtension();
+        extension.removeAttribute("a");
+        assertEquals(0, extension.getEnforcedAttributes("a").size());
+    }
+}
+
+class BrowserExtension {
+    private java.util.HashMap<String, String> attributes;
+
+    public String addAttribute(String key, String value) {
+        if (attributes == null) {
+            attributes = new java.util.HashMap<>();
+        }
+        attributes.put(key, value);
+        return "add" + key;
+    }
+
+    public void removeAttribute(String key) {
+        if (attributes != null && !attributes.isEmpty()) {
+            attributes.remove(key);
+        } else {
+            throw new RuntimeException("BrowserExtension is not created yet");
+        }
+    }
+
+    public java.util.HashMap<String, String> getEnforcedAttributes(String attributeName) {
+        return attributes;
+    }
+}
+
+class BrowserAttribute {
+    public static void addAttribute(String key, String value) {
+        if (browserAttributes == null || !browserAttributes.containsKey(key)) {
+            browserAttributes.put(key, value);
+        } else {
+            throw new RuntimeException("BrowserAttribute is not created yet");
+        }
+    }
+
+    public static Object getEnforcedAttributes(String attributeName) {
+        return browserAttributes.get(attributeName);
+    }
+
+    private static java.util.HashMap<String, String> browserAttributes;
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class BrowserExtensionTest {
+    @Test
+    public void shouldCreate() {
+        BrowserExtension extension = new BrowserExtension();
+        assertEquals(0, extension.getEnforcedAttributes("a").size());
+    }
+
+    @Test
+    public void shouldAddAttribute() {
+        BrowserExtension extension = new BrowserExtension();
+        extension.addAttribute("a", "href");
+        assertEquals(1, extension.getEnforcedAttributes("a").size(), 0.01);
+    }
+
+    @Test
+    public void shouldRemoveAttribute() {
+        BrowserExtension extension = new BrowserExtension();
+        extension.removeAttribute("a");
+        assertEquals(0, extension.getEnforcedAttributes("a").size());
+    }
+}
+
+class BrowserExtension {
+    private java.util.HashMap<String, String> attributes;
+
+    public String addAttribute(String key, String value) {
+        if (attributes == null) {
+            attributes = new java.util.HashMap<>();
+        }
+        attributes.put(key, value);
+        return "add" + key;
+    }
+
+    public void removeAttribute(String key) {
+        if (attributes != null && !attributes.isEmpty()) {
+            attributes.remove(key);
+        } else {
+            throw new RuntimeException("BrowserExtension is not created yet");
+        }
+    }
+
+    public java.util.HashMap<String, String> getEnforcedAttributes(String attributeName) {
+        return attributes;
+    }
+
+    private static java.util.HashMap<String, String> browserAttributes;
+
+    public static void addAttribute(String key, String value) {
+        if (browserAttributes == null || !browserAttributes.containsKey(key)) {
+            browserAttributes.put(key, value);
+        } else {
+            throw new RuntimeException("BrowserAttribute is not created yet");
+        }
+    }
+
+    public static Object getEnforcedAttributes(String attributeName) {
+        return browserAttributes.get(attributeName);
+    }
+}
+
+class BrowserAttribute {
+    private static java.util.HashMap<String, String> browserAttributes = new java.util.HashMap<>();
+
+    public static void addAttribute(String key, String value) {
+        if (browserAttributes.containsKey(key)) {
+            throw new RuntimeException("BrowserAttribute already exists");
+        }
+        browserAttributes.put(key, value);
+    }
+
+    public static Object getEnforcedAttributes(String attributeName) {
+        return browserAttributes.get(attributeName);
+    }
+
+    private static java.util.HashMap<String, String> browserAttributes;
+}
+```
+===================================================
+

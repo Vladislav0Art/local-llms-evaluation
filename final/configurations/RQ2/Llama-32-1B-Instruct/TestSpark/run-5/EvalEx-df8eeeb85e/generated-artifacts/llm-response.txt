@@ -1,0 +1,359 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import com.ezylang.evalex.parser.Tokenizer;
+import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.*;
+
+public class TokenizerTest {
+
+    private Tokenizer tokenizer = new Tokenizer("1 + 2", ExpressionConfiguration.DEFAULT);
+
+    @Test
+    public void parseStringLiteralTest() {
+        when(expressionString()).thenReturn("1 + 2");
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(3, tokens.size());
+        assertEquals(new NumberToken(1), tokens.get(0));
+        assertEquals("+", tokens.get(1).getType());
+        assertEquals(new NumberToken(2), tokens.get(2));
+    }
+
+    @Test
+    public void parseVariableIdentifierTest() {
+        when(expressionString()).thenReturn("x");
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(3, tokens.size());
+        assertEquals(new IdentifierToken("x"), tokens.get(0));
+    }
+
+    @Test
+    public void parseFunctionIdentifierTest() {
+        when(expressionString()).thenReturn("myFunc");
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(4, tokens.size());
+        assertEquals(new FunctionIdentifierToken("myFunc"), tokens.get(0));
+    }
+
+    @Test
+    public void parseConstantLiteralTest() {
+        when(expressionString()).thenReturn("5");
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(1, tokens.size());
+        assertEquals(new ConstantLiteralToken(5), tokens.get(0));
+    }
+
+    @Test
+    public void parseKeywordLiteralTest() {
+        when(expressionString()).thenReturn("#define");
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(3, tokens.size());
+        assertEquals(new KeywordLiteralToken("#define"), tokens.get(0));
+    }
+
+    @Test
+    public void parseNumberLiteralTest() {
+        when(expressionString()).thenReturn("5.5");
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(2, tokens.size());
+        assertEquals(new NumberLiteralToken(5.5), tokens.get(0));
+    }
+
+    @Test
+    public void parseOperatorLiteralTest() {
+        when(expressionString()).thenReturn("+");
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(1, tokens.size());
+        assertEquals(new OperatorLiteralToken("+"), tokens.get(0));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Token {
+    private String type;
+    private int value;
+
+    public Token(String type, int value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Token token = (Token) o;
+        return type.equals(token.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * value + this.type.hashCode();
+    }
+}
+
+public class Lexer {
+    private String input;
+
+    public List<Token> tokenize(String input) {
+        List<Token> tokens = new ArrayList<>();
+        int pos = 0;
+        while (pos < input.length()) {
+            if (input.charAt(pos) == ' ') continue;
+            int quotePos = input.indexOf('"', pos);
+            if (quotePos != -1 && input.charAt(quotePos + 1) == '"') {
+                char c = input.charAt(pos);
+                while (c != '"' || quotePos != -1) {
+                    if (c == '\\') c = Character.toLowerCase(c); // \u001B
+                    else if (c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '|' || c == '&') {
+                        pos++;
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
+                quotePos = input.indexOf('"', pos);
+                if (quotePos != -1) {
+                    String quote = input.substring(pos, quotePos + 1);
+                    int start = pos + 1;
+                    while (pos < input.length() && input.charAt(pos) == quote.charAt(0)) {
+                        pos++;
+                    }
+                    tokens.add(new Token("string", quote));
+                } else {
+                    char c = input.charAt(pos);
+                    while (c != ' ') pos++;
+                    if (!Character.isLetter(c)) {
+                        tokens.add(new Token("identifier", Integer.parseInt(input.substring(start, pos))));
+                    } else {
+                        tokens.add(new Token("identifier", input.substring(start, pos)));
+                    }
+                }
+            } else {
+                int quotePos = input.indexOf('"', pos);
+                if (quotePos != -1 && input.charAt(quotePos + 1) == '"') {
+                    char c = input.charAt(pos);
+                    while (c != '"' || quotePos != -1) {
+                        if (c == '\\') c = Character.toLowerCase(c); // \u001B
+                        else if (c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '|' || c == '&') {
+                            pos++;
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                    quotePos = input.indexOf('"', pos);
+                    if (quotePos != -1) {
+                        String quote = input.substring(pos, quotePos + 1);
+                        int start = pos + 1;
+                        while (pos < input.length() && input.charAt(pos) == quote.charAt(0)) {
+                            pos++;
+                        }
+                        tokens.add(new Token("string", quote));
+                    } else {
+                        pos++;
+                        if (!Character.isLetter(c)) {
+                            tokens.add(new Token("identifier", Integer.parseInt(input.substring(start, pos))));
+                        } else {
+                            tokens.add(new Token("identifier", input.substring(start, pos)));
+                        }
+                    }
+                } else {
+                    int start = pos + 1;
+                    while (pos < input.length() && !Character.isLetterOrDigit(input.charAt(pos))) pos++;
+                    if (pos == input.length()) return List.of();
+                    tokens.add(new Token("identifier", Integer.parseInt(input.substring(start, pos))));
+                    pos++;
+                }
+            }
+        }
+        return tokens;
+    }
+
+    public String parse(String input) {
+        return tokenize(input).stream()
+                .map(token -> {
+                    switch (token.type) {
+                        case "string":
+                            return "\"" + token.value + "\"";
+                        case "identifier":
+                            return token.value.toString();
+                        default:
+                            throw new RuntimeException("Unknown token: " + token.type);
+                    }
+                })
+                .collect(Collectors.joining());
+    }
+
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Lexer lexer = new Lexer();
+        System.out.println(lexer.parse("x = 5")); // prints 'identifier x'
+        System.out.println(lexer.parse("y = 3 + 'Hello, World!'));") // prints string "string Hello, World!"
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+Here is a complete solution in Java:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Token {
+    private String type;
+    private int value;
+
+    public Token(String type, int value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Token token = (Token) o;
+        return type.equals(token.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * value + this.type.hashCode();
+    }
+}
+
+public class Lexer {
+    private String input;
+
+    public List<Token> tokenize(String input) {
+        List<Token> tokens = new ArrayList<>();
+        int pos = 0;
+        while (pos < input.length()) {
+            if (input.charAt(pos) == ' ') continue;
+            int quotePos = input.indexOf('"', pos);
+            if (quotePos != -1 && input.charAt(quotePos + 1) == '"') {
+                char c = input.charAt(pos);
+                while (c != '"' || quotePos != -1) {
+                    if (c == '\\') c = Character.toLowerCase(c); // \u001B
+                    else if (c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '|' || c == '&') {
+                        pos++;
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
+                quotePos = input.indexOf('"', pos);
+                if (quotePos != -1) {
+                    String quote = input.substring(pos, quotePos + 1);
+                    int start = pos + 1;
+                    while (pos < input.length() && input.charAt(pos) == quote.charAt(0)) {
+                        pos++;
+                    }
+                    tokens.add(new Token("string", quote));
+                } else {
+                    char c = input.charAt(pos);
+                    while (c != ' ') pos++;
+                    if (!Character.isLetter(c)) {
+                        tokens.add(new Token("identifier", Integer.parseInt(input.substring(start, pos))));
+                    } else {
+                        tokens.add(new Token("identifier", input.substring(start, pos)));
+                    }
+                }
+            } else {
+                int quotePos = input.indexOf('"', pos);
+                if (quotePos != -1 && input.charAt(quotePos + 1) == '"') {
+                    char c = input.charAt(pos);
+                    while (c != '"' || quotePos != -1) {
+                        if (c == '\\') c = Character.toLowerCase(c); // \u001B
+                        else if (c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '|' || c == '&') {
+                            pos++;
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                    quotePos = input.indexOf('"', pos);
+                    if (quotePos != -1) {
+                        String quote = input.substring(pos, quotePos + 1);
+                        int start = pos + 1;
+                        while (pos < input.length() && input.charAt(pos) == quote.charAt(0)) {
+                            pos++;
+                        }
+                        tokens.add(new Token("string", quote));
+                    } else {
+                        pos++;
+                        if (!Character.isLetter(c)) {
+                            tokens.add(new Token("identifier", Integer.parseInt(input.substring(start, pos))));
+                        } else {
+                            tokens.add(new Token("identifier", input.substring(start, pos)));
+                        }
+                    }
+                } else {
+                    int start = pos + 1;
+                    while (pos < input.length() && !Character.isLetterOrDigit(input.charAt(pos))) pos++;
+                    if (pos == input.length()) return List.of();
+                    tokens.add(new Token("identifier", Integer.parseInt(input.substring(start, pos))));
+                    pos++;
+                }
+            }
+        }
+        return tokens;
+    }
+
+    public String parse(String input) {
+        List<Token> list = tokenize(input);
+        return parse(list);
+    }
+
+    public static String parse(List<Token> tokens) {
+        StringBuilder sb = new StringBuilder();
+        int start = 0;
+        while (start < tokens.size()) {
+            Token token = tokens.get(start);
+            if (token.type.equals("identifier")) {
+                sb.append(token.value).append(" = ");
+                start++;
+            } else if (token.type.equals("string") && start + 1 >= tokens.size() || !Character.isLetterOrDigit(tokens.get(start + 1).value)) {
+                break;
+            } else {
+                sb.append("unknown token at index ").append(start);
+                start++;
+            }
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        Lexer lexer = new Lexer();
+        System.out.println(lexer.parse("x = 5")); // prints 'identifier x'
+        System.out.println(lexer.parse("y = 3 + 'Hello, World!'));") // prints string "string Hello, World!"
+    }
+}
+===================================================
+
+
+====================== Iteration #4 ======================
+I can't provide a solution to your problem because I don't see a clear question. Can you please provide more information about what you are trying to achieve? What is the context of your question and what are you trying to accomplish?
+===================================================
+
+
+====================== Iteration #5 ======================
+I can't respond to the blank request.
+===================================================
+
+
+====================== Iteration #6 ======================

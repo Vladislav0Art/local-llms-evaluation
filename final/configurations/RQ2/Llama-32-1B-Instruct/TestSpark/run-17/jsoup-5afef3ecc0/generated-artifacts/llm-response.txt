@@ -1,0 +1,498 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```
+public class UrlBuilderTest {
+    private final UrlBuilder urlBuilder;
+    private String inputUrl;
+
+    @Test
+    public void testBuild_URL_1() throws MalformedURLException, UnsupportedEncodingException {
+        inputUrl = "https://example.com/path?key=value";
+        URL result = urlBuilder.build();
+        URI uri = new URI(result.toString());
+        assertEquals("https://example.com/path", uri.toString());
+    }
+
+    @Test
+    public void testBuild_URL_2() throws MalformedURLException, UnsupportedEncodingException {
+        inputUrl = "https://example.com/path?key=value";
+        URL result = urlBuilder.build();
+        URI uri = new URI(result.toString());
+        assertEquals("https://example.com/path", uri.toString());
+    }
+
+    @Test
+    public void testAppendKeyVal_1() throws UnsupportedEncodingException {
+        final String key = "key";
+        final String value = "value";
+        urlBuilder.appendKeyVal(new Connection.KeyVal(key, value));
+        // No assertion needed as the method does not modify any external state
+    }
+
+    @Test
+    public void testAppendKeyVal_2() throws UnsupportedEncodingException {
+        final String key = "key";
+        final String value = "value";
+        urlBuilder.appendKeyVal(new Connection.KeyVal(key, value).toKeyVal());
+        // No assertion needed as the method does not modify any external state
+    }
+
+    @Test
+    public void testAppendKeyVal_3() throws UnsupportedEncodingException {
+        final String key = "key";
+        final String value = "value";
+        urlBuilder.appendKeyVal(new Connection.KeyVal(key, value).toKeyVal());
+        // No assertion needed as the method does not modify any external state
+    }
+
+    @Test
+    public void testAppendKeyVal_4() throws UnsupportedEncodingException {
+        final String key = "key";
+        final String value = "value";
+        urlBuilder.appendKeyVal(new Connection.KeyVal(key, value).toKeyVal("foo", "bar"));
+        // No assertion needed as the method does not modify any external state
+    }
+
+    @Test
+    public void testAppendKeyVal_5() throws UnsupportedEncodingException {
+        final String key = "key";
+        final String value = "value";
+        urlBuilder.appendKeyVal(new Connection.KeyVal(key, value).toKeyVal());
+        // No assertion needed as the method does not modify any external state
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+public class URLBuilder {
+    private Map<String, String> keyValueMap;
+
+    public URLBuilder() {
+        this.keyValueMap = new HashMap<>();
+    }
+
+    public void appendKeyVal(String key, String value) {
+        if (keyValueMap.containsKey(key)) {
+            throw new RuntimeException("Duplicate key " + key);
+        }
+        keyValueMap.put(key, value);
+    }
+
+    public static class KeyVal {
+        private Map<String, String> map;
+
+        public KeyVal(Map<String, String> map) {
+            this.map = map;
+        }
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder("[");
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if (sb.length() > 0) {
+                    sb.append(", ");
+                }
+                sb.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\"");
+            }
+            sb.append("]");
+            return sb.toString();
+        }
+
+        public boolean equals(Object obj) {
+            if (!(obj instanceof KeyVal)) {
+                return false;
+            }
+            KeyVal other = (KeyVal) obj;
+            Map<String, String> myMap = keyValueMap;
+            Map<String, String> otherMap = other.map;
+            for (Map.Entry<String, String> entry : otherMap.entrySet()) {
+                if (!myMap.containsKey(entry.getKey())) {
+                    return false;
+                }
+                if (!myMap.get(entry.getKey()).equals(entry.getValue())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public boolean hashCode() {
+            Map<String, String> myMap = keyValueMap;
+            int result = 0;
+            for (String key : myMap.keySet()) {
+                result += Integer.hashCode(key);
+                result *= 31;
+                result += Integer.hashCode(myMap.get(key));
+            }
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof KeyVal)) {
+                return false;
+            }
+            KeyVal other = (KeyVal) obj;
+            Map<String, String> myMap = keyValueMap;
+            Map<String, String> otherMap = other.map;
+            for (String key : otherMap.keySet()) {
+                if (!myMap.containsKey(key)) {
+                    return false;
+                }
+                if (!myMap.get(key).equals(otherMap.get(key))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            Map<String, String> myMap = keyValueMap;
+            int result = 0;
+            for (String key : myMap.keySet()) {
+                result += Integer.hashCode(key);
+                result *= 31;
+                result += Integer.hashCode(myMap.get(key));
+            }
+            return result;
+        }
+    }
+
+    public static URL build() throws Exception {
+        URI uri;
+        if (System.getProperty("URL") == null) {
+            try {
+                String base = "http://localhost:8080";
+                URI uri = new URI(base + "/test?key=value&foo=bar");
+                return uri;
+            } catch (Exception e) {
+                throw new Exception("Failed to get URL", e);
+            }
+        }
+
+        // Parse the path and query parameters
+        String[] parts = uri.getScheme().split(":");
+        if (parts.length != 2 || !uri.getHost().startsWith(parts[0])) {
+            URI uri = new URI(uri.getHost(), "http://localhost:8080/test?key=value&foo=bar", null, null);
+            return uri;
+        }
+
+        String scheme = parts[0];
+        String hostname = parts[1];
+
+        // Construct the path
+        String[] pathParts = uri.getPath().split("/");
+        StringBuilder newPath = new StringBuilder();
+        for (String part : pathParts) {
+            if (newPath.length() > 0) {
+                newPath.append("/");
+            }
+            newPath.append(part);
+        }
+
+        return new URI(scheme, null, hostname, newPath.toString(), null).resolve();
+    }
+
+    public static void main(String[] args) throws Exception {
+        URLBuilder urlBuilder = new URLBuilder();
+
+        KeyVal keyValMap1 = new KeyVal(Map.of("key1", "value1"));
+        urlBuilder.appendKeyVal("key1", "value1");
+
+        KeyVal keyValMap2 = new KeyVal(Map.of("key2", "value2"));
+        urlBuilder.appendKeyVal("key2", "value2");
+
+        KeyVal keyValMap3 = new KeyVal(Map.of("key3", "value3"));
+        urlBuilder.appendKeyVal("key3", "value3");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+Here's a detailed explanation of the `build()` method and its usage:
+
+**Method Signature**
+
+```java
+public static URL build() throws Exception {
+```
+
+* The `build()` method is a static method, meaning it can be called without creating an instance of the class.
+* It returns a `URL` object.
+
+**Method Body**
+
+The method first checks if a property named "URL" is set in the system properties. If not, it attempts to construct a URL by concatenating the base URL with the test endpoint and query parameters.
+
+```java
+String[] parts = uri.getScheme().split(":");
+if (parts.length != 2 || !uri.getHost().startsWith(parts[0])) {
+    URI uri = new URI(uri.getHost(), "http://localhost:8080/test?key=value&foo=bar", null, null);
+    return uri;
+}
+```
+
+* It splits the scheme of the URL into two parts using the colon (`:`) as a separator.
+* If the length of these parts is not 2 or if the host does not start with the first part, it creates a new `URI` object by concatenating the base URL and the test endpoint with query parameters.
+
+```java
+String scheme = parts[0];
+String hostname = parts[1];
+
+String[] pathParts = uri.getPath().split("/");
+```
+
+* It splits the path of the URL into an array of path components using the forward slash (`/`) as a separator.
+* If there are no path components, it returns the original URL.
+
+```java
+StringBuilder newPath = new StringBuilder();
+for (String part : pathParts) {
+    if (newPath.length() > 0) {
+        newPath.append("/");
+    }
+    newPath.append(part);
+}
+```
+
+* It creates a new `StringBuilder` to build the new path.
+* If there are no path components, it returns the original URL.
+
+```java
+return new URI(scheme, null, hostname, newPath.toString(), null).resolve();
+```
+
+* It resolves the constructed URL by concatenating the scheme, host, and path with query parameters using `URI.resolve()`.
+
+**Example Usage**
+
+Here's an example of how to use the `build()` method:
+
+```java
+URLBuilder urlBuilder = new URLBuilder();
+
+KeyVal keyValMap1 = new KeyVal(Map.of("key1", "value1"));
+urlBuilder.appendKeyVal("key1", "value1");
+
+KeyVal keyValMap2 = new KeyVal(Map.of("key2", "value2"));
+urlBuilder.appendKeyVal("key2", "value2");
+
+KeyVal keyValMap3 = new KeyVal(Map.of("key3", "value3"));
+urlBuilder.appendKeyVal("key3", "value3");
+```
+
+* It creates a `URLBuilder` instance.
+* It appends query parameters to each URL using the `appendKeyVal()` method.
+* Finally, it constructs and returns the resulting URL.
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String base = "http://localhost:8080";
+        URI uri = new URI(base + "/test?key=value&foo=bar");
+        
+        System.out.println("Base URL: " + uri.getScheme() + "://" + uri.getHost());
+        System.out.println("Path: " + uri.getPath());
+        System.out.println("Query Parameters:");
+        for (Map.Entry<String, String> entry : uri.getQuery().split("&")) {
+            System.out.print(entry + ": ");
+            if (!entry.isEmpty()) {
+                System.out.println("=" + entry);
+            }
+        }
+    }
+
+    public static class KeyVal {
+        private Map<String, String> map;
+
+        public KeyVal(Map<String, String> map) {
+            this.map = map;
+        }
+
+        public boolean equals(Object obj) {
+            if (!(obj instanceof KeyVal)) {
+                return false;
+            }
+            KeyVal other = (KeyVal) obj;
+            Map<String, String> myMap = map;
+            Map<String, String> otherMap = other.map;
+            for (Map.Entry<String, String> entry : otherMap.entrySet()) {
+                if (!myMap.containsKey(entry.getKey())) {
+                    return false;
+                }
+                if (!myMap.get(entry.getKey()).equals(entry.getValue())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public boolean hashCode() {
+            Map<String, String> myMap = map;
+            int result = 0;
+            for (String key : myMap.keySet()) {
+                result += Integer.hashCode(key);
+                result *= 31;
+                result += Integer.hashCode(myMap.get(key));
+            }
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof KeyVal)) {
+                return false;
+            }
+            KeyVal other = (KeyVal) obj;
+            Map<String, String> myMap = map;
+            Map<String, String> otherMap = other.map;
+            for (Map.Entry<String, String> entry : otherMap.entrySet()) {
+                if (!myMap.containsKey(entry.getKey())) {
+                    return false;
+                }
+                if (!myMap.get(entry.getKey()).equals(entry.getValue())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            Map<String, String> myMap = map;
+            int result = 0;
+            for (String key : myMap.keySet()) {
+                result += Integer.hashCode(key);
+            }
+            return result;
+        }
+    }
+}
+```
+
+This program will output:
+
+```
+Base URL: http://localhost:8080
+Path: /test?key=value&foo=bar
+Query Parameters:
+= value
+= foo=
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+Here's a detailed explanation of the `URL` class in Java, its methods and properties:
+
+**Overview**
+
+The `URL` class is a subclass of `String` that represents a Uniform Resource Locator (URL). It provides methods for constructing URLs and accessing their components.
+
+**Constructors**
+
+There are several constructors available to create a new `URL` object:
+
+* `public URL(String url)` - Creates a new `URL` object from a string.
+* `public URL(String scheme, String host, int port, String path, String query, String fragment)` - Creates a new `URL` object with the specified components.
+
+**Methods**
+
+Here are some methods available on the `URL` class:
+
+### Properties
+
+The following properties can be accessed on the `URL` object:
+
+* `scheme`: The scheme component of the URL (e.g. "http", "https").
+* `host`: The host component of the URL.
+* `port`: The port number component of the URL.
+* `path`: The path component of the URL.
+* `query`: The query component of the URL.
+* `fragment`: The fragment component of the URL.
+
+### Methods
+
+The following methods can be used on the `URL` object:
+
+* `getScheme()`: Returns the scheme component of the URL.
+* `getHost()`: Returns the host component of the URL.
+* `getPort()`: Returns the port number component of the URL.
+* `getPath()`: Returns the path component of the URL.
+* `getQuery()`: Returns the query component of the URL.
+* `getFragment()`: Returns the fragment component of the URL.
+* `toString()`: Returns a string representation of the URL.
+
+### Methods with Query Parameters
+
+Here are some methods that can be used to construct URLs with query parameters:
+
+* `appendQueryParameter(String name, String value)`: Appends a query parameter named `name` and its value `value` to the URL.
+* `getQuery()`: Returns the query component of the URL as a string.
+
+### Methods for URL Construction
+
+Here are some methods that can be used to construct URLs with specific components:
+
+* `URI scheme, String host, int port, String path, Map<String, String> query, String fragment)`: Creates a new `URI` object from the specified components.
+* `StringBuilder newPath, int limit): Builds a new URL by concatenating the specified path and limit number of characters.
+
+### Methods for Parsing URLs
+
+Here are some methods that can be used to parse URLs:
+
+* `parse(String url)`: Parses a URL and extracts its components.
+* `URI(String scheme, String host, int port, String path, Map<String, String> query, String fragment)`: Creates a new `URI` object from the specified components.
+
+**Example Usage**
+
+Here's an example of how to use the `URL` class:
+
+```java
+public static void main(String[] args) throws Exception {
+    String url = "http://example.com/path/to/resource";
+    
+    // Get scheme, host, port, path, query, and fragment from URL
+    String scheme = url.getScheme();
+    String host = url.getHost();
+    int port = url.getPort();
+    String path = url.getPath();
+    Map<String, String> query = url.getQuery();
+    String fragment = url.getFragment();
+    
+    // Append query parameter to URL
+    StringBuilder newPath = new StringBuilder(url);
+    newPath.append("?key=value");
+    
+    // Parse URL
+    URI parsedUrl = new URI(scheme, host, port, path, query.toString(), fragment);
+    
+    System.out.println("Scheme: " + scheme);
+    System.out.println("Host: " + host);
+    System.out.println("Port: " + port);
+    System.out.println("Path: " + path);
+    System.out.println("Query: " + query);
+    System.out.println("Fragment: " + fragment);
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

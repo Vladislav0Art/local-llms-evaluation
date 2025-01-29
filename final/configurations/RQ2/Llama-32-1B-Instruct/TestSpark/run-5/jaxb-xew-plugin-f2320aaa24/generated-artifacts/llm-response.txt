@@ -1,0 +1,604 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class XmlElementWrapperTest {
+
+    private static final String XML_ELEMENT_NAME = "element";
+
+    @Test
+    public void testGetAnnotation() {
+        JAnnotatable annotation = getMock(JAnnotatable.class);
+        assertEquals(XML_ELEMENT_NAME, getAnnotation(annotation).getName());
+    }
+
+    @Test
+    public void testGetAnnotationMemberValue() {
+        JAnnotatable annotation = getMock(JAnnotatable.class);
+        String propertyName = "propertyName";
+        Object value = getAnnotationMemberValue(annotation, propertyName);
+        assertEquals(propertyName, (String) value);
+    }
+
+    @Test
+    public void testCopyFields() {
+        JClass classObject = getMock(JClass.class);
+        CopyFields copyFields = new CopyFields();
+        copyFields.copy(classObject);
+        ClassOutline outline = getMock(ClassOutline.class);
+
+        // Test copying fields of a single field or method
+        JFieldVar fieldVar = classObject.getMember("field");
+        assertEquals(0, outline.getFieldCount());
+        assertEquals("field", XML_ELEMENT_NAME + ":" + fieldVar.getName());
+        assertEquals("get", fieldVar.getAnnotation(XMLElementWrapperPlugin.class).getName());
+
+        // Test copying fields of multiple fields or methods
+        JMethod method = classObject.getMethod("method");
+        JFieldVar fieldVar1 = classObject.getMember("field1");
+        JFieldVar fieldVar2 = classObject.getMember("field2");
+        assertEquals(0, outline.getFieldCount());
+        assertEquals(XML_ELEMENT_NAME + ":" + fieldVar1.getName() + "|" + XML_ELEMENT_NAME + ":" + fieldVar2.getName(), outline.getFieldName());
+    }
+
+    @Test
+    public void testGenerableToString() {
+        JAnnotatable annotation = getMock(JAnnotatable.class);
+        String propertyName = "propertyName";
+        Object value = generableToString(annotation, propertyName);
+        assertEquals(propertyName, (String) value);
+    }
+
+    @Test
+    public void testCopyAnnotationMemberValue() {
+        JAnnotatable annotation = getMock(JAnnotatable.class);
+        CopyAnnotationMemberValue copyAnnotationMemberValue = new CopyAnnotationMemberValue();
+        copyAnnotationMemberValue.copy(annotation);
+        Object value = getAnnotationMemberValue(annotation, "propertyName");
+        assertEquals("propertyName", (String) value);
+    }
+
+    @Test
+    public void testIsHiddenClass() {
+        JAnnotatable annotation = getMock(JAnnotatable.class);
+        setPrivateField(annotation, "hiddenClass");
+        assertTrue(isHiddenClass(annotation));
+        clearHiddenClass(annotation);
+    }
+
+    @Test
+    public void testGetXmlSchema() {
+        JAXBElement element = getMock(JAXBElement.class);
+        QName qname = getMock(QName.class);
+        String schema = generableToString(element, qname);
+        assertEquals("schema", "schema");
+    }
+
+    @Test
+    public void testIsListedAsParametrisation() {
+        JAnnotatable annotation = getMock(JAnnotatable.class);
+        setPrivateField(annotation, "is Listed As Parmetisation");
+        assertTrue(isListedAsParametrisation(annotation));
+        clearIs Listed AsParmetisation(annotation);
+    }
+
+    @Test
+    public void testSetPrivateField() {
+        JClass classObject = getMock(JClass.class);
+        setPrivateField(classObject, "private field", "value");
+        assertEquals("private field", getPrivateField(classObject).getName());
+        assertEquals("value", getPrivateField(classObject).getValue().toString());
+    }
+
+    private static class MockJAnnotatable implements JAnnotatable {
+        public String getName() {
+            return XML_ELEMENT_NAME;
+        }
+        public Object getAnnotation() {
+            return null;
+        }
+
+        @Override
+        public void copy(JClass container) {}
+    }
+
+    private static class MockJAnnotatableArray implements JAnnotatable[] {
+        public String[] getAnnotations() {
+            return new String[0];
+        }
+
+        @Override
+        public void copy(JClass container) {}
+
+        @Override
+        public void setPrivateField(String name, Object value) {}
+    }
+
+    private static class MockJAnnotatableList implements JAnnotatable[] {
+        public JAnnotatable[] getAnnotations() {
+            return new JAnnotatable[0];
+        }
+
+        @Override
+        public void copy(JClass container) {}
+
+        @Override
+        public void setPrivateField(String name, Object value) {}
+    }
+
+    private static class MockJAnnotatableMap implements JAnnotatableMap {
+        public String[] getAnnotations() {
+            return new String[0];
+        }
+
+        @Override
+        public void copy(JClass container) {}
+
+        @Override
+        public void setPrivateField(String name, Object value) {}
+    }
+
+    private static class MockJAnnotationArrayMember implements JAnnotationArrayMember {
+        public JAnnotatable[] getAnnotations() {
+            return new String[0];
+        }
+    }
+
+    private static class MockJAnnotationUse implements JAnnotationUse {
+        @Override
+        public JAnnotatable getValue(JClass container) {}
+
+        @Override
+        public void setValue(JClass container, JAnnotatable value) {}
+    }
+
+    private static class MockJMethod extends JMethod {}
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import java.lang.reflect.Field;
+
+public class JAnnotatable {
+    @XmlElement(name = XML_ELEMENT_NAME, required = false)
+    public String getName() {
+        return null;
+    }
+
+    public void setPrivateField(String name, Object value) {}
+}
+
+public class JClass implements JAnnotatable {
+    private String name;
+    private JAnnotatable annotation;
+
+    public JClass() {}
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public JAnnotatable getAnnotation() {
+        return annotation;
+    }
+
+    public void setPrivateField(String name, Object value) {}
+}
+
+public class JMethod extends JClass {
+    @XmlElement(name = XML_ELEMENT_NAME)
+    private String name;
+
+    public JMethod() {}
+
+    public JMethod(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+public class CopyFields implements JAnnotatableCopyField {
+    private JClass container;
+    private String[] properties;
+    private Object[] values;
+
+    public void copy(JClass container) {}
+}
+
+public class CopyAnnotationMemberValue implements JAnnotatableCopyAnnotationMemberValue {
+    private JMethod method;
+    private String propertyName;
+
+    public void copy(JClass container) {}
+
+    public void setPrivateField(String propertyName, Object value) {}
+}
+
+public class GenerableToString implements JGenerableToString {
+    @Override
+    public Object generableToString(JClass annotation, String propertyName) {
+        return null;
+    }
+
+    public void setPrivateField(String propertyName, Object value) {}
+}
+
+public class IsHiddenClass implements JIsHiddenClass {
+    private JAnnotatable annotation;
+
+    public IsHiddenClass() {}
+
+    public boolean isHiddenClass(JClass container) {
+        return false;
+    }
+}
+
+public class SetPrivateField implements JSetPrivateField {
+    private JClass container;
+    private String name;
+    private Object value;
+
+    public void setPrivateField(String name, Object value) {}
+}
+
+public class ClearIs Listed AsParmetisation implements JClearIs ListedAs Parmetisation {
+    @Override
+    public boolean isListedAsParametrisation(JClass annotation) {}
+
+    public void clearIs Listed AsParmetisation(JClass annotation) {}
+}
+
+public class SetPrivateFieldForTest implements JSetPrivateField {
+    private String name;
+    private Object value;
+
+    public SetPrivateFieldForTest(String name, Object value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public void setPrivateField(String name, Object value) {}
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import java.lang.reflect.Field;
+
+public class JAnnotatableCopyField {
+    @XmlElement(name = XML_ELEMENT_NAME)
+    public String[] getAnnotations() {
+        return new String[0];
+    }
+
+    private Object value;
+
+    public void setPrivateField(String name, Object value) {}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JAnnotatableCopyField that = (JAnnotatableCopyField) o;
+        return new java.util.Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(name);
+    }
+}
+
+public class JGenerableToString implements JGenerableToString {
+    private Object value;
+
+    public Object generableToString(JClass annotation, String propertyName) {
+        Field field = null;
+        try {
+            field = annotation.getClass().getDeclaredField(propertyName);
+        } catch (NoSuchFieldException e) {}
+        if (field != null) {
+            field.setAccessible(true);
+            value = field.get(annotation);
+        }
+        return value;
+    }
+
+    public void setPrivateField(String propertyName, Object value) {}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JGenerableToString that = (JGenerableToString) o;
+        return new java.util.Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(value);
+    }
+}
+
+public class JIsHiddenClass implements JIsHiddenClass {
+    private Object value;
+
+    public boolean isHiddenClass(JClass annotation) {}
+
+    public void setPrivateField(String propertyName, Object value) {}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JIsHiddenClass that = (JIsHiddenClass) o;
+        return new java.util.Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(value);
+    }
+}
+
+public class JSetPrivateField implements JSetPrivateField {
+    private String name;
+    private Object value;
+
+    public JSetPrivateField(String name, Object value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JSetPrivateField that = (JSetPrivateField) o;
+        return new java.util.Objects.equals(name, that.name) && new java.util.Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(name, value);
+    }
+}
+
+public class JClearIs ListedAs Parmetisation implements JClearIs ListedAs Parmetision {
+    private Object value;
+
+    public JClearIs ListedAs Parmetisation(String propertyName) {}
+
+    public void setPrivateField(String propertyName, Object value) {}
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.lang.reflect.Field;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "JAnnotatableCopyField", propOrder = {"value"})
+public class JAnnotatableCopyField {
+
+    @XmlElement(name = "annotations")
+    private String[] annotations;
+
+    public JAnnotatableCopyField() {}
+
+    public JAnnotatableCopyField(String[] annotations) {
+        this.annotations = annotations;
+    }
+
+    public void setPrivateField(String name, Object value) {}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JAnnotatableCopyField that = (JAnnotatableCopyField) o;
+        return new java.util.Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(name);
+    }
+}
+
+public class JGenerableToString implements JGenerableToString {
+    private Object value;
+
+    public Object generableToString(JClass annotation, String propertyName) {
+        Field field = null;
+        try {
+            field = annotation.getClass().getDeclaredField(propertyName);
+        } catch (NoSuchFieldException e) {}
+        if (field != null) {
+            field.setAccessible(true);
+            value = field.get(annotation);
+        }
+        return value;
+    }
+
+    public void setPrivateField(String propertyName, Object value) {}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JGenerableToString that = (JGenerableToString) o;
+        return new java.util.Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(value);
+    }
+}
+
+public class JIsHiddenClass implements JIsHiddenClass {
+    private Object value;
+
+    public JIsHiddenClass() {}
+
+    public boolean isHiddenClass(JClass annotation) {}
+
+    public void setPrivateField(String propertyName, Object value) {}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JIsHiddenClass that = (JIsHiddenClass) o;
+        return new java.util.Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(value);
+    }
+}
+
+public class JSetPrivateField implements JSetPrivateField {
+    private String name;
+    private Object value;
+
+    public JSetPrivateField(String name, Object value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JSetPrivateField that = (JSetPrivateField) o;
+        return new java.util.Objects.equals(name, that.name) && new java.util.Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(name, value);
+    }
+}
+
+public interface JClearIs ListedAs Parmetision {
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "JAnnotatableCopyField", propOrder = {"value"})
+public class JAnnotatableCopyField {
+
+    @XmlElement(name = "annotations")
+    private String[] annotations;
+
+    public JAnnotatableCopyField() {}
+
+    public JAnnotatableCopyField(String[] annotations) {
+        this.annotations = annotations;
+    }
+
+    public void setPrivateField(String name, Object value) {}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JAnnotatableCopyField that = (JAnnotatableCopyField) o;
+        return new java.util.Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(name);
+    }
+}
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "JGenerableToString", propOrder = {"value"})
+public interface JGenerableToString extends JClass {
+
+    Object generableToString(JClass annotation, String propertyName);
+
+    default boolean isFieldHidden() {
+        return false;
+    }
+
+    default int getAnnotationCount() {
+        return 0;
+    }
+}
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "JIsHiddenClass", propOrder = {"value"})
+public interface JIsHiddenClass extends JClass {
+
+    void setPrivateField(String propertyName, Object value);
+
+    boolean isHiddenClass(JClass annotation) {}
+
+    int getAnnotationCount() {
+        return 0;
+    }
+}
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "JSetPrivateField", propOrder = {"value"})
+public interface JSetPrivateField extends JClass {
+
+    void setPrivateField(String propertyName, Object value);
+
+    default boolean isFieldHidden() {
+        return false;
+    }
+
+    int getAnnotationCount() {
+        return 0;
+    }
+}
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "JClearIs ListedAs Parmetision", propOrder = {"value"})
+public interface JClearIs ListedAsParmetion extends JClass {}
+
+```
+===================================================
+
+
+====================== Iteration #6 ======================

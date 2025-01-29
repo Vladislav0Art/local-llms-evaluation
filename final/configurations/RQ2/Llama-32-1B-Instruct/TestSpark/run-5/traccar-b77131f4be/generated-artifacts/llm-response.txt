@@ -1,0 +1,325 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.traccar.protocol.GalileoProtocolDecoder;
+
+public class GalileoProtocolDecoderTest {
+
+    @Test
+    public void testDecode_Position() {
+        // Arrange
+        byte[] data = new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+        Position position = new Position(10.5f, 20.7f, Calendar.getInstance().getTime());
+        Map<String, Object> networkMessage = new HashMap<>();
+        networkMessage.put("position", position);
+        NetworkMessage msg = new NetworkMessage(data, networkMessage);
+
+        // Act
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol());
+
+        // Assert
+        assertEquals("Position", decoder.decode(msg));
+    }
+
+    @Test
+    public void testDecode_NetworkMessage() {
+        // Arrange
+        byte[] data = new byte[]{0x00, 0x01, 0x02, 0x03};
+        NetworkMessage msg = new NetworkMessage(data);
+
+        // Act
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol());
+
+        // Assert
+        assertEquals("NetworkMessage", decoder.decode(msg));
+    }
+
+    @Test
+    public void testDecode_InvalidData() {
+        // Arrange
+        byte[] data = new byte[]{0x00, 0x01, 0x02, 0x03, 0x04};
+        NetworkMessage msg = new NetworkMessage(data);
+
+        // Act and Assert
+        AssertionError exception = assertThrows(io.netty.buffer.ByteBufUtil.InvalidByteBufException.class, () -> decoder.decode(msg));
+        assertEquals("Invalid ByteBuf", exception.getMessage());
+    }
+
+    @Test
+    public void testDecode_DuplicatePosition() {
+        // Arrange
+        byte[] data = new byte[]{0x00, 0x01, 0x02, 0x03};
+        Position position = new Position(10.5f, 20.7f, Calendar.getInstance().getTime());
+        Map<String, Object> networkMessage = new HashMap<>();
+        networkMessage.put("position", position);
+        NetworkMessage msg = new NetworkMessage(data, networkMessage);
+
+        // Act
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol());
+
+        // Assert
+        assertEquals("Duplicate Position", decoder.decode(msg));
+    }
+
+    @Test
+    public void testDecode_DuplicateNetworkMessage() {
+        // Arrange
+        byte[] data = new byte[]{0x00, 0x01, 0x02, 0x03};
+        NetworkMessage msg1 = new NetworkMessage(data);
+        NetworkMessage msg2 = new NetworkMessage(data);
+
+        // Act and Assert
+        AssertionError exception = assertThrows(io.netty.buffer.ByteBufUtil.InvalidByteBufException.class, () -> decoder.decode(msg2));
+        assertEquals("Duplicate NetworkMessage", exception.getMessage());
+    }
+
+    @Test
+    public void testDecode_DifferentDataType() {
+        // Arrange
+        byte[] data1 = new byte[]{0x00, 0x01};
+        byte[] data2 = new byte[]{0x02, 0x03};
+
+        // Act and Assert
+        try {
+            decoder.decode(new Channel(), SocketAddress.empty(), null);
+            fail("Expected Exception");
+        } catch (Exception e) {
+            assertEquals("Different DataType", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDecode_DifferentMessageClass() {
+        // Arrange
+        byte[] data = new byte[]{0x00, 0x01};
+        Object msg1 = new Object();
+        Object msg2 = new String("Hello");
+
+        // Act and Assert
+        try {
+            decoder.decode(new Channel(), SocketAddress.empty(), msg1);
+            fail("Expected Exception");
+        } catch (Exception e) {
+            assertEquals("Different MessageClass", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDecode_DuplicateNetworkMessageType() {
+        // Arrange
+        byte[] data = new byte[]{0x00, 0x01};
+        NetworkMessage msg1 = new NetworkMessage(data);
+        NetworkMessage msg2 = new NetworkMessage(data);
+
+        // Act and Assert
+        AssertionError exception = assertThrows(io.netty.buffer.ByteBufUtil.InvalidByteBufException.class, () -> decoder.decode(msg2));
+        assertEquals("Duplicate NetworkMessageType", exception.getMessage());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.fail;
+
+public class Main {
+
+    @Test
+    public void testDecode() {
+        try {
+            new Main().decode(null);
+            fail("Expected RuntimeException");
+        } catch (RuntimeException e) {
+            // expected exception
+        }
+    }
+
+    public String decode(byte[] data) throws Exception {
+        return Main.class.getName() + ": " + data;
+    }
+
+    @Test
+    public void testDecodeByteBufUtilInvalidByteBufException() {
+        try {
+            new Main().decode(new byte[]{1, 2, 3});
+            fail("Expected RuntimeException");
+        } catch (RuntimeException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testDecodeByteBufUtilNull() throws Exception {
+        new Main();
+    }
+
+    public void doSomething(String msg) {}
+
+    @Test
+    public void testDoSomething() {
+        new Main().doSomething(msg = "example");
+        fail("Expected RuntimeException");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+public class Main {
+
+    public String decode(byte[] data) throws Exception {
+        return Main.class.getName() + ": " + Arrays.deepToString(data);
+    }
+
+    @Test
+    public void testDecodeByteBufUtilInvalidByteBufException() {
+        try {
+            new Main().decode(new byte[]{1, 2, 3});
+            fail("Expected RuntimeException");
+        } catch (RuntimeException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testDecodeByteBufUtilNull() throws Exception {
+        new Main();
+        throw new NullPointerException();
+    }
+
+    @Test
+    public void testDecodeValidBytes() {
+        byte[] data = new byte[]{1, 2, 3};
+        System.out.println(Main.decode(data));
+    }
+
+    @Test
+    public void testDecodeInvalidByteBufLength() throws Exception {
+        try {
+            Main.decode(new byte[0]);
+            fail("Expected RuntimeException");
+        } catch (RuntimeException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testDecodeInvalidByteBufElements() throws Exception {
+        try {
+            new Main().decode(new byte[]{1, 2, 3.5, true});
+            fail("Expected RuntimeException");
+        } catch (RuntimeException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testDoSomething() {
+        doSomething("example");
+        fail("Expected RuntimeException");
+    }
+
+    private void doSomething(String msg) {
+        System.out.println(msg);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    public static class Main {
+        public void decode(byte[] data) {
+            System.out.println("Decoded: " + Arrays.toString(data));
+        }
+    }
+
+    public static void main(String[] args) {
+        Main m = new Main();
+        int[] array1 = {1, 2, 3};
+        m.decode(new byte[]{1, 2, 3});
+        
+        int[] array2 = {1.0, 2.0, 3.0};
+        m.decode(new byte[]{1, 2, 3, (byte) 4});
+        
+        boolean b = true;
+        System.out.println("b: " + Arrays.toString(b));
+        
+        int[] array3 = {true};
+        m.decode(new byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4});
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class TestSpark {
+
+    public static class Main {
+        public String toStringArray(int[] data) {
+            return Arrays.toString(data);
+        }
+
+        public byte[] decode(byte[] data) {
+            System.out.println("Decoded: " + data);
+            return data;
+        }
+    }
+
+    public static void main(String[] args) {
+        Main m = new Main();
+        
+        String stringArray1 = m.toStringArray(new int[]{1, 2, 3});
+        byte[] byteArray1 = m.decode(new byte[]{1, 2, 3});
+        System.out.println("stringArray1: " + stringArray1);
+        System.out.println("byteArray1: " + byteArray1);
+
+        String stringArray2 = m.toStringArray(new int[]{1.0, 2.0, 3.0});
+        boolean b = (boolean) m.decode(new byte[]{(byte) 1, (byte) 2, (byte) 3, (byte) 4});
+        System.out.println("stringArray2: " + stringArray2);
+        System.out.println("b: " + b);
+
+        int[] array1 = new int[3];
+        int[] array2 = {true};
+        
+        String stringArray3 = m.toStringArray(array1);
+        byte[] byteArray3 = m.decode(byteArray1);
+        System.out.println("stringArray3: " + stringArray3);
+        System.out.println("byteArray3: " + byteArray3);
+
+        stringArray3 = new String(new ByteArrayInputStream(stringArray2), StandardCharsets.UTF_8);
+        byteArray3 = new byte[stringArray2.length];
+        for (int i = 0; i < stringArray2.length; i++) {
+            byteArray3[i] = (byte) stringArray2.charAt(i);
+        }
+        
+        System.out.println("stringArray3: " + stringArray3);
+        System.out.println("byteArray3: " + Arrays.toString(byteArray3));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

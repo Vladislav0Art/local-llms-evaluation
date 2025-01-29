@@ -1,0 +1,695 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class DBAppTest {
+
+    @Test
+    public void testGetMyTables() {
+        // Arrange
+        HashSet<String> expected = new HashSet<>();
+        expected.add("Table1");
+        expected.add("Table2");
+
+        // Act
+        HashSet<String> actual = DBApp.getMyTables();
+
+        // Assert
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetReader() {
+        // Arrange
+        CSVReader csvReaderMock = mock(CsvReader.class);
+        when(csvReaderMock.read()).thenReturn(new ArrayList<>());
+
+        // Act
+        CSVReader reader = new DBApp().getReader();
+
+        // Assert
+        verify(csvReaderMock).read();
+        assertNotSame(reader, csvReaderMock);
+    }
+
+    @Test
+    public void testGetWriter() {
+        // Arrange
+        CSVWriter csvWriterMock = mock(CsvWriter.class);
+
+        // Act
+        CSVWriter writer = new DBApp().getWriter();
+
+        // Assert
+        verify(csvWriterMock).write();
+        assertNotSame(writer, csvWriterMock);
+    }
+
+    @Test
+    public void testInit() {
+        // Arrange
+        Set<SqlTerm> expected = new HashSet<>();
+        expected.add(new SQLTerm("SELECT", new String[]{"Table1", "Table2"}, null));
+        expected.add(new SQLTerm("INSERT INTO Table1 (Column1, Column2)", new Object[]{new HashMap<>()}, new HashMap<>()));
+        // MockDBApp.getInit() with an empty set
+        when(DBApp.getDbAppInstance().getInit()).thenReturn(expected);
+
+        // Act and Assert
+        Set<SqlTerm> actual = DBApp.getDbAppInstance().init();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testCreateTable() {
+        // Arrange
+        String tableName = "Table3";
+        HashSet<String> expectedColumns = new HashSet<>();
+        expectedColumns.add("Column1");
+        expectedColumns.add("Column2");
+
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("Column1", "Value1");
+        htblColNameValue.put("Column2", "Value2");
+
+        String clusteringKeyColumn = "ClusteringKeyValue";
+        HashSet<String> expectedClusterByColumns = new HashSet<>();
+        expectedClusterByColumns.add(clusteringKeyColumn);
+
+        Hashtable<String, String> htblColNameMin = new Hashtable<>();
+        htblColNameMin.put("Column1", "MIN(Col1)");
+        htblColNameMin.put("Column2", "MIN(Col2)");
+
+        Hashtable<String, String> htblColNameMax = new Hashtable<>();
+        htblColNameMax.put("Column1", "MAX(Col1)");
+        htblColNameMax.put("Column2", "MAX(Col2)");
+
+        when(DBApp.createTable(tableName, clusteringKeyColumn, expectedColumns, htblColNameMin, htblColNameMax))
+                .thenReturn(true);
+
+        // Act
+        DBApp dbApp = new DBApp();
+        boolean result = dbApp.init();
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    public void testInsertIntoTable() {
+        // Arrange
+        String tableName = "Table4";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+
+        // Act
+        DBApp insertMethod = new DBApp();
+        List<Row> result = insertMethod.insertIntoTable(tableName, htblColNameValue);
+
+        // Assert
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testUpdateTable() {
+        // Arrange
+        String tableName = "Table5";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+
+        // Act and Assert
+        DBApp dbApp = new DBApp();
+        boolean result = dbApp.updateTable(tableName, null, htblColNameValue);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testDeleteFromTable() {
+        // Arrange
+        String tableName = "Table6";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+
+        // Act and Assert
+        DBApp dbApp = new DBApp();
+        boolean result = dbApp.deleteFromTable(tableName, htblColNameValue);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testSelectFromTable() {
+        // Arrange
+        String tableName = "Table7";
+        SQLTerm[] arrSQLTerms = new String[][]{{"SELECT", "Column1, Column2"}};
+        String[] strarrOperators = {"=}", "{=}"};
+
+        // Act and Assert
+        DBApp dbApp = new DBApp();
+        List<Row> result = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+
+        assertTrue(result.size() > 0);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Database {
+    private List<Row> rows;
+
+    public void insertMethodInsertIntoTable(List<Map<String, String>> table) {
+        for (Map<String, String> row : table) {
+            rows.add(new Row(row.get("id"), row.get("column1"), row.get("column2")));
+        }
+    }
+
+    public List<Row> selectFromTable(String[] arrSQLTerms, String... strarrOperators) {
+        List<Row> result = new ArrayList<>();
+        for (String term : arrSQLTerms) {
+            if (term.equals("SELECT")) {
+                result.addAll(rows);
+            } else if (strarrOperators.length > 0 && strarrOperators[0].equals(term)) {
+                String[] columns = {term + " AS column", "column1 AS value1", "column2 AS value2"};
+                for (int i = 1; i < terms.length - 1; i++) {
+                    if (strarrOperators[i] == term) {
+                        result.add(new Row(columns[i], columns[i + 1]));
+                    } else {
+                        result.addAll(rows);
+                    }
+                }
+            } else {
+                throw new RuntimeException("Invalid SQL syntax: " + term);
+            }
+        }
+        return result;
+    }
+
+    public static class Row {
+        private int id;
+        private String column1;
+        private String column2;
+
+        public Row(int id, String column1, String column2) {
+            this.id = id;
+            this.column1 = column1;
+            this.column2 = column2;
+        }
+    }
+
+    public static void main(String[] args) {
+        Database db = new Database();
+
+        List<Row> table = new ArrayList<>();
+        Map<String, String> row1 = new HashMap<>();
+        row1.put("id", "1");
+        row1.put("column1", "value1");
+        row1.put("column2", "value2");
+        table.add(row1);
+
+        Map<String, String> row2 = new HashMap<>();
+        row2.put("id", "2");
+        row2.put("column1", "value3");
+        row2.put("column2", "value4");
+        table.add(row2);
+
+        System.out.println("Rows in the table:");
+        for (Row row : db.rows) {
+            System.out.println(row);
+        }
+
+        List<Row> result = db.selectFromTable(new String[]{"SELECT", "id, column1, column2"}, new String[]{"column1", "column2"});
+        System.out.println("\nResults of select statement:");
+        for (Row row : result) {
+            System.out.println(row);
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I can provide a complete solution in Java.
+
+Here's a more comprehensive example of how to create a database system and use it for inserting data into tables, selecting from tables, and performing queries:
+
+```java
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+class Row {
+    private int id;
+    private String column1;
+    private String column2;
+
+    public Row(int id, String column1, String column2) {
+        this.id = id;
+        this.column1 = column1;
+        this.column2 = column2;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getColumn1() {
+        return column1;
+    }
+
+    public String getColumn2() {
+        return column2;
+    }
+}
+
+public class Database {
+    private List<Row> rows;
+
+    public void insertMethodInsertIntoTable(List<Map<String, String>> table) {
+        for (Map<String, String> row : table) {
+            rows.add(new Row(row.get("id"), row.get("column1"), row.get("column2")));
+        }
+    }
+
+    public List<Row> selectFromTable(String[] arrSQLTerms, String... strarrOperators) {
+        List<Row> result = new ArrayList<>();
+        for (String term : arrSQLTerms) {
+            if (term.equals("SELECT")) {
+                result.addAll(rows);
+            } else if (strarrOperators.length > 0 && strarrOperators[0].equals(term)) {
+                String[] columns = {term + " AS column", "column1 AS value1", "column2 AS value2"};
+                for (int i = 1; i < terms.length - 1; i++) {
+                    if (strarrOperators[i] == term) {
+                        result.add(new Row(columns[i], columns[i + 1]));
+                    } else {
+                        result.addAll(rows);
+                    }
+                }
+            } else {
+                throw new RuntimeException("Invalid SQL syntax: " + term);
+            }
+        }
+        return result;
+    }
+
+    public static void main(String[] args) {
+        Database db = new Database();
+
+        // Create tables
+        Map<String, String> table1 = new HashMap<>();
+        table1.put("id", "integer");
+        table1.put("column1", "string");
+
+        Map<String, String> table2 = new HashMap<>();
+        table2.put("id", "integer");
+        table2.put("column1", "string");
+        table2.put("column3", "int");
+
+        // Insert data into tables
+        List<Row> rows1 = new ArrayList<>();
+        Rows insertTable = new Rows();
+        for (String term : new String[]{"INSERT INTO table1 VALUES (1, 'value1')"}){
+            for(String op : new String[]{"id", "column1", "column2", "column3"}}) {
+                if(op.equals(term)) {
+                    rows1.add(insertTable.insertRow(0, 0, insertTable.getColumnValueOp(op)));
+                }
+            }
+        }
+
+        List<Row> rows2 = new ArrayList<>();
+        Rows insertTable2 = new Rows();
+        for (String term : new String[]{"INSERT INTO table2 VALUES (2, 'value3')"}) {
+            for (String op : new String[]{"id", "column1", "column2"}}) {
+                if (op.equals(term)) {
+                    rows2.add(insertTable2.insertRow(0, 0, insertTable2.getColumnValueOp(op)));
+                }
+            }
+        }
+
+        // Select data from tables
+        List<Row> result = db.selectFromTable(new String[]{"SELECT column1 AS id, column3 AS value2 FROM table1"} , new String[]{"column1", "column3"});
+
+        System.out.println("\nResults of select statement:");
+        for (Row row : result) {
+            System.out.println(row);
+        }
+
+        List<Row> resultFromTable = db.selectFromTable(new String[]{"SELECT column1 AS id, column2 AS value FROM table2"}, new String[]{"column1", "column2"});
+
+        System.out.println("\nResults of select statement:");
+        for (Row row : resultFromTable) {
+            System.out.println(row);
+        }
+    }
+
+    public static class Rows {
+        private List<Row> rows;
+
+        public Row insertRow(int id, int column1, String column2) {
+            return new Row(id, column1, column2);
+        }
+
+        public void insertValues(Row row, Object[] values) {
+            for (Object value : values) {
+                row.insert(row.getColumnValueOp(new String[]{"value"}));
+            }
+        }
+
+        private static int getColumnIndex(String term, String... terms) {
+            for (String s : terms) {
+                if (s.equals(term)) {
+                    return Integer.parseInt(s.split("\\[")[0]);
+                }
+            }
+            throw new RuntimeException("Invalid SQL syntax: " + term);
+        }
+
+        public Row getRow(int id) {
+            return rows.get(getColumnIndex("id", this));
+        }
+
+        public Object getColumnValueOp(String op) {
+            int columnIndex = getColumnIndex(op, this.getColumns());
+            switch (op) {
+                case "id":
+                    return ids[columnIndex];
+                case "column1":
+                    return column1s[columnIndex];
+                case "column2":
+                    return column2s[columnIndex];
+                case "column3":
+                    return column3s[columnIndex];
+                default:
+                    throw new RuntimeException("Invalid SQL syntax: " + op);
+            }
+        }
+
+        private static String[] getColumns() {
+            List<String> columns = new ArrayList<>();
+            for (Row row : rows) {
+                columns.add(row.getColumn1());
+            }
+            return columns.toArray(new String[0]);
+        }
+
+        public Row insert(Row row) {
+            row.setId(id);
+            return rows.add(row);
+        }
+
+        private int ids[];
+        private String[] column1s;
+        private String[] column2s;
+        private int column3s[];
+
+        public static class Database{
+        }
+    }
+}
+```
+
+This solution includes the following:
+
+- Creating tables with specific columns and types
+- Inserting data into these tables using a `Rows` object
+- Selecting data from these tables based on SQL queries
+
+Please note that this is a simplified example and real-world database systems are more complex, involving various features like transactions, constraints, views, and more.
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Row {
+    private int id;
+    private String column1;
+    private String column2;
+
+    public Row(int id, String column1, String column2) {
+        this.id = id;
+        this.column1 = column1;
+        this.column2 = column2;
+    }
+
+    public void insert(Row row) {
+        this.id = row.getId();
+        this.column1 = row.getColumn1();
+        this.column2 = row.getColumn2();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getColumn1() {
+        return column1;
+    }
+
+    public String getColumn2() {
+        return column2;
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+        Row row = new Row(0, "value1", "value2");
+
+        // Insert data into tables
+        List<Row> rows1 = new ArrayList<>();
+        Rows insertTable = new Rows();
+        for (String term : new String[]{"INSERT INTO table1 VALUES (1, 'value1')"}) {
+            for(String op : new String[]{"id", "column1"}}) {
+                if(op.equals(term)) {
+                    rows1.add(insertTable.insertRow(0, 0, insertTable.getColumnValueOp(op)));
+                }
+            }
+        }
+
+        List<Row> rows2 = new ArrayList<>();
+        Rows insertTable2 = new Rows();
+        for (String term : new String[]{"INSERT INTO table2 VALUES (2, 'value3')"}) {
+            for (String op : new String[]{"id", "column1"}}) {
+                if (op.equals(term)) {
+                    rows2.add(insertTable2.insertRow(0, 0, insertTable2.getColumnValueOp(op)));
+                }
+            }
+        }
+
+        // Select data from tables
+        List<Row> result = getRowsFromTable(new String[]{"SELECT column1 AS id, column3 AS value FROM table1"}, new String[]{"column1", "column3"});
+        System.out.println("Result of select statement:");
+        for (Row row : result) {
+            System.out.println(row);
+        }
+
+        List<Row> resultFromTable = getRowsFromTable(new String[]{"SELECT column1 AS id, column2 AS value FROM table2"}, new String[]{"column1", "column2"});
+        System.out.println("\nResult of select statement:");
+        for (Row row : resultFromTable) {
+            System.out.println(row);
+        }
+    }
+
+    public static List<Row> getRowsFromTable(String[] query, String[] columns) {
+        List<Row> rows = new ArrayList<>();
+        Database db = new Main().db;
+
+        // Execute SQL query
+        for (String term : query) {
+            for (String op : new String[]{"id", "column1"}}) {
+                if (op.equals(term)) {
+                    Row row = db.db.insertRows();
+                    row.insert(db.db.row);
+                    rows.add(row);
+                }
+            }
+        }
+
+        return rows;
+    }
+
+    public static class Database{
+        private List<Row> rows;
+
+        public int getId(int id) {
+            return rows.get(id);
+        }
+
+        public String getColumn1(int id, String op) {
+            Row row = getRow(id);
+            if (row != null) {
+                return row.getColumn1();
+            }
+            return null;
+        }
+
+        public String getColumn2(int id, String op) {
+            Row row = getRow(id);
+            if (row != null) {
+                return row.getColumn2();
+            }
+            return null;
+        }
+
+        public void insertRows() {
+            rows = new ArrayList<>();
+            for (String term : new String[]{"INSERT INTO table1 VALUES (1, 'value1')"}) {
+                for(String op : new String[]{"id", "column1"}}) {
+                    if(op.equals(term)) {
+                        Row row = new Row(0, 0, insertTable.getColumnValueOp(op));
+                        rows.add(row);
+                    }
+                }
+            }
+
+            for (String term : new String[]{"INSERT INTO table2 VALUES (2, 'value3')"}) {
+                for (String op : new String[]{"id", "column1"}}) {
+                    if (op.equals(term)) {
+                        Row row = new Row(0, 0, insertTable2.getColumnValueOp(op));
+                        rows.add(row);
+                    }
+                }
+            }
+        }
+
+        public static class Rows{
+            private List<Row> rows;
+
+            public int getId(int id) {
+                for(Row row : rows){
+                    if (row.getId() == id){
+                        return row.getId();
+                    }
+                }
+                return 0;
+            }
+
+            public Row insertRow(int id, int column1, String column2) {
+                for(Row row : rows){
+                    if(row.getId() == id){
+                        row.insert(new Row(id, column1, column2));
+                        return row;
+                    }
+                }
+                return null;
+            }
+
+            public void insert(Row row) {
+                for(Row existingRow : rows){
+                    if(existingRow.getId() == row.getId()){
+                        existingRow.insert(row);
+                        break;
+                    }
+                }
+            }
+
+            public static class Database{
+        }
+    }
+}
+}
+
+class Main.Database{
+
+}
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.util.*;
+
+public class Graph {
+    private Map<String, List<Edge>> graph;
+
+    public Graph() {
+        this.graph = new HashMap<>();
+    }
+
+    public void addEdge(String source, String destination) {
+        if (!graph.containsKey(source)) {
+            graph.put(source, new ArrayList<>());
+        }
+        graph.get(source).add(new Edge(destination, 1));
+    }
+
+    public int getDegree(String node) {
+        return graph.getOrDefault(node, Collections.emptyList()).size();
+    }
+
+    public void printGraph() {
+        for (Map.Entry<String, List<Edge>> entry : graph.entrySet()) {
+            System.out.println(entry.getKey() + " -> " + entry.getValue());
+        }
+    }
+}
+
+class Edge {
+    private String destination;
+    private int weight;
+
+    public Edge(String destination, int weight) {
+        this.destination = destination;
+        this.weight = weight;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Edge edge = (Edge) o;
+        return weight == edge.weight && Objects.equals(destination, edge.destination);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(destination, weight);
+    }
+}
+
+class Main {
+
+    public static void main(String[] args) {
+        Graph graph = new Graph();
+        
+        // Add edges to the graph
+        graph.addEdge("A", "B");
+        graph.addEdge("A", "C");
+        graph.addEdge("B", "D");
+
+        System.out.println("Degree of A: " + graph.getDegree("A"));
+        System.out.println("Degree of B: " + graph.getDegree("B"));
+        System.out.println("Degree of C: " + graph.getDegree("C"));
+        System.out.println("Degree of D: " + graph.getDegree("D"));
+
+        // Print the graph
+        graph.printGraph();
+    }
+}
+
+class Main.Database {
+    private List<Edge> edges;
+    
+    public int getDegree(String node) {
+        return edges.stream()
+                .filter(edge -> edge.getNode().equals(node))
+                .count();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

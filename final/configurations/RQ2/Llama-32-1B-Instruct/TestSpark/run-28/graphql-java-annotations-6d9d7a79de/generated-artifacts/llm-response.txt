@@ -1,0 +1,512 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class DirectivesBuilderTest {
+    private ProcessingElementsContainer container;
+    private GraphQLDirectives directives;
+
+    @Before
+    public void setup() {
+        AnnotatedElement object = new TestObjectAnnotation();
+        container = new ProcessingElementsContainer();
+        directives = new DirectivesBuilder(object, container);
+    }
+
+    @Test
+    public void testBuild() {
+        assertResult(Arrays.asList(
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("name").type(GraphQLScalarType.STRING).build()),
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").type(GraphQLScalarType.STRING).build())
+        ), build());
+    }
+
+    @Test
+    public void testBuild_directives() {
+        assertResult(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_NAME),
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_VALUE)
+                }
+        ), buildDirectives());
+    }
+
+    private List<GraphQLDirective> build() {
+        return Arrays.asList(
+            new GraphQLDirective(new GraphQLDirective.Builder().directive("name", "name").build())),
+            new GraphQLDirective(new GraphQLDirective.Builder().directive("value", "value").build()))
+        );
+    }
+
+    @Test
+    public void testBuildDirectives_no_directive_name() {
+        assertResult(Arrays.asList(
+                new GraphQLDirective[] {
+                        new GraphQLDirective(new GraphQLDirective.Builder().directive("value", "value").build())
+                }
+        ), buildDirectives());
+    }
+
+    private List<GraphQLDirective> buildDirectives() {
+        return Arrays.asList(
+            new GraphQLDirective(new GraphQLDirective.Builder().directive("value", "value").build()))
+        );
+    }
+
+    @Test
+    public void testBuildDirectives_no_directive_value() {
+        assertResult(Arrays.asList(
+                new GraphQLDirective[] {
+                        new GraphQLDirectiveBuilder()
+                }
+        ), buildDirectives());
+    }
+
+    private List<GraphQLDirective> buildDirectives() {
+        return Arrays.asList(
+            new GraphQLDirective(new GraphQLDirective.Builder().build())
+        );
+    }
+
+    @Test
+    public void testBuildFieldBuilders_directive_name() {
+        Assert.assertTrue(directives.build() == Arrays.asList(
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("name").type(GraphQLScalarType.STRING).build()),
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").type(GraphQLScalarType.STRING).build())
+            )
+        );
+    }
+
+    @Test
+    public void testBuildFieldBuilders_directive_value() {
+        Assert.assertTrue(directives.build() == Arrays.asList(
+                new GraphQLDirective(new GraphQLDirective.Builder().directive("value", "value").build()),
+                new GraphQLDirective(new GraphQLDirective.Builder().directive("value", "value").build()))
+            )
+        );
+    }
+
+    @Test
+    public void testBuildFieldBuilders_directive_type() {
+        Assert.assertTrue(directives.build() == Arrays.asList(
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").type(GraphQLScalarType.STRING).build()),
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").type(GraphQLScalarType.STRING).build())
+            )
+        );
+    }
+
+    @Test
+    public void testBuildFieldBuilders_directive_type_array() {
+        Assert.assertTrue(directives.build() == Arrays.asList(
+                new GraphQLDirective(new GraphQLDirective.Builder().directive("type", Arrays.asList(GraphQLScalarType.STRING)).build()),
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").type(GraphQLScalarType.STRING).build())
+            )
+        );
+    }
+
+    @Test
+    public void testBuildFieldBuilders_directive_array() {
+        Assert.assertTrue(directives.build() == Arrays.asList(
+                new GraphQLDirective(new GraphQLDirective.Builder().directive("type", Arrays.asList(GraphQLScalarType.STRING)).build()),
+                new GraphQLDirective(new GraphQLDirective.Builder().directive("value", "value").build()))
+            )
+        );
+    }
+
+    private GraphQLDirective[] buildFieldBuildersDirectives() {
+        return Arrays.asList(
+            new GraphQLDirectiveBuilder()
+                .directive("type", Arrays.asList(GraphQLScalarType.STRING))
+                .build(),
+            new GraphQLDirectiveBuilder()
+                .directive("value", Arrays.asList("value"))
+                .build()
+        );
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.util.DirectiveJavaAnnotationUtil;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import graphql.schema.GraphQLType;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class DirectivesBuilderTest {
+    private ProcessingElementsContainer container;
+    public GraphQLDirectives directives;
+
+    @Before
+    public void setup() {
+        AnnotatedElement object = new TestObjectAnnotation();
+        container = new ProcessingElementsContainer();
+        directives = new DirectivesBuilder(object, container);
+    }
+
+    @Test
+    public void testBuild() {
+        Assert.assertTrue(Arrays.asList(
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("name").type(GraphQLScalarType.STRING).build()),
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").type(GraphQLScalarType.STRING).build())
+            ).containsAll(directives.build()));
+    }
+
+    @Test
+    public void testBuild_directives() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_NAME),
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_VALUE)
+                }
+            ).containsAll(directives.buildDirectives()));
+    }
+
+    @Test
+    public void testBuildFieldBuilders_directive_name() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").type(GraphQLScalarType.STRING).build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").type(GraphQLScalarType.STRING).build())
+                    }.containsAll(directives.buildFieldBuildersDirectives()))
+            ).containsAll(directives.buildFieldBuildersDirectives()));
+    }
+
+    @Test
+    public void testBuildFieldBuilders_directive_value() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.buildFieldBuildersDirectives()))
+            ).containsAll(directives.buildFieldBuildersDirectives()));
+    }
+
+    public GraphQLDirective buildFieldBuildersDirectives() {
+        return new GraphQLDirectiveBuilder()
+                .directive("type", Arrays.asList(GraphQLScalarType.STRING))
+                .directive("value", Arrays.asList("value"))
+                .build();
+    }
+
+    public void testBuildFieldBuildersDirectives2() {
+        Assert.assertTrue(Arrays.asList(
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+            ).containsAll(directives.buildFieldBuildersDirectives()))
+            .containsAll(directives.buildFieldBuildersDirectives2()));
+    }
+
+    public void testBuildFieldBuildersDirectives3() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.buildFieldBuildersDirectives()))
+            ).containsAll(directives.buildFieldBuildersDirectives2()));
+    }
+
+    public void testBuildFieldBuildersDirectives4() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.buildFieldBuildersDirectives()))
+            ).containsAll(directives.buildFieldBuildersDirectives3()));
+    }
+
+    public void testBuildDirectives() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_NAME),
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_VALUE)
+                    }.containsAll(directives.buildDirectives()))
+            ).containsAll(directives.buildFieldBuildersDirectives()));
+    }
+
+    public void testBuildDirectives2() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_NAME),
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_VALUE)
+                    }.containsAll(directives.buildDirectives()))
+            ).containsAll(directives.buildFieldBuildersDirectives()));
+    }
+
+    public void testBuild() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.build()))
+            ).containsAll(directives.build()));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+
+public class DirectivesBuilderTest {
+    private ProcessingElementsContainer container;
+
+    @Before
+    public void setup() {
+        AnnotatedElement object = new TestObjectAnnotation();
+        container = new ProcessingElementsContainer();
+        directives = new DirectivesBuilder(object, container);
+    }
+
+    @Test
+    public void testBuild() {
+        Assert.assertTrue(Arrays.asList(
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+            ).containsAll(directives.build()));
+    }
+
+    @Test
+    public void testBuildDirectives() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_NAME),
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_VALUE)
+                    }.containsAll(directives.buildDirectives()))
+            ).containsAll(directives.buildFieldBuildersDirectives()));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.buildFieldBuildersDirectives()))
+            ).containsAll(directives.build()));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives2() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_NAME),
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_VALUE)
+                    }.containsAll(directives.buildFieldBuildersDirectives2()))
+            ).containsAll(directives.build()));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives3() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_NAME),
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_VALUE)
+                    }.containsAll(directives.buildFieldBuildersDirectives3()))
+            ).containsAll(directives.build()));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives4() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_NAME),
+                        GraphQLDirective.newBuilder(GraphQLDirectives.DIRECTIVE_VALUE)
+                    }.containsAll(directives.buildFieldBuildersDirectives4()))
+            ).containsAll(directives.build()));
+    }
+
+    public class TestObjectAnnotation {
+        @GraphQLField
+        public String name;
+
+        @GraphQLField
+        public Integer age;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+
+public class DirectivesBuilderTest {
+    private ProcessingElementsContainer container;
+
+    @Before
+    public void setup() {
+        AnnotatedElement object = new TestObjectAnnotation();
+        container = new ProcessingElementsContainer();
+        directives = new DirectivesBuilder(object, container);
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives1() {
+        Assert.assertTrue(Arrays.asList(
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+            ).containsAll(directives.build()));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives2() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.buildFieldBuildersDirectives()))
+            ).containsAll(directives.build()));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives3() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.build()));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives4() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.build()));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives5() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.build()));
+    }
+
+    public class TestObjectAnnotation {
+        @GraphQLField
+        public String name;
+
+        @GraphQLField
+        public Integer age;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+
+public class DirectivesBuilderTest {
+    private ProcessingElementsContainer container;
+
+    @Before
+    public void setup() {
+        AnnotatedElement[] objects = new AnnotatedElement[2];
+        objects[0] = new TestObjectAnnotation();
+        objects[1] = new TestFieldAnnotation();
+
+        container = new ProcessingElementsContainer();
+        directives = new DirectivesBuilder(objects, container);
+    }
+
+    @Test
+    public void testBuildDirectives1() {
+        Assert.assertTrue(Arrays.asList(
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+            ).containsAll(directives.build()))
+            .forEach(System.out::println);
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives1() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.build()))
+            .forEach(System.out::println));
+    }
+
+    public static class TestObjectAnnotation extends AnnotatedElement {}
+    public static class TestFieldAnnotation extends AnnotatedElement {}
+
+    @Test
+    public void testBuildDirectives2() {
+        Assert.assertTrue(Arrays.asList(
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+            ).containsAll(directives.build()))
+            .forEach(System.out::println);
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives2() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.build()))
+            .forEach(System.out::println));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives3() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.build()))
+            .forEach(System.out::println));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives4() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.build()))
+            .forEach(System.out::println));
+    }
+
+    @Test
+    public void testBuildFieldBuildersDirectives5() {
+        Assert.assertTrue(Arrays.asList(
+                new GraphQLDirective[] {
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("type").build()),
+                        GraphQLDirective.newBuilder(GraphQLArgument.builder().name("value").build())
+                    }.containsAll(directives.build()))
+            .forEach(System.out::println));
+    }
+
+    public static class AnnotatedElement {}
+}
+```
+===================================================
+

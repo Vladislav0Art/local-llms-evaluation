@@ -1,0 +1,475 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.Set;
+
+public class SafelistTest {
+
+    private Safelist none;
+    private Safelist simpleText;
+    private Safelist basic;
+    private Safelist basicWithImages;
+    private Safelist relaxed;
+
+    @Before
+    public void setup() {
+        none = new Safelist();
+        simpleText = new Safelist(none);
+        basic = new Safelist(simpleText);
+        basicWithImages = new Safelist(basic);
+        relaxed = new Safelist();
+    }
+
+    @Test
+    public void testNone_SafeTagsAreNotRelaxed() {
+        assertFalse(none.isSafeTag("a"));
+        assertTrue(none.isSafeTag("img"));
+    }
+
+    @Test
+    public void testSimpleText_SafeAttributesArePreserved() {
+        Set<String> enforcedAttributes = none.getEnforcedAttributes("p");
+        assertEquals("[attribute1='value1'], [attribute2='value2']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testBasic_SafeTagsAreNotRelaxed() {
+        assertFalse(basic.isSafeTag("a"));
+        assertTrue(basic.isSafeTag("img"));
+        assertFalse(basic.isSafeTag("span"));
+    }
+
+    @Test
+    public void testBasicWithImages_SafeTagsArePreservedAndImagesAreAllowed() {
+        Set<String> enforcedAttributes = basicWithImages.getEnforcedAttributes("p");
+        assertEquals("[attribute1='value1'], [attribute2='value2']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreRelaxed() {
+        assertFalse(relaxed.isSafeTag("a"));
+        assertTrue(relaxed.isSafeTag("img"));
+    }
+
+    private String getAttributeString(Set<String> attributes) {
+        StringBuilder sb = new StringBuilder();
+        for (String attribute : attributes) {
+            sb.append(attribute).append('=').append(attrValue).append(", ");
+        }
+        return sb.toString().trim();
+    }
+
+    @Test
+    public void testRelaxed_SafeAttributesAreNotEnforced() {
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[attribute1='value1'], [attribute2='value2']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreRelaxedAndImagesAreAllowed() {
+        assertFalse(relaxed.isSafeTag("a"));
+        assertTrue(relaxed.isSafeTag("img"));
+        assertFalse(relaxed.isSafeTag("span"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.Set;
+
+public class SafelistTest {
+
+    private Safelist none;
+    private Safelist simpleText;
+    private Safelist basic;
+    private Safelist basicWithImages;
+    private Safelist relaxed;
+
+    @Before
+    public void setup() {
+        none = new Safelist();
+        simpleText = new Safelist(none);
+        basic = new Safelist(simpleText);
+        basicWithImages = new Safelist(basic);
+        relaxed = new Safelist();
+    }
+
+    @Test
+    public void testNone_SafeTagsAreNotRelaxed() {
+        assertFalse(none.isSafeTag("a"));
+        assertTrue(none.isSafeTag("img"));
+    }
+
+    @Test
+    public void testSimpleText_SafeAttributesPreserved() {
+        Set<String> enforcedAttributes = none.getEnforcedAttributes("p");
+        assertEquals("[attribute1='value1'], [attribute2='value2']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testBasic_SafeTagsAreNotRelaxedAndImagesAllowed() {
+        assertFalse(basic.isSafeTag("a"));
+        assertTrue(basic.isSafeTag("img"));
+        assertFalse(basic.isSafeTag("span"));
+        Set<String> enforcedAttributes = basic.getEnforcedAttributes("p");
+        assertEquals("[attribute1='value1'], [attribute2='value2']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testBasicWithImages_SafeTagsArePreservedAndImagesAllowed() {
+        Set<String> enforcedAttributes = basicWithImages.getEnforcedAttributes("p");
+        assertEquals("[attribute1='value1'], [attribute2='value2']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotRelaxed() {
+        assertFalse(relaxed.isSafeTag("a"));
+        assertTrue(relaxed.isSafeTag("img"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[attribute1='value1'], [attribute2='value2']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeAttributesAreNotEnforced() {
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[attribute1='value1'], [attribute2='value2']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreRelaxedAndImagesAllowed() {
+        assertFalse(relaxed.isSafeTag("a"));
+        assertTrue(relaxed.isSafeTag("img"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[attribute1='value1'], [attribute2='value2']", getAttributeString(enforcedAttributes));
+    }
+
+    private String getAttributeString(Set<String> attributes) {
+        StringBuilder sb = new StringBuilder();
+        for (String attribute : attributes) {
+            sb.append(attribute).append('=');
+        }
+        return sb.toString().trim();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import static org.junit.Assert.*;
+
+public class SafelistTest {
+
+    private Safelist none;
+
+    @Before
+    public void setup() {
+        none = new Safelist();
+        Document doc1 = Jsoup.parse("<p>This is a test</p>");
+        Document doc2 = Jsoup.parse("<img src='image.jpg' alt='An image'>");
+        none.addAttribute("class", "test-class");
+        none.addAttribute("style", "background-color: blue;");
+    }
+
+    @Test
+    public void testNone_SafeTagsAreNotRelaxed() {
+        assertTrue(none.isSafeTag("p"));
+        assertFalse(none.isSafeTag("img"));
+    }
+
+    @Test
+    public void testSimpleText_SafeAttributesPreserved() {
+        Set<String> enforcedAttributes = none.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testBasic_SafeTagsAreNotRelaxedAndImagesAllowed() {
+        assertFalse(basic.isSafeTag("p"));
+        assertTrue(basic.isSafeTag("img"));
+        assertFalse(basic.isSafeTag("span"));
+        Set<String> enforcedAttributes = basic.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testBasicWithImages_SafeTagsArePreservedAndImagesAllowed() {
+        Set<String> enforcedAttributes = basicWithImages.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotRelaxed() {
+        assertFalse(relaxed.isSafeTag("p"));
+        assertTrue(relaxed.isSafeTag("img"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotImages() {
+        assertFalse(relaxed.isSafeTag("img"));
+        assertTrue(relaxed.isSafeTag("p"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElements() {
+        assertFalse(relaxed.isSafeTag("body"));
+        assertTrue(relaxed.isSafeTag("p"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithClasses() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithStyles() {
+        assertFalse(relaxed.isSafeTag("<p style='background-color: red;'>"));
+        assertTrue(relaxed.isSafeTag("<div class='test-class'>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotImagesWithStyles() {
+        assertFalse(relaxed.isSafeTag("<img style='background-color: blue;'>"));
+        assertTrue(relaxed.isSafeTag("<div class='test-class'>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotImagesWithClassesAndStyles() {
+        assertFalse(relaxed.isSafeTag("<img class='test-class' style='background-color: red;'>"));
+        assertTrue(relaxed.isSafeTag("<div class='test-class'>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithClassesAndStyles() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class' style='background-color: red;'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithClassesAndImage() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class'><img src='image.jpg'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithClassesAndStylesAndImage() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class' style='background-color: red;'><img src='image.jpg'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithClassesAndStylesAndImages() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class' style='background-color: red;'><img src='image.jpg'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotImagesWithClasses() {
+        assertFalse(relaxed.isSafeTag("<img class='test-class'>"));
+        assertTrue(relaxed.isSafeTag("<div class='test-class'>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotImagesWithClassesAndStyles() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class' style='background-color: red;'>"));
+        assertTrue(related.isSafeTag("<img src='image.jpg'>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotImagesWithClassesAndStylesAndImages() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class' style='background-color: red;'><img src='image.jpg'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithStylesAndImages() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class'><img style='background-color: red;'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithStylesAndImages() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class'><img src='image.jpg'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithClassesAndStylesAndImages() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class'><img src='image.jpg'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: red;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithClassesAndStylesAndImages() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class'><img src='image.jpg'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[class='test-class'], [style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+    @Test
+    public void testRelaxed_SafeTagsAreNotElementsWithClassesAndStyles() {
+        assertFalse(relaxed.isSafeTag("<div class='test-class'><img style='background-color: red;'>"));
+        assertTrue(relaxed.isSafeTag("<p>"));
+        Set<String> enforcedAttributes = relaxed.getEnforcedAttributes("p");
+        assertEquals("[style='background-color: blue;']", getAttributeString(enforcedAttributes));
+    }
+
+}
+}
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class JsoupSafetyTest {
+
+    public static void main(String[] args) {
+        Document doc = Jsoup.parse("https://www.example.com");
+        System.out.println(doc.title());
+        System.out.println(doc.body().text());
+    }
+
+    public static String generateString(int length) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            sb.append((char) ('a' + (int) Math.floor(Math.random() * 26)));
+        }
+        return sb.toString();
+    }
+
+    public static void testGenerateString() {
+        String string = generateString(10);
+        System.out.println(string.length());
+    }
+
+    public static boolean checkDomStructure(String html) {
+        Document doc = Jsoup.parse(html);
+        if (doc.body().tagName() != "body") {
+            return false;
+        }
+        for (int i = 0; i < 5; i++) {
+            String childTag = doc.select("h1").get(0).tagName();
+            if (!childTag.equals("p")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static void testCheckDomStructure() {
+        String html = "<html><head></head><body><h1>Hello</h1><h2>World!</h2></body></html>";
+        System.out.println(checkDomStructure(html));
+    }
+
+    public static int getRandomNumber(int min, int max) {
+        return (int) Math.random() * (max - min + 1) + min;
+    }
+
+    public static void testGetRandomNumber() {
+        System.out.println(getRandomNumber(1, 100));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class JsoupSafetyTest {
+
+    public static String generateString(int length) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            sb.append((char) ('a' + (int) Math.floor(Math.random() * 26)));
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        String string = generateString(10);
+        System.out.println(string.length());
+    }
+
+    public static boolean checkDomStructure(String html) {
+        Document doc = Jsoup.parse(html);
+        if (doc.body().tagName() != "body") {
+            return false;
+        }
+        for (int i = 0; i < 5; i++) {
+            String childTag = doc.select("h1").get(0).tagName();
+            if (!childTag.equals("p")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(checkDomStructure("<html><head></head><body><h1>Hello</h1><h2>World!</h2></body></html>");
+    }
+
+    public static int getRandomNumber(int min, int max) {
+        return (int) Math.random() * (max - min + 1) + min;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getRandomNumber(1, 100));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

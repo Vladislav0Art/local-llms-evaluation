@@ -1,0 +1,687 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TestHttpConnection {
+    private static final CookieManager cookieManager = new DefaultCookieManager();
+    private static final String url1 = "https://example.com";
+    private static final URL url2 = new URI(url1).resolve("new-path");
+
+    public static void main(String[] args) throws Exception {
+        HttpConnection conn1 = TestHttpConnection.connect(url1);
+        System.out.println(conn1.get().toString());
+
+        ConnectionRequest request1 = new Request();
+        request1.method(Method.HEAD);
+        conn1.request(request1);
+
+        ConnectionResponse response1 = conn1.response();
+        System.out.println(response1.toString());
+    }
+}
+
+class HttpConnectionTest {
+    private CookieManager cookieManager = new DefaultCookieManager();
+
+    public void testConnect() throws MalformedURLException, URISyntaxException {
+        TestHttpConnection.conn1 = TestHttpConnection.connect(url1);
+    }
+
+    public void testGetResponse() throws IOException {
+        System.out.println(TestHttpConnection.get().toString());
+    }
+
+    public void testCookieStore() throws CookieStoreException {
+        String newKey = "new-value";
+        Map<String, String> cookies = new LinkedHashMap<>();
+        cookies.put(newKey, "value");
+        TestHttpConnection.cookieManager.setCookieStore(cookieManager);
+        System.out.println(TestHttpConnection.cookieManager.getCookieStore().toString());
+    }
+
+    public void testRequest() throws RequestException {
+        Request request = new Request();
+        request.method(Method.HEAD);
+        request.from("from", "to");
+        TestHttpConnection.conn1.request(request);
+    }
+}
+
+class ConnectionTest extends TestHttpConnection {
+    private HttpConnection httpConnection;
+
+    public ConnectionTest() {
+        super();
+
+        testConnect();
+    }
+
+    @Override
+    public void setCookieManager(CookieManager cookieManager) {
+        this.cookieManager = cookieManager;
+    }
+
+    @Override
+    public CookieStore getCookieStore() throws CookieStoreException {
+        return cookieManager.getCookieStore();
+    }
+
+    @Override
+    public Response response() {
+        return new Response();
+    }
+
+    @Override
+    public Request request(ConnectionRequest request) {
+        return new Request(request);
+    }
+}
+
+class RequestTest extends TestHttpConnection {
+    private String method;
+    private String from;
+    private String to;
+
+    public RequestTest() {
+        super();
+
+        testGetResponse();
+        method = Method.HEAD;
+        from = "from";
+        to = "to";
+    }
+
+    @Override
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    @Override
+    public void setTo(String to) {
+        this.to = to;
+    }
+}
+
+class ResponseTest extends TestHttpConnection {
+    private String status;
+
+    public ResponseTest() {
+        super();
+
+        testGetResponse();
+        status = "200 OK";
+    }
+
+    @Override
+    public void setStatus(int code) {
+        this.status = Integer.toString(code);
+    }
+}
+
+interface ConnectionRequest {
+    Method method;
+    String from;
+    String to;
+}
+
+interface Request {
+    Method method;
+    From(from, To(to));
+}
+
+class From extends ToStringer<String> {
+    private String value;
+
+    public From(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+
+class To extends ToStringer<String> {
+    private String value;
+
+    public To(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class TestHttpConnection {
+    private HttpConnection httpConnection;
+
+    public void testConnect() throws MalformedURLException, URISyntaxException {
+        String url = "https://example.com";
+        ConnectionRequest request = new Request();
+        request.method(Method.HEAD);
+        request.from(url);
+        httpConnection = TestHttpConnection.connect(url);
+    }
+
+    public void testGetResponse() throws IOException {
+        System.out.println(httpConnection.get().toString());
+    }
+
+    public void testCookieStore() throws CookieStoreException {
+        String newKey = "new-value";
+        Map<String, String> cookies = new LinkedHashMap<>();
+        cookies.put(newKey, "value");
+        httpConnection.cookieManager.setCookieStore(cookieManager);
+        System.out.println(httpConnection.cookieManager.getCookieStore().toString());
+    }
+
+    public void testRequest() throws RequestException {
+        Request request = new Request();
+        request.method(Method.HEAD);
+        request.from("from", "to");
+        httpConnection.request(request);
+    }
+}
+
+class ConnectionTest extends TestHttpConnection {
+    @Override
+    public void setCookieManager(CookieManager cookieManager) {
+        this.cookieManager = cookieManager;
+    }
+
+    @Override
+    public Response response() {
+        return new Response();
+    }
+
+    @Override
+    public Request request(ConnectionRequest request) {
+        return new Request(request);
+    }
+}
+
+class RequestTest extends TestHttpConnection {
+    private String method;
+    private String from;
+    private String to;
+
+    public void testGetResponse() throws Exception {
+        Method actualMethod = httpConnection.request(new Request()).method;
+        assertEquals(Method.HEAD, actualMethod);
+    }
+
+    public RequestTest() {
+        super();
+
+        testConnect();
+        method = "GET";
+        from = "from";
+        to = "to";
+
+        testGetResponse();
+    }
+}
+
+class ResponseTest extends TestHttpConnection {
+    private String status;
+
+    public void testSetStatus(int code) throws Exception {
+        httpConnection.setStatusCode(code);
+        assertEquals(code, httpConnection.status());
+    }
+
+    public ResponseTest() {
+        super();
+
+        testConnect();
+        status = "200 OK";
+    }
+}
+
+interface ConnectionRequest {
+    Method method;
+    String from;
+    String to;
+}
+
+class Request {
+    private Method method;
+
+    public Request() {}
+
+    public void method(Method method) {
+        this.method = method;
+    }
+
+    public From(from, To(to)) {
+        this.from = from;
+        this.to = to;
+    }
+}
+
+interface RequestException extends Exception {
+}
+
+class From extends ToStringer<String> {
+    private String value;
+
+    public From(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+
+class To extends ToStringer<String> {
+    private String value;
+
+    public To(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TestHttpConnection {
+    private HttpConnection httpConnection;
+
+    public void testConnect() throws MalformedURLException, URISyntaxException {
+        String url = "https://example.com";
+        URI parsedUrl = new URI(url);
+        Request request = new Request();
+        request.method(Method.HEAD);
+        request.from(parsedUrl.getHost());
+        httpConnection = TestHttpConnection.connect(url);
+    }
+
+    public void testGetResponse() throws IOException {
+        System.out.println(httpConnection.get().toString());
+    }
+
+    public void testCookieStore() throws CookieStoreException {
+        String newKey = "new-value";
+        Map<String, String> cookies = new HashMap<>();
+        cookies.put(newKey, "value");
+        httpConnection.cookieManager.setCookieStore(cookieManager);
+        System.out.println(httpConnection.cookieManager.getCookieStore().toString());
+    }
+
+    public void testRequest() throws RequestException {
+        Response response = TestHttpConnection.response();
+        System.out.println(response.toString());
+    }
+}
+
+class ConnectionTest extends TestHttpConnection {
+    @Override
+    public void setCookieManager(CookieManager cookieManager) {
+        this.cookieManager = cookieManager;
+    }
+
+    @Override
+    public Response response() {
+        return new Response();
+    }
+
+    @Override
+    public Request request(ConnectionRequest request) throws RequestException {
+        return new Request(request);
+    }
+}
+
+class RequestTest extends TestHttpConnection {
+    private String method;
+    private String from;
+    private String to;
+
+    public void testGetResponse() throws Exception {
+        Method actualMethod = httpConnection.request(new Request()).method;
+        assertEquals(Method.HEAD, actualMethod);
+    }
+
+    public RequestTest() {
+        super();
+
+        testConnect();
+        method = "GET";
+        from = "from";
+        to = "to";
+
+        testGetResponse();
+    }
+}
+
+class ResponseTest extends TestHttpConnection {
+    private String status;
+
+    public void testSetStatus(int code) throws Exception {
+        httpConnection.setStatusCode(code);
+        assertEquals(code, httpConnection.status());
+    }
+
+    public ResponseTest() {
+        super();
+
+        testConnect();
+        status = "200 OK";
+    }
+}
+
+interface ConnectionRequest {
+    Method method;
+    String from;
+    String to;
+}
+
+class Request {
+    private Method method;
+
+    public Request() {}
+
+    public void method(Method method) {
+        this.method = method;
+    }
+
+    public From(from, To(to)) {
+        this.from = from;
+        this.to = to;
+    }
+}
+
+interface RequestException extends Exception {
+}
+
+class From extends ToStringer<String> {
+    private String value;
+
+    public From(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+
+class To extends ToStringer<String> {
+    private String value;
+
+    public To(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Scanner;
+
+public class TestHttpConnection {
+    public static void main(String[] args) throws Exception {
+        new TestHttpConnection().testConnect();
+    }
+
+    private void testConnect() throws MalformedURLException, URISyntaxException {
+        String url = "https://example.com";
+        URL parsedUrl = new URL(url);
+        Request request = new Request();
+        request.method(Method.HEAD);
+        request.from(parsedUrl.getHost());
+        httpConnection = HttpConnection.connect(url);
+        testGetResponse(httpConnection);
+    }
+
+    private void testGetResponse(HttpConnection httpConnection) throws IOException {
+        Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(httpConnection.getInputStream())));
+        System.out.println(scanner.nextLine());
+        scanner.close();
+    }
+}
+
+class ConnectionTest extends TestHttpConnection {
+    @Override
+    public HttpConnection connect(String url) throws MalformedURLException, URISyntaxException {
+        URL parsedUrl = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) parsedUrl.openConnection();
+        connection.setRequestMethod(Method.HEAD);
+        connection.setConnectTimeout(10000); // 10 seconds
+        return new HttpConnection(connection);
+    }
+}
+
+class RequestTest extends TestHttpConnection {
+    private String method;
+    private String from;
+    private String to;
+
+    public void testGetResponse() throws Exception {
+        Method actualMethod = httpConnection.request(new Request()).method;
+        assertEquals(Method.HEAD, actualMethod);
+        System.out.println(httpConnection.get().toString());
+    }
+}
+
+class ResponseTest extends TestHttpConnection {
+    private String status;
+
+    public void testSetStatus(int code) throws Exception {
+        httpConnection.setStatusCode(code);
+        assertEquals(code, httpConnection.status());
+        System.out.println("Status: " + httpConnection.status());
+    }
+
+    public ResponseTest() {
+        super();
+
+        testConnect();
+        status = "200 OK";
+    }
+}
+
+interface ConnectionRequest {
+    Method method;
+    String from;
+    String to;
+}
+
+class Request {
+    private Method method;
+
+    public Request() {}
+
+    public void method(Method method) {
+        this.method = method;
+    }
+
+    public From(from, To(to)) {
+        this.from = from;
+        this.to = to;
+    }
+}
+
+interface RequestException extends Exception {
+}
+
+class From extends ToStringer<String> {
+    private String value;
+
+    public From(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+
+class To extends ToStringer<String> {
+    private String value;
+
+    public To(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TestHttpConnection {
+    private HttpConnection httpConnection;
+
+    public void testConnect() throws MalformedURLException, URISyntaxException {
+        String url = "https://example.com";
+        URI parsedUrl = new URI(url);
+        Request request = new Request();
+        request.method(Method.HEAD);
+        request.from(parsedUrl.getHost());
+        this.httpConnection = HttpConnection.connect(url);
+    }
+
+    public void testGetResponse() throws IOException {
+        System.out.println(httpConnection.get().toString());
+    }
+
+    public void testCookieStore() throws CookieStoreException {
+        Map<String, String> cookies = new HashMap<>();
+        cookies.put("test1", "value1");
+        this.httpConnection.setCookies(cookies);
+        testSetStatus(200, this.httpConnection);
+    }
+
+    private void testGetResponse(HttpConnection httpConnection) throws IOException {
+        Scanner scanner = new Scanner(new BufferedReader(new InputStreamReader(httpConnection.getInputStream())));
+        System.out.println(scanner.nextLine());
+        scanner.close();
+    }
+
+    private void testSetStatus(int code, HttpConnection httpConnection) throws Exception {
+        String response = "HTTP/1.1 200 OK\r\n\r\n" + "Hello World!";
+        httpConnection.sendResponse(response);
+    }
+}
+
+class ConnectionTest extends TestHttpConnection {
+    @Override
+    public HttpConnection connect(String url) throws MalformedURLException, URISyntaxException {
+        URI parsedUrl = new URI(url);
+        HttpURLConnection connection = (HttpURLConnection) parsedUrl.openConnection();
+        connection.setRequestMethod(Method.HEAD);
+        connection.setConnectTimeout(10000); // 10 seconds
+        return new HttpConnection(connection);
+    }
+}
+
+class RequestTest extends TestHttpConnection {
+    private String method;
+    private String from;
+    private String to;
+
+    public void testGetResponse() throws Exception {
+        Method actualMethod = httpConnection.request(new Request()).method;
+        assertEquals(Method.HEAD, actualMethod);
+        System.out.println(httpConnection.get().toString());
+    }
+}
+
+interface ConnectionRequest {
+    Method method;
+    String from;
+    String to;
+}
+
+class Request {
+    private Method method;
+
+    public Request() {}
+
+    public void method(Method method) {
+        this.method = method;
+    }
+
+    public From(from, To(to)) {
+        this.from = from;
+        this.to = to;
+    }
+}
+
+interface RequestException extends Exception {
+}
+
+class From extends ToStringer<String> {
+    private String value;
+
+    public From(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+
+class To extends ToStringer<String> {
+    private String value;
+
+    public To(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

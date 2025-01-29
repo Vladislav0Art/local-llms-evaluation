@@ -1,0 +1,818 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Document;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class SafelistTest {
+
+    @Test
+    public void simpleTextNoTags() {
+        Document document = new Document();
+        Safelist safelist = Safelist.none();
+        Assert.assertFalse(safelist.isSafeTag("a"));
+        Assert.assertFalse(safelist.getEnforcedAttributes("a"));
+    }
+
+    @Test
+    public void relaxedWithImages() {
+        Document document = new Document();
+        Safelist safelist = Safelist.relaxed();
+        Document doc = new Document();
+        Element a = document.createElement("a");
+        a.setAttribute("href", "https://example.com");
+        safelist.addTags("img", "a");
+        safelist.addEnforcedAttribute("a", "src", "https://example.com/img.jpg");
+        a.appendChild(document.createTextNode("<img src='https://example.com/img.jpg'>"));
+        assert safelist.isSafeTag("a") == true;
+        Assert.assertFalse(safelist.getEnforcedAttributes("a"));
+    }
+
+    @Test
+    public void basicNoTags() {
+        Document document = new Document();
+        Safelist safelist = Safelist.basic();
+        Assert.assertFalse(safelist.isSafeTag("a"));
+        Assert.assertFalse(safelist.getEnforcedAttributes("a"));
+    }
+
+    @Test
+    public void basicWithImages() {
+        Document document = new Document();
+        Safelist safelist = Safelist.basicWithImages();
+        Document doc = new Document();
+        Element a = document.createElement("a");
+        a.setAttribute("href", "https://example.com");
+        a.appendChild(document.createTextNode("<img src='https://example.com/img.jpg'>"));
+        safelist.addTags("img", "a");
+        safelist.addEnforcedAttribute("a", "src", "https://example.com/img.jpg");
+        assert safelist.isSafeTag("a") == true;
+        Assert.assertFalse(safelist.getEnforcedAttributes("a"));
+    }
+
+    @Test
+    public void basicWithImagesNoTags() {
+        Document document = new Document();
+        Safelist safelist = Safelist.basicWithImages();
+        Assert.assertTrue(safelist.isSafeTag("a"));
+        Assert.assertTrue(safelist.getEnforcedAttributes("a"));
+    }
+
+    @Test
+    public void simpleTextRelaxed() {
+        Document document = new Document();
+        Safelist safelist = Safelist.simpleText();
+        Assert.assertFalse(safelist.isSafeTag("a"));
+        Assert.assertFalse(safelist.getEnforcedAttributes("a"));
+    }
+
+    @Test
+    public void basicRelaxed() {
+        Document document = new Document();
+        Safelist safelist = Safelist.basic();
+        Assert.assertTrue(safelist.isSafeTag("a"));
+        Assert.assertTrue(safelist.getEnforcedAttributes("a"));
+    }
+
+    @Test
+    public void relaxedWithImagesRelaxed() {
+        Document document = new Document();
+        Safelist safelist = Safelist.relaxedWithImages();
+        Assert.assertFalse(safelist.isSafeTag("img"));
+        Assert.assertFalse(safelist.getEnforcedAttributes("img"));
+    }
+
+    @Test
+    public void basicRelaxedWithImages() {
+        Document document = new Document();
+        Safelist safelist = Safelist.basicWithImages();
+        Assert.assertTrue(safelist.isSafeTag("a"));
+        Assert.assertTrue(safelist.getEnforcedAttributes("a"));
+        assert safelist.isSafeTag("img");
+        Assert.assertFalse(safelist.getEnforcedAttributes("img"));
+    }
+
+    @Test
+    public void basicRelaxedWithImagesNoTags() {
+        Document document = new Document();
+        Safelist safelist = Safelist.basicWithImages();
+        Assert.assertTrue(safelist.isSafeTag("a"));
+        Assert.assertTrue(safelist.getEnforcedAttributes("a"));
+    }
+
+    @Test
+    public void basicWithImagesRelaxed() {
+        Document document = new Document();
+        Safelist safelist = Safelist.basicWithImages();
+        Assert.assertFalse(safelist.isSafeTag("img"));
+        Assert.assertFalse(safelist.getEnforcedAttributes("img"));
+        assert safelist.isSafeTag("a");
+        Assert.assertTrue(safelist.getEnforcedAttributes("a"));
+    }
+
+    @Test
+    public void basicRelaxedWithImagesNoTagsNoTags() {
+        Document document = new Document();
+        Safelist safelist = Safelist.basicWithImages();
+        Assert.assertFalse(safelist.isSafeTag("img"));
+        Assert.assertFalse(safelist.getEnforcedAttributes("img"));
+        assert safelist.isSafeTag("a");
+        Assert.assertTrue(safelist.getEnforcedAttributes("a"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Document {
+    public String content;
+    public List<String> tags;
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void addTag(String tag) {
+        if (tags == null) {
+            tags = new ArrayList<>();
+        }
+        tags.add(tag);
+    }
+
+    @Override
+    public String toString() {
+        return "Document{" +
+                "content='" + content + '\'' +
+                ", tags=" + tags +
+                '}';
+    }
+}
+
+public class DocumentService {
+    public void saveDocument(Document document) {
+        // Code to save the document in a database or file system
+    }
+
+    public List<String> getTags(String documentId) {
+        return getAllDocuments().stream()
+                .filter(doc -> doc.getId().equals(documentId))
+                .map(this::getTag)
+                .collect(Collectors.toList());
+    }
+
+    private Document getTag(String tag) {
+        for (Document document : getAllDocuments()) {
+            if (document.getTags().contains(tag)) {
+                return document;
+            }
+        }
+        return null;
+    }
+
+    public void addTag(String documentId, String tag) {
+        List<String> tags = getTags(documentId);
+        if (tags != null) {
+            tags.add(tag);
+            saveDocument(documentId, tags);
+        } else {
+            Document document = new Document();
+            document.setContent("No content provided");
+            document.setTags(new ArrayList<>());
+            addTag(documentId, "tag1", document.getContent());
+            saveDocument(documentId, document.getTags());
+        }
+    }
+
+    public List<Document> getAllDocuments() {
+        // Code to retrieve all documents from a database or file system
+        return new ArrayList<>();
+    }
+
+    public void deleteTag(String documentId, String tag) {
+        List<String> tags = getTags(documentId);
+        if (tags != null) {
+            for (int i = 0; i < tags.size(); i++) {
+                if (tags.get(i).equals(tag)) {
+                    tags.remove(i);
+                    saveDocument(documentId, tags);
+                    break;
+                }
+            }
+        } else {
+            Document document = new Document();
+            document.setContent("No content provided");
+            document.setTags(new ArrayList<>());
+            addTag(documentId, "tag1", document.getContent());
+            saveDocument(documentId, document.getTags());
+        }
+    }
+}
+
+public class TagService {
+    public void saveTag(String documentId, String tag) {
+        Document document = new Document();
+        document.setContent("No content provided");
+        document.setTags(new ArrayList<>());
+        document.addTag(documentId, tag);
+        saveDocument(documentId, document.getTags());
+    }
+
+    public List<String> getTagList() {
+        return getAllDocuments().stream()
+                .map(this::getTag)
+                .collect(Collectors.toList());
+    }
+
+    private Document getTag(String tag) {
+        for (Document document : getAllDocuments()) {
+            if (document.getTags().contains(tag)) {
+                return document;
+            }
+        }
+        return null;
+    }
+
+    public void addTag(String documentId, String tag) {
+        TagService service = new TagService();
+        service.addTag(documentId, tag);
+        Document document = service.getTag(documentId);
+        saveDocument(documentId, document.getTags());
+    }
+
+    public List<Document> getAllDocuments() {
+        // Code to retrieve all documents from a database or file system
+        return new ArrayList<>();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+Here is a complete Java code that includes the `DocumentService` and `TagService` classes, which are used to manage documents and tags:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Document {
+    public String content;
+    public List<String> tags;
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void addTag(String tag) {
+        if (tags == null) {
+            tags = new ArrayList<>();
+        }
+        tags.add(tag);
+    }
+
+    @Override
+    public String toString() {
+        return "Document{" +
+                "content='" + content + '\'' +
+                ", tags=" + tags +
+                '}';
+    }
+}
+
+public class Tag {
+    public String name;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Tag{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+
+public class DocumentService {
+    private List<Document> documents = new ArrayList<>();
+
+    public void saveDocument(Document document) {
+        documents.add(document);
+        System.out.println("Document saved successfully");
+    }
+
+    public List<Document> getAllDocuments() {
+        return documents;
+    }
+
+    public Document getDocument(String id) {
+        for (Document document : documents) {
+            if (document.getId().equals(id)) {
+                return document;
+            }
+        }
+        return null;
+    }
+
+    public void addTag(String documentId, String tag) {
+        List<Document> docs = getAllDocuments();
+        for (Document doc : docs) {
+            if (doc.getId().equals(documentId)) {
+                doc.addTag(tag);
+                System.out.println("Tag added successfully");
+                break;
+            }
+        }
+    }
+
+    public void deleteTag(String documentId, String tag) {
+        List<Document> docs = getAllDocuments();
+        for (Document doc : docs) {
+            if (doc.getId().equals(documentId)) {
+                for (int i = 0; i < doc.getTags().size(); i++) {
+                    if (doc.getTags().get(i).equals(tag)) {
+                        doc.getTags().remove(i);
+                        System.out.println("Tag deleted successfully");
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+public class TagService {
+    private List<Document> documents = new ArrayList<>();
+
+    public void saveTag(String documentId, String tag) {
+        Document document = getDocument(documentId);
+        if (document != null) {
+            document.addTag(tag);
+            System.out.println("Tag added successfully");
+        } else {
+            System.out.println("Document not found");
+        }
+    }
+
+    public List<Document> getAllDocuments() {
+        return documents;
+    }
+
+    public void deleteTag(String documentId, String tag) {
+        Document document = getDocument(documentId);
+        if (document != null && !tag.isEmpty()) {
+            for (int i = 0; i < document.getTags().size(); i++) {
+                if (document.getTags().get(i).equals(tag)) {
+                    document.getTags().remove(i);
+                    System.out.println("Tag deleted successfully");
+                    break;
+                }
+            }
+        } else {
+            System.out.println("Invalid tag or document not found");
+        }
+    }
+
+    public List<Tag> getTags(String id) {
+        for (Document doc : getAllDocuments()) {
+            if (doc.getId().equals(id)) {
+                return new ArrayList<>();
+            }
+        }
+        return null;
+    }
+
+    private Document getDocument(String id) {
+        for (Document document : documents) {
+            if (document.getId().equals(id)) {
+                return document;
+            }
+        }
+        return null;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        DocumentService service = new DocumentService();
+        TagService tagService = new TagService();
+
+        // Create documents
+        Document document1 = new Document();
+        document1.setContent("Document 1");
+        document1.addTag("tag1");
+
+        Document document2 = new Document();
+        document2.setContent("Document 2");
+        document2.addTag("tag2", "tag3");
+
+        // Add tag to document1
+        service.addTag(document1.getId(), "tag4");
+
+        // Get all documents
+        System.out.println(service.getAllDocuments());
+
+        // Delete tag from document1 and document2
+        service.deleteTag(document1.getId(), "tag2");
+        service.deleteTag(document2.getId(), "tag3");
+
+        // Add tag to document1 again
+        service.addTag(document1.getId(), "tag4");
+    }
+}
+```
+
+In this code:
+
+- The `Document` class represents a document with its content and tags.
+- The `DocumentService` class manages documents and provides methods for saving, retrieving, and deleting documents.
+- The `Tag` class represents a tag with its name.
+- The `TagService` class manages tags and provides methods for adding and deleting tags from documents.
+
+In the `main` method, we create two documents, add a tag to one of them, get all documents, delete tags from certain documents, and then add the same tag again.
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Tag {
+    public String name;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Tag{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+
+public class Document {
+    public String content;
+    public List<Tag> tags;
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void addTag(Tag tag) {
+        if (tags == null) {
+            tags = new ArrayList<>();
+        }
+        tags.add(tag);
+    }
+
+    @Override
+    public String toString() {
+        return "Document{" +
+                "content='" + content + '\'' +
+                ", tags=" + tags +
+                '}';
+    }
+}
+
+public class DocumentService {
+    private List<Document> documents = new ArrayList<>();
+
+    public void saveDocument(Document document) {
+        documents.add(document);
+        System.out.println("Document saved successfully");
+    }
+
+    public void deleteDocument(String id) {
+        documents.removeIf(doc -> doc.getId().equals(id));
+        System.out.println("Document deleted successfully");
+    }
+
+    public List<Document> getAllDocuments() {
+        return documents;
+    }
+
+    public Document getDocument(String id) {
+        for (Document doc : documents) {
+            if (doc.getId().equals(id)) {
+                return doc;
+            }
+        }
+        return null;
+    }
+
+    public void addTag(String documentId, Tag tag) {
+        List<Document> docs = getAllDocuments();
+        for (Document doc : docs) {
+            if (doc.getId().equals(documentId)) {
+                doc.addTag(tag);
+                System.out.println("Tag added successfully");
+                break;
+            }
+        }
+    }
+
+    public void deleteTag(String documentId, Tag tag) {
+        List<Document> docs = getAllDocuments();
+        for (Document doc : docs) {
+            if (doc.getId().equals(documentId)) {
+                for (int i = 0; i < doc.getTags().size(); i++) {
+                    if (doc.getTags().get(i).getName().equals(tag.getName())) {
+                        doc.getTags().remove(i);
+                        System.out.println("Tag deleted successfully");
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void updateDocument(String id, String name) {
+        Document document = getDocument(id);
+        if (document != null) {
+            document.setContent(name);
+            System.out.println("Document updated successfully");
+        } else {
+            System.out.println("Document not found");
+        }
+    }
+}
+
+public class TagService {
+    private List<Document> documents = new ArrayList<>();
+
+    public void saveTag(String id, String name) {
+        Document document = getDocument(id);
+        if (document != null) {
+            document.addTag(new Tag(name));
+            System.out.println("Tag saved successfully");
+        } else {
+            System.out.println("Document not found");
+        }
+    }
+
+    public List<Tag> getAllTags() {
+        return new ArrayList<>();
+    }
+
+    public void deleteTag(String id, String name) {
+        Document document = getDocument(id);
+        if (document != null && !name.isEmpty()) {
+            for (int i = 0; i < document.getTags().size(); i++) {
+                if (document.getTags().get(i).getName().equals(name)) {
+                    document.getTags().remove(i);
+                    System.out.println("Tag deleted successfully");
+                    break;
+                }
+            }
+        } else {
+            System.out.println("Invalid tag or document not found");
+        }
+    }
+
+    public void updateTag(String id, String name) {
+        Document document = getDocument(id);
+        if (document != null && !name.isEmpty()) {
+            for (int i = 0; i < document.getTags().size(); i++) {
+                if (document.getTags().get(i).getName().equals(name)) {
+                    document.getTags().set(i, new Tag(name));
+                    System.out.println("Tag updated successfully");
+                    break;
+                }
+            }
+        } else {
+            System.out.println("Invalid tag or document not found");
+        }
+    }
+
+    public void updateDocument(String id, String name) {
+        Document document = getDocument(id);
+        if (document != null && !name.isEmpty()) {
+            document.setContent(name);
+            System.out.println("Document updated successfully");
+        } else {
+            System.out.println("Document not found or invalid name");
+        }
+    }
+
+    public void updateTagName(String id, String newName) {
+        Tag tag = getTag(id);
+        if (tag != null && !newName.isEmpty()) {
+            tag.setName(newName);
+            System.out.println("Tag name updated successfully");
+        } else {
+            System.out.println("Invalid tag or document not found");
+        }
+    }
+
+    public void updateDocumentName(String id, String newName) {
+        Document document = getDocument(id);
+        if (document != null && !newName.isEmpty()) {
+            document.setContent(newName);
+            System.out.println("Document name updated successfully");
+        } else {
+            System.out.println("Document not found or invalid name");
+        }
+    }
+
+    private Document getDocument(String id) {
+        for (Document doc : documents) {
+            if (doc.getId().equals(id)) {
+                return doc;
+            }
+        }
+        return null;
+    }
+
+    private Tag getTag(String id) {
+        for (Document doc : documents) {
+            if (doc.getId().equals(id)) {
+                return doc.getTags().get(0);
+            }
+        }
+        return null;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        DocumentService service = new DocumentService();
+        TagService tagService = new TagService();
+
+        // Create documents
+        Document document1 = new Document();
+        document1.setContent("Document 1");
+        document1.addTag(new Tag("tag1"));
+
+        Document document2 = new Document();
+        document2.setContent("Document 2");
+        document2.addTag(new Tag("tag2"));
+
+        // Save and delete documents
+        service.deleteDocument("document1");
+
+        // Update documents
+        service.updateDocument("document1", "New Name");
+
+        // Get all tags
+        List<Tag> tags = tagService.getAllTags();
+        System.out.println("All Tags: ");
+        for (Tag tag : tags) {
+            System.out.println(tag.getName());
+        }
+
+        // Delete a tag
+        service.deleteTag("tag1", "Tag 1 Name");
+
+        // Update document name
+        service.updateDocumentName("document2", "New Name");
+
+        // Get all tags after update
+        List<Tag> updatedTags = tagService.getAllTags();
+        System.out.println("All Tags: ");
+        for (Tag tag : updatedTags) {
+            System.out.println(tag.getName());
+        }
+    }
+}
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.util.*;
+
+public class TagService {
+    private Map<String, Document> documents;
+    private List<Tag> tags;
+
+    public void saveTag(String id, String name) {
+        if (id != null && !name.isEmpty()) {
+            if (!documents.containsKey(id)) {
+                Document document = new Document();
+                document.setContent("");
+                documents.put(id, document);
+            }
+            Tag tag = new Tag(name);
+            if (!tags.contains(tag)) {
+                tags.add(tag);
+            }
+            ((Document) documents.get(id)).addTag(tag);
+        } else {
+            System.out.println("Invalid tag or document id not found");
+        }
+    }
+
+    public List<Tag> getAllTags() {
+        return tags;
+    }
+
+    public void deleteTag(String id, String name) {
+        if (id != null && !name.isEmpty()) {
+            Document document = documents.get(id);
+            for (int i = 0; i < document.getTags().size(); i++) {
+                if (document.getTags().get(i).getName().equals(name)) {
+                    ((Document) documents.get(id)).getTags().remove(i);
+                }
+            }
+        } else {
+            System.out.println("Invalid tag or document id not found");
+        }
+    }
+
+    public void updateTag(String id, String name) {
+        if (id != null && !name.isEmpty()) {
+            Document document = documents.get(id);
+            Tag tag = new Tag(name);
+            for (int i = 0; i < document.getTags().size(); i++) {
+                if (document.getTags().get(i).getName().equals(tag.getName())) {
+                    ((Document) documents.get(id)).getTags().set(i, tag);
+                    System.out.println("Tag updated successfully");
+                    break;
+                }
+            }
+        } else {
+            System.out.println("Invalid tag or document id not found");
+        }
+    }
+
+    public void updateDocumentName(String id, String newName) {
+        if (id != null && !newName.isEmpty()) {
+            Document document = documents.get(id);
+            ((Document) documents.get(id)).setContent(newName);
+            System.out.println("Document name updated successfully");
+        } else {
+            System.out.println("Invalid document id not found");
+        }
+    }
+
+    public void updateTagName(String id, String newName) {
+        if (id != null && !newName.isEmpty()) {
+            Tag tag = new Tag(newName);
+            for (Tag t : documents.get(id).getTags()) {
+                if (!t.getName().equals(tag.getName())) {
+                    ((Document) documents.get(id)).addTag(t);
+                    System.out.println("Tag name updated successfully");
+                    break;
+                }
+            }
+        } else {
+            System.out.println("Invalid tag id not found");
+        }
+    }
+
+    public void saveDocuments() {
+        Map<String, Document> map = new HashMap<>();
+        for (Document doc : documents.values()) {
+            map.put(doc.getId(), doc);
+        }
+        return map;
+    }
+}
+
+class Document {
+    private String content;
+    private List<Tag> tags;
+
+    public Document() {
+        this.content = "";
+        this.tags = new ArrayList<>();
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void addTag(Tag tag) {
+        this.tags.add(tag);
+    }
+}
+
+class Tag {
+    private String name;
+
+    public Tag(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tag tag = (Tag) o;
+        return Objects.equals(name, tag.name);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

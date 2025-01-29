@@ -1,0 +1,68 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    private static final String HTTP_VERSION = "HTTP/1.1";
+
+    @Test
+    public void testConnect() {
+        HttpConnection connection = HttpConnection.connect("http://example.com");
+        Assert.assertTrue(connection.getUri().getHost().equals("example.com"));
+        Assert.assertTrue(connection.getScheme().equals("https"));
+    }
+
+    @Test
+    public void testConnectWithProxy() {
+        HttpConnection connection = HttpConnection.connect("http://proxy.example.com:8080");
+        Assert.assertTrue(connection.getProxy() != null);
+        Assert.assertEquals("proxy.example.com", connection.getProxy().getHost());
+        Assert.assertEquals(8080, connection.getProxy().getPort());
+    }
+
+    @Test
+    public void testConnectWithRedirects() {
+        HttpConnection connection = HttpConnection.connect("http://example.com");
+        connection.setFollowRedirects(true);
+        String redirectedUrl = "https://redirected.example.com";
+        Assert.assertTrue(connection.url(redirectedUrl).isRedirected());
+    }
+
+    @Test
+    public void testConnectWithIgnoreHttpErrors() {
+        HttpConnection connection = HttpConnection.connect("http://example.com");
+        connection.setIgnoreHttpErrors(true);
+        Assert.assertFalse(connection.getError().equals(HttpsURLConnection.ERROR_NONE));
+    }
+
+    @Test
+    public void testConnectWithIgnoreContentType() {
+        HttpConnection connection = HttpConnection.connect("http://example.com");
+        connection.setIgnoreContentType(true);
+        Assert.assertTrue(connection.getData("key", "value").isEmpty());
+    }
+
+    @Test
+    public void testConnectWithSslSocketFactory() {
+        HttpConnection connection = HttpConnection.connect("https://example.com");
+        SSLSocketFactory sslSocketFactory = new org.jsoup.helper.HttpsSSLClientSocketFactory();
+        Assert.assertNotNull(connection.getSockets().get(0).getSocketFactory());
+        Assert.assertEquals(sslSocketFactory, connection.getSockets().get(0).getSocketFactory());
+    }
+
+    @Test
+    public void testConnectWithData() {
+        HttpConnection connection = HttpConnection.connect("http://example.com");
+        Map<String, String> data = new LinkedHashMap<>();
+        data.put("key", "value");
+        Assert.assertEquals(connection.getData(data), "value");
+    }
+
+    @Test
+    public void testGetResponse() throws IOException {
+        HttpConnection connection = HttpConnection.connect("https://example.com");
+        Response response = connection.getResponse();
+        Assert.assertNotNull(response);
+        Assert.assertTrue(response.getContent().isEmpty());
+    }
+
+}

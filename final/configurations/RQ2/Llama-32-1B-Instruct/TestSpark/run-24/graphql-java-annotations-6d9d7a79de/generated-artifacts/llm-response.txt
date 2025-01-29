@@ -1,0 +1,192 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class DirectivesBuilderTest {
+
+    private AnnotatedElement object;
+    private ProcessingElementsContainer container;
+
+    @Before
+    public void setup() {
+        object = mock(AnnotatedElement.class);
+        container = mock(ProcessingElementsContainer.class);
+    }
+
+    public DirectivesBuilder createDirectivesBuilder(Object[] arguments) {
+        return new DirectivesBuilder(object, container);
+    }
+
+    @Test
+    public void testBuildWithoutAnyArguments() throws GraphQLAnnotationsException {
+        DirectivesBuilder builder = createDirectivesBuilder(new Object[0]);
+        assertEquals(0, builder.build().length);
+    }
+
+    @Test
+    public void testBuildWithNoDirective() {
+        Object[] arguments = new Object[]{};
+        DirectivesBuilder builder = createDirectivesBuilder(arguments);
+        assertEquals(0, builder.build().length);
+    }
+
+    @Test
+    public void testBuildWithOneArgument() throws GraphQLAnnotationsException {
+        Object[] arguments = new Object[]{object};
+        DirectivesBuilder builder = createDirectivesBuilder(arguments);
+        assertEquals(1, builder.build().length);
+        DirectiveJavaAnnotationUtil.assertNoDirectives(builder.build()[0], object);
+    }
+
+    @Test
+    public void testBuildWithMultipleArguments() throws GraphQLAnnotationsException {
+        Object[] arguments = new Object[]{object};
+        for (int i = 0; i < 3; i++) {
+            Object[] nestedArguments = new Object[]{object};
+            nestedArguments[i] = i;
+            DirectivesBuilder builder = createDirectivesBuilder(arguments);
+            assertEquals(4, builder.build().length);
+            DirectiveJavaAnnotationUtil.assertNoDirectives(builder.build()[0], arguments[0]);
+        }
+    }
+
+    @Test
+    public void testBuildWithMultipleFields() throws GraphQLAnnotationsException {
+        Object[] arguments = new Object[]{object};
+        List<GraphQLArgument> fieldDefinitions = Arrays.asList(
+                mock(GraphQLArgument.class),
+                mock(GraphQLArgument.class)
+        );
+        DirectivesBuilder builder = createDirectivesBuilder(arguments, fieldDefinitions);
+        assertEquals(3, builder.build().length);
+        DirectiveJavaAnnotationUtil.assertNoDirectives(builder.build()[0], arguments[0]);
+    }
+
+}
+
+class MockObject {
+    public Object getAnnotation(Class<? extends Annotation>) {
+        return null;
+    }
+}
+
+class MockProcessingElementsContainer {
+    public List<AnnotatedElement> getElements() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public DirectiveJavaAnnotationUtil createDirectiveJavaAnnotation(AnnotatedElement element) {
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.util.DirectiveJavaAnnotationUtil;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import graphql.schema.GraphQLType;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+
+public class DirectivesBuilderTest {
+
+    private Object[] arguments;
+    private ProcessingElementsContainer container;
+
+    @Before
+    public void setup() {
+        arguments = new Object[]{new GraphQLDirective[0]};
+        container = new ProcessingElementsContainer();
+    }
+
+    public DirectivesBuilder createDirectivesBuilder(Object[] arguments) {
+        return new DirectivesBuilder(object, container);
+    }
+
+    @Test
+    public void testBuildWithoutAnyArguments() throws GraphQLAnnotationsException {
+        DirectivesBuilder builder = createDirectivesBuilder(arguments);
+        assertEquals(0, builder.build().length);
+    }
+
+    @Test
+    public void testBuildWithNoDirective() throws GraphQLAnnotationsException {
+        Object[] arguments = new Object[]{};
+        DirectivesBuilder builder = createDirectivesBuilder(arguments);
+        assertEquals(0, builder.build().length);
+    }
+
+    @Test
+    public void testBuildWithOneArgument() throws GraphQLAnnotationsException {
+        Object[] arguments = new Object[]{arguments[0]};
+        DirectivesBuilder builder = createDirectivesBuilder(arguments);
+        assertEquals(1, builder.build().length);
+        DirectiveJavaAnnotationUtil.assertNoDirectives(builder.build()[0], arguments[0]);
+    }
+
+    @Test
+    public void testBuildWithMultipleArguments() throws GraphQLAnnotationsException {
+        Object[] arguments = new Object[]{arguments[0]};
+        for (int i = 0; i < 3; i++) {
+            Object[] nestedArguments = new Object[]{arguments[0]};
+            nestedArguments[i] = i;
+            DirectivesBuilder builder = createDirectivesBuilder(arguments);
+            assertEquals(4, builder.build().length);
+            DirectiveJavaAnnotationUtil.assertNoDirectives(builder.build()[0], arguments[0]);
+        }
+    }
+
+    @Test
+    public void testBuildWithMultipleFields() throws GraphQLAnnotationsException {
+        Object[] arguments = new Object[]{arguments[0]};
+        List<GraphQLArgument> fieldDefinitions = Arrays.asList(
+                mock(GraphQLArgument.class),
+                mock(GraphQLArgument.class)
+        );
+        DirectivesBuilder builder = createDirectivesBuilder(arguments, fieldDefinitions);
+        assertEquals(3, builder.build().length);
+        DirectiveJavaAnnotationUtil.assertNoDirectives(builder.build()[0], arguments[0]);
+    }
+
+}
+
+class MockObject {
+    public GraphQLDirective getDirective() {
+        return null;
+    }
+}
+
+class MockProcessingElementsContainer {
+    @Override
+    public List<GraphQLArgument> getElements() {
+        return Arrays.asList(
+                mock(GraphQLArgument.class)
+        );
+    }
+
+    @Override
+    public DirectiveJavaAnnotationUtil createDirectiveJavaAnnotation(AnnotatedElement element) {
+        return null;
+    }
+}
+
+class MockDirectorive {
+    public GraphQLDirective build(Object object) {
+        return new GraphQLDirective();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================

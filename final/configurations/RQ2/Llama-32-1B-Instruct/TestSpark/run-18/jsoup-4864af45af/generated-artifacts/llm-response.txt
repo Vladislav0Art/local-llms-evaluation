@@ -1,0 +1,366 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class Safelist {
+    public void none() { }
+
+    public void simpleText() { }
+
+    public void basic() { }
+
+    public void basicWithImages() { }
+
+    public void relaxed() { }
+
+    public Safelist() {}
+
+    public Safelist(Safelist copy) {}
+
+    public void addTags(String... tags) {}
+
+    public void removeTags(String... tags) {}
+
+    public void addAttributes(String tag, String... attributes) {}
+
+    public void removeAttributes(String tag, String... attributes) {}
+
+    public void addEnforcedAttribute(String tag, String attribute, String value) {}
+
+    public void removeEnforcedAttribute(String tag, String attribute) { }
+
+    public void preserveRelativeLinks(boolean preserve) { }
+
+    public void addProtocols(String tag, String attribute, String... protocols) {}
+
+    public void removeProtocols(String tag, String attribute, String... removeProtocols) { }
+}
+
+public class SafelistTest {
+
+    @Test
+    public void none_Safe() {
+        Safelist safe = new Safelist();
+        Assert.assertTrue(safe.isSafeTag("a"));
+    }
+
+    @Test
+    public void simpleText_Safe() {
+        Safelist safe = new Safelist();
+        safe.simpleText().addTags("span", "style");
+        assert !safe.isSafeTag("span style");
+    }
+
+    @Test
+    public void basic_Safe() {
+        Safelist safe = new Safelist();
+        safe.basic();
+        assert !safe.isSafeAttribute("a", Elementtag, Attributevalue);
+    }
+
+    @Test
+    public void basicWithImages_Safe() {
+        Safelist safe = new Safelist();
+        safe.basicWithImages();
+        assert !safe.isSafeAttribute("a", Elementtag, Attributevalue);
+    }
+
+    @Test
+    public void relaxed_Safe() {
+        Safelist safe = new Safelist();
+        safe.relaxed();
+        Assert.assertTrue(safe.isSafeTag("a"));
+    }
+
+    @Test
+    public void addTags_Safe() {
+        Safelist safe = new Safelist();
+        safe.addTags("span", "style");
+        Assert.assertFalse(safe.getEnforcedAttributes("span style").isEmpty());
+    }
+
+    @Test
+    public void removeTags_Safe() {
+        Safelist safe = new Safelist();
+        safe.removeTags("a");
+        Assert.assertTrue(safe.getEnforcedAttributes("a").isEmpty());
+    }
+
+    @Test
+    public void addAttribute_Safe() {
+        Safelist safe = new Safelist();
+        safe.addAttributes("a", "class", "style");
+        Assert.assertFalse(safe.getEnforcedAttributes("a style").isEmpty());
+    }
+
+    @Test
+    public void removeAttribute_Safe() {
+        Safelist safe = new Safelist();
+        safe.removeAttributes("a class style");
+        Assert.assertTrue(safe.getEnforcedAttributes("a style").isEmpty());
+    }
+
+    @Test
+    public void addEnforcedAttribute_Safe() {
+        Safelist safe = new Safelist();
+        safe.addEnforcedAttribute("a", "data-foo", "bar");
+        Assert.assertFalse(safe.getEnforcedAttributes("a data-foo").containsKey("bar"));
+    }
+
+    @Test
+    public void removeEnforcedAttribute_Safe() {
+        Safelist safe = new Safelist();
+        safe.removeEnforcedAttribute("a", "data-foo");
+        Assert.assertTrue(safe.getEnforcedAttributes("a data-foo").isEmpty());
+    }
+
+    @Test
+    public void preserveRelativeLinks_Safe() {
+        Safelist safe = new Safelist();
+        safe.preserveRelativeLinks(true);
+        assert !safe.isSafeTag("img", Elementtag, Attributerel);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+
+public class SafelistTest {
+
+    @Test
+    public void none() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        Assert.assertFalse(safe.isSafeTag("a"));
+    }
+
+    @Test
+    public void simpleText() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.simpleText().addTags("span", "style");
+        assert !safe.isSafeTag("span style");
+        safedoc = new Document(doc);
+        safedoc.save(Parser.xmlParser());
+        Assert.assertTrue(safedoc.select("a").text().toLowerCase().contains("simple"));
+    }
+
+    @Test
+    public void basic() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.basic().addTags("span", "style");
+        assert !safe.isSafeTag("span style");
+        safedoc = new Document(doc);
+        safedoc.save(Parser.xmlParser());
+        Assert.assertTrue(safedoc.select("a").text().toLowerCase().contains("basic"));
+    }
+
+    @Test
+    public void basicWithImages() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.basicWithImages().addTags("img", "alt");
+        assert !safe.isSafeTag("span style a img alt");
+        safedoc = new Document(doc);
+        safedoc.save(Parser.xmlParser());
+        Assert.assertTrue(safedoc.select("a").text().toLowerCase().contains("basic"));
+    }
+
+    @Test
+    public void relaxed() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.relaxed().addTags("span", "style");
+        assert !safe.isSafeTag("span style");
+        safedoc = new Document(doc);
+        safedoc.save(Parser.xmlParser());
+        Assert.assertTrue(safedoc.select("a").text().toLowerCase().contains("relaxed"));
+    }
+
+    @Test
+    public void addTags() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.addTags("span", "style");
+        assert !safe.getEnforcedAttributes("span style").isEmpty();
+        safedoc = new Document(doc);
+        safedoc.save(Parser.xmlParser());
+        Assert.assertTrue(safedoc.select("a").text().toLowerCase().contains("span"));
+    }
+
+    @Test
+    public void removeTags() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.removeTags("a");
+        assert !safe.getEnforcedAttributes("a").isEmpty();
+        safedoc = new Document(doc);
+        safedoc.save(Parser.xmlParser());
+        Assert.assertTrue(safedoc.select("a").text().toLowerCase().contains("span"));
+    }
+
+    @Test
+    public void addAttribute() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.addAttributes("a", "class", "style");
+        assert !safe.getEnforcedAttributes("a style").isEmpty();
+        safedoc = new Document(doc);
+        safedoc.save(Parser.xmlParser());
+        Assert.assertTrue(safedoc.select("a").text().toLowerCase().contains("basic"));
+    }
+
+    @Test
+    public void removeAttribute() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.removeAttributes("class style");
+        assert !safe.getEnforcedAttributes("class style").isEmpty();
+        safedoc = new Document(doc);
+        safedoc.save(Parser.xmlParser());
+        Assert.assertTrue(safedoc.select("a").text().toLowerCase().contains("basic"));
+    }
+
+    @Test
+    public void addEnforcedAttribute() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.addEnforcedAttribute("a", "data-foo", "bar");
+        assert !safe.getEnforcedAttributes("a data-foo").containsKey("bar");
+        safedoc = new Document(doc);
+        safedoc.save(Parser.xmlParser());
+        Assert.assertFalse(safedoc.select("a").text().toLowerCase().contains("basic"));
+    }
+
+    @Test
+    public void removeAttribute() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.removeEnforcedAttribute("data-foo");
+        assert !safe.getEnforcedAttributes("data-foo").isEmpty();
+        safedoc = new Document(doc);
+        safedoc.save(Parser.xmlParser());
+        Assert.assertFalse(safedoc.select("a").text().toLowerCase().contains("basic"));
+    }
+
+    @Test
+    public void preserveRelativeLinks() {
+        Document doc = new Document();
+        Safelist safe = new Safelist();
+        safe.preserveRelativeLinks(true);
+        assert !safe.isSafeTag("img", Parser.xmlParser(), Attributerel);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.jupiter.api.Test;
+import java.util.ArrayList;
+
+public class TagUtil {
+
+    @Test
+    void testRemoveEnforcedAttribute() {
+        String[] args = { "img", "src", "https://example.com/image.jpg" };
+        ArrayList<String> tags = new ArrayList<>();
+        for (String tag : args) {
+            tags.add(tag);
+        }
+        String expected = "img";
+        assert !tagUtil.removeEnforcedAttribute(tags, expected);
+    }
+
+    @Test
+    void testIsSafeTag() {
+        String[] args = { "img", "src" };
+        ArrayList<String> attributes = new ArrayList<>();
+        for (String attribute : args) {
+            attributes.add(attribute);
+        }
+        boolean isSafe = tagUtil.isSafeTag("img", attributes, null);
+        assert !isSafe;
+    }
+
+    @Test
+    void testIsSafeTagMultipleAttributes() {
+        String[] args = { "img", "src", "alt" };
+        ArrayList<String> attributes = new ArrayList<>();
+        for (String attribute : args) {
+            attributes.add(attribute);
+        }
+        boolean isSafe = tagUtil.isSafeTag("img", attributes, null);
+        assert !isSafe;
+    }
+
+    @Test
+    void testIsSafeTagEmptyList() {
+        String[] args = {};
+        ArrayList<String> attributes = new ArrayList<>();
+        boolean isSafe = tagUtil.isSafeTag("img", attributes, null);
+        assert false; // should not compile
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class TagUtil {
+
+    public static String removeEnforcedAttribute(String[] args, String expected) {
+        ArrayList<String> tags = new ArrayList<>();
+        for (String tag : args) {
+            if (!tag.equals(expected)) {
+                tags.add(tag);
+            }
+        }
+        return joinTags(tags);
+    }
+
+    private static String joinTags(ArrayList<String> tags) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < tags.size(); i++) {
+            if (i > 0) {
+                sb.append(" ");
+            }
+            sb.append(tags.get(i));
+        }
+        return sb.toString();
+    }
+
+    public static boolean isSafeTag(String tag, ArrayList<String> attributes, String defaultValue) {
+        for (String attribute : attributes) {
+            if (attribute.equals(tag)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================

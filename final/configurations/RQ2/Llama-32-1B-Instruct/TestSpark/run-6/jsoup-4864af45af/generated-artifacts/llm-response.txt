@@ -1,0 +1,615 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class SafelistTest {
+
+    private Document document;
+
+    @BeforeEach
+    public void init() {
+        document = Jsoup.parse("<!DOCTYPE html><html><body></body></html>");
+    }
+
+    @Test
+    public void testNone() {
+        Safelist none = new Safelist();
+        assertEquals(null, none.none());
+    }
+
+    @Test
+    public void testSimpleText() {
+        Safelist simpleText = new Safelist().simpleText();
+        assertFalse(simpleText.isSafeTag("a"));
+    }
+
+    @Test
+    public void testBasic() {
+        Safelist basic = new Safelist().basic();
+        assertFalse(basic.isSafeTag("a"));
+    }
+
+    @Test
+    public void testBasicWithImages() {
+        Safelist basicWithImages = new Safelist().basicWithImages();
+        assertFalse(basicWithImages.isSafeTag("img"));
+    }
+
+    @Test
+    public void testRelaxed() {
+        Safelist relaxed = new Safelist().relaxed();
+        assertTrue(relaxed.isSafeTag("a"));
+    }
+
+    @Test
+    public void testPreserveRelativeLinks() {
+        Safelist preserveRelativeLinks = new Safelist().preserveRelativeLinks(true);
+        assertFalse(preserveRelativeLinks.isSafeTag("img[src='https://example.com/image.jpg']"));
+    }
+
+    @Test
+    public void testAddProtocols() {
+        Safelist addProtocols = new Safelist().addProtocols("a", "class");
+        assertTrue(addProtocols.addEnforcedAttribute("a", "class", "text-decoration").isSafeTag("a"));
+    }
+
+    @Test
+    public void testRemoveProtocols() {
+        Safelist removeProtocols = new Safelist().removeProtocols("img");
+        assertFalse(removeProtocols.removeEnforcedAttribute("img", "src").isSafeTag("img"));
+    }
+
+    @Test
+    public void testAddTags() {
+        Safelist addTags = new Safelist().addTags("a", "href=\"https://example.com\"");
+        assertTrue(addTags.addAttributes("a", "href", "https://example.com").isSafeTag("a"));
+    }
+
+    @Test
+    public void testRemoveTags() {
+        Safelist removeTags = new Safelist().removeTags("img");
+        assertFalse(removeTags.removeAttribute("src").isSafeTag("img"));
+    }
+
+    @Test
+    public void testAddAttributes() {
+        Safelist addAttributes = new Safelist().addAttributes("a", "style=\"background-color: blue\"");
+        assertTrue(addAttributes.addEnforcedAttribute("a", "style", "background-color").isSafeTag("a"));
+    }
+
+    @Test
+    public void testRemoveAttributes() {
+        Safelist removeAttributes = new Safelist().removeAttributes("img");
+        assertFalse(removeAttributes.removeAttribute("src").isSafeTag("img"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Attribute;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class SafelistTest {
+
+    private Document document;
+
+    @BeforeEach
+    public void init() {
+        document = Jsoup.parse("<!DOCTYPE html><html><body></body></html>");
+    }
+
+    public String none() {
+        return "none";
+    }
+
+    public String simpleText() {
+        return "simple text";
+    }
+
+    public String basic() {
+        return "basic text";
+    }
+
+    public String basicWithImages() {
+        return "basic with images text";
+    }
+
+    public String relaxed() {
+        return "relaxed text";
+    }
+
+    public Safelist copy() {
+        return new Safelist();
+    }
+
+    @Test
+    public void testNone() {
+        Safelist none = new Safelist().none();
+        assertEquals("none", none.none());
+    }
+
+    @Test
+    public void testSimpleText() {
+        Safelist simpleText = new Safelist().simpleText();
+        assertFalse(simpleText.isSafeTag("a"));
+    }
+
+    @Test
+    public void testBasic() {
+        Safelist basic = new Safelist().basic();
+        assertFalse(basic.isSafeTag("a"));
+    }
+
+    @Test
+    public void testBasicWithImages() {
+        Safelist basicWithImages = new Safelist().basicWithImages();
+        assertFalse(basicWithImages.isSafeTag("img"));
+    }
+
+    @Test
+    public void testRelaxed() {
+        Safelist relaxed = new Safelist().relaxed();
+        assertTrue(relaxed.isSafeTag("a"));
+    }
+
+    @Test
+    public void testPreserveRelativeLinks() {
+        Safelist preserveRelativeLinks = new Safelist().preserveRelativeLinks(true);
+        assertFalse(preserveRelativeLinks.isSafeTag("img[src='https://example.com/image.jpg']"));
+    }
+
+    @Test
+    public void testAddProtocols() {
+        Safelist addProtocols = new Safelist().addProtocols("a", "class");
+        assertTrue(addProtocols.addEnforcedAttribute("a", "class", "text-decoration").isSafeTag("a"));
+    }
+
+    @Test
+    public void testRemoveProtocols() {
+        Safelist removeProtocols = new Safelist().removeProtocols("img[src='https://example.com/image.jpg']");
+        assertFalse(removeProtocols.removeAttribute("src").isSafeTag("img"));
+    }
+
+    @Test
+    public void testAddAttributes() {
+        Safelist addAttributes = new Safelist().addAttributes("a", "style=\"background-color: blue\"");
+        assertTrue(addAttributes.addEnforcedAttribute("a", "style", "background-color").isSafeTag("a"));
+    }
+
+    @Test
+    public void testRemoveAttributes() {
+        Safelist removeAttributes = new Safelist().removeAttributes("img[src='https://example.com/image.jpg']");
+        assertFalse(removeAttributes.removeAttribute("src").isSafeTag("img"));
+    }
+
+    @Test
+    public void testCopy() {
+        Safelist copy = new Safelist();
+        assertTrue(copy.copy().none());
+    }
+
+    @Test
+    public void testRemoveAttribute() {
+        Safelist removeAttribute = new Safelist();
+        Attributes attributes = removeAttribute.removeAttribute("src");
+        assertEquals("src", attributes.getKey());
+        assertTrue(removeAttribute.isSafeTag("img"));
+    }
+
+    @Test
+    public void testRemoveAttributeAllAttributes() {
+        Safelist removeAttributeAllAttributes = new Safelist();
+        removeAttributeAllAttributes.removeAttribute("src").removeAttribute("class");
+        assertFalse(removeAttributeAllAttributes.isSafeTag("img"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class Safelist {
+    private Element[] removeProtocols = new Element[0];
+    private Element[] removeAttributes = new Element[0];
+
+    public String addEnforcedAttribute(String attr, String value) {
+        if (removeProtocols.length == 0) {
+            Elements tags = Jsoup.parse("html", "", "body");
+            for (Element tag : tags.getAllElements()) {
+                tag.attr(attr, value);
+            }
+        } else {
+            addAttributes(removeProtocols, removeAttributes);
+        }
+        return value;
+    }
+
+    public String removeAttribute(String attr) {
+        if (removeAttributes.length == 0) {
+            Elements tags = Jsoup.parse("html", "", "body");
+            for (Element tag : tags.getAllElements()) {
+                if (!tag.attr(attr).equals("")) {
+                    tag.removeAttr(attr);
+                }
+            }
+        } else {
+            addProtocols(removeProtocols, removeAttributes);
+        }
+        return null;
+    }
+
+    public String addAttribute(String attr, String value) {
+        Elements tags = Jsoup.parse("html", "", "body");
+        for (Element tag : tags.getAllElements()) {
+            if (!tag.attr(attr).equals("")) {
+                tag.attr(attr, value);
+            }
+        }
+        return value;
+    }
+
+    private void addProtocols(Safelist.Proteocols protocols, Safelist.Attributes attributes) {
+        String[] attrs = new String[0];
+        Element tag = Jsoup.parse("html", "", "body").tag("script");
+
+        for (Element element : tag.getAllElements()) {
+            for (String attr : element.attributes().keys()) {
+                if (!attrs.length == 0 || !attr.equals(attrs[attr])) {
+                    attrs = new String[attr, attributes.get(attr).length];
+                    System.arraycopy(attrs, 0, attrs, 0, attr);
+                    attrs[attr] = attr;
+                }
+            }
+
+            for (Element child : element.children()) {
+                if (!child.tagName().equals("script")) {
+                    addProtocols(protocols, new Safelist.Attributes(child.attributes()));
+                }
+            }
+        }
+    }
+
+    private void addAttributes(Safelist.Protecls Attributes attributes) {
+        String[] attrs = new String[0];
+        Element tag = Jsoup.parse("html", "", "body").tag("script");
+
+        for (Element element : tag.getAllElements()) {
+            if (!element.tagName().equals("script")) {
+                for (String attr : element.attributes().keys()) {
+                    if (!attrs.length == 0 || !attr.equals(attrs[attr])) {
+                        attrs = new String[attr, attributes.get(attr).length];
+                        System.arraycopy(attrs, 0, attrs, 0, attr);
+                        attrs[attr] = attr;
+                    }
+                }
+
+                addAttributes(attributes, null);
+            }
+        }
+    }
+
+    public static class Attributes {
+        private Safelist.Protecls[] values;
+
+        public Attributes(Safelist.Protecls[] values) {
+            this.values = values;
+        }
+
+        public String getKey() {
+            return "src";
+        }
+
+        public boolean isSafeTag(String tag) {
+            for (Safelist.Protecls protocol : values) {
+                if (protocol.removeProtocols().removeAttributes().remove(tag).isSafeTag(tag)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    public static class Protecls extends Safelist.Protecls {
+        private String[] attributes;
+
+        public Protecls(String[] attributes) {
+            this.attributes = attributes;
+        }
+
+        @Override
+        public void removeProtocols() {
+            for (String attr : attributes) {
+                elements.removeAttr(attr);
+            }
+        }
+
+        @Override
+        public boolean isSafeTag(String tag) {
+            return false;
+        }
+
+        @Override
+        public void addAttribute(String attr, String value) {
+            if (value != null && !value.isEmpty()) {
+                elements.attr(attr, value);
+            }
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+I can provide a complete Java code for the Safelist class that allows you to add enforced and safe attributes to HTML tags.
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class Safelist {
+    private Document document;
+
+    public String addEnforcedAttribute(String attr, String value) {
+        if (document == null) {
+            try {
+                document = Jsoup.parse("html", "", "body");
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        Element tag = document.selectFirst("script[src*=\"" + attr + "\"]");
+
+        if (tag != null) {
+            String[] attrs = new String[0];
+            tag.attr(attr, value);
+
+            for (String attr : tag.attributes().keys()) {
+                if (!attrs.length == 0 || !attr.equals(attrs[attr])) {
+                    attrs = new String[attr, attributes.get(attr).length];
+                    System.arraycopy(attrs, 0, attrs, 0, attr);
+                    attrs[attr] = attr;
+                }
+            }
+
+            for (Element child : tag.children()) {
+                if (!child.tagName().equals("script")) {
+                    addEnforcedAttribute(attr, value);
+                }
+            }
+        }
+
+        return value;
+    }
+
+    public String removeAttribute(String attr) {
+        if (document == null || document.selectFirst("script[src*=\"" + attr + "\"]") != null) {
+            try {
+                Element tag = document.selectFirst("script[src*=\"" + attr + "\ "]");
+                for (Element child : tag.children()) {
+                    if (!child.tagName().equals("script")) {
+                        removeEnforcedAttribute(attr, null);
+                    }
+                }
+
+                tag.removeAttr(attr);
+
+                return value;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public String addAttribute(String attr, String value) {
+        if (document == null || document.selectFirst("script[src*=\"" + attr + "\"]") != null) {
+            try {
+                Element tag = document.selectFirst("script[src*=\"" + attr + "\ "]");
+                for (Element child : tag.children()) {
+                    if (!child.tagName().equals("script")) {
+                        addAttribute(attr, value);
+                    }
+                }
+
+                tag.attr(attr, value);
+
+                return value;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        if (value != null && !value.isEmpty()) {
+            document.appendChild(document.createElement("script[src*=\"" + attr + "\"]"));
+            document.getElementById(attr).append(value);
+        }
+
+        return value;
+    }
+
+    private void removeEnforcedAttribute(String attr, String value) {
+        for (Element tag : document.getAllElements()) {
+            if (!tag.tagName().equals("script")) {
+                for (String attr : tag.attributes().keys()) {
+                    if (!attr.equals(attr) && !attr.equals(attr + "_safe")) {
+                        tag.attr(attr, attr);
+                        tag.removeAttr(attr + "_safe");
+                    }
+                }
+            }
+        }
+    }
+
+    public static class Attributes {
+        private String key;
+
+        public Attributes(String key) {
+            this.key = key;
+        }
+
+        public Safelist.Protecls getAttributes() {
+            return new Safelist.Protecls(new String[0]);
+        }
+
+        public boolean isSafeTag(String tag) {
+            if (tag.startsWith("script[src*=")) {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public static class Protecls extends Safelist.Protecls {
+        private Attributes attributes;
+
+        public Protecls(Attributes attributes) {
+            this.attributes = attributes;
+        }
+
+        @Override
+        public void removeProtocols() {}
+
+        @Override
+        public boolean isSafeTag(String tag) {
+            return false;
+        }
+
+        @Override
+        public void addAttribute(String attr, String value) {
+            if (value != null && !value.isEmpty()) {
+                attributes.addAttribute(attr, value);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Safelist safelist = new Safelist();
+        safelist.addEnforcedAttribute("src", "https://example.com");
+        System.out.println(safelist.removeAttribute("src"));
+        System.out.println(safelist.addAttribute("src", null));
+        System.out.println(safelist.getAttribute("src"));
+    }
+}
+```
+
+This code provides methods to add enforced and safe attributes to HTML tags. The `addEnforcedAttribute` method adds a new attribute to the current script tag, while the `removeAttribute` method removes an attribute from the current script tag if it exists. The `addAttribute` method adds a new attribute to the current script element with the specified value. The `getAttribute` and `isSafeTag` methods are used to check if an attribute is safe or not.
+
+In the `main` method, we demonstrate how to use these methods by adding an enforced attribute to the first script tag, removing it, adding a new attribute, getting its value, and checking if it's safe.
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class Safelist {
+    private Document document;
+    private Attributes attributes;
+
+    public String addEnforcedAttribute(String attr, String value) {
+        if (document == null) {
+            try {
+                document = Jsoup.parse("html", "", "body");
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        document.getElementById(attr).append(value);
+
+        return value;
+    }
+
+    public String removeAttribute(String attr) {
+        if (document.selectFirst("script[src*=\"" + attr + "\"]") != null && !attr.equals(attributes.getAttributes().get(0))) {
+            for (Element tag : document.getAllElements()) {
+                tag.removeAttr(attr);
+            }
+            attributes.addAttribute(attr, null);
+        }
+
+        return null;
+    }
+
+    public String addAttribute(String attr, String value) {
+        if (value != null && !value.isEmpty()) {
+            document.getElementById(attr).append(value);
+            attributes.addAttribute(attr, value);
+        }
+
+        return value;
+    }
+
+    private void removeEnforcedAttribute(String attr, String value) {
+        for (Element tag : document.getAllElements()) {
+            if (!tag.tagName().equals("script")) {
+                tag.removeAttr(attr);
+            }
+        }
+        attributes.addAttribute(attr, null);
+    }
+
+    public static class Attributes {
+        private String key;
+
+        public Attributes(String key) {
+            this.key = key;
+        }
+
+        public Safelist.Protecls getAttributes() {
+            return new Safelist.Protecls(new String[0]);
+        }
+
+        public boolean isSafeTag(String tag) {
+            if (tag.startsWith("script[src*=")) {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+        Safelist safelist = new Safelist();
+        safelist.addEnforcedAttribute("src", "https://example.com");
+        System.out.println(safelist.removeAttribute("src"));
+        System.out.println(safelist.addAttribute("src", null));
+        System.out.println(safelist.getAttribute("src"));
+    }
+}
+```
+
+This code provides methods to add enforced and safe attributes to HTML tags. The `addEnforcedAttribute` method adds a new attribute to the current script tag, while the `removeAttribute` method removes an attribute from the current script element if it exists. The `addAttribute` method adds a new attribute to the current script element with the specified value. The `getAttribute` and `isSafeTag` methods are used to check if an attribute is safe or not.
+
+In the `main` method, we demonstrate how to use these methods by adding an enforced attribute to the first script tag, removing it, adding a new attribute, getting its value, and checking if it's safe.
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,398 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class GrammaticalTermMapImplTest {
+    private static final HumanLanguage humanLanguage = new HumanLanguage();
+
+    @Test
+    public void testGet() {
+        GrammaticalTermMapImpl<String, String> map = new GrammaticalTermMapImpl<>(Map.of("noun", "word1"), false);
+        assertEquals("word1", map.get("noun"));
+    }
+
+    @Test
+    public void testContainsKey() {
+        GrammaticalTermMapImpl<String, String> map = new GrammaticalTermMapImpl<>(Map.of("noun", "word1"), false);
+        assertTrue(map.containsKey("noun"));
+        assertFalse(map.containsKey("other"));
+    }
+
+    @Test
+    public void testKeySet() {
+        GrammaticalTermMapImpl<String, String> map = new GrammaticalTermMapImpl<>(Map.of("noun", "word1"), false);
+        Set<String> keySet = map.keySet();
+        assertEquals(1, keySet.size());
+    }
+
+    @Test
+    public void testValues() {
+        GrammaticalTermMapImpl<String, String> map = new GrammaticalTermMapImpl<>(Map.of("noun", "word1"), false);
+        Collection<T> values = map.values();
+        assertTrue(values.contains(T.class));
+    }
+
+    @Test
+    public void testMakeSkinny() {
+        GrammaticalTermMap<String, String> map = new GrammaticalTermMapImpl<>(Map.of("noun", "word1"), true);
+        GrammaticalTermMap<T> skinnyMap = map.makeSkinny();
+        assertTrue(skinnyMap instanceof T);
+    }
+
+    @Test
+    public void testWriteJson() {
+        GrammaticalTermMapImpl<String, String> map = new GrammaticalTermMapImpl<>(Map.of("noun", "word1"), false);
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("test.json"))) {
+            oos.writeObject(map);
+        } catch (IOException e) {
+            fail("Error writing to file");
+        }
+    }
+
+    @Test
+    public void testKeySetNotAccessible() {
+        GrammaticalTermMapImpl<String, String> map = new GrammaticalTermMapImpl<>(Map.of("noun", "word1"), false);
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("test.json"))) {
+            Map<String, T> mapFromJSON = (Map<String, T>) ois.readObject();
+            assertEquals(map, mapFromJSON);
+        } catch (IOException | ClassNotFoundException e) {
+            fail("Error reading from file");
+        }
+    }
+
+    @Test
+    public void testPutAll() {
+        GrammaticalTermMapImpl<String, String> map = new GrammaticalTermMapImpl<>(Map.of("noun", "word1"), false);
+        Map<String, T> otherMap = Map.of("other", "otherWord");
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("test.json"))) {
+            oos.writeObject(map);
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("test.json"))) {
+                map.putAll(otherMap);
+            } catch (IOException e) {
+                fail("Error putting to file");
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            fail("Error reading from file");
+        }
+    }
+
+    @Test
+    public void testIsEmpty() {
+        GrammaticalTermMapImpl<String, String> map = new GrammaticalTermMapImpl<>(Map.of(), true);
+        assertTrue(map.isEmpty());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+public class TestHelper {
+    public static String readFromFile(String filename) throws Exception {
+        File file = new File(filename);
+        if (!file.exists()) {
+            throw new FileNotFoundException("File not found: " + filename);
+        }
+        return new String(file.readAllBytes());
+    }
+
+    public static void writeToFile(String filename, String data) throws Exception {
+        File file = new File(filename);
+        if (file.createNewFile()) {
+            throw new java.io.FileNotFoundException("File not created");
+        }
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(data.getBytes());
+        fos.close();
+    }
+
+    public static void printToConsole(String message) {
+        System.out.println(message);
+    }
+
+    public static String getFromJsonFile(String filename) throws Exception {
+        return readFromFile(filename).trim();
+    }
+
+    public static void putToJsonFile(String filename, Object data) throws Exception {
+        writeToFile(filename, data.toString().getBytes());
+    }
+}
+
+public class GrammaticalTermMapImplTest {
+
+    private TestHelper testHelper;
+
+    public GrammaticalTermMapImplTest() {
+        this.testHelper = new TestHelper();
+    }
+
+    @Before
+    public void setup() {
+        // Empty setup method to avoid errors
+    }
+
+    @Test
+    public void testGetFromJsonFile() throws Exception {
+        String json = "{\"key\":\"value\"}";
+        String result = GrammaticalTermMapImpl.getFromJsonFile("test.json");
+        System.out.println(result);  // Output: key=value
+
+        String json2 = "{\"key\": \"value\"}";
+        result = GrammaticalTermMapImpl.getFromJsonFile("test2.json");
+        System.out.println(result);  // Output: key=value
+    }
+
+    @Test
+    public void testPutToJsonFile() throws Exception {
+        Object data = new String();
+        GrammaticalTermMapImpl.putToJsonFile("test3.json", data);
+        String result = GrammaticalTermMapImpl.getFromJsonFile("test3.json");
+        System.out.println(result);  // Output: key=value
+    }
+
+    @Test
+    public void testWriteToDisk() throws Exception {
+        Object data = new String();
+        GrammaticalTermMapImpl.putToJsonFile("test4.json", data);
+        String[] keys = {"key1", "key2"};
+        for (String key : keys) {
+            String value = "value";
+           GrammaticalTermMapImpl.putToJsonFile(key + ".json", value);
+        }
+
+        // Write data to disk
+        System.out.println(GrammaticalTermMapImpl.getFromJsonFile("test4.json"));
+        System.out.println();
+
+        // Read and write back to disk
+        testHelper.writeToFile("test5.txt", "New data");
+        String[] keys2 = {"key1", "key2"};
+        for (String key : keys2) {
+            String value = "New value";
+            GrammaticalTermMapImpl.putToJsonFile(key + ".json", value);
+        }
+
+        // Read and print
+        System.out.println(GrammaticalTermMapImpl.getFromJsonFile("test4.json"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class GrammaticalTermMapImplTest {
+    private TestHelper testHelper;
+
+    @Before
+    public void setUp() {
+        testHelper = new TestHelper();
+    }
+
+    @Test
+    public void testGetFromJsonFile() throws Exception {
+        // Create a sample JSON file
+        String json = "{\"test\": \"data\"}";
+        
+        // Get the JSON object from the file
+        Object data = testHelper.getFromJsonFile(json);
+        
+        // Print the result
+        System.out.println(data);
+    }
+
+    @Test
+    public void testPutToJsonFile() throws Exception {
+        // Create a sample JSON file
+        String json = "{\"test\": \"data\"}";
+        
+        // Put the JSON object into the file
+        testHelper.putToJsonFile(json, "test2.json");
+        
+        // Get the result from the file
+        Object data = testHelper.getFromJsonFile("test2.json");
+        
+        // Print the result
+        System.out.println(data);
+    }
+
+    @Test
+    public void testGetFromJsonFileMultipleTimes() throws Exception {
+        // Create a sample JSON file
+        String json = "{\"test\": \"data\"}";
+        
+        // Get the JSON object from the file once
+        Object data1 = testHelper.getFromJsonFile(json);
+        
+        // Put the JSON object into the file
+        testHelper.putToJsonFile(json, "test2.json");
+        
+        // Get the result from the file twice
+        Object data2 = testHelper.getFromJsonFile("test2.json");
+        
+        // Print the results
+        System.out.println(data1);
+        System.out.println(data2);
+    }
+
+    @Test
+    public void testGetFromJsonFileWithKey() throws Exception {
+        // Create a sample JSON file
+        String json = "{\"test\": \"data\"}";
+        
+        // Get the result from the file with the key "test"
+        Object data1 = testHelper.getFromJsonFile(json);
+        
+        // Print the result
+        System.out.println(data1);
+    }
+
+    @Test
+    public void testGetFromJsonFileWithMultipleKeys() throws Exception {
+        // Create a sample JSON file
+        String json = "{\"test\": \"data\", \"key\": \"value\"}";
+        
+        // Get the result from the file with keys "test" and "key"
+        Object data1 = testHelper.getFromJsonFile(json);
+        
+        // Print the results
+        System.out.println(data1);
+    }
+
+    @Test
+    public void testPutToJsonFileMultipleTimes() throws Exception {
+        // Create a sample JSON file
+        String json = "{\"test\": \"data\"}";
+        
+        // Put the JSON object into the file once
+        testHelper.putToJsonFile(json, "test2.json");
+        
+        // Get the result from the file twice
+        Object data2 = testHelper.getFromJsonFile("test2.json");
+        
+        // Print the results
+        System.out.println(data1);
+    }
+
+    @Test
+    public void testPutToJsonFileWithKey() throws Exception {
+        // Create a sample JSON file
+        String json = "{\"test\": \"data\"}";
+        
+        // Put the JSON object into the file with key "key"
+        testHelper.putToJsonFile(json, "key", "value");
+        
+        // Get the result from the file
+        Object data = testHelper.getFromJsonFile("key.json");
+        
+        // Print the result
+        System.out.println(data);
+    }
+
+    @Test
+    public void testGetFromJsonFileWithNull() throws Exception {
+        // Create a sample JSON file with null value
+        String json = "{\"test\": null}";
+        
+        // Get the JSON object from the file
+        Object data = testHelper.getFromJsonFile(json);
+        
+        // Print the result
+        System.out.println(data);
+    }
+
+    @Test
+    public void testPutToJsonFileWithNull() throws Exception {
+        // Create a sample JSON file with null value
+        String json = "{\"test\": null}";
+        
+        // Put the JSON object into the file
+        testHelper.putToJsonFile(json, "key", "value");
+        
+        // Get the result from the file
+        Object data = testHelper.getFromJsonFile("key.json");
+        
+        // Print the results
+        System.out.println(data);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class TestHelper {
+    public String getTestData() {
+        return "test data";
+    }
+
+    public void testGetTestData() {
+        System.out.println(getTestData());
+    }
+}
+
+public class GeneratedTest extends TestCase {
+
+    @Before
+    public void setup() {
+        // No need to set anything up here, tests are run once at start
+    }
+
+    @Test
+    public void testGenerateGrammar() {
+        TestHelper helper = new TestHelper();
+        String grammar = helper.getTestData();
+        System.out.println(grammar);
+        testGetTestData();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+public class TestHelper {
+    public static String getTestData() {
+        return "test data";
+    }
+
+    public void testGetTestData() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(baos);
+        System.setOut(out);
+        String result = testGenerateGrammar();
+        System.out.println(result);
+        out.close();
+        testGetTestData();
+    }
+}
+
+public class GeneratedTest extends TestCase {
+
+    @Before
+    public void setup() {
+        // No need to set anything up here, tests are run once at start
+    }
+
+    @Test
+    public void testGenerateGrammar() {
+        TestHelper helper = new TestHelper();
+        String grammar = helper.getTestData();
+        System.out.println(grammar);
+    }
+}
+```
+===================================================
+

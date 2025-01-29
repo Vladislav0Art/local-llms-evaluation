@@ -1,0 +1,334 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.helper.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void test_build_url_without_key() {
+        String inputUrl = "https://example.com";
+        URL expected = new URL("https://example.com");
+        URL actual = new UrlBuilder(inputUrl).build();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void test_appendKeyVal_no_exception_thrown() {
+        String key = "name";
+        String value = "John Doe";
+        String inputUrl = "https://example.com";
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(new KeyVal(key, value));
+        assertEquals("name", URLDecoder.decode(builder.inputUrl()));
+    }
+
+    @Test
+    public void test_appendKeyVal_with_key_and_value() {
+        String key = "name";
+        String value = "John Doe";
+        String inputUrl = "https://example.com";
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        KeyVal kv = new KeyVal(key, value);
+        assertNotEquals("", builder.appendKeyVal(kv));
+    }
+
+    @Test
+    public void test_appendKeyVal_with_exception() {
+        String key = "name";
+        String value = "John Doe";
+        String inputUrl = "https://example.com";
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        assertThrows(MalformedURLException.class, () -> builder.appendKeyVal(new KeyVal(key, value)));
+    }
+
+    @Test
+    public void test_build_url_with_key_val() throws UnsupportedEncodingException {
+        String key = "name";
+        String value = "John Doe";
+        String inputUrl = "https://example.com";
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        KeyVal kv = new KeyVal(key, value);
+        URL actual = builder.build();
+        assertEquals("https://example.com", URLDecoder.decode(actual));
+    }
+
+    @Test
+    public void test_build_url_without_exception_thrown() throws UnsupportedEncodingException {
+        String inputUrl = "https://example.com";
+        URL expected = new URL("https://example.com");
+        URL actual = new UrlBuilder(inputUrl).build();
+        assertEquals(expected, actual);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class Main {
+
+    public static Map<String, String> parseUrl(String url) {
+        try {
+            // Parse the URL into its components
+            String[] parsedUrl = url.split("://");
+
+            // Get the path part of the URL
+            String path = parsedUrl[1];
+
+            // Split the path into its segments
+            String[] segments = path.split("/");
+
+            // Create a map to store the query parameters and their values
+            Map<String, String> queryParams = new HashMap<>();
+
+            // Loop through each segment
+            for (String segment : segments) {
+                if (!segment.isEmpty()) {  // ignore empty strings
+                    // Split the segment into its key-value pair
+                    int colonIndex = segment.indexOf(":");
+                    if (colonIndex != -1) {
+                        String key = segment.substring(0, colonIndex);
+                        String value = segment.substring(colonIndex + 1);
+
+                        // Add the key-value pair to the map
+                        queryParams.put(key, value);
+                    }
+                }
+            }
+
+            // Create a new Map with the query parameters and their values
+            Map<String, String> parsedUrlMap = new HashMap<>();
+            for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+                parsedUrlMap.put(entry.getKey(), entry.getValue());
+            }
+
+            return parsedUrlMap;
+        } catch (Exception e) {
+            // Handle the exception as needed
+            System.out.println("Error parsing URL: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        String url = "http://example.com/path?param1=value1&param2=value2";
+        Map<String, String> parsedUrlMap = parseUrl(url);
+        System.out.println(parsedUrlMap);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+Here is a revised version of the Java code that correctly parses a URL and extracts its query parameters:
+
+```java
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Main {
+
+    public static Map<String, String> parseUrl(String url) {
+        try {
+            // Create an URI object from the input URL
+            URI parsedUri = new URI(url);
+
+            // Get the query parameters and their values
+            String[] queryParams = parsedUri.getQuery().split("&");
+
+            // Create a map to store the query parameters and their values
+            Map<String, String> queryParamsMap = new HashMap<>();
+
+            for (String param : queryParams) {
+                int colonIndex = param.indexOf("=");
+                if (colonIndex != -1) {
+                    String key = param.substring(0, colonIndex);
+                    String value = param.substring(colonIndex + 1);
+
+                    // Add the key-value pair to the map
+                    queryParamsMap.put(key, value);
+                }
+            }
+
+            return queryParamsMap;
+        } catch (Exception e) {
+            // Handle the exception as needed
+            System.out.println("Error parsing URL: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        String url = "http://example.com/path?a=1&b=2&c=3";
+        Map<String, String> queryParamsMap = parseUrl(url);
+        if (queryParamsMap != null) {
+            System.out.println("Query Parameters:");
+            for (Map.Entry<String, String> entry : queryParamsMap.entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+        } else {
+            System.out.println("No query parameters found.");
+        }
+    }
+}
+```
+
+This code uses the URI class from Java's built-in java.net package to parse the input URL. It then splits the query string into individual query parameters and adds them to a map, which is returned as the result.
+
+Note that this approach assumes that the query string is encoded using UTF-8 encoding scheme. If you need to handle other encoding schemes, you may need to modify the code accordingly.
+
+Also note that if there are multiple query parameters with the same name (e.g., "a=1" and "a=2"), only the last one will be included in the map.
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.net.URI;
+import java.util.*;
+
+public class Main {
+
+    public static Map<String, String> parseUrl(String url) {
+        try {
+            // Create an URI object from the input URL
+            URI parsedUri = new URI(url);
+
+            // Get the query parameters and their values as a map
+            Map<String, List<String>> queryParamsMap = new HashMap<>();
+
+            // Parse the query string into individual query parameters
+            String[] queryParams = parsedUri.getQuery().split("&");
+            for (String param : queryParams) {
+                int colonIndex = param.indexOf("=");
+                if (colonIndex != -1 && !param.isEmpty()) {
+                    String key = param.substring(0, colonIndex);
+                    String value = param.substring(colonIndex + 1);
+
+                    // Add the key-value pair to the map
+                    if (!queryParamsMap.containsKey(key)) {
+                        queryParamsMap.put(key, new ArrayList<>());
+                    }
+                    queryParamsMap.get(key).add(value);
+                }
+            }
+
+            // Convert the list of values for each key into a single string separated by spaces
+            Map<String, String> result = new HashMap<>();
+            for (List<String> values : queryParamsMap.values()) {
+                result.putAll(values);
+                result.remove("values");
+            }
+
+            return result;
+        } catch (Exception e) {
+            // Handle the exception as needed
+            System.out.println("Error parsing URL: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        String url = "http://example.com/path?a=1&b=2&c=3&a=4";
+        Map<String, String> queryParamsMap = parseUrl(url);
+        if (queryParamsMap != null) {
+            System.out.println("Query Parameters:");
+            for (Map.Entry<String, List<String>> entry : queryParamsMap.entrySet()) {
+                System.out.println(entry.getKey() + ": " + String.join(", ", entry.getValue()));
+            }
+        } else {
+            System.out.println("No query parameters found.");
+        }
+    }
+}
+```
+
+This code uses a HashMap to store the query parameters and their values. It then converts the list of values for each key into a single string separated by spaces, which is used as the result.
+
+Note that this approach assumes that the input URL does not have any anchor (#) in the path that may be present in some URLs (e.g., "http://example.com/path?a=1#anchor"). If you need to handle such cases, you should remove the anchor from the query string before parsing it.
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.net.URI;
+import java.util.*;
+
+public class Main {
+
+    public static Map<String, String> parseUrl(String url) {
+        try {
+            // Create an URI object from the input URL
+            URI parsedUri = new URI(url);
+
+            // Get the query parameters and their values as a map
+            Map<String, List<String>> queryParamsMap = new HashMap<>();
+
+            // Parse the query string into individual query parameters
+            String[] queryParams = parsedUri.getQuery().split("&");
+            for (String param : queryParams) {
+                int colonIndex = param.indexOf("=");
+                if (colonIndex != -1 && !param.isEmpty()) {
+                    String key = param.substring(0, colonIndex);
+                    String value = param.substring(colonIndex + 1);
+
+                    // Add the key-value pair to the map
+                    if (!queryParamsMap.containsKey(key)) {
+                        queryParamsMap.put(key, new ArrayList<>());
+                    }
+                    queryParamsMap.get(key).add(value);
+                }
+            }
+
+            // Convert the list of values for each key into a single string separated by spaces
+            Map<String, String> result = new HashMap<>();
+            for (List<String> values : queryParamsMap.values()) {
+                StringBuilder sb = new StringBuilder();
+                for (String value : values) {
+                    if (!sb.toString().isEmpty()) {
+                        sb.append(", ");
+                    }
+                    sb.append(value);
+                }
+                result.put(key, sb.toString());
+            }
+
+            return result;
+        } catch (Exception e) {
+            // Handle the exception as needed
+            System.out.println("Error parsing URL: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        String url = "http://example.com/path?a=1&b=2&c=3&a=4#anchor";
+        Map<String, String> queryParamsMap = parseUrl(url);
+        if (queryParamsMap != null) {
+            System.out.println("Query Parameters:");
+            for (Map.Entry<String, String> entry : queryParamsMap.entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+        } else {
+            System.out.println("No query parameters found.");
+        }
+    }
+}
+```
+
+This code uses a HashMap to store the query parameters and their values. It then converts the list of values for each key into a single string separated by spaces, which is used as the result.
+
+Note that this approach assumes that the input URL does not have any anchor (#) in the path that may be present in some URLs (e.g., "http://example.com/path?a=1#anchor"). If you need to handle such cases, you should remove the anchor from the query string before parsing it.
+===================================================
+
+
+====================== Iteration #6 ======================

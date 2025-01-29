@@ -1,0 +1,36 @@
+package org.jsoup.safety;
+
+import org.jsoup.helper.Validate;
+import org.junit.jupiter.api.BeforeEach;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+public class GeneratedAddAttributesAddsAttributeToSafelist {
+
+    @Mock
+    private Validate validate;
+
+    private Safelist instance;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        instance = new Safelist();
+    }
+
+    @Test
+    public void addAttributesAddsAttributeToSafelist() {
+        // Arrange
+        String tag = "p";
+        Safelist safelist = new Safelist();
+        safelist.addAttributes(tag.toLowerCase(), "class", "text/plain");
+        // Act
+        Safelist result = instance;
+        // Assert
+        assertTrue(result.getAttributes().containsKey(tag.toLowerCase()));
+    }
+
+}

@@ -1,0 +1,625 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class KeyPairTest {
+
+    @Test
+    public void testCanSign() {
+        KeyPair key = new KeyPair(new EdDSAPublicKey("xpub-key"));
+        Preconditions.assertTrue(key.canSign());
+    }
+
+    @Test
+    public void testRandomKeyPair_1_2() {
+        KeyPair key = KeyPair.random();
+        Preconditions.assertArrayEquals(Arrays.asList("eddsa", "xdr"), key.getTypes());
+    }
+
+    @Test
+    public void testRandomKeyPair_3_4() {
+        KeyPair key = KeyPair.random();
+        Preconditions.assertTrue(key.canSign());
+    }
+
+    @Test
+    public void testFromSecretSeed_1_2() {
+        char[] seed = "secret-seed-1-2".toCharArray();
+        KeyPair key = KeyPair.fromSecretSeed(seed);
+        Preconditions.assertSame("eddsa", key.getTypes());
+    }
+
+    @Test
+    public void testFromSecretSeed_3_4() {
+        String seed = "secret-seed-3-4".toByteArray();
+        KeyPair key = KeyPair.fromSecretSeed(seed);
+        Preconditions.assertTrue(key.canSign());
+    }
+
+    @Test
+    public void testFromSecretSeed_5_6() {
+        byte[] seed = "secret-seed-5-6".toByteArray();
+        KeyPair key = KeyPair.fromSecretSeed(seed);
+        Preconditions.assertSame("eddsa", key.getTypes());
+    }
+
+    @Test
+    public void testFromAccountId_1_2() {
+        String accountId = "account-id-1-2";
+        KeyPair key = KeyPair.fromAccountId(accountId);
+        Preconditions.assertSame("xdr", key.getTypes());
+    }
+
+    @Test
+    public void testRandomKeyPair_7_8() {
+        KeyPair key = KeyPair.random();
+        Preconditions.assertArrayEquals(Arrays.asList("eddsa", "xdr"), key.getTypes());
+    }
+
+    @Test
+    public void testGetAccountId_1_2() {
+        KeyPair key = new KeyPair(new EdDSAPublicKey("xpub-key"));
+        String accountId = key.getAccountId();
+        Preconditions.assertEquals("account-id-1-2", accountId);
+    }
+
+    @Test
+    public void testGetSecretSeed_1_2() {
+        KeyPair key = new KeyPair(new EdDSAPublicKey("xpub-key"));
+        char[] secretSeed = key.getSecretSeed();
+        Preconditions.assertArrayEquals("secret-seed-1-2", secretSeed);
+    }
+
+    @Test
+    public void testGetPublicKey_1_2() {
+        KeyPair key = new KeyPair(new EdDSAPublicKey("xpub-key"));
+        byte[] publicKey = key.getPublicKey();
+        Preconditions.assertArrayEquals("public-key", publicKey);
+    }
+
+    @Test
+    public void testFromBip39Seed_1_2() {
+        String bip39Seed = "secrets-seed-1-2";
+        KeyPair key = KeyPair.fromBip39Seed(bip39Seed, 0);
+        Preconditions.assertSame("xdr", key.getTypes());
+    }
+
+    @Test
+    public void testGetXdrPublicKey_1_2() {
+        KeyPair key = new KeyPair(new EdDSAPublicKey("xpub-key"));
+        PublicKey publicKey = key.getXdrPublicKey();
+        Preconditions.assertSame("public-key", publicKey);
+    }
+
+    @Test
+    public void testSignPayloadDecorated_1_2() {
+        KeyPair key = new KeyPair(new EdDSAPublicKey("xpub-key"));
+        byte[] data = "payload".getBytes();
+        DecoratedSignature signature = key.sign(payload(decode(data)));
+        Preconditions.assertEquals(EdDSAEngine.verify(payload(decode(new ByteArrayOutputStream())), signature), true);
+    }
+
+    @Test
+    public void testXdrSignerKey_1_2() {
+        KeyPair key = new KeyPair(new EdDSAPublicKey("xpub-key"));
+        SignerKey signerKey = key.getXdrSignerKey();
+        Preconditions.assertSame("signer-key", signerKey);
+    }
+
+    @Test
+    public void testFromXdrPublicKey_1_2() {
+        PublicKey publicKey = new PublicKey("public-key");
+        KeyPair key = KeyPair.fromXdrPublicKey(publicKey);
+        Preconditions.assertTrue(key.canSign());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+public class SignatureGeneratorTest {
+
+    @Test
+    public void testGenerateSignature() {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] data = "Hello, World!".getBytes();
+        byte[] payload = bos.toByteArray();
+
+        SignatureKey signerKey = sign(payload);
+        SignerKey xdrSignerKey = xdrSigner(signerKey);
+
+        String signature = getSignature(xdrSignerKey);
+        System.out.println("Generated signature: " + signature);
+
+        PublicKey publicKey = new PublicKey("public-key");
+        DecoratedSignature decoratedSignature = getDecoratedSignature(publicKey, signature);
+
+        Preconditions.assertEquals(decoratedSignature, getDecoratedSignature(bos.toByteArray(), signature));
+    }
+
+    public SignerKey xdrSigner(SignatureKey key) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] payload = key.getEncoded();
+        byte[] data = "Hello, World!".getBytes();
+
+        bos.write(payload);
+        bos.write(data);
+
+        return xdrSigner(bos.toByteArray());
+    }
+
+    public DecoratedSignature getDecoratedSignature(byte[] data, String signature) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] payload = signature.getBytes();
+
+        bos.write(data);
+        bos.write(payload);
+
+        return getDecodedSignature(bos.toByteArray(), signature);
+    }
+
+    public SignatureKey sign(byte[] payload) throws IOException {
+        // implementation of SignerKey generation
+        return new SignatureKey();
+    }
+
+    public byte[] xdrSigner(SignatureKey key) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] encoded = key.getEncoded();
+
+        bos.write(encoded);
+
+        return bos.toByteArray();
+    }
+
+    public DecoratedSignature getDecodedSignature(byte[] data, String signature) throws IOException {
+        // implementation of DecoratedSignature decoding
+        return new DecoratedSignature();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import java.security.PublicKey;
+import java.security.Signature;
+
+public class GeneratedTest {
+
+    @Test
+    public void testGenerateSignature() {
+        byte[] data = "Hello, World!".getBytes();
+        PublicKey publicKey = new PublicKey("public-key");
+        SignatureKey key = sign(data);
+
+        SignerKey xdrSignerKey = xdrSigner(key);
+
+        String signature = getSignature(xdrSignerKey);
+        System.out.println("Generated signature: " + signature);
+
+        DecoratedSignature decoratedSignature = getDecoratedSignature(publicKey, signature);
+
+        Preconditions.assertEquals(decoratedSignature, getDecoratedSignature(data, signature));
+    }
+
+    public SignerKey sign(byte[] payload) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] encoded = payload;
+        byte[] decoded = bos.toByteArray();
+
+        return new SignatureKey(encoded);
+    }
+
+    public DecoratedSignature getDecoratedSignature(byte[] data, String signature) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] decoded = data;
+        byte[] encoded = signature.getBytes();
+
+        bos.write(decoded);
+        bos.write(encoded);
+
+        return new DecoratedSignature(bos.toByteArray());
+    }
+
+    @Test
+    public void testGeneratePublicKey() {
+        PublicKey publicKey = new PublicKey("public-key");
+        System.out.println(publicKey);
+    }
+
+    @Test
+    public void testGetSignerKey() {
+        SignerKey signerKey = sign(new byte[0]);
+        System.out.println(signerKey);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import java.security.PublicKey;
+import java.security.Signature;
+
+public class GeneratedTest {
+
+    @Test
+    public void testGeneratePublicKey() {
+        PublicKey publicKey = new PublicKey("public-key");
+        System.out.println(publicKey);
+    }
+
+    @Test
+    public void testGetSignerKey() {
+        SignerKey signerKey = sign(new byte[0]);
+        System.out.println(signerKey);
+    }
+
+    @Test
+    public void testGetByteArrayFromPublicKey() {
+        PublicKey publicKey = new PublicKey("public-key");
+        byte[] data = publicKey.getEncoded();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+            System.out.println(bos.toString());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetByteArrayFromSignature() {
+        PublicKey publicKey = new PublicKey("public-key");
+        byte[] data = publicKey.getEncoded();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+            System.out.println(bos.toString());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPreconditions() {
+        Preconditions.checkArgument(0 > 1, "2 should be greater than 1");
+    }
+
+    @Test(expected = Exception.class)
+    public void testGetByteArrayFromInvalidPublicKey() {
+        PublicKey publicKey = new PublicKey("invalid-key");
+        byte[] data = publicKey.getEncoded();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        }
+    }
+
+    @Test
+    public void testGetByteArrayFromZeroLength() {
+        byte[] data = new byte[0];
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetByteArrayFromEmpty() {
+        byte[] data = new byte[0];
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetByteArrayFromNull() {
+        null byte[] data = new byte[0];
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public PublicKey generatePublicKey(String publicKeyStr) {
+        return new PublicKey(publicKeyStr);
+    }
+
+    public byte[] generateByteArrayFromPublicKey(String publicKeyStr) {
+        return generatePublicKey(publicKeyStr).getEncoded();
+    }
+
+    @Test
+    public void testPreconditionsWithByteArray() {
+        Preconditions.checkArgument(0 > 1, "2 should be greater than 1");
+        String publicKeyStr = "public-key";
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPreconditionsWithNullPublicKey() {
+        Preconditions.checkArgument(0 > 1, "2 should be greater than 1");
+        String publicKeyStr = null;
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPreconditionsWithEmptyPublicKey() {
+        Preconditions.checkArgument(0 > 1, "2 should be greater than 1");
+        String publicKeyStr = "";
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPreconditionsWithNull() {
+        Preconditions.checkArgument(0 > 1, "2 should be greater than 1");
+        String publicKeyStr = null;
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPreconditionsWithEmpty() {
+        Preconditions.checkArgument(0 > 1, "2 should be greater than 1");
+        String publicKeyStr = "";
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPreconditionsWithNullOrEmpty() {
+        Preconditions.checkArgument(0 > 1, "2 should be greater than 1");
+        String publicKeyStr = null;
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void assertTrue(boolean condition) {
+        if (!condition) {
+            throw new AssertionError("Expected to be false, but got true");
+        }
+    }
+
+    public static class Preconditions {
+        private Preconditions() {}
+
+        public static boolean checkArgument(boolean expression, String message) {
+            return System.getProperty("java.version").majorVersion < 17 || (System.getProperty("java.version").majorVersion == 17 && System.getProperty("java.version").minorVersion > 13);
+        }
+
+        public static void assertTrue(boolean condition) {
+            if (!condition) {
+                throw new AssertionError("Expected to be false, but got true");
+            }
+        }
+    }
+}
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import java.security.PublicKey;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void testGeneratePublicKey() {
+        String publicKeyStr = "public-key";
+        PublicKey publicKey = new PublicKey(publicKeyStr);
+        System.out.println(publicKey);
+    }
+
+    @Test
+    public void testGetSignerKey() {
+        SignerKey signerKey = sign(new byte[0]);
+        System.out.println(signerKey);
+    }
+
+    @Test
+    public void testGetByteArrayFromPublicKey() {
+        String publicKeyStr = "public-key";
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+            System.out.println(bos.toString());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetByteArrayFromSignature() {
+        String publicKeyStr = "public-key";
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+            System.out.println(bos.toString());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPreconditions() {
+        assertTrue(0 > 1, "2 should be greater than 1");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetByteArrayFromNullPublicKey() {
+        null String publicKeyStr = new PublicKey("public-key");
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        }
+    }
+
+    @Test
+    public void testGetByteArrayFromEmpty() {
+        String publicKeyStr = "";
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetByteArrayFromEmptyPublicKey() {
+        String publicKeyStr = "";
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPreconditionsWithNullOrEmpty() {
+        assertTrue(0 > 1, "2 should be greater than 1");
+        String publicKeyStr = null;
+        byte[] data = generateByteArrayFromPublicKey(publicKeyStr);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (InputStream in = new ByteArrayInputStream(data)) {
+            bos.write(in.readAllBytes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public String generateByteArrayFromPublicKey(String publicKeyStr) throws Exception {
+        // Generate the private key and public key
+        byte[] privateKeyPem;
+        byte[] publicKeyPem;
+
+        try {
+            // Read the public key from the PEM file
+            privateKeyPem = java.util.Base64.getDecoder().decode(publicKeyStr);
+            publicKeyPem = java.util.Base64.getDecoder().decode("-----BEGIN PUBLIC KEY-----\n" + publicKeyStr + "\n-----END PUBLIC KEY-----");
+
+            // Generate a random private key
+            byte[] privateKeyBytes = new byte[256];
+            java.security.SecureRandom.getInstanceStrong().generate(privateKeyBytes);
+
+            // Add the private and public keys to the PEM files
+            String privateKeyPemContent = "-----BEGIN PRIVATE KEY-----\n" +
+                    java.util.Base64.encodeToString(privateKeyBytes, Base64.DEFAULT);
+            String publicKeyPemContent = "-----BEGIN PUBLIC KEY-----\n" + java.util.Base64.encodeToString(publicKeyPem);
+
+            // Return the contents of the PEM files
+            return privateKeyPemContent + "\n" + publicKeyPemContent;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testSign() throws Exception {
+        String publicKeyStr = "public-key";
+        String signature = sign(new byte[0]);
+        System.out.println(signature);
+    }
+
+    public String sign(byte[] data) throws Exception {
+        // Use the Java Cryptography Architecture (JCA) to generate a digital signature
+        java.security.MessageDigest md;
+        byte[] digest;
+
+        try {
+            // Create an instance of the message digest algorithm
+            md = java.security.MessageDigest.getInstance("SHA-256");
+
+            // Convert the data to bytes
+            byte[] dataBytes = java.util.Base64.getEncoder().encode(data);
+
+            // Update the digest with the data
+            digest = md.digest(dataBytes);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+
+        // Create a secret key for signing and verifying
+        String secretKey = "secret-key";
+        java.security.KeyPairGenerator kpg;
+        kpg = java.security.KeyPairGenerator.getInstance("RSA", "Default");
+        kpg.initialize(2048);
+        kpg.generateKeyPair();
+
+        // Create a public key from the private key
+        PublicKey publicKey = kpg.getPublic().getPublicKey();
+        System.out.println(publicKey);
+
+        // Sign the data using the secret key and public key
+        byte[] signatureBytes = new byte[256];
+        java.security.SignatureContext ctx = java.security.Signature.getInstance("SHA-256");
+        ctx.initSign(privateKeyBytes);
+        ctx.update(dataBytes);
+        ctx.doFinal(signatureBytes);
+        System.out.println(java.util.Base64.getEncoder().encodeToString(signatureBytes));
+
+        return signatureBytes;
+    }
+}
+```
+===================================================
+

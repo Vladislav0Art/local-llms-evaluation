@@ -1,0 +1,18 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTestValidateFile_ePubCheck_ValidationContextValidation {
+
+    @Test
+    public void testValidateFile_ePubCheck_ValidationContextValidation() {
+        String[] args = {"-v", "2.1.0", "-e", "https://example.com/ebook.ept", "-o", "/tmp/ebook.ept"};
+        EpubChecker check = new EpubChecker();
+        ValidationContext validationContext = Mockito.mock(ValidationContext.class);
+        Mockito.when(validationContext.isValid()).thenReturn(true);
+        int result = check.validateFile(args[0], null, Mockito.mock(EPUBProfile.class), validationContext);
+        assertEquals(1, result);
+    }
+
+}

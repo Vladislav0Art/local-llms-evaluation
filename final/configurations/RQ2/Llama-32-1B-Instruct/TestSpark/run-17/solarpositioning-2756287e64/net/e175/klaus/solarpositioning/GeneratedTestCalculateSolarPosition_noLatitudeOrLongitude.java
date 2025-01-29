@@ -1,0 +1,24 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.time.ZoneOffset;
+import java.util.UUID;
+
+public class GeneratedTestCalculateSolarPosition_noLatitudeOrLongitude {
+
+    @Test
+    public void testCalculateSolarPosition_noLatitudeOrLongitude() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 52.52083333;
+        double longitude = -13.40527778;
+
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0);
+
+        assertTrue(result.getR() > 0);
+        assertTrue(result.getTheta() > 0);
+    }
+
+}

@@ -1,0 +1,118 @@
+package leetcode.medium;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void test_next_1() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        assertEquals(0, onlineStockSpan.next(100));
+        assertEquals(-1, onlineStockSpan.next(50));
+        assertEquals(-1, onlineStockSpan.next(2000));
+    }
+
+    @Test
+    public void test_next_2() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        assertEquals(1, onlineStockSpan.next(100));
+        assertEquals(-1, onlineStockSpan.next(50));
+        assertEquals(1, onlineStockSpan.next(2000));
+    }
+
+    @Test
+    public void test_next_3() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        assertEquals(2, onlineStockSpan.next(100));
+        assertEquals(-1, onlineStockSpan.next(50));
+        assertEquals(3, onlineStockSpan.next(2000));
+    }
+
+    @Test
+    public void test_calculateSpans_noPrices() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {10, 20, 30};
+        int[] expected = new int[prices.length];
+        for (int i = 0; i < prices.length; i++) {
+            expected[i] = 1;
+        }
+        assertEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void test_calculateSpans_onePrice() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 100;
+        int[] expected = new int[1];
+        expected[0] = 1;
+        assertEquals(expected, onlineStockSpan.calculateSpans(new int[]{price}));
+    }
+
+    @Test
+    public void test_calculateSpans_multiplePrices() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100, 200, 300};
+        int[] expected = new int[prices.length];
+        for (int i = 0; i < prices.length; i++) {
+            expected[i] = 2;
+        }
+        assertEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void test_calculateSpans_allZeroes() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {0, 1, 2};
+        int[] expected = new int[prices.length];
+        for (int i = 0; i < prices.length; i++) {
+            expected[i] = 1;
+        }
+        assertEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void test_calculateSpans_allNonZeros() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {1000, 2000, 3000};
+        int[] expected = new int[prices.length];
+        for (int i = 0; i < prices.length; i++) {
+            expected[i] = 2;
+        }
+        assertEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void test_calculateSpansEmptyArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {};
+        assertThrows(NullPointerException.class, () -> onlineStockSpan.next(100));
+        assertThrows(NullPointerException.class, () -> onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void test_calculateSpansArrayWithNegativeNumbers() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {-10, -20, -30};
+        assertThrows(NullPointerException.class, () -> onlineStockSpan.next(-100));
+        assertThrows(NullPointerException.class, () -> onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void test_calculateSpansArrayWithZeroes() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {0, 1, 2};
+        assertThrows(NullPointerException.class, () -> onlineStockSpan.next(0));
+        assertThrows(NullPointerException.class, () -> onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void test_calculateSpansArrayWithNegativeNumbersAndZeros() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {-10, -20, 30};
+        assertThrows(NullPointerException.class, () -> onlineStockSpan.next(-100));
+        assertThrows(NullPointerException.class, () -> onlineStockSpan.calculateSpans(prices));
+    }
+
+}

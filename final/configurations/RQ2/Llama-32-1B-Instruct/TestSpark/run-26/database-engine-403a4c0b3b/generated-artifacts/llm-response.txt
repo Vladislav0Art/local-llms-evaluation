@@ -1,0 +1,565 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import com.opencsv.exceptions.CsvValidationException;
+import exceptions.DBAppException;
+import exception.UtilException;
+import org.junit.jupiter.api.Test;
+import java.io.IOException;
+import java.util.*;
+
+public class DBAppTest {
+
+    public static class SQLTerm {
+        private String column;
+        private String operator;
+
+        public SQLTerm(String column, String operator) {
+            this.column = column;
+            this.operator = operator;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SQLTerm that = (SQLTerm) o;
+            return column.equals(that.column) && operator.equals(that.operator);
+        }
+    }
+
+    private class ValidatorTest extends DBAppTest {
+
+        @Test
+        public void testGetMyTables() throws IOException, CsvValidationException {
+            Validator validator = new Validator();
+            HashSet<String> myTables = getMyTables(validator);
+            assert !myTables.isEmpty();
+        }
+
+        @Test
+        public void testCreateTable() throws IOException, DBAppException {
+            Validator validator = new Validator();
+            String tableName = "testTable";
+            Hashtable<String, String> htblColNameType = new Hashtable<>();
+            htblColNameType.put("column1", "type1");
+            Hashtable<String, String> htblColNameMin = new Hashtable<>();
+            htblColNameMin.put("column2", "min1");
+            Hashtable<String, String> htblColNameMax = new Hashtable<>();
+
+            createTable(tableName, validator, htblColNameType, htblColNameMin, htblColNameMax);
+        }
+
+        @Test
+        public void testInsertIntoTable() throws IOException, DBAppException {
+            Validator validator = new Validator();
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            createTable("testTable", validator, null, null, null);
+            insertIntoTable("testTable", htblColNameValue);
+
+            List<CSVReaderEntry> csvReadersEntries = selectFromTable(new String[] {"column1", "operator"}, new String[]{"value"});
+            assert !csvReadersEntries.isEmpty();
+        }
+
+        @Test
+        public void testUpdateTable() throws IOException, DBAppException {
+            Validator validator = new Validator();
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            createTable("testTable", validator, null, null, null);
+            updateTable("testTable", "column1", "value");
+            insertIntoTable("testTable", htblColNameValue);
+
+            List<CSVReaderEntry> csvReadersEntries = selectFromTable(new String[] {"column1", "operator"}, new String[]{"value"});
+            assert !csvReadersEntries.isEmpty();
+        }
+
+        @Test
+        public void testDeleteFromTable() throws IOException, DBAppException {
+            Validator validator = new Validator();
+            Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+            createTable("testTable", validator, null, null, null);
+            insertIntoTable("testTable", htblColNameValue);
+
+            deleteFromTable("testTable", htblColNameValue);
+
+            List<CSVReaderEntry> csvReadersEntries = selectFromTable(new String[] {"column1", "operator"}, new String[]{"value"});
+            assert csvReadersEntries.isEmpty();
+        }
+    }
+
+    private class CSVReaderTest extends DBAppTest {
+
+        @Test
+        public void testGetReader() throws IOException, CsvValidationException {
+            Validator validator = new Validator();
+            CSVReader csvReader = getReader(validator);
+            List<CSVReaderEntry> entries = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                entries.add(new CSVReaderEntry("value", "operator"));
+            }
+            csvReader.setEntries(entries);
+
+            assert csvReader.getHeaders().size() == 2;
+        }
+
+        @Test
+        public void testGetWriter() throws IOException, DBAppException {
+            Validator validator = new Validator();
+            CSVWriter csvWriter = getWriter(validator);
+            List<CSVWriterEntry> entries = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                entries.add(new CSVWriterEntry("value", "operator"));
+            }
+            csvWriter.setEntries(entries);
+
+            assert csvWriter.getHeader().size() == 2;
+        }
+
+    }
+
+    private class ValidatorTest extends DBAppTest {
+
+        @Test
+        public void testGetMyTables() throws IOException, CsvValidationException {
+            Validator validator = new Validator();
+            HashSet<String> myTables = getMyTables(validator);
+            assert !myTables.isEmpty();
+        }
+    }
+
+    public static class IDatabase {
+        public String getHeader() { return "header"; }
+        public String getHeaderValue(String key) throws DBAppException {
+            // implementation
+        }
+        public void init() {}
+        public void createTable(String strTableName, Validator validator, Hashtable<String, String> htblColNameType, Hashtable<String, String> htblColNameMin, Hashtable<String, String> htblColNameMax) throws DBAppException { /* implementation */ }
+        public void insertIntoTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException { /* implementation */ }
+        public void updateTable(String strTableName, String strClusteringKeyValue, Hashtable<String, Object> htblColNameValue) throws DBAppException { /* implementation */ }
+        public void deleteFromTable(String strTableName, Hashtable<String, Object> htblColNameValue) throws DBAppException { /* implementation */ }
+        public Iterator selectFromTable(SQLTerm[] arrSQLTerms, String[] strarrOperators) throws DBAppException { /* implementation */ }
+    }
+
+    private static class CSVReader {
+        private List<CSVReaderEntry> entries = new ArrayList<>();
+
+        public void setEntries(List<CSVReaderEntry> entries) {
+            this.entries = entries;
+        }
+
+        @Override
+        public Iterator<String> getHeaders() throws IOException, DBAppException {
+            // implementation
+        }
+
+        @Override
+        public Iterator<Object[]> getEntries() throws IOException, DBAppException {
+            for (int i = 0; i < entries.size(); i++) {
+                CSVReaderEntry entry = entries.get(i);
+                assert !entry.getKey().isEmpty();
+                assert !entry.getValue().isEmpty();
+                // implementation
+            }
+        }
+
+    }
+
+    private static class CSVWriter {
+        private List<CSVWriterEntry> entries = new ArrayList<>();
+
+        public void setEntries(List<CSVWriterEntry> entries) {
+            this.entries = entries;
+        }
+
+        @Override
+        public Iterator<String> getHeader() throws IOException, DBAppException {
+            // implementation
+        }
+
+        @Override
+        public Iterator<Object[]> getEntries() throws IOException, DBAppException {
+            for (int i = 0; i < entries.size(); i++) {
+                CSVWriterEntry entry = entries.get(i);
+                assert !entry.getKey().isEmpty();
+                assert !entry.getValue().isEmpty();
+                // implementation
+            }
+        }
+
+    }
+
+    private static class Validator {
+        public Validator() {}
+
+        public void checkHeader(String header) throws DBAppException {
+            // implementation
+        }
+
+        public String getHeaderValue(String key) throws DBAppException {
+            return null;
+        }
+
+    }
+
+    private static class IDatabaseTest extends IDatabase {
+
+        @Override
+        public Iterator<String> getHeaders() throws IOException, DBAppException {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public Iterator<Object[]> getEntries() throws IOException, DBAppException {
+            for (int i = 0; i < 5; i++) {
+                Object[] array = new Object[2];
+                array[0] = "value";
+                array[1] = "operator";
+                entries.add(array);
+            }
+        }
+
+    }
+
+    public static void main(String[] args) throws IOException, DBAppException {
+
+        CSVReader csvReader = new CSVReader();
+        csvReader.setHeaders(new String[]{"key", "value"});
+
+        CSVWriter csvWriter = new CSVWriter();
+        csvWriter.setEntries(csvReader.getEntries());
+
+        IDatabase database = new IDatabaseTest();
+
+        // implementation
+    }
+}
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class GeneratedTest {
+    public static void testGetMyTables() throws IOException, CsvValidationException {
+        HashSet<String> myTables = getMyTables(new Validator());
+        assert !myTables.isEmpty();
+    }
+
+    public static Set<String> getMyTables(Validator validator) throws IOException, CsvValidationException {
+        // Implementation
+    }
+}
+
+public interface IDatabaseTest {
+    void main(String[] args);
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class GeneratedTest {
+    public static Set<String> getMyTables(Validator validator) throws IOException, CsvValidationException {
+        Set<String> tables = new HashSet<>();
+        for (String column : validator.getColumns()) {
+            tables.add(column);
+        }
+        return tables;
+    }
+
+    public static void main(String[] args) throws IOException, CsvValidationException {
+        Validator validator = new Validator();
+        testGetMyTables(validator);
+    }
+}
+
+public interface Validator {
+    Set<String> getColumns();
+}
+
+public class CSVReader {
+    public static List<String[]> getEntries(List<Row> rows) {
+        return rows.toArray(new String[0]);
+    }
+
+    public static void setHeaders(String[] headers) {
+        System.out.println(headers);
+    }
+}
+
+class Row {
+    private int[] data;
+
+    public Row(int[] data) {
+        this.data = data;
+    }
+
+    public int getID() {
+        return data[0];
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i < data.length; i++) {
+            sb.append(data[i]).append(",");
+        }
+        return sb.toString().substring(0, sb.length() - 1);
+    }
+}
+
+public class CSVWriter {
+    private List<String[]> entries;
+
+    public void setEntries(List<String[]> entries) {
+        this.entries = entries;
+    }
+
+    public static List<String> getCSV(String csv) {
+        String[] lines = csv.split("\n");
+        List<String> result = new ArrayList<>();
+        for (String line : lines) {
+            if (!line.isEmpty()) {
+                result.add(line);
+            }
+        }
+        return result;
+    }
+
+    public static void printCSV(List<String[]> entries, boolean header) {
+        if (header) {
+            System.out.println("ID\tKey\tValue");
+        }
+        for (String[] entry : entries) {
+            System.out.print(entry[0] + "\t" + entry[1] + "\t" + entry[2]);
+            System.out.println();
+        }
+    }
+
+    public static void main(String[] args) throws IOException, CsvValidationException {
+        Validator validator = new Validator();
+        CSVReader csvReader = new CSVReader();
+        CSVWriter csvWriter = new CSVWriter();
+        String csv = csvReader.getCSV("header\nvalue");
+        csvWriter.setHeaders(csv.split("\t"));
+        csvWriter.printCSV(csvReader.getEntries(Arrays.asList(new int[]{1, 2, 3})), false);
+    }
+}
+
+public class DBAppException extends Exception {
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.util.*;
+
+public class GeneratedTest {
+    public static Set<String> getMyTables(Validator validator) throws IOException, CsvValidationException {
+        Set<String> tables = new HashSet<>();
+        for (String column : validator.getColumns()) {
+            tables.add(column);
+        }
+        return tables;
+    }
+
+    public static void main(String[] args) throws IOException, CsvValidationException {
+        Validator validator = new Validator();
+        testGetMyTables(validator);
+    }
+}
+
+public interface Validator {
+    Set<String> getColumns();
+}
+
+public class CSVReader {
+    public static List<String[]> getEntries(List<Row> rows) {
+        return rows.toArray(new String[0]);
+    }
+
+    public static void setHeaders(String[] headers) {
+        System.out.println(headers);
+    }
+}
+
+class Row {
+    private int ID;
+    private String key;
+    private String value;
+
+    public Row(int ID, String key, String value) {
+        this.ID = ID;
+        this.key = key;
+        this.value = value;
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    @Override
+    public String toString() {
+        return "Row [ID=" + ID + ", key=" + key + ", value=" + value + "]";
+    }
+}
+
+public class CSVWriter {
+    private List<String[]> entries;
+
+    public void setEntries(List<String[]> entries) {
+        this.entries = entries;
+    }
+
+    public static List<String> getCSV(String csv) {
+        String[] lines = csv.split("\n");
+        List<String> result = new ArrayList<>();
+        for (String line : lines) {
+            if (!line.isEmpty()) {
+                result.add(line);
+            }
+        }
+        return result;
+    }
+
+    public static void printCSV(List<String[]> entries, boolean header) {
+        System.out.println("ID\tKey\tValue");
+        for (String[] entry : entries) {
+            System.out.print(entry[0] + "\t" + entry[1] + "\t" + entry[2]);
+            System.out.println();
+        }
+    }
+
+    public static void main(String[] args) throws IOException, CsvValidationException {
+        Validator validator = new Validator();
+        CSVReader csvReader = new CSVReader();
+        CSVWriter csvWriter = new CSVWriter();
+        String csv = csvReader.getCSV("ID\tKey\tValue\n1\tkey\tyes\n2\tvalue\tno");
+        csvWriter.setHeaders(csv.split("\t"));
+        csvWriter.printCSV(csvReader.getEntries(Arrays.asList(new int[]{1, 2, 3})), false);
+    }
+}
+
+public class DBAppException extends Exception {
+    public DBAppException(String message) {
+        super(message);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.util.*;
+
+class Student {
+    private String name;
+    private int age;
+
+    public Student(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Student [name=" + name + ", age=" + age + "]";
+    }
+}
+
+public class GeneratedTest {
+    public static List<Student> getStudents(Validator validator) throws IOException, CsvValidationException {
+        List<Student> students = new ArrayList<>();
+        for (String column : validator.getColumns()) {
+            students.add(new Student(column, validator.getAgeColumn()));
+        }
+        return students;
+    }
+
+    public static void main(String[] args) throws IOException, CsvValidationException {
+        Validator validator = new Validator();
+        testGetStudents(validator);
+    }
+}
+
+public interface Validator {
+    Set<String> getColumns();
+    int getAgeColumn();
+}
+
+public class CSVReader {
+    public static List<Student> getEntries(List<Student> students) {
+        return students;
+    }
+
+    public static void setHeaders(String[] headers) {
+        System.out.println(headers);
+    }
+}
+
+class Row {
+    private Student student;
+
+    public Row(Student student) {
+        this.student = student;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    @Override
+    public String toString() {
+        return "Row [student=" + student + "]";
+    }
+}
+
+public class CSVWriter {
+    private List<Student> entries;
+
+    public void setEntries(List<Student> entries) {
+        this.entries = entries;
+    }
+
+    public static List<Student> getCSV(String csv) {
+        String[] lines = csv.split("\n");
+        List<Student> result = new ArrayList<>();
+        for (String line : lines) {
+            if (!line.isEmpty()) {
+                String[] columns = line.split("\\t");
+                Student student = new Student(columns[0], Integer.parseInt(columns[1]));
+                entries.add(student);
+            }
+        }
+        return result;
+    }
+
+    public static void printCSV(List<Student> entries, boolean header) {
+        System.out.println("Name\tAge");
+        for (Student entry : entries) {
+            System.out.print(entry.toString());
+            System.out.println();
+        }
+    }
+
+    public static void main(String[] args) throws IOException, CsvValidationException {
+        Validator validator = new Validator();
+        CSVReader csvReader = new CSVReader();
+        CSVWriter csvWriter = new CSVWriter();
+        String csv = csvReader.getCSV("Name\tAge\nJohn\t25\nAlice\t30");
+        csvWriter.setHeaders(csv.split("\t"));
+        csvWriter.printCSV(csvReader.getEntries(Arrays.asList(new Student[]{new Student("John", 25), new Student("Alice", 30)})), true);
+    }
+}
+
+public class DBAppException extends Exception {
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

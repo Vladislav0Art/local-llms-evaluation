@@ -1,0 +1,500 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class PrettyPrintVisitorTest {
+    private Printer printer;
+    private PrettyPrintVisitor prettyPrintVisitor;
+
+    @Before
+    public void setUp() {
+        printer = new PrinterFactory().createPrinter();
+        prettyPrintVisitor = new PrettyPrintVisitor(printer);
+    }
+
+    @Test
+    public void testVisitAssignExpr_SimpleAssignment() {
+        AssignmentExpr expr = new AssignmentExpr("x", 5, "y");
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("assign x=5 y");
+    }
+
+    @Test
+    public void testVisitAssignExpr_AssignmentWithMultipleValues() {
+        AssignmentExpr expr = new AssignmentExpr("x", Value.of(10), "y");
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("assign x=10 y");
+    }
+
+    @Test
+    public void testVisitBinaryExpr_BinaryOperator() {
+        BinaryExpr expr = new BinaryExpr("+", new Value[]{Value.of(5), Value.of(3)}, "z");
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("bin op 5+ 3 z");
+    }
+
+    @Test
+    public void testVisitBinaryExpr_BinaryOperatorMultipleValues() {
+        BinaryExpr expr = new BinaryExpr("*", new Value[]{Value.of(2), Value.of(4)}, "w");
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("bin op 2* 4 w");
+    }
+
+    @Test
+    public void testVisitUnaryExpr_UnaryMinus() {
+        UnaryExpr expr = new UnaryExpr("-", new Value[]{Value.of(5)});
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("un bin -5");
+    }
+
+    @Test
+    public void testVisitConstExpr_Constant() {
+        ConstExpr expr = new ConstExpr(Value.of(10));
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("const 10");
+    }
+
+    @Test
+    public void testVisitFunctionCallExpr_FunctionCallWithMultipleValues() {
+        FunctionCallExpr expr = new FunctionCallExpr("add", Value.of(new ListIterable[]{Value.of(5), Value.of(3)}));
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("func add (5+ 3)");
+    }
+
+    @Test
+    public void testVisitPropertyPathExpr_Property() {
+        PropertyPathExpr expr = new PropertyPathExpr("x", "y");
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("prop x y");
+    }
+
+    @Test
+    public void testVisitAnonymousScriptExpr_AnonymousFunctionCall() {
+        AnonymousScript script = new AnonymousScript(new ListIterable[]{Value.of(5), Value.of(3)});
+        prettyPrintVisitor.visit(script);
+        verify(printer).printExpression("func (5+ 3)");
+    }
+
+    @Test
+    public void testVisitFunctionScriptExpr_FunctionDefinition() {
+        FunctionScript script = new FunctionScript(new String[]{"x", "y"}, new ListIterable[]{Value.of(10), Value.of(20)});
+        prettyPrintVisitor.visit(script);
+        verify(printer).printExpression("func (x y) 10+ 20");
+    }
+
+    @Test
+    public void testVisitStatementSequenceScript_SimpleStatement() {
+        StatementSequenceScript script = new StatementSequenceScript(new ListIterable[]{Value.of(5), Value.of(3)});
+        prettyPrintVisitor.visit(script);
+        verify(printer).printExpression("stmt (5+ 3)");
+    }
+
+    @Test
+    public void testVisitVarExpr_VarDefinition() {
+        VarExpr expr = new VarExpr("x", "y");
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("var x y");
+    }
+
+    @Test
+    public void testVisitProjectionExpr_Projection() {
+        ProjectionExpr expr = new ProjectionExpr(new String[]{"z", new ListIterable[]{Value.of(5), Value.of(3)}});
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("proj z (x y)");
+    }
+
+    @Test
+    public void testVisitAliasExpr_AlternativeAssignment() {
+        AliasExpr expr = new AliasExpr(new String[]{"y", "z"}, Value.of(10));
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("alt assign y 10 z");
+    }
+
+    @Test
+    public void testVisitVectorExpr_VectorSum() {
+        VectorExpr expr = new VectorExpr(new ListIterable[]{Value.of(5), Value.of(3)});
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("vec sum (5+ 3)");
+    }
+
+    @Test
+    public void testVisitIndexExpr_IndexAccess() {
+        IndexExpr expr = new IndexExpr("x", "1");
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("idx x 1");
+    }
+
+    @Test
+    public void testVisitDecimalExpr_DecimalArithmeticOperator() {
+        DecimalExpr expr = new DecimalExpr("+", Value.of(2), "3");
+        prettyPrintVisitor.visit(expr);
+        verify(printer).printExpression("dec + 2*3");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TestMath {
+
+    public double add(double x, double y) {
+        return x + y;
+    }
+
+    @Test
+    public void testAdd() {
+        assertEquals(10, add(1.0, 4.0));
+        assertEquals(11.0, add(-3.0, -2.0), Double.compareClosestMagnitude);
+        assertEquals(7.0, add(6.0, 9.0));
+    }
+
+    public double subtract(double x, double y) {
+        return x - y;
+    }
+
+    @Test
+    public void testSubtract() {
+        assertEquals(-3.0, subtract(1.0, 4.0), Double.compareClosestMagnitude);
+        assertEquals(11.0, subtract(-3.0, -2.0), Double.compareClosestMagnitude);
+        assertEquals(7.0, subtract(6.0, 9.0));
+    }
+
+    public double multiply(double x, double y) {
+        return x * y;
+    }
+
+    @Test
+    public void testMultiply() {
+        assertEquals(10.0, multiply(1.0, 4.0), Double.compareClosestMagnitude);
+        assertEquals(-21.0, multiply(3.0, -2.0), Double.compareClosestMagnitude);
+        assertEquals(42.0, multiply(6.0, 9.0));
+    }
+
+    public double divide(double x, double y) {
+        if (y == 0.0) {
+            throw new ArithmeticException("Cannot divide by zero.");
+        }
+        return x / y;
+    }
+
+    @Test
+    public void testDivide() {
+        assertEquals(10.0, divide(1.0, 4.0), Double.compareClosestMagnitude);
+        assertEquals(-21.0, divide(3.0, -2.0), Double.compareClosestMagnitude);
+        assertEquals(42.0, divide(6.0, 9.0));
+    }
+
+    public double power(double x, int y) {
+        return Math.pow(x, y);
+    }
+
+    @Test
+    public void testPower() {
+        assertEquals(100.0, power(2.0, 4), Double.compareClosestMagnitude);
+        assertEquals(-81.0, power(3.0, -2), Double.compareClosestMagnitude);
+        assertEquals(1296.0, power(6.0, 4));
+    }
+
+    public double square(double x) {
+        return Math.pow(x, 2);
+    }
+
+    @Test
+    public void testSquare() {
+        assertEquals(25.0, square(5.0), Double.compareClosestMagnitude);
+        assertEquals(9.0, square(-3.0), Double.compareClosestMagnitude);
+        assertEquals(36.0, square(6.0));
+    }
+
+    public double cube(double x) {
+        return Math.pow(x, 3);
+    }
+
+    @Test
+    public void testCube() {
+        assertEquals(125.0, cube(5.0), Double.compareClosestMagnitude);
+        assertEquals(-216.0, cube(-3.0), Double.compareClosestMagnitude);
+        assertEquals(216.0, cube(6.0));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class MathFunctions {
+    public int addNumbers(int num1, int num2) {
+        return num1 + num2;
+    }
+
+    public int subtractNumbers(int num1, int num2) {
+        return num1 - num2;
+    }
+
+    public double multiplyNumbers(double num1, double num2) {
+        return num1 * num2;
+    }
+
+    public String divideNumbers(double num1, double num2) {
+        if (num2 != 0) {
+            return Double.toString(num1 / num2);
+        } else {
+            throw new ArithmeticException("Cannot divide by zero");
+        }
+    }
+
+    public int square(int number) {
+        return number * number;
+    }
+
+    public int power(int base, int exponent) {
+        double result = Math.pow(base, exponent);
+        if (exponent < 0) {
+            result = 1 / Math.pow(base, -exponent);
+        }
+        return (int) result;
+    }
+
+    public int cube(int number) {
+        return power(number, 3);
+    }
+
+    public double squareRoot(double number) {
+        if (number < 0) {
+            throw new ArithmeticException("Cannot calculate square root of negative number");
+        } else {
+            return Math.sqrt(number);
+        }
+    }
+
+    public String formatNumber(double number) {
+        if (number >= 0) {
+            return String.format("%f", number);
+        } else {
+            return String.format("-%.2f", -number);
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        MathFunctions mathFunctions = new MathFunctions();
+
+        System.out.println("Addition: " + mathFunctions.addNumbers(10, 5));
+        System.out.println("Subtraction: " + mathFunctions.subtractNumbers(20, 3));
+
+        double result = mathFunctions.multiplyNumbers(4.0, 6.0);
+        System.out.println("Multiplication: " + result);
+
+        System.out.println("Division: " + mathFunctions.divideNumbers(10.0, 2.0));
+        System.out.println("Division by zero: " + mathFunctions.divideNumbers(10.0, 0));
+
+        int squareResult = mathFunctions.square(5);
+        System.out.println("Square: " + squareResult);
+
+        int powerResult = mathFunctions.power(3, 4);
+        System.out.println("Power: " + powerResult);
+
+        double cubeResult = mathFunctions.cube(2);
+        System.out.println("Cube: " + cubeResult);
+
+        System.out.println(mathFunctions.formatNumber(10.0));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+Here are the calculations for the given mathematical functions in Java:
+
+```java
+public class MathFunctions {
+    public int addNumbers(int num1, int num2) {
+        return num1 + num2;
+    }
+
+    public int subtractNumbers(int num1, int num2) {
+        return num1 - num2;
+    }
+
+    public double multiplyNumbers(double num1, double num2) {
+        return num1 * num2;
+    }
+
+    public String divideNumbers(double num1, double num2) {
+        if (num2 != 0) {
+            return Double.toString(num1 / num2);
+        } else {
+            throw new ArithmeticException("Cannot divide by zero");
+        }
+    }
+
+    public int square(int number) {
+        return number * number;
+    }
+
+    public int power(int base, int exponent) {
+        double result = Math.pow(base, exponent);
+        if (exponent < 0) {
+            result = 1 / Math.pow(base, -exponent);
+        }
+        return (int) result;
+    }
+
+    public int cube(int number) {
+        return power(number, 3);
+    }
+
+    public double squareRoot(double number) {
+        if (number >= 0) {
+            return Math.sqrt(number);
+        } else {
+            throw new ArithmeticException("Cannot calculate square root of negative number");
+        }
+    }
+
+    public String formatNumber(double number) {
+        if (number < 0) {
+            return String.format("%-10.2f", number);
+        } else {
+            return String.format("%.2f", number);
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        MathFunctions mathFunctions = new MathFunctions();
+
+        System.out.println("Addition: " + mathFunctions.addNumbers(10, 5));
+        System.out.println("Subtraction: " + mathFunctions.subtractNumbers(20, 3));
+
+        double result = mathFunctions.multiplyNumbers(4.0, 6.0);
+        System.out.println("Multiplication: " + result);
+
+        System.out.println("Division: " + mathFunctions.divideNumbers(10.0, 2.0));
+        System.out.println("Division by zero: " + mathFunctions.divideNumbers(10.0, 0));
+
+        int squareResult = mathFunctions.square(5);
+        System.out.println("Square: " + squareResult);
+
+        int powerResult = mathFunctions.power(3, 4);
+        System.out.println("Power: " + powerResult);
+
+        double cubeResult = mathFunctions.cube(2);
+        System.out.println("Cube: " + cubeResult);
+
+        System.out.println(mathFunctions.formatNumber(10.0));
+    }
+}
+```
+
+Please note that the `divideNumbers` function now throws an ArithmeticException when attempting to divide by zero, as division by zero is undefined in mathematics.
+===================================================
+
+
+====================== Iteration #5 ======================
+Here are the calculations for the given mathematical functions in Java:
+
+```java
+import java.util.Scanner;
+
+public class MathFunctions {
+    public int addNumbers(int num1, int num2) {
+        return num1 + num2;
+    }
+
+    public int subtractNumbers(int num1, int num2) {
+        return num1 - num2;
+    }
+
+    public double multiplyNumbers(double num1, double num2) {
+        return num1 * num2;
+    }
+
+    public String divideNumbers(double num1, double num2) {
+        if (num2 != 0) {
+            return Double.toString(num1 / num2);
+        } else {
+            throw new ArithmeticException("Cannot divide by zero");
+        }
+    }
+
+    public int square(int number) {
+        return number * number;
+    }
+
+    public int power(int base, int exponent) {
+        double result = Math.pow(base, exponent);
+        if (exponent < 0) {
+            result = 1 / Math.pow(base, -exponent);
+        }
+        return (int) result;
+    }
+
+    public int cube(int number) {
+        return power(number, 3);
+    }
+
+    public double squareRoot(double number) {
+        if (number >= 0) {
+            return Math.sqrt(number);
+        } else {
+            throw new ArithmeticException("Cannot calculate square root of negative number");
+        }
+    }
+
+    public String formatNumber(double number) {
+        if (number < 0) {
+            System.out.printf("%-10.2f%n", number); // Use the format specifier '%10.2f'
+        } else {
+            System.out.printf("%.2f%n", number);
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        MathFunctions mathFunctions = new MathFunctions();
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Addition: " + mathFunctions.addNumbers(10, 5));
+        System.out.println("Subtraction: " + mathFunctions.subtractNumbers(20, 3));
+
+        double result = mathFunctions.multiplyNumbers(4.0, 6.0);
+        System.out.println("Multiplication: " + result);
+
+        System.out.println("Division: " + mathFunctions.divideNumbers(10.0, 2.0));
+        System.out.println("Division by zero: " + mathFunctions.divideNumbers(10.0, 0));
+
+        int squareResult = mathFunctions.square(5);
+        System.out.println("Square: " + squareResult);
+
+        int powerResult = mathFunctions.power(3, 4);
+        System.out.println("Power: " + powerResult);
+
+        double cubeResult = mathFunctions.cube(2);
+        System.out.println("Cube: " + cubeResult);
+
+        double numberToFormat = 10.0;
+        System.out.println("Format Number: " + mathFunctions.formatNumber(numberToFormat));
+
+        int formattedSquareResult = (int) mathFunctions.square(MathFunctions.power(5, 3));
+        System.out.println("Formatted Square: " + formattedSquareResult);
+    }
+}
+```
+
+Note that I've used `System.out.printf` to format the numbers in a more readable way. This function takes three arguments: the number to be formatted, and two format specifiers (for the integer part or decimal point). The `%` symbol is used to specify the position of the format specifier within the string.
+===================================================
+
+
+====================== Iteration #6 ======================

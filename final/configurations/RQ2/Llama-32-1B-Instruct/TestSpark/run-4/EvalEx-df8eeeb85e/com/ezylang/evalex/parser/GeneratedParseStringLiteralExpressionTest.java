@@ -1,0 +1,29 @@
+package com.ezylang.evalex.parser;
+
+import com.ezylang.evalex.functions.FunctionIfc;
+import org.junit.jupiter.api.Test;
+
+import static com.ezylang.evalex.parser.Token.TokenType.*;
+
+import java.util.ArrayList;
+
+public class GeneratedParseStringLiteralExpressionTest {
+
+    public ExpressionConfiguration createExpressionConfiguration() {
+        return new ExpressionConfiguration();
+    }
+
+    @Test
+    public void parseStringLiteralExpressionTest() {
+        String expressionString = "5";
+        ExpressionConfiguration configuration = createExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        List<Token> tokens = tokenizer.parse().get(0).getTokenTokens();
+        assertEquals(TokenType.STRING_LITERAL, getMethodUnderTest("parseStringLiteral")[0]);
+    }
+
+    public FunctionIfc parseFunction() {
+        return parseFunctionExpression();
+    }
+
+}

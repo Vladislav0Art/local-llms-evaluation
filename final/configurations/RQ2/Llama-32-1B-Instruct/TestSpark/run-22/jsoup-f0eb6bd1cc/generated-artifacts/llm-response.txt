@@ -1,0 +1,597 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.helper;
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.Arrays;
+
+public class UrlBuilderTest {
+
+    public class UriTest {
+        private final String inputUrl = "http://example.com/path?query=value";
+        private final URL inputURL = new URI("http://example.com/path", null, null);
+
+        @Test
+        void testBuild_ReturnsCorrectUrl() {
+            UrlBuilder builder = new UrlBuilder(inputURL);
+            String expected = "http://example.com/path?query=value";
+            String actual = builder.build().toString();
+            assertEquals(expected, actual);
+        }
+
+        @Test
+        void testAppendKeyVal_AddsToUrl() throws UnsupportedEncodingException {
+            UriTest input = new UriTest();
+            UrlBuilder builder = new UrlBuilder(inputURL);
+            builder.appendKeyVal("key1", "value1");
+            String expected = "http://example.com/path?query=value1&key2=value2";
+            String actual = inputURL.toString().concat(builder.build());
+            assertEquals(expected, actual);
+        }
+
+        @Test
+        void testAppendKeyVal_ThrowsExceptionWhenNull() {
+            UriTest input = new UriTest();
+            assertThrows(NullPointerException.class, () -> input.appendKeyVal(null));
+        }
+    }
+
+    public class UrlParserTest {
+        private final String url = "http://example.com/path?query=value";
+        @Mock
+        private Connection.KeyVal keyVal;
+
+        @Test
+        void testBuild_ReturnsCorrectUrl() throws UnsupportedEncodingException {
+            UrlBuilder builder = new UrlBuilder(url);
+            Uri parsedURL = new URI(url);
+            String expected = "http://example.com/path?query=value";
+            builder.build().toString().equals(expected) ? true : false;
+        }
+
+        @Test
+        void testAppendKeyVal_AppendsToParsedUrl() throws UnsupportedEncodingException {
+            Uri parsedURL = new URI(url);
+            UrlBuilder builder = new UrlBuilder(parsedURL);
+            builder.appendKeyVal(keyVal, "value");
+            String expected = "http://example.com/path?query=value&key1=value1&key2=value2";
+            String actual = parsedURL.toString();
+            assertEquals(expected, actual);
+        }
+    }
+
+    public class UriHelperTest {
+        @Test
+        void testToURI_ReturnsCorrectValue() throws URISyntaxException {
+            UriBuilder builder = new UrlBuilder("http://example.com/path");
+            String expected = "http://example.com/path";
+            String actual = builder.build();
+            assertEquals(expected, actual);
+        }
+
+        @Test
+        void testFromURL_ReturnsCorrectValue() throws MalformedURLException {
+            URL url = new URI("http://example.com/path?query=value");
+            String expected = "http://example.com/path?query=value";
+            String actual = UrlBuilder.parse(url).build();
+            assertEquals(expected, actual);
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.jsoup.helper;
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Arrays;
+
+public class UrlBuilderTest {
+
+    public class UriHelperTest {
+        @Test
+        void testToURI_ReturnsCorrectValue() throws URISyntaxException {
+            UrlBuilder builder = new UrlBuilder("http://example.com/path");
+            String expected = "http://example.com/path";
+            String actual = builder.build();
+            assertEquals(expected, actual);
+        }
+
+        @Test
+        void testFromURL_ReturnsCorrectValue() throws MalformedURLException {
+            URI url = new URI("http://example.com/path?query=value");
+            UrlBuilder builder = new UrlBuilder(url);
+            String expected = "http://example.com/path?query=value";
+            String actual = builder.build();
+            assertEquals(expected, actual);
+        }
+    }
+
+    public class UriParserTest {
+        @Mock
+        private Connection.KeyVal keyVal;
+
+        @Test
+        void testBuild_ReturnsCorrectUrl() throws UnsupportedEncodingException {
+            UrlBuilder builder = new UrlBuilder("http://example.com/path");
+            URI parsedURL = mock(URI.class);
+            when(parsedURL.getScheme()).thenReturn("http");
+            when(parsedURL.getHost()).thenReturn("example.com");
+            when(parsedURL.getPath()).thenReturn("/path");
+            String expected = "http://example.com/path";
+            assertEquals(expected, builder.build());
+        }
+
+        @Test
+        void testBuild_InvalidPath() throws UnsupportedEncodingException {
+            UrlBuilder builder = new UrlBuilder("invalid url");
+            URI parsedURL = mock(URI.class);
+            when(parsedURL.getScheme()).thenReturn("http");
+            when(parsedURL.getHost()).thenReturn("example.com");
+            when(parsedURL.getPath()).thenThrow(new URISyntaxException("Invalid URL", null));
+            assertThrows(URISyntaxException.class, () -> builder.build());
+        }
+    }
+
+}
+
+class UrlBuilder {
+    public String build() throws UnsupportedEncodingException {
+        return "https://" + getHost() + getPath();
+    }
+
+    private String getHost() {
+        try {
+            return new URI(getScheme(), getPort(), getPath()).getHost();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private int getPort() {
+        if (!getHost().contains(":")) {
+            return 80;
+        } else {
+            String[] parts = host().split(":");
+            if (parts.length == 1 && parts[0].equals("localhost") || !parts[0].startsWith(":")) {
+                return 8080;
+            }
+            return Integer.parseInt(parts[1]);
+        }
+    }
+
+    private String getPath() {
+        try {
+            return new URI(getScheme(), getPort(), getPath()).getPath();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static class Connection {
+        public String scheme;
+        public String host;
+        public int port;
+
+        public Connection(String scheme, String host, int port) {
+            this.scheme = scheme;
+            this.host = host;
+            this.port = port;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package org.jsoup.helper;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Arrays;
+
+public class UrlBuilderTest {
+
+    public static class UriHelperTest {
+        public void testToURI_ReturnsCorrectValue() throws URISyntaxException {
+            UrlBuilder builder = new UrlBuilder("http://example.com/path");
+            String expected = "http://example.com/path";
+            String actual = builder.build();
+            assertEquals(expected, actual);
+        }
+
+        public void testFromURL_ReturnsCorrectValue() throws MalformedURLException {
+            URI url = new URI("http://example.com/path?query=value");
+            UrlBuilder builder = new UrlBuilder(url);
+            String expected = "http://example.com/path?query=value";
+            String actual = builder.build();
+            assertEquals(expected, actual);
+        }
+    }
+
+    public static class UriParserTest {
+        private static final String[] EXPECTED_URLS = {"https://example.com/path", "http://example.com/path"};
+
+        @Test
+        void testBuild_ReturnsCorrectUrl() throws UnsupportedEncodingException {
+            UrlBuilder builder = new UrlBuilder("http://example.com/path");
+            for (String url : EXPECTED_URLS) {
+                String actual = builder.build();
+                assertEquals(url, actual);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPath Throws URISyntaxException() {
+            try {
+                UrlBuilder builder = new UrlBuilder("invalid url");
+                assertThrows(URISyntaxException.class, () -> builder.build());
+            } catch (URISyntaxException e) {
+                // expected exception
+            }
+        }
+    }
+}
+
+class UrlBuilder {
+    private String scheme;
+    private String host;
+    private int port;
+
+    public String build() throws UnsupportedEncodingException {
+        return "https://" + getHost() + port == 80 ? "" : getPort() + ":/" + getPath();
+    }
+
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getPath() {
+        try {
+            if (!getHost().contains(":")) {
+                return "";
+            } else {
+                return host().split(":")[0];
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package org.jsoup.helper;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Arrays;
+
+public class UrlBuilderTest {
+
+    public static class UriHelperTest {
+        public void testToURI_ReturnsCorrectValue() throws URISyntaxException {
+            String expected = "http://example.com/path";
+            String actual = new UrlBuilder("http://example.com/path").build();
+            assertEquals(expected, actual);
+        }
+
+        public void testFromURL_ReturnsCorrectValue() throws MalformedURLException {
+            String url = "https://example.com/path?query=value";
+            String actual = new UrlBuilder(url).build();
+            assertEquals("https://example.com/path", actual);
+        }
+    }
+
+    public static class UriParserTest {
+        private static final String[] EXPECTED_URLS = {"https://example.com/path", "http://example.com/path"};
+
+        @Test
+        void testBuild_ReturnsCorrectUrl() throws UnsupportedEncodingException {
+            UrlBuilder builder = new UrlBuilder("http://example.com/path");
+            for (String url : EXPECTED_URLS) {
+                String actual = builder.build();
+                assertEquals(url, actual);
+            }
+        }
+
+        public static void main(String[] args) {
+            UriHelperTest test = new UriHelperTest();
+
+            test.testToURI_ReturnsCorrectValue();
+
+            test.testFromURL_ReturnsCorrectValue();
+
+            for (String url : EXPECTED_URLS) {
+                test.testBuild_InvalidPath(url);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPath_ReturnsURISyntaxException() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder(expected).build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidHost() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path?query=value";
+            try {
+                new UrlBuilder("http://localhost").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPort() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path?query=value";
+            try {
+                new UrlBuilder("http://example.com/path:80").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPathPart() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/" + "path").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPortPart() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path:80/path").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPortPartAndPath() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path:80/path");
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPortAndPath() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path:80/path?query=value");
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPortPartAndPath() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value");
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPortPartAndPathAndQuery() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value");
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPortPartAndPathAndQueryAndSeparator() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value");
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPortPartAndPathAndQueryAndSeparatorWithEscapes() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value");
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPortPartAndPathAndQueryAndSeparatorWithSpecialChars() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value");
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidPortPartAndPathAndQueryAndSeparatorWithSpecialCharsAndEscapes() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value");
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidQuery() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidQueryPart() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidQueryPartAndEscapes() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidQueryPartAndSpecialChars() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidQueryPartAndSpecialCharsAndEscapes() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidQueryPartAndEscapesWithDash() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidQueryPartAndSpecialCharsWithDash() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+        @Test
+        void testBuild_InvalidQueryPartAndEscapesWithDash() throws UnsupportedEncodingException {
+            String expected = "https://example.com/path";
+            try {
+                new UrlBuilder("http://example.com/path/path?query=value").build();
+                throw new RuntimeException();
+            } catch (UnsupportedEncodingException e) {
+                assertThrows(UnsupportedEncodingException.class, () -> e);
+            }
+        }
+
+    }
+
+}
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class UrlParser {
+    public static String buildUrl(String path) throws Exception {
+        return "http://" + path;
+    }
+
+    public static void main(String[] args) throws Exception {
+        System.out.println(buildUrl("/path/to/resource"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

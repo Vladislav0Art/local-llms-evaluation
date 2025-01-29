@@ -1,0 +1,404 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.net.URLEncoder;
+import static org.jsoup.helpers.Configurers.URIConfigurers.*;
+
+public class UrlBuilderTests {
+
+    @ParameterizedTest
+    void build_() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        URL result = urlBuilder.build();
+        assertEquals("https://www.example.com", result.toString());
+    }
+
+    @ParameterizedTest
+    void appendKeyVal_() {
+        // Mocking is required here as per requirement 4
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+
+        // Using Mockito's spy to mock URLConnection.KeyVal
+        Spy<Connection.KeyVal> mockKv1 = Mockito.spy(kv1);
+        Spy<Connection.KeyVal> mockKv2 = Mockito.spy(kv2);
+
+        urlBuilder.appendKeyVal(mockKv1);
+        urlBuilder.appendKeyVal(mockKv2);
+
+        // Ensure key-value pair was appended correctly
+        assertEquals("key1=value1", urlBuilder.getAppendKeyVal().toString());
+        assertEquals("key2=value2", urlBuilder.getAppendKeyVal().toString());
+    }
+
+    @ParameterizedTest
+    void build_WithNonStringKeyValue() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        URL result = urlBuilder.build();
+        // Ensure the method handles non-string key-value pairs correctly
+        assertEquals("https://www.example.com", result.toString());
+    }
+
+    @ParameterizedTest
+    void build_WithMalformedURLException() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        try {
+            urlBuilder.appendKeyVal(kv1);
+            fail("Expected MalformedURLException was not thrown");
+        } catch (MalformedURLException e) {
+            // Expected exception
+        }
+    }
+
+    @ParameterizedTest
+    void build_WithUnsupportedEncodingException() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        try {
+            urlBuilder.appendKeyVal(kv1);
+            fail("Expected UnsupportedEncodingException was not thrown");
+        } catch (UnsupportedEncodingException e) {
+            // Expected exception
+        }
+    }
+
+    @ParameterizedTest
+    void appendKeyVal_WithUnsupportedEncodingException() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+
+        try {
+            urlBuilder.appendKeyVal(kv1);
+            fail("Expected UnsupportedEncodingException was not thrown");
+        } catch (UnsupportedEncodingException e) {
+            // Expected exception
+        }
+    }
+
+    static class DataUtil {
+        public static byte[] UTF_8() {
+            return UTF_8.getBytes();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.net.URLEncoder;
+import static org.jsoup.helpers.Configurers.URIConfigurers.*;
+
+public class UrlBuilderTests {
+
+    @ParameterizedTest
+    void build_keyVal_() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+
+        // Using Mockito's spy to mock URLConnection.KeyVal
+        Spy<Connection.KeyVal> mockKv1 = Mockito.spy(kv1);
+
+        try {
+            urlBuilder.appendKeyVal(mockKv1);
+            fail("Expected MalformedURLException was not thrown");
+        } catch (MalformedURLException e) {
+            assertEquals(1, e.getMessage().length());
+        }
+    }
+
+    @ParameterizedTest
+    void build_keyVal_WithNonStringKeyValue() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv2 = new Connection.KeyVal(123, "value2");
+
+        // Using Mockito's spy to mock URLConnection.KeyVal
+        Spy<Connection.KeyVal> mockKv2 = Mockito.spy(kv2);
+
+        try {
+            urlBuilder.appendKeyVal(mockKv2);
+            fail("Expected MalformedURLException was not thrown");
+        } catch (MalformedURLException e) {
+            assertEquals(1, e.getMessage().length());
+        }
+    }
+
+    @ParameterizedTest
+    void build_keyVal_WithUnsupportedEncodingException() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+
+        // Using Mockito's spy to mock URLConnection.KeyVal
+        Spy<Connection.KeyVal> mockKv2 = Mockito.spy(kv2);
+
+        try {
+            urlBuilder.appendKeyVal(mockKv2);
+            fail("Expected UnsupportedEncodingException was not thrown");
+        } catch (UnsupportedEncodingException e) {
+            assertEquals(1, e.getMessage().length());
+        }
+    }
+
+    static class DataUtil {
+        public static byte[] UTF_8() {
+            return DataUtil.UTF_8();
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
+public class UrlBuilderTests {
+
+    @ParameterizedTest
+    void appendKeyVal_() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+
+        // Using Mockito's spy to mock URLConnection.KeyVal
+        Spy<Connection.KeyVal> mockKv1 = Mockito.spy(kv1);
+
+        try {
+            urlBuilder.appendKeyVal(mockKv1);
+            fail("Expected MalformedURLException was not thrown");
+        } catch (MalformedURLException e) {
+            assertEquals(1, e.getMessage().length());
+        }
+    }
+
+    @ParameterizedTest
+    void appendKeyVal_WithNonStringKeyValue() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv2 = new Connection.KeyVal(123, "value2");
+
+        // Using Mockito's spy to mock URLConnection.KeyVal
+        Spy<Connection.KeyVal> mockKv2 = Mockito.spy(kv2);
+
+        try {
+            urlBuilder.appendKeyVal(mockKv2);
+            fail("Expected MalformedURLException was not thrown");
+        } catch (MalformedURLException e) {
+            assertEquals(1, e.getMessage().length());
+        }
+    }
+
+    @ParameterizedTest
+    void appendKeyVal_WithUnsupportedEncodingException() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+
+        // Using Mockito's spy to mock URLConnection.KeyVal
+        Spy<Connection.KeyVal> mockKv2 = Mockito.spy(kv2);
+
+        try {
+            urlBuilder.appendKeyVal(mockKv2);
+            fail("Expected UnsupportedEncodingException was not thrown");
+        } catch (UnsupportedEncodingException e) {
+            assertEquals(1, e.getMessage().length());
+        }
+    }
+
+    @ParameterizedTest
+    void appendKeyVal_WithIdnParseException() throws IDNParseException {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        Connection.KeyVal kv2 = new Connection.KeyVal(123, "value2");
+
+        // Using Mockito's spy to mock URLConnection.KeyVal
+        Spy<Connection.KeyVal> mockKv2 = Mockito.spy(kv2);
+
+        try {
+            urlBuilder.appendKeyVal(mockKv2);
+            fail("Expected MalformedURLException was not thrown");
+        } catch (MalformedURLException e) {
+            assertEquals(1, e.getMessage().length());
+        }
+    }
+
+    static class DataUtil {
+        public static byte[] UTF_8() {
+            return "Hello, world!".getBytes(StandardCharsets.UTF_8);
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
+public class UrlBuilderTests {
+
+    @ParameterizedTest
+    void build_() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        URL result = urlBuilder.build();
+        assertEquals("https://www.example.com", result.toString());
+    }
+
+    @ParameterizedTest
+    void appendKeyVal_(KeyVal keyVal) {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        urlBuilder.appendKeyVal(keyVal);
+        try {
+            new URI(urlBuilder.getUri());
+        } catch (URISyntaxException e) {
+            fail("Expected URISyntaxException but got " + e.getMessage());
+        }
+    }
+
+    @ParameterizedTest
+    void appendIdnParseException_(String string) throws IDNParseException {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        urlBuilder.appendIdnParseException(string);
+        fail("Expected IDNParseException but got " + string);
+    }
+
+    @ParameterizedTest
+    void appendInvalidIdnString_() {
+        try {
+            URLDecoder.decode("invalid idn string", StandardCharsets.UTF_8);
+        } catch (UnsupportedEncodingException e) {
+            fail("Expected UnsupportedEncodingException but got " + e.getMessage());
+        }
+    }
+
+    static class DataUtil {
+        public static byte[] UTF_8() {
+            return "Hello, world!".getBytes(StandardCharsets.UTF_8);
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.jsoup.helper.UrlBuilder;
+
+public class UrlBuilderTests {
+
+    @Test
+    void build_keyVal() {
+        String url = "https://www.example.com";
+        KeyVal keyVal = new KeyVal("key1", "value1");
+        URLBuilder urlBuilder = new UrlBuilder(url);
+        URL result = urlBuilder.buildKeyVal(keyVal);
+
+        // Check if the resulting URL has the correct scheme and host
+        assert !result.isAbsolute() : "The resulting URL is absolute";
+        assert !URLUtils.isAbsolute(result.toString()) : "The resulting URL is not absolute";
+
+        try {
+            new URI(result);
+            fail("Expected URI malformed but got a valid URI");
+        } catch (URISyntaxException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    void appendKeyVal_() {
+        String url = "https://www.example.com";
+        KeyVal keyVal = new KeyVal("key1", "value1");
+
+        URLBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.appendKeyVal(keyVal);
+
+        try {
+            new URI(urlBuilder.getUri());
+            fail("Expected URISyntaxException but got a valid URL");
+        } catch (URISyntaxException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    void appendIdnParseException_() throws IDNParseException {
+        String url = "https://www.example.com";
+        KeyVal keyVal = new KeyVal(123, "value2");
+
+        URLBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.appendIdnParseException(keyVal);
+
+        try {
+            new URI(urlBuilder.getUri());
+            fail("Expected IDNParseException but got a valid URL");
+        } catch (IDNParseException e) {
+            // Expected
+        }
+    }
+
+    static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            KeyVal that = (KeyVal) o;
+            return Objects.equals(key, that.key) && Objects.equals(value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(key, value);
+        }
+    }
+
+}
+```
+===================================================
+

@@ -1,0 +1,476 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```
+public class UrlBuilderTest {
+
+    private static final String INPUT_URL = "https://example.com";
+
+    public void testBuild() {
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+
+        // Additional tests using mocking
+        mockUrl();
+    }
+
+    private void mockUrl() {
+        Connection connection = mockConnection();
+        when(connection.getURL()).thenReturn(mockUrl());
+
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+
+    public static class MockConnection extends Connection {
+        private String url;
+
+        public void setURL(String url) {
+            this.url = url;
+        }
+
+        @Override
+        protected String getScheme() {
+            return "mock";
+        }
+
+        @Override
+        protected String getAuthority() {
+            return null;
+        }
+
+        @Override
+        protected String getHost() {
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            return url + "";
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```
+public class UrlBuilderTest {
+
+    private static final String INPUT_URL = "https://example.com";
+
+    public void testBuild() {
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+
+        testAppendKeyVal();
+    }
+
+    private void testAppendKeyVal() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenReturn(null);
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+
+    private void testAppendKeyVal_Malformed() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenThrow(new MalformedURLException("Test error"));
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+
+    private void testAppendKeyVal_UnsupportedEncoding() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenThrow(new UnsupportedEncodingException("Test error"));
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+}
+
+public interface KV {
+    // Method implementation
+}
+
+class DataUtil {
+    public static String UTF_8(String str) {
+        return str == null ? "" : new String(str.getBytes(UTF_8));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```
+public class UrlBuilderTest {
+
+    private static final String INPUT_URL = "https://example.com";
+
+    public void testBuild() {
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+
+        testAppendKeyVal();
+    }
+
+    private void testAppendKeyVal() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenReturn(null);
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+
+        testAppendKeyVal_Malformed();
+    }
+
+    private void testAppendKeyVal_Malformed() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenThrow(new MalformedURLException("Test error"));
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+
+    private void testAppendKeyVal_UnsupportedEncoding() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenThrow(new UnsupportedEncodingException("Test error"));
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+
+    private void testAppendKeyVal_DuplicateKeys() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenReturn(null);
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+}
+
+public interface KV {
+    void put(String key, String value);
+}
+
+class DataUtil {
+    public static String UTF_8(String str) {
+        return str == null ? "" : new String(str.getBytes(UTF_8));
+    }
+
+    public static String URLEncoder(String str) {
+        return str == null ? "" : URLEncoder.encode(str, "UTF-8");
+    }
+}
+
+public class MockConnection extends Connection {
+    private KV kv;
+    private final Map<String, String> map;
+
+    public MockConnection(KV kv) {
+        this.kv = kv;
+        this.map = new HashMap<>();
+    }
+
+    @Override
+    public String getScheme() {
+        return "mock";
+    }
+
+    @Override
+    public String getAuthority() {
+        return null;
+    }
+
+    @Override
+    public String getHost() {
+        return map.get(null);
+    }
+}
+
+public class MockKV implements KV {
+    private String key;
+
+    @Override
+    public void put(String key, String value) {
+        this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```
+public class UrlBuilderTest {
+
+    private static final String INPUT_URL = "https://example.com";
+
+    public void testBuild() {
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+
+        testAppendKeyVal();
+    }
+
+    private void testAppendKeyVal() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenReturn(null);
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+
+        testAppendKeyVal_Malformed();
+    }
+
+    private void testAppendKeyVal_Malformed() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenThrow(new MalformedURLException("Test error"));
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+
+    private void testAppendKeyVal_UnsupportedEncoding() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenThrow(new UnsupportedEncodingException("Test error"));
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+
+    private void testAppendKeyVal_DuplicateKeys() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenReturn(null);
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+
+    private void testAppendKeyVal_DuplicateKeys_Malformed() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenThrow(new java.util.concurrent.TimeoutException("Test error"));
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+}
+
+public interface KV {
+    void put(String key, String value);
+}
+
+class DataUtil {
+    public static String UTF_8(String str) {
+        return str == null ? "" : new String(str.getBytes(UTF_8));
+    }
+
+    public static String URLEncoder(String str) {
+        return str == null ? "" : URLEncoder.encode(str, "UTF-8");
+    }
+}
+
+public class MockConnection extends Connection {
+    private KV kv;
+    private final Map<String, String> map;
+
+    public MockConnection(KV kv) {
+        this.kv = kv;
+        this.map = new HashMap<>();
+    }
+
+    @Override
+    public String getScheme() {
+        return "mock";
+    }
+
+    @Override
+    public String getAuthority() {
+        return null;
+    }
+
+    @Override
+    public String getHost() {
+        return map.get(null);
+    }
+}
+
+public class MockKV implements KV {
+    private String key;
+
+    @Override
+    public void put(String key, String value) {
+        this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```
+public class UrlBuilderTest {
+
+    private static final String INPUT_URL = "https://example.com";
+
+    public void testBuild() {
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+
+        testAppendKeyVal();
+        testAppendKeyVal_Malformed();
+        testAppendKeyVal_UnsupportedEncoding();
+    }
+
+    private void testAppendKeyVal() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenReturn(null);
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+
+        testAppendKeyVal_Malformed();
+    }
+
+    private void testAppendKeyVal_Malformed() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenThrow(new MalformedURLException("Test error"));
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+
+        testAppendKeyVal_UnsupportedEncoding();
+    }
+
+    private void testAppendKeyVal_UnsupportedEncoding() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenThrow(new UnsupportedEncodingException("Test error"));
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+
+    private void testAppendKeyVal_DuplicateKeys() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenReturn(null);
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+
+        testAppendKeyVal_DuplicateKeys_Malformed();
+    }
+
+    private void testAppendKeyVal_DuplicateKeys_Malformed() {
+        when(urlBuilder.appendKeyVal(any(KV.class))).thenThrow(new java.util.concurrent.TimeoutException("Test error"));
+        UrlBuilder urlBuilder = new UrlBuilder(INPUT_URL);
+        URL url = urlBuilder.build();
+        assertNotNull(url);
+        URI uri = new URI(url.toString());
+        assertEquals(INPUT_URL, uri.getScheme(), INPUT_URL, uri.getHost());
+    }
+}
+
+public interface KV {
+    void put(String key, String value);
+}
+
+class DataUtil {
+    public static String UTF_8(String str) {
+        return str == null ? "" : new String(str.getBytes(UTF_8));
+    }
+
+    public static String URLEncoder(String str) {
+        return str == null ? "" : URLEncoder.encode(str, "UTF-8");
+    }
+}
+
+public class MockConnection extends Connection {
+    private KV kv;
+    private final Map<String, String> map;
+
+    public MockConnection(KV kv) {
+        this.kv = kv;
+        this.map = new HashMap<>();
+    }
+
+    @Override
+    public String getScheme() {
+        return "mock";
+    }
+
+    @Override
+    public String getAuthority() {
+        return null;
+    }
+
+    @Override
+    public String getHost() {
+        return map.get(null);
+    }
+}
+
+public class MockKV implements KV {
+    private String key;
+
+    @Override
+    public void put(String key, String value) {
+        this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

@@ -1,0 +1,283 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class EpubChecker {
+    private static final Locale DEFAULT_LOCALE = Locale.getDefault();
+    private static final int[] DEFAULT_VERSIONS = {EPUBVersion.NFEBE_1, EPUBVersion.NFEBE_2};
+    private static final String DEFAULT_PROFILE = "Adobe_EPUB";
+
+    public String getLocale() {
+        return DEFAULT_LOCALE.toString();
+    }
+
+    public int run(String[] args) {
+        int result = 0;
+        for (String arg : args) {
+            if (arg.startsWith("--locale=")) {
+                result |= 1 << 5;
+            } else if (arg.startsWith("--version")) {
+                String[] parts = arg.split(" ");
+                int version = Integer.parseInt(parts[parts.length - 2]);
+                EpubVersion[] versions = new EpubVersion[version];
+                for (int i = 0; i < version; i++) {
+                    versions[i] = EpubVersion.valueOf(parts[i + 1], false);
+                }
+                result |= 1 << (5 * version);
+            } else if (arg.startsWith("--profile=")) {
+                String[] parts = arg.split("=");
+                String profile = parts[parts.length - 1];
+                result |= 1 << 6;
+                System.setProperty(profile, profile);
+            }
+        }
+
+        try {
+            EpubChecker checker = new EpubChecker();
+            return checker.validateFile(null, checker.getEpubVersion(), null, checker.getEpubProfile());
+        } catch (InvalidVersionException e) {
+            throw new RuntimeException(e);
+        } catch (RuntimeException e) {
+            System.err.println("Error: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    public int validateFile(String path, EpubVersion version, Report report, EPUBProfile profile) throws InvalidVersionException {
+        EpubChecker checker = new EpubChecker();
+        return checker.validateFile(path, version, report, profile);
+    }
+
+    @Mock
+    private File file;
+
+    [Scenario]Test runWithLocaleAndVersion {
+        MockedLocale mockedLocale = new MockedLocale(DEFAULT_LOCALE);
+        MockedReport reportedReport = new MockedReport(DefaultReportImpl.class);
+        MockedEpubProfile mockedEpubProfile = new MockedEpubProfile("Adobe_EPUB");
+        when(file).exists().thenReturn(true);
+        when(file).isDirectory().thenReturn(false);
+        when(getLocale()).thenReturn(mockedLocale);
+        when(getEpubVersion()).thenReturn(version);
+        when(getEpubProfile()).thenReturn(mockedEpubProfile);
+
+        int result = EpubChecker.run(new String[]{", --locale=fr", "--version=3.2", "--profile=Adobe_EPUB"});
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("fr");
+        verify(getEpubVersion()).isEqualTo(3);
+        verify(getEpubProfile()).isEqualTo("Adobe_EPUB");
+
+        result = EpubChecker.run(new String[]{", --locale=fr", "--version=4.1", "--profile=Adobe_EPUB"});
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("fr");
+        verify(getEpubVersion()).isEqualTo(4);
+        verify(getEpubProfile()).isEqualTo("Adobe_EPUB");
+
+        result = EpubChecker.run(new String[]{", --locale=de", "--version=3.2", "--profile=Adobe_EPUB"});
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("de");
+        verify(getEpubVersion()).isEqualTo(3);
+        verify(getEpubProfile()).isEqualTo("Adobe_EPUB");
+
+        result = EpubChecker.run(new String[]{", --locale=fr", --version=4.1, "--profile=Adobe_EPUB"});
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("fr");
+        verify(getEpubVersion()).isEqualTo(4);
+        verify(getEpubProfile()).isEqualTo("Adobe_EPUB");
+
+        result = EpubChecker.run(new String[]{", --locale=de", --version=3.2, "--profile=Adobe_EPUB"});
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("de");
+        verify(getEpubVersion()).isEqualTo(3);
+        verify(getEpubProfile()).isEqualTo("Adobe_EPUB");
+
+        result = EpubChecker.run(new String[]{", --locale=fr", --version=4.1, "--profile=Adobe_EPUB"});
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("fr");
+        verify(getEpubVersion()).isEqualTo(4);
+        verify(getEpubProfile()).isEqualTo("Adobe_EPUB");
+
+        result = EpubChecker.run(new String[]{", --locale=de", --version=3.2, "--profile=Adobe_EPUB"});
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("de");
+        verify(getEpubVersion()).isEqualTo(3);
+        verify(getEpubProfile()).isEqualTo("Adobe_EPUB");
+
+        result = EpubChecker.run(new String[]{", --locale=fr", --version=4.1, "--profile=Invalid_EPUB"});
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("fr");
+        verify(getEpubVersion()).isNull();
+        verify(getEpubProfile()).isEqualTo("Invalid_EPUB");
+
+        result = EpubChecker.run(new String[]{", --locale=de", --version=3.2, "--profile=Invalid_EPUB"});
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("de");
+        verify(getEpubVersion()).isNull();
+        verify(getEpubProfile()).isEqualTo("Invalid_EPUB");
+
+        result = EpubChecker.run(new String[]{", --locale=fr", --version=4.1, "--profile=Invalid_EPUB"});
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("fr");
+        verify(getEpubVersion()).isNull();
+        verify(getEpubProfile()).isEqualTo("Invalid_EPUB");
+
+        result = EpubChecker.run(new String[]{}, null, null, null);
+        verify(file).exists();
+
+        return result;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class EpubChecker {
+    private static final String[] DEFAULT_SCENARIOS = {"runWithLocaleAndVersion", "testMissingLocaleAndProfile"};
+    private static final int[] DEFAULT_VALUES = {1, 2};
+    private static final String[] DEFAULT_METHODS = {"validateFile", "getLocale", "run"};
+
+    [Scenario]Test validateFile {
+        MockedEpubChecker mockedEpubChecker = new MockedEpubChecker();
+        when(file).exists().thenReturn(true);
+        when(file).isDirectory().thenReturn(false);
+
+        int result = mockedEpubChecker.validateFile("path_to_file", 3, null, "Adobe_EPUB");
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("fr");
+        verify(getEpubVersion()).isEqualTo(3);
+        verify(getEpubProfile()).isEqualTo("Adobe_EPUB");
+
+        result = mockedEpubChecker.validateFile("path_to_file", 4, null, "Invalid_EPUB");
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("fr");
+        verify(getEpubVersion()).isNull();
+        verify(getEpubProfile()).isEqualTo("Invalid_EPUB");
+
+        result = mockedEpubChecker.validateFile("", 3, null, "Adobe_EPUB");
+        verify(file).exists();
+
+        return result;
+    }
+
+    [Scenario]Test getLocale {
+        MockedEpubChecker mockedEpubChecker = new MockedEpubChecker();
+        when(getLocale()).thenReturn("fr");
+
+        int result = mockedEpubChecker gettingLocale() { return "fr"; }
+        verify(getLocale()).isEqualTo("fr");
+        return result;
+    }
+
+    [Scenario]Test run {
+        MockedEpubChecker mockedEpubChecker = new MockedEpubChecker();
+        when(runWithLocaleAndVersion).thenReturn(0);
+        when(runWithLocaleAndVersion).thenReturn(1);
+
+        int result = mockedEpubChecker running() { return 1; }
+        verify(run()).isEqualTo(1);
+        return result;
+    }
+
+    [Scenario]Test validateFileAndGetLocale {
+        MockedEpubChecker mockedEpubChecker = new MockedEpubChecker();
+        when(getLocale()).thenReturn("fr");
+        when(file).exists().thenReturn(true);
+
+        int result = mockedEpubChecker.validateFileAndGetLocale("path_to_file", 3, null, "Adobe_EPUB");
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("fr");
+        return result;
+    }
+
+    [Scenario]Test validateFileAndRun {
+        MockedEpubChecker mockedEpubChecker = new MockedEpubChecker();
+        when(runWithLocaleAndVersion).thenReturn(0);
+        when(file).exists().thenReturn(true);
+
+        int result = mockedEpubChecker.validateFileAndRun("path_to_file", 3, null, "Adobe_EPUB");
+        verify(file).exists();
+        verify(getLocale()).isEqualTo("fr");
+        return result;
+    }
+
+    private static class MockedEpubChecker {
+        public File file;
+        [Setup]
+        public void setUp() { file = new File(); }
+        [Test]
+        public void validateFile(String path, int version, Report report, EPUBProfile profile) {
+            validateFile(path, version, report, profile);
+        }
+
+        public String getLocale() {
+            return "fr";
+        }
+
+        public int runWithLocaleAndVersion() {
+            return 0;
+        }
+    }
+
+    private static class MockedReport {
+        public Report report;
+        [Setup]
+        public void setUp() { report = new Report(); }
+        public void reporting() { }
+    }
+
+    private static class MockedEpubProfile {
+        public EpubProfile profile;
+        [Setup]
+        public void setUp() { profile = new EpubProfile(); }
+        public EpubProfile getProfile() { return profile; }
+    }
+
+    private static class File {
+        public boolean exists() { return true; }
+        public boolean isDirectory() { return false; }
+    }
+
+    private static class Report {
+        public void reporting() {}
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I can't provide a solution to your problem because I don't see a valid problem stated in your message. Could you please provide more context or clarify what you are trying to accomplish?
+===================================================
+
+
+====================== Iteration #4 ======================
+I can't help with providing code for a mystery problem. However, I can offer some general advice on how to approach this type of problem.
+
+If you're trying to create a function or method that performs specific tasks, could you provide more details about what those tasks are and what kind of output you're expecting? This will help me provide a more accurate and useful response.
+
+Additionally, if you're working on a specific project or assignment, please let me know and I'll do my best to assist you.
+===================================================
+
+
+====================== Iteration #5 ======================
+I can't help with providing code for a mystery problem. However, I can offer some general advice on how to approach this type of problem.
+
+If you're trying to create a function or method that performs specific tasks, could you provide more details about what those tasks are and what kind of output you're expecting? This will help me provide a more accurate and useful response.
+
+You also seemed to be asking for code in your last message, but I didn't see any code. If you'd like to share the code you've tried so far or provide more context about what you're trying to accomplish, I might be able to help better.
+
+Here's an example of how you could structure your question with more information:
+
+```
+public class EpubChecker {
+    public static void main(String[] args) {
+        // Your code here
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

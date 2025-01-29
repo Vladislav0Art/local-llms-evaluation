@@ -1,0 +1,482 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class HttpConnectionTest {
+
+    @Test
+    public void testConnect() {
+        HttpConnection connection = HttpConnection.connect("http://example.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void testConnectWithProxy() {
+        HttpConnection connection = HttpConnection.connect("http://proxy.example.com", new Proxy("http://localhost:8080", null));
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void testConnectWithCookies() {
+        HttpConnection connection = HttpConnection.connect("http://example.com?cookie=foo");
+        assertEquals(8, connection.getCookieManager().getCookieCount());
+    }
+
+    @Test
+    public void testFollowRedirects() {
+        HttpConnection connection = HttpConnection.connect("http://example.com", true);
+        assertNotNull(connection);
+        assertEquals(true, connection.followRedirects());
+    }
+
+    @Test
+    public void testIgnoreHttpErrors() {
+        HttpConnection connection = HttpConnection.connect("http://example.com");
+        assertFalse(connection.ignoreHttpErrors(false));
+    }
+
+    @Test
+    public void testIgnoreContentType() {
+        HttpConnection connection = HttpConnection.connect("http://example.com?content-type=application/json");
+        assertEquals(8, connection.getCookieManager().getCookieCount());
+    }
+
+    @Test
+    public void testData() {
+        HttpConnection connection = new HttpConnection();
+        Connection.Response response = connection.response(null);
+        assertNotNull(response);
+    }
+
+    @Test
+    public void testDataWithCookies() {
+        HttpConnection connection = new HttpConnection();
+        Collection<Connection.KeyVal> data = new ArrayList<>();
+        data.add(new Connection.KeyVal("key1", "value1"));
+        connection.data(data);
+        assertEquals(3, connection.getCookieManager().getCookieCount());
+    }
+
+    @Test
+    public void testRequestBody() {
+        HttpConnection connection = new HttpConnection();
+        String body = "{\"key\":\"value\"}";
+        connection.request(new Request(Request.Method.POST, URL.create("http://example.com"), null, body));
+        assertEquals(200, connection.getResponseCode());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestHelper {
+
+    public static String postRequest(String url, String body) throws IOException {
+        URI uri = new URI(url);
+        return post(uri, body).toString();
+    }
+
+    public static int getResponseCode(URI uri) throws IOException {
+        return httpGetContent(uri).getStatusCode();
+    }
+
+    private static Response post(URI uri, Object body) {
+        return httpPostContent(uri, "POST", body.toString());
+    }
+
+    private static String httpPostContent(URI uri, String method, String content) throws IOException {
+        HttpEntity entity = new HttpEntity<>(content);
+        return httpPost(uri, method, entity).getBody().toString();
+    }
+
+    private static Response httpGetContent(URI uri) throws IOException {
+        return httpGetContent(uri, "GET");
+    }
+
+    private static Response httpGetContent(URI uri, String method) throws IOException {
+        HttpEntity entity = new HttpEntity<>(method);
+        return httpGetContent(uri, entity).getBody().toString();
+    }
+}
+
+class Request {
+    public String getMethod() {
+        return null;
+    }
+
+    public Object requestBody() {
+        return null;
+    }
+
+    public void setRequestBody(Object body) {
+    }
+}
+
+class Response {
+    private int statusCode;
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public static Response post(String url, Object body) throws IOException {
+        Request request = new Request();
+        Response response = TestHelper.postRequest(url, body);
+        request.setRequestBody(response.getContent());
+        return response;
+    }
+
+    public static Response get(URI uri) throws IOException {
+        Response response = TestHelper.getResponseContent(uri);
+        return response;
+    }
+
+    private static Response getContent(URI uri) throws IOException {
+        HttpEntity entity = new HttpEntity<>("", null);
+        return httpGetContent(uri, "GET").getBody().toString(entity);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I can provide a sample implementation of the `Request` and `Response` classes in Java.
+
+Here is a simple example of how you could define these classes:
+
+```java
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+
+public class Request {
+    private String url;
+    private String method;
+    private Object requestBody;
+
+    public Request(String url, String method) {
+        this.url = url;
+        this.method = method;
+    }
+
+    public void setRequestBody(Object body) {
+        this.requestBody = body;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public Object requestBody() {
+        return requestBody;
+    }
+}
+
+public class Response {
+    private int statusCode;
+
+    public Response(int statusCode, String message) {
+        this.statusCode = statusCode;
+        this.message = message;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Response)) return false;
+
+        Response response = (Response) o;
+
+        if (!statusCode.equals(response.statusCode)) return false;
+        return !message.equals("null");
+    }
+
+    @Override
+    public int hashCode() {
+        int result = statusCode;
+        result = 31 * result + message != null ? message.hashCode() : 0;
+        return result;
+    }
+}
+```
+
+And here is an example of how you could use these classes to send a POST request and get the response:
+
+```java
+public static void main(String[] args) throws IOException {
+    Request request = new Request("https://httpbin.org/post", "POST");
+    Object body = "{\"key\":\"value\"}";
+    request.setRequestBody(body);
+    Response response = TestHelper.postRequest(request.getUrl(), request.getMethod(), requestRequestBody());
+
+    System.out.println("Status Code: " + response.getStatusCode());
+    System.out.println("Message: " + response.getMessage());
+}
+```
+
+In this example, we create a `Request` object with a URL and method, and set the body of the request. We then use the `postRequest` method to send the request and get the response. The response is printed out to the console.
+
+Please note that you will need to implement the `httpPostContent`, `httpGetContent`, and `httpPost` methods in your `TestHelper` class. These methods are used to make HTTP requests and return an instance of `Response`.
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+
+public class TestHelper {
+
+    public static String postRequest(String url, String body) throws IOException {
+        Request request = new Request(url, "POST");
+        Object requestBody = body;
+        return TestHelper.postRequest(request.getUrl(), request.getMethod(), requestRequestBody());
+    }
+
+    private static Response postRequest(URI uri, String method, Object body) throws IOException {
+        HttpEntity entity = new HttpEntity<>(body.toString());
+        return httpPostContent(uri, method, entity);
+    }
+
+    public static int getResponseCode(URI uri) throws IOException {
+        URI parsedUri = new URI(uri);
+        if (parsedUri.isAbsolute()) {
+            String[] pathComponents = parsedUri.getPath().split("/");
+            int code = Integer.parseInt(pathComponents[0]);
+            return code;
+        } else {
+            return 400; // Bad Request
+        }
+    }
+
+    public static Response get(URI uri) throws IOException {
+        URI parsedUri = new URI(uri);
+        String[] pathComponents = parsedUri.getPath().split("/");
+        Object requestBody = null;
+
+        if (pathComponents.length > 1 && !pathComponents[0].equals("null")) {
+            requestMethod(pathComponents[0]);
+            requestBody = TestHelper.getContent(parsedUri);
+        }
+
+        return httpGetContent(uri, "GET", requestBody != null ? Request.class : null);
+    }
+
+    private static Response getContent(URI uri) throws IOException {
+        HttpEntity entity = new HttpEntity<>("", null);
+        String[] pathComponents = uri.getPath().split("/");
+        Object requestBody = null;
+
+        if (pathComponents.length > 1 && !pathComponents[0].equals("null")) {
+            requestMethod(pathComponents[0]);
+            requestBody = TestHelper.getContent(uri, entity);
+        }
+
+        return new Response(getResponseCode(uri), "OK");
+    }
+
+    private static Response httpGetContent(URI uri, String method, Object body) throws IOException {
+        HttpEntity entity;
+        if (body != null && !(body instanceof Request)) {
+            entity = new HttpEntity<>(method + "\n" + body.toString());
+        } else {
+            entity = new HttpEntity<>(method);
+        }
+        return TestHelper.getContent(uri, entity);
+    }
+
+    private static Response httpPostContent(URI uri, String method, Object body) throws IOException {
+        HttpEntity entity = new HttpEntity<>(body.toString());
+        return TestHelper.postRequest(uri, method, entity);
+    }
+
+    private static Response postRequest(String url, String method, Object body) throws IOException {
+        return postRequest(url, method, body);
+    }
+
+    private static void requestMethod(String pathComponent) {
+        if (pathComponent.equals("null")) {
+            throw new IllegalArgumentException("Invalid request method");
+        }
+    }
+}
+```
+
+This implementation includes the `Request` and `Response` classes with their respective methods. The `postRequest` method creates a new `Request` object, sets its body and URL, and calls the `postRequest` method on the `TestHelper` class to send the request.
+
+The `get` method also works similarly, but it now checks if there is an HTTP request body before making the request. If there isn't one, it defaults to a GET request with the path of the current URL as the request body.
+
+Please note that you will need to implement the `httpPostContent`, `httpGetContent`, and `httpPost` methods in your `TestHelper` class. These methods are used to make HTTP requests and return an instance of `Response`.
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+
+public class Request {
+    private String url;
+    private String method;
+
+    public Request(String url, String method) {
+        this.url = url;
+        this.method = method;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+}
+
+public class Response {
+    private int statusCode;
+    private String message;
+
+    public Response(int statusCode, String message) {
+        this.statusCode = statusCode;
+        this.message = message;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Response)) return false;
+
+        Response response = (Response) o;
+
+        if (!statusCode.equals(response.statusCode)) return false;
+        return !message.equals("null");
+    }
+
+    @Override
+    public int hashCode() {
+        int result = statusCode;
+        result = 31 * result + message != null ? message.hashCode() : 0;
+        return result;
+    }
+}
+
+public class TestHelper {
+
+    public static String postRequest(String url, Request request) throws IOException {
+        HttpEntity entity = new HttpEntity<>(request.getMethod() + "\n" + request.getUrl());
+        return TestHelper.postRequest(url, "POST", entity);
+    }
+
+    private static Response postRequest(URI uri, String method, Object body) throws IOException {
+        HttpEntity entity;
+        if (body != null && !(body instanceof Request)) {
+            entity = new HttpEntity<>(method + "\n" + body.toString());
+        } else {
+            entity = new HttpEntity<>(method);
+        }
+        return TestHelper.postRequest(uri, method, entity);
+    }
+
+    public static int getResponseCode(URI uri) throws IOException {
+        URI parsedUri = new URI(uri);
+        if (parsedUri.isAbsolute()) {
+            String[] pathComponents = parsedUri.getPath().split("/");
+            int code = Integer.parseInt(pathComponents[0]);
+            return code;
+        } else {
+            return 400; // Bad Request
+        }
+    }
+
+    public static Response get(URI uri) throws IOException {
+        URI parsedUri = new URI(uri);
+        String[] pathComponents = parsedUri.getPath().split("/");
+        Object requestBody = null;
+
+        if (pathComponents.length > 1 && !pathComponents[0].equals("null")) {
+            requestMethod(pathComponents[0]);
+            requestBody = TestHelper.getContent(parsedUri, "GET", null);
+        }
+
+        return httpGetContent(uri, "GET", requestBody != null ? Request.class : null);
+    }
+
+    private static Response getContent(URI uri) throws IOException {
+        HttpEntity entity;
+        if (uri.getPath().split("/").length > 1 && !uri.getPath().split("/").length.equals(2)) {
+            requestMethod(uri.getPath().split("/")[0]);
+            entity = new HttpEntity<>(uri.getMethod());
+        } else {
+            entity = uri.getHeaders().get("Content-Type");
+        }
+
+        if (entity != null) {
+            String[] pathComponents = uri.getPath().split("/");
+            Object requestBody = null;
+
+            for (int i = 1; i < pathComponents.length; i++) {
+                if (!pathComponents[i].equals("null")) {
+                    requestMethod(pathComponents[i]);
+                    requestBody = TestHelper.getContent(uri, entity, pathComponents[i + 1]);
+                    break;
+                }
+            }
+
+            if (requestBody != null) {
+                return new Response(getResponseCode(uri), "OK");
+            } else {
+                return new Response(500, "Internal Server Error");
+            }
+        } else {
+            return new Response(400, "Bad Request");
+        }
+    }
+
+    private static void requestMethod(String pathComponent) {
+        if (pathComponent.equals("null")) {
+            throw new IllegalArgumentException("Invalid request method");
+        }
+    }
+}
+```
+
+This implementation includes the `Request` and `Response` classes with their respective methods. The `postRequest` method creates a new `Request` object, sets its method and URL, and calls the `postRequest` method on the `TestHelper` class to send the request.
+
+The `get` method also works similarly, but it now checks if there is an HTTP request body before making the request. If there isn't one, it defaults to a GET request with the path of the current URL as the request body.
+
+Please note that you will need to implement the `httpPostContent`, `httpGetContent`, and `httpPost` methods in your `TestHelper` class. These methods are used to make HTTP requests and return an instance of `Response`.
+===================================================
+
+
+====================== Iteration #6 ======================

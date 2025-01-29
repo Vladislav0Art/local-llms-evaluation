@@ -1,0 +1,876 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class AttributesImpl implements Iterable<Attribute>, Cloneable {
+    private Map<String, Object> data;
+
+    public int indexOfKey(String key) {
+        return data.containsKey(key);
+    }
+
+    @Nullable
+    static String checkNotNull(@Nullable Object val) {
+        if (val != null && !(val instanceof String)) {
+            throw new AssertionError();
+        }
+        return ((String) val).toLowerCase();
+    }
+
+    public String get(String key) {
+        return data.getOrDefault(key, "");
+    }
+
+    public String getIgnoreCase(String key) {
+        return checkNotNull(get(key)).toLowerCase();
+    }
+
+    @Nullable
+    Object getUserData(String key) {
+        return data.get(key);
+    }
+
+    public Attributes add(String key, @Nullable String value) {
+        data.put(key, value != null ? value : this);
+        return this;
+    }
+
+    public Attributes put(String key, @Nullable String value) {
+        data.put(key, value == null ? null : this);
+        return this;
+    }
+
+    Attributes putUserData(String key, Object value) {
+        if (key.equals("data")) {
+            throw new AssertionError();
+        }
+        data.put(key, value != null ? value : this);
+        return this;
+    }
+
+    void putIgnoreCase(String key, @Nullable String value) {
+        data.put(key, value == null ? null : this);
+        return this;
+    }
+
+    public Attributes put(String key, boolean value) {
+        if (key.equals("data")) {
+            throw new AssertionError();
+        }
+        data.put(key, value != null ? value : this);
+        return this;
+    }
+
+    public Attributes put(Attribute attribute) {
+        data.put(attribute.getKey(), attribute.getValue());
+        return this;
+    }
+
+    public void remove(String key) {
+        if (key.equals("data")) {
+            throw new AssertionError();
+        }
+        data.remove(key);
+    }
+
+    public void removeIgnoreCase(String key) {
+        if (key.equals("data")) {
+            throw new AssertionError();
+        }
+        data.remove(key);
+    }
+
+    public boolean hasKey(String key) {
+        return data.containsKey(key);
+    }
+
+    public boolean hasKeyIgnoreCase(String key) {
+        return checkNotNull(get(key)).toLowerCase().equals(key.toLowerCase());
+    }
+
+    public boolean hasDeclaredValueForKey(String key) {
+        for (Attribute a : data.values()) {
+            if (a.getKey().equals(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasDeclaredValueForKeyIgnoreCase(String key) {
+        for (Attribute a : data.values()) {
+            if (a.getKey().toLowerCase().equals(key.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int size() {
+        return data.size();
+    }
+
+    public boolean isEmpty() {
+        return data.isEmpty();
+    }
+
+    public void addAll(Attributes incoming) {
+        for (Attribute a : incoming.data.values()) {
+            data.put(a.getKey(), a.getValue());
+        }
+    }
+
+    @Override
+    public Iterator<Attribute> iterator() {
+        return new AttributesIterator(this);
+    }
+
+    @Override
+    public List<Attribute> asList() {
+        return new AttributesList(this);
+    }
+
+    @Override
+    public Map<String, String> dataset() {
+        return new AttributesDataset(this);
+    }
+
+    public String html(final Appendable accum, final Document.OutputSettings out) throws IOException {
+        if (out == null) {
+            throw new AssertionError();
+        }
+        // TODO: implement HTML output
+        return "";
+    }
+
+    @Override
+    public void normalize() {}
+
+    public int deduplicate(ParseSettings settings) {
+        // TODO: implement deduplication
+        return 0;
+    }
+
+    static class AttributesIterator implements Iterator<Attribute> {
+        private final Attributes attributes;
+
+        public AttributesIterator(Attributes attributes) {
+            this.attributes = attributes;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !attributes.isEmpty();
+        }
+
+        @Override
+        public Attribute next() {
+            return attributes.data.values().iterator().next();
+        }
+    }
+
+    static class AttributesList implements Iterable<Attribute> {
+        private final Iterator<Attribute> iterator;
+
+        public AttributesList(Attributes attributes) {
+            this.iterator = attributes.data.values().iterator();
+        }
+
+        @Override
+        public Iterator<Attribute> iterator() {
+            return iterator;
+        }
+
+        @Override
+        public List<Attribute> asList() {
+            return new ArrayList<>();
+        }
+    }
+
+    static class AttributesDataset implements Iterable<Map<String, String>> {
+        private final Map<String, Object> data;
+
+        public AttributesDataset(Attributes attributes) {
+            this.data = attributes.data;
+        }
+
+        @Override
+        public Iterator<Map<String, String>> iterator() {
+            return new AttributesIterator();
+        }
+    }
+
+    static class AttributesIterator implements Iterator<Attribute> {
+        private final Attributes attributes;
+
+        public AttributesIterator(Attributes attributes) {
+            this.attributes = attributes;
+        }
+
+        @Override
+        public boolean hasNext() {
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (!attributes.hasDeclaredValueForKey(entry.getKey())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public Attribute next() {
+            String key = getKeys().iterator().next();
+            Object value = getUserData(key);
+            return new AttributesImpl().put(key, value);
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Attribute {
+    private String key;
+    private Object value;
+
+    public Attribute(String key, Object value) {
+        this.key = lowerCase(key);
+        this.value = value == null ? null : value.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Attribute)) return false;
+
+        Attribute attribute = (Attribute) o;
+
+        if (!lowerCase(key).equals(attribute.key)) return false;
+
+        return Objects.equals(value, attribute.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lowerCase(key), value);
+    }
+
+    private String lowerCase(String str) {
+        return str.toLowerCase();
+    }
+}
+
+public class AttributeMap<K, V> implements Map<K, V> {
+    private final Map<String, Object> data;
+
+    public AttributeMap(Map<String, Object> data) {
+        this.data = new AttributesDataset(data);
+    }
+
+    @Override
+    public int size() {
+        return data.size();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        for (Object value : data.values()) {
+            if (value.toString().equals(key)) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public V get(Object key) {
+        String lowerCaseKey = lowerCase(key.toString());
+        return new AttributesDataset(data).get(lowerCaseKey);
+    }
+
+    @Override
+    public boolean remove(Object key) {
+        return data.remove(key.toString()) != null;
+    }
+}
+
+public class AttributeList {
+    private final Map<String, Object> data;
+
+    public AttributeList(Map<String, Object> data) {
+        this.data = new AttributesDataset(data);
+    }
+
+    @Override
+    public Iterator<Map.Entry<String, Object>> iterator() {
+        return new AttributesIterator();
+    }
+}
+
+public class AttributeMapIterable<T, U> implements Iterable<Map.Entry<T, U>> {
+    private final Map<K, T> data;
+    private final List<Attribute> attributes;
+
+    public AttributeMapIterable(Map<K, T> data) {
+        this.data = new AttributesDataset(data);
+        this.attributes = new AttributesIterator();
+    }
+
+    @Override
+    public Iterator<Map.Entry<T, U>> iterator() {
+        return attributes.iterator();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import java.util.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", "John");
+        data.put("age", 30);
+        data.put("city", "New York");
+
+        Attributes attributes = new AttributesImpl();
+        attributes.add("name", "Jane");
+        attributes.add("age", 25);
+
+        System.out.println(attributes.size());
+    }
+}
+
+class AttributesImpl implements Iterable<Attribute>, Cloneable {
+    private Map<String, Object> data;
+
+    public int indexOfKey(String key) {
+        return data.containsKey(key);
+    }
+
+    @Nullable
+    static String checkNotNull(@Nullable Object val) {
+        if (val != null && !(val instanceof String)) {
+            throw new AssertionError();
+        }
+        return ((String) val).toLowerCase();
+    }
+
+    public String get(String key) {
+        return data.getOrDefault(key, "");
+    }
+
+    public String getIgnoreCase(String key) {
+        return checkNotNull(get(key)).toLowerCase();
+    }
+
+    @Nullable
+    Object getUserData(String key) {
+        return data.get(key);
+    }
+
+    public Attributes add(String key, @Nullable String value) {
+        data.put(key, value != null ? value : this);
+        return this;
+    }
+
+    public Attributes put(String key, @Nullable String value) {
+        data.put(key, value == null ? null : this);
+        return this;
+    }
+
+    Attributes putUserData(String key, Object value) {
+        if (key.equals("data")) {
+            throw new AssertionError();
+        }
+        data.put(key, value != null ? value : this);
+        return this;
+    }
+
+    void putIgnoreCase(String key, @Nullable String value) {
+        data.put(key, value == null ? null : this);
+    }
+
+    public static AttributesImpl copy(Attributes attributes) {
+        return new AttributesImpl();
+    }
+}
+
+class AttributesDataset implements Iterable<Attribute> {
+    private final Map<String, Attribute> data;
+
+    public AttributesDataset(Map<String, Object> data) {
+        this.data = new HashMap<>();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
+            if (!data.containsKey(lowerCaseKey)) {
+                data.put(lowerCaseKey, new Attribute(entry.getKey(), entry.getValue()));
+            } else {
+                Attribute attribute = new AttributesImpl().get(data.get(lowerCaseKey));
+                attribute.value = entry.getValue();
+                data.put(lowerCaseKey, attribute);
+            }
+        }
+    }
+
+    @Override
+    public Iterator<Attribute> iterator() {
+        return new AttributesIterator();
+    }
+}
+
+class AttributeMap<K, V> implements Map<K, V> {
+    private final Map<String, Object> data;
+
+    public AttributeMap(Map<String, Object> data) {
+        this.data = new HashMap<>();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
+            if (!data.containsKey(lowerCaseKey)) {
+                data.put(lowerCaseKey, new AttributesDataset(entry.getValue()));
+            } else {
+                Attribute attribute = new AttributesImpl().get(data.get(lowerCaseKey));
+                attribute.value = entry.getValue();
+                data.put(lowerCaseKey, attribute);
+            }
+        }
+    }
+
+    @Override
+    public int size() {
+        return data.size();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        for (Object value : data.values()) {
+            if (value.toString().equals(key)) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public V get(Object key) {
+        String lowerCaseKey = lowerCase(key.toString());
+        return new AttributesDataset(data).get(lowerCaseKey);
+    }
+
+    @Override
+    public boolean remove(Object key) {
+        return data.remove(key.toString()) != null;
+    }
+}
+
+class AttributeList {
+    private final Map<String, Object> data;
+
+    public AttributeList(Map<String, Object> data) {
+        this.data = new HashMap<>();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
+            if (!data.containsKey(lowerCaseKey)) {
+                data.put(lowerCaseKey, new AttributesDataset(entry.getValue()));
+            } else {
+                Attribute attribute = new AttributesImpl().get(data.get(lowerCaseKey));
+                attribute.value = entry.getValue();
+                data.put(lowerCaseKey, attribute);
+            }
+        }
+    }
+
+    @Override
+    public Iterator<Map.Entry<String, Object>> iterator() {
+        return new AttributesIterator();
+    }
+}
+
+class AttributeMapIterable<T, U> implements Iterable<Map.Entry<T, U>> {
+    private final Map<K, T> data;
+    private final List<Attribute> attributes;
+
+    public AttributeMapIterable(Map<K, T> data) {
+        this.data = new HashMap<>();
+        for (Map.Entry<K, T> entry : data.entrySet()) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
+            if (!data.containsKey(lowerCaseKey)) {
+                data.put(lowerCaseKey, new AttributesDataset(entry.getValue()));
+            } else {
+                Attribute attribute = new AttributesImpl().get(data.get(lowerCaseKey));
+                attribute.value = entry.getValue();
+                data.put(lowerCaseKey, attribute);
+            }
+        }
+        this.attributes = new AttributesIterator();
+    }
+
+    @Override
+    public Iterator<Map.Entry<T, U>> iterator() {
+        return attributes.iterator();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.util.*;
+
+class Main {
+
+    public static void main(String[] args) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", "John");
+        data.put("age", 30);
+        data.put("city", "New York");
+
+        List<Map.Entry<String, String>> entries = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            Map<String, Object> value = new HashMap<>();
+            value.put("name", entry.getValue().toString());
+            value.put("age", entry.getValue() == null ? "" : entry.getValue().toString());
+            value.put("city", entry.getKey().toLowerCase());
+
+            entries.add(new AbstractMap.SimpleEntry<>(entry.getKey(), value));
+        }
+
+        Collections.sort(entries, (o1, o2) -> {
+            if (o1.getKey().equals(o2.getKey())) {
+                return ((Comparable) o1.getValue().get("age")).compareTo(o2.getValue().get("age"));
+            }
+            return ((Comparable) o1.getValue().get("age")).compareTo(o2.getValue().get("age"));
+        });
+
+        for (Map.Entry<String, String> entry : entries) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
+}
+
+class AttributeMap<K, V> implements Map<K, V> {
+    private final Map<String, Object> data;
+
+    public AttributeMap(Map<String, Object> data) {
+        this.data = new HashMap<>();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
+            if (!data.containsKey(lowerCaseKey)) {
+                data.put(lowerCaseKey, new AttributesDataset(entry.getValue()));
+            } else {
+                Attribute attribute = new AttributesImpl().get(data.get(lowerCaseKey));
+                attribute.value = entry.getValue();
+                data.put(lowerCaseKey, attribute);
+            }
+        }
+    }
+
+    @Override
+    public int size() {
+        return data.size();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        for (Object value : data.values()) {
+            if (value.toString().equals(key)) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public V get(Object key) {
+        String lowerCaseKey = key.toString();
+        return new AttributesDataset(data).get(lowerCaseKey);
+    }
+
+    @Override
+    public boolean remove(Object key) {
+        data.remove(key.toString());
+        return true;
+    }
+}
+
+class AttributeMapIterable<K, V> implements Iterable<Map.Entry<K, V>> {
+    private final Map<K, V> data;
+    private final List<AttributesDataset> attributes;
+
+    public AttributeMapIterable(Map<K, V> data) {
+        this.data = new HashMap<>();
+        for (Map.Entry<K, V> entry : data.entrySet()) {
+            String lowerCaseKey = entry.getKey().toString();
+            if (!data.containsKey(lowerCaseKey)) {
+                data.put(lowerCaseKey, new AttributesDataset(entry.getValue()));
+            } else {
+                Attribute attribute = new AttributesImpl().get(data.get(lowerCaseKey));
+                attribute.value = entry.getValue();
+                data.put(lowerCaseKey, attribute);
+            }
+        }
+
+        attributes = new ArrayList<>();
+        for (Map.Entry<K, V> entry : data.entrySet()) {
+            Map<String, Object> value = new HashMap<>();
+            value.put("name", entry.getKey());
+            value.put("age", entry.getValue() == null ? "" : entry.getValue().toString());
+            value.put("city", entry.getKey().toLowerCase());
+
+            attributes.add(new AttributesDataset(value));
+        }
+    }
+
+    @Override
+    public Iterator<Map.Entry<K, V>> iterator() {
+        return new AttributesIterator();
+    }
+}
+
+class Attribute {
+    private final Map<String, Object> value;
+
+    public Attribute(Map<String, Object> value) {
+        this.value = value;
+    }
+
+    public Object getValue(String key) {
+        return value.get(key);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Object> entry : value.entrySet()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(entry.getKey()).append(" = ").append(entry.getValue().toString());
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Attribute that = (Attribute) o;
+
+        if (!value.equals(that.value)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+}
+
+class AttributesDataset {
+    private final Map<String, Object> data;
+
+    public AttributesDataset(Map<String, Object> data) {
+        this.data = new HashMap<>();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
+            if (!data.containsKey(lowerCaseKey)) {
+                data.put(lowerCaseKey, new Attribute(data));
+            } else {
+                Attributes attribute = new AttributesImpl().get(data.get(lowerCaseKey));
+                attribute.value = entry.getValue();
+                data.put(lowerCaseKey, attribute);
+            }
+        }
+    }
+
+    public List<Attribute> getValues() {
+        return new ArrayList<>(data.values());
+    }
+}
+
+class AttributesIterator implements Iterator<Map.Entry<String, Object>> {
+    private final Iterator<AttributesDataset> iterator;
+
+    public AttributesIterator() {
+        this.iterator = data.values().iterator();
+    }
+
+    @Override
+    public boolean hasNext() {
+        return iterator.hasNext();
+    }
+
+    @Override
+    public Map.Entry<String, Object> next() {
+        while (hasNext()) {
+            if (!iterator.hasNext()) throw new NoSuchElementException();
+            AttributesDataset attributes = iterator.next();
+            for (Map.Entry<String, Object> entry : attributes.getValues()) {
+                return new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue());
+            }
+        }
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.util.*;
+
+class Main {
+
+    public static void main(String[] args) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", "John");
+        data.put("age", 30);
+        data.put("city", "New York");
+
+        List<Map.Entry<String, String>> entries = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            Map<String, Object> value = new HashMap<>();
+            value.put("name", entry.getValue().toString());
+            value.put("age", entry.getValue() == null ? "" : entry.getValue().toString());
+            value.put("city", entry.getKey().toLowerCase());
+
+            entries.add(new AbstractMap.SimpleEntry<>(entry.getKey(), value));
+        }
+
+        Collections.sort(entries, (o1, o2) -> {
+            if (o1.getKey().equals(o2.getKey())) {
+                return ((Comparable) o1.getValue().get("age")).compareTo(o2.getValue().get("age"));
+            }
+            return ((Comparable) o1.getValue().get("age")).compareTo(o2.getValue().get("age"));
+        });
+
+        Map<String, AttributeMap> attributeMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : entries) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
+            if (!attributeMap.containsKey(lowerCaseKey)) {
+                attributeMap.put(lowerCaseKey, new AttributeMap(entry.getValue()));
+            } else {
+                Attribute attribute = new AttributesImpl().get(attributeMap.get(lowerCaseKey));
+                attribute.value = entry.getValue();
+                attributeMap.put(lowerCaseKey, attribute);
+            }
+        }
+
+        for (Map.Entry<String, AttributeMap> entry : attributeMap.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
+}
+
+class AttributeMap {
+    private final Map<String, Object> data;
+
+    public AttributeMap(Map<String, Object> data) {
+        this.data = new HashMap<>();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
+            if (!data.containsKey(lowerCaseKey)) {
+                data.put(lowerCaseKey, new AttributesDataset(entry.getValue()));
+            } else {
+                Attribute attribute = new AttributesImpl().get(data.get(lowerCaseKey));
+                attribute.value = entry.getValue();
+                data.put(lowerCaseKey, attribute);
+            }
+        }
+    }
+
+    public Map<String, Object> getData() {
+        return data;
+    }
+}
+
+class Attribute {
+    private final Map<String, Object> value;
+
+    public Attribute(Map<String, Object> value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Object> entry : value.entrySet()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(entry.getKey()).append(" = ").append(entry.getValue().toString());
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Attribute that = (Attribute) o;
+
+        if (!value.equals(that.value)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+}
+
+class AttributesDataset {
+    private final Map<String, Object> data;
+
+    public AttributesDataset(Map<String, Object> data) {
+        this.data = new HashMap<>();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String lowerCaseKey = entry.getKey().toLowerCase();
+            if (!data.containsKey(lowerCaseKey)) {
+                data.put(lowerCaseKey, new Attribute(data));
+            } else {
+                Attributes attribute = new AttributesImpl().get(data.get(lowerCaseKey));
+                attribute.value = entry.getValue();
+                data.put(lowerCaseKey, attribute);
+            }
+        }
+    }
+
+    public List<Attribute> getValues() {
+        return new ArrayList<>(data.values());
+    }
+}
+
+class AttributesIterator implements Iterator<Map.Entry<String, Object>> {
+    private final Iterator<AttributesDataset> iterator;
+
+    public AttributesIterator() {
+        this.iterator = data.values().iterator();
+    }
+
+    @Override
+    public boolean hasNext() {
+        return iterator.hasNext();
+    }
+
+    @Override
+    public Map.Entry<String, Object> next() {
+        while (hasNext()) {
+            if (!iterator.hasNext()) throw new NoSuchElementException();
+            AttributesDataset attributes = iterator.next();
+            for (Map.Entry<String, Object> entry : attributes.getValues()) {
+                return new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue());
+            }
+        }
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

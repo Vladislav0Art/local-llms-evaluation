@@ -1,0 +1,12 @@
+package com.adobe.epubcheck.tool;
+
+public class GeneratedTest_validateEpubFileReport {
+
+    @Test
+    public void test_validateEpubFileReport() {
+        String[] args = {"-report", "test.epub"};
+        int result = validateFile("test.epub", null, new Report(), EPUBProfile.EPUB3);
+        assertEquals(0, result); // 100% coverage
+    }
+
+}

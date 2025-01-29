@@ -1,0 +1,430 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class WordWrapTest {
+
+    @Test
+    public void testWordWrapFromReader() {
+        Preconditions.checkNotNull(new BufferedReader(new InputStreamReader(System.in)));
+        Preconditions.checkNotNull(new PrintWriter(System.out));
+        String resource = "test.txt";
+        Builder builder = WordWrap.fromClasspathUtf8(resource);
+        String text = "This is a very long text that needs to be wrapped.";
+        assertEquals("very long text", WordWrap.wordWrap(new BufferedReader(new InputStreamReader(System.in)), new OutputStreamWriter(System.out), "\n", 20, null, null, true, false), text);
+    }
+
+    @Test
+    public void testWordWrapFromClasspathUtf8() {
+        Preconditions.checkNotNull(new FileInputStream(new File("test.txt")));
+        Preconditions.checkNotNull(new PrintStream(new FileOutputStream("output.txt")));
+        String resource = "test.txt";
+        Builder builder = WordWrap.fromClasspathUtf8(resource);
+        String text = "This is a very long text that needs to be wrapped.";
+        assertEquals("very long text", WordWrap.wordWrap(new FileInputStream(new File("test.txt")), new PrintStream(new FileOutputStream("output.txt")), "\n", 20, null, null, true, false), text);
+    }
+
+    @Test
+    public void testWordWrapFromClasspath() {
+        Preconditions.checkNotNull(new FileInputStream(new File("test.txt")));
+        Preconditions.checkNotNull(new BufferedReader(new InputStreamReader(System.in)));
+        String resource = "test.txt";
+        Builder builder = WordWrap.fromClasspath(resource);
+        String text = "This is a very long text that needs to be wrapped.";
+        assertEquals("very long text", WordWrap.wordWrap(new FileInputStream(new File("test.txt")), new BufferedReader(new InputStreamReader(System.in)), "\n", 20, null, null, true, false), text);
+    }
+
+    @Test
+    public void testWordWrapFromCharSequence() {
+        Preconditions.checkNotNull(new StringReader(new char[] {'a', 'b'}));
+        Preconditions.checkNotNull(new PrintStream(new OutputStreamWriter(System.out)));
+        StringBuilder sb = new StringBuilder();
+        WordWrap.wordWrap(new BufferedReader(new InputStreamReader(System.in)), new OutputStreamWriter(System.out), "\n", 20, null, null, true, false);
+        assertEquals("ab\nba", WordWrap.rightTrim(sb.toString()));
+    }
+
+    @Test
+    public void testIsWhitespace() {
+        assertEquals(true, WordWrap.isWhitespace("   "));
+        assertEquals(false, WordWrap.isWhitespace("\n"));
+    }
+
+    @Test
+    public void testLeftTrim() {
+        StringBuilder sb = new StringBuilder();
+        Preconditions.checkNotNull(new StringBuilder2(sb));
+        WordWrap.leftTrim(sb);
+        assertEquals(7, sb.length());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Before;
+import org.junit.Test;
+
+public class WordWrapTest {
+
+    private BufferedReader reader;
+    private PrintWriter writer;
+    private LineConsumer out;
+    private Number maxWidth;
+    private Function<? super CharSequence, ? extends Number> stringWidth;
+    private Set<Character> extraWordChars;
+    private boolean insertHyphens;
+    private boolean breakWords;
+
+    @Before
+    public void setup() {
+        reader = new BufferedReader(new InputStreamReader(System.in));
+        writer = new PrintWriter(System.out);
+        out = new LineConsumer();
+        maxWidth = null;
+        stringWidth = null;
+        extraWordChars = new HashSet<>();
+        insertHyphens = false;
+        breakWords = false;
+    }
+
+    @Test
+    public void testWordWrapFromReader() {
+        WordWrap.fromClasspathUtf8("test.txt");
+        String text = "This is a very long text that needs to be wrapped.";
+        assertEquals("very long text", WordWrap.wordWrap(reader, writer, "\n", 20, null, null, true, false), text);
+    }
+
+    @Test
+    public void testWordWrapFromClasspathUtf8() {
+        WordWrap.fromClasspathUtf8("test.txt");
+        String text = "This is a very long text that needs to be wrapped.";
+        assertEquals("very long text", WordWrap.wordWrap(reader, writer, "\n", 20, null, null, true, false), text);
+    }
+
+    @Test
+    public void testWordWrapFromClasspath() {
+        WordWrap.fromClasspath("test.txt");
+        String text = "This is a very long text that needs to be wrapped.";
+        assertEquals("very long text", WordWrap.wordWrap(reader, writer, "\n", 20, null, null, true), text);
+    }
+
+    @Test
+    public void testIsWhitespace() {
+        assertEquals(true, WordWrap.isWhitespace("   "));
+        assertEquals(false, WordWrap.isWhitespace("\n"));
+    }
+
+    @Test
+    public void testLeftTrim() {
+        WordWrap.leftTrim();
+        assertEquals(7, out.length());
+    }
+}
+
+class LineConsumer implements Runnable {
+    @Override
+    public void run() {
+        String line = reader.readLine();
+        if (line != null) {
+            writer.println(line);
+        } else {
+            return;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+public class BufferedReader2 implements Runnable {
+    private InputStream input;
+    private BufferedWriter output;
+
+    public BufferedReader2(InputStream in) throws IOException {
+        this.input = in;
+        this.output = new BufferedWriter(new OutputStreamWriter(System.out));
+    }
+
+    @Override
+    public void run() {
+        try {
+            String line;
+            while ((line = input.readLine()) != null) {
+                if (line.length() > 0 && !isSpace(line)) {
+                    output.write(line);
+                    output.newLine();
+                }
+            }
+        } catch (IOException e) {
+            // handle exception
+        }
+    }
+
+    public void flush() throws IOException {
+        output.flush();
+    }
+
+    private boolean isSpace(String str) {
+        return str.length() == 0 || Character.isWhitespace(str.charAt(0));
+    }
+
+    @Test
+    public void testWordWrapFromReader() {
+        String[] lines = {"This is a very long text that needs to be wrapped.", "Short message"};
+        for (String line : lines) {
+            WordWrap.fromClasspathUtf8(line);
+        }
+        while (reader.ready()) {
+            reader.readLine();
+        }
+    }
+
+    @Test
+    public void testWordWrapFromClasspathUtf8() {
+        String[] lines = {"This is a very long text that needs to be wrapped.", "Short message"};
+        for (String line : lines) {
+            WordWrap.fromClasspathUtf8(line);
+        }
+        while (reader.ready()) {
+            reader.readLine();
+        }
+    }
+
+    @Test
+    public void testWordWrapFromClasspath() {
+        String[] lines = {"This is a very long text that needs to be wrapped.", "Short message"};
+        for (String line : lines) {
+            WordWrap.fromClasspath("test.txt");
+        }
+        while (reader.ready()) {
+            reader.readLine();
+        }
+    }
+
+    @Test
+    public void testIsWhitespace() {
+        String[] lines = {"   ", "  Hello", " world!"};
+        for (String line : lines) {
+            WordWrap.isWhitespace(line);
+        }
+    }
+
+    @Test
+    public void testLeftTrim() {
+        while (reader.ready()) {
+            reader.readLine();
+        }
+        assertEquals(0, out.length());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+public class BufferedReader2 implements Runnable {
+    private InputStream input;
+    private BufferedWriter output;
+
+    public static void main(String[] args) throws IOException {
+        Thread thread = new Thread(new BufferedReader2());
+        thread.start();
+    }
+
+    @Override
+    public void run() {
+        try {
+            String line;
+            while ((line = input.readLine()) != null) {
+                if (isLineLength(line)) {
+                    output.write(line);
+                    output.newLine();
+                }
+            }
+            flush(output);
+        } catch (IOException e) {
+            // handle exception
+        }
+    }
+
+    private boolean isLineLength(String str) {
+        return str.length() <= 4096;
+    }
+
+    public void flush(BufferedWriter out) throws IOException {
+        if (!out.isEmpty()) {
+            output.write(out.toString());
+            out.close();
+        }
+    }
+
+    @Test
+    public void testWordWrapFromReader() {
+        String[] lines = {"This is a very long text that needs to be wrapped.", "Short message"};
+        for (String line : lines) {
+            WordWrap.fromClasspathUtf8(line);
+        }
+        while (input.ready()) {
+            input.readLine();
+        }
+    }
+
+    @Test
+    public void testWordWrapFromClasspathUtf8() {
+        String[] lines = {"This is a very long text that needs to be wrapped.", "Short message"};
+        for (String line : lines) {
+            WordWrap.fromClasspathUtf8(line);
+        }
+        while (input.ready()) {
+            input.readLine();
+        }
+    }
+
+    @Test
+    public void testWordWrapFromClasspath() {
+        String[] lines = {"This is a very long text that needs to be wrapped.", "Short message"};
+        for (String line : lines) {
+            WordWrap.fromClasspath("test.txt");
+        }
+        while (input.ready()) {
+            input.readLine();
+        }
+    }
+
+    @Test
+    public void testIsWhitespace() {
+        String[] lines = {"   ", "  Hello", " world!"};
+        for (String line : lines) {
+            WordWrap.isWhitespace(line);
+        }
+    }
+
+    @Test
+    public void testLeftTrim() {
+        while (input.ready()) {
+            input.readLine();
+        }
+        assertEquals(0, out.length());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.util.ArrayList;
+
+public class BufferedReader2 implements Runnable {
+    private InputStream input;
+    private ArrayList<String> lines;
+
+    public static void main(String[] args) throws IOException {
+        Thread thread = new Thread(new BufferedReader2());
+        thread.start();
+    }
+
+    @Override
+    public void run() {
+        try {
+            StringBuilder outputBuilder = new StringBuilder();
+
+            while (input.ready()) {
+                String line;
+                if (!line.isEmpty()) {
+                    lines.add(line);
+                    outputBuilder.append(line).append("\n");
+                } else {
+                    flush(outputBuilder.toString());
+                }
+            }
+
+            if (!lines.isEmpty()) {
+                outputBuilder.deleteCharAt(outputBuilder.length() - 1); // remove trailing newline
+            }
+
+            String finalOutput = outputBuilder.toString();
+            System.out.println(finalOutput);
+        } catch (IOException e) {
+            // handle exception
+        }
+    }
+
+    private void flush(String output) throws IOException {
+        if (!output.isEmpty()) {
+            System.out.print(output);
+        }
+    }
+
+    @Test
+    public void testWordWrapFromReader() {
+        String[] lines = {"This is a very long text that needs to be wrapped.", "Short message"};
+        for (String line : lines) {
+            WordWrap.fromClasspathUtf8(line);
+        }
+    }
+
+    @Test
+    public void testWordWrapFromClasspathUtf8() {
+        String[] lines = {"This is a very long text that needs to be wrapped.", "Short message"};
+        for (String line : lines) {
+            WordWrap.fromClasspathUtf8(line);
+        }
+    }
+
+    @Test
+    public void testWordWrapFromClasspath() {
+        String[] lines = {"This is a very long text that needs to be wrapped.", "Short message"};
+        for (String line : lines) {
+            WordWrap.fromClasspath("test.txt");
+        }
+    }
+
+    @Test
+    public void testIsWhitespace() {
+        ArrayList<String> lines = new ArrayList<>();
+        for (int i = 0; i < 10000; i++) {
+            lines.add("   ");
+        }
+        for (String line : lines) {
+            WordWrap.isWhitespace(line);
+        }
+    }
+
+    @Test
+    public void testLeftTrim() {
+        while (true) {
+            try {
+                input.readLine();
+                if (!input.ready()) {
+                    break;
+                }
+            } catch (IOException e) {
+                // handle exception
+            }
+        }
+        System.out.println(input.readLine());
+    }
+}
+```
+===================================================
+

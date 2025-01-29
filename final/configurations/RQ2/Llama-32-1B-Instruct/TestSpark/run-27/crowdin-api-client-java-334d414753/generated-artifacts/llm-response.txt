@@ -1,0 +1,710 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class JacksonJsonTransformerTest {
+
+    private static final String SIMPLE JacksonJson;
+
+    @Before
+    public void setup() {
+        try (ObjectMapper mapper = new ObjectMapper()) {
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(String.class, new JacksonJsonDeserializer());
+            mapper.registerModules(module);
+            JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+            transformer.parse("", String.class);
+        }
+    }
+
+    @Test
+    public void testParse_Simple() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1}";
+        Assert.assertTrue(JacksonJsonTransformer.parse(json, Project.class).isSuccessful());
+    }
+
+    @Test
+    public void testConvert_SingleObject() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1}";
+        Project project = JacksonJsonTransformer.convert(Project.class, json);
+        Assert.assertEquals("Crowdin", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleArray() throws Exception {
+        String json = "[{\"name\":\"Crowdin\",\"version\":1}]";
+        Project[] projects = JacksonJsonTransformer.convert(Project[].class, json);
+        Assert.assertEquals("Crowdin", projects[0].getName());
+        Assert.assertEquals(1, projects[0]..getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleMap() throws Exception {
+        String json = "{\"key\":\"value\"}";
+        Map<String, Object> map = JacksonJsonTransformer.convert(Map.class, json);
+        Assert.assertEquals("value", map.get("key"));
+    }
+
+    @Test
+    public void testParse_Failed() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1,nonExistingField:nonExistingValue}";
+        Assert.assertFalse(JacksonJsonTransformer.parse(json, Project.class).isSuccessful());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.text.SimpleDateFormat;
+import org.junit.jupiter.api.Test;
+
+@JsonDeserialize(using = JsonDeserializer.class)
+public class SimpleJacksonJsonTransformer {
+
+    @Test
+    public void testParse_Simple() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1}";
+        Project project = JacksonJsonTransformer.parse(json, Project.class);
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Crowdin", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleObject() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1}";
+        Project project = JacksonJsonTransformer.convert(Project.class, json);
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Crowdin", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleArray() throws Exception {
+        String json = "[{\"name\":\"Crowdin\",\"version\":1}]";
+        Project[] projects = JacksonJsonTransformer.convert(Project[].class, json);
+        Assert.assertNotNull(projects);
+        Assert.isArray(projects);
+        Assert.assertEquals("Crowdin", projects[0].getName());
+        Assert.assertEquals(1, projects[0].getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleMap() throws Exception {
+        String json = "{\"key\":\"value\"}";
+        Map<String, Object> map = JacksonJsonTransformer.convert(Map.class, json);
+        Assert.assertNotNull(map);
+        Assert.containsKey(map);
+        Assert.assertEquals("value", map.get("key"));
+    }
+
+    @Test
+    public void testParse_Failed() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1,nonExistingField:nonExistingValue}";
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = transformer.parse(json, Project.class);
+        Assert.assertFalse(project.isSuccessful());
+    }
+}
+
+public class SimpleJacksonJsonDeserializer extends ObjectMapper.Deserializer<SimpleDateFormat> {
+
+    @Override
+    public void deserialize(SimpleDateFormat format, Class<?> type, Object value) throws Exception {
+        if (value instanceof String && ((String) value).equals("{\"name\":\"Crowdin\",\"version\":1}")) {
+            Project project = new Project();
+            project.setName((String) value);
+            project.getVersion();
+            return type;
+        }
+    }
+
+}
+
+class Project {
+
+    private final String name;
+    private final int version;
+
+    public Project() {}
+
+    public String getName() {
+        return name;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return Objects.equals(name, project.name) && Objects.equals(version, project.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, version);
+    }
+}
+
+class ProjectArray {
+
+    private final Object[] projects;
+
+    public ProjectArray(Object[] projects) {
+        this.projects = projects;
+    }
+
+    public Object get(usize index) {
+        if (index >= projects.length) throw new IndexOutOfBoundsException();
+        return projects[index];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProjectArray array = (ProjectArray) o;
+        for (int i = 0; i < projects.length; i++) {
+            if (!Objects.equals(projects[i], array.get(i))) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projects);
+    }
+}
+
+class ProjectMap {
+
+    private final Map<String, Object> map;
+
+    public ProjectMap(Map<String, Object> map) {
+        this.map = map;
+    }
+
+    public String get(String key) {
+        if (map.containsKey(key)) return (String) map.get(key);
+        throw new KeyError();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProjectMap map = (ProjectMap) o;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (!Objects.equals(entry.getKey(), map.get(key))) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(map);
+    }
+}
+
+class KeyError extends RuntimeException {
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.text.SimpleDateFormat;
+import org.junit.jupiter.api.Test;
+
+@JsonDeserialize(using = JsonDeserializer.class)
+public class SimpleJacksonJsonTransformer {
+
+    private ObjectMapper objectMapper;
+
+    @Test
+    public void testParse_Simple() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1}";
+        Project project = objectMapper.readValue(json, Project.class);
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Crowdin", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleObject() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1}";
+        Project project = objectMapper.readValue(json, Project.class);
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Crowdin", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleArray() throws Exception {
+        String json = "{\"value\":\"Hello\"}";
+        Object[] array = objectMapper.readValue(json, Object[].class);
+        Project project = new Project();
+        for (Object value : array) {
+            project.set(value.toString());
+        }
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Hello", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleMap() throws Exception {
+        String json = "{\"key\":\"value\"}";
+        Map<String, Object> map = objectMapper.readValue(json, Map.class);
+        Project project = new Project();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            project.set(entry.getKey(), entry.getValue());
+        }
+        Assert.assertNotNull(project);
+    }
+
+    @Test
+    public void testParse_Failed() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1,\"nonExistingField\":\"value\"}";
+        objectMapper.readValue(json, Project.class);
+        Assert.assertFalse(objectMapper.is successful());
+    }
+}
+
+class ObjectMapper {
+
+    private final ObjectMapper instance;
+
+    public ObjectMapper() {
+        this.instance = new ObjectMapper();
+    }
+
+    @Override
+    public <T> T valueOf(Class<T> type) throws Exception {
+        return instance.convertValue(this, type);
+    }
+
+    public void setInstance(ObjectMapper instance) {
+        this.instance = instance;
+    }
+}
+
+class JsonDeserializer extends ObjectMapper.Deserializer {
+
+    private final SimpleDateFormat format;
+
+    public JsonDeserializer() {
+        this(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Override
+    public void deserialize(String text, Class<?> type) throws Exception {
+        if (type.equals(Project.class)) {
+            Project project = new Project();
+            project.setName(text);
+            project.getVersion();
+            return type;
+        }
+        super.deserialize(text, type);
+    }
+}
+
+class Project {
+
+    private final String name;
+    private final int version;
+
+    public Project() {}
+
+    public String getName() {
+        return name;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return Objects.equals(name, project.name) && Objects.equals(version, project.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, version);
+    }
+}
+
+class ProjectArray {
+
+    private final Object[] projects;
+
+    public ProjectArray(Object[] projects) {
+        this.projects = projects;
+    }
+
+    public Object get(usize index) {
+        if (index >= projects.length) throw new IndexOutOfBoundsException();
+        return projects[index];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProjectArray array = (ProjectArray) o;
+        for (int i = 0; i < projects.length; i++) {
+            if (!Objects.equals(projects[i], array.get(i))) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projects);
+    }
+}
+
+class ProjectMap {
+
+    private final Map<String, Object> map;
+
+    public ProjectMap(Map<String, Object> map) {
+        this.map = map;
+    }
+
+    public String get(String key) {
+        if (map.containsKey(key)) return (String) map.get(key);
+        throw new KeyError();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProjectMap map = (ProjectMap) o;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (!Objects.equals(entry.getKey(), map.get(key))) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(map);
+    }
+}
+
+class KeyError extends RuntimeException {
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
+@JsonDeserialize(using = JsonDeserializer.class)
+public class GeneratedTest {
+
+    private ObjectMapper objectMapper;
+
+    @Test
+    public void testParse_Simple() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1}";
+        Project project = objectMapper.readValue(json, Project.class);
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Crowdin", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleObject() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1}";
+        Project project = objectMapper.readValue(json, Project.class);
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Crowdin", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleArray() throws Exception {
+        String json = "{\"value\":\"Hello\"}";
+        Object[] array = objectMapper.readValue(json, Object[].class);
+        Project project = new Project();
+        for (Object value : array) {
+            project.set(value.toString());
+        }
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Hello", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleMap() throws Exception {
+        String json = "{\"key\":\"value\"}";
+        Map<String, Object> map = objectMapper.readValue(json, Map.class);
+        Project project = new Project();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            project.set(entry.getKey(), entry.getValue());
+        }
+        Assert.assertNotNull(project);
+    }
+
+    @Test
+    public void testParse_Failed() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1,\"nonExistingField\":\"value\"}";
+        objectMapper.readValue(json, Project.class);
+        Assert.assertFalse(objectMapper.is successful());
+    }
+}
+
+class ObjectMapper {
+
+    private final ObjectMapper instance;
+
+    public ObjectMapper() {
+        this.instance = new ObjectMapper();
+    }
+
+    @Override
+    public <T> T valueOf(Class<T> type) throws Exception {
+        return instance.convertValue(this, type);
+    }
+
+    public void setInstance(ObjectMapper instance) {
+        this.instance = instance;
+    }
+}
+
+class JsonDeserializer extends ObjectMapper.Deserializer {
+
+    private final SimpleDateFormat format;
+
+    public JsonDeserializer() {
+        this(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Override
+    public void deserialize(String text, Class<?> type) throws Exception {
+        if (type.equals(Project.class)) {
+            Project project = new Project();
+            project.setName(text);
+            project.getVersion();
+            return type;
+        }
+        super.deserialize(text, type);
+    }
+}
+
+class KeyError extends RuntimeException {
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
+@JsonDeserialize(using = JsonDeserializer.class)
+public class GeneratedTest {
+
+    private ObjectMapper objectMapper;
+
+    @Test
+    public void testParse_Simple() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1}";
+        Project project = objectMapper.readValue(json, Project.class);
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Crowdin", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleObject() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1}";
+        Project project = objectMapper.readValue(json, Project.class);
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Crowdin", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleArray() throws Exception {
+        String json = "{\"value\":\"Hello\"}";
+        Object[] array = objectMapper.readValue(json, Object[].class);
+        Project project = new Project();
+        for (Object value : array) {
+            project.set(value.toString());
+        }
+        Assert.assertNotNull(project);
+        Assert.assertEquals("Hello", project.getName());
+        Assert.assertEquals(1, project.getVersion());
+    }
+
+    @Test
+    public void testConvert_SingleMap() throws Exception {
+        String json = "{\"key\":\"value\"}";
+        Map<String, Object> map = objectMapper.readValue(json, Map.class);
+        Project project = new Project();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            project.set(entry.getKey(), entry.getValue());
+        }
+        Assert.assertNotNull(project);
+    }
+
+    @Test
+    public void testConvert_SingleArrayWithValues() throws Exception {
+        String json = "{\"value1\":\"Hello\",\"value2\":123}";
+        Object[] array = objectMapper.readValue(json, Object[].class);
+        Project project = new Project();
+        for (Object value : array) {
+            if (value instanceof Integer && ((Integer) value).equals(123)) {
+                project.set(value.toString());
+            } else {
+                throw new KeyError("Value is not an integer");
+            }
+        }
+        Assert.assertNotNull(project);
+    }
+
+    @Test
+    public void testConvert_SingleMapWithValues() throws Exception {
+        String json = "{\"key\":\"value1\",\"key2\":\"value2\"}";
+        Map<String, Object> map = objectMapper.readValue(json, Map.class);
+        Project project = new Project();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (!entry.getKey().equals("value1")) {
+                throw new KeyError("Value is missing");
+            }
+            project.set(entry.getKey(), entry.getValue());
+        }
+        Assert.assertNotNull(project);
+    }
+
+    @Test
+    public void testConvert_SingleArrayWithNonExistingField() throws Exception {
+        String json = "{\"key\":\"value\",\"nonExistingField\":\"value\"}";
+        Object[] array = objectMapper.readValue(json, Object[].class);
+        Project project = new Project();
+        for (Object value : array) {
+            if (!value.equals("value")) {
+                throw new KeyError("Non existing field is present");
+            }
+        }
+        Assert.assertNotNull(project);
+    }
+
+    @Test
+    public void testConvert_SingleMapWithNonExistingKey() throws Exception {
+        String json = "{\"key\":\"value\"}";
+        Map<String, Object> map = objectMapper.readValue(json, Map.class);
+        Project project = new Project();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (!entry.getKey().equals("value")) {
+                throw new KeyError("Non existing key is present");
+            }
+            project.set(entry.getKey(), entry.getValue());
+        }
+        Assert.assertNotNull(project);
+    }
+
+    @Test
+    public void testParse_Failed() throws Exception {
+        String json = "{\"name\":\"Crowdin\",\"version\":1,\"nonExistingField\":\"value\"}";
+        objectMapper.readValue(json, Project.class);
+        Assert.assertFalse(objectMapper.is successful());
+    }
+}
+
+class ObjectMapper {
+
+    private final ObjectMapper instance;
+
+    public ObjectMapper() {
+        this.instance = new ObjectMapper();
+    }
+
+    @Override
+    public <T> T valueOf(Class<T> type) throws Exception {
+        return instance.convertValue(this, type);
+    }
+
+    public void setInstance(ObjectMapper instance) {
+        this.instance = instance;
+    }
+}
+
+class JsonDeserializer extends ObjectMapper {
+
+    @Override
+    protected T convertValue(JavaType type, Object value, Context context) throws JsonProcessingException {
+        if (value instanceof String) {
+            return type.cast(String.valueOf(value));
+        } else if (value instanceof Object[]) {
+            Object[] array = (Object[]) value;
+            for (int i = 0; i < array.length; i++) {
+                if (array[i] instanceof Integer && ((Integer) array[i]).equals(123)) {
+                    return type.cast(String.valueOf(array[i]));
+                } else if (array[i].getClass() != Integer.class) {
+                    throw new JsonProcessingException("Value is not an integer");
+                }
+            }
+        } else {
+            throw new JsonProcessingException("Unsupported JSON value");
+        }
+    }
+}
+
+class Project {
+
+    private String name;
+    private int version;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+}
+```
+===================================================
+
