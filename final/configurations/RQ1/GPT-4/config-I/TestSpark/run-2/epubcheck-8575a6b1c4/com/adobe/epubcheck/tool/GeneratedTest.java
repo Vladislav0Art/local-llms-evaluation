@@ -1,0 +1,114 @@
+package com.adobe.epubcheck.tool;
+
+import com.adobe.epubcheck.api.EpubCheck;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.FileResourceProvider;
+import com.adobe.epubcheck.util.InvalidVersionException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.w3c.epubcheck.util.url.URLUtils;
+
+import java.io.File;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class GeneratedTest {
+
+    // A dummy file to pass to the EpubChecker
+    File dummyFile = new File("test.epub");
+
+    @Nested
+    @DisplayName("Testing 'run' method")
+    class RunMethodTests {
+
+        EpubChecker checker = null;
+
+        @BeforeEach
+        void setUp() {
+            checker = new EpubChecker();
+        }
+
+        @Test
+        public void runWithInvalidArgumentsTest() {
+            String[] args = {"-v", "3.0", dummyFile.getAbsolutePath()};
+            // Check processEpubFile return 1 with path to non-existent file
+            assertEquals(1, checker.run(args));
+        }
+
+        @Test
+        public void runWithValidArgumentsTest() {
+            String[] args = {dummyFile.getAbsolutePath()};
+            // If a valid file is passed, processEpubFile should return 0
+            assertEquals(0, checker.run(args));
+        }
+    }
+
+    @Nested
+    @DisplayName("Testing 'processFile' method")
+    class ValidateFileMethodTests {
+
+        EpubChecker checker = null;
+        MockedReport report = null;
+
+        @BeforeEach
+        void setUp() {
+            checker = new EpubChecker();
+            report = new MockedReport();
+        }
+
+        @Test
+        public void validateFileWithValidInputTest() {
+            Report spyReport = Mockito.spy(report);
+            assertEquals(
+                    0,
+                    checker.validateFile(
+                            dummyFile.getAbsolutePath(),
+                            EPUBVersion.VERSION_3,
+                            spyReport,
+                            EPUBProfile.DEFAULT
+                    ),
+                    "Expected `processEpubFile` to return true when called with valid inputs"
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("Testing 'createReport' method")
+    class CreateReportMethodTests {
+
+        EpubChecker checker = null;
+
+        @BeforeEach
+        void setUp() {
+            checker = new EpubChecker();
+        }
+
+        @Test
+        public void validateCreateReportTest() {
+            Report report = checker.createReport();
+            assertNotNull(report, "Expected `createReport` to return non-null value");
+        }
+    }
+
+    @Nested
+    @DisplayName("Testing 'getLocale' method")
+    class GetLocaleMethodTests {
+
+        EpubChecker checker = null;
+
+        @BeforeEach
+        void setUp() {
+            checker = new EpubChecker();
+        }
+
+        @Test
+        public void validateGetLocaleTest() {
+            assertNotNull(checker.getLocale(), "Expected non-null Locale");
+        }
+    }
+
+}

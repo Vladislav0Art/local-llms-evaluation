@@ -1,0 +1,287 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GalileoProtocolDecoderTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getTagLengthUnknownTagTest() {
+        GalileoProtocolDecoder.getTagLength(0x99);
+    }
+
+    @Test
+    public void getTagLengthKnownTagTest() {
+        Map<Integer, Integer> testMap = new HashMap<>();
+        testMap.put(0x01, 1);
+        testMap.put(0x04, 2);
+        testMap.put(0x63, 3);
+        testMap.put(0x33, 4);
+        testMap.put(0x5b, 7);
+        testMap.put(0x5c, 68);
+        testMap.put(0xfd, 8);
+        testMap.put(0xfe, 8);
+        
+        for (Map.Entry<Integer, Integer> entry : testMap.entrySet()) {
+            assertEquals(entry.getValue().intValue(), GalileoProtocolDecoder.getTagLength(entry.getKey().intValue()));
+        }
+    }
+    
+    @Test
+    public void decodeTagTest() {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol("galileo"));
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeByte(0x10); 
+
+        Position position = new Position("galileo");
+        protocolDecoder.decodeTag(position, buffer, 0x10);
+
+        assertEquals(0x10, position.getInteger(Position.KEY_INDEX).intValue());
+    }
+
+    @Test
+    public void decodeTagOtherTest() {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol("galileo"));
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeIntLE((int) (System.currentTimeMillis() / 1000));
+
+        Position position = new Position("galileo");
+        protocolDecoder.decodeTagOther(position, buffer, 0x20);
+
+        assertNotNull(position.getFixTime());
+    }
+
+    @Test
+    public void decodeMinimalDataSetTest() {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol("galileo"));
+
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeInt(0); // Time is measured in seconds since 00:00:00 UTC, January 1, 1980.
+
+        Position position = new Position("galileo");
+        protocolDecoder.decodeMinimalDataSet(position, buffer);
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.set(Calendar.DAY_OF_YEAR, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMinimum(Calendar.HOUR_OF_DAY));
+        calendar.set(Calendar.MINUTE, calendar.getActualMinimum(Calendar.MINUTE));
+        calendar.set(Calendar.SECOND, calendar.getActualMinimum(Calendar.SECOND));
+        calendar.set(Calendar.MILLISECOND, calendar.getActualMinimum(Calendar.MILLISECOND));
+        calendar.add(Calendar.SECOND, 25);
+
+        assertEquals(calendar.getTime(), position.getFixTime());
+        assertEquals(-90.0, position.getLatitude(), 0.01);
+        assertEquals(-180.0, position.getLongitude(), 0.01);
+    }
+
+    @Test
+    public void sendResponseTest() {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol("galileo"));
+
+        Channel channel = mock(Channel.class);
+        when(channel.writeAndFlush(Mockito.any())).thenReturn(null);
+
+        protocolDecoder.sendResponse(channel, 1, 1);
+        Mockito.verify(channel).writeAndFlush(Mockito.any());
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol("galileo"));
+
+        Position position = new Position("galileo");
+        position.setFixTime(new Date(0));
+
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeByte(1);
+        buffer.writeMediumLE(0x01001c);
+        buffer.writeIntLE(0);
+        buffer.writeBytes("123456789012345".getBytes(StandardCharsets.US_ASCII));
+        buffer.writeByte(1);
+        buffer.writeIntLE(0);
+        buffer.writeIntLE(0);
+        buffer.writeByte(0);
+        buffer.writeInt(0);
+
+        Object result = protocolDecoder.decode(null, null, buffer);
+        assertNotNull(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+
+public class GalileoProtocolDecoderTest {
+
+    private ByteBuf prepare1ByteData(int value) {
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeByte(value);
+        return buffer;
+    }
+
+    private ByteBuf prepare2ByteData(int value) {
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeShortLE(value);
+        return buffer;
+    }
+
+    private ByteBuf prepare4ByteData(long value) {
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeIntLE((int) value);
+        return buffer;
+    }
+
+    private ByteBuf prepareBatchData(Object... values) {
+        ByteBuf buffer = Unpooled.buffer();
+        for (Object value : values) {
+            if (value instanceof Integer) {
+                buffer.writeByte((int) value);
+            } else if (value instanceof String) {
+                buffer.writeBytes(((String) value).getBytes(StandardCharsets.US_ASCII));
+            }
+        }
+        return buffer;
+    }
+
+    @Test
+    public void decodeCompressedPositionsTest() {
+        GalileoProtocolDecoder protocolDecoder = Mockito.spy(new GalileoProtocolDecoder(new Protocol()));
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeShortLE(0);
+        protocolDecoder.decodeCompressedPositions(mock(Channel.class), mock(SocketAddress.class), buffer);
+        Mockito.verify(protocolDecoder, Mockito.times(1)).decodeCompressedPositions(Mockito.any(), Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    public void decodeIridiumPositionTest() {
+        GalileoProtocolDecoder protocolDecoder = Mockito.spy(new GalileoProtocolDecoder(new Protocol()));
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeShortLE(29);
+        buffer.writeIntLE(0);
+        buffer.writeBytes("123456789012345".getBytes(StandardCharsets.US_ASCII));
+        buffer.writeByte(0);
+        buffer.writeIntLE(0);
+        buffer.writeMediumLE(0);
+        Position position = protocolDecoder.decodeIridiumPosition(mock(Channel.class), mock(SocketAddress.class), buffer);
+        assertNotNull(position);
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol());
+        Position position = new Position("galileo");
+        position.setFixTime(new Date(0));
+
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeByte(1);
+        buffer.writeMediumLE(0x01001c);
+        buffer.writeIntLE(0);
+        buffer.writeBytes("123456789012345".getBytes(StandardCharsets.US_ASCII));
+        buffer.writeByte(1);
+        buffer.writeIntLE(0);
+        buffer.writeIntLE(0);
+        buffer.writeByte(0);
+        buffer.writeInt(0);
+
+        Object result = protocolDecoder.decode(null, null, buffer);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void decodeTagOtherVersionHW() {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol());
+        Position position = new Position();
+        protocolDecoder.decodeTagOther(position, prepare1ByteData(1), 0x01);
+        assertEquals(1, (int) position.getInteger(Position.KEY_VERSION_HW));
+    }
+
+    @Test
+    public void decodeTagOtherVersionFW() {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol());
+        Position position = new Position();
+        protocolDecoder.decodeTagOther(position, prepare1ByteData(1), 0x02);
+        assertEquals(1, (int) position.getInteger(Position.KEY_VERSION_FW));
+    }
+
+    @Test
+    public void decodeTagOtherDeviceId() {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol());
+        Position position = new Position();
+        protocolDecoder.decodeTagOther(position, prepare2ByteData(10), 0x04);
+        assertEquals(10, (int) position.getInteger("deviceId"));
+    }
+
+    @Test
+    public void decodeTagOtherIndex() {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol());
+        Position position = new Position();
+        protocolDecoder.decodeTagOther(position, prepare2ByteData(10), 0x10);
+        assertEquals(10, (int) position.getInteger(Position.KEY_INDEX));
+    }
+
+    @Test
+    public void decodeTagOtherTime() {
+        GalileoProtocolDecoder protocolDecoder = new GalileoProtocolDecoder(new Protocol());
+        Position position = new Position();
+        protocolDecoder.decodeTagOther(position, prepare4ByteData(new Date().getTime()), 0x20);
+        assertNotNull(position.getTime());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+
+===================================================
+
+
+====================== Iteration #3 ======================
+
+===================================================
+
+
+====================== Iteration #3 ======================
+
+===================================================
+

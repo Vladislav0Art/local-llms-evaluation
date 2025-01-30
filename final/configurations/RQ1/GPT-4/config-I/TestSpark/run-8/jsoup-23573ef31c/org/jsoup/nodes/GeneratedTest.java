@@ -1,0 +1,143 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.Node;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+
+public class GeneratedTest {
+
+    @Test
+    public void DocumentConstructorTest() {
+        Document doc = new Document("http://example.com");
+        assertNotNull(doc);
+        assertEquals("http://example.com", doc.location());
+    }
+
+    @Test
+    public void createShellTest() {
+        Document doc = Document.createShell("http://example.com");
+        assertNotNull(doc);
+        assertEquals("<html>\n <head></head>\n <body></body>\n</html>", doc.toString());
+    }
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("http://example.com");
+        assertEquals("http://example.com", doc.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Document doc = new Document("http://example.com");
+        assertNotNull(doc.connection());
+    }
+
+    @Test
+    public void headTest() {
+        Document doc = Document.createShell("http://example.com");
+        assertEquals("<head></head>", doc.head().toString());
+    }
+
+    @Test
+    public void bodyTest() {
+        Document doc = Document.createShell("http://example.com");
+        assertEquals("<body></body>", doc.body().toString());
+    }
+
+    @Test
+    public void titleTest() {
+        Document doc = Document.createShell("http://example.com");
+        doc.title("Example");
+        assertEquals("Example", doc.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document doc = new Document("http://example.com");
+        assertEquals("<div></div>", doc.createElement("div").toString());
+    }
+
+    @Test
+    public void outerHtmlTest() {
+        Document doc = Document.createShell("http://example.com");
+        doc.body().append("<div>Test</div>");
+        assertNotNull(doc.outerHtml());
+    }
+
+    @Test
+    public void textTest() {
+        Document doc = Document.createShell("http://example.com");
+        doc.text("Test");
+        assertEquals("Test", doc.body().text());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Document doc = new Document("http://example.com");
+        assertEquals("#document", doc.nodeName());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document doc = new Document("http://example.com");
+        doc.charset(Charset.forName("UTF-16"));
+        assertEquals(Charset.forName("UTF-16"), doc.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementTest() {
+        Document doc = new Document("http://example.com");
+        doc.updateMetaCharsetElement(true);
+        assertEquals(true, doc.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document doc = new Document("http://example.com");
+        Document clone = doc.clone();
+        assertNotNull(clone);
+        assertEquals(doc.outputSettings(), clone.outputSettings());
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        Document doc = new Document("http://example.com");
+        Document clone = doc.shallowClone();
+        assertNotNull(clone);
+        assertEquals(doc.outputSettings(), clone.outputSettings());
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document doc = new Document("http://example.com");
+        Document.OutputSettings settings = new Document.OutputSettings();
+        doc.outputSettings(settings);
+        assertEquals(settings, doc.outputSettings());
+    }
+
+    @Test
+    public void parserTest() {
+        Document doc = new Document("http://example.com");
+        Parser parser = Parser.htmlParser();
+        doc.parser(parser);
+        assertEquals(parser, doc.parser());
+    }
+
+    @Test
+    public void connectionMockTest() {
+        Document doc = new Document("http://example.com");
+        Connection connection = mock(Connection.class);
+        doc.connection(connection);
+        assertEquals(connection, doc.connection());
+    }
+
+}

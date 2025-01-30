@@ -1,0 +1,33 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.Token;
+import org.jsoup.parser.Tokeniser;
+import org.jsoup.parser.TokeniserState;
+import org.jsoup.parser.TokeniserState.EmitDoctypePending;
+import org.jsoup.parser.TokeniserState.EmitTagPending;
+import org.jsoup.parser.TokeniserState.ReadCharRef;
+import org.jsoup.parser.TokeniserState.ReadTagName;
+import org.jsoup.parser.TokeniserState.ReadXmlDecl;
+import org.jsoup.parser.TokeniserState.ReadXmlDeclName;
+import org.jsoup.parser.TokeniserState.ReadXmlDeclValue;
+import org.jsoup.parser.TokeniserState.SelfClosingStartTag;
+import org.jsoup.parser.TokeniserState.TagName;
+import org.jsoup.parser.TokeniserState.XmlDeclAttr;
+import org.jsoup.parser.TokeniserState.XmlDeclName;
+import org.jsoup.parser.TokeniserState.XmlDeclValue;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTestParse {
+
+    @Test
+    public void testParse() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String input = "<xml><tag>Text</tag></xml>";
+        String baseUri = "http://example.com";
+        Document document = xmlTreeBuilder.parse(input, baseUri);
+        assertEquals(input, document.html());
+    }
+
+}

@@ -1,0 +1,18 @@
+package org.stellar.sdk;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+import org.junit.Test;
+
+public class GeneratedGetAccountIdTest {
+
+    @Test
+    public void getAccountIdTest() {
+        KeyPair keyPair = KeyPair.random();
+        String accountId = keyPair.getAccountId();
+        assertTrue(accountId.length() > 0);
+    }
+
+}

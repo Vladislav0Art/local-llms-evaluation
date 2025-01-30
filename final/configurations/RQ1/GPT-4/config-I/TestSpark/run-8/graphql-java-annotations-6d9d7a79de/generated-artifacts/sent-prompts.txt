@@ -1,0 +1,793 @@
+
+====================== Iteration #1 ======================
+Generate unit tests in Java for `graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder` maximizing line coverage for this class.
+
+REQUIREMENTS:
+1. DO NOT use @Before and @After test methods.
+2. Make test cases as atomic as possible.
+3. All tests should be written using JUnit 4.
+4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+The source code of class under test is as follows:
+```
+package graphql.annotations.processor.retrievers.fieldBuilders;
+
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.util.DirectiveJavaAnnotationUtil;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import graphql.schema.GraphQLType;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import static graphql.schema.GraphQLDirective.newDirective;
+public class DirectivesBuilder implements Builder<GraphQLDirective[]> {
+    public static final String NOT_FOUND_IN_DIRECTIVE_REGISTRY_ERROR = "No directive named %s is found in the directive registry";
+    public static final String TOO_MUCH_ARGUMENTS_ERROR = "Directive '%s' is supplied with more argument values than it supports";
+    public static final String DIRECTIVE_ARGUMENT_TYPE_MUST_BE_A_SCALAR = "Directive argument type must be a scalar!";
+    public static final String COULD_NOT_PARSE_ARGUMENT_VALUE_TO_ARGUMENT_TYPE = "Could not parse argument value to argument type";
+    private AnnotatedElement object;
+    private ProcessingElementsContainer container;
+
+    public DirectivesBuilder(AnnotatedElement object, ProcessingElementsContainer container) {
+        this.object = object;
+        this.container = container;
+    }
+
+    @Override
+    public GraphQLDirective[] build() {
+        // building directives from directives java annotations
+        List<GraphQLDirective> graphQLDirectives = new ArrayList<>();
+        DirectiveJavaAnnotationUtil.getDirectiveAnnotations(object)
+                .forEach(annotation -> {
+                    String name = DirectiveJavaAnnotationUtil.getName(annotation);
+                    if (container.getDirectiveRegistry().containsKey(name)) {
+                        GraphQLDirective graphQLDirective = transformArgs(container.getDirectiveRegistry().get(name).getDirective(), annotation);
+                        graphQLDirectives.add(graphQLDirective);
+                    } else {
+                        throw new GraphQLAnnotationsException(String.format(NOT_FOUND_IN_DIRECTIVE_REGISTRY_ERROR, name), null);
+                    }
+                });
+
+        // building directives from graphql-java-annotations directive annotation
+        GraphQLDirectives directives = object.getAnnotation(GraphQLDirectives.class);
+        if (directives != null) {
+            List<GraphQLDirective> oldGraphQLDirectives = Arrays.stream(directives.value())
+                    .map(x -> {
+                                if (container.getDirectiveRegistry().containsKey(x.name())) {
+                                    return transformArgs(container.getDirectiveRegistry().get(x.name()).getDirective(), x.argumentsValues());
+                                } else {
+                                    throw new GraphQLAnnotationsException(String.format(NOT_FOUND_IN_DIRECTIVE_REGISTRY_ERROR, x.name()), null);
+                                }
+                            }
+                    ).collect(Collectors.toList());
+            graphQLDirectives.addAll(oldGraphQLDirectives);
+        }
+
+        return graphQLDirectives.toArray(new GraphQLDirective[graphQLDirectives.size()]);
+    }
+
+
+    private GraphQLDirective transformArgs(GraphQLDirective graphQLDirective, Annotation annotation) {
+        GraphQLDirective.Builder directiveBuilder = newDirective(graphQLDirective);
+        directiveBuilder.clearArguments();
+
+        List<GraphQLArgument> arguments = graphQLDirective.getArguments();
+
+        if (annotation.annotationType().getDeclaredMethods().length > arguments.size()) {
+            throw new GraphQLAnnotationsException(String.format(TOO_MUCH_ARGUMENTS_ERROR, graphQLDirective.getName()), null);
+        }
+
+        for (int i = 0; i < annotation.annotationType().getDeclaredMethods().length; i++) {
+            transformArgument(annotation, directiveBuilder, arguments, i);
+        }
+
+        for (int i = annotation.annotationType().getDeclaredMethods().length; i < arguments.size(); i++) {
+            int finalI = i;
+            directiveBuilder.argument(arguments.get(i).transform(builder -> builder.value(arguments.get(finalI).getArgumentDefaultValue().getValue())));
+        }
+        return directiveBuilder.build();
+    }
+
+    private GraphQLDirective transformArgs(GraphQLDirective graphQLDirective, String[] argumentValues) {
+        GraphQLDirective.Builder directiveBuilder = newDirective(graphQLDirective);
+        directiveBuilder.clearArguments();
+
+        List<GraphQLArgument> arguments = graphQLDirective.getArguments();
+
+        if (argumentValues.length > arguments.size()) {
+            throw new GraphQLAnnotationsException(String.format(TOO_MUCH_ARGUMENTS_ERROR, graphQLDirective.getName()), null);
+        }
+
+        for (int i = 0; i < argumentValues.length; i++) {
+            transformArgument(argumentValues, directiveBuilder, arguments, i);
+        }
+
+        for (int i = argumentValues.length; i < arguments.size(); i++) {
+            int finalI = i;
+            directiveBuilder.argument(arguments.get(i).transform(builder -> builder.value(arguments.get(finalI).getArgumentDefaultValue().getValue())));
+        }
+        return directiveBuilder.build();
+    }
+
+    private void transformArgument(Annotation annotation, GraphQLDirective.Builder directiveBuilder, List<GraphQLArgument> arguments, int i) {
+        int finalI = i;
+        GraphQLArgument graphQLArgument = arguments.get(i);
+        Method[] methods = annotation.annotationType().getDeclaredMethods();
+        directiveBuilder.argument(graphQLArgument.transform(builder -> {
+            if (graphQLArgument.getType() instanceof GraphQLType) {
+                try {
+                    methods[finalI].setAccessible(true);
+                    Object argumentValue = methods[finalI].invoke(annotation);
+                    Object value;
+                    if (graphQLArgument.getType() instanceof GraphQLScalarType) {
+                        value = ((GraphQLScalarType) graphQLArgument.getType()).getCoercing().parseValue(argumentValue);
+                    }
+                    else{
+                        value = argumentValue;
+                    }
+                    builder.value(value);
+                } catch (Exception e) {
+                    throw new GraphQLAnnotationsException(COULD_NOT_PARSE_ARGUMENT_VALUE_TO_ARGUMENT_TYPE, e);
+                }
+            } else {
+                throw new GraphQLAnnotationsException(DIRECTIVE_ARGUMENT_TYPE_MUST_BE_A_SCALAR, null);
+            }
+        }));
+    }
+
+
+    private void transformArgument(String[] argumentValues, GraphQLDirective.Builder directiveBuilder, List<GraphQLArgument> arguments, int i) {
+        int finalI = i;
+        GraphQLArgument graphQLArgument = arguments.get(i);
+
+        directiveBuilder.argument(graphQLArgument.transform(builder -> {
+            String argumentValue = argumentValues[finalI];
+            if (graphQLArgument.getType() instanceof GraphQLScalarType) {
+
+                try {
+                    Object value = ((GraphQLScalarType) graphQLArgument.getType()).getCoercing().parseValue(argumentValue);
+                    builder.value(value);
+                } catch (Exception e) {
+                    throw new GraphQLAnnotationsException(COULD_NOT_PARSE_ARGUMENT_VALUE_TO_ARGUMENT_TYPE, e);
+                }
+            } else {
+                throw new GraphQLAnnotationsException(DIRECTIVE_ARGUMENT_TYPE_MUST_BE_A_SCALAR, null);
+            }
+        }));
+    }
+}
+```
+
+Generate public classes and public methods. Response only a code with tests between ```, do not provide any other text.
+===================================================
+
+
+====================== Iteration #2 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:4: error: cannot find symbol
+import graphql.annotations.annotationTypes.directives.activation.DirectiveValue;
+                                                                ^
+  symbol:   class DirectiveValue
+  location: package graphql.annotations.annotationTypes.directives.activation
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:7: error: cannot find symbol
+import graphql.annotations.processor.retrievers.fieldBuilders.DefaultDefaultValue;
+                                                             ^
+  symbol:   class DefaultDefaultValue
+  location: package graphql.annotations.processor.retrievers.fieldBuilders
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:62: error: cannot find symbol
+    private Map<String, DirectiveValue> prepareDirectiveRegistry() {
+                        ^
+  symbol:   class DirectiveValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:35: error: package DefaultDefaultValue does not exist
+        Class<?> clazz = DefaultDefaultValue.TestAnnotation.class;
+                                            ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:36: error: cannot find symbol
+        Map<String, DirectiveValue> directives = new HashMap<>();
+                    ^
+  symbol:   class DirectiveValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:50: error: cannot find symbol
+        Map<String, DirectiveValue> directives = prepareDirectiveRegistry();
+                    ^
+  symbol:   class DirectiveValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:63: error: cannot find symbol
+        Map<String, DirectiveValue> directives = new HashMap<>();
+                    ^
+  symbol:   class DirectiveValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:64: error: cannot find symbol
+        DirectiveValue directiveValue = new DirectiveValue();
+        ^
+  symbol:   class DirectiveValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:64: error: cannot find symbol
+        DirectiveValue directiveValue = new DirectiveValue();
+                                            ^
+  symbol:   class DirectiveValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:68: error: cannot find symbol
+                .type(GraphQLScalarType.newScalar().name("string").coercing(new TestCoercing()).build())
+                                                                                ^
+  symbol:   class TestCoercing
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:79: error: cannot find symbol
+        Map<String, DirectiveValue> directives = prepareDirectiveRegistry();
+                    ^
+  symbol:   class DirectiveValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:94: error: cannot find symbol
+        Map<String, DirectiveValue> directives = prepareDirectiveRegistry();
+                    ^
+  symbol:   class DirectiveValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:96: error: package DefaultDefaultValue does not exist
+        DirectivesBuilder builder = new DirectivesBuilder(DefaultDefaultValue.TestAnnotation.class, container);
+                                                                             ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:99: error: no suitable method found for transformArgs(GraphQLDirective,String[])
+            builder.transformArgs(directive, new String[]{"1", "2"});
+                   ^
+    method DirectivesBuilder.transformArgs(GraphQLDirective,String[]) is not applicable
+      (transformArgs(GraphQLDirective,String[]) has private access in DirectivesBuilder)
+    method DirectivesBuilder.transformArgs(GraphQLDirective,Annotation) is not applicable
+      (argument mismatch; String[] cannot be converted to Annotation)
+14 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #3 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:5: error: package org.junit.jupiter.api does not exist
+import static org.junit.jupiter.api.Assertions.assertThrows;
+                                   ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:5: error: static import only from classes and interfaces
+import static org.junit.jupiter.api.Assertions.assertThrows;
+^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:16: error: package org.junit.jupiter.api does not exist
+import org.junit.jupiter.api.Test;
+                            ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:17: error: package org.junit.jupiter.params does not exist
+import org.junit.jupiter.params.ParameterizedTest;
+                               ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:18: error: package org.junit.jupiter.params.provider does not exist
+import org.junit.jupiter.params.provider.ValueSource;
+                                        ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:35: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:44: error: cannot find symbol
+    @ParameterizedTest
+     ^
+  symbol:   class ParameterizedTest
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:45: error: cannot find symbol
+    @ValueSource(ints = {0, 100, Integer.MAX_VALUE})
+     ^
+  symbol:   class ValueSource
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:57: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:79: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:101: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:41: error: cannot find symbol
+        assertThrows(GraphQLAnnotationsException.class, builder::build);
+        ^
+  symbol:   method assertThrows(Class<GraphQLAnnotationsException>,builder::build)
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:51: error: cannot find symbol
+        assertThrows(GraphQLAnnotationsException.class, () -> {
+        ^
+  symbol:   method assertThrows(Class<GraphQLAnnotationsException>,()->{ Dire[...]s); })
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:53: error: no suitable method found for transformArgs(GraphQLDirective,String[])
+            builder.transformArgs(directive, arguments);
+                   ^
+    method DirectivesBuilder.transformArgs(GraphQLDirective,String[]) is not applicable
+      (transformArgs(GraphQLDirective,String[]) has private access in DirectivesBuilder)
+    method DirectivesBuilder.transformArgs(GraphQLDirective,Annotation) is not applicable
+      (argument mismatch; String[] cannot be converted to Annotation)
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:61: error: incompatible types: GraphQLInputType is not a functional interface
+                .type(graphQLType -> Collections.EMPTY_LIST)
+                ^
+    multiple non-overriding abstract methods found in interface GraphQLInputType
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:70: error: no suitable method found for thenReturn(Map<String,List<GraphQLArgument>>)
+        when(container.getDirectiveRegistry()).thenReturn(directiveRegistry);
+                                              ^
+    method OngoingStubbing.thenReturn(Map<String,DirectiveAndWiring>) is not applicable
+      (argument mismatch; Map<String,List<GraphQLArgument>> cannot be converted to Map<String,DirectiveAndWiring>)
+    method OngoingStubbing.thenReturn(Map<String,DirectiveAndWiring>,Map<String,DirectiveAndWiring>...) is not applicable
+      (argument mismatch; Map<String,List<GraphQLArgument>> cannot be converted to Map<String,DirectiveAndWiring>)
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:73: error: cannot find symbol
+        assertThrows(GraphQLAnnotationsException.class, () -> builder.transformArgs(
+        ^
+  symbol:   method assertThrows(Class<GraphQLAnnotationsException>,()->builde[...]tion))
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:73: error: no suitable method found for transformArgs(GraphQLDirective,Annotation)
+        assertThrows(GraphQLAnnotationsException.class, () -> builder.transformArgs(
+                                                                     ^
+    method DirectivesBuilder.transformArgs(GraphQLDirective,Annotation) is not applicable
+      (transformArgs(GraphQLDirective,Annotation) has private access in DirectivesBuilder)
+    method DirectivesBuilder.transformArgs(GraphQLDirective,String[]) is not applicable
+      (argument mismatch; Annotation cannot be converted to String[])
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:92: error: no suitable method found for thenReturn(Map<String,List<GraphQLArgument>>)
+        when(container.getDirectiveRegistry()).thenReturn(directiveRegistry);
+                                              ^
+    method OngoingStubbing.thenReturn(Map<String,DirectiveAndWiring>) is not applicable
+      (argument mismatch; Map<String,List<GraphQLArgument>> cannot be converted to Map<String,DirectiveAndWiring>)
+    method OngoingStubbing.thenReturn(Map<String,DirectiveAndWiring>,Map<String,DirectiveAndWiring>...) is not applicable
+      (argument mismatch; Map<String,List<GraphQLArgument>> cannot be converted to Map<String,DirectiveAndWiring>)
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:95: error: cannot find symbol
+        assertThrows(GraphQLAnnotationsException.class, () -> builder.transformArgs(
+        ^
+  symbol:   method assertThrows(Class<GraphQLAnnotationsException>,()->builde[...]tion))
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:95: error: no suitable method found for transformArgs(GraphQLDirective,Annotation)
+        assertThrows(GraphQLAnnotationsException.class, () -> builder.transformArgs(
+                                                                     ^
+    method DirectivesBuilder.transformArgs(GraphQLDirective,Annotation) is not applicable
+      (transformArgs(GraphQLDirective,Annotation) has private access in DirectivesBuilder)
+    method DirectivesBuilder.transformArgs(GraphQLDirective,String[]) is not applicable
+      (argument mismatch; Annotation cannot be converted to String[])
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:111: error: cannot find symbol
+        MockitoAnnotations.verify(object).getAnnotations();
+                          ^
+  symbol:   method verify(AnnotatedElement)
+  location: class MockitoAnnotations
+Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+22 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #4 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:7: error: cannot find symbol
+import graphql.annotations.processor.util.DirectiveAndWiring;
+                                         ^
+  symbol:   class DirectiveAndWiring
+  location: package graphql.annotations.processor.util
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:43: error: cannot find symbol
+        Map<String, DirectiveAndWiring> directives = new HashMap<>();
+                    ^
+  symbol:   class DirectiveAndWiring
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:61: error: incompatible types: GraphQLInputType is not a functional interface
+        GraphQLArgument arg = GraphQLArgument.newArgument().type(object -> null).name("test").build();
+                                                           ^
+    multiple non-overriding abstract methods found in interface GraphQLInputType
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:62: error: cannot find symbol
+        DirectiveAndWiring directiveAndWiring = new DirectiveAndWiring();
+        ^
+  symbol:   class DirectiveAndWiring
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:62: error: cannot find symbol
+        DirectiveAndWiring directiveAndWiring = new DirectiveAndWiring();
+                                                    ^
+  symbol:   class DirectiveAndWiring
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:64: error: cannot find symbol
+        Map<String, DirectiveAndWiring> directiveRegistry = new HashMap<>();
+                    ^
+  symbol:   class DirectiveAndWiring
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:85: error: cannot find symbol
+        DirectiveAndWiring directiveAndWiring = new DirectiveAndWiring();
+        ^
+  symbol:   class DirectiveAndWiring
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:85: error: cannot find symbol
+        DirectiveAndWiring directiveAndWiring = new DirectiveAndWiring();
+                                                    ^
+  symbol:   class DirectiveAndWiring
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:87: error: cannot find symbol
+        Map<String, DirectiveAndWiring> directiveRegistry = new HashMap<>();
+                    ^
+  symbol:   class DirectiveAndWiring
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:112: error: cannot find symbol
+        DirectiveAndWiring directiveAndWiring = new DirectiveAndWiring();
+        ^
+  symbol:   class DirectiveAndWiring
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:112: error: cannot find symbol
+        DirectiveAndWiring directiveAndWiring = new DirectiveAndWiring();
+                                                    ^
+  symbol:   class DirectiveAndWiring
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-8/graphql-java-annotations-6d9d7a79de/graphql/annotations/processor/retrievers/fieldBuilders/GeneratedTest.java:115: error: cannot find symbol
+        Map<String, DirectiveAndWiring> directiveRegistry = new HashMap<>();
+                    ^
+  symbol:   class DirectiveAndWiring
+  location: class GeneratedTest
+Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+12 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #4 ======================
+Generate unit tests in Java for `graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder` maximizing line coverage for this class.
+
+REQUIREMENTS:
+1. DO NOT use @Before and @After test methods.
+2. Make test cases as atomic as possible.
+3. All tests should be written using JUnit 4.
+4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+The source code of class under test is as follows:
+```
+package graphql.annotations.processor.retrievers.fieldBuilders;
+
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.util.DirectiveJavaAnnotationUtil;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import graphql.schema.GraphQLType;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import static graphql.schema.GraphQLDirective.newDirective;
+public class DirectivesBuilder implements Builder<GraphQLDirective[]> {
+    public static final String NOT_FOUND_IN_DIRECTIVE_REGISTRY_ERROR = "No directive named %s is found in the directive registry";
+    public static final String TOO_MUCH_ARGUMENTS_ERROR = "Directive '%s' is supplied with more argument values than it supports";
+    public static final String DIRECTIVE_ARGUMENT_TYPE_MUST_BE_A_SCALAR = "Directive argument type must be a scalar!";
+    public static final String COULD_NOT_PARSE_ARGUMENT_VALUE_TO_ARGUMENT_TYPE = "Could not parse argument value to argument type";
+    private AnnotatedElement object;
+    private ProcessingElementsContainer container;
+
+    public DirectivesBuilder(AnnotatedElement object, ProcessingElementsContainer container) {
+        this.object = object;
+        this.container = container;
+    }
+
+    @Override
+    public GraphQLDirective[] build() {
+        // building directives from directives java annotations
+        List<GraphQLDirective> graphQLDirectives = new ArrayList<>();
+        DirectiveJavaAnnotationUtil.getDirectiveAnnotations(object)
+                .forEach(annotation -> {
+                    String name = DirectiveJavaAnnotationUtil.getName(annotation);
+                    if (container.getDirectiveRegistry().containsKey(name)) {
+                        GraphQLDirective graphQLDirective = transformArgs(container.getDirectiveRegistry().get(name).getDirective(), annotation);
+                        graphQLDirectives.add(graphQLDirective);
+                    } else {
+                        throw new GraphQLAnnotationsException(String.format(NOT_FOUND_IN_DIRECTIVE_REGISTRY_ERROR, name), null);
+                    }
+                });
+
+        // building directives from graphql-java-annotations directive annotation
+        GraphQLDirectives directives = object.getAnnotation(GraphQLDirectives.class);
+        if (directives != null) {
+            List<GraphQLDirective> oldGraphQLDirectives = Arrays.stream(directives.value())
+                    .map(x -> {
+                                if (container.getDirectiveRegistry().containsKey(x.name())) {
+                                    return transformArgs(container.getDirectiveRegistry().get(x.name()).getDirective(), x.argumentsValues());
+                                } else {
+                                    throw new GraphQLAnnotationsException(String.format(NOT_FOUND_IN_DIRECTIVE_REGISTRY_ERROR, x.name()), null);
+                                }
+                            }
+                    ).collect(Collectors.toList());
+            graphQLDirectives.addAll(oldGraphQLDirectives);
+        }
+
+        return graphQLDirectives.toArray(new GraphQLDirective[graphQLDirectives.size()]);
+    }
+
+
+    private GraphQLDirective transformArgs(GraphQLDirective graphQLDirective, Annotation annotation) {
+        GraphQLDirective.Builder directiveBuilder = newDirective(graphQLDirective);
+        directiveBuilder.clearArguments();
+
+        List<GraphQLArgument> arguments = graphQLDirective.getArguments();
+
+        if (annotation.annotationType().getDeclaredMethods().length > arguments.size()) {
+            throw new GraphQLAnnotationsException(String.format(TOO_MUCH_ARGUMENTS_ERROR, graphQLDirective.getName()), null);
+        }
+
+        for (int i = 0; i < annotation.annotationType().getDeclaredMethods().length; i++) {
+            transformArgument(annotation, directiveBuilder, arguments, i);
+        }
+
+        for (int i = annotation.annotationType().getDeclaredMethods().length; i < arguments.size(); i++) {
+            int finalI = i;
+            directiveBuilder.argument(arguments.get(i).transform(builder -> builder.value(arguments.get(finalI).getArgumentDefaultValue().getValue())));
+        }
+        return directiveBuilder.build();
+    }
+
+    private GraphQLDirective transformArgs(GraphQLDirective graphQLDirective, String[] argumentValues) {
+        GraphQLDirective.Builder directiveBuilder = newDirective(graphQLDirective);
+        directiveBuilder.clearArguments();
+
+        List<GraphQLArgument> arguments = graphQLDirective.getArguments();
+
+        if (argumentValues.length > arguments.size()) {
+            throw new GraphQLAnnotationsException(String.format(TOO_MUCH_ARGUMENTS_ERROR, graphQLDirective.getName()), null);
+        }
+
+        for (int i = 0; i < argumentValues.length; i++) {
+            transformArgument(argumentValues, directiveBuilder, arguments, i);
+        }
+
+        for (int i = argumentValues.length; i < arguments.size(); i++) {
+            int finalI = i;
+            directiveBuilder.argument(arguments.get(i).transform(builder -> builder.value(arguments.get(finalI).getArgumentDefaultValue().getValue())));
+        }
+        return directiveBuilder.build();
+    }
+
+    private void transformArgument(Annotation annotation, GraphQLDirective.Builder directiveBuilder, List<GraphQLArgument> arguments, int i) {
+        int finalI = i;
+        GraphQLArgument graphQLArgument = arguments.get(i);
+        Method[] methods = annotation.annotationType().getDeclaredMethods();
+        directiveBuilder.argument(graphQLArgument.transform(builder -> {
+            if (graphQLArgument.getType() instanceof GraphQLType) {
+                try {
+                    methods[finalI].setAccessible(true);
+                    Object argumentValue = methods[finalI].invoke(annotation);
+                    Object value;
+                    if (graphQLArgument.getType() instanceof GraphQLScalarType) {
+                        value = ((GraphQLScalarType) graphQLArgument.getType()).getCoercing().parseValue(argumentValue);
+                    }
+                    else{
+                        value = argumentValue;
+                    }
+                    builder.value(value);
+                } catch (Exception e) {
+                    throw new GraphQLAnnotationsException(COULD_NOT_PARSE_ARGUMENT_VALUE_TO_ARGUMENT_TYPE, e);
+                }
+            } else {
+                throw new GraphQLAnnotationsException(DIRECTIVE_ARGUMENT_TYPE_MUST_BE_A_SCALAR, null);
+            }
+        }));
+    }
+
+
+    private void transformArgument(String[] argumentValues, GraphQLDirective.Builder directiveBuilder, List<GraphQLArgument> arguments, int i) {
+        int finalI = i;
+        GraphQLArgument graphQLArgument = arguments.get(i);
+
+        directiveBuilder.argument(graphQLArgument.transform(builder -> {
+            String argumentValue = argumentValues[finalI];
+            if (graphQLArgument.getType() instanceof GraphQLScalarType) {
+
+                try {
+                    Object value = ((GraphQLScalarType) graphQLArgument.getType()).getCoercing().parseValue(argumentValue);
+                    builder.value(value);
+                } catch (Exception e) {
+                    throw new GraphQLAnnotationsException(COULD_NOT_PARSE_ARGUMENT_VALUE_TO_ARGUMENT_TYPE, e);
+                }
+            } else {
+                throw new GraphQLAnnotationsException(DIRECTIVE_ARGUMENT_TYPE_MUST_BE_A_SCALAR, null);
+            }
+        }));
+    }
+}
+```
+
+Generate public classes and public methods. Response only a code with tests between ```, do not provide any other text.
+===================================================
+
+
+====================== Iteration #4 ======================
+Generate unit tests in Java for `graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder` maximizing line coverage for this class.
+
+REQUIREMENTS:
+1. DO NOT use @Before and @After test methods.
+2. Make test cases as atomic as possible.
+3. All tests should be written using JUnit 4.
+4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+The source code of class under test is as follows:
+```
+package graphql.annotations.processor.retrievers.fieldBuilders;
+
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.util.DirectiveJavaAnnotationUtil;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import graphql.schema.GraphQLType;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import static graphql.schema.GraphQLDirective.newDirective;
+public class DirectivesBuilder implements Builder<GraphQLDirective[]> {
+    public static final String NOT_FOUND_IN_DIRECTIVE_REGISTRY_ERROR = "No directive named %s is found in the directive registry";
+    public static final String TOO_MUCH_ARGUMENTS_ERROR = "Directive '%s' is supplied with more argument values than it supports";
+    public static final String DIRECTIVE_ARGUMENT_TYPE_MUST_BE_A_SCALAR = "Directive argument type must be a scalar!";
+    public static final String COULD_NOT_PARSE_ARGUMENT_VALUE_TO_ARGUMENT_TYPE = "Could not parse argument value to argument type";
+    private AnnotatedElement object;
+    private ProcessingElementsContainer container;
+
+    public DirectivesBuilder(AnnotatedElement object, ProcessingElementsContainer container) {
+        this.object = object;
+        this.container = container;
+    }
+
+    @Override
+    public GraphQLDirective[] build() {
+        // building directives from directives java annotations
+        List<GraphQLDirective> graphQLDirectives = new ArrayList<>();
+        DirectiveJavaAnnotationUtil.getDirectiveAnnotations(object)
+                .forEach(annotation -> {
+                    String name = DirectiveJavaAnnotationUtil.getName(annotation);
+                    if (container.getDirectiveRegistry().containsKey(name)) {
+                        GraphQLDirective graphQLDirective = transformArgs(container.getDirectiveRegistry().get(name).getDirective(), annotation);
+                        graphQLDirectives.add(graphQLDirective);
+                    } else {
+                        throw new GraphQLAnnotationsException(String.format(NOT_FOUND_IN_DIRECTIVE_REGISTRY_ERROR, name), null);
+                    }
+                });
+
+        // building directives from graphql-java-annotations directive annotation
+        GraphQLDirectives directives = object.getAnnotation(GraphQLDirectives.class);
+        if (directives != null) {
+            List<GraphQLDirective> oldGraphQLDirectives = Arrays.stream(directives.value())
+                    .map(x -> {
+                                if (container.getDirectiveRegistry().containsKey(x.name())) {
+                                    return transformArgs(container.getDirectiveRegistry().get(x.name()).getDirective(), x.argumentsValues());
+                                } else {
+                                    throw new GraphQLAnnotationsException(String.format(NOT_FOUND_IN_DIRECTIVE_REGISTRY_ERROR, x.name()), null);
+                                }
+                            }
+                    ).collect(Collectors.toList());
+            graphQLDirectives.addAll(oldGraphQLDirectives);
+        }
+
+        return graphQLDirectives.toArray(new GraphQLDirective[graphQLDirectives.size()]);
+    }
+
+
+    private GraphQLDirective transformArgs(GraphQLDirective graphQLDirective, Annotation annotation) {
+        GraphQLDirective.Builder directiveBuilder = newDirective(graphQLDirective);
+        directiveBuilder.clearArguments();
+
+        List<GraphQLArgument> arguments = graphQLDirective.getArguments();
+
+        if (annotation.annotationType().getDeclaredMethods().length > arguments.size()) {
+            throw new GraphQLAnnotationsException(String.format(TOO_MUCH_ARGUMENTS_ERROR, graphQLDirective.getName()), null);
+        }
+
+        for (int i = 0; i < annotation.annotationType().getDeclaredMethods().length; i++) {
+            transformArgument(annotation, directiveBuilder, arguments, i);
+        }
+
+        for (int i = annotation.annotationType().getDeclaredMethods().length; i < arguments.size(); i++) {
+            int finalI = i;
+            directiveBuilder.argument(arguments.get(i).transform(builder -> builder.value(arguments.get(finalI).getArgumentDefaultValue().getValue())));
+        }
+        return directiveBuilder.build();
+    }
+
+    private GraphQLDirective transformArgs(GraphQLDirective graphQLDirective, String[] argumentValues) {
+        GraphQLDirective.Builder directiveBuilder = newDirective(graphQLDirective);
+        directiveBuilder.clearArguments();
+
+        List<GraphQLArgument> arguments = graphQLDirective.getArguments();
+
+        if (argumentValues.length > arguments.size()) {
+            throw new GraphQLAnnotationsException(String.format(TOO_MUCH_ARGUMENTS_ERROR, graphQLDirective.getName()), null);
+        }
+
+        for (int i = 0; i < argumentValues.length; i++) {
+            transformArgument(argumentValues, directiveBuilder, arguments, i);
+        }
+
+        for (int i = argumentValues.length; i < arguments.size(); i++) {
+            int finalI = i;
+            directiveBuilder.argument(arguments.get(i).transform(builder -> builder.value(arguments.get(finalI).getArgumentDefaultValue().getValue())));
+        }
+        return directiveBuilder.build();
+    }
+
+    private void transformArgument(Annotation annotation, GraphQLDirective.Builder directiveBuilder, List<GraphQLArgument> arguments, int i) {
+        int finalI = i;
+        GraphQLArgument graphQLArgument = arguments.get(i);
+        Method[] methods = annotation.annotationType().getDeclaredMethods();
+        directiveBuilder.argument(graphQLArgument.transform(builder -> {
+            if (graphQLArgument.getType() instanceof GraphQLType) {
+                try {
+                    methods[finalI].setAccessible(true);
+                    Object argumentValue = methods[finalI].invoke(annotation);
+                    Object value;
+                    if (graphQLArgument.getType() instanceof GraphQLScalarType) {
+                        value = ((GraphQLScalarType) graphQLArgument.getType()).getCoercing().parseValue(argumentValue);
+                    }
+                    else{
+                        value = argumentValue;
+                    }
+                    builder.value(value);
+                } catch (Exception e) {
+                    throw new GraphQLAnnotationsException(COULD_NOT_PARSE_ARGUMENT_VALUE_TO_ARGUMENT_TYPE, e);
+                }
+            } else {
+                throw new GraphQLAnnotationsException(DIRECTIVE_ARGUMENT_TYPE_MUST_BE_A_SCALAR, null);
+            }
+        }));
+    }
+
+
+    private void transformArgument(String[] argumentValues, GraphQLDirective.Builder directiveBuilder, List<GraphQLArgument> arguments, int i) {
+        int finalI = i;
+        GraphQLArgument graphQLArgument = arguments.get(i);
+
+        directiveBuilder.argument(graphQLArgument.transform(builder -> {
+            String argumentValue = argumentValues[finalI];
+            if (graphQLArgument.getType() instanceof GraphQLScalarType) {
+
+                try {
+                    Object value = ((GraphQLScalarType) graphQLArgument.getType()).getCoercing().parseValue(argumentValue);
+                    builder.value(value);
+                } catch (Exception e) {
+                    throw new GraphQLAnnotationsException(COULD_NOT_PARSE_ARGUMENT_VALUE_TO_ARGUMENT_TYPE, e);
+                }
+            } else {
+                throw new GraphQLAnnotationsException(DIRECTIVE_ARGUMENT_TYPE_MUST_BE_A_SCALAR, null);
+            }
+        }));
+    }
+}
+```
+
+Generate public classes and public methods. Response only a code with tests between ```, do not provide any other text.
+===================================================
+

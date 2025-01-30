@@ -1,0 +1,345 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import com.github.davidmoten.guavamini.Preconditions;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
+
+public class WordWrapTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void maxWidthInvalidInputTest() {
+        WordWrap.from("This is a normal text").maxWidth(-1);
+    }
+
+    @Test
+    public void stringWidthTest() {
+        Function<? super CharSequence, ? extends Number> stringWidth = s -> s.toString().toUpperCase().length();
+        WordWrap.Builder builder = WordWrap.from("This is a normal text").stringWidth(stringWidth);
+        Assert.assertEquals(stringWidth, builder.stringWidth);
+    }
+
+    @Test
+    public void newLineTest() {
+        String newLine = "\r";
+        WordWrap.Builder builder = WordWrap.from("This is a normal text").newLine(newLine);
+        Assert.assertEquals(newLine, builder.newLine);
+    }
+
+    @Test
+    public void extraWordCharsTest() {
+        Set<Character> extraWordChars = new HashSet<>();
+        extraWordChars.add('-');
+        WordWrap.Builder builder = WordWrap.from("This is a normal text").extraWordChars(extraWordChars);
+        Assert.assertEquals(extraWordChars, builder.extraWordChars);
+    }
+
+    @Test
+    public void extraWordCharsStringTest() {
+        String extraWordChars = "-";
+        WordWrap.Builder builder = WordWrap.from("This is a normal text").extraWordChars(extraWordChars);
+        Assert.assertTrue(builder.extraWordChars.contains('-'));
+    }
+
+    @Test
+    public void includeExtraWordCharsTest() {
+        String includeWordChars = "-";
+        WordWrap.Builder builder = WordWrap.from("This is a normal text").includeExtraWordChars(includeWordChars);
+        Assert.assertTrue(builder.extraWordChars.contains('-'));
+    }
+
+    @Test
+    public void excludeExtraWordCharsTest() {
+        String excludeWordChars = "-";
+        WordWrap.Builder builder = WordWrap.from("This is a normal text").excludeExtraWordChars(excludeWordChars);
+        Assert.assertFalse(builder.extraWordChars.contains('-'));
+    }
+
+    @Test
+    public void insertHyphensTest() {
+        boolean insertHyphens = false;
+        WordWrap.Builder builder = WordWrap.from("This is a normal text").insertHyphens(insertHyphens);
+        Assert.assertEquals(insertHyphens, builder.insertHyphens);
+    }
+
+    @Test
+    public void breakWordsTest() {
+        boolean breakWords = false;
+        WordWrap.Builder builder = WordWrap.from("This is a normal text").breakWords(breakWords);
+        Assert.assertEquals(breakWords, builder.breakWords);
+    }
+
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void wrapTestException() {
+        Writer mockWriter = Mockito.mock(Writer.class);
+        Mockito.doThrow(new IOException()).when(mockWriter).write(Mockito.anyString());
+        WordWrap.from("This is a normal text").wrap(mockWriter);
+    }
+
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void wrapUtf8TestException() {
+        File mockFile = new File("test");
+        WordWrap.from("This is a normal text").wrapUtf8(mockFile);
+    }
+
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void wrapTestExceptionWithCharset() {
+        File mockFile = new File("test");
+        WordWrap.from("This is a normal text").wrap(mockFile, StandardCharsets.UTF_8);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.function.Function;
+
+public class WordWrapTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void maxWidthInvalidInputTest() {
+        WordWrap.from("This is a normal text").maxWidth(-1).wrap();
+    }
+
+    @Test
+    public void stringWidthTest() {
+        Function<? super CharSequence, ? extends Number> stringWidth = s -> s.toString().toUpperCase().length();
+        List<String> wordWrapLines = WordWrap.from("This is a normal text").stringWidth(stringWidth).wrapToList();
+        Assert.assertFalse(wordWrapLines.isEmpty());
+    }
+
+    @Test
+    public void newLineTest() {
+        String newLine = "\r";
+        String wrappedText = WordWrap.from("This is a normal text").newLine(newLine).wrap();
+        Assert.assertTrue(wrappedText.contains(newLine));
+    }
+
+    @Test
+    public void insertHyphensTest() {
+        boolean insertHyphens = false;
+        String wrappedText = WordWrap.from("This is a normal text").insertHyphens(insertHyphens).wrap();
+        Assert.assertFalse(wrappedText.contains("-"));
+    }
+
+    @Test
+    public void breakWordsTest() {
+        boolean breakWords = false;
+        String wrappedText = WordWrap.from("This is a normal text").breakWords(breakWords).wrap();
+        Assert.assertFalse(wrappedText.contains("\n"));
+    }
+
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void wrapTestException() {
+        StringWriter stringWriter = new StringWriter() {
+            @Override
+            public void write(String str) throws IOException {
+                throw new IOException();
+            }
+        };
+        WordWrap.from("This is a normal text").wrap(stringWriter);
+    }
+
+    @Test
+    public void fromUtf8Test() {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("This is a normal text".getBytes(StandardCharsets.UTF_8));
+        String wrappedText = WordWrap.fromUtf8(byteArrayInputStream).wrap();
+        Assert.assertFalse(wrappedText.isEmpty());
+    }
+    
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void fromFileWithCharsetTestException() {
+        File nonExistentFile = Mockito.mock(File.class);
+        Mockito.when(nonExistentFile.exists()).thenReturn(false);
+        WordWrap.from(nonExistentFile, StandardCharsets.UTF_8);
+    }
+
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void wrapTestExceptionWithCharset() {
+        WordWrap.Builder builder = WordWrap.from("This is a normal text");
+        File mockFile = Mockito.mock(File.class);
+        Mockito.when(mockFile.exists()).thenReturn(true);
+        Mockito.when(mockFile.canWrite()).thenReturn(true);
+        builder.wrap(mockFile, StandardCharsets.UTF_8);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.function.Function;
+
+public class WordWrapTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void maxWidthInvalidInputTest() {
+        WordWrap.from("This is a normal text").maxWidth(-1).wrap();
+    }
+
+    @Test
+    public void stringWidthTest() {
+        Function<? super CharSequence, ? extends Number> stringWidth = s -> s.toString().toUpperCase().length();
+        List<String> wordWrapLines = WordWrap.from("This is a normal text").stringWidth(stringWidth).wrapToList();
+        Assert.assertFalse(wordWrapLines.isEmpty());
+    }
+
+    @Test
+    public void newLineTest() {
+        String newLine = "\r";
+        String wrappedText = WordWrap.from("This is a normal text").newLine(newLine).wrap();
+        Assert.assertTrue(wrappedText.contains(newLine));
+    }
+
+    @Test
+    public void insertHyphensTest() {
+        boolean insertHyphens = false;
+        String wrappedText = WordWrap.from("This is a normal text").insertHyphens(insertHyphens).wrap();
+        Assert.assertFalse(wrappedText.contains("-"));
+    }
+
+    @Test
+    public void breakWordsTest() {
+        boolean breakWords = false;
+        String wrappedText = WordWrap.from("This is a normal text").breakWords(breakWords).wrap();
+        Assert.assertFalse(wrappedText.contains("\n"));
+    }
+
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void wrapTestException() {
+        Writer writer = Mockito.mock(Writer.class);
+        Mockito.doThrow(new IOException()).when(writer).write(Mockito.anyString());
+        WordWrap.from("This is a normal text").wrap(writer);
+    }
+
+    @Test
+    public void fromUtf8Test() {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("This is a normal text".getBytes(StandardCharsets.UTF_8));
+        String wrappedText = WordWrap.fromUtf8(byteArrayInputStream).wrap();
+        Assert.assertFalse(wrappedText.isEmpty());
+    }
+    
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void fromFileWithCharsetTestException() {
+        File nonExistentFile = Mockito.mock(File.class);
+        Mockito.when(nonExistentFile.exists()).thenReturn(false);
+        WordWrap.from(nonExistentFile, StandardCharsets.UTF_8);
+    }
+
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void wrapTestExceptionWithCharset() {
+        WordWrap.Builder builder = WordWrap.from("This is a normal text");
+        File mockFile = Mockito.mock(File.class);
+        Mockito.when(mockFile.exists()).thenReturn(true);
+        Mockito.when(mockFile.canWrite()).thenReturn(true);
+        builder.wrap(mockFile, StandardCharsets.UTF_8);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.function.Function;
+
+public class WordWrapTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void maxWidthInvalidInputTest() {
+        WordWrap.from("This is a normal text").maxWidth(-1).wrap();
+    }
+
+    @Test
+    public void stringWidthTest() {
+        Function<? super CharSequence, ? extends Number> stringWidth = s -> s.toString().toUpperCase().length();
+        List<String> wordWrapLines = WordWrap.from("This is a normal text").stringWidth(stringWidth).wrapToList();
+        Assert.assertFalse(wordWrapLines.isEmpty());
+    }
+
+    @Test
+    public void newLineTest() {
+        String newLine = "\r";
+        String wrappedText = WordWrap.from("This is a normal text").newLine(newLine).wrap();
+        Assert.assertTrue(wrappedText.contains(newLine));
+    }
+
+    @Test
+    public void insertHyphensTest() {
+        boolean insertHyphens = false;
+        String wrappedText = WordWrap.from("This is a normal text").insertHyphens(insertHyphens).wrap();
+        Assert.assertFalse(wrappedText.contains("-"));
+    }
+
+    @Test
+    public void breakWordsTest() {
+        boolean breakWords = false;
+        String wrappedText = WordWrap.from("This is a normal text").breakWords(breakWords).wrap();
+        Assert.assertFalse(wrappedText.contains("\n"));
+    }
+
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void wrapTestException() throws IOException {
+        Writer writer = Mockito.mock(Writer.class);
+        Mockito.doThrow(new IOException()).when(writer).write(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt());
+        WordWrap.from("This is a normal text").wrap(writer);
+    }
+
+    @Test
+    public void fromUtf8Test() {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("This is a normal text".getBytes(StandardCharsets.UTF_8));
+        String wrappedText = WordWrap.fromUtf8(byteArrayInputStream).wrap();
+        Assert.assertFalse(wrappedText.isEmpty());
+    }
+    
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void fromFileWithCharsetTestException() {
+        File nonExistentFile = Mockito.mock(File.class);
+        Mockito.when(nonExistentFile.exists()).thenReturn(false);
+        WordWrap.from(nonExistentFile, StandardCharsets.UTF_8);
+    }
+
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void wrapTestExceptionWithCharset() {
+        WordWrap.Builder builder = WordWrap.from("This is a normal text");
+        File mockFile = Mockito.mock(File.class);
+        Mockito.when(mockFile.exists()).thenReturn(true);
+        Mockito.when(mockFile.canWrite()).thenReturn(true);
+        builder.wrap(mockFile, StandardCharsets.UTF_8);
+    }
+}
+```
+===================================================
+

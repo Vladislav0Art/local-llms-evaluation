@@ -1,0 +1,67 @@
+package leetcode.medium;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextFirstPriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int result = stockSpan.next(100);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void nextHigherPriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        int result = stockSpan.next(200);
+        Assert.assertEquals(2, result);
+    }
+
+    @Test
+    public void nextLowerPriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        int result = stockSpan.next(80);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void nextEqualPriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        int result = stockSpan.next(100);
+        Assert.assertEquals(2, result);
+    }
+
+    @Test
+    public void calculateSpansSinglePriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{100});
+        Assert.assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpansSeveralAscendingPricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{10, 20, 30});
+        Assert.assertArrayEquals(new int[]{1, 2, 3}, result);
+    }
+
+    @Test
+    public void calculateSpansSeveralDescendingPricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{30, 20, 10});
+        Assert.assertArrayEquals(new int[]{1, 1, 1}, result);
+    }
+
+    @Test
+    public void calculateSpansSeveralAlternatingPricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{10, 30, 20, 40});
+        Assert.assertArrayEquals(new int[]{1, 2, 1, 4}, result);
+    }
+
+}

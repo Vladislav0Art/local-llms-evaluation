@@ -1,0 +1,421 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.NetworkMessage;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.session.DeviceSession;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+    
+    @Test
+    public void decodeInitializationMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*INIT]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(this.protocol.createDeviceSession(any(), any(), any(), any())).thenReturn(this.deviceSession);
+        
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(1)).writeAndFlush(Matchers.<NetworkMessage>argThat(argument -> {
+            return new String(argument.getContent().array()).startsWith("[3G*1234567890*0004*INIT,1]");
+        }));
+        
+        assertNull(decoder.decodePosition(deviceSession, "UD,080706,114530,A,22.643813,N,120.280466,E,8.1,93.6,15.8,9,100,4,0,0,35,1,460,00,602,2DFD,95,01CC,2DFE,-89,01CC,2DFD,-89,C44879C02945,-76"));
+    }
+
+    @Test
+    public void decodeLKMessageTest() throws Exception {
+        String message = "[3G*1234567890*000F*LK,100,90]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(this.protocol.createDeviceSession(any(), any(), any(), any())).thenReturn(this.deviceSession);
+        
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Object result = decoder.decode(channel, remoteAddress, byteBuf);
+
+        assertTrue(result instanceof Position);
+        assertEquals(100, ((Position) result).getAttributes().get("steps"));
+        assertEquals(90, ((Position) result).getAttributes().get("battery"));
+    }
+
+    @Test
+    public void decodeUDMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*UD]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(this.protocol.createDeviceSession(any(), any(), any(), any())).thenReturn(this.deviceSession);
+        
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        Position position = decoder.decodePosition(deviceSession, "UD,080706,114530,A,22.643813,N,120.280466,E,8.1,93.6,15.8,9,100,4,0,0,35,1,460,00,602,2DFD,95,01CC,2DFE,-89,01CC,2DFD,-89,C44879C02945,-76");
+        assertEquals(deviceSession.getDeviceId(), position.getDeviceId());
+        assertTrue(position.getValid());
+    }
+    
+    @Test
+    public void decodeTKMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*TK]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(this.protocol.createDeviceSession(any(), any(), any(), any())).thenReturn(this.deviceSession);
+        
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        assertNotNull(decoder.decode(channel, remoteAddress, byteBuf));
+        assertTrue(byteBuf.isReadable());
+    }
+    
+    @Test
+    public void decodeEmptyTKMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*TK]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+        byteBuf.writerIndex(byteBuf.writerIndex()-3); // Remove last 3 bytes to simulate TK with no content
+
+        when(this.protocol.createDeviceSession(any(), any(), any(), any())).thenReturn(this.deviceSession);
+        
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        assertNull(decoder.decode(channel, remoteAddress, byteBuf));
+        assertFalse(byteBuf.isReadable());
+    }
+
+    @Test
+    public void decodeUnsupportedMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*ZZZ]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(this.protocol.createDeviceSession(any(), any(), any(), any())).thenReturn(this.deviceSession);
+        
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        assertNull(decoder.decode(channel, remoteAddress, byteBuf));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.NetworkMessage;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.session.Session;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private Session session;
+
+    @Mock
+    private Channel channel;
+    
+    @Mock
+    private SocketAddress remoteAddress;
+    
+    @Test
+    public void decodeInitializationMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*INIT]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(1)).writeAndFlush(any(NetworkMessage.class));
+    }
+
+    @Test
+    public void decodeLKMessageTest() throws Exception {
+        String message = "[3G*1234567890*000F*LK,100,90]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(this.session.getDeviceId()).thenReturn(1L);
+        
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Object result = decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(1)).writeAndFlush(any(NetworkMessage.class));
+    }
+
+    @Test
+    public void decodeUDMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*UD]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+        
+        when(session.getDeviceId()).thenReturn(1L);
+        
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.setSession(session);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(1)).writeAndFlush(any(NetworkMessage.class));
+    }
+    
+    @Test
+    public void decodeUnreadableMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*ZZZ]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+        
+        when(session.getDeviceId()).thenReturn(1L);
+        
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.setSession(session);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(0)).writeAndFlush(any(NetworkMessage.class));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.NetworkMessage;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.session.DeviceSession;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+    
+    @Test
+    public void decodeInitializationMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*INIT]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(protocol.getDeviceSession(channel, remoteAddress, "1234567890"))
+            .thenReturn(deviceSession);
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(1)).writeAndFlush(any(NetworkMessage.class));
+    }
+
+    @Test
+    public void decodeLKMessageTest() throws Exception {
+        String message = "[3G*1234567890*000F*LK,100,90]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(protocol.getDeviceSession(channel, remoteAddress, "1234567890"))
+            .thenReturn(deviceSession);
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Object result = decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(1)).writeAndFlush(any(NetworkMessage.class));
+    }
+
+    @Test
+    public void decodeUDMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*UD]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(protocol.getDeviceSession(channel, remoteAddress, "1234567890"))
+            .thenReturn(deviceSession);
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(1)).writeAndFlush(any(NetworkMessage.class));
+    }
+
+    @Test
+    public void decodeUnreadableMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*ZZZ]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(protocol.getDeviceSession(channel, remoteAddress, "1234567890"))
+            .thenReturn(deviceSession);
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(0)).writeAndFlush(any(NetworkMessage.class));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.NetworkMessage;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.session.DeviceSession;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+    
+    @Test
+    public void decodeInitializationMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*INIT]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.setDeviceSession(deviceSession);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(1)).writeAndFlush(any(NetworkMessage.class));
+    }
+
+    @Test
+    public void decodeLKMessageTest() throws Exception {
+        String message = "[3G*1234567890*000F*LK,100,90]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.setDeviceSession(deviceSession);
+        Object result = decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(1)).writeAndFlush(any(NetworkMessage.class));
+    }
+
+    @Test
+    public void decodeUDMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*UD]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.setDeviceSession(deviceSession);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(1)).writeAndFlush(any(NetworkMessage.class));
+    }
+
+    @Test
+    public void decodeUnreadableMessageTest() throws Exception {
+        String message = "[3G*1234567890*0009*ZZZ]";
+        ByteBuf byteBuf = Unpooled.copiedBuffer(message, StandardCharsets.US_ASCII);
+
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.setDeviceSession(deviceSession);
+        decoder.decode(channel, remoteAddress, byteBuf);
+
+        verify(channel, times(0)).writeAndFlush(any(NetworkMessage.class));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+

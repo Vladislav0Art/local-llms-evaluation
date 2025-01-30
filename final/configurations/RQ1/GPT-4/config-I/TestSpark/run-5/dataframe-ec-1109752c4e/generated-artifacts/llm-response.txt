@@ -1,0 +1,317 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.value.StringValue;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.Printer;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+
+public class PrettyPrintVisitorTest {
+    @Test
+    public void exprToStringTest() {
+        Expression e = Mockito.mock(Expression.class);
+        Mockito.doAnswer(invocationOnMock -> {
+            PrettyPrintVisitor prettyPrintVisitor = (PrettyPrintVisitor) invocationOnMock.getArguments()[0];
+            prettyPrintVisitor.visitConstExpr(new StringValue("test"));
+            return null;
+        }).when(e).accept(Mockito.any(PrettyPrintVisitor.class));
+
+        Assert.assertEquals("\"test\"", PrettyPrintVisitor.exprToString(e));
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        BinaryExpr binaryExpr = new BinaryExpr(null,
+                new StringValue("test1"),
+                BinaryOp.ADD,
+                new StringValue("test2"));
+
+        Printer printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitBinaryExpr(binaryExpr);
+
+        Assert.assertEquals("(\"test1\" + \"test2\")", printer.toString());
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        FunctionCallExpr functionCallExpr = new FunctionCallExpr(null,
+                "testFunc",
+                Arrays.asList(new StringValue("test1"), new StringValue("test2")));
+
+        Printer printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitFunctionCallExpr(functionCallExpr);
+
+        Assert.assertEquals("testFunc(\"test1\", \"test2\")", printer.toString());
+    }
+
+    @Test
+    public void visitProjectionExprTest() {
+        ProjectionExpr projectionExpr = new ProjectionExpr(null,
+                Arrays.asList(new StringValue("test")),
+                new StringValue("test2"));
+
+        Printer printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitProjectionExpr(projectionExpr);
+
+        Assert.assertEquals("project {\"test\"} where \"test2\"", printer.toString());
+    }
+    
+    @Test
+    public void visitIndexExprTest() {
+        IndexExpr indexExpr = new IndexExpr(null,
+                new StringValue("test1"),
+                new StringValue("test2"));
+
+        Printer printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitIndexExpr(indexExpr);
+
+        Assert.assertEquals("\"test1\"[\"test2\"]", printer.toString());
+    }
+
+    @Test
+    public void visitDecimalExprTest() {
+        DecimalExpr decimalExpr = new DecimalExpr(null,
+                BigDecimal.valueOf(10),
+                BigDecimal.valueOf(2));
+
+        Printer printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitDecimalExpr(decimalExpr);
+
+        Assert.assertEquals("[10,2]", printer.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.AliasExpr;
+import io.github.vmzakharov.ecdataframe.dsl.Expression;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionScript;
+import io.github.vmzakharov.ecdataframe.dsl.UnaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.value.StringValue;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.Printer;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.*;
+
+public class PrettyPrintVisitorTest {
+    @Test
+    public void exprToStringTest() {
+        Expression e = Mockito.mock(Expression.class);
+        Mockito.doAnswer(invocationOnMock -> {
+            PrettyPrintVisitor prettyPrintVisitor = (PrettyPrintVisitor) invocationOnMock.getArguments()[0];
+            prettyPrintVisitor.visitConstExpr(new StringValue("test"));
+            return null;
+        }).when(e).accept(Mockito.any(PrettyPrintVisitor.class));
+
+        Assert.assertEquals("\"test\"", PrettyPrintVisitor.exprToString(e));
+    }
+
+    @Test
+    public void visitConstExprTest() {
+        StringValue stringValue = new StringValue("test");
+        CollectingPrinter printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitConstExpr(stringValue);
+        Assert.assertEquals("\"test\"", printer.toString());
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        UnaryExpr unaryExpr = new UnaryExpr(null, UnaryOp.NEG, new StringValue("test"));
+        CollectingPrinter printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitUnaryExpr(unaryExpr);
+        Assert.assertEquals("-(\"test\")", printer.toString());
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        String functionName = "testFunction";
+        List<String> parameterNames = Collections.singletonList("testParameter");
+        FunctionScript functionScript = new FunctionScript(null, functionName, parameterNames, Arrays.asList(new AliasExpr(null, "testAlias", new StringValue("test"))));
+        CollectingPrinter printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitFunctionScriptExpr(functionScript);
+        Assert.assertEquals("function testFunction(testParameter)\n{\n  testAlias : \"test\"\n}\n", printer.toString());
+    }
+    
+    @Test
+    public void visitAliasExprTest() {
+        AliasExpr aliasExpr = new AliasExpr(null, "testAlias", new StringValue("test"));
+        CollectingPrinter printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitAliasExpr(aliasExpr);
+        Assert.assertEquals("testAlias : \"test\"", printer.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.AnonymousScript;
+import io.github.vmzakharov.ecdataframe.dsl.BinaryOp;
+import io.github.vmzakharov.ecdataframe.dsl.Expression;
+import io.github.vmzakharov.ecdataframe.dsl.value.Value;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.List;
+
+public class PrettyPrintVisitorTest {
+
+    @Test
+    public void exprToStringTest() {
+        Expression e = Mockito.mock(Expression.class);
+        Mockito.doAnswer(invocationOnMock -> {
+            PrettyPrintVisitor prettyPrintVisitor = (PrettyPrintVisitor) invocationOnMock.getArguments()[0];
+            prettyPrintVisitor.visitVarExpr(() -> "mockVar");
+            return null;
+        }).when(e).accept(Mockito.any(PrettyPrintVisitor.class));
+
+        Assert.assertEquals("mockVar", PrettyPrintVisitor.exprToString(e));
+    }
+
+    @Test
+    public void visitVarExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitVarExpr(() -> "testVar");
+        Assert.assertEquals("testVar", printer.toString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        AnonymousScript operand1 = new AnonymousScript(null, List.of(() -> "operand1"));
+        AnonymousScript operand2 = new AnonymousScript(null, List.of(() -> "operand2"));
+        new PrettyPrintVisitor(printer).visitBinaryExpr(new BinaryOp(null, operand1, "+", operand2));
+        Assert.assertEquals("(operand1 + operand2)", printer.toString());
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        Value value = () -> "testVal";
+        new PrettyPrintVisitor(printer).visitAssignExpr(new AssignExpr(null, "testVar", false, value));
+        Assert.assertEquals("testVar = testVal", printer.toString());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.AnonymousScript;
+import io.github.vmzakharov.ecdataframe.dsl.AssingExpr;
+import io.github.vmzakharov.ecdataframe.dsl.BinaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.Expression;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+
+public class PrettyPrintVisitorTest {
+
+    @Test
+    public void visitAssignExprTest() {
+        AssingExpr expr = new AssingExpr(null, "varName", false, new AnonymousScript(null));
+        CollectingPrinter printer = new CollectingPrinter();
+        expr.getExpression().addExpression(() -> "test");
+        new PrettyPrintVisitor(printer).visitAssignExpr(expr);
+        assertEquals("varName = test", printer.toString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        BinaryExpr expr = new BinaryExpr(null, new AnonymousScript(null), BinaryOp.ADD, new AnonymousScript(null));
+        CollectingPrinter printer = new CollectingPrinter();
+        expr.getOperand1().addExpression(() -> "operand1");
+        expr.getOperand2().addExpression(() -> "operand2");
+        new PrettyPrintVisitor(printer).visitBinaryExpr(expr);
+        assertEquals("(operand1 + operand2)", printer.toString());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.AnonymousScript;
+import io.github.vmzakharov.ecdataframe.dsl.AssingExpr;
+import io.github.vmzakharov.ecdataframe.dsl.BinaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.StatementSequenceScript;
+import io.github.vmzakharov.ecdataframe.dsl.value.StringValue;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionScript;
+import io.github.vmzakharov.ecdataframe.dsl.IfElseExpr;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.eclipse.collections.impl.factory.Lists;
+
+public class PrettyPrintVisitorTest {
+
+    private static final String NEWLINE = System.lineSeparator();
+
+    @Test
+    public void visitAssignExprTest() {
+        StatementSequenceScript statementSequenceScript = new StatementSequenceScript(null);
+        AssingExpr expr = new AssingExpr(statementSequenceScript, "varName", true, new StringValue("test"));
+        CollectingPrinter printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitAssignExpr(expr);
+        Assert.assertEquals("${varName} = \"test\"", printer.toString());
+    }
+
+    @Test
+    public void visitIfElseExprTest() {
+        IfElseExpr expr = new IfElseExpr(new StatementSequenceScript(null), new AnonymousScript(null, Lists.mutable.of(new StringValue("true"))), new StatementSequenceScript(null), new StatementSequenceScript(null));
+        CollectingPrinter printer = new CollectingPrinter();
+        new PrettyPrintVisitor(printer).visitIfElseExpr(expr);
+        Assert.assertEquals("if \"true\" then" + NEWLINE + "endif", printer.toString());
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        FunctionScript functionScript = Mockito.mock(FunctionScript.class);
+        Mockito.when(functionScript.getName()).thenReturn("ExampleFunctionName");
+        Mockito.when(functionScript.getParameterNames()).thenReturn(Lists.mutable.of("Param1", "Param2"));
+        Mockito.when(functionScript.getExpressions()).thenReturn(Lists.mutable.of(new StringValue("Expression1"), new StringValue("Expression2")));
+        new PrettyPrintVisitor(printer).visitFunctionScriptExpr(functionScript);
+        Assert.assertEquals("function ExampleFunctionName(Param1, Param2)" + NEWLINE + "{" + NEWLINE + "  \"Expression1\"" + NEWLINE + "  \"Expression2\"" + NEWLINE + "}" + NEWLINE, printer.toString());
+    }
+
+    @Test
+    public void exprToStringTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        BinaryExpr binaryExpr = new BinaryExpr(null, new StringValue("LHS"), BinaryExpr.Op.ADD, new StringValue("RHS"));
+        String result = PrettyPrintVisitor.exprToString(binaryExpr);
+        Assert.assertEquals("(\"LHS\" + \"RHS\")", result);
+    }
+}
+```
+===================================================
+

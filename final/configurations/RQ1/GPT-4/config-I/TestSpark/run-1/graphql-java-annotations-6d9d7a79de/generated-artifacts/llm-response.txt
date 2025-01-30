@@ -1,0 +1,352 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import org.junit.Test;
+import org.mockito.Mockito;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+
+public class DirectivesBuilderTest {
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void buildNoDirectiveInRegistryTest() {
+        Annotation annotation = Mockito.mock(Annotation.class);
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Field field = Mockito.mock(Field.class);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(field, container);
+        Mockito.when(field.getAnnotations()).thenReturn(new Annotation[]{annotation});
+        directivesBuilder.build();
+    }
+
+    @Test
+    public void buildDirectiveInRegistryTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Annotation annotation = Mockito.mock(Annotation.class);
+        Field field = Mockito.mock(Field.class);
+        GraphQLDirective directive = Mockito.mock(GraphQLDirective.class, Mockito.RETURNS_DEEP_STUBS);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(field, container);
+
+        Mockito.when(field.getAnnotations()).thenReturn(new Annotation[]{annotation});
+        Mockito.when(container.getDirectiveRegistry().containsKey(any())).thenReturn(true);
+        Mockito.when(container.getDirectiveRegistry().get(any()).getDirective()).thenReturn(directive);
+        directivesBuilder.build();
+
+        verify(directive).newDirective(directive);
+    }
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void transformArgsTooManyArgumentsTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Annotation annotation = Mockito.mock(Annotation.class);
+        Field field = Mockito.mock(Field.class);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(field, container);
+        GraphQLDirective directive = Mockito.mock(GraphQLDirective.class);
+        Method method = Mockito.mock(Method.class);
+        Mockito.when(directive.getArguments()).thenReturn(Collections.emptyList());
+        Mockito.when(annotation.annotationType().getDeclaredMethods()).thenReturn(new Method[]{method});
+        directivesBuilder.transformArgs(directive, annotation);
+    }
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void transformArgumentNotAScalarTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Field field = Mockito.mock(Field.class);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(field, container);
+        Annotation annotation = Mockito.mock(Annotation.class);
+        Method method = Mockito.mock(Method.class);
+        GraphQLArgument argument = Mockito.mock(GraphQLArgument.class);
+        GraphQLDirective.Builder directiveBuilder = Mockito.mock(GraphQLDirective.Builder.class);
+        Mockito.when(argument.getType()).thenReturn(Mockito.mock(GraphQLType.class));
+        Mockito.when(annotation.annotationType().getDeclaredMethods()).thenReturn(new Method[]{method});
+        directivesBuilder.transformArgument(annotation, directiveBuilder, Collections.singletonList(argument), 0);
+    }
+
+    @Test
+    public void transformArgumentScalarTest() throws Exception {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Annotation annotation = Mockito.mock(Annotation.class);
+        Field field = Mockito.mock(Field.class);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(field, container);
+        GraphQLArgument argument = Mockito.mock(GraphQLArgument.class, Mockito.RETURNS_DEEP_STUBS);
+        GraphQLDirective.Builder directiveBuilder = Mockito.mock(GraphQLDirective.Builder.class);
+        Method method = Mockito.mock(Method.class);
+        Mockito.when(annotation.annotationType().getDeclaredMethods()).thenReturn(new Method[]{method});
+        Mockito.when(argument.getType()).thenReturn(Mockito.mock(GraphQLScalarType.class));
+        directivesBuilder.transformArgument(annotation, directiveBuilder, Collections.singletonList(argument), 0);
+        verify(directiveBuilder).argument(any());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import org.junit.Test;
+import org.mockito.Mockito;
+import java.util.Arrays;
+import java.util.Collections;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+public class DirectivesBuilderTest {
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void buildNoDirectiveInRegistryTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Class<?> clazz = Mockito.mock(Class.class);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(clazz, container);
+        directivesBuilder.build();
+    }
+
+    @Test
+    public void buildDirectiveInRegistryTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Class<?> clazz = Mockito.mock(Class.class);
+        GraphQLDirective directive = Mockito.mock(GraphQLDirective.class, Mockito.RETURNS_DEEP_STUBS);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(clazz, container);
+
+        when(container.getDirectiveRegistry().containsKey(any())).thenReturn(true);
+        when(container.getDirectiveRegistry().get(any()).getDirective()).thenReturn(directive);
+        directivesBuilder.build();
+
+        verify(container.getDirectiveRegistry()).containsKey(any());
+    }
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void buildTooManyArgumentsTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Class<?> clazz = Mockito.mock(Class.class);
+        GraphQLDirective directive = Mockito.mock(GraphQLDirective.class, Mockito.RETURNS_DEEP_STUBS);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(clazz, container);
+        
+        when(container.getDirectiveRegistry().containsKey(any())).thenReturn(true);
+        when(container.getDirectiveRegistry().get(any()).getDirective()).thenReturn(directive);
+        when(directive.getArguments()).thenReturn(Arrays.asList(Mockito.mock(GraphQLArgument.class), Mockito.mock(GraphQLArgument.class)));
+        directivesBuilder.build();
+    }
+
+    @Test
+    public void transformArgumentScalarTest() throws Exception {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Class<?> clazz = Mockito.mock(Class.class);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(clazz, container);
+        GraphQLArgument argument = Mockito.mock(GraphQLArgument.class, Mockito.RETURNS_DEEP_STUBS);
+
+        when(argument.getType()).thenReturn(Mockito.mock(GraphQLScalarType.class));
+        directivesBuilder.build();
+
+        verify(argument.getType()).getCoercing();
+    }
+}
+```
+
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import graphql.schema.GraphQLScalarTypeExtension;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+public class DirectivesBuilderTest {
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void buildNoDirectiveInRegistryTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Class<?> clazz = Mockito.mock(Class.class);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(clazz, container);
+
+        directivesBuilder.build();
+    }
+
+    @Test
+    public void buildDirectiveInRegistryTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Class<?> clazz = Mockito.mock(Class.class);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(clazz, container);
+        
+        GraphQLDirective directive = new GraphQLDirective.Builder().name("Directive").build();
+        when(container.getDirectiveRegistry().containsKey(any())).thenReturn(true);
+        when(container.getDirectiveRegistry().get(any())).thenReturn(directive);
+       
+        directivesBuilder.build();
+        
+        verify(container.getDirectiveRegistry()).containsKey(any());
+    }
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void buildTooManyArgumentsTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Class<?> clazz = Mockito.mock(Class.class);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(clazz, container);
+
+        List<GraphQLArgument> argList = new ArrayList<>();
+        argList.add(new GraphQLArgument("arg1", "val1", null, null));
+        argList.add(new GraphQLArgument("arg2", "val2", null, null));
+
+        GraphQLDirective directive = new GraphQLDirective("Directive", "description", argList, true).newBuilder().build();
+        when(container.getDirectiveRegistry().containsKey(any())).thenReturn(true);
+        when(container.getDirectiveRegistry().get(any())).thenReturn(directive);
+
+        directivesBuilder.build();
+    }
+
+    @Test
+    public void transformArgumentScalarTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        Class<?> clazz = Mockito.mock(Class.class);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(clazz, container);
+
+        GraphQLScalarType scalarType = new GraphQLScalarTypeExtension("Scalar", "description", null, null);
+        GraphQLArgument argument = new GraphQLArgument("arg1", "val1", scalarType, null);
+
+        List<GraphQLArgument> argList = new ArrayList<>();
+        argList.add(argument);
+
+        GraphQLDirective directive = new GraphQLDirective("Directive", "description", argList, true).newBuilder().build();
+        when(container.getDirectiveRegistry().containsKey(any())).thenReturn(true);
+        when(container.getDirectiveRegistry().get(any())).thenReturn(directive);
+       
+        directivesBuilder.build();
+
+        verify(container.getDirectiveRegistry()).containsKey(any());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+
+import static org.mockito.Mockito.*;
+
+public class DirectivesBuilderTest {
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void buildNoDirectiveInRegistryTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        AnnotatedElement annotatedElement = Mockito.mock(AnnotatedElement.class);
+        Annotation annotation = Mockito.mock(Annotation.class);
+        when(annotatedElement.getAnnotations()).thenReturn(new Annotation[]{annotation});
+
+        new DirectivesBuilder(annotatedElement, container).build();
+    }
+
+    @Test
+    public void buildDirectiveInRegistryTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        GraphQLDirective expectedDirective = Mockito.mock(GraphQLDirective.class);
+        AnnotatedElement annotatedElement = Mockito.mock(AnnotatedElement.class);
+        Annotation annotation = Mockito.mock(Annotation.class);
+        when(annotatedElement.getAnnotations()).thenReturn(new Annotation[]{annotation});
+        when(container.getDirectiveRegistry().containsKey(any())).thenReturn(true);
+        when(container.getDirectiveRegistry().get(any())).thenReturn(expectedDirective);
+
+        GraphQLDirective[] directives = new DirectivesBuilder(annotatedElement, container).build();
+
+        assert directives.length == 1;
+        assert directives[0] == expectedDirective;
+    }
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void buildTooManyArgumentsTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        GraphQLDirective mockDirective = Mockito.mock(GraphQLDirective.class);
+        AnnotatedElement annotatedElement = Mockito.mock(AnnotatedElement.class);
+        Annotation annotation = getMockDirectiveAnnotationWithMethods(2);
+        when(mockDirective.getArguments()).thenReturn(Collections.singletonList(Mockito.mock(GraphQLArgument.class)));
+        when(annotatedElement.getAnnotations()).thenReturn(new Annotation[]{annotation});
+        when(container.getDirectiveRegistry().containsKey(any())).thenReturn(true);
+        when(container.getDirectiveRegistry().get(any())).thenReturn(mockDirective);
+
+        new DirectivesBuilder(annotatedElement, container).build();
+    }
+
+    @Test
+    public void transformArgumentScalarTest() {
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        GraphQLDirective mockDirective = Mockito.mock(GraphQLDirective.class);
+        AnnotatedElement annotatedElement = Mockito.mock(AnnotatedElement.class);
+        Annotation annotation = getMockDirectiveAnnotationWithMethods(1);
+        when(mockDirective.getArguments()).thenReturn(Collections.singletonList(Mockito.mock(GraphQLArgument.class)));
+        when(annotatedElement.getAnnotations()).thenReturn(new Annotation[]{annotation});
+        when(container.getDirectiveRegistry().containsKey(any())).thenReturn(true);
+        when(container.getDirectiveRegistry().get(any())).thenReturn(mockDirective);
+
+        new DirectivesBuilder(annotatedElement, container).build();
+    }
+
+    private Annotation getMockDirectiveAnnotationWithMethods(int numberOfMethods) {
+        Annotation annotation = Mockito.mock(Annotation.class);
+        Class<? extends Annotation> annotationType = Mockito.mock(Class.class);
+        Method[] methods = new Method[numberOfMethods];
+        Arrays.fill(methods, Mockito.mock(Method.class));
+        when(annotation.annotationType()).thenReturn(annotationType);
+        when(annotationType.getDeclaredMethods()).thenReturn(methods);
+        return annotation;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.annotations.processor.retrievers.fieldBuilders.methodBuilders.DirectiveAndWiring;
+import
+===================================================
+
+
+====================== Iteration #6 ======================

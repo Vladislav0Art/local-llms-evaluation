@@ -1,0 +1,257 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.traccar.Session;
+import org.traccar.model.Position;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void decodePositionValidTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        DeviceSession deviceSession = mock(DeviceSession.class);
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+        String data = "060619010101A,45.6789,N,90.1234,E,1,2,3,4,5,6,7,8,1234,abc";
+        Position position = decoder.decodePosition(deviceSession, data);
+        assertNotNull(position);
+        assertEquals(position.getDeviceId(), 1L);
+    }
+
+    @Test
+    public void decodePositionInvalidTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        DeviceSession deviceSession = mock(DeviceSession.class);
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+        String data = "invalid data";
+        Position position = decoder.decodePosition(deviceSession, data);
+        assertEquals(position, null);
+    }
+
+    @Test
+    public void decodeAlarmLowBatteryTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        String result = decoder.decodeAlarm(0);
+        assertEquals(result, Position.ALARM_LOW_BATTERY);
+    }
+
+    @Test
+    public void decodeAlarmGeofenceExitTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        String result = decoder.decodeAlarm(1);
+        assertEquals(result, Position.ALARM_GEOFENCE_EXIT);
+    }
+
+    @Test
+    public void decodeAlarmGeofenceEnterTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        String result = decoder.decodeAlarm(2);
+        assertEquals(result, Position.ALARM_GEOFENCE_ENTER);
+    }
+
+    @Test
+    public void decodeAlarmFallDownTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        String result = decoder.decodeAlarm(21);
+        assertEquals(result, Position.ALARM_FALL_DOWN);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.traccar.BaseProtocolDecoder;
+import org.traccar.session.Session;
+import org.traccar.model.Position;
+import org.traccar.Protocol;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void decodePositionValidTest() {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Session deviceSession = mock(Session.class);
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+        String data = "060619010101A,45.6789,N,90.1234,E,1,2,3,4,5,6,7,8,1234,abc";
+        Position position = decoder.decodePosition(deviceSession, data);
+        assertNotNull(position);
+        assertEquals(position.getDeviceId(), 1L);
+    }
+
+    @Test
+    public void decodePositionInvalidTest() {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Session deviceSession = mock(Session.class);
+        when(deviceSession.getDeviceId()).thenReturn(1L);
+        String data = "invalid data";
+        Position position = decoder.decodePosition(deviceSession, data);
+        assertEquals(position, null);
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Channel channel = mock(Channel.class);
+        ByteBuf msg = Unpooled.copiedBuffer("[3G*3305887908*0017*LK,101,86,0,0]", StandardCharsets.US_ASCII);
+        Position position = (Position) decoder.decode(channel, null, msg);
+        assertNotNull(position);
+        assertEquals(position.get(Position.KEY_BATTERY_LEVEL), 86);
+        assertEquals(position.get(Position.KEY_STEPS), 101);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.traccar.helper.UnitsConverter;
+import org.traccar.model.Position;
+import org.traccar.protocol.WatchProtocolDecoder;
+
+import java.net.SocketAddress;
+
+import static org.junit.Assert.assertEquals;
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void getHasIndexTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        assertEquals(decoder.getHasIndex(), false);
+    }
+
+    @Test
+    public void getManufacturerBeforeDecodeTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        assertEquals(decoder.getManufacturer(), null);
+    }
+    
+    @Test
+    public void decodeLowBatteryAlarmTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        ByteBuf buf = Unpooled.copiedBuffer("[3G*1234567890*00A5*UD,210917,203130,A,52.09830,N,4.35200,E,0.00,0.0,1.0,6,0,67,101,0,0,00000010,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,]", StandardCharsets.US_ASCII);
+        Position position = (Position) decoder.decode(null, null, buf);
+        assertEquals(position.get(Position.KEY_ALARM), Position.ALARM_LOW_BATTERY);
+    }
+
+    @Test
+    public void decodeGeofenceExitAlarmTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        ByteBuf buf = Unpooled.copiedBuffer("[3G*1234567890*00A5*UD,210917,203130,A,52.09830,N,4.35200,E,0.00,0.0,1.0,6,0,67,101,0,0,00000011,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,]", StandardCharsets.US_ASCII);
+        Position position = (Position) decoder.decode(null, null, buf);
+        assertEquals(position.get(Position.KEY_ALARM), Position.ALARM_GEOFENCE_EXIT);
+    }
+
+    @Test
+    public void decodeGeofenceEnterAlarmTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        ByteBuf buf = Unpooled.copiedBuffer("[3G*1234567890*00A5*UD,210917,203130,A,52.09830,N,4.35200,E,0.00,0.0,1.0,6,0,67,101,0,0,00000111,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,]", StandardCharsets.US_ASCII);
+        Position position = (Position) decoder.decode(null, null, buf);
+        assertEquals(position.get(Position.KEY_ALARM), Position.ALARM_GEOFENCE_ENTER);
+    }
+
+    @Test
+    public void decodeFallDownAlarmTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        ByteBuf buf = Unpooled.copiedBuffer("[3G*1234567890*00A5*UD,210917,203130,A,52.09830,N,4.35200,E,0.00,0.0,1.0,6,0,67,101,0,0,20000111,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,]", StandardCharsets.US_ASCII);
+        Position position = (Position) decoder.decode(null, null, buf);
+        assertEquals(position.get(Position.KEY_ALARM), Position.ALARM_FALL_DOWN);
+    }
+
+    @Test
+    public void decodeNoAlarmTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        ByteBuf buf = Unpooled.copiedBuffer("[3G*1234567890*00A5*UD,210917,203130,A,52.09830,N,4.35200,E,0.00,0.0,1.0,6,0,67,101,0,0,00000000,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,]", StandardCharsets.US_ASCII);
+        Position position = (Position) decoder.decode(null, null, buf);
+        assertEquals(position.get(Position.KEY_ALARM), null);
+    }
+
+    @Test
+    public void decodePositionTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(null);
+        ByteBuf buf = Unpooled.copiedBuffer("[3G*1234567890*00A5*UD,210917,203130,A,52.09830,N,4.35200,E,0.00,0.0,1.0,6,0,67,101,0,0,00000111,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,]", StandardCharsets.US_ASCII);
+        Position position = (Position) decoder.decode(null, null, buf);
+        assertEquals(position.getLatitude(), 52.09830, 0.01);
+        assertEquals(position.getLongitude(), 4.35200, 0.01);
+        assertEquals(position.getSpeed(), UnitsConverter.knotsFromKph(0.00), 0.01);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Context;
+import org.traccar.DeviceManager;
+import org.traccar.Protocol;
+import org.traccar.database.IdentityManager;
+import org.traccar.model.Device;
+import org.traccar.protocol.WatchProtocolDecoder;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.channel.Channel;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+public class WatchProtocolDecoderTest {
+
+    private WatchProtocolDecoder decoder;
+
+    public WatchProtocolDecoderTest() {
+        IdentityManager identityManager = Mockito.mock(IdentityManager.class);
+        when(identityManager.getByUniqueId(anyString())).thenReturn(new Device());
+        Protocol protocol = new Protocol("watchProtocol") { };
+        protocol
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+

@@ -1,0 +1,335 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class JacksonJsonTransformerTest {
+
+    @Test
+    public void parseHttpExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"message\":\"Bad request\"}";
+
+        HttpException ex = transformer.parse(json, HttpException.class);
+        assertNotNull(ex);
+        assertEquals("Bad request", ex.getMessage());
+    }
+
+    @Test
+    public void parseHttpBadRequestExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"message\":\"Bad request\"}";
+
+        HttpBadRequestException ex = transformer.parse(json, HttpBadRequestException.class);
+        assertNotNull(ex);
+        assertEquals("Bad request", ex.getMessage());
+    }
+
+    @Test(expected = MismatchedInputException.class)
+    public void parseExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{}";
+
+        transformer.parse(json, Project.class);
+    }
+
+    @Test
+    public void parseLanguageTranslationsTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"language\":\"en\",\"strings\":{\"id1\":{\"text\":\"hello\",\"plural\":\"\"}}}";
+
+        LanguageTranslations translations = transformer.parse(json, LanguageTranslations.class);
+        assertNotNull(translations);
+        assertEquals("en", translations.getLanguage());
+        assertNotNull(translations.getStrings());
+        assertEquals("hello", translations.getStrings().get("id1").getText());
+    }
+
+    @Test
+    public void parseFileInfoTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"id\":\"id1\",\"name\":\"name1\"}";
+
+        FileInfo fileInfo = transformer.parse(json, FileInfo.class);
+        assertNotNull(fileInfo);
+        assertEquals("id1", fileInfo.getId());
+        assertEquals("name1", fileInfo.getName());
+    }
+
+    @Test
+    public void convertHttpExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        HttpException exception = new HttpException("Bad request");
+
+        String json = transformer.convert(exception);
+        assertEquals("{\"message\":\"Bad request\"}", json);
+    }
+
+    @Test
+    public void convertLanguageTranslationsTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        LanguageTranslations translations = new LanguageTranslations();
+        translations.setLanguage("en");
+        translations.getStrings().put("id1", new LanguageTranslations.StringTranslation("hello", ""));
+
+        String json = transformer.convert(translations);
+        assertEquals("{\"language\":\"en\",\"strings\":{\"id1\":{\"text\":\"hello\",\"plural\":\"\"}}}", json);
+    }
+
+    @Test
+    public void convertFileInfoTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setId("id1");
+        fileInfo.setName("name1");
+
+        String json = transformer.convert(fileInfo);
+        assertEquals("{\"id\":\"id1\",\"name\":\"name1\"}", json);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class JacksonJsonTransformerTest {
+
+    @Test
+    public void parseHttpExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"errorMessage\":\"Bad request\"}";
+
+        HttpException ex = transformer.parse(json, HttpException.class);
+        assertNotNull(ex);
+    }
+
+    @Test
+    public void parseHttpBadRequestExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"errorMessage\":\"Bad request\"}";
+
+        HttpBadRequestException ex = transformer.parse(json, HttpBadRequestException.class);
+        assertNotNull(ex);
+    }
+
+    @Test(expected = MismatchedInputException.class)
+    public void parseExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{}";
+
+        transformer.parse(json, Project.class);
+    }
+
+    @Test(expected = MismatchedInputException.class)
+    public void parseUnexpectedInputTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"unexpectedField\":\"unexpectedValue\"}";
+
+        transformer.parse(json, FileInfo.class);
+    }
+    
+    @Test
+    public void convertHttpExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        HttpException exception = new HttpException("Bad request", 400);
+
+        String json = transformer.convert(exception);
+        assertNotNull(json);
+        assertTrue(json.contains("\"errorMessage\":\"Bad request\""));
+        assertTrue(json.contains("\"errorCode\":400"));
+    }
+
+    @Test
+    public void convertFileInfoTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setData("testData");
+
+        String json = transformer.convert(fileInfo);
+        assertEquals("{\"data\":\"testData\"}", json);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class JacksonJsonTransformerTest {
+
+    @Test
+    public void parseHttpExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"errorMessage\":\"Bad request\"}";
+
+        HttpException ex = transformer.parse(json, HttpException.class);
+        assertNotNull(ex);
+    }
+
+    @Test
+    public void parseHttpBadRequestExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"errorMessage\":\"Bad request\"}";
+
+        HttpBadRequestException ex = transformer.parse(json, HttpBadRequestException.class);
+        assertNotNull(ex);
+    }
+
+    @Test(expected = MismatchedInputException.class)
+    public void parseExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{}";
+
+        transformer.parse(json, Project.class);
+    }
+
+    @Test(expected = MismatchedInputException.class)
+    public void parseUnexpectedInputTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"unexpectedField\":\"unexpectedValue\"}";
+
+        transformer.parse(json, FileInfo.class);
+    }
+
+    @Test
+    public void convertHttpExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        HttpException exception = new HttpException();
+        exception.setErrorMessage("Bad request");
+
+        String json = transformer.convert(exception);
+        assertNotNull(json);
+        assertTrue(json.contains("\"errorMessage\":\"Bad request\""));
+    }
+
+    @Test
+    public void convertProjectTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = new Project();
+        project.setName("Test project");
+
+        String json = transformer.convert(project);
+        assertEquals("{\"name\":\"Test project\"}", json);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class JacksonJsonTransformerTest {
+
+    @Test
+    public void parseHttpExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"errorMessage\":\"Bad request\"}";
+
+        HttpException ex = transformer.parse(json, HttpException.class);
+        assertNotNull(ex);
+    }
+
+    @Test
+    public void parseHttpBadRequestExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"errorMessage\":\"Bad request\"}";
+
+        HttpBadRequestException ex = transformer.parse(json, HttpBadRequestException.class);
+        assertNotNull(ex);
+    }
+
+    @Test(expected = MismatchedInputException.class)
+    public void parseExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{}";
+
+        transformer.parse(json, Project.class);
+    }
+
+    @Test(expected = MismatchedInputException.class)
+    public void parseUnexpectedInputTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"unexpectedField\":\"unexpectedValue\"}";
+
+        transformer.parse(json, FileInfo.class);
+    }
+
+    @Test
+    public void convertHttpExceptionTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        HttpException exception = new HttpException();
+
+        String json = transformer.convert(exception);
+        assertNotNull(json);
+    }
+
+    @Test
+    public void convertProjectTest() throws IOException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = new Project();
+        project.setName("Test project");
+
+        String json = transformer.convert(project);
+        assertEquals("{\"name\":\"Test project\"}", json);
+    }
+}
+```
+===================================================
+

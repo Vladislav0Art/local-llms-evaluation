@@ -1,0 +1,177 @@
+package org.jsoup.safety;
+
+import org.jdom2.IllegalDataException;
+import org.jsoup.helper.StringUtil;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Safelist;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist safelist = Safelist.none();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist safelist = Safelist.simpleText();
+        Assert.assertTrue(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist safelist = Safelist.basic();
+        Assert.assertTrue(safelist.isSafeTag("blockquote"));
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist safelist = Safelist.basicWithImages();
+        Assert.assertTrue(safelist.isSafeTag("img"));
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist safelist = Safelist.relaxed();
+        Assert.assertTrue(safelist.isSafeTag("img"));
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("tag1", "tag2");
+        Assert.assertTrue(safelist.isSafeTag("tag1"));
+        Assert.assertTrue(safelist.isSafeTag("tag2"));
+    }
+
+    @Test
+    public void addTagsExceptionTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags(null);
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("tag1", "tag2");
+        safelist.removeTags("tag1");
+        Assert.assertFalse(safelist.isSafeTag("tag1"));
+        Assert.assertTrue(safelist.isSafeTag("tag2"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addAttributes(":all", "attribute1", "attribute2");
+        String html = "<html><head></head><body><a attribute1=\"attr1\" attribute2=\"attr2\"></a></body></html>";
+        Document document = Document.createShell("");
+        document.append(html);
+        Assert.assertFalse(new StringUtil().isBlank(document.toString()));
+    }
+
+    @Test
+    public void addAttributesExceptionTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addAttributes("a", null);
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addAttributes(":all", "attribute1", "attribute2");
+        safelist.removeAttributes(":all", "attribute1");
+        String html = "<html><head></head><body><a attribute1=\"attr1\" attribute2=\"attr2\"></a></body></html>";
+        Document document = Document.createShell("");
+        document.append(html);
+        Assert.assertFalse(new StringUtil().isBlank(document.toString()));
+    }
+
+    @Test
+    public void removeAttributesExceptionTest() {
+        Safelist safelist = Safelist.none();
+        safelist.removeAttributes("a", null);
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addEnforcedAttribute("a", "href", "http://google.com");
+        Assert.assertFalse(safelist.getEnforcedAttributes("a").isEmpty());
+        Assert.assertTrue(safelist.getEnforcedAttributes("a").hasKey("href"));
+    }
+
+    @Test
+    public void addEnforcedAttributeExceptionTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addEnforcedAttribute("", "", "");
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addEnforcedAttribute("a", "href", "http://google.com");
+        Assert.assertFalse(safelist.getEnforcedAttributes("a").isEmpty());
+        safelist.removeEnforcedAttribute("a", "href");
+        Assert.assertTrue(safelist.getEnforcedAttributes("a").isEmpty());
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addProtocols("a", "href", "http", "https");
+        String html = "<html><head></head><body><a href=\"http://google.com\"></a></body></html>";
+        Document document = Document.createShell("");
+        document.append(html);
+        Assert.assertFalse(new StringUtil().isBlank(document.toString()));
+    }
+
+    @Test
+    public void addProtocolsExceptionTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addProtocols("a", "href", null);
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addProtocols("a", "href", "http", "https");
+        safelist.removeProtocols("a", "href", "http");
+        Document document = Document.createShell("");
+        document.append("<html><head></head><body><a href=\"http://google.com\"></a></body></html>");
+        Assert.assertFalse(new StringUtil().isBlank(document.toString()));
+    }
+
+    @Test
+    public void isSafeTagTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("tag1", "tag2");
+        Assert.assertTrue(safelist.isSafeTag("tag1"));
+        Assert.assertTrue(safelist.isSafeTag("tag2"));
+        Assert.assertFalse(safelist.isSafeTag("tag3"));
+    }
+
+    @Test
+    public void getEnforcedAttributesTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addEnforcedAttribute("a", "href", "http://google.com");
+        Assert.assertEquals(1, safelist.getEnforcedAttributes("a").size());
+        Assert.assertEquals("http://google.com", safelist.getEnforcedAttributes("a").get("href"));
+    }
+
+    @Test
+    public void preserveRelativeLinksTest() {
+        Safelist safelist = Safelist.none();
+        safelist.preserveRelativeLinks(true);
+        safelist.addAttributes("a", "href");
+        String html = "<html><head></head><body><a href=\"/relative/path\"></a></body></html>";
+        Document document = Document.createShell("");
+        document.append(html);
+        Assert.assertFalse(new StringUtil().isBlank(document.toString()));
+    }
+
+}

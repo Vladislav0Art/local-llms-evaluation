@@ -1,0 +1,329 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.AliasExpr;
+import io.github.vmzakharov.ecdataframe.dsl.AssingExpr;
+import io.github.vmzakharov.ecdataframe.dsl.BinaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.DecimalExpr;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionScript;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionCallExpr;
+import io.github.vmzakharov.ecdataframe.dsl.VarExpr;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.dsl.value.DoubleValue;
+import io.github.vmzakharov.ecdataframe.dsl.value.StringValue;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class PrettyPrintVisitorTest {
+
+    @Test
+    public void visitAssignExprTest() {
+        AssingExpr expr = new AssingExpr("x", new DoubleValue(10.0));
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        expr.accept(visitor);
+        assertEquals("x = 10", visitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        BinaryExpr expr = new BinaryExpr(new VarExpr("x"), "+", new DoubleValue(10.0));
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        expr.accept(visitor);
+        assertEquals("(x + 10)", visitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        FunctionCallExpr expr = new FunctionCallExpr("sum", new StringValue("x"));
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        expr.accept(visitor);
+        assertEquals("sum(\"x\")", visitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        var vb = new VarExpr("b");
+        var vc = new VarExpr("c");
+        FunctionScript functionScript = new FunctionScript("func", "a")
+            .addExpression(new AssingExpr("b", new VarExpr("a")))
+            .addExpression(new AssingExpr("c", new VarExpr("a")));
+
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        visitor.visitFunctionScriptExpr(functionScript);
+
+        assertEquals("function func(a)\n{\n  b = a\n  c = a\n}", visitor.exprToString(functionScript));
+    }
+
+    @Test
+    public void visitDecimalExprTest() {
+        DecimalExpr expr = new DecimalExpr(new DoubleValue(10), new DoubleValue(12.0));
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        expr.accept(visitor);
+        assertEquals("[10, 12]", visitor.exprToString(expr));
+    }
+
+    @Test
+    public void escapeVarNameIfNeededTest() {
+        AssingExpr expr = new AssingExpr("var", new DoubleValue(10.0), true);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        if (visitor.escapeVarNameIfNeeded(expr.getVarName(), expr.isEscaped()).equals("${" + expr.getVarName() + "}")) {
+            assertEquals("${var}", visitor.escapeVarNameIfNeeded(expr.getVarName(), expr.isEscaped()));
+        }
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.value.DoubleValue;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class PrettyPrintVisitorTest {
+    @Test
+    public void visitAssignExprTest() {
+        AssingExpr expr = new AssingExpr("x", false, new DoubleValue(10.0));
+        CollectingPrinter printer = new CollectingPrinter();
+        expr.accept(new PrettyPrintVisitor(printer));
+        assertEquals("x = 10", printer.toString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        BinaryExpr expr = new BinaryExpr(new VarExpr("x", false), "+", new DoubleValue(10.0));
+        CollectingPrinter printer = new CollectingPrinter();
+        expr.accept(new PrettyPrintVisitor(printer));
+        assertEquals("(x + 10)", printer.toString());
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        FunctionCallExpr expr = new FunctionCallExpr("sum", FastList.newListWith(new StringValue("x")));
+        CollectingPrinter printer = new CollectingPrinter();
+        expr.accept(new PrettyPrintVisitor(printer));
+        assertEquals("sum(\"x\")", printer.toString());
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        FunctionScript functionScript = new FunctionScript("func", FastList.newListWith("a"))
+                .addExpression(new AssingExpr("b", false, new VarExpr("a", false)))
+                .addExpression(new AssingExpr("c", false, new VarExpr("a", false)));
+
+        CollectingPrinter printer = new CollectingPrinter();
+        functionScript.accept(new PrettyPrintVisitor(printer));
+
+        assertEquals("function func(a)\n{\n  b = a\n  c = a\n}", printer.toString().trim());
+    }
+
+    @Test
+    public void visitDecimalExprTest() {
+        DecimalExpr expr = new DecimalExpr(new DoubleValue(10), new DoubleValue(2));
+        CollectingPrinter printer = new CollectingPrinter();
+        expr.accept(new PrettyPrintVisitor(printer));
+        assertEquals("[10, 2]", printer.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.function.FunctionScript;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.dsl.value.DecimalValue;
+import io.github.vmzakharov.ecdataframe.dsl.value.StringValue;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.eclipse.collections.impl.factory.Lists;
+import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+
+public class PrettyPrintVisitorTest {
+
+    @Test
+    public void visitAssignExprTest() {
+        AssingExpr expr = new AssingExpr("x", new DoubleValue(10.0));
+        expr.setEscaped(true);
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        assertEquals("${x} = 10.0", visitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        BinaryExpr expr = new BinaryExpr(new DoubleValue(2.0), "+", new DoubleValue(1.0));
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        assertEquals("(2.0 + 1.0)", visitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        FunctionCallExpr expr = mock(FunctionCallExpr.class);
+        when(expr.getParameters()).thenReturn(Lists.mutable.of(new StringValue("x")));
+        when(expr.getFunctionName()).thenReturn("sum");
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        assertEquals("sum(\"x\")", visitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        FunctionScript functionScript = new FunctionScript(
+            "func", new StatementSequenceScript(), Lists.mutable.with("a"));
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        assertEquals("function func(a)\n{}\n", visitor.exprToString(functionScript));
+    }
+
+    @Test
+    public void visitDecimalExprTest() {
+        DecimalExpr expr = new DecimalExpr(new DoubleValue(10), new LongValue(12));
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        assertEquals("[10.0, 12]", visitor.exprToString(expr));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.eclipse.collections.impl.factory.Lists;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+
+public class PrettyPrintVisitorTest {
+
+    @Test
+    public void visitAssignExprTest() {
+        AssignExpr expr = new AssignExpr("x", mock(Expression.class));
+        expr.setEscaped(true);
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitAssignExpr(expr);
+        assertEquals("${x} = ", printer.toString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        BinaryExpr expr = new BinaryExpr(mock(Expression.class), "+", mock(Expression.class));
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitBinaryExpr(expr);
+        assertEquals("() + ()", printer.toString());
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        FunctionCallExpr expr = new FunctionCallExpr("sum", Lists.mutable.of(mock(Expression.class)));
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitFunctionCallExpr(expr);
+        assertEquals("sum()", printer.toString());
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        FunctionScript expr = new FunctionScript("func", Lists.mutable.of("a"), new StatementSequenceScript());
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitFunctionScriptExpr(expr);
+        assertEquals("function func(a)\n{\n}", printer.toString());
+    }
+
+    @Test
+    public void visitDecimalExprTest() {
+        DecimalExpr expr = new DecimalExpr(mock(Expression.class), mock(Expression.class));
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitDecimalExpr(expr);
+        assertEquals("[]", printer.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+
+public class PrettyPrintVisitorTest {
+
+    @Test
+    public void visitAssignExprTest() {
+        AssingExpr assingExpr = new AssingExpr("variable", mock(Expression.class));
+        AssingExpr expr = new AssingExpr(assingExpr.getVarName(), assingExpr.getExpression());
+        expr.setEscaped(true);
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitAssignExpr(expr);
+        assertEquals("${variable} =", printer.toString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        BinaryExpr binaryExpr = new BinaryExpr(mock(Expression.class), "*", mock(Expression.class));
+        BinaryExpr expr = new BinaryExpr(binaryExpr.getOperand1(), binaryExpr.getOperation(), binaryExpr.getOperand2());
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitBinaryExpr(expr);
+        assertEquals("*", printer.toString());
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        FunctionCallExpr functionCallExpr = new FunctionCallExpr("sum", mock(Expression.class));
+        FunctionCallExpr expr = new FunctionCallExpr(functionCallExpr.getFunctionName(), functionCallExpr.getParameters().get(0));
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitFunctionCallExpr(expr);
+        assertEquals("sum", printer.toString());
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        FunctionScript functionScript = new FunctionScript("func");
+        FunctionScript expr = new FunctionScript(functionScript.getName());
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitFunctionScriptExpr(expr);
+        assertEquals("function func", printer.toString());
+    }
+
+    @Test
+    public void visitDecimalExprTest() {
+        DecimalExpr decimalExpr = new DecimalExpr(mock(Expression.class), mock(Expression.class));
+        DecimalExpr expr = new DecimalExpr(decimalExpr.unscaledValueExpr(), decimalExpr.scaleExpr());
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitDecimalExpr(decimalExpr);
+        assertEquals("[]", printer.toString());
+    }
+}
+```
+===================================================
+

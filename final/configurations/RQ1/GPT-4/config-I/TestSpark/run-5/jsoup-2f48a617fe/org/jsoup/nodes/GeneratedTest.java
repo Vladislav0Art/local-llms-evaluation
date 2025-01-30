@@ -1,0 +1,89 @@
+package org.jsoup.nodes;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Comment;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("Sample Comment");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("Sample Comment");
+        assertEquals("Sample Comment", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("Sample Comment");
+        comment.setData("New Comment Content");
+        assertEquals("New Comment Content", comment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("?xml version=\"1.0\" encoding=\"UTF-8\"?");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclarationFalseTest() {
+        Comment comment = new Comment("Sample Comment");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        String data = "?xml version=\"1.0\"?";
+        Comment comment = new Comment(data);
+        assertNotNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationNullTest() {
+        Comment comment = new Comment("Sample Comment");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void cloneTest() {
+        String data = "Sample Comment";
+        Comment comment = new Comment(data);
+        Comment clone = comment.clone();
+
+        assertEquals(comment.getData(), clone.getData());
+        assertNotSame(comment, clone);
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("Sample Comment");
+        StringBuilder sb = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        comment.outerHtmlHead(sb, 0, out);
+
+        assertEquals("<!--Sample Comment-->", sb.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("Sample Comment");
+        StringBuilder sb = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        comment.outerHtmlTail(sb, 0, out);
+
+        assertEquals("", sb.toString());
+    }
+
+}

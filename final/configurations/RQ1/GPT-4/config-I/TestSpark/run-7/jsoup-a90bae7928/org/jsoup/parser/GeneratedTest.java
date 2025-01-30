@@ -1,0 +1,144 @@
+package org.jsoup.parser;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.Token;
+import org.jsoup.parser.XmlTreeBuilder;
+import org.junit.Test;
+
+import java.io.StringReader;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertEquals(ParseSettings.preserveCase, xmlTreeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        String input = "<test>data</test>";
+        Parser parser = mock(Parser.class);
+        XmlTreeBuilder xmlTreeBuilder = spy(XmlTreeBuilder.class);
+        xmlTreeBuilder.initialiseParse(new StringReader(input), "", parser);
+        assertTrue(xmlTreeBuilder.stack.contains(xmlTreeBuilder.doc));
+    }
+
+    @Test
+    public void parseReaderTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Parser parser = mock(Parser.class);
+        when(parser.getTreeBuilder()).thenReturn(xmlTreeBuilder);
+        Document xmlDoc = xmlTreeBuilder.parse(new StringReader("<test>data</test>"), "", parser);
+        assertNotNull(xmlDoc);
+    }
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertNotNull(xmlTreeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        String input = "<test>data</test>";
+        Parser parser = mock(Parser.class);
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader(input), "", parser);
+        assertFalse(xmlTreeBuilder.stack.isEmpty());
+    }
+
+    @Test
+    public void parseReaderTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Parser parser = mock(Parser.class);
+        when(parser.getTreeBuilder()).thenReturn(xmlTreeBuilder);
+        Document xmlDoc = xmlTreeBuilder.parse(new StringReader("<test>data</test>"), "");
+        assertNotNull(xmlDoc);
+    }
+
+    @Test
+    public void parseStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Parser parser = mock(Parser.class);
+        when(parser.getTreeBuilder()).thenReturn(xmlTreeBuilder);
+        Document xmlDoc = xmlTreeBuilder.parse("<test>data</test>", "");
+        assertNotNull(xmlDoc);
+    }
+
+    @Test
+    public void parseFragmentWithoutContextTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Parser parser = mock(Parser.class);
+        when(parser.getTreeBuilder()).thenReturn(xmlTreeBuilder);
+        List nodeList = xmlTreeBuilder.parseFragment("<test>data</test>", "", parser);
+        assertNotNull(nodeList);
+        assertFalse(nodeList.isEmpty());
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        String input = "<test>data</test>";
+        Parser parser = mock(Parser.class);
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader(input), "", parser);
+        assertFalse(xmlTreeBuilder.stack.isEmpty());  // Check that the document is on the stack
+    }
+
+    @Test
+    public void parseReaderTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document xmlDoc = xmlTreeBuilder.parse(new StringReader("<test>data</test>"), "");
+        assertNotNull(xmlDoc);
+    }
+
+    @Test
+    public void parseStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document xmlDoc = xmlTreeBuilder.parse("<test>data</test>", "");
+        assertNotNull(xmlDoc);
+    }
+
+    @Test
+    public void parseFragmentWithContextTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Parser parser = mock(Parser.class);
+        when(parser.getTreeBuilder()).thenReturn(xmlTreeBuilder);
+        List nodeList = xmlTreeBuilder.parseFragment("<test>data</test>", xmlTreeBuilder.doc, "", parser);
+        assertNotNull(nodeList);
+        assertFalse(nodeList.isEmpty());
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        String input = "<test>data</test>";
+        Parser parser = new Parser(new XmlTreeBuilder());
+        XmlTreeBuilder xmlTreeBuilder = spy(XmlTreeBuilder.class);
+        xmlTreeBuilder.initialiseParse(new StringReader(input), "", parser);
+        assertFalse(xmlTreeBuilder.stack.isEmpty());
+    }
+
+    @Test
+    public void parseFragmentWithoutContextTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Parser parser = new Parser(xmlTreeBuilder);
+        List nodeList = xmlTreeBuilder.parseFragment("<test>data</test>", "", parser);
+        assertNotNull(nodeList);
+        assertFalse(nodeList.isEmpty());
+    }
+
+    @Test
+    public void parseFragmentWithContextTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Parser parser = new Parser(xmlTreeBuilder);
+        List nodeList = xmlTreeBuilder.parseFragment("<test>data</test>", xmlTreeBuilder.doc, "", parser);
+        assertNotNull(nodeList);
+        assertFalse(nodeList.isEmpty());
+    }
+
+}

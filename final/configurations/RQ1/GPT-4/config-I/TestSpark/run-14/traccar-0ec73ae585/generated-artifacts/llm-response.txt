@@ -1,0 +1,116 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.traccar.protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+public class WatchProtocolDecoderTest {
+
+    private SocketAddress remoteAddress = Mockito.mock(SocketAddress.class);
+
+    @Test
+    public void decodePositionInvalidDataTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("test", null, null, null));
+
+        String invalidDecodingData = "invalidData";
+        Position result = decoder.decodePosition(null, invalidDecodingData);
+
+        assertEquals(null, result);
+    }
+
+    @Test
+    public void decodePositionValidDataTest() {
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("test", null, null, null));
+
+        // Assuming that the input "030814220131,A,40.836908,N,29.310209,E,0.0,0.0,-33.0,8,19,71,8,0,0,04,,3,4,286,3,31407,1877965,-93," is valid for decoding.
+        // This input is obtained assuming the behavior of decodePosition and based on the logic written in it.
+        String validDecodingData = "030814220131,A,40.836908,N,29.310209,E,0.0,0.0,-33.0,8,19,71,8,0,0,04,,3,4,286,3,31407,1877965,-93,";
+        Position result = decoder.decodePosition(null, validDecodingData);
+
+        assertEquals(29.310209, result.getLongitude(), 0.0000001);
+        assertEquals(40.836908, result.getLatitude(), 0.0000001);
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("test", null, null, null));
+        Channel channel = Mockito.mock(Channel.class);
+        ByteBuf byteBuf = Unpooled.copiedBuffer("[1*1*1*0000]", StandardCharsets.US_ASCII);
+
+        when(channel.remoteAddress()).thenReturn(remoteAddress);
+
+        Object result = decoder.decode(channel, remoteAddress, byteBuf);
+
+        assertEquals(null, result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.traccar.protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+public class WatchProtocolDecoderTest {
+
+    private SocketAddress remoteAddress = Mockito.mock(SocketAddress.class);
+    private Protocol protocol = Mockito.mock(Protocol.class);
+
+    @Test
+    public void decodeTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Channel channel = Mockito.mock(Channel.class);
+        ByteBuf msg = Unpooled.copiedBuffer("[3G*123456789*0009*LK]", StandardCharsets.US_ASCII);
+
+        Mockito.when(channel.remoteAddress()).thenReturn(remoteAddress);
+
+        decoder.decode(channel, remoteAddress, msg);
+
+        verify(protocol, times(1)).getSupportedDataCommands();
+    }
+
+    @Test(expected = Exception.class)
+    public void decodeWithExceptionTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Channel channel = Mockito.mock(Channel.class);
+        ByteBuf msg = Unpooled.copiedBuffer("[3G*123456789*0009*LK]", StandardCharsets.US_ASCII);
+
+        Mockito.when(channel.remoteAddress()).thenReturn(remoteAddress);
+        doThrow(new Exception("Test Exception")).when(protocol).getSupportedDataCommands();
+
+        decoder.decode(channel, remoteAddress, msg);
+    }
+}
+```
+===================================================
+

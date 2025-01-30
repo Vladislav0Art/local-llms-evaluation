@@ -1,0 +1,132 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Pattern;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameValidAppVersionTest() {
+        String amiName = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        assertNotNull(appVersion);
+        assertEquals("subscriberha", appVersion.getPackageName());
+        assertEquals("1.0.0", appVersion.getVersion());
+        assertEquals("586499", appVersion.getBuildNumber());
+        assertNull(appVersion.getCommit());
+    }
+
+    @Test
+    public void parseNameInvalidAppVersionTest() {
+        String amiName = "subscriberha-1.0.0";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void parseNameNullAppVersionTest() {
+        AppVersion appVersion = AppVersion.parseName(null);
+
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void compareToNullTest() {
+        String amiName = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        assertEquals(1, appVersion.compareTo(null));
+    }
+
+    @Test
+    public void compareToSelfTest() {
+        String amiName = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        assertEquals(0, appVersion.compareTo(appVersion));
+    }
+
+    @Test
+    public void compareToDifferentPackageNamesTest() {
+        String amiName1 = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion1 = AppVersion.parseName(amiName1);
+        String amiName2 = "subscriberhb-1.0.0-h586499";
+        AppVersion appVersion2 = AppVersion.parseName(amiName2);
+
+        assertTrue(appVersion1.compareTo(appVersion2) < 0);
+    }
+
+    @Test
+    public void toStringTest() {
+        String amiName = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        String expected = "AppVersion [packageName=subscriberha, version=1.0.0, buildJobName=null, buildNumber=586499, changelist=null]";
+
+        assertEquals(expected, appVersion.toString());
+    }
+
+    @Test
+    public void getChangelistTest() {
+        String amiName = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        assertNull(appVersion.getChangelist());
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        Pattern appVersionPattern = AppVersion.getAppVersionPattern();
+
+        assertNotNull(appVersionPattern);
+    }
+
+    @Test
+    public void hashCodeTest() {
+        String amiName = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        assertNotNull(appVersion.hashCode());
+    }
+
+    @Test
+    public void equalsTest() {
+        String amiName1 = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion1 = AppVersion.parseName(amiName1);
+        String amiName2 = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion2 = AppVersion.parseName(amiName2);
+
+        assertTrue(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void equalsNullTest() {
+        String amiName = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        assertFalse(appVersion.equals(null));
+    }
+
+    @Test
+    public void equalsDifferentClassTest() {
+        String amiName = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        assertFalse(appVersion.equals(new Object()));
+    }
+
+    @Test
+    public void equalsDifferentPackageNamesTest() {
+        String amiName1 = "subscriberha-1.0.0-h586499";
+        AppVersion appVersion1 = AppVersion.parseName(amiName1);
+        String amiName2 = "subscriberhb-1.0.0-h586499";
+        AppVersion appVersion2 = AppVersion.parseName(amiName2);
+
+        assertFalse(appVersion1.equals(appVersion2));
+    }
+
+}

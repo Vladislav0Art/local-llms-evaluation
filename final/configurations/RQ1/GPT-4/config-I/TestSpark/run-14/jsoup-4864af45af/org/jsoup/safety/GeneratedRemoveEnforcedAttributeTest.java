@@ -1,0 +1,21 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Element;
+import org.jsoup.safety.Safelist;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedRemoveEnforcedAttributeTest {
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.addEnforcedAttribute("a", "enforced", "value");
+        assertTrue(safelist.isSafeAttribute("a", new Element("a").attr("enforced", "value"), new Attribute("enforced", "value")));
+        safelist.removeEnforcedAttribute("a", "enforced");
+        assertFalse(safelist.isSafeAttribute("a", new Element("a").attr("enforced", "value"), new Attribute("enforced", "value")));
+    }
+
+}

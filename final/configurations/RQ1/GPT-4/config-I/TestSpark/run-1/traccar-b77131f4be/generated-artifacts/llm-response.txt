@@ -1,0 +1,242 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import static org.junit.Assert.*;
+import org.junit.runners.JUnit4;
+import java.net.SocketAddress;
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+
+@RunWith(JUnit4.class)
+public class GalileoProtocolDecoderTest {
+
+    private GalileoProtocolDecoder galileoProtocolDecoder;
+    private Protocol protocol = Mockito.mock(Protocol.class);
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getTagLengthTest_invalidTagLength() {
+        GalileoProtocolDecoder.getTagLength(0xff);
+    }
+
+    @Test
+    public void getTagLengthTest_validTagLength() {
+        assertEquals(2, GalileoProtocolDecoder.getTagLength(0x04));
+    }
+
+    @Test
+    public void sendResponseTest_nullChannel() {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+        decoder.sendResponse(null,0x01, 0x0001);
+    }
+
+    @Test
+    public void decodeTagTest_unknownTag() {
+        Position position = new Position();
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x01});
+        galileoProtocolDecoder.decodeTag(position, buffer, 0xff)        
+        assertTrue(position.getAttributes().isEmpty());
+    }
+
+    @Test
+    public void decodeTagOtherTest_skipUnknownTag() {
+        Position position = new Position();
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x01});
+        galileoProtocolDecoder.decodeTagOther(position, buffer, 0xee)        
+        assertTrue(position.getAttributes().isEmpty());
+    }
+
+    @Test
+    public void decodeTest_unknownHeader() throws Exception {
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x02, 0x03, 0x04});
+        assertNull(galileoProtocolDecoder.decode(null, null, buffer));   
+    }
+
+    @Test
+    public void decodeMinimalDataSetTest() {
+        Position position = new Position();
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09});
+        galileoProtocolDecoder.decodeMinimalDataSet(position, buffer);
+        assertNotNull(position.getFixTime());
+    }
+
+    @Test
+    public void decodeIridiumPositionTest_nullDeviceSession() throws Exception {
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c});
+        assertNull(galileoProtocolDecoder.decodeIridiumPosition(null, null, buffer));
+    }
+
+    @Test
+    public void decodePhotoTest_noPhotoLength() throws Exception {
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x00});
+        assertNull(galileoProtocolDecoder.decodePhoto(null, null, buffer));
+    }
+
+    @Test
+    public void decodeCompressedPositionsTest_noReadableBytes() throws Exception {
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x00, 0x00});
+        assertNull(galileoProtocolDecoder.decodeCompressedPositions(null, null, buffer));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import static org.junit.Assert.*;
+import org.junit.runners.JUnit4;
+import java.net.SocketAddress;
+import java.util.List;
+
+@RunWith(JUnit4.class)
+public class GalileoProtocolDecoderTest {
+
+    private GalileoProtocolDecoder galileoProtocolDecoder;
+    private Protocol protocol = Mockito.mock(Protocol.class);
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getTagLengthTest_invalidTagLength() {
+        GalileoProtocolDecoder.getTagLength(0xff);
+    }
+
+    @Test
+    public void getTagLengthTest_validTagLength() {
+        assertEquals(2, GalileoProtocolDecoder.getTagLength(0x04));
+    }
+
+    @Test
+    public void sendResponseTest_nullChannel() {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+        decoder.sendResponse(null,0x01, 0x0001);
+    }
+
+    @Test
+    public void decodeTagTest_unknownTag() {
+        Position position = new Position();
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x01});
+        galileoProtocolDecoder.decodeTag(position, buffer, 0xff);       
+        assertTrue(position.getAttributes().isEmpty());
+    }
+
+    @Test
+    public void decodeTagOtherTest_skipUnknownTag() {
+        Position position = new Position();
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x01});
+        galileoProtocolDecoder.decodeTagOther(position, buffer, 0xee);     
+        assertTrue(position.getAttributes().isEmpty());
+    }
+
+    @Test
+    public void decodeTest_unknownHeader() throws Exception {
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x02, 0x03, 0x04});
+        assertNull(galileoProtocolDecoder.decode(null, null, buffer));   
+    }
+
+    @Test
+    public void decodeMinimalDataSetTest() {
+        Position position = new Position();
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09});
+        galileoProtocolDecoder.decodeMinimalDataSet(position, buffer);
+        assertNotNull(position.getFixTime());
+    }
+
+    @Test
+    public void decodeIridiumPositionTest_nullDeviceSession() throws Exception {
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c});
+        assertNull(galileoProtocolDecoder.decodeIridiumPosition(null, null, buffer));
+    }
+
+    @Test
+    public void decodePhotoTest_noPhotoLength() throws Exception {
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x00});
+        assertNull(galileoProtocolDecoder.decodePhoto(null, null, buffer));
+    }
+
+    @Test
+    public void decodeCompressedPositionsTest_noReadableBytes() throws Exception {
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x00, 0x00});
+        assertNull(galileoProtocolDecoder.decodeCompressedPositions(null, null, buffer));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+It seems there was a miscommunication - private methods cannot be tested directly as they are not visible from a test. We can only test public methods, and through them indirectly verify the behavior of the private methods they are calling. Here are the revised tests.
+
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import static org.junit.Assert.*;
+import org.junit.runners.JUnit4;
+import java.net.SocketAddress;
+import java.util.List;
+
+@RunWith(JUnit4.class)
+public class GalileoProtocolDecoderTest {
+
+    private GalileoProtocolDecoder galileoProtocolDecoder;
+    private Protocol protocol = Mockito.mock(Protocol.class);
+
+    @Test
+    public void decodeTest_unknownHeader() throws Exception {
+        galileoProtocolDecoder = new GalileoProtocolDecoder(protocol);
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x02, 0x03, 0x04});
+
+        assertNull(galileoProtocolDecoder.decode(null, null, buffer));   
+    }
+
+    @Test
+    public void decodeTest_validHeader() throws Exception {
+        galileoProtocolDecoder = new GalileoProtocolDecoder(protocol);
+        // Header 0x01
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a});
+
+        assertNotNull(galileoProtocolDecoder.decode(null, null, buffer));   
+    }
+
+    @Test
+    public void decodeCompressedPositionsTest_noReadableBytes() throws Exception {
+        galileoProtocolDecoder = new GalileoProtocolDecoder(protocol);
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x00, 0x00});
+        
+        assertNull(galileoProtocolDecoder.decode(null, null, buffer));
+    }
+
+    @Test
+    public void decodeCompressedPositionsTest_locationData() throws Exception {
+        galileoProtocolDecoder = new GalileoProtocolDecoder(protocol);
+        ByteBuf buffer = Unpooled.copiedBuffer(new byte[]{0x08, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07});
+
+        List<Position> positions = (List<Position>) galileoProtocolDecoder.decode(null, null, buffer);
+        assertNotNull(positions);
+    }
+}
+```
+===================================================
+

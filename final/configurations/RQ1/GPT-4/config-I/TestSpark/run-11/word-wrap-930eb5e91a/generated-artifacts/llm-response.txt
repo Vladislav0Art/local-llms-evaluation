@@ -1,0 +1,211 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.davidmoten.text.utils.WordWrap;
+import org.davidmoten.text.utils.WordWrap.Builder;
+import org.junit.Test;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.function.Function;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class WordWrapTest {
+
+    @Test
+    public void fromReaderTest() {
+        Builder builder = WordWrap.from(new StringReader("test"));
+        assertEquals("80", builder.maxWidth.toString());
+        assertTrue(builder.insertHyphens);
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        Builder builder = WordWrap.from("test");
+        assertEquals("80", builder.maxWidth.toString());
+        assertTrue(builder.insertHyphens);
+    }
+
+    @Test
+    public void fromUtf8Test() {
+        Builder builder = WordWrap.fromUtf8("test".getBytes());
+        assertEquals("80", builder.maxWidth.toString());
+        assertTrue(builder.insertHyphens);
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        Builder builder = WordWrap.fromClasspathUtf8("/file.txt");
+        assertEquals("80", builder.maxWidth.toString());
+        assertTrue(builder.insertHyphens);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void fromClasspathWithCharsetTest() {
+        WordWrap.fromClasspath("/file.txt", StandardCharsets.UTF_8);
+    }
+
+    @Test
+    public void maxWidthTest() {
+        Builder builder = WordWrap.from(new StringReader("test")).maxWidth(50);
+        assertEquals("50", builder.maxWidth.toString());
+    }
+
+    @Test
+    public void newLineTest() {
+        Builder builder = WordWrap.from(new StringReader("test")).newLine("\r\n");
+        assertEquals("\r\n", builder.newLine);
+    }
+
+    @Test
+    public void extraWordCharsTest() {
+        Builder builder = WordWrap.from(new StringReader("test"))
+                                  .extraWordChars(new HashSet<>(Arrays.asList('!', '@', '#')));
+        assertEquals(3, builder.extraWordChars.size());
+        assertTrue(builder.extraWordChars.contains('!'));
+        assertTrue(builder.extraWordChars.contains('@'));
+        assertTrue(builder.extraWordChars.contains('#'));        
+    }
+
+    @Test
+    public void insertHyphensTest() {
+        Builder builder = WordWrap.from(new StringReader("test")).insertHyphens(false);
+        assertFalse(builder.insertHyphens);
+    }
+
+    @Test
+    public void breakWordsTest() {
+        Builder builder = WordWrap.from(new StringReader("test")).breakWords(false);
+        assertFalse(builder.breakWords);
+    }
+
+    @Test
+    public void wrapTest() {
+        Builder builder = WordWrap.from(new StringReader("This is a string util test!"))
+                                  .maxWidth(10)
+                                  .insertHyphens(true)
+                                  .breakWords(true);
+
+        String result = builder.wrap();
+        assertEquals("This is a\nstring util\ntest!", result);
+    }
+
+    @Test
+    public void stringWidthTest() {
+        Function<CharSequence, Number> stringWidth = (str) -> str.length() * 2;
+        Builder builder = WordWrap.from(new StringReader("This is a test"))
+                                  .maxWidth(20)
+                                  .stringWidth(stringWidth)
+                                  .breakWords(true);
+
+        String result = builder.wrap();
+        assertEquals("This is a\n test", result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.davidmoten.text.utils.WordWrap;
+import org.junit.Test;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+
+public class WordWrapTest {
+
+    @Test
+    public void fromReaderWrapTest() throws IOException {
+        Reader input = new StringReader("This is a test for word wrap function.");
+
+        String wrappedText = WordWrap.from(input)
+                                     .maxWidth(10)
+                                     .wrap();
+
+        assertEquals("This is a\ntest for word\nwrap\nfunction.", wrappedText);
+    }
+
+    @Test
+    public void fromCharSequenceWrapTest() {
+        CharSequence text = "This is another test for word wrap function.";
+
+        String wrappedText = WordWrap.from(text)
+                                     .maxWidth(15)
+                                     .wrap();
+
+        assertEquals("This is\nanother test\nfor word wrap\nfunction.", wrappedText);
+    }
+
+    @Test
+    public void fromUtf8StreamWrapTest() {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream("This is a UTF-8 wrap test.".getBytes());
+
+        String wrappedText = WordWrap.from(inputStream, StandardCharsets.UTF_8)
+                                     .maxWidth(5)
+                                     .wrap();
+
+        assertEquals("This\nis a\nUTF-8\nwrap\ntest.", wrappedText);
+    }
+
+    @Test
+    public void fromClasspathWrapTest() {
+        String classpathResource = "/file.txt";
+
+        String wrappedText = WordWrap.fromClasspath(classpathResource, StandardCharsets.UTF_8)
+                                     .maxWidth(10)
+                                     .wrap();
+
+        assertEquals("Expected text after wrapping", wrappedText);
+    }
+
+    @Test
+    public void maxWidthAndNewlineWrapTest() {
+        Reader input = new StringReader("This is a test for max width and new line.");
+
+        String wrappedText = WordWrap.from(input)
+                                     .maxWidth(20)
+                                     .newLine("\r\n")
+                                     .wrap();
+
+        assertEquals("This is a test for\r\nmax width and new\r\nline.", wrappedText);
+    }
+
+    @Test
+    public void insertHyphensWrapTest() {
+        Reader input = new StringReader("This is a test for inserting hyphens.");
+
+        String wrappedText = WordWrap.from(input)
+                                     .maxWidth(10)
+                                     .insertHyphens(true)
+                                     .wrap();
+
+        assertEquals("This is a\ntest for-\ninserting\nhyphens.", wrappedText);
+    }
+
+    @Test
+    public void breakWordsWrapTest() {
+        Reader input = new StringReader("This is a test for breaking words.");
+
+        String wrappedText = WordWrap.from(input)
+                                     .maxWidth(10)
+                                     .breakWords(true)
+                                     .wrap();
+
+        assertEquals("This is a\ntest for\nbreaking\nwords.", wrappedText);
+    }
+}
+```
+===================================================
+

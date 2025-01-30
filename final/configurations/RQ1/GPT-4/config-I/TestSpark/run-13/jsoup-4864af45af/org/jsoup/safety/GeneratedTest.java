@@ -1,0 +1,122 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Element;
+import org.jsoup.safety.Safelist;
+import org.junit.Test;
+
+import static junit.framework.TestCase.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = new Safelist();
+        safelist.addTags("div", "p");
+
+        assertTrue(safelist.isSafeTag("div"));
+        assertTrue(safelist.isSafeTag("p"));
+        assertFalse(safelist.isSafeTag("a"));
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = new Safelist();
+        safelist.addTags("div", "p").removeTags("div");
+
+        assertFalse(safelist.isSafeTag("div"));
+        assertTrue(safelist.isSafeTag("p"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = new Safelist();
+        safelist.addAttributes("div", "class", "id");
+
+        Element el = new Element("div").attr("id", "container").attr("class", "test").attr("style", "color:red");
+        assertTrue(safelist.isSafeAttribute("div", el, new Attribute("id", "container")));
+        assertTrue(safelist.isSafeAttribute("div", el, new Attribute("class", "test")));
+        assertFalse(safelist.isSafeAttribute("div", el, new Attribute("style", "color:red")));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = new Safelist();
+        safelist.addAttributes("div", "class", "id").removeAttributes("div", "class");
+
+        Element el = new Element("div").attr("id", "container").attr("class", "test");
+        assertTrue(safelist.isSafeAttribute("div", el, new Attribute("id", "container")));
+        assertFalse(safelist.isSafeAttribute("div", el, new Attribute("class", "test")));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = new Safelist();
+        safelist.addEnforcedAttribute("div", "class", "test");
+
+        Element el = new Element("div").attr("class", "test");
+        assertTrue(safelist.isSafeAttribute("div", el, new Attribute("class", "test")));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = new Safelist();
+        safelist.addEnforcedAttribute("div", "class", "test").removeEnforcedAttribute("div", "class");
+
+        Element el = new Element("div").attr("class", "test");
+        assertFalse(safelist.isSafeAttribute("div", el, new Attribute("class", "test")));
+    }
+
+    @Test
+    public void addProtocolsTestPositive() {
+        Safelist safelist = new Safelist();
+        safelist.addProtocols("a", "href", "http", "https");
+
+        Element el = new Element("a").attr("href", "http://www.example.com");
+        assertTrue(safelist.isSafeAttribute("a", el, new Attribute("href", "http://www.example.com")));
+
+        el.attr("href", "https://www.example.com");
+        assertTrue(safelist.isSafeAttribute("a", el, new Attribute("href", "https://www.example.com")));
+    }
+
+    @Test
+    public void addProtocolsTestNegative() {
+        Safelist safelist = new Safelist();
+        safelist.addProtocols("a", "href", "https");
+
+        Element el = new Element("a").attr("href", "http://www.example.com");
+        assertFalse(safelist.isSafeAttribute("a", el, new Attribute("href", "http://www.example.com")));
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = new Safelist();
+        safelist.addProtocols("a", "href", "http", "https").removeProtocols("a", "href", "http");
+
+        Element el = new Element("a").attr("href", "http://www.example.com");
+        assertFalse(safelist.isSafeAttribute("a", el, new Attribute("href", "http://www.example.com")));
+
+        el.attr("href", "https://www.example.com");
+        assertTrue(safelist.isSafeAttribute("a", el, new Attribute("href", "https://www.example.com")));
+    }
+
+    @Test
+    public void preserveRelativeLinksTest() {
+        Safelist safelist = new Safelist();
+
+        safelist
+                .preserveRelativeLinks(true)
+                .addProtocols("a", "href", "#");
+
+        String href = "#section1";
+        Element el = new Element("a").attr("href", href);
+
+        assertTrue(safelist.isSafeAttribute("a", el, new Attribute("href", href)));
+
+        // test with preserveRelativeLinks=false (default)
+        safelist = new Safelist().addProtocols("a", "href", "#");
+        assertFalse(safelist.isSafeAttribute("a", el, new Attribute("href", href)));
+    }
+
+}

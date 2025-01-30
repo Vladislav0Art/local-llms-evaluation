@@ -1,0 +1,85 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.XmlDeclaration;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.StringWriter;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("test");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("test");
+        comment.setData("newTest");
+        assertEquals("newTest", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("test");
+        StringWriter accum = new StringWriter();
+        Document.OutputSettings out = new Document.OutputSettings();
+        comment.outerHtmlHead(accum, 0, out);
+        assertEquals("<!--test-->", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("test");
+        StringWriter accum = new StringWriter();
+        Document.OutputSettings out = new Document.OutputSettings();
+        comment.outerHtmlTail(accum, 0, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("test");
+        Comment clone = comment.clone();
+        assertEquals(comment.getData(), clone.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment1 = new Comment("!test");
+        Comment comment2 = new Comment("?test");
+        Comment comment3 = new Comment("test");
+        assertTrue(comment1.isXmlDeclaration());
+        assertTrue(comment2.isXmlDeclaration());
+        assertFalse(comment3.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("!DOCTYPE");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+    }
+
+    @Test
+    public void asXmlDeclarationNullTest() {
+        Comment comment = new Comment("test");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNull(xmlDeclaration);
+    }
+
+}

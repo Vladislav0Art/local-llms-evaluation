@@ -1,0 +1,109 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void getTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key1", "value1");
+        attrs.put("key2", "value2");
+        String result = attrs.get("key1");
+        Assert.assertEquals(result, "value1");
+    }
+
+    @Test
+    public void getIgnoreCaseTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("Key", "Value");
+        String result = attrs.getIgnoreCase("key");
+        Assert.assertEquals(result, "Value");
+    }
+
+    @Test
+    public void putTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        Assert.assertTrue(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void hasDeclaredValueForKeyTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        Assert.assertTrue(attrs.hasDeclaredValueForKey("key"));
+    }
+
+    @Test
+    public void putUserDataTest() {
+        Attributes attrs = new Attributes();
+        attrs.putUserData("UserDataKey", "UserDataValue");
+        Assert.assertNotNull(attrs.getUserData("UserDataKey"));
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attrs = new Attributes();
+        Assert.assertTrue(attrs.isEmpty());
+    }
+
+    @Test
+    public void isEmptyFalseTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        Assert.assertFalse(attrs.isEmpty());
+        attrs.remove("key");
+        Assert.assertTrue(attrs.isEmpty());
+    }
+
+    @Test
+    public void cloneTest() {
+        try {
+            Attributes attrs = new Attributes();
+            attrs.put("key", "value");
+            Attributes cloned = attrs.clone();
+            Assert.assertTrue(cloned.hasKey("key"));
+        } catch (Exception e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void addTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        Assert.assertTrue(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void removeTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        attrs.remove("key");
+        Assert.assertFalse(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void removeIgnoreCaseTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("Key", "Value");
+        attrs.removeIgnoreCase("key");
+        Assert.assertFalse(attrs.hasKey("Key"));
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        List<Attribute> list = attrs.asList();
+        Assert.assertEquals(list.size(), 1);
+        Assert.assertTrue(list.get(0).getKey().equals("key"));
+    }
+
+}

@@ -1,0 +1,259 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.List;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Test
+    public void decodeIridiumPositionTest() throws Exception {
+        Protocol protocol = new Protocol("TEST");
+        Channel channel = mock(Channel.class);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x01);
+        buf.writeBytes(new byte[2]);
+        buf.writeBytes(new byte[3]);
+        buf.writeIntLE(0);
+        buf.writeBytes("123456789011111".getBytes(StandardCharsets.US_ASCII));
+        buf.writeByte(0);
+        buf.writeBytes(new byte[4]);
+        buf.writeIntLE(0);
+        buf.writeBytes(new byte[23]);
+        buf.writeBytes(new byte[3]);
+        buf.writeBytes(new byte[10]);
+
+        Position position = decoder.decodeIridiumPosition(channel, null, buf);
+        assertNull(position);
+    }
+
+    @Test
+    public void decodeTagOtherTest() throws Exception {
+        Protocol protocol = new Protocol("TEST");
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+        Position position = new Position(protocol.getName());
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(10);
+        decoder.decodeTagOther(position, buf, 10);
+        assertNotNull(position);
+    }
+
+    @Test
+    public void decodePhotoTest() throws Exception {
+        Protocol protocol = new Protocol("TEST");
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeShortLE(0);
+        assertNull(decoder.decodePhoto(null, null, buf));
+    }
+
+    @Test
+    public void decodeCompressedPositionsTest() throws Exception {
+        Protocol protocol = new Protocol("TEST");
+        Channel channel = mock(Channel.class);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeShortLE(0);
+
+        List<Position> positions = decoder.decodeCompressedPositions(channel, null, buf);
+        assertTrue(positions.isEmpty());
+    }
+
+    @Test
+    public void decodeTagLengthTest() {
+        int length = GalileoProtocolDecoder.getTagLength(0x01);
+        assertEquals(1, length);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void decodeTagLengthInvalidTagTest() {
+        GalileoProtocolDecoder.getTagLength(0);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+I'm sorry, but due to the structure of GalileoProtocolDecoder class, it's not possible to directly test private methods such as `decodeIridiumPosition`, `decodeTagOther`, `decodePhoto`, `decodeCompressedPositions`, and `getTagLength`. Therefore, those unit tests are invalid.
+
+In terms of best practices, direct testing of private methods, often isn't recommended as they're considered implementation details. Rather, it's better to test the public methods that call these private methods and verify the outcomes.
+
+Unfortunately, I can't provide the corrected tests because those private methods are deep in the implementation details. Also, we need some public method or conditional logic that changes the behavior based on inputs to create meaningful unit tests. But, there's no public methods available other than the constructor and 'decode' method, and the 'decode' method behavior doesn't change based on inputs.
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.protocol.GalileoProtocolDecoder;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    @Mock
+    private ChannelHandlerContext ctx;
+
+    @Test
+    public void decodeTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x01); 
+        buf.writeBytes(new byte[2]);
+        buf.writeBytes(new byte[3]);
+        buf.writeIntLE(0);
+        buf.writeBytes("123456789011111".getBytes(StandardCharsets.US_ASCII));
+        buf.writeByte(0);
+        buf.writeBytes(new byte[4]);
+        buf.writeIntLE(0);
+        buf.writeBytes(new byte[23]);
+        buf.writeBytes(new byte[3]);
+        buf.writeBytes(new byte[10]);
+
+        Object result = decoder.decode(ctx, channel, buf, remoteAddress);
+        // This is to test decode method with incorrect input, so the result should be null
+        assertEquals(result, null);
+    }
+
+    @Test
+    public void decodeTestWithDifferentHeader() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x02); // use different header
+        buf.writeBytes(new byte[2]);
+        buf.writeBytes(new byte[3]);
+        buf.writeIntLE(0);
+        buf.writeBytes("123456789011111".getBytes(StandardCharsets.US_ASCII));
+        buf.writeByte(0);
+        buf.writeBytes(new byte[4]);
+        buf.writeIntLE(0);
+        buf.writeBytes(new byte[23]);
+        buf.writeBytes(new byte[3]);
+        buf.writeBytes(new byte[10]);
+
+        Object result = decoder.decode(ctx, channel, buf, remoteAddress);
+        // As the header is different, the result should be null
+        assertEquals(result, null);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import org.traccar.protocol.GalileoProtocolDecoder;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    @Test
+    public void decodeTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x01); 
+        buf.writeBytes(new byte[2]);
+        buf.writeBytes(new byte[3]);
+        buf.writeIntLE(0);
+        buf.writeBytes("123456789011111".getBytes(StandardCharsets.US_ASCII));
+        buf.writeByte(0);
+        buf.writeBytes(new byte[4]);
+        buf.writeIntLE(0);
+        buf.writeBytes(new byte[23]);
+        buf.writeBytes(new byte[3]);
+        buf.writeBytes(new byte[10]);
+
+        Object result = decoder.decode(channel, remoteAddress, buf);
+        assertNull(result); 
+    }
+
+    @Test
+    public void decodeTestWithDifferentHeader() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x02);
+        buf.writeBytes(new byte[2]);
+        buf.writeBytes(new byte[3]);
+        buf.writeIntLE(0);
+        buf.writeBytes("123456789011111".getBytes(StandardCharsets.US_ASCII));
+        buf.writeByte(0);
+        buf.writeBytes(new byte[4]);
+        buf.writeIntLE(0);
+        buf.writeBytes(new byte[23]);
+        buf.writeBytes(new byte[3]);
+        buf.writeBytes(new byte[10]);
+
+        Object result = decoder.decode(channel, remoteAddress, buf);
+        assertNull(result);
+    }
+}
+```
+===================================================
+

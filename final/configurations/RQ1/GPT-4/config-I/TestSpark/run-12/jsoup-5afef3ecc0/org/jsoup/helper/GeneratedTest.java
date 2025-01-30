@@ -1,0 +1,82 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildNormalUrlTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com:8080/test?param=value#ref");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL result = builder.build();
+        assertEquals("https://www.example.com:8080/test?param=value#ref", result.toString());
+    }
+
+    @Test
+    public void buildUrlWithNonAsciiInPathTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com:8080/tસંપtest?param=value#ref");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL result = builder.build();
+        assertEquals("https://www.example.com:8080/t%E0%AA%B8%E0%AA%82%E0%AA%AAtest?param=value#ref", result.toString());
+    }
+
+    @Test
+    public void buildPunyCodedUrlTest() throws Exception {
+        URL inputUrl = new URL("https://тест.испытание:8080/test?param=value#ref");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL result = builder.build();
+        assertEquals("https://xn--e1aybc.xn--80akhbyknj4f:8080/test?param=value#ref", result.toString());
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com/test");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        Connection.KeyVal keyValue = mock(Connection.KeyVal.class);
+        when(keyValue.key()).thenReturn("param");
+        when(keyValue.value()).thenReturn("value");
+        builder.appendKeyVal(keyValue);
+        URL result = builder.build();
+        assertEquals("https://www.example.com/test?param=value", result.toString());
+    }
+
+    @Test
+    public void appendMultipleKeyValTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com/test");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        Connection.KeyVal keyValue1 = mock(Connection.KeyVal.class);
+        Connection.KeyVal keyValue2 = mock(Connection.KeyVal.class);
+        when(keyValue1.key()).thenReturn("param");
+        when(keyValue1.value()).thenReturn("value");
+        when(keyValue2.key()).thenReturn("key");
+        when(keyValue2.value()).thenReturn("val");
+        builder.appendKeyVal(keyValue1);
+        builder.appendKeyVal(keyValue2);
+        URL result = builder.build();
+        assertEquals("https://www.example.com/test?param=value&key=val", result.toString());
+    }
+
+    @Test
+    public void buildUrlWithEncodedSpacesInQueryTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com/test?param=value+with+spaces");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL result = builder.build();
+        assertEquals("https://www.example.com/test?param=value+with+spaces", result.toString());
+    }
+
+    @Test
+    public void buildUrlWithEncodedSpacesInReferenceTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com/test#ref+with+spaces");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL result = builder.build();
+        assertEquals("https://www.example.com/test#ref%20with%20spaces", result.toString());
+    }
+
+}

@@ -1,0 +1,103 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.XmlDeclaration;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("data");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("data");
+        assertEquals("data", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("data");
+        comment.setData("newData");
+        assertEquals("newData", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("data");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        out.prettyPrint(true);
+        comment.outerHtmlHead(accum, 0, out);
+        assertEquals("<!--data-->", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("data");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        out.prettyPrint(true);
+        comment.outerHtmlTail(accum, 0, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("data");
+        assertEquals("<!--data-->", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("data");
+        Comment clonedComment = comment.clone();
+        assertEquals(comment.getData(), clonedComment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest_whenDataStartsWithExclamationMark() {
+        Comment comment = new Comment("!data");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclarationTest_whenDataStartsWithQuestionMark() {
+        Comment comment = new Comment("?data");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclarationTest_whenDataDoNotStartsWithExclamationMarkOrQuestionMark() {
+        Comment comment = new Comment("data");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest_emptyBody() {
+        Comment comment = new Comment("?data");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest_nonEmptyBody() {
+        Comment comment = new Comment("?xml version=\"1.0\" encoding=\"UTF-8\"?");
+        XmlDeclaration xmlDecl = comment.asXmlDeclaration();
+        assertEquals("xml", xmlDecl.name());
+        assertEquals("1.0", xmlDecl.attr("version"));
+        assertEquals("UTF-8", xmlDecl.attr("encoding"));
+    }
+
+}

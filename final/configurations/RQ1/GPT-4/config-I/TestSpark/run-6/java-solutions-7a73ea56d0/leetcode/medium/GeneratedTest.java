@@ -1,0 +1,74 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSingleEntryTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int result = onlineStockSpan.next(100);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextMultipleEntriesTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        onlineStockSpan.next(80);
+        int result = onlineStockSpan.next(120);
+        assertEquals(3, result);
+    }
+
+    @Test
+    public void nextMultipleEntriesLowerTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        onlineStockSpan.next(110);
+        int result = onlineStockSpan.next(90);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void calculateSpansSingleTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] input = {100};
+        int[] expectedOutput = {1};
+        assertArrayEquals(expectedOutput, onlineStockSpan.calculateSpans(input));
+    }
+
+    @Test
+    public void calculateSpansMultipleAscendingTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] input = {100, 110, 120};
+        int[] expectedOutput = {1, 2, 3};
+        assertArrayEquals(expectedOutput, onlineStockSpan.calculateSpans(input));
+    }
+
+    @Test
+    public void calculateSpansMultipleDescendingTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] input = {120, 110, 100};
+        int[] expectedOutput = {1, 1, 1};
+        assertArrayEquals(expectedOutput, onlineStockSpan.calculateSpans(input));
+    }
+
+    @Test
+    public void calculateSpansMultipleMixedTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] input = {100, 120, 110, 140, 130};
+        int[] expectedOutput = {1, 2, 1, 4, 1};
+        assertArrayEquals(expectedOutput, onlineStockSpan.calculateSpans(input));
+    }
+
+    @Test
+    public void calculateSpansMultipleEqualTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] input = {100, 100, 100, 100, 100};
+        int[] expectedOutput = {1, 2, 3, 4, 5};
+        assertArrayEquals(expectedOutput, onlineStockSpan.calculateSpans(input));
+    }
+
+}

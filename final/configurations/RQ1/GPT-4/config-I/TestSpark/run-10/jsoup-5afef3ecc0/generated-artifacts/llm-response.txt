@@ -1,0 +1,496 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.jsoup.Connection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.jsoup.helper.UrlBuilder;
+
+public class UrlBuilderTest {
+    
+    @Test
+    public void buildTest_NormalizationNeeded() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path?a=b");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertEquals("a=b", result.getQuery());
+    }
+
+    @Test
+    public void buildTest_NoNormalizationNeeded() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertNull(result.getQuery());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void buildTest_MalformedUrl() throws MalformedURLException {
+        URL url = new URL("htp:/www.domain.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.build();
+    }
+
+    @Test
+    public void appendKeyValTest_NewQueryParameter() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        builder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertEquals("key=value", result.getQuery());
+    }
+
+    @Test
+    public void appendKeyValTest_AppendToExistingQueryParameter() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path?a=b");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        builder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertFalse(result.getQuery().contains("&"));
+        assertTrue(result.getQuery().contains("a=b"));
+        assertTrue(result.getQuery().contains("key=value"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.jsoup.Connection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.jsoup.helper.UrlBuilder;
+import org.jsoup.internal.StringUtil;
+
+public class UrlBuilderTest {
+    private static class TestableKeyVal implements Connection.KeyVal {
+        private String key;
+        private String value;
+
+        TestableKeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String key() {
+            return key;
+        }
+
+        public Connection.KeyVal key(String key) {
+            this.key = key;
+            return this;
+        }
+
+        public String value() {
+            return value;
+        }
+
+        public Connection.KeyVal value(String value) {
+            this.value = value;
+            return this;
+        }
+    } 
+
+    @Test
+    public void buildTest_NormalizationNeeded() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path?a=b");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertEquals("a=b", result.getQuery());
+    }
+
+    @Test
+    public void buildTest_NoNormalizationNeeded() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertNull(result.getQuery());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void buildTest_MalformedUrl() throws MalformedURLException {
+        URL url = new URL("htp:/www.domain.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.build();
+    }
+
+    @Test
+    public void appendKeyValTest_NewQueryParameter() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        builder.appendKeyVal(new TestableKeyVal("key", "value"));
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertEquals("key=value", result.getQuery());
+    }
+
+    @Test
+    public void appendKeyValTest_AppendToExistingQueryParameter() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path?a=b");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        builder.appendKeyVal(new TestableKeyVal("key", "value"));
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertFalse(result.getQuery().contains("&"));
+        assertTrue(result.getQuery().contains("a=b"));
+        assertTrue(result.getQuery().contains("key=value"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.jsoup.Connection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.jsoup.helper.UrlBuilder;
+import java.io.InputStream;
+
+public class UrlBuilderTest {
+    private static class TestableKeyVal implements Connection.KeyVal {
+        private String key;
+        private String value;
+
+        TestableKeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String key() {
+            return key;
+        }
+
+        public Connection.KeyVal key(String key) {
+            this.key = key;
+            return this;
+        }
+
+        public String value() {
+            return value;
+        }
+
+        public Connection.KeyVal value(String value) {
+            this.value = value;
+            return this;
+        }
+
+        public InputStream inputStream() {
+            return null;
+        }
+
+        public String contentType() {
+            return null;
+        }
+
+        public boolean hasInputStream() {
+            return false;
+        }
+    } 
+
+    @Test
+    public void build_NormalizationNeededTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path?a=b");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertEquals("a=b", result.getQuery());
+    }
+
+    @Test
+    public void build_NoNormalizationNeededTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertNull(result.getQuery());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void build_MalformedUrlTest() throws MalformedURLException {
+        URL url = new URL("htp:/www.domain.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.build();
+    }
+
+    @Test
+    public void appendKeyVal_NewQueryParameterTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        builder.appendKeyVal(new TestableKeyVal("key", "value"));
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertEquals("key=value", result.getQuery());
+    }
+
+    @Test
+    public void appendKeyVal_AppendToExistingQueryParameterTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path?a=b");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        builder.appendKeyVal(new TestableKeyVal("key", "value"));
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertTrue(result.getQuery().contains("a=b&key=value"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Test;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import static org.junit.Assert.*;
+
+public class UrlBuilderTest {
+
+    private static class TestableKeyVal implements Connection.KeyVal {
+        private String key;
+        private String value;
+        
+        TestableKeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String key() { return key; }
+
+        public Connection.KeyVal key(String key) { this.key = key; return this; }
+
+        public String value() { return value; }
+
+        public Connection.KeyVal value(String value) { this.value = value; return this; }
+
+        public Connection.KeyVal contentType(String contentType) { return this; }
+
+        public String contentType() { return null; }
+
+        public Connection.KeyVal inputStream(java.io.InputStream inputStream) { return this; }
+
+        public boolean hasInputStream() { return false; }
+    }
+
+    @Test
+    public void build_NormalizationNeededTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path?a=b");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertEquals("a=b", result.getQuery());
+    }
+
+    @Test
+    public void build_NoNormalizationNeededTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertNull(result.getQuery());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void build_MalformedUrlTest() throws MalformedURLException {
+        URL url = new URL("htp:/www.domain.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.build();
+    }
+
+    @Test
+    public void appendKeyVal_NewQueryParameterTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        builder.appendKeyVal(new TestableKeyVal("key", "value"));
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertEquals("key=value", result.getQuery());
+    }
+
+    @Test
+    public void appendKeyVal_AppendToExistingQueryParameterTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path?a=b");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        builder.appendKeyVal(new TestableKeyVal("key", "value"));
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertTrue(result.getQuery().contains("a=b&key=value"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import static org.junit.Assert.*;
+
+public class UrlBuilderTest {
+
+    private static class TestableKeyVal implements Connection.KeyVal {
+        private String key;
+        private String value;
+        
+        TestableKeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String key() { return key; }
+
+        public Connection.KeyVal key(String key) { this.key = key; return this; }
+
+        public String value() { return value; }
+
+        public Connection.KeyVal value(String value) { this.value = value; return this; }
+
+        public Connection.KeyVal contentType(String contentType) { return this; }
+
+        public String contentType() { return null; }
+
+        public Connection.KeyVal inputStream(java.io.InputStream inputStream) { return this; }
+
+        public java.io.InputStream inputStream() { return null; }
+
+        public boolean hasInputStream() { return false; }
+    }
+
+    @Test
+    public void build_NormalizationNeededTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path?a=b");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertEquals("a=b", result.getQuery());
+    }
+
+    @Test
+    public void build_NoNormalizationNeededTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertNull(result.getQuery());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void build_MalformedUrlTest() throws MalformedURLException {
+        URL url = new URL("htp:/www.domain.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.build();
+    }
+
+    @Test
+    public void appendKeyVal_NewQueryParameterTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        builder.appendKeyVal(new TestableKeyVal("key", "value"));
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertEquals("key=value", result.getQuery());
+    }
+
+    @Test
+    public void appendKeyVal_AppendToExistingQueryParameterTest() throws MalformedURLException {
+        URL url = new URL("http://www.domain.com/path?a=b");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        builder.appendKeyVal(new TestableKeyVal("key", "value"));
+        URL result = builder.build();
+
+        assertEquals("http", result.getProtocol());
+        assertEquals("www.domain.com", result.getHost());
+        assertEquals("/path", result.getPath());
+        assertTrue(result.getQuery().contains("a=b&key=value"));
+    }
+}
+```
+===================================================
+

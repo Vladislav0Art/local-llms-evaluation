@@ -1,0 +1,135 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.session.DeviceSession;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.*;
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void decodePositionTest() {
+        Protocol protocol = new Protocol("WatchProtocolTest");
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        DeviceSession deviceSession = new DeviceSession(1);
+        String data = "140319,183308,A, 25.519065,N, 82.801089,E, 0.0,160.0,0.0,14,255,24,2553,0,60574,0,510,10,23930,2735,-72";
+        Position position = decoder.decodePosition(deviceSession, data);
+
+        assertNotNull(position);
+        assertEquals(25.519065, position.getLatitude(), 0.001);
+        assertEquals(82.801089, position.getLongitude(), 0.001);
+        assertEquals(160.0, position.getCourse(), 0.001);
+        assertEquals(14, position.get(Position.KEY_SATELLITES));
+        assertEquals(255, position.get(Position.KEY_RSSI));
+        assertEquals(24, position.get(Position.KEY_BATTERY_LEVEL));
+        assertEquals(2553, position.get(Position.KEY_STEPS));
+
+    }
+
+    @Test
+    public void decodeAlarmTest() {
+        WatchProtocolDecoder decoder = Mockito.mock(WatchProtocolDecoder.class, Mockito.CALLS_REAL_METHODS);
+        assertEquals(Position.ALARM_LOW_BATTERY, decoder.decodeAlarm(0));
+        assertEquals(Position.ALARM_GEOFENCE_EXIT, decoder.decodeAlarm(1));
+        assertEquals(Position.ALARM_GEOFENCE_ENTER, decoder.decodeAlarm(2));
+        assertEquals(Position.ALARM_POWER_CUT, decoder.decodeAlarm(14));
+        assertEquals(Position.ALARM_SOS, decoder.decodeAlarm(16));
+        assertNull(decoder.decodeAlarm(50));
+    }
+
+    @Test
+    public void sendResponseTest() {
+        Protocol protocol = new Protocol("WatchProtocolTest");
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Channel channel = Mockito.mock(Channel.class);
+        String id = "100";
+        String index = "1";
+        String content = "SampleData";
+        Mockito.when(channel.writeAndFlush(Mockito.any())).thenReturn(null);
+        decoder.sendResponse(channel, id, index, content);
+        assertNotNull(decoder.getManufacturer());
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        Protocol protocol = new Protocol("WatchProtocolTest");
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Channel channel = Mockito.mock(Channel.class);
+        String msg = "[3G*1234567890*000A*LK,100,100]";
+        ByteBuf buff = Unpooled.copiedBuffer(msg, StandardCharsets.US_ASCII);
+        Object obj = decoder.decode(channel, null, buff);
+
+        assertNotNull(obj);
+        assertTrue(obj instanceof Position);
+    }
+
+
+    @Test
+    public void decodeAudioTest() throws Exception {
+        Protocol protocol = new Protocol("WatchProtocolTest");
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Channel channel = Mockito.mock(Channel.class);
+        String msg = "[3G*1234567890*0014*JXTK,,,1,1,HIJK]";
+        ByteBuf buff = Unpooled.copiedBuffer(msg, StandardCharsets.US_ASCII);
+        Object obj = decoder.decode(channel, null, buff);
+
+        assertNotNull(obj);
+        assertTrue(obj instanceof Position);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.protocol.WatchProtocolDecoder;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void decodeTest() throws Exception {
+        WatchProtocolDecoder decoder = Mockito.mock(WatchProtocolDecoder.class);
+        Channel channel = Mockito.mock(Channel.class);
+        String msg = "[3G*1234567890*000A*LK,100,100]";
+        ByteBuf buff = Unpooled.copiedBuffer(msg, StandardCharsets.US_ASCII);
+        Object obj = decoder.decode(channel, null, buff);
+
+        assertNotNull(obj);
+    }
+
+    @Test
+    public void decodeAudioTest() throws Exception {
+        WatchProtocolDecoder decoder = Mockito.mock(WatchProtocolDecoder.class);
+        Channel channel = Mockito.mock(Channel.class);
+        String msg = "[3G*1234567890*0014*JXTK,,,1,1,HIJK]";
+        ByteBuf buff = Unpooled.copiedBuffer(msg, StandardCharsets.US_ASCII);
+        Object obj = decoder.decode(channel, null, buff);
+
+        assertNotNull(obj);
+    }
+
+}
+```
+===================================================
+

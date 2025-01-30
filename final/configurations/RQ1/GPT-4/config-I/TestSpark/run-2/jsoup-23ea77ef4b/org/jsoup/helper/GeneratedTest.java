@@ -1,0 +1,80 @@
+package org.jsoup.helper;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.*;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    private W3CDom w3CDom = new W3CDom();
+    private org.jsoup.nodes.Document jsoupDoc = Jsoup.parse("<html><head><title>First parse</title></head>"
+            + "<body><p>Post Content</p></body></html>");
+
+    @Test
+    public void namespaceAwareTest() {
+        assertTrue(w3CDom.namespaceAware());
+        w3CDom.namespaceAware(false);
+        assertFalse(w3CDom.namespaceAware());
+    }
+
+    @Test
+    public void convertTest() {
+        Document result = W3CDom.convert(jsoupDoc);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void asStringMapTest() {
+        Document doc = w3CDom.convert(jsoupDoc);
+        W3CDom.asString(doc, new HashMap<String, String>());
+    }
+
+    @Test
+    public void fromJsoupDocumentTest() {
+        Document result = w3CDom.fromJsoup(jsoupDoc);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void fromJsoupElementTest() {
+        org.jsoup.nodes.Element element = jsoupDoc.body();
+        Document result = w3CDom.fromJsoup(element);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void selectXpathTest() {
+        Document doc = w3CDom.convert(jsoupDoc);
+        w3CDom.selectXpath("", doc);
+    }
+
+    @Test
+    public void sourceNodesTest() {
+        Document doc = w3CDom.fromJsoup(jsoupDoc);
+        Node node = doc.getDocumentElement();
+        NodeList nodeList = node.getChildNodes();
+        assertTrue(w3CDom.sourceNodes(nodeList, org.jsoup.nodes.Node.class).size() > 0);
+    }
+
+    @Test
+    public void contextNodeTest() {
+        org.jsoup.nodes.Element element = jsoupDoc.body();
+        Document doc = w3CDom.fromJsoup(element);
+        assertNotNull(w3CDom.contextNode(doc));
+    }
+
+    @Test
+    public void asStringTest() {
+        Document doc = w3CDom.fromJsoup(jsoupDoc);
+        assertNotNull(w3CDom.asString(doc));
+    }
+
+}

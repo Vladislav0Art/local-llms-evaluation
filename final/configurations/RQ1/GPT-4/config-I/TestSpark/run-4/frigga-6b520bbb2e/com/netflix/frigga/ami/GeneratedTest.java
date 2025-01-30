@@ -1,0 +1,105 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameNullTest() {
+        assertNull(AppVersion.parseName(null));
+    }
+
+    @Test
+    public void parseNameNoMatchTest() {
+        assertNull(AppVersion.parseName("test-package-0.0.0-build1.build2"));
+    }
+
+    @Test
+    public void parseNameMatchTest() {
+        String appName = "app-1.1.1-build2/WE-APP-app/2";
+        AppVersion appVersion = AppVersion.parseName(appName);
+
+        assertEquals("app", appVersion.getPackageName());
+        assertEquals("1.1.1", appVersion.getVersion());
+        assertEquals("build2", appVersion.getBuildNumber());
+        assertEquals("WE-APP-app", appVersion.getBuildJobName());
+        assertNull(appVersion.getCommit());
+    }
+
+    @Test
+    public void compareToSelfTest() {
+        AppVersion appVersion = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/2");
+        assertEquals(0, appVersion.compareTo(appVersion));
+    }
+
+    @Test
+    public void compareToNullTest() {
+        AppVersion appVersion = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/2");
+        assertEquals(1, appVersion.compareTo(null));
+    }
+
+    @Test
+    public void compareToOtherTest() {
+        AppVersion appVersion1 = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/2");
+        AppVersion appVersion2 = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/3");
+        assertTrue(appVersion1.compareTo(appVersion2) < 0);
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        Pattern expected = Pattern.compile("([a-zA-Z0-9\\.\\-]+)-([0-9.a-zA-Z~]+)-([a-zA-Z0-9]+)"
+                + "(?:[.](\\w+))?(?:\\/([a-zA-Z0-9\\.\\-]+)\\/([0-9]+))?");
+
+        assertEquals(expected.pattern(), AppVersion.getAppVersionPattern().pattern());
+    }
+
+    @Test
+    public void hashCodeTest() {
+        AppVersion appVersion = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/2");
+        int expected = ("app".hashCode() * 31
+                + "1.1.1".hashCode() * 31
+                + "build2".hashCode() * 31
+                + "WE-APP-app".hashCode() * 31);
+
+        assertEquals(expected, appVersion.hashCode());
+    }
+
+    @Test
+    public void equalsSameTest() {
+        AppVersion appVersion1 = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/2");
+        AppVersion appVersion2 = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/2");
+
+        assertTrue(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void equalsNotSameTest() {
+        AppVersion appVersion1 = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/2");
+        AppVersion appVersion2 = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/3");
+
+        assertFalse(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void equalsNullTest() {
+        AppVersion appVersion = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/2");
+        assertFalse(appVersion.equals(null));
+    }
+
+    @Test
+    public void equalsOtherClassTest() {
+        AppVersion appVersion = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/2");
+        assertFalse(appVersion.equals(new Object()));
+    }
+
+    @Test
+    public void equalsSelfTest() {
+        AppVersion appVersion = AppVersion.parseName("app-1.1.1-build2/WE-APP-app/2");
+        assertTrue(appVersion.equals(appVersion));
+    }
+
+}

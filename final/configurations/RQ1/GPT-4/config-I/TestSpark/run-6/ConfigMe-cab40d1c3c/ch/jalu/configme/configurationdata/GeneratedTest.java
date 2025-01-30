@@ -1,0 +1,89 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import ch.jalu.configme.properties.StringProperty;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void addSingleLevelPathTest() {
+        // Given
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        Property<String> property = new StringProperty("Path", "DefaultValue");
+
+        // When
+        listBuilder.add(property);
+
+        // Then
+        assertTrue(listBuilder.getRootEntries().containsKey("Path"));
+        assertEquals(property, listBuilder.getRootEntries().get("Path"));
+    }
+
+    @Test
+    public void addMultiLevelPathTest() {
+        // Given
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        Property<String> property = new StringProperty("First.Second", "DefaultValue");
+
+        // When
+        listBuilder.add(property);
+
+        // Then
+        assertTrue(listBuilder.getRootEntries().containsKey("First"));
+        Map<String, Object> secondLevelMap = (Map<String, Object>) listBuilder.getRootEntries().get("First");
+        assertTrue(secondLevelMap.containsKey("Second"));
+        assertEquals(property, secondLevelMap.get("Second"));
+    }
+
+    @Test
+    public void addDuplicatePropertyTest() {
+        // Given
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        Property<String> firstProperty = new StringProperty("Path", "DefaultValue");
+        Property<String> secondProperty = new StringProperty("Path", "SecondDefaultValue");
+
+        // When
+        listBuilder.add(firstProperty);
+        listBuilder.add(secondProperty); // Expect an exception here
+    }
+
+    @Test
+    public void createTest() {
+        // Given
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        Property<String> firstProperty = new StringProperty("FirstPath", "DefaultValue");
+        Property<String> secondProperty = new StringProperty("SecondPath", "SecondDefaultValue");
+
+        // When
+        listBuilder.add(firstProperty);
+        listBuilder.add(secondProperty);
+
+        // Then
+        List<Property<?>> properties = listBuilder.create();
+        assertTrue(properties.contains(firstProperty));
+        assertTrue(properties.contains(secondProperty));
+        assertEquals(2, properties.size());
+        assertEquals(firstProperty, properties.get(0));
+        assertEquals(secondProperty, properties.get(1));
+    }
+
+    @Test
+    public void addConflictingFullPathTest() {
+        // Given
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        Property<String> firstProperty = new StringProperty("First.Second", "DefaultValue");
+        Property<String> secondProperty = new StringProperty("First", "SecondDefaultValue");
+
+        // When
+        listBuilder.add(firstProperty);
+        listBuilder.add(secondProperty); // Expect an exception here
+    }
+
+}

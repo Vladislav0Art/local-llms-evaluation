@@ -1,0 +1,356 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.helper.StringUtil;
+import static org.junit.Assert.*; 
+import org.junit.Test;
+import java.lang.reflect.Method;
+import java.net.URL;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com?param=value");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        assertNotNull(obj);
+    }
+    
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        obj.appendKeyVal(kv);
+
+        Method getQ = UrlBuilder.class.getDeclaredMethod("q");
+        getQ.setAccessible(true);
+        StringBuilder q = (StringBuilder) getQ.invoke(obj);
+
+        assertNotNull(q);
+        assertEquals("key=value", q.toString());
+    }
+    
+    @Test
+    public void buildTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        URL transformedUrl = obj.build();
+        assertNotNull(transformedUrl);
+    }
+    
+    @Test(expected = RuntimeException.class)
+    public void decodePartTest_WithError() throws Exception {
+        Method decodePart = UrlBuilder.class.getDeclaredMethod("decodePart", String.class);
+        decodePart.setAccessible(true);
+        decodePart.invoke(null, "エンコードされるべき%20文字列"); // Exception should be thrown
+    }
+    
+    @Test
+    public void decodePartTest() throws Exception {
+        Method decodePart = UrlBuilder.class.getDeclaredMethod("decodePart", String.class);
+        decodePart.setAccessible(true);
+        String decoded = (String) decodePart.invoke(null, "This%20should%20be%20decoded");
+        assertEquals("This should be decoded", decoded);
+    }
+    
+    @Test
+    public void appendToAsciiTest() throws Exception {
+        StringBuilder sb = new StringBuilder();
+        Method appendToAscii = UrlBuilder.class.getDeclaredMethod("appendToAscii", String.class, boolean.class, StringBuilder.class);
+        appendToAscii.setAccessible(true);
+        appendToAscii.invoke(null, "ascii text 123", false, sb);
+        assertEquals("ascii+text+123", sb.toString());
+    }
+    
+    @Test(expected = RuntimeException.class)
+    public void appendToAsciiTest_WithError() throws Exception {
+        StringBuilder sb = new StringBuilder();
+        Method appendToAscii = UrlBuilder.class.getDeclaredMethod("appendToAscii", String.class, boolean.class, StringBuilder.class);
+        appendToAscii.setAccessible(true);
+        appendToAscii.invoke(null, "エンコードされるべき文字列", true, sb); // Exception should be thrown
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import java.net.URL;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com?param=value");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        assertNotNull(obj);
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+
+        Connection.KeyVal kv = Connection.KeyVal.create("key", "value");
+        obj.appendKeyVal(kv);
+
+        URL builtURL = obj.build();
+        assertTrue(builtURL.getQuery().contains("key=value"));
+    }
+
+    @Test
+    public void buildTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        URL transformedUrl = obj.build();
+        assertNotNull(transformedUrl);
+    }
+
+    @Test
+    public void buildTest_WithQueryString() throws Exception {
+        URL inputUrl = new URL("https://www.example.com?param=value");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        URL builtURL = obj.build();
+        assertNotNull(builtURL);
+        assertEquals("param=value", builtURL.getQuery());
+    }
+
+    @Test
+    public void buildTest_WithInvalidQuery() throws Exception {
+        URL inputUrl = new URL("https://www.example.com?param=\uD83D\uDE09");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        URL builtURL = obj.build();
+        assertNotNull(builtURL);
+        assertNotEquals("\uD83D\uDE09", builtURL.getQuery());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import java.net.URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com?param=value");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        assertNotNull(obj);
+    }
+
+    @Test(expected=UnsupportedEncodingException.class)
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+
+        obj.appendKeyVal(new Connection.KeyVal() {
+            @Override
+            public String key() {
+                return "key";
+            }
+
+            @Override
+            public String value() {
+                return "value";
+            }
+
+            @Override
+            public Connection.KeyVal key(String s) {
+                return null;
+            }
+
+            @Override
+            public Connection.KeyVal value(String s) {
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void buildTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        URL transformedUrl = obj.build();
+        assertNotNull(transformedUrl);
+        assertEquals("www.example.com", transformedUrl.getHost());
+    }
+
+    @Test(expected=java.net.MalformedURLException.class)
+    public void buildTest_WithNonASCIICharacter() throws Exception {
+        URL inputUrl = new URL("http://例子.卷筒纸");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        obj.build();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import java.net.URL;
+
+import static org.junit.Assert.*;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com?param=value");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        assertNotNull(obj);
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        obj.appendKeyVal(new Connection.KeyVal() {
+            @Override
+            public String key() {
+                return "key";
+            }
+
+            @Override
+            public String value() {
+                return "value";
+            }
+
+            @Override
+            public Connection.KeyVal key(String s) {
+                return this;
+            }
+
+            @Override
+            public Connection.KeyVal value(String s) {
+                return this;
+            }
+
+            @Override
+            public String contentType() {
+                return null;
+            }
+
+            @Override
+            public boolean hasInputStream() {
+                return false;
+            }
+        });
+
+        URL builtUrl = obj.build();
+        assertTrue(builtUrl.getQuery().contains("key=value"));
+    }
+
+    @Test
+    public void buildTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        URL transformedUrl = obj.build();
+        assertEquals(inputUrl, transformedUrl);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+
+import java.io.InputStream;
+import java.net.URL;
+
+import static org.junit.Assert.*;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com?param=value");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        assertNotNull(obj);
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        obj.appendKeyVal(new Connection.KeyVal() {
+            @Override
+            public String key() {
+                return "key";
+            }
+
+            @Override
+            public String value() {
+                return "value";
+            }
+
+            @Override
+            public Connection.KeyVal key(String key) {
+                return this;
+            }
+
+            @Override
+            public Connection.KeyVal value(String value) {
+                return this;
+            }
+
+            @Override
+            public InputStream inputStream() {
+                return null;
+            }
+
+            @Override
+            public Connection.KeyVal inputStream(InputStream inputStream, String contentType) {
+                return this;
+            }
+
+            @Override
+            public String contentType() {
+                return null;
+            }
+
+            @Override
+            public boolean hasInputStream() {
+                return false;
+            }
+        });
+        
+        URL builtUrl = obj.build();
+        assertTrue(builtUrl.getQuery().contains("key=value"));
+    }
+
+    @Test
+    public void buildTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder obj = new UrlBuilder(inputUrl);
+        URL transformedUrl = obj.build();
+        assertEquals(inputUrl, transformedUrl);
+    }
+}
+```
+===================================================
+

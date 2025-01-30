@@ -1,0 +1,376 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.davidmoten.text.utils.WordWrap;
+import org.junit.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
+import static org.junit.Assert.assertEquals;
+
+public class WordWrapTest {
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("/myResource");
+        assertEquals(java.nio.HeapCharBuffer.class, builder.getClass());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void fromClasspathCharsetNullTest() {
+        WordWrap.fromClasspath("/myResource", null);
+    }
+  
+    @Test
+    public void fromFileCharsetTest() {
+        WordWrap.Builder builder = WordWrap.from(new File("/textFile.txt"), StandardCharsets.UTF_8);
+        assertEquals(java.io.BufferedReader.class, builder.getClass());
+    }
+
+    @Test(expected = IORuntimeException.class)
+    public void fromFileNotFoundTest() {
+        WordWrap.from(new File("/noSuchFile.txt"), StandardCharsets.UTF_8);
+    }
+  
+    @Test
+    public void maxWidthNegativeTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader(""));
+        try {
+            builder.maxWidth(-5);
+        } catch (IllegalArgumentException e) {
+            assertEquals("argument cannot be less than or equal to zero", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void wrapTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        builder.wrap(new StringWriter());
+    }  
+
+    @Test(expect = IOException.class)
+    public void wrapIOExceptionTest() throws IOException {
+        StringWriter writer = Mockito.spy(new StringWriter());
+        Mockito.doThrow(new IOException()).when(writer).write(Mockito.anyString);
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        builder.wrap(writer);
+        Mockito.verify(writer, Mockito.times(1)).write("hello world");
+    }
+  
+    @Test
+    public void wrapFileTest() {
+        File file = new File("output.txt");
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        builder.wrap(file, StandardCharsets.UTF_8);
+        assertTrue(file.exists());
+    }
+  
+    @Test(expected = IORuntimeException.class)
+    public void wrapFileErrorTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        builder.wrap(new File("/noAccessDirectory/output.txt"), StandardCharsets.UTF_8);
+    }
+    
+    @Test
+    public void wrapListTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        assertTrue(builder.wrapToList() instanceof java.util.ArrayList);
+    }
+    
+    @Test
+    public void wrapToListLineCountTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello\nworld"));
+        assertEquals(2, builder.wrapToList().size());
+    }
+    
+    @Test
+    public void wordWrapTest() throws IOException {
+        final AtomicInteger lines = new AtomicInteger(0);
+        LineConsumer consumer = new LineConsumer() {
+            @Override
+            public void write(char[] chars, int offset, int length) throws IOException { }
+            @Override
+            public void writeNewLine() throws IOException {
+                lines.incrementAndGet();
+            }
+        };
+        WordWrap.wordWrap(new StringReader("hello world"), consumer,
+                5, s -> s.length(), Collections.emptySet(), true, true);
+        assertEquals(2, lines.get());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.davidmoten.text.utils.WordWrap;
+import org.junit.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.mockito.Mockito;
+
+public class WordWrapTest {
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("/myResource");
+        assertEquals(builder.getClass(), WordWrap.Builder.class);
+    }
+
+    @Test
+    public void fromClasspathCharsetStreamTest() {
+        WordWrap.Builder builder = WordWrap.fromClasspath("/myResource", StandardCharsets.UTF_8);
+        assertEquals(builder.getClass(), WordWrap.Builder.class);
+    }
+  
+    @Test(expected = IORuntimeException.class)
+    public void fromFileNotFoundTest() {
+        WordWrap.from(new File("/noSuchFile.txt"), StandardCharsets.UTF_8);
+    }
+
+    @Test
+    public void maxWidthNegativeTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader(""));
+        String excMessage = "";
+        try {
+            builder.maxWidth(-5);
+        } catch (IllegalArgumentException e) {
+            excMessage = e.getMessage();
+        }
+        assertEquals("argument cannot be less than or equal to zero", excMessage);
+    }
+    
+    @Test
+    public void wrapTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        StringWriter writer = new StringWriter();
+        builder.wrap(writer);
+        assertEquals("hello world", writer.toString().trim());
+    }
+
+    @Test
+    public void wrapIOExceptionTest() {
+        StringWriter writer = Mockito.spy(new StringWriter());
+        try {
+            Mockito.doThrow(new IOException()).when(writer).write(Mockito.anyString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        try {
+            builder.wrap(writer);
+        } catch (Exception e) {
+            assertTrue(e instanceof WordWrap.IORuntimeException);
+        }
+        Mockito.verify(writer, Mockito.times(1)).write("hello world");
+    }
+
+    @Test
+    public void wrapFileTest() {
+        File file = new File("output.txt");
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        builder.wrap(file, StandardCharsets.UTF_8);
+        assertTrue(file.exists());
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void wrapFileErrorTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        builder.wrap(new File("/noAccessDirectory/output.txt"), StandardCharsets.UTF_8);
+    }
+
+    @Test
+    public void wrapToListTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        assertTrue(builder.wrapToList() instanceof java.util.ArrayList);
+    }
+
+    @Test
+    public void wrapToListLineCountTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello\nworld"));
+        assertEquals(2, builder.wrapToList().size());
+    }
+
+    @Test
+    public void wordWrapTest() throws IOException {
+        final AtomicInteger lines = new AtomicInteger(0);
+        WordWrap.LineConsumer consumer = new WordWrap.LineConsumer() {
+            @Override
+            public void write(char[] chars, int offset, int length) throws IOException { }
+            @Override
+            public void writeNewLine() throws IOException {
+                lines.incrementAndGet();
+            }
+        };
+        WordWrap.wordWrap(new StringReader("hello world"), consumer,
+                5, s -> s.length(), Collections.emptySet(), true, true);
+        assertEquals(2, lines.get());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.davidmoten.text.utils.WordWrap;
+import org.junit.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class WordWrapTest {
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("/myResource");
+        assertEquals(WordWrap.Builder.class, builder.getClass());
+    }
+
+    @Test
+    public void fromClasspathCharsetStreamTest() {
+        WordWrap.Builder builder = WordWrap.fromClasspath("/myResource", StandardCharsets.UTF_8);
+        assertEquals(WordWrap.Builder.class, builder.getClass());
+    }
+  
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void fromFileNotFoundTest() {
+        WordWrap.from(new File("/noSuchFile.txt"), StandardCharsets.UTF_8);
+    }
+
+    @Test
+    public void maxWidthNegativeTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader(""));
+        try {
+            builder.maxWidth(-5);
+            Assert.fail("Exception not thrown");
+        } catch (IllegalArgumentException ignored) {
+        }
+    }
+    
+    @Test
+    public void wrapTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        StringWriter writer = new StringWriter();
+        builder.wrap(writer);
+        assertEquals("hello world", writer.toString().strip());
+    }
+
+    @Test
+    public void wrapFileTest() {
+        File file = new File("output.txt");
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        builder.wrap(file, StandardCharsets.UTF_8);
+        assertTrue(file.exists());
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    @Test
+    public void wrapToListTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        assertTrue(builder.wrapToList() instanceof java.util.ArrayList);
+    }
+
+    @Test
+    public void wrapToListLineCountTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello\nworld"));
+        assertEquals(2, builder.wrapToList().size());
+    }
+
+    @Test
+    public void wordWrapTest() throws IOException {
+        final AtomicInteger lines = new AtomicInteger(0);
+        WordWrap.wrap(new StringReader("hello world"), new StringWriter(),
+                "\n", 5, s -> s.length(), Collections.emptySet(), true, true,
+                (output, throwable) -> lines.incrementAndGet());
+        assertEquals(2, lines.get());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.davidmoten.text.utils.WordWrap;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class WordWrapTest {
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("/myResource");
+        assertTrue(builder instanceof WordWrap.Builder);
+    }
+
+    @Test
+    public void fromClasspathCharsetStreamTest() {
+        WordWrap.Builder builder = WordWrap.fromClasspath("/myResource", StandardCharsets.UTF_8);
+        assertTrue(builder instanceof WordWrap.Builder);
+    }
+  
+    @Test(expected = WordWrap.IORuntimeException.class)
+    public void fromFileNotFoundTest() {
+        WordWrap.from(new File("/noSuchFile.txt"), StandardCharsets.UTF_8);
+    }
+
+    @Test
+    public void maxWidthNegativeTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader(""));
+        try {
+            builder.maxWidth(-5);
+        } catch (Exception e) {
+            assertTrue(e instanceof IllegalArgumentException);
+        }
+    }
+    
+    @Test
+    public void wrapTest() {
+        WordWrap.Builder builder = WordWrap.from(new StringReader("hello world"));
+        StringWriter writer = new StringWriter();
+        builder.wrap(writer);
+        assertEquals("hello
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+

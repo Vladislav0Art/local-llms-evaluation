@@ -1,0 +1,295 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import org.traccar.Session;
+import org.traccar.model.Position;
+import org.traccar.protocol.GalileoProtocolDecoder;
+import io.netty.channel.Channel;
+import io.netty.buffer.Unpooled;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    private GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("GalileoProtocol", 0, null));
+
+    @Test
+    public void decodeTagPositionKeyPowerTest() {
+        Position position = new Position();
+        byte tag = 0x41;
+        decoder.decodeTag(position, Unpooled.wrappedBuffer(new byte[] {0, 4}), tag);
+
+        assertEquals(0.004d, position.getDouble(Position.KEY_POWER), 0.001);
+    }
+
+    // More test cases like this...
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import java.net.SocketAddress;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.protocol.GalileoProtocolDecoder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Date;
+import java.util.TimeZone;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    private GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+    @Test
+    public void decodeTagPositionKeyStatusTest() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        ByteBuf buf = Unpooled.wrappedBuffer(new byte[]{0x40, 0x00, 0x00});
+        Position position = new Position();
+        try {
+            decoder.decode(channel, remoteAddress, buf);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertEquals(0, position.getInteger(Position.KEY_STATUS).intValue());
+    }
+
+    @Test
+    public void decodeTagPositionKeyDeviceTempTest() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        ByteBuf buf = Unpooled.wrappedBuffer(new byte[]{0x43, 20});
+        Position position = new Position();
+        
+        try {
+            decoder.decode(channel, remoteAddress, buf);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertEquals(20, position.getInteger(Position.KEY_DEVICE_TEMP).intValue());
+    }
+
+    @Test
+    public void decodeTagPositionKeyAccelerationTest() {
+      Channel channel = mock(Channel.class);
+      SocketAddress remoteAddress = mock(SocketAddress.class);
+      ByteBuf buf = Unpooled.wrappedBuffer(new byte[]{0x44, 0, 0, 0, 0});
+      Position position = new Position();
+      
+      try {
+          decoder.decode(channel, remoteAddress, buf);
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      assertEquals(0, position.getInteger(Position.KEY_ACCELERATION).intValue());
+  }
+
+    // More tests cases like this...
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import static org.mockito.Mockito.mock;
+import java.net.SocketAddress;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.protocol.GalileoProtocolDecoder;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    private GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+    @Test
+    public void decodeTagTest() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+
+        ByteBuf buf = Unpooled.wrappedBuffer(new byte[]{0, 1, 0, 15});
+        buf.writeByte(0x02); // tag to decode
+        buf.writeByte(15);  // value for the tag
+
+        List<Position> positions = null;
+        try {
+            positions = (List<Position>) decoder.decode(channel, remoteAddress, buf);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertNotNull("Positions should not be null", positions);
+        assertFalse("Positions should not be empty", positions.isEmpty());
+        assertEquals(15, positions.get(0).getInteger(Position.KEY_VERSION_FW).intValue());
+    }
+
+    @Test
+    public void decodeTagOtherTemperatureTest() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+
+        ByteBuf buf = Unpooled.wrappedBuffer(new byte[]{0, 1, 0, 15});
+        buf.writeByte(0x43); // tag to decode
+        buf.writeByte(20);  // temperature value for the tag
+
+        List<Position> positions = null;
+        try {
+            positions = (List<Position>) decoder.decode(channel, remoteAddress, buf);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        assertNotNull("Positions should not be null", positions);
+        assertFalse("Positions should not be empty", positions.isEmpty());
+        assertEquals(20, positions.get(0).getInteger(Position.KEY_DEVICE_TEMP).intValue());
+
+    }
+
+    @Test
+    public void decodeTagOtherFuelLevelTest() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+
+        ByteBuf buf = Unpooled.wrappedBuffer(new byte[]{0, 1, 0, 15});
+        buf.writeByte(0xc1); // tag to decode
+        buf.writeByte(25);  // fuel level value for the tag
+        buf.writeByte(-40); // temperature value for the tag
+        buf.writeShort(0);  // rpm value for the tag
+
+        List<Position> positions = null;
+        try {
+            positions = (List<Position>) decoder.decode(channel, remoteAddress, buf);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        assertNotNull("Positions should not be null", positions);
+        assertFalse("Positions should not be empty", positions.isEmpty());
+        assertEquals(10.0, positions.get(0).getDouble(Position.KEY_FUEL_LEVEL), 0.001);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.protocol.GalileoProtocolDecoder;
+import static org.mockito.Mockito.mock;
+import static org.junit.Assert.*;
+import java.net.SocketAddress;
+import java.util.List;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    private GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+    @Test
+    public void decodeTagTest() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        ByteBuf buf = Unpooled.buffer().writeByte(1).writeShortLE(2).writeByte(15).writeByte(7);
+        buf.writeByte(0x01); // add mock data for identification header
+        buf.writeIntLE(1); // index
+        buf.writeBytes("123456789012345".getBytes()); // device id
+        buf.writeByte(1); // session status
+        buf.writeIntLE(1); // reserved
+        buf.writeIntLE(1); // date and time
+        buf.writeBytes(new byte[23]); // coordinates block
+        buf.writeShortLE(5); // data tag header
+        buf.writeBytes(new byte[10]); // 10 bytes for minimal data set
+
+        List<Position> positions = null;
+        try {
+            positions = (List<Position>) decoder.decode(channel, remoteAddress, buf);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertNotNull("Positions should not be null", positions);
+        assertFalse("Positions should not be empty", positions.isEmpty());
+        assertEquals(1, positions.get(0).get(Position.KEY_INDEX));
+    }
+
+    @Test
+    public void decodeCompressedPositionsTest() {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        ByteBuf buf = Unpooled.buffer().writeByte(1).writeShortLE(2).writeByte(15).writeByte(8);
+        buf.writeShortLE(2);
+
+        List<Position> positions = null;
+        try {
+            positions = (List<Position>) decoder.decode(channel, remoteAddress, buf);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertTrue("Positions should not be null and empty", positions != null && !positions.isEmpty());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel
+===================================================
+
+
+====================== Iteration #6 ======================

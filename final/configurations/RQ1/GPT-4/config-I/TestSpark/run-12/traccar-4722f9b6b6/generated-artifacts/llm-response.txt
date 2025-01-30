@@ -1,0 +1,271 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import static org.mockito.Mockito.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void decodePositionTest() {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        DeviceSession deviceSession = mock(DeviceSession.class);
+        when(deviceSession.getDeviceId()).thenReturn(1l);
+
+        String data = "110820,141100,A,-29.358390,S,-49.727460,W,0.00,0.00,0.00,10,22,100,100,0,FFFF,.1,-80,724,10,39708,1246,-1,2";
+        Position position = decoder.decodePosition(deviceSession, data);
+
+        Assert.assertEquals(position.getProtocol(), protocol.getName());
+        Assert.assertEquals(position.getLatitude(), -29.358390, 0.000001);
+        Assert.assertEquals(position.getLongitude(), -49.727460, 0.000001);
+        Assert.assertEquals(position.getDeviceId(), 1l);
+        Assert.assertEquals(position.get(Position.KEY_SATELLITES), 10);
+        Assert.assertEquals(position.get(Position.KEY_RSSI), 22);
+        Assert.assertEquals(position.get(Position.KEY_BATTERY_LEVEL), 100);
+        Assert.assertEquals(position.get(Position.KEY_STEPS), 100);
+    }
+
+    @Test
+    public void decodePositionInvalidTest() {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        DeviceSession deviceSession = mock(DeviceSession.class);
+
+        String data = "invalidPositionData";
+        Position position = decoder.decodePosition(deviceSession, data);
+
+        Assert.assertNull(position);
+    }
+
+    @Test
+    public void decodeAlarmTest() {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Assert.assertEquals(decoder.decodeAlarm(1 << 0), Position.ALARM_LOW_BATTERY);
+        Assert.assertEquals(decoder.decodeAlarm(1 << 1), Position.ALARM_GEOFENCE_EXIT);
+        Assert.assertEquals(decoder.decodeAlarm(1 << 2), Position.ALARM_GEOFENCE_ENTER);
+        Assert.assertEquals(decoder.decodeAlarm(1 << 14), Position.ALARM_POWER_CUT);
+        Assert.assertEquals(decoder.decodeAlarm(1 << 16), Position.ALARM_SOS);
+        Assert.assertEquals(decoder.decodeAlarm(1 << 21), Position.ALARM_FALL_DOWN);
+    }
+
+    @Test
+    public void decodeUDTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Channel channel = mock(Channel.class);
+        when(channel.remoteAddress()).thenReturn(null);
+
+        String msg = "[3G*1234567890*008C*UD,110820,141100,A,-29.358390,S,-49.727460,W,0.00,0.00,0.00,10,22,100,100,0,FFFF,.1,-80,724,10,39708,1246,-1,2]";
+        Object decoded = decoder.decode(channel, null, Unpooled.copiedBuffer(msg, StandardCharsets.US_ASCII));
+
+        Assert.assertTrue(decoded instanceof Position);
+        Position position = (Position) decoded;
+
+        Assert.assertEquals(position.getProtocol(), protocol.getName());
+        Assert.assertEquals(position.getLatitude(), -29.358390, 0.000001);
+        Assert.assertEquals(position.getLongitude(), -49.727460, 0.000001);
+        Assert.assertEquals(position.get(Position.KEY_SATELLITES), 10);
+        Assert.assertEquals(position.get(Position.KEY_RSSI), 22);
+        Assert.assertEquals(position.get(Position.KEY_BATTERY_LEVEL), 100);
+        Assert.assertEquals(position.get(Position.KEY_STEPS), 100);
+    }
+    
+    @Test
+    public void decodePulseTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Channel channel = mock(Channel.class);
+        when(channel.remoteAddress()).thenReturn(null);
+
+        String msg = "[3G*1234567890*000F*PULSE,80]";
+        Object decoded = decoder.decode(channel, null, Unpooled.copiedBuffer(msg, StandardCharsets.US_ASCII));
+
+        Assert.assertTrue(decoded instanceof Position);
+        Position position = (Position) decoded;
+
+        Assert.assertEquals(position.getProtocol(), protocol.getName());
+        Assert.assertEquals(position.get(Position.KEY_HEART_RATE), 80);
+    }
+    
+    @Test
+    public void decodeHeartTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Channel channel = mock(Channel.class);
+        when(channel.remoteAddress()).thenReturn(null);
+
+        String msg = "[3G*1234567890*000E*HEART,75]";
+        Object decoded = decoder.decode(channel, null, Unpooled.copiedBuffer(msg, StandardCharsets.US_ASCII));
+
+        Assert.assertTrue(decoded instanceof Position);
+        Position position = (Position) decoded;
+
+        Assert.assertEquals(position.getProtocol(), protocol.getName());
+        Assert.assertEquals(position.get(Position.KEY_HEART_RATE), 75);
+    }
+
+    @Test
+    public void decodeInvalidTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Channel channel = mock(Channel.class);
+        when(channel.remoteAddress()).thenReturn(null);
+
+        Object decoded = decoder.decode(channel, null, Unpooled.copiedBuffer("[invalid]", StandardCharsets.US_ASCII));
+
+        Assert.assertNull(decoded);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import static org.mockito.Mockito.*;
+import io.netty.channel.Channel;
+import io.netty.buffer.Unpooled;
+
+import org.traccar.Protocol;
+import org.traccar.DeviceSession;
+import org.traccar.model.Position;
+import org.traccar.helper.DataConverter;
+
+public class WatchProtocolDecoderTest {
+
+    private static final String ALARM_ENTER = "enter";
+    private static final String ALARM_EXIT = "exit";
+    private static final String ALARM_LOW_BATTERY = "lowBattery";
+
+    @Test
+    public void decodeAlarmTest() {
+        Protocol protocol = mock(Protocol.class);
+        when(protocol.getName()).thenReturn("watch");
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Assert.assertEquals(ALARM_LOW_BATTERY,
+                decoder.decodeAlarm(1 << 0));
+        Assert.assertEquals(ALARM_EXIT,
+                decoder.decodeAlarm(1 << 1));
+        Assert.assertEquals(ALARM_ENTER,
+                decoder.decodeAlarm(1 << 2));
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        String msg = "[3G*1234567890*008C*UD,110820,141100,A,-29.358390,S,-49.727460,W,0.00,0.00,0.00,10,22,100,100,0]";
+        Channel channel = mock(Channel.class);
+        when(channel.remoteAddress()).thenReturn(null);
+
+        Protocol protocol = mock(Protocol.class);
+        when(protocol.getName()).thenReturn("watch");
+
+        DeviceSession deviceSession = mock(DeviceSession.class);
+        when(deviceSession.getDeviceId()).thenReturn(1l);
+
+        WatchProtocolDecoder decoder = spy(new WatchProtocolDecoder(protocol));
+        when(decoder.getDeviceSession(any(), any(), anyString())).thenReturn(deviceSession);
+
+        Position result = (Position) decoder.decode(channel, null, Unpooled.copiedBuffer(msg.getBytes()));
+        Assert.assertEquals(result.getLatitude(), -29.358390, 0.01);
+        Assert.assertEquals(result.getLongitude(), -49.727460, 0.01);
+        Assert.assertEquals(result.getValid(), true);
+    }
+
+    @Test
+    public void decodeAlarmLowBatteryTest() {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Assert.assertEquals(decoder.decodeAlarm(1), Position.ALARM_LOW_BATTERY);
+    }
+
+    @Test
+    public void decodeAlarmGeofenceExitTest() {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Assert.assertEquals(decoder.decodeAlarm(2), Position.ALARM_GEOFENCE_EXIT);
+    }
+
+    @Test
+    public void decodeAlarmGeofenceEnterTest() {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Assert.assertEquals(decoder.decodeAlarm(4), Position.ALARM_GEOFENCE_ENTER);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Assert;
+import org.junit.Test;
+import org.traccar.Protocol;
+import org.traccar.StringProtocolEncoder;
+import org.traccar.helper.UnitsConverter;
+import org.traccar.model.Position;
+import org.traccar.protocol.WatchProtocolDecoder;
+
+import javax.xml.bind.DatatypeConverter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.Mockito.*;
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void decodePositionTest() throws Exception {
+        StringProtocolEncoder encoder = new StringProtocolEncoder();
+        String deviceId = "123456";
+        String stringPosition = "[3G*" + deviceId + "*0081*UD,070315,180116,A,54.602790,56.244088,0.00,3.97,7.00,9,15,100,700,FFFF]";
+        Method getPosition = WatchProtocolDecoder.class.getDeclaredMethod("decodePosition", Long.TYPE, String.class);
+        getPosition.setAccessible(true);
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Field fieldHasIndex = WatchProtocolDecoder.class.getDeclaredField("hasIndex");
+        fieldHasIndex.setAccessible(true);
+        fieldHasIndex.set(decoder, false);
+        String protocolName = "watch";
+        when(protocol.getName()).thenReturn(protocolName);
+
+        Position position = (Position) getPosition.invoke(decoder, Long.parseLong(deviceId), stringPosition);
+        Assert.assertEquals(deviceId, position
+===================================================
+
+
+====================== Iteration #4 ======================
+
+===================================================
+
+
+====================== Iteration #4 ======================
+
+===================================================
+
+
+====================== Iteration #4 ======================
+
+===================================================
+

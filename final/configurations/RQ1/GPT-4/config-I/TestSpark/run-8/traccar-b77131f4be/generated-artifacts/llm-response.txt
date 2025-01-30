@@ -1,0 +1,203 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.times;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Mock
+    private Channel channel;
+
+    @Test
+    public void decodePositionsTest() {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("Test"));
+        String id = "GALILEO_DEVICE_ID";
+
+        LinkedList<Position> result = new LinkedList<>();
+        ByteBuf msg = Unpooled.buffer();
+        msg.writeByte(0x01); // header
+        msg.writeShortLE(23 + id.length()); // length
+        msg.writeByte(0x03); // tag
+        msg.writeCharSequence(id, StandardCharsets.US_ASCII); // device id
+        msg.writeByte(0x10);
+        msg.writeShortLE(1); // index
+        msg.writeByte(0x30);
+        msg.writeByte(0); // flags
+        msg.writeIntLE(50000000); // latitude
+        msg.writeIntLE(20000000); // longitude
+        msg.writeByte(0x01);
+        msg.writeByte(10); // data
+
+        List<Position> positions = decoder.decodePositions(channel, null, msg);
+        assertNotNull(positions);
+        assertFalse(positions.isEmpty());
+        assertEquals(1, positions.size());
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getTagLengthTagNotFoundTest() {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("Test"));
+        decoder.getTagLength(0xFF);
+    }
+
+    @Test
+    public void sendResponseChannelNotNullTest() {
+        InOrder inOrder = Mockito.inOrder(channel);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("Test"));
+        decoder.sendResponse(channel, 1, 1);
+        inOrder.verify(channel, times(1)).writeAndFlush(null);
+    }
+
+    @Test
+    public void sendResponseChannelNullTest() {
+        InOrder inOrder = Mockito.inOrder(channel);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("Test"));
+        decoder.sendResponse(null, 1, 1);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void decodeIridiumPositionTest() {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("Test"));
+        String id = "GALILEO_DEVICE_ID";
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.set(Calendar.DAY_OF_YEAR, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMinimum(Calendar.HOUR_OF_DAY));
+        calendar.set(Calendar.MINUTE, calendar.getActualMinimum(Calendar.MINUTE));
+        calendar.set(Calendar.SECOND, calendar.getActualMinimum(Calendar.SECOND));
+        calendar.set(Calendar.MILLISECOND, calendar.getActualMinimum(Calendar.MILLISECOND));
+        position.setTime(calendar.getTime());
+        Date fixTime = position.getTime();
+
+        // Assemble msg
+        ByteBuf msg = Unpooled.buffer();
+        msg.writeByte(0x01); // header
+        msg.writeShortLE(1 + id.length() + 4 + 3 + 4 + 23 + 3 + 10); // length
+        msg.writeByte(0x03); // tag
+        msg.writeCharSequence(id, StandardCharsets.US_ASCII); // device id
+        msg.writeIntLE(1); // index
+        msg.writeByte(0); // session status
+        msg.writeZero(4); // reserved
+        msg.writeIntLE((int) (fixTime.getTime() / 1000L)); // date and time
+
+        // Remaining msg
+        msg.writeZero(23); // coordinates block
+        msg.writeIntLE(0); // header
+        msg.writeZero(9); // rest data
+
+        Postion postion = decoder.decodeIridiumPosition(channel, null, msg);
+        assertNotNull(postion);
+        assertEquals(fixTime, position.getFixTime());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.inOrder;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Mock
+    private Channel channel;
+
+    @Test
+    public void decodeTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("Test"));
+        String id = "GALILEO_DEVICE_ID";
+
+        LinkedList<Position> result = new LinkedList<>();
+        ByteBuf msg = Unpooled.buffer();
+        msg.writeByte(0x01); // header
+        msg.writeShortLE(23 + id.length()); // length
+        msg.writeByte(0x03); // tag
+        msg.writeCharSequence(id, StandardCharsets.US_ASCII); // device id
+        msg.writeIntLE(1); // index
+        List<Position> positions = (List<Position>) decoder.decode(channel, null, msg);
+        assertNotNull(positions);
+        assertFalse(positions.isEmpty());
+        assertEquals(1, positions.size());
+    }
+
+    @Test
+    public void decodeMinimalDataSetTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("Test"));
+        Position position = new Position();
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0); // tag
+        buf.writeBytes(new byte[10]); // minimal data set
+
+        decoder.decodeMinimalDataSet(position, buf);
+        
+        assertNotNull(position.get(Position.KEY_VALID));
+        assertNotNull(position.getLongitude());
+        assertNotNull(position.getLatitude());
+    }
+    
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+
+===================================================
+
+
+====================== Iteration #3 ======================
+
+===================================================
+
+
+====================== Iteration #3 ======================
+
+===================================================
+

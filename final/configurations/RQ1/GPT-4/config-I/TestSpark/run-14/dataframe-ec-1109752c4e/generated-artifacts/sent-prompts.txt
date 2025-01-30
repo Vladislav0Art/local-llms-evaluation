@@ -1,0 +1,1159 @@
+
+====================== Iteration #1 ======================
+Generate unit tests in Java for `io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor` maximizing line coverage for this class.
+
+REQUIREMENTS:
+1. DO NOT use @Before and @After test methods.
+2. Make test cases as atomic as possible.
+3. All tests should be written using JUnit 4.
+4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+The source code of class under test is as follows:
+```
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.AliasExpr;
+import io.github.vmzakharov.ecdataframe.dsl.AnonymousScript;
+import io.github.vmzakharov.ecdataframe.dsl.AssingExpr;
+import io.github.vmzakharov.ecdataframe.dsl.BinaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.DecimalExpr;
+import io.github.vmzakharov.ecdataframe.dsl.Expression;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionCallExpr;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionScript;
+import io.github.vmzakharov.ecdataframe.dsl.IfElseExpr;
+import io.github.vmzakharov.ecdataframe.dsl.IndexExpr;
+import io.github.vmzakharov.ecdataframe.dsl.ProjectionExpr;
+import io.github.vmzakharov.ecdataframe.dsl.PropertyPathExpr;
+import io.github.vmzakharov.ecdataframe.dsl.StatementSequenceScript;
+import io.github.vmzakharov.ecdataframe.dsl.UnaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.VarExpr;
+import io.github.vmzakharov.ecdataframe.dsl.VectorExpr;
+import io.github.vmzakharov.ecdataframe.dsl.value.Value;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import io.github.vmzakharov.ecdataframe.util.Printer;
+import io.github.vmzakharov.ecdataframe.util.PrinterFactory;
+import org.eclipse.collections.api.list.ListIterable;
+import org.eclipse.collections.impl.utility.StringIterate;
+public class PrettyPrintVisitor
+implements ExpressionVisitor
+{
+    final private Printer printer;
+
+    private int offset = 0;
+    private boolean startedNewLine = true;
+
+    public PrettyPrintVisitor()
+    {
+        this(PrinterFactory.getPrinter());
+    }
+
+    public PrettyPrintVisitor(Printer newPrinter)
+    {
+        this.printer = newPrinter;
+    }
+
+    static public String exprToString(Expression e)
+    {
+        CollectingPrinter printer = new CollectingPrinter();
+        e.accept(new PrettyPrintVisitor(printer));
+        return printer.toString();
+    }
+
+    @Override
+    public void visitAssignExpr(AssingExpr expr)
+    {
+        this.print(this.escapeVarNameIfNeeded(expr.getVarName(), expr.isEscaped()))
+            .print(" = ")
+            .printExpression(expr.getExpression());
+    }
+
+    private String escapeVarNameIfNeeded(String name, boolean escaped)
+    {
+        return escaped ? "${" + name + "}" : name;
+    }
+
+    @Override
+    public void visitBinaryExpr(BinaryExpr expr)
+    {
+        this.print("(").printExpression(expr.getOperand1()).print(" ")
+            .print(expr.getOperation().asString())
+            .print(" ").printExpression(expr.getOperand2()).print(")");
+    }
+
+    @Override
+    public void visitUnaryExpr(UnaryExpr expr)
+    {
+        if (expr.getOperation().isPrefix())
+        {
+            this.print(expr.getOperation().asString()).print("(").printExpression(expr.getOperand()).print(")");
+        }
+        else
+        {
+            this.print("(").printExpression(expr.getOperand()).print(") ").print(expr.getOperation().asString());
+        }
+    }
+
+    @Override
+    public void visitConstExpr(Value expr)
+    {
+        this.print(expr.asStringLiteral());
+    }
+
+    @Override
+    public void visitFunctionCallExpr(FunctionCallExpr expr)
+    {
+        this.print(expr.getFunctionName()).print("(").printExpressionList(expr.getParameters()).print(")");
+    }
+
+    private PrettyPrintVisitor printExpressionListLn(ListIterable<Expression> expressions)
+    {
+        int count = expressions.size();
+        for (int i = 0; i < count; i++)
+        {
+            expressions.get(i).accept(this);
+            this.newLine();
+        }
+
+        return this;
+    }
+
+    private PrettyPrintVisitor printExpressionList(ListIterable<Expression> expressions, String separator)
+    {
+        int count = expressions.size();
+        for (int i = 0; i < count; i++)
+        {
+            expressions.get(i).accept(this);
+            if (i < count - 1)
+            {
+                this.print(separator);
+            }
+        }
+
+        return this;
+    }
+
+    private PrettyPrintVisitor printExpressionList(ListIterable<Expression> expressions)
+    {
+        return this.printExpressionList(expressions, ", ");
+    }
+
+    private PrettyPrintVisitor printExpression(Expression expression)
+    {
+        expression.accept(this);
+        return this;
+    }
+
+    @Override
+    public void visitPropertyPathExpr(PropertyPathExpr expr)
+    {
+        this.print(expr.getPathElements().makeString("."));
+    }
+
+    @Override
+    public void visitAnonymousScriptExpr(AnonymousScript expr)
+    {
+        expr.getFunctions().forEachValue(this::visitFunctionScriptExpr);
+        this.printExpressionListLn(expr.getExpressions());
+    }
+
+    @Override
+    public void visitFunctionScriptExpr(FunctionScript expr)
+    {
+        this.print("function ").print(expr.getName());
+        if (expr.getExpressions().notEmpty())
+        {
+            this.print("(").print(expr.getParameterNames().makeString()).print(")");
+        }
+
+        this.newLine()
+            .print("{").newLine().tab()
+            .printExpressionListLn(expr.getExpressions())
+            .tabBack()
+            .print("}").newLine();
+    }
+
+    @Override
+    public void visitStatementSequenceScript(StatementSequenceScript expr)
+    {
+        this.printExpressionListLn(expr.getExpressions());
+    }
+
+    @Override
+    public void visitVarExpr(VarExpr expr)
+    {
+          this.print(this.escapeVarNameIfNeeded(expr.getVariableName(), expr.isEscaped()));
+    }
+
+    @Override
+    public void visitProjectionExpr(ProjectionExpr expr)
+    {
+        this.print("project {")
+            .printExpressionList(expr.getProjectionElements())
+            .print("}");
+
+        if (expr.getWhereClause() != null)
+        {
+            this.print(" where ").printExpression(expr.getWhereClause());
+        }
+    }
+
+    @Override
+    public void visitAliasExpr(AliasExpr expr)
+    {
+        this.print(expr.getAlias()).print(" : ").printExpression(expr.getExpression());
+    }
+
+    @Override
+    public void visitVectorExpr(VectorExpr expr)
+    {
+        this.print("(").printExpressionList(expr.getElements()).print(")");
+    }
+
+    @Override
+    public void visitIndexExpr(IndexExpr expr)
+    {
+        this.printExpression(expr.getVectorExpr()).print("[").printExpression(expr.getIndexExpr()).print("]");
+    }
+
+    @Override
+    public void visitDecimalExpr(DecimalExpr expr)
+    {
+        this.print("[")
+            .printExpression(expr.unscaledValueExpr())
+            .print(",")
+            .printExpression(expr.scaleExpr())
+            .print("]");
+    }
+
+    @Override
+    public void visitIfElseExpr(IfElseExpr expr)
+    {
+        if (expr.isTernary())
+        {
+            this
+                .printExpression(expr.getCondition())
+                .print(" ? ")
+                .printExpression(expr.getIfScript())
+                .print(" : ")
+                .printExpression(expr.getElseScript());
+        }
+        else
+        {
+            this.print("if ").printExpression(expr.getCondition()).print(" then").newLine();
+            this.tab();
+            expr.getIfScript().accept(this);
+            this.tabBack();
+
+            if (expr.hasElseSection())
+            {
+                this.print("else").newLine();
+                this.tab();
+                expr.getElseScript().accept(this);
+                this.tabBack();
+            }
+
+            this.print("endif");
+        }
+    }
+
+    private PrettyPrintVisitor print(String s)
+    {
+        if (this.startedNewLine)
+        {
+            this.printer.print(StringIterate.repeat(' ', this.offset * 2));
+            this.startedNewLine = false;
+        }
+        this.printer.print(s);
+        return this;
+    }
+
+    private PrettyPrintVisitor tab()
+    {
+        this.offset++;
+        return this;
+    }
+
+    private PrettyPrintVisitor tabBack()
+    {
+        this.offset--;
+        return this;
+    }
+
+    private PrettyPrintVisitor newLine()
+    {
+        this.printer.newLine();
+        this.startedNewLine = true;
+        return this;
+    }
+}
+```
+
+Generate public classes and public methods. Response only a code with tests between ```, do not provide any other text.
+===================================================
+
+
+====================== Iteration #2 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:15: error: cannot find symbol
+        Value testValue = Value.newInteger(5);
+                               ^
+  symbol:   method newInteger(int)
+  location: interface Value
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:23: error: cannot find symbol
+        AssingExpr expr = new AssingExpr("x", Value.newInteger(5));
+                                                   ^
+  symbol:   method newInteger(int)
+  location: interface Value
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:32: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(Value.newInteger(5), BinaryOp.ADD, Value.newInteger(6));
+                                                                      ^
+  symbol:   variable ADD
+  location: interface BinaryOp
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:32: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(Value.newInteger(5), BinaryOp.ADD, Value.newInteger(6));
+                                              ^
+  symbol:   method newInteger(int)
+  location: interface Value
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:32: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(Value.newInteger(5), BinaryOp.ADD, Value.newInteger(6));
+                                                                                 ^
+  symbol:   method newInteger(int)
+  location: interface Value
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:41: error: cannot find symbol
+        UnaryExpr expr = new UnaryExpr(UnaryOp.SIGN, Value.newInteger(5));
+                                              ^
+  symbol:   variable SIGN
+  location: interface UnaryOp
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:41: error: cannot find symbol
+        UnaryExpr expr = new UnaryExpr(UnaryOp.SIGN, Value.newInteger(5));
+                                                          ^
+  symbol:   method newInteger(int)
+  location: interface Value
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:50: error: cannot find symbol
+        Value expr = Value.newString("test");
+                          ^
+  symbol:   method newString(String)
+  location: interface Value
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:59: error: cannot find symbol
+        FunctionCallExpr expr = new FunctionCallExpr("add", Value.newInteger(5), Value.newInteger(10));
+                                                                 ^
+  symbol:   method newInteger(int)
+  location: interface Value
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:59: error: cannot find symbol
+        FunctionCallExpr expr = new FunctionCallExpr("add", Value.newInteger(5), Value.newInteger(10));
+                                                                                      ^
+  symbol:   method newInteger(int)
+  location: interface Value
+10 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #3 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:17: error: cannot find symbol
+        ValueExpr testValue = new IntegerValueExpr(5);
+        ^
+  symbol:   class ValueExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:17: error: cannot find symbol
+        ValueExpr testValue = new IntegerValueExpr(5);
+                                  ^
+  symbol:   class IntegerValueExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:25: error: cannot find symbol
+        AssingExpr expr = new AssingExpr("x", new IntegerValueExpr(5));
+                                                  ^
+  symbol:   class IntegerValueExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:34: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new IntegerValueExpr(5), BinaryOp.ADD, new IntegerValueExpr(6));
+                                             ^
+  symbol:   class IntegerValueExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:34: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new IntegerValueExpr(5), BinaryOp.ADD, new IntegerValueExpr(6));
+                                                                          ^
+  symbol:   variable ADD
+  location: interface BinaryOp
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:34: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new IntegerValueExpr(5), BinaryOp.ADD, new IntegerValueExpr(6));
+                                                                                    ^
+  symbol:   class IntegerValueExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:43: error: cannot find symbol
+        UnaryExpr expr = new UnaryExpr(UnaryOp.NOT, new BooleanValueExpr(true));
+                                                        ^
+  symbol:   class BooleanValueExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:52: error: cannot find symbol
+        ValueExpr expr = new StringValueExpr("test");
+        ^
+  symbol:   class ValueExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:52: error: cannot find symbol
+        ValueExpr expr = new StringValueExpr("test");
+                             ^
+  symbol:   class StringValueExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:61: error: cannot find symbol
+        FunctionCallExpr expr = new FunctionCallExpr("add", Lists.mutable.of(new IntegerValueExpr(5), new IntegerValueExpr(10)));
+                                                                                 ^
+  symbol:   class IntegerValueExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:61: error: cannot find symbol
+        FunctionCallExpr expr = new FunctionCallExpr("add", Lists.mutable.of(new IntegerValueExpr(5), new IntegerValueExpr(10)));
+                                                                                                          ^
+  symbol:   class IntegerValueExpr
+  location: class GeneratedTest
+11 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #4 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:15: error: cannot find symbol
+        Expression testValue = new ConstExpr(new StringValue("5"));
+                                   ^
+  symbol:   class ConstExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:15: error: cannot find symbol
+        Expression testValue = new ConstExpr(new StringValue("5"));
+                                                 ^
+  symbol:   class StringValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:23: error: cannot find symbol
+        AssingExpr expr = new AssingExpr("x", new ConstExpr(new StringValue("5")));
+                                                  ^
+  symbol:   class ConstExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:23: error: cannot find symbol
+        AssingExpr expr = new AssingExpr("x", new ConstExpr(new StringValue("5")));
+                                                                ^
+  symbol:   class StringValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:32: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new ConstExpr(new StringValue("5")), BinaryOp.ADD, new ConstExpr(new StringValue("6")));
+                                             ^
+  symbol:   class ConstExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:32: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new ConstExpr(new StringValue("5")), BinaryOp.ADD, new ConstExpr(new StringValue("6")));
+                                                           ^
+  symbol:   class StringValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:32: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new ConstExpr(new StringValue("5")), BinaryOp.ADD, new ConstExpr(new StringValue("6")));
+                                                                                      ^
+  symbol:   variable ADD
+  location: interface BinaryOp
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:32: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new ConstExpr(new StringValue("5")), BinaryOp.ADD, new ConstExpr(new StringValue("6")));
+                                                                                                ^
+  symbol:   class ConstExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:32: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new ConstExpr(new StringValue("5")), BinaryOp.ADD, new ConstExpr(new StringValue("6")));
+                                                                                                              ^
+  symbol:   class StringValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:41: error: cannot find symbol
+        UnaryExpr expr = new UnaryExpr(UnaryOp.IS_NULL, new ConstExpr(new StringValue("true")));
+                                                            ^
+  symbol:   class ConstExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:41: error: cannot find symbol
+        UnaryExpr expr = new UnaryExpr(UnaryOp.IS_NULL, new ConstExpr(new StringValue("true")));
+                                                                          ^
+  symbol:   class StringValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:50: error: cannot find symbol
+        ConstExpr expr = new ConstExpr(new StringValue("test"));
+        ^
+  symbol:   class ConstExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:50: error: cannot find symbol
+        ConstExpr expr = new ConstExpr(new StringValue("test"));
+                             ^
+  symbol:   class ConstExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:50: error: cannot find symbol
+        ConstExpr expr = new ConstExpr(new StringValue("test"));
+                                           ^
+  symbol:   class StringValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:59: error: cannot find symbol
+        FunctionCallExpr expr = new FunctionCallExpr("add", Lists.mutable.of(new ConstExpr(new StringValue("5")), new ConstExpr(new StringValue("10"))));
+                                                                                 ^
+  symbol:   class ConstExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:59: error: cannot find symbol
+        FunctionCallExpr expr = new FunctionCallExpr("add", Lists.mutable.of(new ConstExpr(new StringValue("5")), new ConstExpr(new StringValue("10"))));
+                                                                                               ^
+  symbol:   class StringValue
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:59: error: cannot find symbol
+        FunctionCallExpr expr = new FunctionCallExpr("add", Lists.mutable.of(new ConstExpr(new StringValue("5")), new ConstExpr(new StringValue("10"))));
+                                                                                                                      ^
+  symbol:   class ConstExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:59: error: cannot find symbol
+        FunctionCallExpr expr = new FunctionCallExpr("add", Lists.mutable.of(new ConstExpr(new StringValue("5")), new ConstExpr(new StringValue("10"))));
+                                                                                                                                    ^
+  symbol:   class StringValue
+  location: class GeneratedTest
+18 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #5 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:16: error: cannot find symbol
+        Expression testValue = new StringConstantExpr("5");
+                                   ^
+  symbol:   class StringConstantExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:24: error: cannot find symbol
+        AssingExpr expr = new AssingExpr("x", new StringConstantExpr("5"));
+                                                  ^
+  symbol:   class StringConstantExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:33: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new StringConstantExpr("5"), BinaryOp.ADD, new StringConstantExpr("6"));
+                                             ^
+  symbol:   class StringConstantExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:33: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new StringConstantExpr("5"), BinaryOp.ADD, new StringConstantExpr("6"));
+                                                                              ^
+  symbol:   variable ADD
+  location: interface BinaryOp
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:33: error: cannot find symbol
+        BinaryExpr expr = new BinaryExpr(new StringConstantExpr("5"), BinaryOp.ADD, new StringConstantExpr("6"));
+                                                                                        ^
+  symbol:   class StringConstantExpr
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-14/dataframe-ec-1109752c4e/io/github/vmzakharov/ecdataframe/dsl/visitor/GeneratedTest.java:42: error: cannot find symbol
+        UnaryExpr expr = new UnaryExpr(UnaryOp.IS_NULL, new StringConstantExpr("true"));
+                                                            ^
+  symbol:   class StringConstantExpr
+  location: class GeneratedTest
+6 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #5 ======================
+Generate unit tests in Java for `io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor` maximizing line coverage for this class.
+
+REQUIREMENTS:
+1. DO NOT use @Before and @After test methods.
+2. Make test cases as atomic as possible.
+3. All tests should be written using JUnit 4.
+4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+The source code of class under test is as follows:
+```
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.AliasExpr;
+import io.github.vmzakharov.ecdataframe.dsl.AnonymousScript;
+import io.github.vmzakharov.ecdataframe.dsl.AssingExpr;
+import io.github.vmzakharov.ecdataframe.dsl.BinaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.DecimalExpr;
+import io.github.vmzakharov.ecdataframe.dsl.Expression;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionCallExpr;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionScript;
+import io.github.vmzakharov.ecdataframe.dsl.IfElseExpr;
+import io.github.vmzakharov.ecdataframe.dsl.IndexExpr;
+import io.github.vmzakharov.ecdataframe.dsl.ProjectionExpr;
+import io.github.vmzakharov.ecdataframe.dsl.PropertyPathExpr;
+import io.github.vmzakharov.ecdataframe.dsl.StatementSequenceScript;
+import io.github.vmzakharov.ecdataframe.dsl.UnaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.VarExpr;
+import io.github.vmzakharov.ecdataframe.dsl.VectorExpr;
+import io.github.vmzakharov.ecdataframe.dsl.value.Value;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import io.github.vmzakharov.ecdataframe.util.Printer;
+import io.github.vmzakharov.ecdataframe.util.PrinterFactory;
+import org.eclipse.collections.api.list.ListIterable;
+import org.eclipse.collections.impl.utility.StringIterate;
+public class PrettyPrintVisitor
+implements ExpressionVisitor
+{
+    final private Printer printer;
+
+    private int offset = 0;
+    private boolean startedNewLine = true;
+
+    public PrettyPrintVisitor()
+    {
+        this(PrinterFactory.getPrinter());
+    }
+
+    public PrettyPrintVisitor(Printer newPrinter)
+    {
+        this.printer = newPrinter;
+    }
+
+    static public String exprToString(Expression e)
+    {
+        CollectingPrinter printer = new CollectingPrinter();
+        e.accept(new PrettyPrintVisitor(printer));
+        return printer.toString();
+    }
+
+    @Override
+    public void visitAssignExpr(AssingExpr expr)
+    {
+        this.print(this.escapeVarNameIfNeeded(expr.getVarName(), expr.isEscaped()))
+            .print(" = ")
+            .printExpression(expr.getExpression());
+    }
+
+    private String escapeVarNameIfNeeded(String name, boolean escaped)
+    {
+        return escaped ? "${" + name + "}" : name;
+    }
+
+    @Override
+    public void visitBinaryExpr(BinaryExpr expr)
+    {
+        this.print("(").printExpression(expr.getOperand1()).print(" ")
+            .print(expr.getOperation().asString())
+            .print(" ").printExpression(expr.getOperand2()).print(")");
+    }
+
+    @Override
+    public void visitUnaryExpr(UnaryExpr expr)
+    {
+        if (expr.getOperation().isPrefix())
+        {
+            this.print(expr.getOperation().asString()).print("(").printExpression(expr.getOperand()).print(")");
+        }
+        else
+        {
+            this.print("(").printExpression(expr.getOperand()).print(") ").print(expr.getOperation().asString());
+        }
+    }
+
+    @Override
+    public void visitConstExpr(Value expr)
+    {
+        this.print(expr.asStringLiteral());
+    }
+
+    @Override
+    public void visitFunctionCallExpr(FunctionCallExpr expr)
+    {
+        this.print(expr.getFunctionName()).print("(").printExpressionList(expr.getParameters()).print(")");
+    }
+
+    private PrettyPrintVisitor printExpressionListLn(ListIterable<Expression> expressions)
+    {
+        int count = expressions.size();
+        for (int i = 0; i < count; i++)
+        {
+            expressions.get(i).accept(this);
+            this.newLine();
+        }
+
+        return this;
+    }
+
+    private PrettyPrintVisitor printExpressionList(ListIterable<Expression> expressions, String separator)
+    {
+        int count = expressions.size();
+        for (int i = 0; i < count; i++)
+        {
+            expressions.get(i).accept(this);
+            if (i < count - 1)
+            {
+                this.print(separator);
+            }
+        }
+
+        return this;
+    }
+
+    private PrettyPrintVisitor printExpressionList(ListIterable<Expression> expressions)
+    {
+        return this.printExpressionList(expressions, ", ");
+    }
+
+    private PrettyPrintVisitor printExpression(Expression expression)
+    {
+        expression.accept(this);
+        return this;
+    }
+
+    @Override
+    public void visitPropertyPathExpr(PropertyPathExpr expr)
+    {
+        this.print(expr.getPathElements().makeString("."));
+    }
+
+    @Override
+    public void visitAnonymousScriptExpr(AnonymousScript expr)
+    {
+        expr.getFunctions().forEachValue(this::visitFunctionScriptExpr);
+        this.printExpressionListLn(expr.getExpressions());
+    }
+
+    @Override
+    public void visitFunctionScriptExpr(FunctionScript expr)
+    {
+        this.print("function ").print(expr.getName());
+        if (expr.getExpressions().notEmpty())
+        {
+            this.print("(").print(expr.getParameterNames().makeString()).print(")");
+        }
+
+        this.newLine()
+            .print("{").newLine().tab()
+            .printExpressionListLn(expr.getExpressions())
+            .tabBack()
+            .print("}").newLine();
+    }
+
+    @Override
+    public void visitStatementSequenceScript(StatementSequenceScript expr)
+    {
+        this.printExpressionListLn(expr.getExpressions());
+    }
+
+    @Override
+    public void visitVarExpr(VarExpr expr)
+    {
+          this.print(this.escapeVarNameIfNeeded(expr.getVariableName(), expr.isEscaped()));
+    }
+
+    @Override
+    public void visitProjectionExpr(ProjectionExpr expr)
+    {
+        this.print("project {")
+            .printExpressionList(expr.getProjectionElements())
+            .print("}");
+
+        if (expr.getWhereClause() != null)
+        {
+            this.print(" where ").printExpression(expr.getWhereClause());
+        }
+    }
+
+    @Override
+    public void visitAliasExpr(AliasExpr expr)
+    {
+        this.print(expr.getAlias()).print(" : ").printExpression(expr.getExpression());
+    }
+
+    @Override
+    public void visitVectorExpr(VectorExpr expr)
+    {
+        this.print("(").printExpressionList(expr.getElements()).print(")");
+    }
+
+    @Override
+    public void visitIndexExpr(IndexExpr expr)
+    {
+        this.printExpression(expr.getVectorExpr()).print("[").printExpression(expr.getIndexExpr()).print("]");
+    }
+
+    @Override
+    public void visitDecimalExpr(DecimalExpr expr)
+    {
+        this.print("[")
+            .printExpression(expr.unscaledValueExpr())
+            .print(",")
+            .printExpression(expr.scaleExpr())
+            .print("]");
+    }
+
+    @Override
+    public void visitIfElseExpr(IfElseExpr expr)
+    {
+        if (expr.isTernary())
+        {
+            this
+                .printExpression(expr.getCondition())
+                .print(" ? ")
+                .printExpression(expr.getIfScript())
+                .print(" : ")
+                .printExpression(expr.getElseScript());
+        }
+        else
+        {
+            this.print("if ").printExpression(expr.getCondition()).print(" then").newLine();
+            this.tab();
+            expr.getIfScript().accept(this);
+            this.tabBack();
+
+            if (expr.hasElseSection())
+            {
+                this.print("else").newLine();
+                this.tab();
+                expr.getElseScript().accept(this);
+                this.tabBack();
+            }
+
+            this.print("endif");
+        }
+    }
+
+    private PrettyPrintVisitor print(String s)
+    {
+        if (this.startedNewLine)
+        {
+            this.printer.print(StringIterate.repeat(' ', this.offset * 2));
+            this.startedNewLine = false;
+        }
+        this.printer.print(s);
+        return this;
+    }
+
+    private PrettyPrintVisitor tab()
+    {
+        this.offset++;
+        return this;
+    }
+
+    private PrettyPrintVisitor tabBack()
+    {
+        this.offset--;
+        return this;
+    }
+
+    private PrettyPrintVisitor newLine()
+    {
+        this.printer.newLine();
+        this.startedNewLine = true;
+        return this;
+    }
+}
+```
+
+Generate public classes and public methods. Response only a code with tests between ```, do not provide any other text.
+===================================================
+
+
+====================== Iteration #5 ======================
+Generate unit tests in Java for `io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor` maximizing line coverage for this class.
+
+REQUIREMENTS:
+1. DO NOT use @Before and @After test methods.
+2. Make test cases as atomic as possible.
+3. All tests should be written using JUnit 4.
+4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+The source code of class under test is as follows:
+```
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.AliasExpr;
+import io.github.vmzakharov.ecdataframe.dsl.AnonymousScript;
+import io.github.vmzakharov.ecdataframe.dsl.AssingExpr;
+import io.github.vmzakharov.ecdataframe.dsl.BinaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.DecimalExpr;
+import io.github.vmzakharov.ecdataframe.dsl.Expression;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionCallExpr;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionScript;
+import io.github.vmzakharov.ecdataframe.dsl.IfElseExpr;
+import io.github.vmzakharov.ecdataframe.dsl.IndexExpr;
+import io.github.vmzakharov.ecdataframe.dsl.ProjectionExpr;
+import io.github.vmzakharov.ecdataframe.dsl.PropertyPathExpr;
+import io.github.vmzakharov.ecdataframe.dsl.StatementSequenceScript;
+import io.github.vmzakharov.ecdataframe.dsl.UnaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.VarExpr;
+import io.github.vmzakharov.ecdataframe.dsl.VectorExpr;
+import io.github.vmzakharov.ecdataframe.dsl.value.Value;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import io.github.vmzakharov.ecdataframe.util.Printer;
+import io.github.vmzakharov.ecdataframe.util.PrinterFactory;
+import org.eclipse.collections.api.list.ListIterable;
+import org.eclipse.collections.impl.utility.StringIterate;
+public class PrettyPrintVisitor
+implements ExpressionVisitor
+{
+    final private Printer printer;
+
+    private int offset = 0;
+    private boolean startedNewLine = true;
+
+    public PrettyPrintVisitor()
+    {
+        this(PrinterFactory.getPrinter());
+    }
+
+    public PrettyPrintVisitor(Printer newPrinter)
+    {
+        this.printer = newPrinter;
+    }
+
+    static public String exprToString(Expression e)
+    {
+        CollectingPrinter printer = new CollectingPrinter();
+        e.accept(new PrettyPrintVisitor(printer));
+        return printer.toString();
+    }
+
+    @Override
+    public void visitAssignExpr(AssingExpr expr)
+    {
+        this.print(this.escapeVarNameIfNeeded(expr.getVarName(), expr.isEscaped()))
+            .print(" = ")
+            .printExpression(expr.getExpression());
+    }
+
+    private String escapeVarNameIfNeeded(String name, boolean escaped)
+    {
+        return escaped ? "${" + name + "}" : name;
+    }
+
+    @Override
+    public void visitBinaryExpr(BinaryExpr expr)
+    {
+        this.print("(").printExpression(expr.getOperand1()).print(" ")
+            .print(expr.getOperation().asString())
+            .print(" ").printExpression(expr.getOperand2()).print(")");
+    }
+
+    @Override
+    public void visitUnaryExpr(UnaryExpr expr)
+    {
+        if (expr.getOperation().isPrefix())
+        {
+            this.print(expr.getOperation().asString()).print("(").printExpression(expr.getOperand()).print(")");
+        }
+        else
+        {
+            this.print("(").printExpression(expr.getOperand()).print(") ").print(expr.getOperation().asString());
+        }
+    }
+
+    @Override
+    public void visitConstExpr(Value expr)
+    {
+        this.print(expr.asStringLiteral());
+    }
+
+    @Override
+    public void visitFunctionCallExpr(FunctionCallExpr expr)
+    {
+        this.print(expr.getFunctionName()).print("(").printExpressionList(expr.getParameters()).print(")");
+    }
+
+    private PrettyPrintVisitor printExpressionListLn(ListIterable<Expression> expressions)
+    {
+        int count = expressions.size();
+        for (int i = 0; i < count; i++)
+        {
+            expressions.get(i).accept(this);
+            this.newLine();
+        }
+
+        return this;
+    }
+
+    private PrettyPrintVisitor printExpressionList(ListIterable<Expression> expressions, String separator)
+    {
+        int count = expressions.size();
+        for (int i = 0; i < count; i++)
+        {
+            expressions.get(i).accept(this);
+            if (i < count - 1)
+            {
+                this.print(separator);
+            }
+        }
+
+        return this;
+    }
+
+    private PrettyPrintVisitor printExpressionList(ListIterable<Expression> expressions)
+    {
+        return this.printExpressionList(expressions, ", ");
+    }
+
+    private PrettyPrintVisitor printExpression(Expression expression)
+    {
+        expression.accept(this);
+        return this;
+    }
+
+    @Override
+    public void visitPropertyPathExpr(PropertyPathExpr expr)
+    {
+        this.print(expr.getPathElements().makeString("."));
+    }
+
+    @Override
+    public void visitAnonymousScriptExpr(AnonymousScript expr)
+    {
+        expr.getFunctions().forEachValue(this::visitFunctionScriptExpr);
+        this.printExpressionListLn(expr.getExpressions());
+    }
+
+    @Override
+    public void visitFunctionScriptExpr(FunctionScript expr)
+    {
+        this.print("function ").print(expr.getName());
+        if (expr.getExpressions().notEmpty())
+        {
+            this.print("(").print(expr.getParameterNames().makeString()).print(")");
+        }
+
+        this.newLine()
+            .print("{").newLine().tab()
+            .printExpressionListLn(expr.getExpressions())
+            .tabBack()
+            .print("}").newLine();
+    }
+
+    @Override
+    public void visitStatementSequenceScript(StatementSequenceScript expr)
+    {
+        this.printExpressionListLn(expr.getExpressions());
+    }
+
+    @Override
+    public void visitVarExpr(VarExpr expr)
+    {
+          this.print(this.escapeVarNameIfNeeded(expr.getVariableName(), expr.isEscaped()));
+    }
+
+    @Override
+    public void visitProjectionExpr(ProjectionExpr expr)
+    {
+        this.print("project {")
+            .printExpressionList(expr.getProjectionElements())
+            .print("}");
+
+        if (expr.getWhereClause() != null)
+        {
+            this.print(" where ").printExpression(expr.getWhereClause());
+        }
+    }
+
+    @Override
+    public void visitAliasExpr(AliasExpr expr)
+    {
+        this.print(expr.getAlias()).print(" : ").printExpression(expr.getExpression());
+    }
+
+    @Override
+    public void visitVectorExpr(VectorExpr expr)
+    {
+        this.print("(").printExpressionList(expr.getElements()).print(")");
+    }
+
+    @Override
+    public void visitIndexExpr(IndexExpr expr)
+    {
+        this.printExpression(expr.getVectorExpr()).print("[").printExpression(expr.getIndexExpr()).print("]");
+    }
+
+    @Override
+    public void visitDecimalExpr(DecimalExpr expr)
+    {
+        this.print("[")
+            .printExpression(expr.unscaledValueExpr())
+            .print(",")
+            .printExpression(expr.scaleExpr())
+            .print("]");
+    }
+
+    @Override
+    public void visitIfElseExpr(IfElseExpr expr)
+    {
+        if (expr.isTernary())
+        {
+            this
+                .printExpression(expr.getCondition())
+                .print(" ? ")
+                .printExpression(expr.getIfScript())
+                .print(" : ")
+                .printExpression(expr.getElseScript());
+        }
+        else
+        {
+            this.print("if ").printExpression(expr.getCondition()).print(" then").newLine();
+            this.tab();
+            expr.getIfScript().accept(this);
+            this.tabBack();
+
+            if (expr.hasElseSection())
+            {
+                this.print("else").newLine();
+                this.tab();
+                expr.getElseScript().accept(this);
+                this.tabBack();
+            }
+
+            this.print("endif");
+        }
+    }
+
+    private PrettyPrintVisitor print(String s)
+    {
+        if (this.startedNewLine)
+        {
+            this.printer.print(StringIterate.repeat(' ', this.offset * 2));
+            this.startedNewLine = false;
+        }
+        this.printer.print(s);
+        return this;
+    }
+
+    private PrettyPrintVisitor tab()
+    {
+        this.offset++;
+        return this;
+    }
+
+    private PrettyPrintVisitor tabBack()
+    {
+        this.offset--;
+        return this;
+    }
+
+    private PrettyPrintVisitor newLine()
+    {
+        this.printer.newLine();
+        this.startedNewLine = true;
+        return this;
+    }
+}
+```
+
+Generate public classes and public methods. Response only a code with tests between ```, do not provide any other text.
+===================================================
+

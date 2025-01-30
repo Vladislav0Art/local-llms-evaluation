@@ -1,0 +1,99 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameValidPatternTest() {
+        String validAmiName = "package-1.6.0-h879547";
+        AppVersion result = AppVersion.parseName(validAmiName);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("package", result.getPackageName());
+        Assert.assertEquals("1.6.0", result.getVersion());
+        Assert.assertEquals("879547", result.getBuildNumber());
+    }
+
+    @Test
+    public void parseNameNullAmiNameTest() {
+        String nullAmiName = null;
+        AppVersion result = AppVersion.parseName(nullAmiName);
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void parseNameInvalidPatternTest() {
+        String invalidAmiName = "ThisIsInvalid";
+        AppVersion result = AppVersion.parseName(invalidAmiName);
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void compareToNullOtherTest() {
+        String validAmiName = "package-1.6.0-h879547";
+        AppVersion appVersion = AppVersion.parseName(validAmiName);
+        int result = appVersion.compareTo(null);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void compareToItselfTest() {
+        String validAmiName = "package-1.6.0-h879547";
+        AppVersion appVersion = AppVersion.parseName(validAmiName);
+        int result = appVersion.compareTo(appVersion);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void getChangelistVersionTest() {
+        String validAmiName = "package-1.6.0-h879547";
+        AppVersion appVersion = AppVersion.parseName(validAmiName);
+        Assert.assertNull(appVersion.getChangelist());
+    }
+
+    @Test
+    public void toStringTest() {
+        String validAmiName = "package-1.6.0-h879547";
+        AppVersion appVersion = AppVersion.parseName(validAmiName);
+        Assert.assertTrue(appVersion.toString().contains("AppVersion [packageName=package, version=1.6.0, buildJobName=null, buildNumber=879547, changelist=null]"));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        String validAmiName = "package-1.6.0-h879547";
+        AppVersion appVersion = AppVersion.parseName(validAmiName);
+        Assert.assertNotNull(appVersion.hashCode());
+    }
+
+    @Test
+    public void equalsNullTest() {
+        String validAmiName = "package-1.6.0-h879547";
+        AppVersion appVersion = AppVersion.parseName(validAmiName);
+        Assert.assertFalse(appVersion.equals(null));
+    }
+
+    @Test
+    public void equalsItselfTest() {
+        String validAmiName = "package-1.6.0-h879547";
+        AppVersion appVersion = AppVersion.parseName(validAmiName);
+        Assert.assertTrue(appVersion.equals(appVersion));
+    }
+
+    @Test
+    public void equalsDifferentClassTest() {
+        String validAmiName = "package-1.6.0-h879547";
+        AppVersion appVersion = AppVersion.parseName(validAmiName);
+        Assert.assertFalse(appVersion.equals(new String()));
+    }
+
+    @Test
+    public void equalsDifferentObjectTest() {
+        String validAmiName1 = "package-1.6.0-h879547";
+        AppVersion appVersion1 = AppVersion.parseName(validAmiName1);
+        String validAmiName2 = "package-1.6.0-h879548";
+        AppVersion appVersion2 = AppVersion.parseName(validAmiName2);
+        Assert.assertFalse(appVersion1.equals(appVersion2));
+    }
+
+}

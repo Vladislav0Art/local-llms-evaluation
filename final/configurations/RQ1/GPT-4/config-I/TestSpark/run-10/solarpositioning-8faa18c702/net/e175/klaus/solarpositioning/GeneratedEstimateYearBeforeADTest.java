@@ -1,0 +1,18 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.*;
+
+public class GeneratedEstimateYearBeforeADTest {
+
+    @Test
+    public void estimateYearBeforeADTest() {
+        LocalDate forDate = LocalDate.of(300, 6, 1);
+        double deltaT = DeltaT.estimate(forDate);
+        assertTrue(deltaT != 0);
+    }
+
+}

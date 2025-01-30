@@ -1,0 +1,261 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.traccar.Model;
+import org.traccar.ProtocolTest;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.traccar.NetworkMessage;
+import org.traccar.Protocol;
+import org.traccar.helper.BitBuffer;
+import org.traccar.helper.BitUtil;
+import org.traccar.helper.UnitsConverter;
+import org.traccar.model.Position;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
+import static org.junit.Assert.assertEquals;
+
+public class GalileoProtocolDecoderTest {
+
+    @Test
+    public void decodeIridiumPositionTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new GalileoProtocol());
+        ByteBuf buf = Unpooled.buffer();
+
+        buf.writeByte(0x01);
+        buf.writeShortLE(73);          
+        buf.writeIntLE(0x01001c);     
+        buf.writeIntLE(0);            
+        buf.writeBytes("IDENTITY123456789".getBytes()); 
+
+        assertEquals(0x01, buf.readUnsignedByte());
+
+        Position position = (Position) decoder.decode(null, null, buf);
+        assertEquals(position.getDeviceId(), 0L);
+    }
+
+    @Test
+    public void decodeMinimalDataSetTest() {
+        BitBuffer bits = new BitBuffer(Unpooled.buffer());
+        Position position = new Position();
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new GalileoProtocol());
+
+        bits.writeUnsigned(0, 1);
+        bits.writeUnsigned(86400, 25);
+        bits.writeUnsigned(0, 1);
+        bits.writeUnsigned(10905190, 22);
+        bits.writeUnsigned(1048576, 21);
+        bits.writeUnsigned(0, 1);
+
+        decoder.decodeMinimalDataSet(position, bits.toByteBuf());
+
+        assertEquals(0.0, position.getLongitude(), 0.1);
+        assertEquals(0.0, position.getLatitude(), 0.1);
+    }
+    
+    @Test
+    public void decodeCompressedPositionsTest() throws Exception {
+        Protocol protocol = new GalileoProtocol();
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+        SocketAddress remoteAddress = new InetSocketAddress("localhost", 0);
+        protocol.addServer(new NetworkMessage(ByteBufUtil.decodeHexDump("01f866f38142002400010465000c2b010041080969006901515004511800000006870004dbdc000530000000000000637400000000000000000000"), remoteAddress));
+
+        Integer decodedTag = decoder.decodeCompressedPositions(null, remoteAddress, ByteBufUtil.decodeHexDump("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"));
+        assertEquals(null, decodedTag);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.ProtocolDecoder;
+import org.traccar.model.Position;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.traccar.BaseProtocolDecoder;
+import org.traccar.Context;
+import org.traccar.NetworkMessage;
+import org.traccar.helper.Log;
+import org.traccar.model.Device;
+import org.traccar.model.DeviceSession;
+import org.traccar.model.Position;
+
+import org.traccar.CommonProtocolDecoderTest;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
+
+public class GalileoProtocolDecoderTest extends CommonProtocolDecoderTest {
+
+    public GalileoProtocolDecoderTest() {
+        super(new GalileoProtocol());
+    }
+
+    @Test
+    public void testDecode() throws Exception {
+
+        Channel channel = Mockito.mock(Channel.class);
+
+        Mockito.when(channel.writeAndFlush(Mockito.any())).thenReturn(null);
+
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+
+        verifyAttributes(decoder, channel, null,
+                "\2<\0F123456789012345\n\0\3ID1",
+                position("2014-07-25 06:08:08.000", true, 53.27835, -2.19556));
+        verifyAttributes(decoder, channel, null,
+                "\2n\0F123456789012345\0\0\16\13\0\10\4\1abc",
+                position("2014-07-27 12:47:08.000", true, 53.27835, -2.1955));
+
+    }
+
+    @Test
+    public void decodeMinimalDataSetTest() {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x01);  
+        buf.writeByte(0x01);  
+        buf.writeInt(86400); 
+        buf.writeByte(0x00); 
+        buf.writeInt(0x000FFFFF);  // approximately 1
+        buf.writeInt(0x00200000);  // approximately 0
+        buf.writeByte(0x01); 
+
+        Position position = new Position("TEST");
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new GalileoProtocol());
+
+        decoder.decodeMinimalDataSet(position, buf.slice());
+
+        assertNotNull(position.getFixTime());
+        assertEquals(true, position.getValid());
+        assertEquals(1.0, position.getLongitude(), 0.1);
+        assertEquals(0.0, position.getLatitude(), 0.1);
+        assertEquals(Position.ALARM_GENERAL, position.getAlarm());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.junit.Test;
+import org.traccar.Protocol;
+import org.traccar.helper.UnitsConverter;
+
+import static org.junit.Assert.assertEquals;
+
+public class GalileoProtocolDecoderTest {
+
+    @Test
+    public void decodeTagTest() {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(90);
+        buf.writeIntLE(1234);
+
+        Position position = new Position("test");
+
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol());
+
+        decoder.decodeTag(position, buf, buf.getByte(0));
+
+        assertEquals(1234, (int) position.getAttributes().get("can16BitR4"));
+    }
+
+    @Test
+    public void decodeTagOtherTest() {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(64);
+        buf.writeShortLE(5678);
+
+        Position position = new Position("test");
+
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol());
+
+        decoder.decodeTagOther(position, buf, buf.getByte(0));
+
+        assertEquals(5678, (int) position.getAttributes().get(Position.KEY_STATUS));
+    }
+    
+    @Test
+    public void getTagLengthTest() {
+        int tagLength = GalileoProtocolDecoder.getTagLength(129);
+        assertEquals(3, tagLength);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.BaseProtocolDecoder;
+import org.traccar.Protocol;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+
+public class GalileoProtocolDecoderTest {
+
+    @Test
+    public void decodeTagTest() throws Exception {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeShortLE(480);
+
+        BaseProtocolDecoder decoder = Mockito.mock(BaseProtocolDecoder.class, Mockito.CALLS_REAL_METHODS);
+
+        Map<Integer, String> stringMap = Mockito.spy(Map.class);
+        stringMap.put(90, "can16BitR4");
+
+        Field stringFieldsField = decoder.getClass().getDeclaredField("stringFields");
+        stringFieldsField.setAccessible(true);
+        stringFieldsField.set(decoder, stringMap);
+
+        Method method = decoder.getClass().getDeclaredMethod("readValue", Position.class, String.class, ByteBuf.class, boolean.class);
+        method.setAccessible(true);
+        method.invoke(decoder, new Position(), "can16BitR4", buf, true);
+
+        assertEquals(480, (int) stringMap.get("can16BitR4"));
+    }
+
+    @Test
+    public void decodeTagOtherTest() throws Exception {
+        ByteBuf buf = Unp
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+

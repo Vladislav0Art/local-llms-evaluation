@@ -1,0 +1,80 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCodigoInternoMoreThan10CharactersTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCodigoInterno("12345678901");
+    }
+
+    @Test
+    public void setCodigoInternoLessThan10CharactersTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCodigoInterno("123456789");
+    }
+
+    @Test
+    public void setPlacaWithInvalidCharactersTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setPlaca("AAA-1234");
+    }
+
+    @Test
+    public void setPlacaWithValidCharactersTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setPlaca("AAA1234");
+    }
+
+    @Test
+    public void setRenavamLessThan9CharactersTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setRenavam("12345678");
+    }
+
+    @Test
+    public void setRenavam9CharactersTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setRenavam("123456789");
+    }
+
+    @Test
+    public void setTaraWithInvalidValueTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setTara("123456");
+    }
+
+    @Test
+    public void setTaraWithValidValueTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setTara("12345");
+    }
+
+    @Test
+    public void setCapacidadeKGWithInvalidValueTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCapacidadeKG("123456");
+    }
+
+    @Test
+    public void setCapacidadeKGWithValidValueTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCapacidadeKG("12345");
+    }
+
+    @Test
+    public void setCapacidadeM3WithInvalidValueTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCapacidadeM3("123");
+    }
+
+    @Test
+    public void setCapacidadeM3WithValidValueTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCapacidadeM3("12");
+    }
+
+}

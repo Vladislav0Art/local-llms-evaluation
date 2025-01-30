@@ -1,0 +1,247 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
+public class UrlBuilderTest {
+
+   @Test
+   public void UrlBuilderConstructorTest() throws MalformedURLException {
+      URL url = new URL("https://www.example.com/path?param=value#anchor");
+      UrlBuilder urlBuilder = new UrlBuilder(url);
+      Assert.assertNotNull(urlBuilder);
+   }
+
+   @Test
+   public void buildUrlTest() throws MalformedURLException {
+      URL url = new URL("https://www.example.com/path?param=value#anchor");
+      UrlBuilder urlBuilder = new UrlBuilder(url);
+      URL actualUrl = urlBuilder.build();
+      URL expectedUrl = new URL("https://www.example.com/path?param=value#anchor");
+      Assert.assertEquals(expectedUrl, actualUrl);
+   }
+
+   @Test
+   public void appendKeyValTest() throws Exception {
+      URL url = new URL("https://www.example.com/path?param=value#anchor");
+      UrlBuilder urlBuilder = new UrlBuilder(url);
+      Connection.KeyVal kv = Connection.KeyVal.create("param", "value");
+      urlBuilder.appendKeyVal(kv);
+    
+      String expectedQuery = "param=" + URLEncoder.encode(kv.value(), StandardCharsets.UTF_8.name());
+      // Assuming getter for the StringBuilder q in UrlBuilder
+      String actualQuery = URLDecoder.decode(urlBuilder.getQuery(), StandardCharsets.UTF_8.name());
+      Assert.assertEquals(expectedQuery, actualQuery);
+   }
+   
+   @Test
+   public void appendKeyValWithoutQueryTest() throws Exception {
+      URL url = new URL("https://www.example.com/path");
+      UrlBuilder urlBuilder = new UrlBuilder(url);
+      Connection.KeyVal kv = Connection.KeyVal.create("param", "value");
+      urlBuilder.appendKeyVal(kv);
+
+      String expectedQuery = "param=" + URLEncoder.encode(kv.value(), StandardCharsets.UTF_8.name());
+      // Assuming getter for the StringBuilder q in UrlBuilder
+      String actualQuery = URLDecoder.decode(urlBuilder.getQuery(), StandardCharsets.UTF_8.name());
+      Assert.assertEquals(expectedQuery, actualQuery);
+   }
+
+   @Test(expected = RuntimeException.class)
+   public void decodePartTestWithInvalidUrl() {
+      String url = "https:/&$%#";
+      UrlBuilder.decodePart(url);
+   }
+   
+   @Test
+   public void normalizeQueryTest(){
+      String query = "param value";
+      String actual = UrlBuilder.normalizeQuery(query);
+      String expected = "param+value";
+      Assert.assertEquals(expected, actual);
+   }
+   @Test
+   public void normalizeRefTest(){
+      String ref = "anchor Name";
+      String actual = UrlBuilder.normalizeRef(ref);
+      String expected = "anchor%20Name";
+      Assert.assertEquals(expected, actual);
+   }
+   
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Connection;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws MalformedURLException {
+        URL url = new URL("https://www.example.com/path?param=value#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Assert.assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildUrlTest() throws MalformedURLException {
+        URL url = new URL("https://www.example.com/path?param=value#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL actualUrl = urlBuilder.build();
+        URL expectedUrl = new URL("https://www.example.com/path?param=value#anchor");
+        Assert.assertEquals(expectedUrl, actualUrl);
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL url = new URL("https://www.example.com/path");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Connection.KeyVal kv = Connection.KeyVal.create("param", "value");
+        urlBuilder.appendKeyVal(kv);
+
+        Method getQMethod = UrlBuilder.class.getDeclaredMethod("getQ");
+        getQMethod.setAccessible(true);
+        StringBuilder q = (StringBuilder) getQMethod.invoke(urlBuilder);
+
+        String actualQuery = q.toString();
+        String expectedQuery = "param=value";
+        Assert.assertEquals(expectedQuery, actualQuery);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Connection;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws MalformedURLException {
+        URL url = new URL("https://www.example.com/path?param=value#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Assert.assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildUrlTest() throws MalformedURLException {
+        URL url = new URL("https://www.example.com/path?param=value#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL actualUrl = urlBuilder.build();
+        URL expectedUrl = new URL("https://www.example.com/path?param=value#anchor");
+        Assert.assertEquals(expectedUrl, actualUrl);
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL url = new URL("https://www.example.com/path");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Connection.KeyVal kv = new Connection.KeyVal("param", "value");
+        urlBuilder.appendKeyVal(kv);
+
+        Method getQMethod = UrlBuilder.class.getDeclaredMethod("getQ");
+        getQMethod.setAccessible(true);
+        StringBuilder q = (StringBuilder) getQMethod.invoke(urlBuilder);
+
+        String actualQuery = q.toString();
+        String expectedQuery = "param=value";
+        Assert.assertEquals(expectedQuery, actualQuery);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Connection.KeyVal;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws MalformedURLException {
+        URL url = new URL("https://www.example.com/path?param=value#anchor");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Objects.requireNonNull(urlBuilder);
+    }
+
+    @Test
+    public void buildTest() throws MalformedURLException {
+        URL url = new URL("https://www.example.com/path?param=value");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL actualUrl = urlBuilder.build();
+        URL expectedUrl = new URL("https://www.example.com/path?param=value");
+        assertEquals(expectedUrl, actualUrl);
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        Constructor<KeyVal> constructor = KeyVal.class.getDeclaredConstructor(String.class, String.class);
+        constructor.setAccessible(true);
+
+        URL url = new URL("https://www.example.com/path");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        KeyVal kv = constructor.newInstance("param", "value");
+        urlBuilder.appendKeyVal(kv);
+
+        String queryAfterAppend = extractQueryBuilderValue(urlBuilder);
+        assertEquals("param=value", queryAfterAppend);
+
+        KeyVal kv2 = constructor.newInstance("param2", "value2");
+        urlBuilder.appendKeyVal(kv2);
+
+        String queryAfterSecondAppend = extractQueryBuilderValue(urlBuilder);
+        assertEquals("param=value&param2=value2", queryAfterSecondAppend);
+    }
+
+    private String extractQueryBuilderValue(UrlBuilder urlBuilder) throws NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException {
+
+        Method m = UrlBuilder.class.getDeclaredMethod("result");
+        m.setAccessible(true);
+        return StringUtil.releaseBuilder((StringBuilder) m.invoke(urlBuilder));
+    }
+}
+```
+===================================================
+

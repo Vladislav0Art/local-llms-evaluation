@@ -1,0 +1,117 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameValidAmiNameTest() {
+        String validAmiName = "test-package-0.1.0-h200/WE-WAPP-testpackage/200";
+        AppVersion appVersion = AppVersion.parseName(validAmiName);
+        assertNotNull(appVersion);
+        assertEquals("test-package", appVersion.getPackageName());
+        assertEquals("0.1.0", appVersion.getVersion());
+        assertEquals("WE-WAPP-testpackage", appVersion.getBuildJobName());
+        assertEquals("200", appVersion.getBuildNumber());
+        assertNull(appVersion.getCommit());
+    }
+
+    @Test
+    public void parseNameInvalidAmiNameTest() {
+        String invalidAmiName = "invalid-format";
+        assertNull(AppVersion.parseName(invalidAmiName));
+    }
+
+    @Test
+    public void parseNameNullAmiNameTest() {
+        assertNull(AppVersion.parseName(null));
+    }
+
+    @Test
+    public void compareToNullTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        assertEquals(1, appVersion.compareTo(null));
+    }
+
+    @Test
+    public void compareToSameObjectTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test/package/200");
+        assertEquals(0, appVersion.compareTo(appVersion));
+    }
+
+    @Test
+    public void compareToDifferentObjectTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        AppVersion anotherAppVersion = AppVersion.parseName("test-package-0.1.0-h201/WE-WAPP-test-package/201");
+        assertNotEquals(0, appVersion.compareTo(anotherAppVersion));
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        assertNotNull(AppVersion.getAppVersionPattern());
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        assertEquals("test-package", appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersionTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        assertEquals("0.1.0", appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        assertEquals("WE-WAPP-test-package", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        assertEquals("200", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getChangelistTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        assertNull(appVersion.getChangelist());
+    }
+
+    @Test
+    public void getCommitTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        assertNull(appVersion.getCommit());
+    }
+
+    @Test
+    public void toStringTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        assertTrue(appVersion.toString().contains("AppVersion"));
+    }
+
+    @Test
+    public void hashCodeNotNullTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        assertNotNull(appVersion.hashCode());
+    }
+
+    @Test
+    public void equalsSameObjectTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        assertTrue(appVersion.equals(appVersion));
+    }
+
+    @Test
+    public void equalsDifferentObjectTest() {
+        AppVersion appVersion = AppVersion.parseName("test-package-0.1.0-h200/WE-WAPP-test-package/200");
+        AppVersion anotherAppVersion = AppVersion.parseName("test-package-0.1.0-h201/WE-WAPP-test-package/201");
+        assertFalse(appVersion.equals(anotherAppVersion));
+    }
+
+}

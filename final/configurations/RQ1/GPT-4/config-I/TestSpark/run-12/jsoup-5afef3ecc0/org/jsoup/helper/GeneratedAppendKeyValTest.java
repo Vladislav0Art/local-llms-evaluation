@@ -1,0 +1,26 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedAppendKeyValTest {
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com/test");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        Connection.KeyVal keyValue = mock(Connection.KeyVal.class);
+        when(keyValue.key()).thenReturn("param");
+        when(keyValue.value()).thenReturn("value");
+        builder.appendKeyVal(keyValue);
+        URL result = builder.build();
+        assertEquals("https://www.example.com/test?param=value", result.toString());
+    }
+
+}

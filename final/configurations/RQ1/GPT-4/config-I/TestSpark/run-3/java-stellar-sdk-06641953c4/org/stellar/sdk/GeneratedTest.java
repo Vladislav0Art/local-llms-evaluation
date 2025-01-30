@@ -1,0 +1,102 @@
+package org.stellar.sdk;
+
+import net.i2p.crypto.eddsa.EdDSAPrivateKey;
+import net.i2p.crypto.eddsa.EdDSAPublicKey;
+import org.junit.Test;
+import org.junit.Assert;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Mock
+    private EdDSAPublicKey mockedPublickey;
+
+    @Mock
+    private EdDSAPrivateKey mockedPrivatekey;
+
+    @Test
+    public void KeyPairPublicConstructorTest() {
+        KeyPair keyPair = new KeyPair(mockedPublickey);
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void KeyPairPublicPrivateConstructorTest() {
+        KeyPair keyPair = new KeyPair(mockedPublickey, mockedPrivatekey);
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void canSignTest_ReturnsTrue() {
+        KeyPair keyPair = new KeyPair(mockedPublickey, mockedPrivatekey);
+        Assert.assertTrue(keyPair.canSign());
+    }
+
+    @Test
+    public void canSignTest_ReturnsFalse() {
+        KeyPair keyPair = new KeyPair(mockedPublickey);
+        Assert.assertFalse(keyPair.canSign());
+    }
+
+    @Test
+    public void fromSecretSeedCharArrayTest() {
+        char[] seed = new char[]{'a', 'b', 'c', 'd', 'e', 'f'};
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromSecretSeedStringTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("testseed");
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromSecretSeedByteArrayTest() {
+        byte[] seed = new byte[]{10, 20, 30};
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromAccountIdTest() {
+        KeyPair keyPair = KeyPair.fromAccountId("testaccountid");
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromPublicKeyTest() {
+        byte[] publicKey = new byte[]{10, 20, 30};
+        KeyPair keyPair = KeyPair.fromPublicKey(publicKey);
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromBip39SeedTest() {
+        byte[] bip39Seed = new byte[]{10, 20, 30};
+        KeyPair keyPair = KeyPair.fromBip39Seed(bip39Seed, 100);
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void randomTest() {
+        KeyPair keyPair = KeyPair.random();
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void getAccountIdTest() {
+        Mockito.when(mockedPublickey.getAbyte()).thenReturn(new byte[]{10, 20, 30});
+        KeyPair keyPair = new KeyPair(mockedPublickey, mockedPrivatekey);
+        Assert.assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void getSecretSeedTest() {
+        Mockito.when(mockedPrivatekey.getSeed()).thenReturn(new byte[]{10, 20, 30});
+        KeyPair keyPair = new KeyPair(mockedPublickey, mockedPrivatekey);
+        Assert.assertNotNull(keyPair.getSecretSeed());
+    }
+
+}

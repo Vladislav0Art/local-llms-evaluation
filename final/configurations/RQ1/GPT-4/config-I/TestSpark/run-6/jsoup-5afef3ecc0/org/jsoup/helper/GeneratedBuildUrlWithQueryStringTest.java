@@ -1,0 +1,21 @@
+package org.jsoup.helper;
+
+import static org.junit.Assert.assertEquals;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import java.net.URL;
+
+public class GeneratedBuildUrlWithQueryStringTest {
+
+    @Test
+    public void buildUrlWithQueryStringTest() throws Exception {
+        URL url = new URL("http://example.com?key=value");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL builtUrl = builder.build();
+        assertEquals(url, builtUrl);
+    }
+
+}

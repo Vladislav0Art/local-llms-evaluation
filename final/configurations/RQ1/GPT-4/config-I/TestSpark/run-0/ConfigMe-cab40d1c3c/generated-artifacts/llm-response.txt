@@ -1,0 +1,153 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.*;
+
+public class PropertyListBuilderTest {
+
+    @Test(expected = ConfigMeException.class)
+    public void addPropertyWithExistingPathTest() {
+        // Arrange
+        Property<String> propertyMock = mock(Property.class);
+        when(propertyMock.getPath()).thenReturn("existing.path");
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        listBuilder.add(propertyMock);
+
+        // Act
+        // Trying to add the same property for the second time
+        listBuilder.add(propertyMock);
+    }
+
+    @Test
+    public void createWithRegisteredPropertiesTest() {
+        // Arrange
+        Property<String> propertyMock1 = mock(Property.class);
+        Property<String> propertyMock2 = mock(Property.class);
+        when(propertyMock1.getPath()).thenReturn("path1");
+        when(propertyMock2.getPath()).thenReturn("path2");
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        listBuilder.add(propertyMock1);
+        listBuilder.add(propertyMock2);
+
+        // Act
+        List<Property<?>> properties = listBuilder.create();
+
+        // Assert
+        Assert.assertThat(properties.size(), is(2));
+        Assert.assertSame(propertyMock1, properties.get(0));
+        Assert.assertSame(propertyMock2, properties.get(1));
+    }
+
+    @Test(expected = ConfigMeException.class)
+    public void getChildMapWithEntryAtPathTest() {
+        // Arrange
+        Property<String> propertyMock = mock(Property.class);
+        when(propertyMock.getPath()).thenReturn("path.subpath");
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        listBuilder.add(propertyMock);
+
+        // Act
+        // Trying to get child map for the path where property is already defined
+        PropertyListBuilder spiedBuilder = spy(listBuilder);
+        spiedBuilder.getChildMap(spiedBuilder.getRootEntries(), "path");
+    }
+
+    @Test(expected = ConfigMeException.class)
+    public void getChildMapWithUnexpectedTypeAtPathTest() {
+        // Arrange
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        Map<String, Object> rootEntries = listBuilder.getRootEntries();
+        rootEntries.put("wrong.type.path", new Object());
+
+        // Act
+        // Trying to get child map for the path where Object of unexpected type is already defined
+        PropertyListBuilder spiedBuilder = spy(listBuilder);
+        spiedBuilder.getChildMap(spiedBuilder.getRootEntries(), "wrong.type.path");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.*;
+
+public class PropertyListBuilderTest {
+   
+    @Test(expected = ConfigMeException.class)
+    public void addPropertyWithExistingPathTest() {
+        Property<String> propertyMock = mock(Property.class);
+        when(propertyMock.getPath()).thenReturn("existing.path");
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        listBuilder.add(propertyMock);
+        listBuilder.add(propertyMock);
+    }
+
+    @Test
+    public void createWithRegisteredPropertiesTest() {
+        Property<String> propertyMock1 = mock(Property.class);
+        Property<String> propertyMock2 = mock(Property.class);
+        when(propertyMock1.getPath()).thenReturn("path1");
+        when(propertyMock2.getPath()).thenReturn("path2");
+        
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        listBuilder.add(propertyMock1);
+        listBuilder.add(propertyMock2);
+        
+        List<Property<?>> properties = listBuilder.create();
+        
+        Assert.assertThat(properties.size(), is(2));
+        Assert.assertSame(properties.get(0), propertyMock1);
+        Assert.assertSame(properties.get(1), propertyMock2);
+    }
+   
+    @Test(expected = ConfigMeException.class)
+    public void addPropertyWithNestedExistingPathTest() {
+        Property<String> propertyMock1 = mock(Property.class);
+        when(propertyMock1.getPath()).thenReturn("nested.path");
+        
+        Property<String> propertyMock2 = mock(Property.class);
+        when(propertyMock2.getPath()).thenReturn("nested");
+        
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        listBuilder.add(propertyMock1);
+        listBuilder.add(propertyMock2);
+    }
+    
+    @Test(expected = ConfigMeException.class)
+    public void addPropertyWithConflictingExistingPathTest() {
+        Property<String> propertyMock1 = mock(Property.class);
+        when(propertyMock1.getPath()).thenReturn("conflicting");
+        
+        Property<String> propertyMock2 = mock(Property.class);
+        when(propertyMock2.getPath()).thenReturn("conflicting.path");
+        
+        PropertyListBuilder listBuilder = new PropertyListBuilder();
+        listBuilder.add(propertyMock1);
+        listBuilder.add(propertyMock2);
+    }
+
+}
+```
+
+===================================================
+

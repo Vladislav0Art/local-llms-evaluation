@@ -1,0 +1,365 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.nodes.CDataNode;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.XmlDeclaration;
+import org.jsoup.parser.ParseErrorList;
+import org.jsoup.parser.Tag;
+import org.jsoup.parser.Token;
+import org.jsoup.parser.XmlTreeBuilder;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Assert.assertEquals(ParseSettings.preserveCase, builder.defaultSettings());
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String baseUri = "https://some.uri";
+        String input = "<tag/>";
+        builder.initialiseParse(new StringReader(input), baseUri, new Parser(builder));
+        Assert.assertEquals(Document.OutputSettings.Syntax.xml, builder.getDoc().outputSettings().syntax());
+        Assert.assertEquals(Entities.EscapeMode.xhtml, builder.getDoc().outputSettings().escapeMode());
+        Assert.assertEquals(false, builder.getDoc().outputSettings().prettyPrint());
+    }
+
+    @Test
+    public void parseMethodsTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String baseUri = "https://some.uri";
+        String input = "<tag/>";
+        Assert.assertNotNull(builder.parse(new StringReader(input), baseUri));
+        Assert.assertNotNull(builder.parse(input, baseUri));
+    }
+
+    @Test
+    public void processTokenTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String baseUri = "https://some.uri";
+        String input = "<tag/>";
+        builder.initialiseParse(new StringReader(input), baseUri, new Parser(builder));
+        Token tokenStart = new Token.StartTag();
+        Token.Comment comment = new Token.Comment();
+        Token.Character character = new Token.Character();
+        Token.Doctype doctype = new Token.Doctype();
+        Token.EndTag endtag = new Token.EndTag();
+        tokenStart.name("tag");
+        comment.data("<!--Comment-->");
+        character.data("CharData");
+        doctype.name("doctype");
+        endtag.tagName("tag");
+        Assert.assertTrue(builder.process(tokenStart));
+        Assert.assertTrue(builder.process(comment));
+        Assert.assertTrue(builder.process(character));
+        Assert.assertTrue(builder.process(doctype));
+        Assert.assertTrue(builder.process(endtag));
+        Token.EOF eof = new Token.EOF();
+        Assert.assertTrue(builder.process(eof));
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Element element = new Element(Tag.valueOf("test"), "");
+        builder.insertNode(element);
+        Assert.assertEquals(element, builder.getStack().get(0).childNode(0));
+    }
+
+    @Test
+    public void insertStartTagTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.StartTag startTag = new Token.StartTag();
+        startTag.name("tag");
+        Element element = builder.insert(startTag);
+        Assert.assertNotNull(element);
+    }
+
+    @Test
+    public void insertCommentTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Comment comment = new Token.Comment();
+        comment.data("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        builder.insert(comment);
+        Assert.assertEquals(XmlDeclaration.class, builder.getStack().get(0).childNode(0).getClass());
+    }
+
+    @Test
+    public void insertBogusCommentTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Comment comment = new Token.Comment();
+        comment.data("<!--bogusComment-->");
+        comment.bogus(true);
+        builder.insert(comment);
+        Assert.assertEquals(Comment.class, builder.getStack().get(0).childNode(0).getClass());
+    }
+
+    @Test
+    public void insertBogusXmlDeclarationTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Comment comment = new Token.Comment();
+        comment.data("bogusXmlDeclaration");
+        comment.bogus(true);
+        builder.insert(comment);
+        Assert.assertEquals(Comment.class, builder.getStack().get(0).childNode(0).getClass());
+    }
+
+    @Test
+    public void insertCharacterTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Character tokenCharacter = new Token.Character();
+        tokenCharacter.data("CharData");
+        tokenCharacter.cdata(true);
+        builder.insert(tokenCharacter);
+        Assert.assertEquals(CDataNode.class, builder.getStack().get(0).childNode(0).getClass());
+    }
+
+    @Test
+    public void insertDoctypeTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.Doctype doctype = new Token.Doctype();
+        doctype.name("doc");
+        builder.insert(doctype);
+        Assert.assertEquals(DocumentType.class, builder.getStack().get(0).childNode(0).getClass());
+    }
+
+    @Test
+    public void popStackToCloseTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token.StartTag startTag = new Token.StartTag();
+        startTag.name("tag");
+        Element element = builder.insert(startTag);
+        Token.EndTag endTag = new Token.EndTag();
+        endTag.tagName("tag");
+        builder.popStackToClose(endTag);
+        Assert.assertTrue(builder.getStack().isEmpty());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void processUnexpectedTokenTest(){
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token token = new Token();
+        builder.process(token);
+    }
+} 
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.parser.Token;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Assert.assertEquals(ParseSettings.preserveCase, treeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Parser parser = new Parser(treeBuilder);
+        String baseUri = "http://base.uri";
+        String inputFragment = "<note><to>Tove</to></note>";
+        List<Node> nodeList = treeBuilder.parseFragment(inputFragment, baseUri, parser);
+        Assert.assertTrue(!nodeList.isEmpty());
+    }
+
+    @Test
+    public void parseFragmentWithContextTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Parser parser = new Parser(treeBuilder);
+        String baseUri = "http://base.uri";
+        String inputFragment = "<note><to>Tove</to></note>";
+        Node context = new Element(Tag.valueOf("test"), "");
+        List<Node> nodeList = treeBuilder.parseFragment(inputFragment, context, baseUri, parser);
+        Assert.assertTrue(!nodeList.isEmpty());
+    }
+
+    @Test
+    public void processTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Token.Character character = new Token.Character();
+        character.data("Tove");
+        Assert.assertTrue(treeBuilder.process(character));
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void processInvalidTokenTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Assert.assertTrue(treeBuilder.process(new Token()));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.*;
+
+import java.io.StringReader;
+import java.util.List;
+
+public class XmlTreeBuilderTest {
+    
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Assert.assertEquals(ParseSettings.preserveCase, treeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Parser parser = new Parser(treeBuilder);
+        String baseUri = "http://base.uri";
+        String inputFragment = "<note><to>Tove</to></note>";
+        List<Element> nodeList = treeBuilder.parseFragment(inputFragment, baseUri, parser);
+        Assert.assertTrue(!nodeList.isEmpty());
+    }
+
+    @Test
+    public void parseFragmentWithContextTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Parser parser = new Parser(treeBuilder);
+        String baseUri = "http://base.uri";
+        String inputFragment = "<note><to>Tove</to></note>";
+        Element context = new Element(Tag.valueOf("test"), "");
+        List<Element> nodeList = treeBuilder.parseFragment(inputFragment, context, baseUri, parser);
+        Assert.assertTrue(!nodeList.isEmpty());
+    }
+
+    @Test
+    public void processCharacterDataTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Token token = new Token.Character("Test character data", TokeniserState.Data);
+        Assert.assertTrue(treeBuilder.process(token));
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void processUnexpectedTokenTest(){
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Token token = new Token.EOF();
+        treeBuilder.process(token);
+    }
+
+    @Test
+    public void popStackToCloseTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        treeBuilder.initialiseParse(new StringReader("<div><p>Hello</p></div>"), "http://base.uri", new Parser(treeBuilder));
+        treeBuilder.runParser();
+        Element pElement = treeBuilder.getStack().get(2);
+        treeBuilder.popStackToClose(new Token.EndTag(pElement.tagName()));
+        Assert.assertFalse(treeBuilder.getStack().contains(pElement));
+    }
+}    
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.*;
+
+import java.io.StringReader;
+import java.util.List;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Assert.assertEquals(ParseSettings.preserveCase, treeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Parser parser = new Parser(treeBuilder);
+        String baseUri = "http://base.uri";
+        String inputFragment = "<note><to>Tove</to></note>";
+        List<Element> nodeList = treeBuilder.parseFragment(inputFragment, baseUri, parser);
+        Assert.assertTrue(!nodeList.isEmpty());
+        Assert.assertEquals(Node.class, nodeList.get(0).getClass());
+    }
+
+    @Test
+    public void parseFragmentWithContextTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Parser parser = new Parser(treeBuilder);
+        String baseUri = "http://base.uri";
+        String inputFragment = "<note><to>Tove</to></note>";
+        Element context = new Element(Tag.valueOf("test"), "");
+        List<Element> nodeList = treeBuilder.parseFragment(inputFragment, context, baseUri, parser);
+        Assert.assertTrue(!nodeList.isEmpty());
+        Assert.assertEquals(Node.class, nodeList.get(0).getClass());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void processUnexpectedTokenTest(){
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Token token = new Token.EOF();
+        Assert.assertFalse(treeBuilder.process(token));
+    }
+    
+    @Test
+    public void processCharacterDataTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Token token = new Token.Comment();
+        token.data("Test comment data");
+        Assert.assertTrue(treeBuilder.process(token));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.*;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        Assert.assertEquals(ParseSettings.preserveCase, treeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Assert.assertEquals(xmlTreeBuilder.getClass(), xmlTreeBuilder.newInstance().getClass());
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<a>test</a>"), "http://example.com", new Parser(xmlTreeBuilder
+===================================================
+

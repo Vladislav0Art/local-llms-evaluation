@@ -1,0 +1,293 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.session.SessionManager;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class WatchProtocolDecoderTest {
+
+    private static final String CALLER_ID = "TEST_ID";
+    private static final String TEST_ADDRESS = "testAddress123";
+
+    @Test
+    public void decodeInitTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        SessionManager sessionManager = mock(SessionManager.class);
+        when(protocol.retrieveSessionManager()).thenReturn(sessionManager);
+        when(sessionManager.getDeviceSession(any(), any(), any())).thenReturn(new NetworkSession(CALLER_ID));
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf msg = Unpooled.copiedBuffer("[3G*TEST_ID*00DD*INIT]", StandardCharsets.US_ASCII);
+        assertNull(decoder.decode(null, null, msg));
+    }
+
+    @Test
+    public void decodeAlarmTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        SessionManager sessionManager = mock(SessionManager.class);
+        when(protocol.retrieveSessionManager()).thenReturn(sessionManager);
+        when(sessionManager.getDeviceSession(any(), any(), any())).thenReturn(new NetworkSession(CALLER_ID));
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        int alarmGpsOff = 0b0000000000010000;
+        assertEquals(Position.ALARM_GPS_ANTENNA_CUT, decoder.decodeAlarm(alarmGpsOff));
+
+        int alarmPowerCut = 0b0100000000000000;
+        assertEquals(Position.ALARM_POWER_CUT, decoder.decodeAlarm(alarmPowerCut));
+
+        int alarmBatteryLow = 0b0100010000000001;
+        assertEquals(Position.ALARM_LOW_BATTERY, decoder.decodeAlarm(alarmBatteryLow));
+
+        int alarmGeofenceExit = 0b0100010001000000;
+        assertEquals(Position.ALARM_GEOFENCE_EXIT, decoder.decodeAlarm(alarmGeofenceExit));
+
+        int alarmGeofenceEnter = 0b0100100001000000;
+        assertEquals(Position.ALARM_GEOFENCE_ENTER, decoder.decodeAlarm(alarmGeofenceEnter));
+    }
+
+    @Test
+    public void decodeIncorrectDataTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        SessionManager sessionManager = mock(SessionManager.class);
+        when(protocol.retrieveSessionManager()).thenReturn(sessionManager);
+        when(sessionManager.getDeviceSession(any(), any(), any())).thenReturn(new NetworkSession(CALLER_ID));
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        assertNull(decoder.decodePosition(null, "IncorrectData"));
+    }
+
+    @Test
+    public void decodeEmptyTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        SessionManager sessionManager = mock(SessionManager.class);
+        when(protocol.retrieveSessionManager()).thenReturn(sessionManager);
+        when(sessionManager.getDeviceSession(any(), any(), any())).thenReturn(new NetworkSession(CALLER_ID));
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf msg = Unpooled.buffer();
+        assertNull(decoder.decode(mock(Channel.class), mock(SocketAddress.class), msg));
+    }
+
+    @Test
+    public void getHasIndexTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        assertFalse(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerTest() throws Exception {
+        Protocol protocol = mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        assertNull(decoder.getManufacturer());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.netty.channel.Channel;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import org.junit.Test;
+import org.junit.Assert;
+
+import org.traccar.helper.UnitsConverter;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.protocol.WatchProtocolDecoder;
+
+import static org.mockito.Mockito.*;
+
+public class WatchProtocolDecoderTest {
+
+    private static final String DEVICE_ID = "123456789012345";
+
+    private ByteBuf buf(String string) {
+        return Unpooled.wrappedBuffer(string.getBytes(StandardCharsets.US_ASCII));
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        Channel channel = mock(Channel.class);
+        SocketAddress socketAddress = mock(SocketAddress.class);
+        Protocol protocol = new Protocol("watch") { };
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        // Data for "UD" type
+        ByteBuf msgUD = buf("[3g*123456789012345*ud,030105,061653,a,4650424,0190768,508180,05]");
+        Position posUD = (Position) decoder.decode(channel, socketAddress, msgUD);
+        Assert.assertEquals(UnitsConverter.knotsFromKph(508.18), posUD.getSpeed());
+        
+        // Data for "AL" type
+        ByteBuf msgAL = buf("[3g*123456789012345*ud,030105,091653,a,4650424,0190768,508180,05]");
+        Position posAL = (Position) decoder.decode(channel, socketAddress, msgAL);
+        Assert.assertEquals(Position.ALARM_GENERAL, posAL.get(Position.KEY_ALARM));
+                
+        // Empty message
+        ByteBuf msgEmpty = buf("");
+        Assert.assertNotNull(decoder.decode(channel, socketAddress, msgEmpty));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.netty.channel.Channel;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import org.traccar.Context;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.protocol.WatchProtocolDecoder;
+import org.junit.Test;
+import org.junit.Assert;
+
+public class WatchProtocolDecoderTest {
+
+    private ByteBuf buf(String string) {
+        return Unpooled.wrappedBuffer(string.getBytes(StandardCharsets.US_ASCII));
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        Channel channel = mock(Channel.class);
+        SocketAddress socketAddress = mock(SocketAddress.class);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("watch") { });
+
+        // No exception should be thrown when message is empty
+        ByteBuf bufEmpty = buf("");
+        decoder.decode(channel, socketAddress, bufEmpty);
+
+        ByteBuf bufMsg = buf("[SG*9051007490*0002*LK]");
+        Position position = (Position) decoder.decode(channel, socketAddress, bufMsg);
+
+        Assert.assertNotNull(position);
+        Assert.assertNotNull(position.getDeviceId());
+        Assert.assertEquals("9051007490", position.getDeviceId());
+
+        bufMsg = buf("[SG*9051007490*0008*ALARM1]");
+        position = (Position) decoder.decode(channel, socketAddress, bufMsg);
+
+        Assert.assertNotNull(position);
+        Assert.assertEquals("9051007490", position.getDeviceId());
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import io.netty.channel.Channel;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import org.traccar.Context;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.protocol.WatchProtocolDecoder;
+import org.junit.Test;
+import org.junit.Assert;
+
+public class WatchProtocolDecoderTest {
+
+    private ByteBuf buf(String string) {
+        return Unpooled.wrappedBuffer(string.getBytes(StandardCharsets.US_ASCII));
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        Channel channel = mock(Channel.class);
+        SocketAddress socketAddress = mock(SocketAddress.class);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("watch") { });
+
+        // No exception should be thrown when message is empty
+        ByteBuf bufEmpty = buf("");
+        decoder.decode(channel, socketAddress, bufEmpty);
+
+        ByteBuf bufMsg = buf("[SG*9051007490*0002*LK]");
+        Position position = (Position) decoder.decode(channel, socketAddress, bufMsg);
+
+        Assert.assertNotNull(position);
+        Assert.assertNotNull(position.getDeviceId());
+        Assert.assertEquals("9051007490", position.getDeviceId());
+
+        bufMsg = buf("[SG*9051007490*0008*ALARM1]");
+        position = (Position) decoder.decode(channel, socketAddress, bufMsg);
+
+        Assert.assertNotNull(position);
+        Assert.assertEquals("9051007490", position.getDeviceId());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import io.netty.channel.Channel;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.protocol.WatchProtocolDecoder;
+import org.junit.Test;
+import org.junit.Assert;
+import org.mockito.Mockito;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void decodeLKTest() throws Exception {
+        Channel channel = Mockito.mock(Channel.class);
+        Protocol protocol = new Protocol("watch") {};
+        SocketAddress remoteAddress = Mockito.mock(SocketAddress.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf buf = Unpooled.copiedBuffer("[SG*9051007490*0002*LK]", StandardCharsets.US_ASCII);
+        Position position = (Position)decoder.decode(channel, remoteAddress, buf);
+        Assert.assertNotNull(position);
+    }
+    
+    @Test
+    public void decodeAlarmTest() throws Exception {
+        Channel channel = Mockito.mock(Channel.class);
+        Protocol protocol = new Protocol("watch") {};
+        SocketAddress remoteAddress = Mockito.mock(SocketAddress.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf buf = Unpooled.copiedBuffer("[SG*9051007490*0008*ALARM1]", StandardCharsets.US_ASCII);
+        Position position = (Position)decoder.decode(channel, remoteAddress, buf);
+        Assert.assertNotNull(position);
+    }
+}
+```
+===================================================
+

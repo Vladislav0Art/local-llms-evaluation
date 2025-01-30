@@ -1,0 +1,875 @@
+
+====================== Iteration #1 ======================
+Generate unit tests in Java for `com.force.i18n.grammar.impl.GrammaticalTermMapImpl` maximizing line coverage for this class.
+
+REQUIREMENTS:
+1. DO NOT use @Before and @After test methods.
+2. Make test cases as atomic as possible.
+3. All tests should be written using JUnit 4.
+4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+The source code of class under test is as follows:
+```
+package com.force.i18n.grammar.impl;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import com.force.i18n.HumanLanguage;
+import com.force.i18n.commons.util.collection.MapSerializer;
+import com.force.i18n.grammar.GrammaticalTerm;
+import com.force.i18n.grammar.GrammaticalTermMap;
+import com.force.i18n.grammar.LanguageDictionary;
+import com.force.i18n.grammar.Noun;
+import com.force.i18n.grammar.RenamingProvider;
+import com.google.common.collect.ImmutableMap;
+import static com.force.i18n.commons.util.settings.IniFileUtil.intern;
+/**
+ * In-memory version of GrammaticalTermMap
+ *
+ * @author ytanida
+ */
+public class GrammaticalTermMapImpl<T extends GrammaticalTerm> implements GrammaticalTermMap<T>, Serializable {
+    protected Map<String, T> map;
+    private boolean isSkinny = false;
+    public GrammaticalTermMapImpl() {
+        map = new HashMap<String, T>();        
+    }
+
+    public GrammaticalTermMapImpl(Map<String, T> map, boolean isSkinny) {
+        this.isSkinny = isSkinny;
+        if (isSkinny)
+            this.map = new ImmutableMap.Builder<String, T>().putAll(map).build();
+        else
+            this.map = map;
+
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this) 
+            return true;
+        if(!(obj instanceof GrammaticalTermMapImpl)) 
+            return false;
+
+        GrammaticalTermMapImpl<T> other = (GrammaticalTermMapImpl<T>)obj;
+        return isSkinny == other.isSkinny && map.equals(other.map);
+    }
+
+    @Override
+    public int hashCode() {
+        return map.hashCode() + (isSkinny ? 37 : 0);
+    }
+
+    @Override
+    public boolean isSkinny() {
+        return isSkinny;
+    }
+
+    @Override
+    public GrammaticalTermMap<T> makeSkinny() {
+        return new GrammaticalTermMapImpl<T>(map, true);
+    }
+
+    @Override
+    public void writeJson(Appendable out, RenamingProvider renamingProvider, LanguageDictionary dictionary, Collection<String> termsToInclude) throws IOException {
+        Set<String> wrote = new HashSet<String>();
+        out.append('{');
+        if (termsToInclude != null) {
+            boolean first = true;
+            for (String name : termsToInclude) {
+                GrammaticalTerm term = map.get(name);
+                if(term != null) {
+                    if (term instanceof Noun) term = dictionary.getNounOverride((Noun)term);
+                    if (!first) {
+                        out.append(',');
+                    } else {
+                        first = false;
+                    }
+                    writeJsonTerm(out, renamingProvider, term, dictionary.getLanguage());
+                    wrote.add(name);
+                }
+            }
+            termsToInclude.removeAll(wrote);
+        } else {
+            writeJson(out, renamingProvider, dictionary.getLanguage());
+        }
+        out.append('}');
+    }
+    
+    private void writeJson(Appendable out, RenamingProvider renamingProvider, HumanLanguage lang) throws IOException {
+        boolean first = true;
+        for (GrammaticalTerm term : map.values()) {
+            if (!first) {
+                out.append(',');
+            } else {
+                first = false;
+            }
+            writeJsonTerm(out, renamingProvider, term, lang);
+        }
+    }
+    
+    private void writeJsonTerm(Appendable out, RenamingProvider renamingProvider, GrammaticalTerm term, HumanLanguage lang) throws IOException {
+        if (renamingProvider != null && term instanceof Noun && renamingProvider.useRenamedNouns()) {
+            Noun renamedNoun = renamingProvider.getRenamedNoun(lang, ((Noun)term).getName());
+            if (renamedNoun != null) term = renamedNoun;
+        }
+        out.append('\"').append(term.getName().toLowerCase()).append("\":");
+        term.toJson(out);
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return map.keySet();
+    }
+
+    @Override
+    public T get(String name) {
+        return map.get(name);
+    }
+
+
+    @Override
+    public boolean containsKey(String name) {
+        return map.containsKey(name);
+    }
+
+    @Override
+    public Set<Map.Entry<String, T>> entrySet() {
+        return map.entrySet();
+    }
+
+    @Override
+    public Collection<T> values() {
+        return map.values();
+    }
+
+    @Override
+    public void put(String k, T v) {
+        if(isSkinny)
+            throw new RuntimeException("This map is not able to modify");
+        map.put(k,v);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override 
+    public void putAll(GrammaticalTermMap<T> other) {
+        if(isSkinny)
+            throw new RuntimeException("This map is not able to modify");
+        map.putAll(((GrammaticalTermMapImpl<T>)other).map);
+    }
+    
+    @Override
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    /**
+     * Override default serializer to avoid any duplicated in the serialized map.
+     * @param in
+     * @throws IOException
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        this.map = ((TermMapSerializer<T>)in.readObject()).getMap();
+    }
+
+    /**
+     * Override default serializer to avoid any duplicated in the serialized map.
+     * @param in
+     * @throws IOException
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeObject(new TermMapSerializer<T>(map));
+    }
+
+    static final class TermMapSerializer<T extends GrammaticalTerm> extends MapSerializer<String, T> {
+        protected TermMapSerializer(Map<String, T> map) {
+            super(map);
+        }
+
+        @Override
+        protected String internKey(String key) {
+            return intern(key);
+        }
+
+        protected Map<String, T> getMap() {
+            return super.map;
+        }
+    }
+}
+```
+
+Generate public classes and public methods. Response only a code with tests between ```, do not provide any other text.
+===================================================
+
+
+====================== Iteration #2 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:11: error: cannot find symbol
+import com.force.i18n.grammar.impl.SimpleDeclension.NounForms;
+                                                   ^
+  symbol:   class NounForms
+  location: class SimpleDeclension
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:18: error: no interface expected here
+    private class MockNounForm extends NounForm {
+                                       ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:23: error: cannot find symbol
+            super(LanguageStartsWith.CONSTANT, LanguageStartsWith.CONSTANT);
+                                    ^
+  symbol:   variable CONSTANT
+  location: class LanguageStartsWith
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:23: error: cannot find symbol
+            super(LanguageStartsWith.CONSTANT, LanguageStartsWith.CONSTANT);
+                                                                 ^
+  symbol:   variable CONSTANT
+  location: class LanguageStartsWith
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:27: error: method does not override or implement a method from a supertype
+        @Override
+        ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:35: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>();
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:35: error: incompatible types: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>();
+                                                                             ^
+    reason: inference variable T has incompatible bounds
+      equality constraints: GeneratedTest.MockNounForm
+      lower bounds: GrammaticalTerm
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:37: error: cannot find symbol
+        Assert.assertEquals(0, map.size());
+                                  ^
+  symbol:   method size()
+  location: variable map of type GrammaticalTermMapImpl<GeneratedTest.MockNounForm>
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:44: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>(mockMap, true);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:44: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>(mockMap, true);
+                                                   ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:46: error: cannot find symbol
+        Assert.assertEquals(1, map.size());
+                                  ^
+  symbol:   method size()
+  location: variable map of type GrammaticalTermMapImpl<GeneratedTest.MockNounForm>
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:53: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map1 = new GrammaticalTermMapImpl<>(mockMap, true);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:53: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map1 = new GrammaticalTermMapImpl<>(mockMap, true);
+                                                    ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:54: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map2 = new GrammaticalTermMapImpl<>(mockMap, true);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:54: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map2 = new GrammaticalTermMapImpl<>(mockMap, true);
+                                                    ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:55: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map3 = new GrammaticalTermMapImpl<>(mockMap, false);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:55: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map3 = new GrammaticalTermMapImpl<>(mockMap, false);
+                                                    ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:64: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map1 = new GrammaticalTermMapImpl<>(mockMap, true);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:64: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map1 = new GrammaticalTermMapImpl<>(mockMap, true);
+                                                    ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:65: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map2 = new GrammaticalTermMapImpl<>(mockMap, false);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:65: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map2 = new GrammaticalTermMapImpl<>(mockMap, false);
+                                                    ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:74: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>(mockMap, false);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:74: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>(mockMap, false);
+                                                   ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:75: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> skinnyMap = map.makeSkinny();
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:75: error: incompatible types: GrammaticalTermMap<GeneratedTest.MockNounForm> cannot be converted to GrammaticalTermMapImpl<GeneratedTest.MockNounForm>
+        GrammaticalTermMapImpl<MockNounForm> skinnyMap = map.makeSkinny();
+                                                                       ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:81: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>();
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:81: error: incompatible types: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>();
+                                                                             ^
+    reason: inference variable T has incompatible bounds
+      equality constraints: GeneratedTest.MockNounForm
+      lower bounds: GrammaticalTerm
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:83: error: cannot find symbol
+        Assert.assertEquals(1, map.size());
+                                  ^
+  symbol:   method size()
+  location: variable map of type GrammaticalTermMapImpl<GeneratedTest.MockNounForm>
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:90: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>(mockMap, true);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:90: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>(mockMap, true);
+                                                   ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:98: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map1 = new GrammaticalTermMapImpl<>(mockMap, false);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:98: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map1 = new GrammaticalTermMapImpl<>(mockMap, false);
+                                                    ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:101: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map2 = new GrammaticalTermMapImpl<>(mockMap2, false);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:101: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map2 = new GrammaticalTermMapImpl<>(mockMap2, false);
+                                                    ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:103: error: cannot find symbol
+        Assert.assertEquals(2, map1.size());
+                                   ^
+  symbol:   method size()
+  location: variable map1 of type GrammaticalTermMapImpl<GeneratedTest.MockNounForm>
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:110: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map1 = new GrammaticalTermMapImpl<>(mockMap, true);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:110: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map1 = new GrammaticalTermMapImpl<>(mockMap, true);
+                                                    ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:113: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map2 = new GrammaticalTermMapImpl<>(mockMap2, false);
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:113: error: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map2 = new GrammaticalTermMapImpl<>(mockMap2, false);
+                                                    ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:119: error: type argument GeneratedTest.MockNounForm is not within bounds of type-variable T
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>();
+                               ^
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:119: error: incompatible types: cannot infer type arguments for GrammaticalTermMapImpl<>
+        GrammaticalTermMapImpl<MockNounForm> map = new GrammaticalTermMapImpl<>();
+                                                                             ^
+    reason: inference variable T has incompatible bounds
+      equality constraints: GeneratedTest.MockNounForm
+      lower bounds: GrammaticalTerm
+  where T is a type-variable:
+    T extends GrammaticalTerm declared in class GrammaticalTermMapImpl
+41 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #3 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:12: error: cannot find symbol
+import com.force.i18n.grammar.GrammaticalGender;
+                             ^
+  symbol:   class GrammaticalGender
+  location: package com.force.i18n.grammar
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:19: error: GeneratedTest.MockTerm is not abstract and does not override abstract method validateValues(String,LanguageCase) in Noun
+    private class MockTerm extends Noun {
+            ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:23: error: cannot find symbol
+            super(LanguageStartsWith.A, LanguageCase.NORTH, "a", "b", "c", GrammaticalGender.NEUTRAL, LanguageArticle.ZERO);
+                                    ^
+  symbol:   variable A
+  location: class LanguageStartsWith
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:23: error: cannot find symbol
+            super(LanguageStartsWith.A, LanguageCase.NORTH, "a", "b", "c", GrammaticalGender.NEUTRAL, LanguageArticle.ZERO);
+                                                    ^
+  symbol:   variable NORTH
+  location: class LanguageCase
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:23: error: cannot find symbol
+            super(LanguageStartsWith.A, LanguageCase.NORTH, "a", "b", "c", GrammaticalGender.NEUTRAL, LanguageArticle.ZERO);
+                                                                           ^
+  symbol:   variable GrammaticalGender
+  location: class GeneratedTest.MockTerm
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:28: error: method does not override or implement a method from a supertype
+        @Override
+        ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:33: error: method does not override or implement a method from a supertype
+        @Override
+        ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/GPT-4/config-I/TestSpark/run-12/grammaticus-d6d4d50ea1/com/force/i18n/grammar/impl/GeneratedTest.java:84: error: incompatible types: GrammaticalTermMap<GeneratedTest.MockTerm> cannot be converted to GrammaticalTermMapImpl<GeneratedTest.MockTerm>
+        GrammaticalTermMapImpl<MockTerm> skinnyMap = map.makeSkinny();
+                                                                   ^
+8 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #3 ======================
+Generate unit tests in Java for `com.force.i18n.grammar.impl.GrammaticalTermMapImpl` maximizing line coverage for this class.
+
+REQUIREMENTS:
+1. DO NOT use @Before and @After test methods.
+2. Make test cases as atomic as possible.
+3. All tests should be written using JUnit 4.
+4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+The source code of class under test is as follows:
+```
+package com.force.i18n.grammar.impl;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import com.force.i18n.HumanLanguage;
+import com.force.i18n.commons.util.collection.MapSerializer;
+import com.force.i18n.grammar.GrammaticalTerm;
+import com.force.i18n.grammar.GrammaticalTermMap;
+import com.force.i18n.grammar.LanguageDictionary;
+import com.force.i18n.grammar.Noun;
+import com.force.i18n.grammar.RenamingProvider;
+import com.google.common.collect.ImmutableMap;
+import static com.force.i18n.commons.util.settings.IniFileUtil.intern;
+/**
+ * In-memory version of GrammaticalTermMap
+ *
+ * @author ytanida
+ */
+public class GrammaticalTermMapImpl<T extends GrammaticalTerm> implements GrammaticalTermMap<T>, Serializable {
+    protected Map<String, T> map;
+    private boolean isSkinny = false;
+    public GrammaticalTermMapImpl() {
+        map = new HashMap<String, T>();        
+    }
+
+    public GrammaticalTermMapImpl(Map<String, T> map, boolean isSkinny) {
+        this.isSkinny = isSkinny;
+        if (isSkinny)
+            this.map = new ImmutableMap.Builder<String, T>().putAll(map).build();
+        else
+            this.map = map;
+
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this) 
+            return true;
+        if(!(obj instanceof GrammaticalTermMapImpl)) 
+            return false;
+
+        GrammaticalTermMapImpl<T> other = (GrammaticalTermMapImpl<T>)obj;
+        return isSkinny == other.isSkinny && map.equals(other.map);
+    }
+
+    @Override
+    public int hashCode() {
+        return map.hashCode() + (isSkinny ? 37 : 0);
+    }
+
+    @Override
+    public boolean isSkinny() {
+        return isSkinny;
+    }
+
+    @Override
+    public GrammaticalTermMap<T> makeSkinny() {
+        return new GrammaticalTermMapImpl<T>(map, true);
+    }
+
+    @Override
+    public void writeJson(Appendable out, RenamingProvider renamingProvider, LanguageDictionary dictionary, Collection<String> termsToInclude) throws IOException {
+        Set<String> wrote = new HashSet<String>();
+        out.append('{');
+        if (termsToInclude != null) {
+            boolean first = true;
+            for (String name : termsToInclude) {
+                GrammaticalTerm term = map.get(name);
+                if(term != null) {
+                    if (term instanceof Noun) term = dictionary.getNounOverride((Noun)term);
+                    if (!first) {
+                        out.append(',');
+                    } else {
+                        first = false;
+                    }
+                    writeJsonTerm(out, renamingProvider, term, dictionary.getLanguage());
+                    wrote.add(name);
+                }
+            }
+            termsToInclude.removeAll(wrote);
+        } else {
+            writeJson(out, renamingProvider, dictionary.getLanguage());
+        }
+        out.append('}');
+    }
+    
+    private void writeJson(Appendable out, RenamingProvider renamingProvider, HumanLanguage lang) throws IOException {
+        boolean first = true;
+        for (GrammaticalTerm term : map.values()) {
+            if (!first) {
+                out.append(',');
+            } else {
+                first = false;
+            }
+            writeJsonTerm(out, renamingProvider, term, lang);
+        }
+    }
+    
+    private void writeJsonTerm(Appendable out, RenamingProvider renamingProvider, GrammaticalTerm term, HumanLanguage lang) throws IOException {
+        if (renamingProvider != null && term instanceof Noun && renamingProvider.useRenamedNouns()) {
+            Noun renamedNoun = renamingProvider.getRenamedNoun(lang, ((Noun)term).getName());
+            if (renamedNoun != null) term = renamedNoun;
+        }
+        out.append('\"').append(term.getName().toLowerCase()).append("\":");
+        term.toJson(out);
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return map.keySet();
+    }
+
+    @Override
+    public T get(String name) {
+        return map.get(name);
+    }
+
+
+    @Override
+    public boolean containsKey(String name) {
+        return map.containsKey(name);
+    }
+
+    @Override
+    public Set<Map.Entry<String, T>> entrySet() {
+        return map.entrySet();
+    }
+
+    @Override
+    public Collection<T> values() {
+        return map.values();
+    }
+
+    @Override
+    public void put(String k, T v) {
+        if(isSkinny)
+            throw new RuntimeException("This map is not able to modify");
+        map.put(k,v);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override 
+    public void putAll(GrammaticalTermMap<T> other) {
+        if(isSkinny)
+            throw new RuntimeException("This map is not able to modify");
+        map.putAll(((GrammaticalTermMapImpl<T>)other).map);
+    }
+    
+    @Override
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    /**
+     * Override default serializer to avoid any duplicated in the serialized map.
+     * @param in
+     * @throws IOException
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        this.map = ((TermMapSerializer<T>)in.readObject()).getMap();
+    }
+
+    /**
+     * Override default serializer to avoid any duplicated in the serialized map.
+     * @param in
+     * @throws IOException
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeObject(new TermMapSerializer<T>(map));
+    }
+
+    static final class TermMapSerializer<T extends GrammaticalTerm> extends MapSerializer<String, T> {
+        protected TermMapSerializer(Map<String, T> map) {
+            super(map);
+        }
+
+        @Override
+        protected String internKey(String key) {
+            return intern(key);
+        }
+
+        protected Map<String, T> getMap() {
+            return super.map;
+        }
+    }
+}
+```
+
+Generate public classes and public methods. Response only a code with tests between ```, do not provide any other text.
+===================================================
+
+
+====================== Iteration #3 ======================
+Generate unit tests in Java for `com.force.i18n.grammar.impl.GrammaticalTermMapImpl` maximizing line coverage for this class.
+
+REQUIREMENTS:
+1. DO NOT use @Before and @After test methods.
+2. Make test cases as atomic as possible.
+3. All tests should be written using JUnit 4.
+4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+The source code of class under test is as follows:
+```
+package com.force.i18n.grammar.impl;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import com.force.i18n.HumanLanguage;
+import com.force.i18n.commons.util.collection.MapSerializer;
+import com.force.i18n.grammar.GrammaticalTerm;
+import com.force.i18n.grammar.GrammaticalTermMap;
+import com.force.i18n.grammar.LanguageDictionary;
+import com.force.i18n.grammar.Noun;
+import com.force.i18n.grammar.RenamingProvider;
+import com.google.common.collect.ImmutableMap;
+import static com.force.i18n.commons.util.settings.IniFileUtil.intern;
+/**
+ * In-memory version of GrammaticalTermMap
+ *
+ * @author ytanida
+ */
+public class GrammaticalTermMapImpl<T extends GrammaticalTerm> implements GrammaticalTermMap<T>, Serializable {
+    protected Map<String, T> map;
+    private boolean isSkinny = false;
+    public GrammaticalTermMapImpl() {
+        map = new HashMap<String, T>();        
+    }
+
+    public GrammaticalTermMapImpl(Map<String, T> map, boolean isSkinny) {
+        this.isSkinny = isSkinny;
+        if (isSkinny)
+            this.map = new ImmutableMap.Builder<String, T>().putAll(map).build();
+        else
+            this.map = map;
+
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this) 
+            return true;
+        if(!(obj instanceof GrammaticalTermMapImpl)) 
+            return false;
+
+        GrammaticalTermMapImpl<T> other = (GrammaticalTermMapImpl<T>)obj;
+        return isSkinny == other.isSkinny && map.equals(other.map);
+    }
+
+    @Override
+    public int hashCode() {
+        return map.hashCode() + (isSkinny ? 37 : 0);
+    }
+
+    @Override
+    public boolean isSkinny() {
+        return isSkinny;
+    }
+
+    @Override
+    public GrammaticalTermMap<T> makeSkinny() {
+        return new GrammaticalTermMapImpl<T>(map, true);
+    }
+
+    @Override
+    public void writeJson(Appendable out, RenamingProvider renamingProvider, LanguageDictionary dictionary, Collection<String> termsToInclude) throws IOException {
+        Set<String> wrote = new HashSet<String>();
+        out.append('{');
+        if (termsToInclude != null) {
+            boolean first = true;
+            for (String name : termsToInclude) {
+                GrammaticalTerm term = map.get(name);
+                if(term != null) {
+                    if (term instanceof Noun) term = dictionary.getNounOverride((Noun)term);
+                    if (!first) {
+                        out.append(',');
+                    } else {
+                        first = false;
+                    }
+                    writeJsonTerm(out, renamingProvider, term, dictionary.getLanguage());
+                    wrote.add(name);
+                }
+            }
+            termsToInclude.removeAll(wrote);
+        } else {
+            writeJson(out, renamingProvider, dictionary.getLanguage());
+        }
+        out.append('}');
+    }
+    
+    private void writeJson(Appendable out, RenamingProvider renamingProvider, HumanLanguage lang) throws IOException {
+        boolean first = true;
+        for (GrammaticalTerm term : map.values()) {
+            if (!first) {
+                out.append(',');
+            } else {
+                first = false;
+            }
+            writeJsonTerm(out, renamingProvider, term, lang);
+        }
+    }
+    
+    private void writeJsonTerm(Appendable out, RenamingProvider renamingProvider, GrammaticalTerm term, HumanLanguage lang) throws IOException {
+        if (renamingProvider != null && term instanceof Noun && renamingProvider.useRenamedNouns()) {
+            Noun renamedNoun = renamingProvider.getRenamedNoun(lang, ((Noun)term).getName());
+            if (renamedNoun != null) term = renamedNoun;
+        }
+        out.append('\"').append(term.getName().toLowerCase()).append("\":");
+        term.toJson(out);
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return map.keySet();
+    }
+
+    @Override
+    public T get(String name) {
+        return map.get(name);
+    }
+
+
+    @Override
+    public boolean containsKey(String name) {
+        return map.containsKey(name);
+    }
+
+    @Override
+    public Set<Map.Entry<String, T>> entrySet() {
+        return map.entrySet();
+    }
+
+    @Override
+    public Collection<T> values() {
+        return map.values();
+    }
+
+    @Override
+    public void put(String k, T v) {
+        if(isSkinny)
+            throw new RuntimeException("This map is not able to modify");
+        map.put(k,v);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override 
+    public void putAll(GrammaticalTermMap<T> other) {
+        if(isSkinny)
+            throw new RuntimeException("This map is not able to modify");
+        map.putAll(((GrammaticalTermMapImpl<T>)other).map);
+    }
+    
+    @Override
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    /**
+     * Override default serializer to avoid any duplicated in the serialized map.
+     * @param in
+     * @throws IOException
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        this.map = ((TermMapSerializer<T>)in.readObject()).getMap();
+    }
+
+    /**
+     * Override default serializer to avoid any duplicated in the serialized map.
+     * @param in
+     * @throws IOException
+     */
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeObject(new TermMapSerializer<T>(map));
+    }
+
+    static final class TermMapSerializer<T extends GrammaticalTerm> extends MapSerializer<String, T> {
+        protected TermMapSerializer(Map<String, T> map) {
+            super(map);
+        }
+
+        @Override
+        protected String internKey(String key) {
+            return intern(key);
+        }
+
+        protected Map<String, T> getMap() {
+            return super.map;
+        }
+    }
+}
+```
+
+Generate public classes and public methods. Response only a code with tests between ```, do not provide any other text.
+===================================================
+

@@ -1,0 +1,71 @@
+package com.force.i18n.grammar.impl;
+
+import com.force.i18n.grammar.impl.GrammaticalTermMapImpl;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+
+import com.force.i18n.grammar.GrammaticalTerm;
+
+public class GeneratedTest {
+
+    @Test
+    public void equalsSameObjectTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> obj = new GrammaticalTermMapImpl<>();
+        Assert.assertTrue(obj.equals(obj));
+    }
+
+    @Test
+    public void equalsDifferentClassTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> obj = new GrammaticalTermMapImpl<>();
+        Assert.assertFalse(obj.equals(new Object()));
+    }
+
+    @Test
+    public void equalsDifferentMapTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> obj1 = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> obj2 = new GrammaticalTermMapImpl<>();
+        obj2.put("test", mock(GrammaticalTerm.class));
+        Assert.assertFalse(obj1.equals(obj2));
+    }
+
+    @Test
+    public void equalsSameMapTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> obj1 = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> obj2 = new GrammaticalTermMapImpl<>();
+        Assert.assertTrue(obj1.equals(obj2));
+    }
+
+    @Test
+    public void makeSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> obj = new GrammaticalTermMapImpl<>();
+        Assert.assertTrue(obj.makeSkinny().isSkinny());
+    }
+
+    @Test
+    public void keySetTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> obj = new GrammaticalTermMapImpl<>();
+        Assert.assertTrue(obj.keySet().isEmpty());
+    }
+
+    @Test
+    public void putTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> obj = new GrammaticalTermMapImpl<>();
+        obj.put("test", mock(GrammaticalTerm.class));
+        Assert.assertNotNull(obj.get("test"));
+    }
+
+    @Test
+    public void putSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> obj = (GrammaticalTermMapImpl<GrammaticalTerm>) new GrammaticalTermMapImpl<GrammaticalTerm>().makeSkinny();
+        obj.put("test", mock(GrammaticalTerm.class));
+    }
+
+    @Test
+    public void isEmptyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> obj = new GrammaticalTermMapImpl<>();
+        Assert.assertTrue(obj.isEmpty());
+    }
+
+}

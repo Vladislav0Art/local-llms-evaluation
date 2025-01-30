@@ -1,0 +1,64 @@
+package net.revelc.code.formatter.css;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.revelc.code.formatter.LineEnding;
+
+public class GeneratedTest {
+
+    @Test
+    public void initTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "2");
+        options.put("rgbAsHex", "false");
+        options.put("useSourceStringValues", "true");
+        cssFormatter.init(options, null);
+        assertTrue(cssFormatter.isInitialized());
+    }
+
+    @Test
+    public void doFormatTest() throws IOException {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        cssFormatter.init(options, null);
+        String inputCode = "body { background-color: black; }";
+        String result = cssFormatter.doFormat(inputCode, LineEnding.AUTO);
+        assertNotNull(result);
+        assertTrue(result.contains("{\n    background-color: black\n}"));
+    }
+
+    @Test
+    public void doFormatTestWithSameInputAndOutput() throws IOException {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        cssFormatter.init(options, null);
+        String inputCode = "body {\n    background-color: black\n}";
+        String result = cssFormatter.doFormat(inputCode, LineEnding.AUTO);
+        assertNull(result);
+    }
+
+    @Test
+    public void isInitializedTestWhenNotInitialized() {
+        CssFormatter cssFormatter = new CssFormatter();
+        Assert.assertFalse(cssFormatter.isInitialized());
+    }
+
+    @Test
+    public void isInitializedTestWhenInitialized() {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        cssFormatter.init(options, null);
+        Assert.assertTrue(cssFormatter.isInitialized());
+    }
+
+}

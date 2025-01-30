@@ -1,0 +1,82 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void textSetTest() {
+        TextNode node = new TextNode("some text");
+        node.text("new text");
+        Assert.assertEquals("new text", node.text());
+    }
+
+    @Test
+    public void textGetTest() {
+        TextNode node = new TextNode("some   text\n new line ");
+        Assert.assertEquals("some text new line", node.text());
+    }
+
+    @Test
+    public void getWholeTest() {
+        TextNode node = new TextNode("some   text\n new line ");
+        Assert.assertEquals("some   text\n new line ", node.getWholeText());
+    }
+
+    @Test
+    public void isBlankTrueTest() {
+        TextNode node = new TextNode("  \n \t  ");
+        Assert.assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void isBlankFalseTest() {
+        TextNode node = new TextNode("some   text");
+        Assert.assertFalse(node.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode node = new TextNode("some text");
+        TextNode tail = node.splitText(5);
+        Assert.assertEquals("some ", node.getWholeText());
+        Assert.assertEquals("text", tail.getWholeText());
+    }
+
+    @Test
+    public void splitTextNegativeOffsetTest() {
+        TextNode node = new TextNode("some text");
+        node.splitText(-1);
+    }
+
+    @Test
+    public void splitTextOffsetGreaterThanTextLengthTest() {
+        TextNode node = new TextNode("some text");
+        node.splitText(20);
+    }
+
+    @Test
+    public void outerHtmlTest() throws Exception {
+        TextNode node = new TextNode("some text");
+        Assert.assertThat(node.outerHtml(), is("some text"));
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode node = TextNode.createFromEncoded("&amp;#169;");
+        Assert.assertEquals("©", node.text());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode node = new TextNode("some text");
+        TextNode clone = node.clone();
+        Assert.assertNotSame(node, clone);
+        Assert.assertEquals(node.text(), clone.text());
+    }
+
+}

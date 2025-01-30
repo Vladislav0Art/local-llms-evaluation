@@ -1,0 +1,346 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.*;
+import org.jsoup.parser.*;
+import org.junit.Test;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.List;
+
+public class XmlTreeBuilderTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void processUnexpectedTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token token = new Token(Tag.valueOf("Test"), String.valueOf("Test"));
+        xmlTreeBuilder.process(token);
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Node node = new Element(Tag.valueOf("Test"));
+        xmlTreeBuilder.insertNode(node);
+        assertTrue(xmlTreeBuilder.getStack().get(0).childNodes().contains(node));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void insertNodeWithUnmatchedNodeAndTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Node node = new Element(Tag.valueOf("Test"));
+        Token token = new Token(Tag.valueOf("Test1"),  String.valueOf("Test1"));
+        xmlTreeBuilder.insertNode(node, token);
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertTrue(xmlTreeBuilder.newInstance() instanceof XmlTreeBuilder);
+    }
+
+    @Test
+    public void parseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Reader reader = new StringReader("<root></root>");
+        assertEquals(Document.OutputSettings.Syntax.xml, xmlTreeBuilder.parse(reader, "www.example.com").outputSettings().syntax());
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        String inputFragment = "<testFragment></testFragment>";
+        List<Node> nodes = xmlTreeBuilder.parseFragment(inputFragment, "www.example.com", Parser.xmlParser());
+        assertTrue(nodes.get(0) instanceof Element);
+        assertEquals("testFragment", ((Element) nodes.get(0)).tag().toString());
+    }
+
+    @Test
+    public void popStackToCloseWhenElementNotFoundTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.EndTag endTag = new Token.EndTag("test-tag");
+        int stackSizeBeforePop = xmlTreeBuilder.getStack().size();
+        xmlTreeBuilder.popStackToClose(endTag);
+        assertEquals(stackSizeBeforePop, xmlTreeBuilder.getStack().size());
+    }
+
+    @Test
+    public void popStackToCloseWhenElementFoundTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.StartTag("test-tag"));
+        Token.EndTag endTag = new Token.EndTag("test-tag");
+        int stackSizeBeforePop = xmlTreeBuilder.getStack().size();
+        xmlTreeBuilder.popStackToClose(endTag);
+        assertEquals(stackSizeBeforePop - 1, xmlTreeBuilder.getStack().size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.Token;
+import org.jsoup.parser.TokenQueue;
+import org.jsoup.parser.XmlTreeBuilder;
+import org.junit.Test;
+
+import java.io.StringReader;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder xmlTreeBuilder = (XmlTreeBuilder) Parser.xmlParser().getTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<root></root>"), "www.example.com", Parser.xmlParser());
+        assertEquals(1, xmlTreeBuilder.stack.size());
+        assertEquals("www.example.com", xmlTreeBuilder.stack.get(0).baseUri());
+    }
+
+    @Test
+    public void parseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertTrue(xmlTreeBuilder.parse("<root></root>", "www.example.com") instanceof org.jsoup.nodes.Document);
+    }
+
+    @Test
+    public void parseFragmentSingleContextTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List nodeList = xmlTreeBuilder.parseFragment("<root></root>", "www.example.com", Parser.xmlParser());
+        assertTrue(nodeList.get(0) instanceof org.jsoup.nodes.Element);
+    }
+
+    @Test
+    public void parseFragmentDoubleContextTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List nodeList = xmlTreeBuilder.parseFragment("<root></root>", null,  "www.example.com", Parser.xmlParser());
+        assertTrue(nodeList.get(0) instanceof org.jsoup.nodes.Element);
+    }
+
+    @Test
+    public void processTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        TokenQueue tokenQueue = new TokenQueue("<root></root>");
+
+        while (!tokenQueue.isEmpty()){
+            Token token = tokenQueue.consumeToAny("<", "/>", ">");
+            xmlTreeBuilder.process(token);
+        }
+        assertEquals(2, xmlTreeBuilder.stack.size());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertTrue(xmlTreeBuilder.newInstance() instanceof XmlTreeBuilder);
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.parser.ParseErrorList;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.Tokeniser;
+import org.junit.Test;
+
+import java.io.StringReader;
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void initialiseParseTest() {
+        Parser parser = Parser.xmlParser();
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<root></root>"), "www.example.com", parser);
+
+        assertTrue(xmlTreeBuilder.doc.outputSettings().prettyPrint() == false);
+    }
+
+    @Test
+    public void parseTest() {
+        Parser xmlParser = new Parser(new XmlTreeBuilder());
+        assertTrue(Jsoup.parse("<root></root>", "www.example.com", xmlParser) instanceof org.jsoup.nodes.Document);
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        Parser xmlParser = new Parser(new XmlTreeBuilder());
+        List nodeList = Jsoup.parse("<root></root>", "www.example.com", xmlParser).childNodes();
+
+        assertTrue(nodeList.get(0) instanceof org.jsoup.nodes.Element);
+    }
+
+    @Test
+    public void processTokenTest() {
+        Parser parser = Parser.xmlParser();
+        String data = "<root></root>";
+        Tokeniser tokeniser = new Tokeniser(new StringReader(data), ParseErrorList.tracking(1));
+        XmlTreeBuilder treeBuilder = new XmlTreeBuilder();
+        treeBuilder.initialiseParse(new StringReader(data), "", parser);
+
+        while(tokeniser.current() != null){
+            treeBuilder.process(tokeniser.read());
+        }
+
+        assertTrue(true);
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertTrue(xmlTreeBuilder.newInstance() instanceof XmlTreeBuilder);
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.Tokeniser;
+import org.jsoup.parser.XmlTreeBuilder;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void processTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Tokeniser tokeniser = new Tokeniser(new Parser(xmlTreeBuilder));
+        xmlTreeBuilder.initialiseParse(new StringReader("<root></root>"), "www.example.com", new Parser(xmlTreeBuilder));
+        xmlTreeBuilder.process(tokeniser.read());
+        assertTrue(xmlTreeBuilder.stack.size() > 0);
+    }
+    
+    @Test
+    public void parseTest() {
+        Reader input = new StringReader("<test></test>");
+        String baseUri = "http://example.com";
+
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+
+        assertTrue(xmlTreeBuilder.parse(input, baseUri) instanceof org.jsoup.nodes.Document);
+    }
+    
+    @Test
+    public void parseFragmentSingleContextTest() {
+        Parser xmlParser = new Parser(new XmlTreeBuilder());
+        List nodeList = Jsoup.parse("<root></root>", "www.example.com", xmlParser).childNodes();
+
+        assertTrue(nodeList.get(0) instanceof org.jsoup.nodes.Element);
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<root></root>"), "http://example.com", Parser.xmlParser());
+
+        xmlTreeBuilder.insert(new Token.StartTag("test"));
+        Elements result = xmlTreeBuilder.doc.select("test");
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertTrue(xmlTreeBuilder.newInstance() instanceof XmlTreeBuilder);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.Token;
+import org.jsoup.parser.Tokeniser;
+import org.jsoup.parser.XmlTreeBuilder;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void processTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Tokeniser tokeniser = new Tokeniser(xmlTreeBuilder.reader, xmlTreeBuilder.parseErrors);
+        xmlTreeBuilder.initialiseParse(new StringReader("<root></root>"), "www.example.com", new Parser(xmlTreeBuilder));
+        xmlTreeBuilder.process(tokeniser.read());
+        assertTrue(xmlTreeBuilder.stack.size() > 0);
+    }
+
+    @Test
+    public void parseTest() {
+        Reader input = new StringReader("<test></test>");
+        String baseUri = "http://example.com";
+
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+
+        assertTrue(xmlTreeBuilder.parse(input, baseUri) instanceof org.jsoup.nodes.Document);
+    }
+
+    @Test
+    public void parseFragmentSingleContextTest() {
+        Parser xmlParser = new Parser(new XmlTreeBuilder());
+        List nodeList = Jsoup.parse("<root></root>", "www.example.com", xmlParser).childNodes();
+
+        assertTrue(nodeList.get(0) instanceof org.jsoup.nodes.Element);
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<root></root>"), "http://example.com", Parser.xmlParser());
+
+        Token.StartTag startTag = new Token.StartTag();
+        startTag.nameAttr = "test";
+        xmlTreeBuilder.insert(startTag);
+        Elements result = xmlTreeBuilder.doc.select("test");
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertTrue(xmlTreeBuilder.newInstance() instanceof XmlTreeBuilder);
+    }
+}
+```
+===================================================
+

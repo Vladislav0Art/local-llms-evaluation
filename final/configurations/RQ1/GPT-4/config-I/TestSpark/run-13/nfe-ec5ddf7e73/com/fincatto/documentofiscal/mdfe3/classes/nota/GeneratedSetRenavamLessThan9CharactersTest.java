@@ -1,0 +1,14 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
+
+public class GeneratedSetRenavamLessThan9CharactersTest {
+
+    @Test
+    public void setRenavamLessThan9CharactersTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setRenavam("12345678");
+    }
+
+}

@@ -1,0 +1,123 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Element;
+import org.jsoup.safety.Safelist;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist safelist = Safelist.none();
+        Assert.assertEquals(0, safelist.getEnforcedAttributes("none").size());
+        Assert.assertFalse(safelist.isSafeTag("p"));
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist safelist = Safelist.simpleText();
+        Assert.assertEquals(0, safelist.getEnforcedAttributes("simple").size());
+        Assert.assertTrue(safelist.isSafeTag("b"));
+        Assert.assertFalse(safelist.isSafeTag("img"));
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist safelist = Safelist.basic();
+        Assert.assertEquals(1, safelist.getEnforcedAttributes("a").size());
+        Assert.assertTrue(safelist.isSafeAttribute("a", new Element("a"), new Attribute("rel", "nofollow")));
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist safelist = Safelist.basicWithImages();
+        Assert.assertEquals(1, safelist.getEnforcedAttributes("a").size());
+        Assert.assertTrue(safelist.isSafeAttribute("a", new Element("a"), new Attribute("rel", "nofollow")));
+        Assert.assertTrue(safelist.isSafeTag("img"));
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist safelist = Safelist.relaxed();
+        Assert.assertFalse(safelist.isSafeAttribute("p", new Element("p"), new Attribute("style", "color: red")));
+        Assert.assertTrue(safelist.isSafeTag("div"));
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("p");
+
+        Assert.assertTrue(safelist.isSafeTag("p"));
+        Assert.assertFalse(safelist.isSafeTag("div"));
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.removeTags("p");
+
+        Assert.assertFalse(safelist.isSafeTag("p"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("p");
+        safelist.addAttributes("p", "style");
+
+        Assert.assertTrue(safelist.isSafeAttribute("p", new Element("p"), new Attribute("style", "color: red")));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.removeAttributes("p", "style");
+
+        Assert.assertFalse(safelist.isSafeAttribute("p", new Element("p"), new Attribute("style", "color: red")));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("p");
+        safelist.addEnforcedAttribute("p", "style", "color: red");
+
+        Assert.assertTrue(safelist.isSafeAttribute("p", new Element("p"), new Attribute("style", "color: red")));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.removeEnforcedAttribute("a", "rel");
+
+        Assert.assertFalse(safelist.isSafeAttribute("a", new Element("a"), new Attribute("rel", "nofollow")));
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addProtocols("a", "href", "http");
+
+        Assert.assertTrue(safelist.isSafeAttribute("a", new Element("a"), new Attribute("href", "http://www.example.com")));
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = Safelist.basic();
+        safelist.removeProtocols("a", "href", "ftp");
+
+        Assert.assertFalse(safelist.isSafeAttribute("a", new Element("a"), new Attribute("href", "ftp://www.example.com")));
+    }
+
+    @Test
+    public void preserveRelativeLinksTest() {
+        Safelist safelist = Safelist.none();
+        safelist.preserveRelativeLinks(true);
+
+        Assert.assertTrue(safelist.isSafeAttribute("a", new Element("a"), new Attribute("href", "/example.html")));
+    }
+
+}

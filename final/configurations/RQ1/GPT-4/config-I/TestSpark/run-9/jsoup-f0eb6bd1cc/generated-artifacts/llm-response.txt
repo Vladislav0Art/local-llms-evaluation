@@ -1,0 +1,213 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void UrlBuilderConstructorValidUrlTest() throws Exception {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void UrlBuilderConstructorWithQueryUrlTest() throws Exception {
+        URL url = new URL("http://www.example.com?param=value");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildWithoutParamsTest() throws Exception {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL expected = new URL("http://www.example.com");
+        assertEquals(expected, urlBuilder.build());
+    }
+
+    @Test
+    public void buildWithParamsTest() throws Exception {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Connection.KeyVal keyVal = Connection.KeyVal.create("key", "value");
+        urlBuilder.appendKeyVal(keyVal);
+        URL expected = new URL("http://www.example.com?key=value");
+        assertEquals(expected, urlBuilder.build());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void decodePartInValidTest() {
+        UrlBuilder.decodePart("%zz");
+    }
+
+    @Test
+    public void decodePartValidTest() {
+        String expected = "testing";
+        assertEquals(expected, UrlBuilder.decodePart("testing"));
+    }
+
+    @Test
+    public void appendKeyValValidTest() throws Exception {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Connection.KeyVal keyVal = Connection.KeyVal.create("key", "value");
+        urlBuilder.appendKeyVal(keyVal);
+        assertEquals("key=value", urlBuilder.q.toString());
+    }
+
+    @Test
+    public void appendKeyValMultipleValidTest() throws Exception {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Connection.KeyVal keyVal1 = Connection.KeyVal.create("key1", "value1");
+        Connection.KeyVal keyVal2 = Connection.KeyVal.create("key2", "value2");
+        urlBuilder.appendKeyVal(keyVal1);
+        urlBuilder.appendKeyVal(keyVal2);
+        assertEquals("key1=value1&key2=value2", urlBuilder.q.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import java.net.URL;
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class UrlBuilderTest {
+    @Test
+    public void UrlBuilderURLConstructorTest() throws Exception {
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertNotNull(urlBuilder);
+        assertEquals(inputUrl.getQuery(), urlBuilder.q.toString());
+    }
+
+    @Test
+    public void UrlBuilderURLWithQueryConstructor() throws Exception {
+        URL inputUrl = new URL("http://www.example.com?param=value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertNotNull(urlBuilder);
+        assertEquals(inputUrl.getQuery(), urlBuilder.q.toString());
+    }
+  
+    @Test
+    public void buildWithParamsTest() throws Exception {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.appendKeyVal(new Connection.KeyVal() {
+            @Override
+            public String key() {
+                return "key";
+            }
+
+            @Override
+            public String value() {
+                return "value";
+            }
+
+            @Override
+            public Connection.KeyVal key(String key) {
+                return null;
+            }
+
+            @Override
+            public Connection.KeyVal value(String value) {
+                return null;
+            }
+
+            @Override
+            public boolean hasInputStream() {
+                return false;
+            }
+        });
+    
+        URL expected = new URL("http://www.example.com?key=value");
+        assertEquals(expected, urlBuilder.build());
+    }
+  
+    @Test
+    public void buildWithoutParamsTest() throws Exception {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL expected = new URL("http://www.example.com");
+        assertEquals(expected, urlBuilder.build());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class UrlBuilderTest {
+    @Test
+    public void UrlBuilderURLConstructorTest() throws Exception {
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void UrlBuilderURLWithQueryConstructor() throws Exception {
+        URL inputUrl = new URL("http://www.example.com?param=value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        Connection.KeyVal kv = mock(Connection.KeyVal.class);
+        when(kv.key()).thenReturn("key");
+        when(kv.value()).thenReturn("value");
+
+        urlBuilder.appendKeyVal(kv);
+        assertNotNull(urlBuilder.q);
+        assertEquals("key=value", urlBuilder.q.toString());
+    }
+
+    @Test
+    public void buildURLTest() throws Exception {
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL builtUrl = urlBuilder.build();
+        assertNotNull(builtUrl);
+        assertEquals(inputUrl, builtUrl);
+    }
+}
+```
+===================================================
+

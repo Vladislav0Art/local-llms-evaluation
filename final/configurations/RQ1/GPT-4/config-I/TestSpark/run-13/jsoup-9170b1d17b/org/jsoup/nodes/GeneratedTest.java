@@ -1,0 +1,173 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attributes;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        assertEquals("Value", attr.get("Key"));
+        assertEquals("", attr.get("AnotherKey"));
+    }
+
+    @Test
+    public void getIgnoreCaseTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        assertEquals("Value", attr.getIgnoreCase("KEY"));
+        assertEquals("", attr.getIgnoreCase("AnotherKey"));
+    }
+
+    @Test
+    public void addTest() {
+        Attributes attr = new Attributes();
+        attr.add("Key", "Value");
+        assertEquals("Value", attr.get("Key"));
+    }
+
+    @Test
+    public void putTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        assertEquals("Value", attr.get("Key"));
+        attr.put("Key", "New Value");
+        assertEquals("New Value", attr.get("Key"));
+    }
+
+    @Test
+    public void putIgnoreCaseTest() {
+        Attributes attr = new Attributes();
+        attr.putIgnoreCase("Key", "Value");
+        assertEquals("Value", attr.get("Key"));
+        attr.putIgnoreCase("KEY", "New Value");
+        assertEquals("New Value", attr.get("Key"));
+    }
+
+    @Test
+    public void removeTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        attr.remove("Key");
+        assertFalse(attr.hasKey("Key"));
+    }
+
+    @Test
+    public void removeIgnoreCaseTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        attr.removeIgnoreCase("KEY");
+        assertFalse(attr.hasKey("Key"));
+    }
+
+    @Test
+    public void hasKeyTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        assertTrue(attr.hasKey("Key"));
+        assertFalse(attr.hasKey("AnotherKey"));
+    }
+
+    @Test
+    public void hasKeyIgnoreCaseTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        assertTrue(attr.hasKeyIgnoreCase("KEY"));
+        assertFalse(attr.hasKeyIgnoreCase("AnotherKey"));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attr = new Attributes();
+        assertEquals(0, attr.size());
+        attr.put("Key", "Value");
+        assertEquals(1, attr.size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attr = new Attributes();
+        assertTrue(attr.isEmpty());
+        attr.put("Key", "Value");
+        assertFalse(attr.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attr1 = new Attributes();
+        attr1.put("Key1", "Value1");
+        attr1.put("Key2", "Value2");
+        Attributes attr2 = new Attributes();
+        attr2.put("Key3", "Value3");
+        attr2.put("Key4", "Value4");
+        attr1.addAll(attr2);
+        assertEquals(4, attr1.size());
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        assertEquals(1, attr.asList().size());
+    }
+
+    @Test
+    public void datasetTest() {
+        Attributes attr = new Attributes();
+        attr.put("data-key", "value");
+        assertEquals(1, attr.dataset().size());
+    }
+
+    @Test
+    public void htmlTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        assertEquals(" Key=\"Value\"", attr.html());
+    }
+
+    @Test
+    public void equalsTest() {
+        Attributes attr1 = new Attributes();
+        attr1.put("Key", "Value");
+        Attributes attr2 = new Attributes();
+        attr2.put("Key", "Value");
+        assertTrue(attr1.equals(attr2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        assertNotEquals(0, attr.hashCode());
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attr = new Attributes();
+        attr.put("Key", "Value");
+        Attributes cloned = attr.clone();
+        assertEquals(attr, cloned);
+    }
+
+    @Test
+    public void normalizeTest() {
+        Attributes attr = new Attributes();
+        attr.add("KEY", "Value");
+        attr.normalize();
+        assertTrue(attr.hasKey("key"));
+    }
+
+    @Test
+    public void deduplicateTest() {
+        Attributes attr = new Attributes();
+        attr.add("Key", "Value1");
+        attr.add("key", "Value2");
+        assertEquals(1, attr.deduplicate(ParseSettings.preserveCase));
+    }
+
+}

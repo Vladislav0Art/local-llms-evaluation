@@ -1,0 +1,88 @@
+package net.revelc.code.formatter.css;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void initPropertiesPresentTest() {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "5");
+        options.put("rgbAsHex", "false");
+        options.put("useSourceStringValues", "true");
+        formatter.init(options, null);
+        assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void initPropertiesAbsentTest() {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, null);
+        assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void isInitializedWithoutInitTest() {
+        CssFormatter formatter = new CssFormatter();
+        assertFalse(formatter.isInitialized());
+    }
+
+    @Test
+    public void doFormatEmptyStringTest() {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, null);
+
+        String result = null;
+        try {
+            result = formatter.doFormat("", null);
+        } catch (IOException e) {
+            fail("IOException thrown.");
+        }
+
+        assertNull(result);
+    }
+
+    @Test
+    public void doFormatCssTextWithoutChangesTest() {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, null);
+
+        String cssText = "body { color: #fff; }";
+        String result = null;
+        try {
+            result = formatter.doFormat(cssText, null);
+        } catch (IOException e) {
+            fail("IOException thrown.");
+        }
+
+        assertNull(result);
+    }
+
+    @Test
+    public void doFormatCssTextWithChangesTest() {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, null);
+
+        String cssText = "body{color:#fff;}";
+        String result = null;
+        try {
+            result = formatter.doFormat(cssText, null);
+        } catch (IOException e) {
+            fail("IOException thrown.");
+        }
+
+        assertNotNull(result);
+    }
+
+}

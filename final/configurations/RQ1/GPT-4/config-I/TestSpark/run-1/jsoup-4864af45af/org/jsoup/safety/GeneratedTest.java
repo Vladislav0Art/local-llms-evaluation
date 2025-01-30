@@ -1,0 +1,179 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.jsoup.safety.Safelist;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist none = Safelist.none();
+        assertTrue(none.isSafeTag("p"));
+        assertTrue(none.isSafeTag("br"));
+        assertFalse(none.isSafeTag("a"));
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist simple = Safelist.simpleText();
+        assertTrue(simple.isSafeTag("b"));
+        assertFalse(simple.isSafeTag("a"));
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist basic = Safelist.basic();
+        assertTrue(basic.isSafeTag("a"));
+        assertFalse(basic.isSafeTag("img"));
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist basicImg = Safelist.basicWithImages();
+        assertTrue(basicImg.isSafeTag("img"));
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist relaxed = Safelist.relaxed();
+        assertTrue(relaxed.isSafeTag("table"));
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = new Safelist();
+        safelist.addTags("script", "img", "div", "span");
+        assertTrue(safelist.isSafeTag("script"));
+        assertTrue(safelist.isSafeTag("img"));
+        assertTrue(safelist.isSafeTag("div"));
+        assertTrue(safelist.isSafeTag("span"));
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.removeTags("blockquote", "code", "dd", "div");
+        assertFalse(safelist.isSafeTag("blockquote"));
+        assertFalse(safelist.isSafeTag("code"));
+        assertFalse(safelist.isSafeTag("dd"));
+        assertFalse(safelist.isSafeTag("div"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = new Safelist();
+        safelist.addAttributes("a", "class", "id");
+
+        Element el = new Element("a");
+        el.attr("class", "link");
+        el.attr("id", "link_id");
+
+        assertTrue(safelist.isSafeAttribute("a", el, el.attributes().asList().get(0)));
+        assertTrue(safelist.isSafeAttribute("a", el, el.attributes().asList().get(1)));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.removeAttributes("a", "href", "title");
+
+        Element el = new Element("a");
+        el.attr("href", "http://test.com");
+        el.attr("title", "Test Link");
+
+        assertFalse(safelist.isSafeAttribute("a", el, el.attributes().asList().get(0)));
+        assertFalse(safelist.isSafeAttribute("a", el, el.attributes().asList().get(1)));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addEnforcedAttribute("a", "target", "_blank");
+
+        Element el = new Element("a");
+        el.attr("target", "_blank");
+
+        // The attribute is added and it should be safe
+        assertTrue(safelist.isSafeAttribute("a", el, el.attributes().asList().get(0)));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.removeEnforcedAttribute("table", "summary");
+
+        Element el = new Element("table");
+        el.attr("summary", "Table Summary");
+
+        // Enforced attribute 'summary' has been removed, it should not be safe anymore.
+        assertFalse(safelist.isSafeAttribute("table", el, el.attributes().asList().get(0)));
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = new Safelist();
+        safelist.addProtocols("a", "href", "http", "https");
+
+        Element el = new Element("a");
+        el.attr("href", "https://test.com");
+
+        assertTrue(safelist.isSafeAttribute("a", el, el.attributes().asList().get(0)));
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.removeProtocols("a", "href", "http");
+
+        Element el = new Element("a");
+        el.attr("href", "http://test.com");
+
+        assertFalse(safelist.isSafeAttribute("a", el, el.attributes().asList().get(0)));
+    }
+
+    @Test
+    public void preserveRelativeLinksTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.preserveRelativeLinks(true);
+
+        Element el = new Element("a");
+        el.attr("href", "/test");
+
+        assertTrue(safelist.isSafeAttribute("a", el, el.attributes().asList().get(0)));
+    }
+
+    @Test
+    public void isSafeTagTest() {
+        Safelist safelist = Safelist.relaxed();
+        assertTrue(safelist.isSafeTag("b"));
+        assertTrue(safelist.isSafeTag("em"));
+        assertFalse(safelist.isSafeTag("script"));
+        assertFalse(safelist.isSafeTag("link"));
+    }
+
+    @Test
+    public void isSafeAttributeTest() {
+        Safelist safelist = Safelist.relaxed();
+
+        Element el = new Element("img");
+        el.attr("src", "http://test.com");
+        el.attr("width", "100");
+
+        assertTrue(safelist.isSafeAttribute("img", el, el.attributes().asList().get(0)));
+        assertTrue(safelist.isSafeAttribute("img", el, el.attributes().asList().get(1)));
+    }
+
+    @Test
+    public void getEnforcedAttributesTest() {
+        Safelist safelist = Safelist.relaxed();
+
+        Attributes attrs = safelist.getEnforcedAttributes("a");
+        assertTrue(attrs.isEmpty());
+    }
+
+}

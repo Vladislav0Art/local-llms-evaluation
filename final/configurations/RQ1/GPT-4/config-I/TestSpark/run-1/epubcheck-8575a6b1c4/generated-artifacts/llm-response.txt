@@ -1,0 +1,223 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import com.adobe.epubcheck.api.EpubCheck;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.File;
+import java.io.IOException;
+
+public class EpubCheckerTest {
+
+    @Test
+    public void runTestForValidInput() throws IOException {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] input = {"-v", "3", "validTestFile.epub"};
+
+        Report report = Mockito.spy(Report.class);
+        Mockito.when(report.getErrorCount()).thenReturn(0);
+        Mockito.when(report.getFatalErrorCount()).thenReturn(0);
+
+        int result = epubChecker.processEpubFile(input);
+
+        Mockito.verify(report, Mockito.atLeastOnce()).initialize();
+        Mockito.verify(report, Mockito.atLeastOnce()).generate();
+
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void runTestForMissingInput() throws IOException {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] input = {};
+
+        int result = epubChecker.processEpubFile(input);
+
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void runTestForInvalidInput() throws IOException {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] input = {"-invalidFlag", "test.epub"};
+
+        int result = epubChecker.processEpubFile(input);
+
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void processArgumentsTestForUnsupportedVersion() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"-v", "110"};
+
+        boolean result = epubChecker.processArguments(args);
+
+        Assert.assertFalse(result);
+    }
+
+    @Test
+    public void processArgumentsTestForCorrectVersion() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"-v", "2"};
+
+        boolean result = epubChecker.processArguments(args);
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void processArgumentsTestForNonexistentFilePath() {
+        EpubChecker epubChecker = new EpubChecker();
+        File file = new File("nonexistent");
+        String[] args = {file.getAbsolutePath()};
+
+        boolean result = epubChecker.processArguments(args);
+
+        Assert.assertFalse(result);
+    }
+
+    @Test
+    public void getLocaleTest() {
+        EpubChecker epubChecker = new EpubChecker();
+
+        Assert.assertEquals(java.util.Locale.getDefault(), epubChecker.getLocale());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import com.adobe.epubcheck.api.EpubCheck;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.api.EpubCheckFactory;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.ReportStub;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.mockito.Mockito.*;
+
+public class EpubCheckerTest {
+
+    @Test
+    public void runTestSuccess() {
+        String[] args = new String[1];
+        args[0] = "example.epub";
+        EpubChecker checker = new EpubChecker();
+        int result = checker.run(args);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void processEpubFileTest() {
+        String[] args = new String[1];
+        args[0] = "example.epub";
+        EpubChecker checker = new EpubChecker();
+        int result = checker.processEpubFile(args);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void validateFileTest() {
+        Report expected = new ReportStub();
+        String path = "test.epub";
+        EpubChecker checker = new EpubChecker();
+        EpubCheckFactory mockFactory = mock(EpubCheckFactory.class);
+        EpubCheck mockCheck = mock(EpubCheck.class);
+        when(mockFactory.newInstance(any())).thenReturn(mockCheck);
+        when(mockCheck.doValidate()).thenReturn(0);
+        int result = checker.validateFile(path, EPUBVersion.VERSION_3, expected, null);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void runTestFail() {
+        String[] args = new String[1];
+        args[0] = "invalid.epub";
+        EpubChecker checker = new EpubChecker();
+        int result = checker.run(args);
+        Assert.assertNotEquals(0, result);
+    }
+
+    @Test
+    public void printEpubCheckCompletedTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        epubChecker.printEpubCheckCompleted(new ReportStub());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import com.adobe.epubcheck.api.EpubCheck;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.api.EpubCheckFactory;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import java.io.File;
+import java.io.IOException;
+import java.util.Locale;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class EpubCheckerTest {
+
+    @Test
+    public void runTestSuccess() {
+        String[] args = {"valid_test_file.epub"};
+        EpubChecker checker = new EpubChecker();
+        int result = checker.run(args);
+        Assert.assertEquals("Successful execution should return 0.", 0, result);
+    }
+
+    @Test
+    public void processEpubFileTest() {
+        String[] args = {"valid_test_file.epub"};
+        EpubChecker checker = new EpubChecker();
+        
+        try {
+          File validFile = new File("valid_test_file.epub");
+          validFile.createNewFile();
+        } catch (IOException e) {
+          
+        }
+        
+        int result = checker.processEpubFile(args);
+        Assert.assertEquals("Successful execution should return 0.", 0, result);
+    }
+
+    @Test
+    public void getLocaleTest() {
+        EpubChecker checker = new EpubChecker();
+        Locale locale = checker.getLocale();
+        Assert.assertEquals("Global locale should be the same with checker locale.", Locale.getDefault(), locale);
+    }
+
+    @Test
+    public void runTestFailureOnMissingFile() {
+        String[] args = {"non_existing_file.epub"};
+        EpubChecker checker = new EpubChecker();
+        int result = checker.run(args);
+        Assert.assertNotEquals("Non-existing file should fail the execution.", 0, result);
+    }
+}
+```
+===================================================
+

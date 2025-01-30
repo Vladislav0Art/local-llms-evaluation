@@ -1,0 +1,68 @@
+package com.force.i18n.grammar.impl;
+
+import com.force.i18n.grammar.GrammaticalTerm;
+import com.force.i18n.grammar.LanguageDictionary;
+import com.force.i18n.grammar.RenamingProvider;
+import com.force.i18n.grammar.impl.GrammaticalTermMapImpl;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorEmptyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>();
+        assertTrue(termMap.isEmpty());
+    }
+
+    @Test
+    public void constructorWithParametersTest() {
+        HashMap<String, GrammaticalTerm> map = new HashMap<>();
+        map.put("test", mock(GrammaticalTerm.class));
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>(map, false);
+        assertEquals(map, termMap.map);
+    }
+
+    @Test
+    public void putSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        termMap.put("test", mock(GrammaticalTerm.class));
+    }
+
+    @Test
+    public void isSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        assertTrue(termMap.isSkinny());
+    }
+
+    @Test
+    public void makeSkinnyTest() {
+        HashMap<String, GrammaticalTerm> map = new HashMap<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>(map, false);
+        GrammaticalTermMapImpl<GrammaticalTerm> skinnyTermMap = (GrammaticalTermMapImpl<GrammaticalTerm>) termMap.makeSkinny();
+        assertTrue(skinnyTermMap.isSkinny());
+    }
+
+    @Test
+    public void writeJsonTest() throws IOException {
+        GrammaticalTerm term = mock(GrammaticalTerm.class);
+        LanguageDictionary dialect = mock(LanguageDictionary.class);
+        RenamingProvider provider = mock(RenamingProvider.class);
+        when(term.getName()).thenReturn("test");
+        when(provider.getRenamedNoun(null, term.getName())).thenReturn(null);
+        HashMap<String, GrammaticalTerm> map = new HashMap<>();
+        map.put("test", term);
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>(map, false);
+        StringBuilder out = new StringBuilder();
+        termMap.writeJson(out, provider, dialect, new HashSet<>());
+        assertEquals("{\"test\":null}", out.toString());
+    }
+
+}

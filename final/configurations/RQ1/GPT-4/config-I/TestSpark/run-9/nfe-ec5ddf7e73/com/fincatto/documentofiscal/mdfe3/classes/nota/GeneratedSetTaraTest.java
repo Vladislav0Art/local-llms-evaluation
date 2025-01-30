@@ -1,0 +1,15 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedSetTaraTest {
+
+    @Test
+    public void setTaraTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setTara("12345");
+        Assert.assertEquals("12345", reboque.getTara());
+    }
+
+}

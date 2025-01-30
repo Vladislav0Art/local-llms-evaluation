@@ -1,0 +1,77 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.crowdin.client.sourcefiles.model.ExportOptions;
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    private JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+
+    @Test
+    public void parseHttpExceptionClassTest() {
+        String json = "{\"message\":\"exception message\"}";
+        HttpException httpException = transformer.parse(json, HttpException.class);
+
+        Assert.assertNotNull(httpException);
+        Assert.assertEquals("exception message", httpException.getMessage());
+    }
+
+    @Test
+    public void parseNonHttpExceptionClassTest() {
+        String json = "{\"name\":\"test project\",\"identifier\":\"test\",\"id\":1}";
+        Project project = transformer.parse(json, Project.class);
+
+        Assert.assertNotNull(project);
+        Assert.assertEquals("test project", project.getName());
+        Assert.assertEquals("test", project.getIdentifier());
+        Assert.assertEquals(Long.valueOf(1), project.getId());
+    }
+
+    @Test
+    public void convertProjectClassTest() {
+        Project project = new Project();
+        project.setName("test project");
+        project.setIdentifier("test");
+        project.setId(1L);
+
+        String json = transformer.convert(project);
+        String expectedJson = "{'name':'test project','identifier':'test','id':1}".replace("'", "\"");
+
+        Assert.assertNotNull(json);
+        Assert.assertEquals(expectedJson, json);
+    }
+
+    @Test
+    public void parseCrowdinApiExceptionClassTest() {
+        String json = "{\"message\":\"API exception message\"}";
+        CrowdinApiException crowdinApiException = transformer.parse(json, CrowdinApiException.class);
+
+        Assert.assertNotNull(crowdinApiException);
+        Assert.assertEquals("API exception message", crowdinApiException.getMessage());
+    }
+
+    @Test
+    public void parseInvalidJsonProjectClassTest() {
+        String json = "{\"invalidKey\":\"test project\",\"identifier\":\"test\",\"id\":1}";
+        transformer.parse(json, Project.class);
+    }
+
+    @Test
+    public void convertFileInfoClassTest() {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setPath("/test/dir/file.txt");
+
+        String json = transformer.convert(fileInfo);
+        String expectedJson = "{'path':'/test/dir/file.txt'}".replace("'", "\"");
+
+        Assert.assertNotNull(json);
+        Assert.assertEquals(expectedJson, json);
+    }
+
+}

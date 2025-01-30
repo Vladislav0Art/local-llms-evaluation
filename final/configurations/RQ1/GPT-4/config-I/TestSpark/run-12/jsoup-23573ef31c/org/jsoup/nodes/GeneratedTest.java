@@ -1,0 +1,90 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Entities;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellTest() {
+        Document doc = Document.createShell("http://www.test.com");
+        assertNotNull(doc);
+        assertEquals("http://www.test.com", doc.location());
+    }
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("http://localhost");
+        assertEquals("http://localhost", doc.location());
+    }
+
+    @Test
+    public void documentTypeTest() {
+        Document doc = Jsoup.parse("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">");
+        assertNotNull(doc.documentType());
+    }
+
+    @Test
+    public void formsTest() {
+        Document doc = Jsoup.parse("<form id=\"loginForm\"></form>");
+        assertFalse(doc.forms().isEmpty());
+    }
+
+    @Test
+    public void expectFormTest() {
+        Document doc = Jsoup.parse("<div></div>");
+        doc.expectForm("form");
+    }
+
+    @Test
+    public void titleTest() {
+        Document doc = Jsoup.parse("<html><head><title>First parse</title></head>");
+        assertEquals("First parse", doc.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document doc = Jsoup.parse("<div></div>");
+        assertNotNull(doc.createElement("p"));
+    }
+
+    @Test
+    public void charsetTest() {
+        Document doc = Jsoup.parse("<div></div>");
+        doc.charset(null);
+    }
+
+    @Test
+    public void charsetGetTest() {
+        Document doc = Jsoup.parse("<div></div>");
+        assertEquals(Charset.forName("UTF-8"), doc.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementTest() {
+        Document doc = Jsoup.parse("<div></div>");
+        doc.updateMetaCharsetElement(true);
+        assertTrue(doc.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document doc = Jsoup.parse("<div></div>");
+        Document.OutputSettings settings = new Document.OutputSettings();
+        settings.escapeMode(Entities.EscapeMode.extended);
+        settings.charset("ISO-8859-1");
+        settings.prettyPrint(false);
+        doc.outputSettings(settings);
+
+        assertEquals(settings, doc.outputSettings());
+    }
+
+}

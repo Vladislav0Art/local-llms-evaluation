@@ -1,0 +1,296 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.session.DeviceSession;
+import io.netty.channel.Channel;
+import org.mockito.Mockito;
+import io.netty.buffer.ByteBuf;
+
+import java.net.SocketAddress;
+
+import static org.junit.Assert.*;
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void decodeAlarmTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("WatchProtocolDecoderTest"));
+        assertEquals(decoder.decodeAlarm(16), Position.ALARM_SOS);
+    }
+
+    @Test
+    public void decodePositionTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("WatchProtocolDecoderTest"));
+        DeviceSession deviceSession = Mockito.mock(DeviceSession.class);
+        Mockito.when(deviceSession.getDeviceId()).thenReturn(1L);
+        assertNull(decoder.decodePosition(deviceSession, "130819,210918,V,25.761711,N,80.191331,W,1,0,0,-2.9,10,22,98,0,0,0FEB85B8,1,26,86413,Miami,720,80,33101,72,22,00000000"));
+    }
+
+    @Test
+    public void getHasIndexTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("WatchProtocolDecoderTest"));
+        assertFalse(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("WatchProtocolDecoderTest"));
+        assertNull(decoder.getManufacturer());
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("WatchProtocolDecoderTest"));
+        Channel channel = Mockito.mock(Channel.class);
+        SocketAddress remoteAddress = Mockito.mock(SocketAddress.class);
+        ByteBuf msg = Mockito.mock(ByteBuf.class);
+        Mockito.when(msg.readSlice(Mockito.anyInt())).thenAnswer(i -> Unpooled.buffer().writeBytes("123".getBytes()));
+        Mockito.when(channel.writeAndFlush(Mockito.anyObject())).thenAnswer(i -> null);
+        Mockito.when(msg.indexOf(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyByte())).thenAnswer(i -> msg.readableBytes());
+        assertEquals(decoder.decode(channel, remoteAddress, msg), null);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.netty.buffer.Unpooled;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.session.DeviceSession;
+import org.traccar.protocol.WatchProtocolDecoder;
+
+import io.netty.channel.Channel;
+import io.netty.buffer.ByteBuf;
+
+import java.net.SocketAddress;
+
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    @Mock
+    private ByteBuf buf;
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    private WatchProtocolDecoder getDecoder() throws NoSuchFieldException, IllegalAccessException {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("test") {
+            @Override
+            protected Object decode(Channel channel, SocketAddress remoteAddress, Object msg) {
+                return null;
+            }
+        });
+        return decoder;
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        WatchProtocolDecoder decoder = getDecoder();
+        Channel channel = Mockito.mock(Channel.class);
+            
+        Mockito.when(deviceSession.getDeviceId()).thenReturn(1L);
+        Mockito.when(buf.indexOf(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyByte())).thenReturn(10);
+        Mockito.when(buf.readSlice(Mockito.anyInt())).thenReturn(Unpooled.buffer());
+
+        assertEquals(decoder.decode(channel, remoteAddress, buf), null);
+    }
+
+    @Test
+    public void getDeviceIdTest() {
+        Mockito.when(deviceSession.getDeviceId()).thenReturn(1L);
+        assertEquals(deviceSession.getDeviceId().longValue(), 1L);
+    }
+
+    @Test
+    public void getHasIndexTest() throws IllegalAccessException, NoSuchFieldException {
+        WatchProtocolDecoder decoder = getDecoder();
+        assertFalse(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerTest() throws IllegalAccessException, NoSuchFieldException {
+        WatchProtocolDecoder decoder = getDecoder();
+        assertNull(decoder.getManufacturer());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.netty.buffer.Unpooled;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.protocol.WatchProtocolDecoder;
+import org.traccar.session.DeviceSession;
+import io.netty.buffer.ByteBuf;
+import java.net.SocketAddress;
+import io.netty.channel.Channel;
+
+public class WatchProtocolDecoderTest {
+    @Mock
+    private SocketAddress remoteAddress;
+    @Mock
+    private ByteBuf buf;
+    private DeviceSession deviceSession;
+
+    private WatchProtocolDecoder getDecoder() throws NoSuchFieldException, IllegalAccessException {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new StubProtocol());
+        return decoder;
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        WatchProtocolDecoder decoder = getDecoder();
+        Channel channel = Mockito.mock(Channel.class);
+        deviceSession = Mockito.mock(DeviceSession.class);
+        Mockito.when(deviceSession.getDeviceId()).thenReturn(1L);
+        Mockito.when(buf.indexOf(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyByte())).thenReturn(10);
+        Mockito.when(buf.readSlice(Mockito.anyInt())).thenReturn(Unpooled.buffer());
+        Assert.assertNull(decoder.decode(channel, remoteAddress, buf));
+    }
+
+    @Test
+    public void getDeviceIdTest() {
+        deviceSession = Mockito.mock(DeviceSession.class);
+        Mockito.when(deviceSession.getDeviceId()).thenReturn(1L);
+        Assert.assertEquals(deviceSession.getDeviceId().longValue(), 1L);
+    }
+
+    @Test
+    public void getHasIndexTest() throws IllegalAccessException, NoSuchFieldException {
+        WatchProtocolDecoder decoder = getDecoder();
+        Assert.assertFalse(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerTest() throws IllegalAccessException, NoSuchFieldException {
+        WatchProtocolDecoder decoder = getDecoder();
+        Assert.assertNull(decoder.getManufacturer());
+    }
+
+    private class StubProtocol extends Protocol {
+
+        private StubProtocol() {
+            super("test");
+        }
+
+        @Override
+        protected Object decode(Channel channel, SocketAddress remoteAddress, Object msg) {
+            return null;
+        }
+
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import io.netty.buffer.Unpooled;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.ProtocolDecoder;
+import org.traccar.model.Position;
+import org.traccar.protocol.WatchProtocolDecoder;
+import org.traccar.session.DeviceSession;
+import io.netty.buffer.ByteBuf;
+import java.net.SocketAddress;
+import io.netty.channel.Channel;
+
+public class WatchProtocolDecoderTest {
+    private ByteBuf buf = Mockito.mock(ByteBuf.class);
+    private SocketAddress remoteAddress = Mockito.mock(SocketAddress.class);
+    private DeviceSession deviceSession;
+
+    private WatchProtocolDecoder getDecoder() throws NoSuchFieldException, IllegalAccessException {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(Mockito.mock(ProtocolDecoder.class));
+        return decoder;
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        WatchProtocolDecoder decoder = getDecoder();
+        Channel channel = Mockito.mock(Channel.class);
+        deviceSession = Mockito.mock(DeviceSession.class);
+        Mockito.when(deviceSession.getDeviceId()).thenReturn(1L);
+        Mockito.when(buf.indexOf(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyByte())).thenReturn(10);
+        Mockito.when(buf.readSlice(Mockito.anyInt())).thenReturn(Unpooled.buffer());
+        Assert.assertNull(decoder.decode(channel, remoteAddress, buf));
+    }
+
+    @Test
+    public void getDeviceIdTest() {
+        deviceSession = Mockito.mock(DeviceSession.class);
+        Mockito.when(deviceSession.getDeviceId()).thenReturn(1L);
+        Assert.assertEquals(deviceSession.getDeviceId().longValue(), 1L);
+    }
+
+    @Test
+    public void getHasIndexTest() throws IllegalAccessException, NoSuchFieldException {
+        WatchProtocolDecoder decoder = getDecoder();
+        Assert.assertFalse(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerTest() throws IllegalAccessException, NoSuchFieldException {
+        WatchProtocolDecoder decoder = getDecoder
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import io.netty.buffer.Unpooled;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import io.netty.buffer.ByteBuf;
+import java.net.SocketAddress;
+import org.traccar.session.DeviceSession;
+
+public class WatchProtocolDecoderTest {
+    private SocketAddress remoteAddress = Mockito.mock(SocketAddress.class);
+    private DeviceSession deviceSession;
+    private ByteBuf buf = Mockito.mock(ByteBuf.class);
+
+    @Test
+    public void decodeTest() {
+        Channel channel = Mockito.mock(Channel.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(Mockito.mock(Protocol.class));
+        deviceSession = Mockito.mock(DeviceSession.class);
+        Mockito.when(deviceSession.getDeviceId()).thenReturn(1L);
+        Mockito.when(buf.indexOf(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyByte())).thenReturn(10);
+        Mockito.when(buf.readSlice(Mockito.anyInt())).thenReturn(Unpooled.buffer());
+        Assert.assertNull(decoder.decode(channel, remoteAddress, buf));
+    }
+
+    @Test
+    public void getDeviceIdTest() {
+        deviceSession = Mockito.mock(DeviceSession.class);
+        Mockito.when(deviceSession.getDeviceId()).thenReturn(1L);
+        Assert.assertEquals(deviceSession.getDeviceId().longValue(), 1L);
+    }
+}
+```
+===================================================
+

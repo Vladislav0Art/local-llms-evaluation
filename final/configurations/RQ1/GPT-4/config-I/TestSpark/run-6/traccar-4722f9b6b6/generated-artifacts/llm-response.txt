@@ -1,0 +1,197 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.session.DeviceSession;
+
+import java.net.SocketAddress;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    @Mock
+    private DeviceSession deviceSession;
+
+    @Test
+    public void decodeAlarmLowBatteryTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        String alarm = decoder.decodeAlarm(0);
+        assertEquals(Position.ALARM_LOW_BATTERY, alarm);
+    }
+
+    @Test
+    public void decodeAlarmGeofenceTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        String alarmExit = decoder.decodeAlarm(1);
+        String alarmEnter = decoder.decodeAlarm(19);
+        assertEquals(Position.ALARM_GEOFENCE_EXIT, alarmExit);
+        assertEquals(Position.ALARM_GEOFENCE_ENTER, alarmEnter);
+    }
+
+    @Test
+    public void decodeAlarmPowerCutTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        String alarm = decoder.decodeAlarm(14);
+        assertEquals(Position.ALARM_POWER_CUT, alarm);
+    }
+
+    @Test
+    public void decodeAlarmOtherTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        String alarmSos = decoder.decodeAlarm(16);
+        String alarmFallDown = decoder.decodeAlarm(21);
+        String alarmRemoving = decoder.decodeAlarm(20);
+        assertEquals(Position.ALARM_SOS, alarmSos);
+        assertEquals(Position.ALARM_FALL_DOWN, alarmFallDown);
+        assertEquals(Position.ALARM_REMOVING, alarmRemoving);
+    }
+
+    @Test
+    public void sendResponseWithIndexTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.sendResponse(channel, "123456", "0001", "hello");
+        verify(channel, times(1)).writeAndFlush(any());
+    }
+
+    @Test
+    public void sendResponseWithoutIndexTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        decoder.sendResponse(channel, "123456", null, "hello");
+        verify(channel, times(1)).writeAndFlush(any());
+    }
+
+    @Test
+    public void decodePositionTest() {
+        String data = "191109135059,A,35.857618,N,14.471806,E,0.00,0.00,0.00,8,13,4,0,00000000,1,475,14404892299,8";
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Position position = decoder.decodePosition(deviceSession, data);
+
+        assertNotNull(position);
+        assertEquals(deviceSession.getDeviceId(), position.getDeviceId());
+        assertTrue(position.getValid());
+        assertEquals(35.857618, position.getLatitude(), 0.00001);
+        assertEquals(14.471806, position.getLongitude(), 0.00001);
+    }
+
+    @Test
+    public void decodePositionDoesNotMatchPatternTest() {
+        String data = "NotMatchingData";
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Position position = decoder.decodePosition(deviceSession, data);
+
+        assertNull(position);
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf buf = Unpooled.wrappedBuffer("WY,123456,000001,5*LK".getBytes());
+
+        when(decoder.getDeviceSession(channel, remoteAddress, "123456")).thenReturn(deviceSession);
+
+        decoder.decode(channel, remoteAddress, buf);
+
+        verify(channel, times(1)).writeAndFlush(any());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+I apologize for the misunderstanding, but the `decodeAlarm`, `sendResponse`, and `decodePosition` methods from the `WatchProtocolDecoder` class are private, and therefore cannot be directly tested from a unit test as they are not visible. It's a common practice to not write unit tests for private methods directly, instead, they are tested indirectly through public methods which use them. 
+
+Since we can't test these private methods directly, I'll write tests for the public methods that use these private methods.
+
+Here is how test cases can be written for the `decode` method, and indirectly for the `decodeAlarm`, `sendResponse`, and `decodePosition` methods.
+
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import org.traccar.session.DeviceSession;
+
+import java.net.SocketAddress;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    @Mock
+    private DeviceSession deviceSession;
+
+
+    @Test
+    public void decodeInitTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf buf = Unpooled.wrappedBuffer("[CS*123456*000F*INIT".getBytes());
+
+        when(decoder.getDeviceSession(channel, remoteAddress, "123456")).thenReturn(deviceSession);
+
+        assertNull(decoder.decode(channel, remoteAddress, buf));
+    }
+
+    @Test
+    public void decodeLkTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf buf = Unpooled.wrappedBuffer("[CS*123456*000C*LK,100,80".getBytes());
+
+        when(decoder.getDeviceSession(channel, remoteAddress, "123456")).thenReturn(deviceSession);
+
+        Position position = (Position) decoder.decode(channel, remoteAddress, buf);
+        assertNotNull(position);
+    }
+
+    @Test
+    public void decodeUdTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf buf = Unpooled.wrappedBuffer("[CS*123456*000A*UD,00002".getBytes());
+
+        when(decoder.getDeviceSession(channel, remoteAddress, "123456")).thenReturn(deviceSession);
+
+        assertNull(decoder.decode(channel, remoteAddress, buf));
+    }
+}
+```
+===================================================
+

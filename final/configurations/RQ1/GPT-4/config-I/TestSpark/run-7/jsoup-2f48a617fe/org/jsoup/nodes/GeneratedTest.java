@@ -1,0 +1,98 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.*;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("data");
+        Assert.assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("data");
+        Assert.assertEquals("data", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("data");
+        comment.setData("newData");
+        Assert.assertEquals("newData", comment.getData());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("data");
+        Assert.assertEquals(comment, comment.clone());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("?xml");
+        Assert.assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclarationNegativeTest() {
+        Comment comment = new Comment("Not an xml declaration");
+        Assert.assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?");
+        Assert.assertNotNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationNullTest() {
+        Comment comment = new Comment("!Not a valid XML");
+        Assert.assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("data");
+        Assert.assertEquals("<!--data-->", comment.toString());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Document.OutputSettings mockOutputSettings = mock(Document.OutputSettings.class);
+        when(mockOutputSettings.prettyPrint()).thenReturn(true);
+        when(mockOutputSettings.outline()).thenReturn(false);
+        StringBuilder accum = new StringBuilder();
+        int depth = 0;
+
+        Comment comment = new Comment("data");
+        comment.outerHtmlHead(accum, depth, mockOutputSettings);
+
+        Assert.assertEquals("<!--data-->", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Document.OutputSettings mockOutputSettings = mock(Document.OutputSettings.class);
+        when(mockOutputSettings.prettyPrint()).thenReturn(true);
+        when(mockOutputSettings.outline()).thenReturn(false);
+        StringBuilder accum = new StringBuilder();
+        int depth = 0;
+
+        Comment comment = new Comment("data");
+        comment.outerHtmlTail(accum, depth, mockOutputSettings);
+
+        Assert.assertEquals("", accum.toString());
+    }
+
+}

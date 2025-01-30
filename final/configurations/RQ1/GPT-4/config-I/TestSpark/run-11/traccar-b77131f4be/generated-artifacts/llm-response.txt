@@ -1,0 +1,190 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.model.Position;
+import org.traccar.Protocol;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Test
+    public void getTagLengthUnknownTagTest() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            GalileoProtocolDecoder.getTagLength(0xAA);
+        });
+
+        assertEquals("Unknown tag: 0x" + Integer.toHexString(0xAA), exception.getMessage());
+    }
+
+    @Test
+    public void sendResponseNullChannelTest() {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("test"));
+        decoder.sendResponse(null, 100, 100); // nothing to check, just for coverage
+    }
+
+    @Test
+    public void decodeTagKnownTagTest() {
+        ByteBuf buf = mock(ByteBuf.class);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("test"));
+        Position position = new Position();
+
+        decoder.decodeTag(position, buf, 0x01);
+        assertEquals(null, position.getAttributes().get(Position.KEY_VERSION_HW));
+    }
+
+    @Test
+    public void decodeTagUnknownTagTest() {
+        ByteBuf buf = mock(ByteBuf.class);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("test"));
+        Position position = new Position();
+
+        decoder.decodeTag(position, buf, 0xAA);
+        int length = GalileoProtocolDecoder.getTagLength(0xAA);
+
+        assertEquals(length, 0);
+    }
+
+    @Test
+    public void decodeTagOtherKnownTest() {
+        ByteBuf buf = mock(ByteBuf.class);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("test"));
+        Position position = new Position();
+
+        decoder.decodeTagOther(position, buf, 0x10);
+        assertEquals(null, position.getAttributes().get(Position.KEY_INDEX));
+    }
+
+    @Test
+    public void decodeTagOtherUnknownTest() {
+        ByteBuf buf = mock(ByteBuf.class);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("test"));
+        Position position = new Position();
+
+        decoder.decodeTagOther(position, buf, 0xAA);
+        int length = GalileoProtocolDecoder.getTagLength(0xAA);
+
+        assertEquals(length, 0);
+    }
+
+    @Test
+    public void decodeFixedHeaderTest() {
+        ByteBuf buf = Unpooled.buffer().writeByte(0x01);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("test"));
+
+        assertNull(decoder.decode(null, null, msg));
+    }
+
+    @Test
+    public void decodeHeaderPhotoTest() {
+        ByteBuf buf = Unpooled.buffer().writeByte(0x07);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("test"));
+
+        assertNull(decoder.decode(null, null, msg));
+    }
+
+    @Test
+    public void decodeHeaderCompressedPosTest() {
+        ByteBuf buf = Unpooled.buffer().writeByte(0x08);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("test"));
+
+        assertNull(decoder.decode(null, null, msg));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.netty.buffer.Unpooled;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Mock
+    private GalileoProtocolDecoder decoder;
+   
+    @Test
+    public void decodeCompressedPositionsTest(){
+        try {
+            ByteBuf buf = Unpooled.buffer().writeByte(0x01);
+           
+            Method decodeCompressedPositions = GalileoProtocolDecoder.class.getDeclaredMethod(
+                    "decodeCompressedPositions", Channel.class, SocketAddress.class, ByteBuf.class);
+            decodeCompressedPositions.setAccessible(true);
+           
+            Position response = (Position) decodeCompressedPositions.invoke(decoder, null, null, buf);
+            assertNull(response);
+        } catch (Exception e) {
+            fail("decodeCompressedPositions method invocation has thrown an error: " + e.getMessage());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.model.Position;
+
+import java.lang.reflect.Method;
+import java.net.SocketAddress;
+import java.util.List;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Mock
+    private GalileoProtocolDecoder decoder;
+
+    @Test
+    public void decodeCompressedPositionsTest() {
+        try {
+            ByteBuf buf = Unpooled.buffer().writeByte(0x01);
+
+            Method decodeCompressedPositions = GalileoProtocolDecoder.class.getDeclaredMethod(
+                    "decodeCompressedPositions", Channel.class, SocketAddress.class, ByteBuf.class);
+            decodeCompressedPositions.setAccessible(true);
+
+            List<Position> positions = (List<Position>) decodeCompressedPositions.invoke(decoder, null, null, buf);
+
+            Assert.assertNull(positions);
+        } catch (Exception e) {
+            Assert.fail("Invocation of decodeCompressedPositions method has thrown an error: " + e.getMessage());
+        }
+    }
+}
+```
+===================================================
+

@@ -1,0 +1,64 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCodigoInternoValidLengthTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setCodigoInterno("1234567890");
+        assertEquals("1234567890", veiculoReboque.getCodigoInterno());
+    }
+
+    @Test
+    public void setCodigoInternoInvalidLengthTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setCodigoInterno("12345678901");
+    }
+
+    @Test
+    public void setPlacaTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setPlaca("ABC1234");
+        assertEquals("ABC1234", veiculoReboque.getPlaca());
+    }
+
+    @Test
+    public void setPlacaInvalidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setPlaca("ABC12");
+    }
+
+    @Test
+    public void setRenavamTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setRenavam("123456789");
+        assertEquals("123456789", veiculoReboque.getRenavam());
+    }
+
+    @Test
+    public void setTaraTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setTara("12345");
+        assertEquals("12345", veiculoReboque.getTara());
+    }
+
+    @Test
+    public void setCapacidadeKGTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setCapacidadeKG("12345");
+        assertEquals("12345", veiculoReboque.getCapacidadeKG());
+    }
+
+    @Test
+    public void setCapacidadeM3Test() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setCapacidadeM3("12");
+        assertEquals("12", veiculoReboque.getCapacidadeM3());
+    }
+
+}

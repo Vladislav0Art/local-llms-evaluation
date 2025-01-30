@@ -1,0 +1,258 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class JacksonJsonTransformerTest {
+
+    private JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+
+    @Test
+    public void parseHttpExceptionClassTest() throws JsonMappingException {
+        String json = "{\"message\":\"Http exception message\",\"code\":400}";
+        HttpException exception = transformer.parse(json, HttpException.class);
+
+        Assert.assertEquals("Http exception message", exception.getMessage());
+        Assert.assertEquals(400, exception.getCode());
+    }
+
+    @Test
+    public void parseHttpBadRequestExceptionClassTest() throws JsonMappingException {
+        String json = "{\"message\":\"Http bad request exception message\",\"code\":400}";
+        HttpBadRequestException exception = transformer.parse(json, HttpBadRequestException.class);
+
+        Assert.assertEquals("Http bad request exception message", exception.getMessage());
+        Assert.assertEquals(400, exception.getCode());
+    }
+
+    @Test(expected = JsonMappingException.class)
+    public void parseInvalidJsonTest() throws JsonMappingException {
+        String json = "Invalid json message";
+        transformer.parse(json, HttpBadRequestException.class);
+    }
+
+    @Test
+    public void parseProjectClassTest() throws JsonMappingException {
+        String json = "{\"id\":1,\"name\":\"Project name\"}";
+        Project project = transformer.parse(json, Project.class);
+
+        Assert.assertEquals(new Long(1), project.getId());
+        Assert.assertEquals("Project name", project.getName());
+    }
+
+    @Test
+    public void convertHttpExceptionTest() throws JsonProcessingException {
+        HttpException exception = new HttpException("Http exception message", 400);
+        String json = transformer.convert(exception);
+
+        Assert.assertEquals("{\"message\":\"Http exception message\",\"code\":400}", json);
+    }
+
+    @Test
+    public void convertProjectTest() throws JsonProcessingException {
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Project name");
+        String json = transformer.convert(project);
+
+        Assert.assertEquals("{\"id\":1,\"name\":\"Project name\"}", json);
+    }
+}
+```
+Mockito is not used because we want to test the actual behavior of the `JacksonJsonTransformer` class, not a mocked behavior.
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class JacksonJsonTransformerTest {
+
+    private JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+
+    @Test
+    public void parseHttpExceptionClassTest() throws JsonProcessingException {
+        String json = "{\"message\":\"Http exception message\",\"code\":400}";
+        HttpException exception = transformer.parse(json, HttpException.class);
+
+        Assert.assertEquals("Http exception message", exception.getMessage());
+        Assert.assertEquals(400, exception.getCode());
+    }
+
+    @Test
+    public void parseHttpBadRequestExceptionClassTest() throws JsonProcessingException {
+        String json = "{\"message\":\"Http bad request exception message\",\"code\":400}";
+        HttpBadRequestException exception = transformer.parse(json, HttpBadRequestException.class);
+
+        Assert.assertEquals("Http bad request exception message", exception.getMessage());
+        Assert.assertEquals(400, exception.getCode());
+    }
+
+    @Test(expected = JsonProcessingException.class)
+    public void parseInvalidJsonTest() throws JsonProcessingException {
+        String json = "Invalid json message";
+        transformer.parse(json, HttpBadRequestException.class);
+    }
+
+    @Test
+    public void parseProjectClassTest() throws JsonProcessingException {
+        String json = "{\"id\":1,\"name\":\"Project name\"}";
+        Project project = transformer.parse(json, Project.class);
+
+        Assert.assertEquals((Long) 1L, project.getId());
+        Assert.assertEquals("Project name", project.getName());
+    }
+
+    @Test
+    public void convertHttpExceptionTest() throws JsonProcessingException {
+        HttpException exception = new HttpException("Http exception message", 400);
+        String json = transformer.convert(exception);
+
+        Assert.assertEquals("{\"message\":\"Http exception message\",\"code\":400}", json);
+    }
+
+    @Test
+    public void convertProjectTest() throws JsonProcessingException {
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Project name");
+        String json = transformer.convert(project);
+
+        Assert.assertEquals("{\"id\":1,\"name\":\"Project name\"}", json);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class JacksonJsonTransformerTest {
+
+    private JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+
+    @Test
+    public void parseExceptionClassTest() throws JsonProcessingException {
+        String json = "{\"message\":\"Exception message\"}";
+        HttpException exception = transformer.parse(json, HttpException.class);
+
+        Assert.assertEquals("Exception message", exception.getMessage());
+    }
+
+    @Test(expected = JsonMappingException.class)
+    public void parseInvalidJsonTest() throws JsonProcessingException {
+        String json = "Invalid json message";
+        transformer.parse(json, HttpException.class);
+    }
+
+    @Test
+    public void parseProjectClassTest() throws JsonProcessingException {
+        String json = "{\"id\":1,\"name\":\"Project name\"}";
+        Project project = transformer.parse(json, Project.class);
+
+        Assert.assertEquals((Long) 1L, project.getId());
+        Assert.assertEquals("Project name", project.getName());
+    }
+
+    @Test
+    public void convertHttpExceptionTest() throws JsonProcessingException {
+        HttpException exception = new HttpException("Exception message");
+        String json = transformer.convert(exception);
+
+        Assert.assertEquals("{\"message\":\"Exception message\"}", json);
+    }
+
+    @Test
+    public void convertProjectTest() throws JsonProcessingException {
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Project name");
+        String json = transformer.convert(project);
+
+        Assert.assertEquals("{\"id\":1,\"name\":\"Project name\"}", json);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class JacksonJsonTransformerTest {
+
+    private JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+
+    @Test
+    public void parseExceptionClassTest() throws JsonProcessingException {
+        String json = "{\"message\":\"Exception message\"}";
+        HttpException exception = transformer.parse(json, HttpException.class);
+
+        Assert.assertEquals("Exception message", exception.getMessage());
+    }
+
+    @Test(expected = JsonMappingException.class)
+    public void parseInvalidJsonTest() throws JsonProcessingException {
+        String json = "Invalid json message";
+        transformer.parse(json, HttpException.class);
+    }
+
+    @Test
+    public void parseProjectClassTest() throws JsonProcessingException {
+        String json = "{\"id\":1,\"name\":\"Project name\"}";
+        Project project = transformer.parse(json, Project.class);
+
+        Assert.assertEquals((Long) 1L, project.getId());
+        Assert.assertEquals("Project name", project.getName());
+    }
+
+    @Test
+    public void convertProjectTest() throws JsonProcessingException {
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Project name");
+        String json = transformer.convert(project);
+
+        Assert.assertEquals("{\"id\":1,\"name\":\"Project name\"}", json);
+    }
+}
+```
+===================================================
+

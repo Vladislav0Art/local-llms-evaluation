@@ -1,0 +1,88 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void convertTest() {
+        org.jsoup.nodes.Document jsoupDoc = Jsoup.parse("<html><head><title>First parse</title></head><body>Test page</body></html>");
+        Document doc = W3CDom.convert(jsoupDoc);
+        assertEquals("html", doc.getDocumentElement().getNodeName());
+    }
+
+    @Test
+    public void fromJsoupTest() {
+        org.jsoup.nodes.Document jsoupDoc = Jsoup.parse("<html><head><title>First parse</title></head><body>Test page</body></html>");
+        W3CDom w3cDom = new W3CDom();
+        Document doc = w3cDom.fromJsoup(jsoupDoc);
+        assertEquals("html", doc.getDocumentElement().getNodeName());
+    }
+
+    @Test
+    public void convertDocumentTest() {
+        org.jsoup.nodes.Document jsoupDoc = Jsoup.parse("<html><head><title>First parse</title></head><body>Test page</body></html>");
+        W3CDom w3cDom = new W3CDom();
+        Document doc = w3cDom.fromJsoup(new Element("div"));
+        w3cDom.convert(jsoupDoc, doc);
+        assertEquals("html", doc.getDocumentElement().getNodeName());
+    }
+
+    @Test
+    public void selectXpathTest() {
+        org.jsoup.nodes.Document jsoupDoc = Jsoup.parse("<html><head><title>First parse</title></head><body>Test page</body></html>");
+        Document w3cDocument = W3CDom.convert(jsoupDoc);
+        W3CDom w3cDom = new W3CDom();
+        NodeList nodeList = w3cDom.selectXpath("//title", w3cDocument);
+        assertEquals(nodeList.getLength(), 1);
+    }
+
+    @Test
+    public void selectXpathNodeTest() {
+        org.jsoup.nodes.Document jsoupDoc = Jsoup.parse("<html><head><title>First parse</title></head><body>Test page</body></html>");
+        Document w3cDocument = W3CDom.convert(jsoupDoc);
+        W3CDom w3cDom = new W3CDom();
+        NodeList nodeList = w3cDom.selectXpath("//title", w3cDocument);
+        assertEquals(nodeList.getLength(), 1);
+    }
+
+    @Test
+    public void asStringTest() {
+        org.jsoup.nodes.Document jsoupDoc = Jsoup.parse("<html><head><title>First parse</title></head><body>Test page</body></html>");
+        Document w3cDocument = W3CDom.convert(jsoupDoc);
+        W3CDom w3cDom = new W3CDom();
+        String str = w3cDom.asString(w3cDocument);
+        assertTrue(str.contains("First parse"));
+    }
+
+    @Test
+    public void asStringPropertiesTest() {
+        org.jsoup.nodes.Document jsoupDoc = Jsoup.parse("<html><head><title>First parse</title></head><body>Test page</body></html>");
+        Document w3cDocument = W3CDom.convert(jsoupDoc);
+        Map<String, String> properties = new HashMap<>();
+        properties.put("method", "html");
+        String str = W3CDom.asString(w3cDocument, properties);
+        assertTrue(str.contains("First parse"));
+    }
+
+    @Test
+    public void contextNodeTest() {
+        org.jsoup.nodes.Document jsoupDoc = Jsoup.parse("<html><head><title>First parse</title></head><body>Test page</body></html>");
+        W3CDom w3cDom = new W3CDom();
+        Document doc = w3cDom.fromJsoup(jsoupDoc);
+        Node node = w3cDom.contextNode(doc);
+        assertNull(node);
+    }
+
+}

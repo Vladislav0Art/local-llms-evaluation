@@ -1,0 +1,20 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedParseInvalidJsonTest {
+
+    private JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+
+    @Test
+    public void parseInvalidJsonTest() throws JsonProcessingException {
+        String json = "Invalid json message";
+        transformer.parse(json, HttpException.class);
+    }
+
+}

@@ -1,0 +1,59 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+
+import java.net.URL;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import org.jsoup.Connection.KeyVal;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildNormalUrlTest() throws Exception {
+        URL url = new URL("http://www.google.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL result = urlBuilder.build();
+        assertEquals("http://www.google.com", result.toString());
+    }
+
+    @Test
+    public void buildUrlWithSpacesTest() throws Exception {
+        URL url = new URL("http://www.google.com/search?q=search term");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL result = urlBuilder.build();
+        assertEquals("http://www.google.com/search?q=search%20term", result.toString());
+    }
+
+    @Test
+    public void buildUrlWithNonAsciiCharactersTest() throws Exception {
+        URL url = new URL("http://www.google.com/search?q=школа");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL result = urlBuilder.build();
+        assertEquals("http://www.google.com/search?q=%D1%88%D0%BA%D0%BE%D0%BB%D0%B0", result.toString());
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        KeyVal kv = mock(KeyVal.class);
+        when(kv.key()).thenReturn("q");
+        when(kv.value()).thenReturn("search term");
+
+        URL url = new URL("http://www.google.com/search");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.appendKeyVal(kv);
+        URL result = urlBuilder.build();
+        assertEquals("http://www.google.com/search?q=search+term", result.toString());
+    }
+
+    @Test
+    public void decodePartWithUnsupportedEncodingExceptionTest() throws Exception {
+        URL url = new URL("http://www.google.com/%");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.build();
+    }
+
+}

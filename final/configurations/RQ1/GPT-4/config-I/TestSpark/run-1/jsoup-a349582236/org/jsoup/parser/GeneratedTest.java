@@ -1,0 +1,104 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.Tag;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void getNameTest() {
+        String name = "testName";
+        Tag tag = Tag.valueOf(name);
+        Assert.assertEquals(name, tag.getName());
+    }
+
+    @Test
+    public void normalNameTest() {
+        String name = "TestName";
+        Tag tag = Tag.valueOf(name);
+        Assert.assertEquals(name.toLowerCase(), tag.normalName());
+    }
+
+    @Test
+    public void isBlockTest() {
+        Tag divTag = Tag.valueOf("div");
+        Assert.assertTrue(divTag.isBlock());
+
+        Tag aTag = Tag.valueOf("a");
+        Assert.assertFalse(aTag.isBlock());
+    }
+
+    @Test
+    public void isKnownTagTest() {
+        Assert.assertTrue(Tag.isKnownTag("p"));
+        Assert.assertFalse(Tag.isKnownTag("fakeTag"));
+    }
+
+    @Test
+    public void tagObjectEquivalencyTest() {
+        Tag tag1 = Tag.valueOf("div");
+        Tag tag2 = Tag.valueOf("div");
+
+        Assert.assertTrue(tag1.equals(tag2));
+
+        Tag tag3 = Tag.valueOf("p");
+        Assert.assertFalse(tag1.equals(tag3));
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag pTag = Tag.valueOf("p");
+        Assert.assertFalse(pTag.isInline());
+
+        Tag aTag = Tag.valueOf("a");
+        Assert.assertTrue(aTag.isInline());
+    }
+
+    @Test
+    public void isFormListedTest() {
+        Tag inputTag = Tag.valueOf("input");
+        Assert.assertTrue(inputTag.isFormListed());
+
+        Tag divTag = Tag.valueOf("div");
+        Assert.assertFalse(divTag.isFormListed());
+    }
+
+    @Test
+    public void isFormSubmittableTest() {
+        Tag inputTag = Tag.valueOf("input");
+        Assert.assertTrue(inputTag.isFormSubmittable());
+
+        Tag divTag = Tag.valueOf("div");
+        Assert.assertFalse(divTag.isFormSubmittable());
+    }
+
+    @Test
+    public void preserveWhitespaceTest() {
+        Tag preTag = Tag.valueOf("pre");
+        Assert.assertTrue(preTag.preserveWhitespace());
+
+        Tag divTag = Tag.valueOf("div");
+        Assert.assertFalse(divTag.preserveWhitespace());
+    }
+
+    @Test
+    public void valueOfWithSettingsTest() {
+        String name = "TestName";
+        Tag tag = Tag.valueOf(name, ParseSettings.preserveCase);
+        Assert.assertEquals(name, tag.getName());
+    }
+
+    @Test
+    public void valueOfEmptyTagNameTest() {
+        Tag.valueOf("");
+    }
+
+    @Test
+    public void valueOfNullTagNameTest() {
+        Tag.valueOf(null, ParseSettings.preserveCase);
+    }
+
+}

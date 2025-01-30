@@ -1,0 +1,297 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.model.Position;
+import org.traccar.protocol.GalileoProtocolDecoder;
+import org.traccar.protocol.Protocol;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+public class GalileoProtocolDecoderTest {
+
+    private GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("galileo"));
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void getTagLengthNegativeTest() {
+        GalileoProtocolDecoder.getTagLength(0x03);
+    }
+
+    @Test
+    public void getTagLengthPositiveTest() {
+        int tagLength = GalileoProtocolDecoder.getTagLength(0x01);
+        assertEquals(1, tagLength);
+    }
+
+    @Test(expected = Exception.class)
+    public void decodePositionsWithoutDeviceSessionTest() throws Exception {
+        ByteBuf buf = Mockito.mock(ByteBuf.class);
+        Mockito.when(buf.readUnsignedByte()).thenReturn(0x01);
+        decoder.decode(null, null, buf);
+    }
+       
+    @Test
+    public void decodePositionsWithDeviceSessionTest() throws Exception {
+        ByteBuf buf = Unpooled.copiedBuffer("01001C0008000A0001000000003030008000A000100000000".getBytes(StandardCharsets.ISO_8859_1));
+        Object positions = decoder.decode(null, null, buf);
+        assertNotNull(positions);
+        assertTrue(positions instanceof List);
+        assertFalse(((List) positions).isEmpty());
+        assertTrue(((List) positions).get(0) instanceof Position);
+    }
+    
+    @Test
+    public void decodeIridiumPositionTest() throws Exception {
+        ByteBuf buf = Unpooled.copiedBuffer("01001C0008000A0001000000003030008000A000100000000".getBytes(StandardCharsets.ISO_8859_1));
+        Position position = decoder.decodeIridiumPosition(null, null, buf);
+        assertNotNull(position);
+    }
+
+    @Test
+    public void decodeCompressedPositionsTest() throws Exception{
+        ByteBuf buf = Unpooled.copiedBuffer("08001C0008000A0001000000003030008000A000100000000".getBytes(StandardCharsets.ISO_8859_1));
+        List<Position> positions = decoder.decodeCompressedPositions(null, null, buf);
+        assertNotNull(positions);
+        assertFalse(positions.isEmpty());
+    }
+    
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.protocol.GalileoProtocolDecoder;
+import org.traccar.helper.UnitsConverter;
+import org.traccar.model.Position;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.*;
+
+import java.nio.charset.StandardCharsets;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    private GalileoProtocolDecoder decoder = spy(new GalileoProtocolDecoder(null));
+
+    @Test
+    public void decodeUnknownPositionHeaderTest() throws Exception {
+        ByteBuf buf = mock(ByteBuf.class);
+        when(buf.readUnsignedByte()).thenReturn(0x03);
+        assertNull(decoder.decode(null, null, buf));
+    }
+
+    @Test
+    public void decodeTagSimpleTest() {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(1);
+        Position position = new Position();
+        decoder.decodeTag(position, buf, 0x01);
+        assertEquals(position.getAttributes().get(Position.KEY_VERSION_HW), 1);
+    }
+
+    @Test
+    public void decodeTagFuelTest() {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeShortLE(3000);
+        Position position = new Position();
+        decoder.decodeTag(position, buf, 0x60);
+        assertEquals(position.getAttributes().get("fuel0"), 3000);
+    }
+
+    @Test
+    public void decodeTagOtherTest() {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(1);
+        Position position = new Position();
+        decoder.decodeTagOther(position, buf, 0x80);
+        assertNull(position.getAttributes().get(Position.KEY_VERSION_HW));
+    }
+     
+    @Test
+    public void decodeMinimalDataSetTest() {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeInt(1);
+        buf.writeInt(1);
+        buf.writeInt(0);
+        buf.writeInt(1);
+        Position position = new Position();
+        decoder.decodeMinimalDataSet(position, buf);
+        assertNotNull(position.getLatitude());
+        assertNotNull(position.getLongitude());
+        assertNotNull(position.getTime());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.junit.Assert;
+import org.junit.Test;
+import org.traccar.BaseProtocolDecoder;
+import org.traccar.helper.UnitsConverter;
+import org.traccar.model.Position;
+import org.traccar.protocol.GalileoProtocolDecoder;
+
+import java.lang.reflect.Method;
+import java.util.Date;
+
+import static org.mockito.Mockito.*;
+
+public class GalileoProtocolDecoderTest {
+
+    @Test
+    public void decodeTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(null);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x01);
+        buf.writeShortLE(0x01001c);
+        buf.writeIntLE(123);
+        buf.writeByte(0x01);
+        String imei = "123456789012345";
+        buf.writeBytes(imei.getBytes());
+
+        Method decodeIridiumPosition = GalileoProtocolDecoder.class.getDeclaredMethod("decodeIridiumPosition", BaseProtocolDecoder.class, ByteBuf.class);
+        decodeIridiumPosition.setAccessible(true);
+        Position position = (Position) decodeIridiumPosition.invoke(decoder, null, buf);
+        
+        Assert.assertNotNull(position);
+        Assert.assertEquals(imei, position.getDeviceId());
+        Assert.assertNotNull(position.getFixTime());
+        Assert.assertEquals(123, position.getProtocol());
+        Assert.assertTrue(position.getValid());
+    }
+
+    @Test
+    public void decodeCompressedPositionsTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(null);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeBytes(new byte[]{0x08, 0x00, 0x1c, 0x00, 0x08, 0x00, 0x0a, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x30, 0x30,
+                                  0x08, 0x00, 0x0a, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00});
+
+        Method decodeCompressedPositions = GalileoProtocolDecoder.class.getDeclaredMethod("decodeCompressedPositions", Channel.class, SocketAddress.class, ByteBuf.class);
+        decodeCompressedPositions.setAccessible(true);
+
+        List<Position> positions = (List<Position>) decodeCompressedPositions.invoke(decoder, null, null, buf);
+        Assert.assertNotNull(positions);
+        Assert.assertEquals(1, positions.size());
+        Assert.assertTrue(positions.get(0).getValid());
+    }
+
+    @Test
+    public void decodePositionsTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(null);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.clear();
+        buf.writeByte(0x01);
+
+        Method decodePositions = GalileoProtocolDecoder.class.getDeclaredMethod("decodePositions", Channel.class, SocketAddress.class, ByteBuf.class);
+        decodePositions.setAccessible(true);
+        List<Position> positions = (List<Position>) decodePositions.invoke(decoder, null, null, buf);
+        Assert.assertEquals(0, positions.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+
+import java.lang.reflect.Method;
+import java.net.SocketAddress;
+import java.util.Date;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.traccar.model.Position;
+import org.traccar.protocol.GalileoProtocolDecoder;
+
+import static org.mockito.Mockito.mock;
+
+public class GalileoProtocolDecoderTest {
+
+    @Test
+    public void decodeTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(null);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeIntLE(1);
+        buf.writeIntLE(1);
+        buf.writeIntLE(0);
+        buf.writeIntLE(1);
+        
+        Method decodeMinimalDataSet = GalileoProtocolDecoder.class.getDeclaredMethod("decodeMinimalDataSet", Position.class, ByteBuf.class);
+        decodeMinimalDataSet.setAccessible(true);
+        
+        Position position = new Position();
+        decodeMinimalDataSet.invoke(decoder, position, buf);
+
+        Assert.assertNotNull(position.getLatitude());
+        Assert.assertNotNull(position.getLongitude());
+        Assert.assertNotNull(position.getFixTime());
+        Assert.assertTrue(position.getValid());
+    }
+    
+    @Test
+    public void decodeUnknownPositionHeaderTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(null);
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x03);
+        assertNull(decoder.decode(null, null, buf));
+    }
+    
+    @Test
+    public void decodeTestWithPhotoHeader() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(null);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x07);
+        buf.writeShortLE(3);
+        buf.writeByte(
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+
+
+====================== Iteration #5 ======================
+
+===================================================
+

@@ -1,0 +1,132 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.regex.Matcher;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    @Test
+    public void decodeInitResponseTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf buf = Unpooled.copiedBuffer("[EM*12345678*0026*INIT,080812,A,30.566340,N,114.036450,E,000.0,000,10,100,3]", StandardCharsets.US_ASCII);
+        assertNull(decoder.decode(channel, remoteAddress, buf));
+
+        verify(channel, times(1)).writeAndFlush(any());
+    }
+
+    @Test
+    public void decodeAlarmTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        assertEquals(decoder.decodeAlarm(0), Position.ALARM_LOW_BATTERY);
+        assertNull(decoder.decodeAlarm(3));
+    }
+
+    @Test
+    public void decodePositionCorrectDataTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Position result = decoder.decodeAlarm("080812,A,30.566340,N,114.036450,E,000.0,000,10,100,4");
+
+        assertNotNull(result);
+        assertEquals(result.getDeviceId(), 1L); // Assuming that deviceSession for deviceId 1 was created before
+    }
+
+    @Test
+    public void decodePositionIncorrectDataTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Position result = decoder.decodeAlarm("080812X,A,30.566340,N,114.036450,E,000.0,000,10,100,4");
+
+        assertNull(result);
+    }
+
+    @Test
+    public void decodeDecodeUnknownTypeTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf buf = Unpooled.copiedBuffer("[EM*12345678*0026*UNKNOWN]", StandardCharsets.US_ASCII);
+        assertNull(decoder.decode(channel, remoteAddress, buf));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    @Test
+    public void decodeInitResponseTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf buf = Unpooled.copiedBuffer("[EM*12345678*0026*INIT,080812,A,30.566340,N,114.036450,E,000.0,000,10,100,3]", StandardCharsets.US_ASCII);
+        assertNull(decoder.decode(channel, remoteAddress, buf));
+
+        verify(channel, times(1)).writeAndFlush(any());
+    }
+
+    @Test
+    public void decodeDecodeUnknownTypeTest() throws Exception {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        ByteBuf buf = Unpooled.copiedBuffer("[EM*12345678*0026*UNKNOWN]", StandardCharsets.US_ASCII);
+        assertNull(decoder.decode(channel, remoteAddress, buf));
+    }
+
+}
+```
+===================================================
+

@@ -1,0 +1,86 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCodigoInternoValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setCodigoInterno("1234567890");
+        Assert.assertEquals("1234567890", vehiculoReboque.getCodigoInterno());
+    }
+
+    @Test
+    public void setCodigoInternoInValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setCodigoInterno("invalidcode1234567890");
+    }
+
+    @Test
+    public void setPlacaValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setPlaca("P1A2C3");
+        Assert.assertEquals("P1A2C3", vehiculoReboque.getPlaca());
+    }
+
+    @Test
+    public void setPlacaInValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setPlaca("invalidplaca");
+    }
+
+    @Test
+    public void setRenavamValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setRenavam("12345678901");
+        Assert.assertEquals("12345678901", vehiculoReboque.getRenavam());
+    }
+
+    @Test
+    public void setRenavamInValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setRenavam("invalidrenavam123456789012");
+    }
+
+    @Test
+    public void setTaraValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setTara("12345");
+        Assert.assertEquals("12345", vehiculoReboque.getTara());
+    }
+
+    @Test
+    public void setTaraInValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setTara("invalid123456");
+    }
+
+    @Test
+    public void setCapacidadeKGValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setCapacidadeKG("12345");
+        Assert.assertEquals("12345", vehiculoReboque.getCapacidadeKG());
+    }
+
+    @Test
+    public void setCapacidadeKGInValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setCapacidadeKG("invalid123456");
+    }
+
+    @Test
+    public void setCapacidadeM3ValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setCapacidadeM3("12");
+        Assert.assertEquals("12", vehiculoReboque.getCapacidadeM3());
+    }
+
+    @Test
+    public void setCapacidadeM3InValidTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        vehiculoReboque.setCapacidadeM3("invalid123");
+    }
+
+}

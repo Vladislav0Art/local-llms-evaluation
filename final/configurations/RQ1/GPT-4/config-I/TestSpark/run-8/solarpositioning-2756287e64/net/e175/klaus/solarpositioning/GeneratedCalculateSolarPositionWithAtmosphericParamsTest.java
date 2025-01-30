@@ -1,0 +1,29 @@
+package net.e175.klaus.solarpositioning;
+
+import static org.junit.Assert.assertEquals;
+
+import net.e175.klaus.solarpositioning.AzimuthZenithAngle;
+import org.junit.Test;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+public class GeneratedCalculateSolarPositionWithAtmosphericParamsTest {
+
+    private static final double DELTA = 1e-6;
+    private static final double LATITUDE = 48.2;
+    private static final double LONGITUDE = 16.37;
+    private static final double DELTA_T = 67;
+    private static final double PRESSURE = 1000;
+    private static final double TEMPERATURE = 15;
+
+    @Test
+    public void calculateSolarPositionWithAtmosphericParamsTest() {
+        ZonedDateTime dateTime = ZonedDateTime.of(2022, 3, 20, 12, 0, 0, 0, ZoneId.of("UTC"));
+        AzimuthZenithAngle az = Grena3.calculateSolarPosition(dateTime, LATITUDE, LONGITUDE, DELTA_T, PRESSURE, TEMPERATURE);
+
+        assertEquals(318.66, az.getAzimuth(), DELTA);
+        assertEquals(65.12, az.getZenithAngle(), DELTA);
+    }
+
+}
