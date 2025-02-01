@@ -1,0 +1,30 @@
+package org.jsoup.parser;
+
+import org.junit.jupiter.api.Test;
+import org.jsoup.parser.Tag;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import org.jsoup.parser.ParseSettings;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class GeneratedTestValueOfWithSettings {
+
+    @Test
+    public void testValueOfWithSettings() {
+        Tag tag = Tag.valueOf("p", ParseSettings.preserveCase);
+        assertEquals("p", tag.getName());
+        assertEquals("p", tag.normalName());
+        assertTrue(tag.isBlock());
+        assertTrue(tag.formatAsBlock());
+        assertFalse(tag.isEmpty());
+        assertFalse(tag.selfClosing());
+        assertFalse(tag.preserveWhitespace());
+        assertFalse(tag.isFormListed());
+        assertFalse(tag.isFormSubmittable());
+    }
+
+}
