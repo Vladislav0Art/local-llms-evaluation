@@ -1,0 +1,115 @@
+package org.jsoup.nodes;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import org.junit.Test;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class GeneratedTest {
+
+    @Test
+    public void getAttributeWhenExistTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+
+        String result = attributes.get("key");
+        assertThat(result, is("value"));
+    }
+
+    @Test
+    public void getAttributeWhenNotExistTest() {
+        Attributes attributes = new Attributes();
+        String result = attributes.get("key");
+        assertThat(result, is(""));
+    }
+
+    @Test
+    public void addAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertThat(attributes.hasKey("key"), is(true));
+    }
+
+    @Test
+    public void putAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertThat(attributes.hasKey("key"), is(true));
+    }
+
+    @Test
+    public void removeAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        attributes.remove("key");
+        assertThat(attributes.hasKey("key"), is(false));
+    }
+
+    @Test
+    public void attributeIteratorTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        attributes.add("key1", "value1");
+
+        Iterator<Attribute> iterator = attributes.iterator();
+        Attribute attribute = iterator.next();
+
+        assertThat(attribute.getKey(), is("key"));
+        assertThat(attribute.getValue(), is("value"));
+
+        attribute = iterator.next();
+        assertThat(attribute.getKey(), is("key1"));
+        assertThat(attribute.getValue(), is("value1"));
+
+        try {
+            attribute = iterator.next();
+        } catch (NoSuchElementException ex) {
+            assert true;
+        }
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        attributes.add("key1", "value1");
+
+        assertThat(attributes.size(), is(2));
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        assertThat(attributes.isEmpty(), is(true));
+
+        attributes.add("key", "value");
+        assertThat(attributes.isEmpty(), is(false));
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+
+        Attributes other = new Attributes();
+        other.add("key1", "value1");
+
+        attributes.addAll(other);
+
+        assertThat(attributes.hasKey("key1"), is(true));
+        assertThat(attributes.size(), is(2));
+    }
+
+    @Test
+    public void cloneTest() throws CloneNotSupportedException {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+
+        Attributes clone = attributes.clone();
+        assertThat(clone.hasKey("key"), is(true));
+    }
+
+}

@@ -1,0 +1,90 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildUrlNoQueryNoRefTest() throws MalformedURLException {
+        URL url = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        assertEquals(url, urlBuilder.build());
+        assertNotEquals(new URL("http://example.in"), urlBuilder.build());
+    }
+
+    @Test
+    public void buildUrlWithQueryNoRefTest() throws MalformedURLException {
+        URL url = new URL("http://example.com?q=test");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        assertEquals(url, urlBuilder.build());
+        assertNotEquals(new URL("http://example.in"), urlBuilder.build());
+    }
+
+    @Test
+    public void buildUrlNoQueryWithRefTest() throws MalformedURLException {
+        URL url = new URL("http://example.com#ref");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        assertEquals(url, urlBuilder.build());
+        assertNotEquals(new URL("http://example.in"), urlBuilder.build());
+    }
+
+    @Test
+    public void buildUrlWithQueryWithRefTest() throws MalformedURLException {
+        URL url = new URL("http://example.com?q=test#ref");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        assertEquals(url, urlBuilder.build());
+        assertNotEquals(new URL("http://example.in"), urlBuilder.build());
+    }
+
+    @Test
+    public void appendKeyValTest() throws MalformedURLException, UnsupportedEncodingException {
+        URL url = new URL("http://example.com?q=test");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        Connection.KeyVal keyValMock = mock(Connection.KeyVal.class);
+        when(keyValMock.key()).thenReturn("newKey");
+        when(keyValMock.value()).thenReturn("newValue");
+
+        urlBuilder.appendKeyVal(keyValMock);
+    }
+
+    @Test
+    public void decodePartNullTest() throws MalformedURLException {
+        URL url = new URL("http://exàmple.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        UrlBuilder.decodePart(null);
+    }
+
+    @Test
+    public void normalizeQueryTest() throws MalformedURLException {
+        URL url = new URL("http://example.com?q=test space");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        String normalizedQuery = UrlBuilder.normalizeQuery("test query");
+        assertEquals("test+query", normalizedQuery);
+    }
+
+    @Test
+    public void normalizeRefTest() throws MalformedURLException {
+        URL url = new URL("http://example.com#test ref");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        String normalizedRef = UrlBuilder.normalizeRef("test ref");
+        assertEquals("test%20ref", normalizedRef);
+    }
+
+}

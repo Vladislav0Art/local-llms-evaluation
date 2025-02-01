@@ -1,0 +1,101 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.XmlDeclaration;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void CommentConstructorTest() {
+        String data = "This is a comment";
+        Comment comment = new Comment(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        String data = "This is a comment";
+        Comment comment = new Comment(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        String data = "This is a comment";
+        Comment comment = new Comment("");
+        comment.setData(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment commentNode = new Comment("This is a comment");
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        outputSettings.prettyPrint(true);
+
+        StringBuilder stringBuilder = new StringBuilder();
+        commentNode.outerHtmlHead(stringBuilder, 0, outputSettings);
+
+        String expectedHtml = "<!--This is a comment-->";
+        assertEquals(expectedHtml, stringBuilder.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment commentNode = new Comment("");
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        commentNode.outerHtmlTail(stringBuilder, 0, outputSettings);
+
+        String expectedHtml = "";
+        assertEquals(expectedHtml, stringBuilder.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("This is a comment");
+        assertEquals("<!--This is a comment-->", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("This is a comment");
+        Comment cloneComment = comment.clone();
+        assertNotSame(comment, cloneComment);
+        assertEquals(comment.getData(), cloneComment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment1 = new Comment("?xml version='1.0' encoding='UTF-8'");
+        assertTrue(comment1.isXmlDeclaration());
+
+        Comment comment2 = new Comment("This is not a XML Declaration");
+        assertFalse(comment2.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment1 = new Comment("?xml version='1.0' encoding='UTF-8'");
+        XmlDeclaration declaration = comment1.asXmlDeclaration();
+        assertNotNull(declaration);
+        assertTrue(declaration.isProcessingInstruction());
+
+        Comment comment2 = new Comment("This is not a XML Declaration");
+        assertNull(comment2.asXmlDeclaration());
+    }
+
+}

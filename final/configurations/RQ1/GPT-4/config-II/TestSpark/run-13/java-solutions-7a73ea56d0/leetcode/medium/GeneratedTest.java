@@ -1,0 +1,70 @@
+package leetcode.medium;
+
+import leetcode.medium.OnlineStockSpan;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSingleInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int nextResult = stockSpan.next(100);
+        Assert.assertEquals(1, nextResult);
+    }
+
+    @Test
+    public void nextMultipleInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        int nextResult = stockSpan.next(80);
+        Assert.assertEquals(1, nextResult);
+    }
+
+    @Test
+    public void nextAscInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        stockSpan.next(120);
+        int nextResult = stockSpan.next(150);
+        Assert.assertEquals(3, nextResult);
+    }
+
+    @Test
+    public void nextDescInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(150);
+        stockSpan.next(130);
+        int nextResult = stockSpan.next(110);
+        Assert.assertEquals(1, nextResult);
+    }
+
+    @Test
+    public void calculateSpansSinglePriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] spans = stockSpan.calculateSpans(new int[]{100});
+        Assert.assertArrayEquals(new int[]{1}, spans);
+    }
+
+    @Test
+    public void calculateSpansTwoPricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] spans = stockSpan.calculateSpans(new int[]{100, 120});
+        Assert.assertArrayEquals(new int[]{1, 2}, spans);
+    }
+
+    @Test
+    public void calculateSpansMultiplePricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] spans = stockSpan.calculateSpans(new int[]{100, 120, 90, 150, 180, 170, 200});
+        Assert.assertArrayEquals(new int[]{1, 2, 1, 4, 5, 1, 7}, spans);
+    }
+
+    @Test
+    public void calculateSpansDecreasingPricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] spans = stockSpan.calculateSpans(new int[]{200, 190, 180, 170, 160});
+        Assert.assertArrayEquals(new int[]{1, 1, 1, 1, 1}, spans);
+    }
+
+}

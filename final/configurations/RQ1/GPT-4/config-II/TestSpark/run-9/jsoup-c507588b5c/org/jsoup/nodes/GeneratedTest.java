@@ -1,0 +1,82 @@
+package org.jsoup.nodes;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void TextNodeConstructorTest() {
+        String text = "Sample text";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.getWholeText());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        String text = "Sample text";
+        TextNode textNode = new TextNode(text);
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textGetterTest() {
+        String text = "Sample text";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.text());
+    }
+
+    @Test
+    public void textSetterTest() {
+        String text = "Sample text";
+        TextNode textNode = new TextNode("");
+        textNode.text(text);
+        assertEquals(text, textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        String text = "Sample text with spaces   and    tabs";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        String text = "       ";
+        TextNode textNode = new TextNode(text);
+        assertTrue(textNode.isBlank());
+
+        text = "Sample text";
+        textNode = new TextNode(text);
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        String text = "Sample text";
+        TextNode textNode = new TextNode(text);
+        TextNode splitNode = textNode.splitText(6);
+        assertEquals("Sample", textNode.getWholeText());
+        assertEquals(" text", splitNode.getWholeText());
+    }
+
+    @Test
+    public void cloneTest() {
+        String text = "Sample text";
+        TextNode textNode = new TextNode(text);
+        TextNode clone = textNode.clone();
+        assertEquals(textNode.getWholeText(), clone.getWholeText());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        String encodedText = "&lt;Sample text&gt;";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertEquals("<Sample text>", textNode.getWholeText());
+    }
+
+}

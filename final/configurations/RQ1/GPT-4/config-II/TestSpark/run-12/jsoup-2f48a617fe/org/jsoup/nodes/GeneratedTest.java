@@ -1,0 +1,81 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.StringWriter;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("test comment");
+        Assert.assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("test data");
+        Assert.assertEquals("test data", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("old data");
+        comment.setData("new data");
+        Assert.assertEquals("new data", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("test comment");
+        Document.OutputSettings settings = new Document.OutputSettings();
+        settings.prettyPrint(true);
+        StringWriter writer = new StringWriter();
+        comment.outerHtmlHead(writer, 0, settings);
+        Assert.assertEquals("<!--test comment-->", writer.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("test comment");
+        Document.OutputSettings settings = new Document.OutputSettings();
+        settings.prettyPrint(true);
+        StringWriter writer = new StringWriter();
+        comment.outerHtmlTail(writer, 0, settings);
+        Assert.assertEquals("", writer.toString());
+    }
+
+    @Test
+    public void cloneCommentTest() {
+        Comment comment = new Comment("test comment");
+        Comment clonedComment = comment.clone();
+        Assert.assertEquals(comment.getData(), clonedComment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("?xml version=\"1.0\" encoding=\"UTF-8\"?");
+        Assert.assertTrue(comment.isXmlDeclaration());
+
+        Comment notXmlComment = new Comment("test comment");
+        Assert.assertFalse(notXmlComment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("?xml version=\"1.0\" encoding=\"UTF-8\"?");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        Assert.assertNotNull(xmlDeclaration);
+        Assert.assertTrue(comment.isXmlDeclaration());
+
+        Comment notXmlComment = new Comment("test comment");
+        XmlDeclaration notXmlDeclaration = notXmlComment.asXmlDeclaration();
+        Assert.assertNull(notXmlDeclaration);
+    }
+
+}

@@ -1,0 +1,85 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void addPropertyNewTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> property = new Property<>("DataSource.name", "sqlite");
+
+        // Act
+        builder.add(property);
+
+        // Assert
+        Map<String, Object> rootEntries = builder.getRootEntries();
+        assertTrue(rootEntries.get("DataSource") instanceof Map<?, ?>);
+        assertEquals(property, ((Map<?, ?>) rootEntries.get("DataSource")).get("name"));
+    }
+
+    @Test
+    public void addPropertyExistingTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> property1 = new Property<>("DataSource.type", "sqlite");
+        Property<String> property2 = new Property<>("DataSource.type", "mysql");
+
+        // Act
+        builder.add(property1);
+        builder.add(property2); // Should throw exception here.
+    }
+
+    @Test
+    public void createPropertiesListTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> property1 = new Property<>("DataSource.type", "sqlite");
+        Property<String> property2 = new Property<>("Security.type", "JWT");
+
+        // Act
+        builder.add(property1);
+        builder.add(property2);
+        List<Property<?>> propertiesList = builder.create();
+
+        // Assert
+        assertEquals(2, propertiesList.size());
+        assertSame(property1, propertiesList.get(0));
+        assertSame(property2, propertiesList.get(1));
+    }
+
+    @Test
+    public void getChildMapExistsAndNotMapTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> existingProperty = new Property<>("DataSource", "mysql");
+        builder.add(existingProperty);
+
+        // Act
+        Property<String> badProperty = new Property<>("DataSource.type", "sqlite");
+        builder.add(badProperty); // Should throw exception.
+    }
+
+    @Test
+    public void getChildMapNonExistentPathTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        // Act
+        Property<String> property = new Property<>("DataSource.type", "sqlite");
+        builder.add(property);
+
+        // Assert
+        Map<String, Object> entries = builder.getRootEntries();
+        assertTrue(entries.get("DataSource") instanceof Map<?, ?>);
+    }
+
+}

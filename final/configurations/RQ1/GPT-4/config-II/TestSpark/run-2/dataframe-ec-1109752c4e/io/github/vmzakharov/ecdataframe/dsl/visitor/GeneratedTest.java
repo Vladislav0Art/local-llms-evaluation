@@ -1,0 +1,102 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.value.*;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.*;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.utility.StringIterate;
+import org.eclipse.collections.impl.utility.ArrayIterate;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void VisitAssignExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitAssignExpr(new AssingExpr("a", Value.of(1), false));
+        Assert.assertEquals("a = 1", printer.toString());
+    }
+
+    @Test
+    public void EscapeVarNameIfNeededTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        Assert.assertEquals("abc", visitor.escapeVarNameIfNeeded("abc", false));
+        Assert.assertEquals("${abc}", visitor.escapeVarNameIfNeeded("abc", true));
+    }
+
+    @Test
+    public void VisitBinaryExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitBinaryExpr(new BinaryExpr(Value.of(1), BinaryOp.EQ, Value.of(2)));
+        Assert.assertEquals("(1 == 2)", printer.toString());
+    }
+
+    @Test
+    public void VisitUnaryExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitUnaryExpr(new UnaryExpr(UnaryOp.NOT, Value.of(true)));
+        Assert.assertEquals("!(true)", printer.toString());
+    }
+
+    @Test
+    public void VisitConstExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitConstExpr(Value.of("abc"));
+        Assert.assertEquals("'abc'", printer.toString());
+    }
+
+    @Test
+    public void VisitFunctionCallExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitFunctionCallExpr(new FunctionCallExpr("foo", Lists.mutable.of(Value.of(1), Value.of(2))));
+        Assert.assertEquals("foo(1, 2)", printer.toString());
+    }
+
+    @Test
+    public void VisitPropertyPathExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitPropertyPathExpr(new PropertyPathExpr(Lists.mutable.of("a", "b", "c")));
+        Assert.assertEquals("a.b.c", printer.toString());
+    }
+
+    @Test
+    public void VisitVarExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitVarExpr(new VarExpr("abc", false));
+        Assert.assertEquals("abc", printer.toString());
+    }
+
+    @Test
+    public void VisitProjectionExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitProjectionExpr(new ProjectionExpr(Lists.mutable.of(new VarExpr("column1", false)), null));
+        Assert.assertEquals("project {column1}", printer.toString());
+    }
+
+    @Test
+    public void VisitAliasExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitAliasExpr(new AliasExpr("alias", Value.of(1)));
+        Assert.assertEquals("alias : 1", printer.toString());
+    }
+
+    @Test
+    public void VisitVectorExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitVectorExpr(new VectorExpr(Lists.mutable.of(Value.of(1), Value.of(2), Value.of(3))));
+        Assert.assertEquals("(1, 2, 3)", printer.toString());
+    }
+
+}

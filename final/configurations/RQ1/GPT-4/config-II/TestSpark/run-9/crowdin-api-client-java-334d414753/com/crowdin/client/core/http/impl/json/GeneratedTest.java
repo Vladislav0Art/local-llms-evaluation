@@ -1,0 +1,74 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.ExportOptions;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.crowdin.client.sourcefiles.model.ImportOptions;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseValidHttpExceptionClassTest() throws Exception {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String validHttpExceptionJson = "{}";
+        HttpException exception = transformer.parse(validHttpExceptionJson, HttpException.class);
+        assertNotNull(exception);
+    }
+
+    @Test
+    public void parseValidHttpBadRequestExceptionClassTest() throws Exception {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String validHttpResponseJson = "{}";
+        HttpBadRequestException exception = transformer.parse(validHttpResponseJson, HttpBadRequestException.class);
+        assertNotNull(exception);
+    }
+
+    @Test
+    public void convertValidObjectTest() throws Exception {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = new Project();
+        project.setName("Test Project");
+        String convertedString = transformer.convert(project);
+        assertTrue(convertedString.contains("Test Project"));
+    }
+
+    @Test
+    public void checkObjectMapperConfigurationTest() throws Exception {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String validProjectJson = "{\"name\":\"Test Project\"}";
+        Project project = transformer.parse(validProjectJson, Project.class);
+        assertEquals("Test Project", project.getName());
+    }
+
+    @Test
+    public void parseInvalidClassTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String invalidClassJson = "{}";
+        try {
+            transformer.parse(invalidClassJson, LanguageTranslations.class);
+            fail("Expected an CrowdinApiException to be thrown");
+        } catch (CrowdinApiException e) {
+            assertTrue(e.getMessage().contains("Unexpected end of input"));
+        }
+    }
+
+    @Test
+    public void parseInvalidJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String invalidJson = "{random";
+        try {
+            transformer.parse(invalidJson, FileInfo.class);
+            fail("Expected an CrowdinApiException to be thrown");
+        } catch (CrowdinApiException e) {
+            assertTrue(e.getMessage().contains("Unexpected character"));
+        }
+    }
+
+}

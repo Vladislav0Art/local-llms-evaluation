@@ -1,0 +1,207 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Tag;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getNameTest() {
+        Tag tag = new Tag("p");
+        assertEquals("p", tag.getName());
+    }
+
+    @Test
+    public void normalNameTest() {
+        Tag tag = new Tag("P");
+        assertEquals("p", tag.normalName());
+    }
+
+    @Test
+    public void valueOfWithSettingsTest() {
+        Tag tag = Tag.valueOf("P", ParseSettings.preserveCase);
+        assertEquals("P", tag.getName());
+    }
+
+    @Test
+    public void valueOfWithoutSettingsTest() {
+        Tag tag = Tag.valueOf("p");
+        assertEquals("p", tag.getName());
+    }
+
+    @Test
+    public void isBlockTrueTest() {
+        Tag tag = Tag.valueOf("div");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void isBlockFalseTest() {
+        Tag tag = Tag.valueOf("span");
+        assertFalse(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlockTrueTest() {
+        Tag tag = Tag.valueOf("div");
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void formatAsBlockFalseTest() {
+        Tag tag = Tag.valueOf("q");
+        assertFalse(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTrueTest() {
+        Tag tag = Tag.valueOf("span");
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isInlineFalseTest() {
+        Tag tag = Tag.valueOf("div");
+        assertFalse(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTrueTest() {
+        Tag tag = Tag.valueOf("br");
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isEmptyFalseTest() {
+        Tag tag = Tag.valueOf("p");
+        assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTrueTest() {
+        Tag tag = Tag.valueOf("area");
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isSelfClosingFalseTest() {
+        Tag tag = Tag.valueOf("div");
+        assertFalse(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTagTest() {
+        assertTrue(Tag.isKnownTag("div"));
+    }
+
+    @Test
+    public void isKnownTagFalseTest() {
+        assertFalse(Tag.isKnownTag("custom"));
+    }
+
+    @Test
+    public void preserveWhitespaceTrueTest() {
+        Tag tag = Tag.valueOf("pre");
+        assertTrue(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void preserveWhitespaceFalseTest() {
+        Tag tag = Tag.valueOf("p");
+        assertFalse(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void isFormListedTrueTest() {
+        Tag tag = Tag.valueOf("input");
+        assertTrue(tag.isFormListed());
+    }
+
+    @Test
+    public void isFormListedFalseTest() {
+        Tag tag = Tag.valueOf("p");
+        assertFalse(tag.isFormListed());
+    }
+
+    @Test
+    public void isFormSubmittableTrueTest() {
+        Tag tag = Tag.valueOf("input");
+        assertTrue(tag.isFormSubmittable());
+    }
+
+    @Test
+    public void isFormSubmittableFalseTest() {
+        Tag tag = Tag.valueOf("p");
+        assertFalse(tag.isFormSubmittable());
+    }
+
+    @Test
+    public void cloneTest() {
+        Tag tag1 = Tag.valueOf("div");
+        Tag tag2 = tag1.clone();
+        assertEquals(tag1, tag2);
+    }
+
+    @Test
+    public void toStringTest() {
+        Tag tag = Tag.valueOf("div");
+        assertEquals("div", tag.toString());
+    }
+
+    @Test
+    public void invalidTagNameTest() {
+        try {
+            Tag.valueOf(null, ParseSettings.preserveCase);
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void invalidTagNameTest2() {
+        try {
+            Tag.valueOf("", ParseSettings.preserveCase);
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void equalsTest() {
+        Tag tag1 = Tag.valueOf("p");
+        Tag tag2 = Tag.valueOf("p");
+        assertTrue(tag1.equals(tag2));
+    }
+
+    @Test
+    public void notEqualsTest() {
+        Tag tag1 = Tag.valueOf("p");
+        Tag tag2 = Tag.valueOf("div");
+        assertFalse(tag1.equals(tag2));
+    }
+
+    @Test
+    public void notEqualsDifferentTypeTest() {
+        Tag tag = Tag.valueOf("div");
+        assertFalse(tag.equals("div"));
+    }
+
+    @Test
+    public void equalsSelfTest() {
+        Tag tag = Tag.valueOf("p");
+        assertTrue(tag.equals(tag));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        Tag tag1 = Tag.valueOf("p");
+        Tag tag2 = Tag.valueOf("p");
+        assertEquals(tag1.hashCode(), tag2.hashCode());
+    }
+
+}

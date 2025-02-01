@@ -1,0 +1,95 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.InjectMocks;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @InjectMocks
+    private EpubChecker epubChecker;
+
+    @Test
+    public void runNoArgumentsTest() {
+        int result = epubChecker.run(new String[]{});
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void runHelpTest() {
+        int result = epubChecker.run(new String[]{"-help"});
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void runInvalidVersionTest() {
+        int result = epubChecker.run(new String[]{"-v", "1"});
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void runProcessEpubFileTest() {
+        int result = epubChecker.processEpubFile(new String[]{"-help"});
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void processArgumentsNoArgumentsTest() {
+        String[] args = new String[]{};
+        assertEquals(false, epubChecker.processArguments(args));
+    }
+
+    @Test
+    public void processArgumentsHelpTest() {
+        String[] args = new String[]{"--help"};
+        assertEquals(true, epubChecker.processArguments(args));
+    }
+
+    @Test
+    public void processArgumentsVersionTest() {
+        String[] args = new String[]{"--v", "2"};
+        assertEquals(true, epubChecker.processArguments(args));
+    }
+
+    @Test
+    public void processArgumentsVersionInvalidTest() {
+        String[] args = new String[]{"--v"};
+        assertEquals(false, epubChecker.processArguments(args));
+    }
+
+    @Test
+    public void processArgumentsProfileTest() {
+        String[] args = new String[]{"--p", "Default"};
+        assertEquals(false, epubChecker.processArguments(args));
+    }
+
+    @Test
+    public void testGetLocale() {
+        assertEquals(Locale.getDefault(), epubChecker.getLocale());
+    }
+
+    @Test
+    public void printEpubCheckCompletedTest() {
+        Report report = new CheckingReport(new PrintWriter(System.out, true), "testPath");
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+        epubChecker.printEpubCheckCompleted(report);
+        assertNotEquals("", outContent.toString());
+        System.setOut(System.out);
+    }
+
+    @Test
+    public void runInvalidInputTest() {
+        int result = epubChecker.run(new String[]{"invalid_input"});
+        assertEquals(1, result);
+    }
+
+}

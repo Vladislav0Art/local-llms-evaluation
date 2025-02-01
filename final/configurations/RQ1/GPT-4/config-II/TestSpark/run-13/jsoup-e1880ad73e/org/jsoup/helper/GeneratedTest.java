@@ -1,0 +1,60 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.StringUtil;
+import org.junit.Test;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildTest() throws Exception {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        URL builtUrl = urlBuilder.build();
+
+        assertNotNull(builtUrl);
+        assertEquals("http", builtUrl.getProtocol());
+        assertEquals("www.example.com", builtUrl.getHost());
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        Connection.KeyVal testPair = Connection.KeyVal.create("key", "value");
+        urlBuilder.appendKeyVal(testPair);
+
+        URL builtUrl = urlBuilder.build();
+
+        assertTrue(builtUrl.getQuery().contains("key=value"));
+    }
+
+    @Test
+    public void decodePartTest() throws UnsupportedEncodingException {
+        URL url = new URL("http://www.example.com/%ZZ");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        urlBuilder.build();
+    }
+
+    @Test
+    public void testInvalidUrlConstruction() {
+        try {
+            URL url = new URL("http://www.invalid-.com");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+            urlBuilder.build();
+        } catch (Exception ex) {
+            assertTrue(ex.getMessage().contains("assertFail"));
+        }
+    }
+
+}

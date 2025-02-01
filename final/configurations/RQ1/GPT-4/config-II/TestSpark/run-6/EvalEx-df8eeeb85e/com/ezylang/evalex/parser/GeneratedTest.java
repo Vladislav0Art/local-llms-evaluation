@@ -1,0 +1,116 @@
+package com.ezylang.evalex.parser;
+
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.config.FunctionDictionaryIfc;
+import com.ezylang.evalex.config.OperatorDictionaryIfc;
+import com.ezylang.evalex.functions.FunctionIfc;
+import com.ezylang.evalex.operators.OperatorIfc;
+import com.ezylang.evalex.parser.ParseException;
+import com.ezylang.evalex.parser.Token;
+import com.ezylang.evalex.parser.Tokenizer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private ExpressionConfiguration mockConfiguration;
+    @Mock
+    private OperatorDictionaryIfc mockOperatorDictionary;
+    @Mock
+    private FunctionDictionaryIfc mockFunctionDictionary;
+    @Mock
+    private FunctionIfc mockFunction;
+    @Mock
+    private OperatorIfc mockOperator;
+
+    @Test
+    public void parseEmptyExpressionTest() throws ParseException {
+        setupConfig(false, false);
+
+        Tokenizer tokenizer = new Tokenizer("", mockConfiguration);
+        List<Token> tokens = tokenizer.parse();
+    }
+
+    @Test
+    public void parseOperatorNotAllowedTest() throws ParseException {
+        setupConfig(false, false);
+        when(mockOperatorDictionary.hasInfixOperator(anyString())).thenReturn(true);
+        when(mockOperatorDictionary.getInfixOperator(anyString())).thenReturn(mockOperator);
+
+        Tokenizer tokenizer = new Tokenizer("()", mockConfiguration);
+        List<Token> tokens = tokenizer.parse();
+    }
+
+    @Test
+    public void parseOperatorAllowedTest() throws ParseException {
+        setupConfig(false, false);
+        when(mockOperatorDictionary.hasInfixOperator(anyString())).thenReturn(true);
+        when(mockOperatorDictionary.getInfixOperator(anyString())).thenReturn(mockOperator);
+
+        Tokenizer tokenizer = new Tokenizer("(1)", mockConfiguration);
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(3, tokens.size());
+    }
+
+    @Test
+    public void parseFunctionTest() throws ParseException {
+        setupConfig(false, false);
+        when(mockFunctionDictionary.hasFunction(anyString())).thenReturn(true);
+        when(mockFunctionDictionary.getFunction(anyString())).thenReturn(mockFunction);
+
+        Tokenizer tokenizer = new Tokenizer("function()", mockConfiguration);
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(3, tokens.size());
+    }
+
+    @Test
+    public void parseHexNumberTest() throws ParseException {
+        setupConfig(false, false);
+
+        Tokenizer tokenizer = new Tokenizer("0x12", mockConfiguration);
+        List<Token> tokens = tokenizer.parse();
+        assertEquals(1, tokens.size());
+    }
+
+    @Test
+    public void parseInvalidHexNumberTest() throws ParseException {
+        setupConfig(false, false);
+
+        Tokenizer tokenizer = new Tokenizer("0xg", mockConfiguration);
+        List<Token> tokens = tokenizer.parse();
+    }
+
+    @Test
+    public void testUnmatchedClosingBrace() throws ParseException {
+        setupConfig(false, false);
+
+        Tokenizer tokenizer = new Tokenizer(")", mockConfiguration);
+        List<Token> tokens = tokenizer.parse();
+    }
+
+    @Test
+    public void testUnmatchedOpeningBrace() throws ParseException {
+        setupConfig(false, false);
+
+        Tokenizer tokenizer = new Tokenizer("(", mockConfiguration);
+        List<Token> tokens = tokenizer.parse();
+    }
+
+    private void setupConfig(boolean allowArrays, boolean allowStructures) {
+        when(mockConfiguration.getOperatorDictionary()).thenReturn(mockOperatorDictionary);
+        when(mockConfiguration.getFunctionDictionary()).thenReturn(mockFunctionDictionary);
+        when(mockConfiguration.isArraysAllowed()).thenReturn(allowArrays);
+        when(mockConfiguration.isStructuresAllowed()).thenReturn(allowStructures);
+    }
+
+}

@@ -1,0 +1,64 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+package org.traccar.protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.traccar.model.Position;
+import org.traccar.session.DeviceSession;
+import org.junit.Test;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class WatchProtocolDecoderTest {
+
+    @Test
+    public void decodePositionTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("name"));
+        DeviceSession deviceSession = new DeviceSession(1);
+
+        String data = "010101,000000,V,0.0,N,0.0,E,0.0,0.0,0.0,0,0,10,10,0,0000,";
+        Position position = decoder.decodePosition(deviceSession, data);
+
+        assertNotNull(position);
+        assertTrue(position.getValid());
+        assertEquals(10, position.getInteger(Position.KEY_BATTERY_LEVEL).intValue());
+        assertEquals(10, position.getInteger(Position.KEY_STEPS).intValue());
+    }
+
+    @Test
+    public void decodeAlarmTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("name"));
+        assertEquals(Position.ALARM_GEOFENCE_ENTER, decoder.decodeAlarm(0b100));
+        assertEquals(Position.ALARM_GEOFENCE_EXIT, decoder.decodeAlarm(0b10));
+        assertEquals(Position.ALARM_LOW_BATTERY, decoder.decodeAlarm(0b1));
+        assertEquals(Position.ALARM_POWER_CUT, decoder.decodeAlarm(0b100000000000000));
+        assertNull(decoder.decodeAlarm(0));
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        SocketAddress address = mock(SocketAddress.class);
+        ByteBuf buf = Unpooled.copiedBuffer("[CS*0000000000*0002*LK,89679,18]", StandardCharsets.US_ASCII);
+        Channel channel = mock(Channel.class);
+        when(channel.remoteAddress()).thenReturn(address);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("name"));
+        decoder.setSessionManager(new TestSessionManager());
+
+        Position position = (Position) decoder.decode(channel, address, buf);
+        assertNotNull(position);
+        assertEquals(18, position.getInteger(Position.KEY_BATTERY_LEVEL).intValue());
+        assertEquals(89679, position.getInteger(Position.KEY_STEPS).intValue());
+    }
+
+    ... // other unit tests
+}
+```
+===================================================
+

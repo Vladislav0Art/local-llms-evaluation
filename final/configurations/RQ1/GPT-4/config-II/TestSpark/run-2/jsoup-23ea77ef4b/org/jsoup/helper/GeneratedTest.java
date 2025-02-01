@@ -1,0 +1,73 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.util.Map;
+import java.util.Properties;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTest() {
+        W3CDom dom = new W3CDom();
+        assertTrue(dom.namespaceAware());
+
+        dom.namespaceAware(false);
+        assertFalse(dom.namespaceAware());
+    }
+
+    @Test
+    public void fromJsoupTest() throws ParserConfigurationException {
+        org.jsoup.nodes.Document jsoupDocument = new Document("publicId", "systemId");
+        Element element = new Element("tag");
+        jsoupDocument.appendChild(element);
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document document = dom.fromJsoup(element);
+
+        Node firstChild = document.getFirstChild().getFirstChild();
+
+        assertNotNull(firstChild);
+        assertEquals("tag", firstChild.getNodeName());
+    }
+
+    @Test
+    public void OutputHtmlTest() {
+        Map<String, String> map = W3CDom.OutputHtml();
+        assertTrue(map.containsKey("method"));
+    }
+
+    @Test
+    public void OutputXmlTest() {
+        Map<String, String> map = W3CDom.OutputXml();
+        assertTrue(map.containsKey("method"));
+    }
+
+    @Test
+    public void asStringTest() {
+        org.jsoup.nodes.Document jsoupDoc = new Document("publicId", "systemId");
+        Element element = new Element("elementName");
+        jsoupDoc.appendChild(element);
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = dom.fromJsoup(element);
+        String serializedDoc = W3CDom.asString(w3cDoc, null);
+
+        assertTrue(serializedDoc.contains("elementName"));
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = W3CDom.OutputXml();
+        Properties properties = W3CDom.propertiesFromMap(map);
+
+        assertTrue(properties.containsKey("method"));
+    }
+
+}

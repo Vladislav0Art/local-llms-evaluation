@@ -1,0 +1,69 @@
+package net.revelc.code.formatter.css;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import net.revelc.code.formatter.css.CssFormatter;
+import net.revelc.code.formatter.ConfigurationSource;
+import net.revelc.code.formatter.LineEnding;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void initTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        ConfigurationSource cfg = new ConfigurationSource();
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "2");
+        options.put("rgbAsHex", "true");
+        options.put("useSourceStringValues", "false");
+        cssFormatter.init(options, cfg);
+        assertTrue(cssFormatter.isInitialized());
+    }
+
+    @Test
+    public void initInvalidIndentTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        ConfigurationSource cfg = new ConfigurationSource();
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "invalid");
+        cssFormatter.init(options, cfg);
+    }
+
+    @Test
+    public void doFormatTest() throws IOException {
+        CssFormatter cssFormatter = new CssFormatter();
+        ConfigurationSource cfg = new ConfigurationSource();
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "4");
+        cssFormatter.init(options, cfg);
+        String code = ".demo { color: #FFFFFF; }";
+        String expectedCode = ".demo { color: #FFFFFF; }";
+        assertEquals(expectedCode, cssFormatter.doFormat(code, LineEnding.AUTO));
+    }
+
+    @Test
+    public void doFormatNullReturnTest() throws IOException {
+        CssFormatter cssFormatter = new CssFormatter();
+        ConfigurationSource cfg = new ConfigurationSource();
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "4");
+        cssFormatter.init(options, cfg);
+        String code = "// This is a comment";
+        assertNull(cssFormatter.doFormat(code, LineEnding.UNIX));
+    }
+
+    @Test
+    public void isInitializedTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        assertFalse(cssFormatter.isInitialized());
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "4");
+        cssFormatter.init(options, new ConfigurationSource());
+        assertTrue(cssFormatter.isInitialized());
+    }
+
+}

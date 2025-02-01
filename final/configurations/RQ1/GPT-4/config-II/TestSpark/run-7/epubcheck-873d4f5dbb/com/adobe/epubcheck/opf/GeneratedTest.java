@@ -1,0 +1,103 @@
+package com.adobe.epubcheck.opf;
+
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.api.ValidationContext;
+import com.adobe.epubcheck.opf.OPFChecker30;
+import com.adobe.epubcheck.util.*;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.doNothing;
+
+public class GeneratedTest {
+
+    @Test
+    public void initHandlerTest() {
+        ValidationContext context = new ValidationContext.Builder().build();
+        OPFChecker30 checker = new OPFChecker30(context);
+
+        checker.initHandler();
+    }
+
+    @Test
+    public void checkPackageTest() {
+        ValidationContext context = new ValidationContext.Builder().build();
+        OPFChecker30 checker = new OPFChecker30(context);
+
+        checker.checkPackage();
+    }
+
+    @Test
+    public void checkContentTest() {
+        ValidationContext context = new ValidationContext.Builder().build();
+        OPFChecker30 checker = new OPFChecker30(context);
+
+        checker.checkContent();
+    }
+
+    @Test
+    public void checkItemTest() {
+        ValidationContext context = new ValidationContext.Builder()
+                .report(Mockito.mock(Report.class))
+                .build();
+        OPFChecker30 checker = new OPFChecker30(context);
+        OPFHandler opfHandler = Mockito.mock(OPFHandler.class);
+        OPFItem item = Mockito.mock(OPFItem.class);
+
+        Mockito.when(item.hasDataURL()).thenReturn(false);
+        Mockito.when(item.getPath()).thenReturn("META-INF/");
+        Mockito.when(item.getMimeType()).thenReturn("application/xhtml+xml");
+        Mockito.when(item.getMediaOverlay()).thenReturn("overlay");
+        Mockito.when(opfHandler.getItemById(Mockito.anyString())).thenReturn(Optional.of(item));
+        Mockito.when(item.getLocation()).thenReturn(EPUBLocation.create("abc/def", 1, 1));
+
+        checker.checkItem(item, opfHandler);
+    }
+
+    @Test
+    public void checkItemAfterResourceValidationTest() {
+        ValidationContext context = new ValidationContext.Builder()
+                .report(Mockito.mock(Report.class))
+                .build();
+        OPFChecker30 checker = new OPFChecker30(context);
+        OPFItem item = Mockito.mock(OPFItem.class);
+        Mockito.when(item.getMimeType()).thenReturn("application/xhtml+xml");
+        Mockito.when(item.getLocation()).thenReturn(EPUBLocation.create("abc/def", 1, 1));
+
+        checker.checkItemAfterResourceValidation(item);
+    }
+
+    @Test
+    public void checkSpineItemTest() {
+        ValidationContext context = new ValidationContext.Builder()
+                .report(Mockito.mock(Report.class))
+                .build();
+        OPFChecker30 checker = new OPFChecker30(context);
+        OPFItem item = Mockito.mock(OPFItem.class);
+        Mockito.when(item.hasDataURL()).thenReturn(false);
+        Mockito.when(item.getMimeType()).thenReturn("application/xhtml+xml");
+
+        checker.checkSpineItem(item, Mockito.mock(OPFHandler.class));
+    }
+
+    @Test
+    public void isAudioTypeTest() {
+        String testInput = "audio/test";
+        boolean expectedResult = true;
+
+        boolean actualResult = OPFChecker30.isAudioType(testInput);
+
+        assert actualResult == expectedResult;
+    }
+
+    @Test
+    public void isBlessedAudioTypeTest() {
+        String testInput = "audio/mpeg";
+        boolean expectedResult = true;
+
+        boolean actualResult = OPFChecker30.isBlessedAudioType(testInput);
+
+        assert actualResult == expectedResult;
+    }
+
+}

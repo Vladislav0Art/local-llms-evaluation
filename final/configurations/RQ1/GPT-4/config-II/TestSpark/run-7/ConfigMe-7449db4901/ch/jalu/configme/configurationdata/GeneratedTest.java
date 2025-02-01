@@ -1,0 +1,79 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.util.*;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCommentTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path.key", "line1", "line2", "line3");
+        List<String> commentLines = config.getAllComments().get("path.key");
+
+        Assert.assertThat(commentLines, hasSize(3));
+        Assert.assertThat(commentLines.get(0), is(equalTo("line1")));
+        Assert.assertThat(commentLines.get(1), is(equalTo("line2")));
+        Assert.assertThat(commentLines.get(2), is(equalTo("line3")));
+    }
+
+    @Test
+    public void setCommentOverridePreviousCommentTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path.key", "line1");
+        config.setComment("path.key", "newLine1", "newLine2");
+        List<String> commentLines = config.getAllComments().get("path.key");
+
+        Assert.assertThat(commentLines, hasSize(2));
+        Assert.assertThat(commentLines.get(0), is(equalTo("newLine1")));
+        Assert.assertThat(commentLines.get(1), is(equalTo("newLine2")));
+    }
+
+    @Test
+    public void getAllCommentsWithEmptyCommentsTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        Map<String, List<String>> comments = config.getAllComments();
+
+        Assert.assertNotNull(comments);
+        Assert.assertTrue(comments.isEmpty());
+    }
+
+    @Test
+    public void getAllCommentsWithNonEmptyCommentsTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path.key", "line1", "line2", "line3");
+        Map<String, List<String>> comments = config.getAllComments();
+
+        Assert.assertNotNull(comments);
+        Assert.assertFalse(comments.isEmpty());
+        Assert.assertTrue(comments.containsKey("path.key"));
+        Assert.assertThat(comments.get("path.key"), hasSize(3));
+    }
+
+    @Test
+    public void commentsConstructorWithCommentsTest() {
+        Map<String, List<String>> initialComments = new HashMap<>();
+        initialComments.put("path.key", Arrays.asList("line1", "line2", "line3"));
+        CommentsConfiguration config = new CommentsConfiguration(initialComments);
+
+        Assert.assertNotNull(config.getAllComments());
+        Assert.assertThat(config.getAllComments(), is(equalTo(initialComments)));
+    }
+
+    @Test
+    public void commentsConstructorWithEmptyCommentsTest() {
+        Map<String, List<String>> initialComments = new HashMap<>();
+        CommentsConfiguration config = new CommentsConfiguration(initialComments);
+
+        Assert.assertNotNull(config.getAllComments());
+        Assert.assertTrue(config.getAllComments().isEmpty());
+    }
+
+}

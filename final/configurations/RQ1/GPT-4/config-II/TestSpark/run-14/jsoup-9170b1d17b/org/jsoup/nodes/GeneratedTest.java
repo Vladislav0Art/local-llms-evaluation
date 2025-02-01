@@ -1,0 +1,125 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attributes;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Iterator;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void getValidAttributeTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        Assert.assertEquals("value", attrs.get("key"));
+    }
+
+    @Test
+    public void getInvalidAttributeTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        Assert.assertEquals("", attrs.get("non-existent-key"));
+    }
+
+    @Test
+    public void putTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        Assert.assertEquals("value", attrs.get("key"));
+        attrs.put("key", "new value");
+        Assert.assertEquals("new value", attrs.get("key"));
+    }
+
+    @Test
+    public void removeObjectTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        attrs.remove("key");
+        Assert.assertEquals("", attrs.get("key"));
+    }
+
+    @Test
+    public void hasKeyTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        Assert.assertTrue(attrs.hasKey("key"));
+        Assert.assertFalse(attrs.hasKey("non-existent-key"));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        Assert.assertEquals(1, attrs.size());
+    }
+
+    @Test
+    public void iteratorTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        attrs.put("foo", "bar");
+        Iterator<Map.Entry<String, String>> iterator = attrs.iterator();
+        int count = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            count++;
+        }
+        Assert.assertEquals(2, count);
+    }
+
+    @Test
+    public void datasetTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("data-key", "value");
+        Map<String, String> dataset = attrs.dataset();
+        Assert.assertEquals("value", dataset.get("key"));
+    }
+
+    @Test
+    public void removeIgnoreCaseTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("Key", "value");
+        attrs.removeIgnoreCase("key");
+        Assert.assertFalse(attrs.hasKey("Key"));
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attrs = new Attributes();
+        Assert.assertTrue(attrs.isEmpty());
+        attrs.put("key", "value");
+        Assert.assertFalse(attrs.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attrs1 = new Attributes();
+        attrs1.put("key1", "value1");
+        Attributes attrs2 = new Attributes();
+        attrs2.put("key2", "value2");
+        attrs1.addAll(attrs2);
+        Assert.assertEquals(2, attrs1.size());
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key1", "value1");
+        attrs.put("key2", "value2");
+        Assert.assertEquals(2, attrs.asList().size());
+    }
+
+    @Test
+    public void cloneTest() throws Exception {
+        Attributes attrs1 = new Attributes();
+        attrs1.put("key1", "value1");
+        attrs1.put("key2", "value2");
+        Attributes attrs2 = attrs1.clone();
+        attrs2.put("key3", "value3");
+        Assert.assertTrue(attrs1.size() != attrs2.size());
+    }
+
+}

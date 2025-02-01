@@ -1,0 +1,146 @@
+package org.traccar.protocol;
+
+import org.junit.Assert;
+import org.junit.Test;
+import io.netty.channel.Channel;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import static org.mockito.Mockito.*;
+
+import java.nio.charset.StandardCharsets;
+import java.net.SocketAddress;
+
+public class GeneratedTest {
+
+    @Test
+    public void decodeDecodePositionNotMatchesTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        String data = "not matching pattern";
+        Assert.assertNull(decoder.decodePosition(new DeviceSession(), data));
+    }
+
+    @Test
+    public void decodeAlarmStatus0Test() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        int status = 0;
+        Assert.assertEquals(Position.ALARM_LOW_BATTERY, decoder.decodeAlarm(status));
+    }
+
+    @Test
+    public void decodeAlarmStatus1Test() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        int status = 1;
+        Assert.assertEquals(Position.ALARM_GEOFENCE_EXIT, decoder.decodeAlarm(status));
+    }
+
+    @Test
+    public void decodeAlarmStatus2Test() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        int status = 2;
+        Assert.assertEquals(Position.ALARM_GEOFENCE_ENTER, decoder.decodeAlarm(status));
+    }
+
+    @Test
+    public void decodeAlarmStatus14Test() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        int status = 14;
+        Assert.assertEquals(Position.ALARM_POWER_CUT, decoder.decodeAlarm(status));
+    }
+
+    @Test
+    public void decodeAlarmStatus16Test() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        int status = 16;
+        Assert.assertEquals(Position.ALARM_SOS, decoder.decodeAlarm(status));
+    }
+
+    @Test
+    public void decodeAlarmStatus17Test() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        int status = 17;
+        Assert.assertEquals(Position.ALARM_LOW_BATTERY, decoder.decodeAlarm(status));
+    }
+
+    @Test
+    public void decodeAlarmStatus18Test() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        int status = 18;
+        Assert.assertEquals(Position.ALARM_GEOFENCE_EXIT, decoder.decodeAlarm(status));
+    }
+
+    @Test
+    public void decodeAlarmStatus19Test() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        int status = 19;
+        Assert.assertEquals(Position.ALARM_GEOFENCE_ENTER, decoder.decodeAlarm(status));
+    }
+
+    @Test
+    public void decodeAlarmStatus20Test() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        int status = 20;
+        Assert.assertEquals(Position.ALARM_REMOVING, decoder.decodeAlarm(status));
+    }
+
+    @Test
+    public void decodeAlarmStatus21Test() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        int status = 21;
+        Assert.assertEquals(Position.ALARM_FALL_DOWN, decoder.decodeAlarm(status));
+    }
+
+    @Test
+    public void decodePositionWithBadDataTest() {
+        // Given
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        DeviceSession deviceSession = new DeviceSession("test");
+        String data = "not matching pattern";
+
+        // When
+        Position result = decoder.decodePosition(deviceSession, data);
+
+        // Then
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void getHasIndexTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        Assert.assertFalse(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerBeforeDecodeTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        Assert.assertNull(decoder.getManufacturer());
+    }
+
+    @Test
+    public void decodeINITTest() throws Exception {
+        // Given
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        String hex = "5b4a592a30303030303030303030302a303030302a30494154542d34205d00";
+        ByteBuf buf = Unpooled.copiedBuffer(hexStringToByteArray(hex));
+
+        // When
+        Object result = decoder.decode(channel, remoteAddress, buf);
+
+        // Then
+        Assert.assertNull(result);
+        verify(channel, atLeast(1)).writeAndFlush(any());
+    }
+
+    private static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i + 1), 16));
+        }
+        return data;
+    }
+
+}

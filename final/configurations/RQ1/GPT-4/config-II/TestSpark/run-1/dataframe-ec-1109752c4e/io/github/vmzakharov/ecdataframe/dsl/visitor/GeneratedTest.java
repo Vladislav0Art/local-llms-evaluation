@@ -1,0 +1,121 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.ExpressionVisitor;
+import io.github.vmzakharov.ecdataframe.util.Printer;
+import io.github.vmzakharov.ecdataframe.util.PrinterFactory;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void visitAssignExprTest() {
+        AssingExpr expr = new AssingExpr("x", new DecimalExpr(new ValueExpr("10"), new ValueExpr("2")));
+        assertEquals("x = [10,2]", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        BinaryExpr expr = new BinaryExpr(new VarExpr("x"), Operation.ADD, new VarExpr("y"));
+        assertEquals("(x + y)", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        UnaryExpr expr = new UnaryExpr(new VarExpr("x"), Operation.NOT);
+        assertEquals("!(x)", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitConstExprTest() {
+        Value value = Value.of(new String("test"));
+        assertEquals("\"test\"", PrettyPrintVisitor.exprToString(value));
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        FunctionCallExpr expr = new FunctionCallExpr("myFunction", new VarExpr("x"), new VarExpr("y"));
+        assertEquals("myFunction(x, y)", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitPropertyPathExprTest() {
+        PropertyPathExpr expr = new PropertyPathExpr("a.b.c");
+        assertEquals("a.b.c", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitAnonymousScriptExprTest() {
+        AnonymousScript expr = new AnonymousScript();
+        expr.addExpression(new VarExpr("x"));
+        expr.addExpression(new VarExpr("y"));
+        assertEquals("x\ny", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        FunctionScript expr = new FunctionScript("myFunction");
+        expr.addParameter("x");
+        expr.addExpression(new VarExpr("x"));
+        assertEquals("function myFunction(x)\n{\n  x\n}", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitStatementSequenceScriptExprTest() {
+        StatementSequenceScript expr = new StatementSequenceScript();
+        expr.addExpression(new VarExpr("x"));
+        expr.addExpression(new VarExpr("y"));
+        assertEquals("x\ny", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitVarExprTest() {
+        VarExpr expr = new VarExpr("x");
+        assertEquals("x", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitProjectionExprTest() {
+        ProjectionExpr expr = new ProjectionExpr(null);
+        expr.addExpression(new AliasExpr("a", new VarExpr("x")));
+        expr.addExpression(new AliasExpr("b", new VarExpr("y")));
+        assertEquals("project {a : x, b : y}", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitAliasExprTest() {
+        AliasExpr expr = new AliasExpr("a", new VarExpr("x"));
+        assertEquals("a : x", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitVectorExprTest() {
+        VectorExpr expr = new VectorExpr(new VarExpr("x"), new VarExpr("y"));
+        assertEquals("(x, y)", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitIndexExprTest() {
+        IndexExpr expr = new IndexExpr(new VarExpr("x"), new ValueExpr("0"));
+        assertEquals("x[0]", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitDecimalExprTest() {
+        DecimalExpr expr = new DecimalExpr(new ValueExpr("100"), new ValueExpr("2"));
+        assertEquals("[100,2]", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitIfElseExprTest() {
+        IfElseExpr expr = new IfElseExpr(
+                new BinaryExpr(new VarExpr("x"), Operation.GREATER_THAN, new VarExpr("y")),
+                new StatementSequenceScript(new ValueExpr("10")),
+                new StatementSequenceScript(new ValueExpr("20")),
+                false);
+        assertEquals("if (x > y) then\n  10\nelse\n  20\nendif", PrettyPrintVisitor.exprToString(expr));
+    }
+
+}

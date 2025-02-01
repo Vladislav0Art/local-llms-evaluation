@@ -1,0 +1,83 @@
+package com.adobe.epubcheck.tool;
+
+import com.adobe.epubcheck.api.EpubCheck;
+import com.adobe.epubcheck.messages.MessageDictionary;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.Archive;
+import com.adobe.epubcheck.util.DefaultReportImpl;
+import com.adobe.epubcheck.util.Report;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.File;
+import java.util.Locale;
+
+public class GeneratedTest {
+
+    private EpubChecker epubChecker = new EpubChecker();
+
+    @Test
+    public void runProcessFileWithNameThatDoesNotEndWithEpubTest() {
+        String[] args = new String[]{"TestFile.png"};
+        int result = epubChecker.run(args);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void validateFileExistentNonEpubFileTest() {
+        Report report = new DefaultReportImpl("TestFile.png");
+        epubChecker.setLocale(Locale.US);
+        int result = epubChecker.validateFile("TestFile.png", EpubCheck.EPUBVersion.Version3, report, EpubCheck.EPUBProfile.DEFAULT);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void validateFileTerminalNonExistentFileTest() {
+        Report report = new DefaultReportImpl("http://nonexistent.com/nonexistent.epub");
+        epubChecker.setLocale(Locale.US);
+        int result = epubChecker.validateFile("http://nonexistent.com/nonexistent.epub", EpubCheck.EPUBVersion.Version3, report, EpubCheck.EPUBProfile.DEFAULT);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void runExpandedEpubTest() {
+        String[] args = {"testDir", "-m", "exp"};
+        EpubChecker epubChecker = new EpubChecker();
+
+        int result = epubChecker.run(args);
+        File file = new File("testDir");
+
+        Assert.assertTrue(file.delete());
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void runNonExistentDirectoryTest() {
+        String[] args = {"testNonExistentDir", "-m", "exp"};
+        EpubChecker epubChecker = new EpubChecker();
+
+        int result = epubChecker.run(args);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void validateFileWithNavModeTest() {
+        String mode = "nav";
+        Report report = new DefaultReportImpl("sample.epub");
+        epubChecker.setLocale(Locale.US);
+        int result = epubChecker.validateFile("sample.epub", EpubCheck.EPUBVersion.Version3, report, EpubCheck.EPUBProfile.DEFAULT);
+
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void runEpubFileTest() {
+        Report report = new DefaultReportImpl("sample.epub");
+        epubChecker.setLocale(Locale.US);
+        String[] args = new String[]{"", "sample.epub", ""};
+        int result = epubChecker.run(args);
+
+        Assert.assertEquals(0, result);
+    }
+
+}

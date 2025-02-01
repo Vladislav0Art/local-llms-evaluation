@@ -1,0 +1,58 @@
+package com.adobe.epubcheck.tool;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.util.EPUBVersion;
+import org.junit.Test;
+import org.junit.Before;
+import org.junit.After;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.File;
+import java.io.IOException;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Report report;
+
+    @Test
+    public void runExceptionScenarioTest() {
+        EpubChecker checker = new EpubChecker();
+        assertEquals(1, checker.run(new String[]{"invalidPath"}));
+    }
+
+    @Test
+    public void runValidScenarioTest() {
+        when(report.initialize()).thenReturn(true);
+        when(report.generate()).thenReturn(0);
+        EpubChecker checker = new EpubChecker();
+        assertEquals(0, checker.run(new String[]{"TestEpub.epub"}));
+    }
+
+    @Test
+    public void processEpubFileTest() {
+        EpubChecker checker = new EpubChecker();
+        assertEquals(1, checker.processEpubFile(new String[]{"invalidPath"}));
+    }
+
+    @Test
+    public void validateFileNotFoundTest() {
+        EpubChecker checker = new EpubChecker();
+        assertEquals(1, checker.validateFile("invalidPath", EPUBVersion.VERSION_2, report, null));
+    }
+
+    @Test
+    public void validateFileFoundTest() throws IOException {
+        final File tempFile = File.createTempFile("test", ".txt");
+        tempFile.deleteOnExit();
+        EpubChecker checker = new EpubChecker();
+        assertEquals(1, checker.validateFile(tempFile.getAbsolutePath(), EPUBVersion.VERSION_2, report, null));
+    }
+
+}

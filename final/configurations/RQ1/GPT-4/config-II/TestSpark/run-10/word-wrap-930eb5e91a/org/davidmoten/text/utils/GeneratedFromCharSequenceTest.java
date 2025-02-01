@@ -1,0 +1,23 @@
+package org.davidmoten.text.utils;
+
+import java.io.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.davidmoten.text.utils.WordWrap;
+import org.davidmoten.text.utils.WordWrap.Builder;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedFromCharSequenceTest {
+
+    @Test
+    public void fromCharSequenceTest() {
+        CharSequence text = "sample text";
+        Builder builder = WordWrap.from(text);
+        assertNotNull(builder);
+    }
+
+}

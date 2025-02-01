@@ -1,0 +1,61 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.HashMap;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorWithoutParamsInitializesEmptyCommentMapTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        assertEquals(0, config.getAllComments().size());
+    }
+
+    @Test
+    public void constructorWithParamsInitializesGivenCommentMapTest() {
+        HashMap<String, List<String>> map = new HashMap<>();
+        map.put("path1", Arrays.asList("comment1", "comment2"));
+
+        CommentsConfiguration config = new CommentsConfiguration(map);
+        assertEquals(1, config.getAllComments().size());
+        assertEquals(Arrays.asList("comment1", "comment2"), config.getAllComments().get("path1"));
+    }
+
+    @Test
+    public void setCommentDoesNotPreservePreviousCommentsTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path", "comment1");
+        config.setComment("path", "comment2");
+
+        assertEquals(1, config.getAllComments().size());
+        assertEquals(Arrays.asList("comment2"), config.getAllComments().get("path"));
+    }
+
+    @Test
+    public void setCommentSkipsEmptyStringsCreatesEmptyLinesTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path", "comment1", "\n", "comment2");
+
+        assertEquals(1, config.getAllComments().size());
+        assertEquals(Arrays.asList("comment1", "\n", "comment2"), config.getAllComments().get("path"));
+    }
+
+    @Test
+    public void getAllCommentsReturnUnmodifiableMapTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.getAllComments().put("path", Arrays.asList("comment"));
+    }
+
+    @Test
+    public void setCommentStoresUnmodifiableListTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path", "comment");
+        config.getAllComments().get("path").add("another comment");
+    }
+
+}

@@ -1,0 +1,107 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        TextNode node = new TextNode("Test");
+        Assert.assertEquals("#text", node.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        TextNode node = new TextNode(" Test ");
+        Assert.assertEquals("Test", node.text());
+    }
+
+    @Test
+    public void textChainTest() {
+        TextNode node = new TextNode(" Test ");
+        node = node.text("Another test");
+        Assert.assertEquals("Another test", node.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode node = new TextNode(" Test ");
+        Assert.assertEquals(" Test ", node.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode node = new TextNode("    ");
+        Assert.assertEquals(true, node.isBlank());
+    }
+
+    @Test
+    public void isNotBlankTest() {
+        TextNode node = new TextNode("Test");
+        Assert.assertEquals(false, node.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode node = new TextNode("This is a test");
+        TextNode tailNode = node.splitText(8);
+        Assert.assertEquals("This is ", node.getWholeText());
+        Assert.assertEquals("a test", tailNode.getWholeText());
+    }
+
+    @Test
+    public void splitTextNegativeOffsetTest() {
+        TextNode node = new TextNode("This is a test");
+        node.splitText(-1);
+    }
+
+    @Test
+    public void splitTextLargeOffsetTest() {
+        TextNode node = new TextNode("This is a test");
+        node.splitText(100);
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode node = new TextNode("Test");
+        TextNode clone = node.clone();
+        Assert.assertNotSame(node, clone);
+        Assert.assertEquals(node.text(), clone.text());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode node = TextNode.createFromEncoded("Test&amp;lt;");
+        Assert.assertEquals("Test&lt;", node.text());
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String text = TextNode.normaliseWhitespace(" Test    ");
+        Assert.assertEquals("Test", text);
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String text = TextNode.stripLeadingWhitespace("    Test");
+        Assert.assertEquals("Test", text);
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTrueTest() {
+        StringBuilder sb = new StringBuilder("Test ");
+        boolean result = TextNode.lastCharIsWhitespace(sb);
+        Assert.assertEquals(true, result);
+    }
+
+    @Test
+    public void lastCharIsWhitespaceFalseTest() {
+        StringBuilder sb = new StringBuilder("Test");
+        boolean result = TextNode.lastCharIsWhitespace(sb);
+        Assert.assertEquals(false, result);
+    }
+
+}

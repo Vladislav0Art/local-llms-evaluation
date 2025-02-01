@@ -1,0 +1,101 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateYearBeforeMinus500Test() {
+        LocalDate date = LocalDate.of(-1000, 7, 1);
+        assertTrue(DeltaT.estimate(date) == -1332.0);
+    }
+
+    @Test
+    public void estimateYearBetweenMinus500And500Test() {
+        LocalDate date = LocalDate.of(0, 7, 1);
+        assertTrue(DeltaT.estimate(date) == 10043.75);
+    }
+
+    @Test
+    public void estimateYearBetween500And1600Test() {
+        LocalDate date = LocalDate.of(1500, 7, 1);
+        assertTrue(DeltaT.estimate(date) == 705.81);
+    }
+
+    @Test
+    public void estimateYearBetween1600And1700Test() {
+        LocalDate date = LocalDate.of(1650, 7, 1);
+        assertTrue(DeltaT.estimate(date) == 82.92337270559986);
+    }
+
+    @Test
+    public void estimateYearBetween1700And1800Test() {
+        LocalDate date = LocalDate.of(1750, 7, 1);
+        assertTrue(DeltaT.estimate(date) == 13.149692727840421);
+    }
+
+    @Test
+    public void estimateYearBetween1800And1860Test() {
+        LocalDate date = LocalDate.of(1850, 5, 1);
+        assertTrue(DeltaT.estimate(date) == 11.644066246190746);
+    }
+
+    @Test
+    public void estimateYearBetween1860And1900Test() {
+        LocalDate date = LocalDate.of(1875, 5, 1);
+        assertTrue(DeltaT.estimate(date) == 4.831528277669964);
+    }
+
+    @Test
+    public void estimateYearBetween1900And1920Test() {
+        LocalDate date = LocalDate.of(1910, 5, 1);
+        assertTrue(DeltaT.estimate(date) == 5.791643152975293);
+    }
+
+    @Test
+    public void estimateYearBetween1920And1941Test() {
+        LocalDate date = LocalDate.of(1930, 5, 1);
+        assertTrue(DeltaT.estimate(date) == 26.080875000000002);
+    }
+
+    @Test
+    public void estimateYearBetween1941And1961Test() {
+        LocalDate date = LocalDate.of(1950, 5, 1);
+        assertTrue(DeltaT.estimate(date) == 32.8778125);
+    }
+
+    @Test
+    public void estimateYearBetween1961And1986Test() {
+        LocalDate date = LocalDate.of(1970, 5, 1);
+        assertTrue(DeltaT.estimate(date) == 46.30860625);
+    }
+
+    @Test
+    public void estimateYearBetween1986And2005Test() {
+        LocalDate date = LocalDate.of(1995, 5, 1);
+        assertTrue(DeltaT.estimate(date) == 64.40585882041666);
+    }
+
+    @Test
+    public void estimateYearBetween2005And2050Test() {
+        LocalDate date = LocalDate.of(2025, 5, 1);
+        assertTrue(DeltaT.estimate(date) == 72.85552499999999);
+    }
+
+    @Test
+    public void estimateYearBetween2050And2150Test() {
+        LocalDate date = LocalDate.of(2100, 5, 1);
+        assertTrue(DeltaT.estimate(date) == 193.328);
+    }
+
+    @Test
+    public void estimateYearAfter2150Test() {
+        LocalDate date = LocalDate.of(2500, 5, 1);
+        assertTrue(DeltaT.estimate(date) == 964.0);
+    }
+
+}

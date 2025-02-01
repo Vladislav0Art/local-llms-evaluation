@@ -1,0 +1,99 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Attribute;
+import org.junit.Test;
+
+import java.util.Set;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("p", "div");
+        assertTrue(safelist.isSafeTag("p"));
+        assertTrue(safelist.isSafeTag("div"));
+        assertFalse(safelist.isSafeTag("span"));
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("p", "div");
+        safelist.removeTags("div");
+        assertTrue(safelist.isSafeTag("p"));
+        assertFalse(safelist.isSafeTag("div"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addAttributes("a", "href", "title");
+        Attribute attr = new Attribute("href", "https://google.com");
+        safelist.isSafeAttribute("a", new Element("a"), attr);
+        attr = new Attribute("class", "container");
+        assertFalse(safelist.isSafeAttribute("a", new Element("a"), attr));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addAttributes("a", "href", "title");
+        safelist.removeAttributes("a", "title");
+        Attribute attr = new Attribute("href", "https://google.com");
+        assertTrue(safelist.isSafeAttribute("a", new Element("a"), attr));
+        attr = new Attribute("title", "Google");
+        assertFalse(safelist.isSafeAttribute("a", new Element("a"), attr));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addEnforcedAttribute("a", "rel", "nofollow");
+        Attribute enforcedAttr = new Attribute("rel", "nofollow");
+        assertTrue(safelist.isSafeAttribute("a", new Element("a"), enforcedAttr));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addEnforcedAttribute("a", "rel", "nofollow");
+        safelist.removeEnforcedAttribute("a", "rel");
+        Attribute enforcedAttr = new Attribute("rel", "nofollow");
+        assertFalse(safelist.isSafeAttribute("a", new Element("a"), enforcedAttr));
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addProtocols("a", "href", "http", "https");
+        Attribute attr = new Attribute("href", "https://google.com");
+        assertTrue(safelist.isSafeAttribute("a", new Element("a"), attr));
+        attr = new Attribute("href", "ftp://google.com");
+        assertFalse(safelist.isSafeAttribute("a", new Element("a"), attr));
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addProtocols("a", "href", "http", "https");
+        safelist.removeProtocols("a", "href", "http");
+        Attribute attr = new Attribute("href", "https://google.com");
+        assertTrue(safelist.isSafeAttribute("a", new Element("a"), attr));
+        attr = new Attribute("href", "http://google.com");
+        assertFalse(safelist.isSafeAttribute("a", new Element("a"), attr));
+    }
+
+    @Test
+    public void preserveRelativeLinksTest() {
+        Safelist safelist = Safelist.none();
+        safelist.preserveRelativeLinks(true);
+        assertTrue(safelist.preserveRelativeLinks);
+        safelist.preserveRelativeLinks(false);
+        assertFalse(safelist.preserveRelativeLinks);
+    }
+
+}

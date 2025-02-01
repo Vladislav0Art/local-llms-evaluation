@@ -1,0 +1,145 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.DataUtil;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void DocumentConstructorTest() {
+        Document document = new Document("http://example.com");
+        Assert.assertEquals("http://example.com", document.location());
+    }
+
+    @Test
+    public void createShellTest() {
+        Document document = Document.createShell("http://example.com");
+        Elements headElements = document.select("head");
+        Elements bodyElements = document.select("body");
+        assertTrue(headElements.size() > 0);
+        assertTrue(bodyElements.size() > 0);
+    }
+
+    @Test
+    public void locationTest() {
+        Document document = new Document("http://example.com");
+        String location = document.location();
+        Assert.assertEquals("http://example.com", location);
+    }
+
+    @Test
+    public void connectionTest() {
+        Document document = new Document("http://example.com");
+        Connection connection = Jsoup.newSession();
+        document.connection(connection);
+        assertTrue(document.connection() != null);
+    }
+
+    @Test
+    public void headTest() {
+        Document document = new Document("http://example.com");
+        Elements headElement = document.head().getElementsByTag("head");
+        assertTrue(headElement.size() > 0);
+    }
+
+    @Test
+    public void bodyTest() {
+        Document document = new Document("http://example.com");
+        Elements bodyElement = document.body().getElementsByTag("body");
+        assertTrue(bodyElement.size() > 0);
+    }
+
+    @Test
+    public void formsTest() {
+        Document document = Jsoup.parse("<form id='form1'><input name='name1' value='value1'/></form> <form id='form2'><input name='name2' value='value2'/></form>");
+        List forms = document.forms();
+        assertTrue(forms.size() == 2);
+    }
+
+    @Test
+    public void expectFormTest() {
+        Document document = Jsoup.parse("<form id='form1'><input name='name1' value='value1'/></form>");
+        document.expectForm("#nonexistent");
+    }
+
+    @Test
+    public void titleTest() {
+        Document document = Jsoup.parse("<title>Test Title</title>");
+        Assert.assertEquals("Test Title", document.title());
+    }
+
+    @Test
+    public void titleWithWhitespaceTest() {
+        Document document = Jsoup.parse("<title> Test Title </title>");
+        Assert.assertEquals("Test Title", document.title());
+    }
+
+    @Test
+    public void setTitleTest() {
+        Document document = new Document("http://example.com");
+        document.title("Test Title");
+        Assert.assertEquals("Test Title", document.title());
+    }
+
+    @Test
+    public void methodsNamesTest() {
+        Document document = new Document("http://google.com");
+        document.methods.shouldNotStartWith("$");
+        document.methods.shouldNotStartWith("clone");
+        document.methods.shouldNotStartWith("finalize");
+        document.methods.shouldNotStartWith("notify");
+        document.methods.shouldNotStartWith("notifyAll");
+        document.methods.shouldNotStartWith("wait");
+        document.methods.shouldNotStartWith("equals");
+        document.methods.shouldNotStartWith("toString");
+        document.methods.shouldNotStartWith("hashCode");
+        document.methods.shouldNotStartWith("getClass");
+    }
+
+    @Test
+    public void charsetTest() {
+        Document document = new Document("https://example.com");
+        document.charset(StandardCharsets.UTF_16);
+        Assert.assertEquals(Charset.forName("UTF-16"), document.charset());
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document document = new Document("https://example.com");
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        document.outputSettings(outputSettings);
+        Assert.assertEquals(outputSettings, document.outputSettings());
+    }
+
+    @Test
+    public void parserTest() {
+        Document document = new Document("https://example.com");
+        Parser parser = mock(Parser.class);
+        document.parser(parser);
+        Assert.assertEquals(parser, document.parser());
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        Document document = new Document("https://example.com");
+        Document shallowClone = document.shallowClone();
+        assertNotNull(shallowClone);
+        Assert.assertNotEquals(document, shallowClone);
+    }
+
+}

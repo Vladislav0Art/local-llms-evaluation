@@ -1,0 +1,100 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.time.LocalDate;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateYearLessThanNegative500Test() {
+        LocalDate forDate = LocalDate.of(-501, 6, 15);
+        Assert.assertEquals(-202.25, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetweenNegative500And500Test() {
+        LocalDate forDate = LocalDate.of(200, 6, 15);
+        Assert.assertEquals(8841.85, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween500And1600Test() {
+        LocalDate forDate = LocalDate.of(1550, 6, 15);
+        Assert.assertEquals(1083.83, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween1600And1700Test() {
+        LocalDate forDate = LocalDate.of(1650, 6, 15);
+        Assert.assertEquals(35.83, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween1700And1800Test() {
+        LocalDate forDate = LocalDate.of(1750, 6, 15);
+        Assert.assertEquals(13.36, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween1800And1860Test() {
+        LocalDate forDate = LocalDate.of(1850, 6, 15);
+        Assert.assertEquals(7.63, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween1860And1900Test() {
+        LocalDate forDate = LocalDate.of(1880, 6, 15);
+        Assert.assertEquals(1.82, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween1900And1920Test() {
+        LocalDate forDate = LocalDate.of(1910, 6, 15);
+        Assert.assertEquals(17.00, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween1920And1941Test() {
+        LocalDate forDate = LocalDate.of(1930, 6, 15);
+        Assert.assertEquals(24.27, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween1941And1961Test() {
+        LocalDate forDate = LocalDate.of(1950, 6, 15);
+        Assert.assertEquals(29.8, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween1961And1986Test() {
+        LocalDate forDate = LocalDate.of(1970, 6, 15);
+        Assert.assertEquals(44.49, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween1986And2005Test() {
+        LocalDate forDate = LocalDate.of(1995, 6, 15);
+        Assert.assertEquals(63.82, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween2005And2050Test() {
+        LocalDate forDate = LocalDate.of(2020, 6, 15);
+        Assert.assertEquals(69.37, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearBetween2050And2150Test() {
+        LocalDate forDate = LocalDate.of(2100, 6, 15);
+        Assert.assertEquals(415.30, DeltaT.estimate(forDate), 0.01);
+    }
+
+    @Test
+    public void estimateYearGreaterThan2150Test() {
+        LocalDate forDate = LocalDate.of(2200, 6, 15);
+        Assert.assertEquals(441.39, DeltaT.estimate(forDate), 0.01);
+    }
+
+}

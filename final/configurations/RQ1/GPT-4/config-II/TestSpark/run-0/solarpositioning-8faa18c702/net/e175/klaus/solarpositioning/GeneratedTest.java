@@ -1,0 +1,100 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.time.LocalDate;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimate_YearIsLessThanNegative500Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(-600, 4, 1));
+        Assert.assertEquals(868, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan500Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(400, 4, 1));
+        Assert.assertEquals(28900.6, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan1600Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(1500, 3, 1));
+        Assert.assertEquals(123079.9, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan1700Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(1650, 12, 1));
+        Assert.assertEquals(76.1, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan1800Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(1750, 10, 1));
+        Assert.assertEquals(13.568, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan1860Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(1850, 6, 1));
+        Assert.assertEquals(7.2124, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan1900Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(1890, 7, 1));
+        Assert.assertEquals(6.0072, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan1920Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(1910, 8, 1));
+        Assert.assertEquals(1.2611, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan1941Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(1940, 9, 1));
+        Assert.assertEquals(22.6857, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan1961Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(1950, 2, 1));
+        Assert.assertEquals(29.415, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan1986Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(1980, 2, 1));
+        Assert.assertEquals(50.447, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan2005Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(2000, 12, 1));
+        Assert.assertEquals(64.5682, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan2050Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(2040, 5, 1));
+        Assert.assertEquals(76.11, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsLessThan2150Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(2100, 6, 1));
+        Assert.assertEquals(0.178, deltaT, 0.1);
+    }
+
+    @Test
+    public void estimate_YearIsGreatThan2150Test() {
+        double deltaT = DeltaT.estimate(LocalDate.of(2200, 4, 1));
+        Assert.assertEquals(88.528, deltaT, 0.1);
+    }
+
+}

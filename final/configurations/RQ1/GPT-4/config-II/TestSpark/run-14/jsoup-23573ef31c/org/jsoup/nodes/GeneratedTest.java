@@ -1,0 +1,157 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.*;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Evaluator;
+import org.jsoup.select.Selector;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void DocumentBaseUriTest() {
+        Document doc = new Document("http://example.com");
+        assertEquals("http://example.com", doc.location());
+    }
+
+    @Test
+    public void createShellTest() {
+        Document doc = Document.createShell("http://example.com");
+        assertNotNull(doc);
+    }
+
+    @Test
+    public void createShellNullUriTest() {
+        Document.createShell(null);
+    }
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("http://example.com");
+        assertEquals("http://example.com", doc.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Document doc = new Document("http://example.com");
+        Connection con = Jsoup.newSession();
+        doc.connection(con);
+        assertEquals(con, doc.connection());
+    }
+
+    @Test
+    public void documentTypeTest() {
+        Document doc = new Document("http://example.com");
+        assertNull(doc.documentType());
+    }
+
+    @Test
+    public void headTest() {
+        Document doc = Document.createShell("http://example.com");
+        assertNotNull(doc.head());
+    }
+
+    @Test
+    public void bodyTest() {
+        Document doc = Document.createShell("http://example.com");
+        assertNotNull(doc.body());
+    }
+
+    @Test
+    public void formsTest() {
+        Document doc = Jsoup.parse("<form id='form1'><input name='a' value='1'/></form><form id='form2'><input name='b' value='2'/></form>");
+        List<FormElement> forms = doc.forms();
+        assertEquals(2, forms.size());
+    }
+
+    @Test
+    public void expectFormNullQueryTest() {
+        Document doc = Document.createShell("http://example.com");
+        doc.expectForm(null);
+    }
+
+    @Test
+    public void titleTest() {
+        Document doc = Jsoup.parse("<title>test</title>");
+        assertEquals("test", doc.title());
+    }
+
+    @Test
+    public void titleSetTest() {
+        Document doc = Jsoup.parse("<title>test</title>");
+        doc.title("new title");
+        assertEquals("new title", doc.title());
+    }
+
+    @Test
+    public void titleSetNullTest() {
+        Document doc = Jsoup.parse("<title>test</title>");
+        doc.title(null);
+    }
+
+    @Test
+    public void createElementTest() {
+        Document doc = new Document("http://example.com");
+        Element e = doc.createElement("div");
+        assertEquals("div", e.tagName());
+    }
+
+    @Test
+    public void outerHtmlTest() {
+        Document doc = Jsoup.parse("<div>test</div>");
+        assertEquals("<html>\n <head></head>\n <body>\n  <div>test</div>\n </body>\n</html>", doc.outerHtml());
+    }
+
+    @Test
+    public void textTest() {
+        Document doc = new Document("http://example.com");
+        assertEquals("", doc.text());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Document doc = new Document("http://example.com");
+        assertEquals("#document", doc.nodeName());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document doc = new Document("http://example.com");
+        Charset charset = Charset.forName("US-ASCII");
+        doc.charset(charset);
+        assertEquals(charset, doc.charset());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document doc = new Document("http://example.com");
+        Document clone = doc.clone();
+        assertNotNull(clone);
+        assertEquals(doc.location(), clone.location());
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        Document doc = new Document("http://example.com");
+        Document clone = doc.shallowClone();
+        assertNotNull(clone);
+        assertEquals(doc.location(), clone.location());
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document doc = new Document("http://example.com");
+        Document.OutputSettings settings = new Document.OutputSettings();
+        settings.charset("UTF-8");
+        doc.outputSettings(settings);
+        assertEquals(settings, doc.outputSettings());
+    }
+
+}

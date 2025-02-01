@@ -1,0 +1,97 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.*;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void CommentConstructorTest() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("Test comment", comment.getData());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("Test comment");
+        comment.setData("New comment");
+        assertEquals("New comment", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("Test comment");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        comment.outerHtmlHead(accum, 0, out);
+        assertEquals("<!--Test comment-->", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("Test comment");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        comment.outerHtmlTail(accum, 0, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("<!--Test comment-->", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("Test comment");
+        Comment cloned = comment.clone();
+        assertEquals(comment.getData(), cloned.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest_firstSymbolIsExclamation() {
+        Comment comment = new Comment("!Test comment");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclarationTest_firstSymbolIsQuestion() {
+        Comment comment = new Comment("?Test comment");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("Test comment");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest_isXmlDeclaration() {
+        Comment comment = new Comment("?xml version=\"1.0\" encoding=\"UTF-8\"?");
+        assertNotNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest_notXmlDeclaration() {
+        Comment comment = new Comment("Test comment");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest_invalidXmlDeclaration() {
+        Comment comment = new Comment("!xml somerandomtext");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+}

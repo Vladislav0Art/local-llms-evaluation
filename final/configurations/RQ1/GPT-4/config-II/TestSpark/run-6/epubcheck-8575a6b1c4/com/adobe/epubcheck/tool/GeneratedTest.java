@@ -1,0 +1,73 @@
+package com.adobe.epubcheck.tool;
+
+import com.adobe.epubcheck.api.EpubCheck;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
+import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void runTestWithInvalidArgs() {
+        EpubChecker checker = new EpubChecker();
+        int result = checker.run(new String[]{});
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void runTestWithFileArgs() {
+        EpubChecker checker = new EpubChecker();
+        String[] args = {getClass().getResource("/books/valid.epub").getPath()};
+        int result = checker.run(args);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void runTestWithHelpArg() {
+        EpubChecker checker = new EpubChecker();
+        int result = checker.run(new String[]{"-help"});
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void runTestWithVersionArg() {
+        EpubChecker checker = new EpubChecker();
+        int result = checker.run(new String[]{"-version"});
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void processEpubFileTest() {
+        EpubChecker checker = new EpubChecker();
+        int result = checker.processEpubFile(new String[]{getClass().getResource("/books/valid.epub").getPath()});
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void validateFileTestWithInvalidPath() {
+        ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+        System.setErr(new PrintStream(errContent));
+
+        EpubChecker checker = new EpubChecker();
+        int result = checker.validateFile("invalid_path", EPUBVersion.VERSION_3, null, null);
+
+        assertEquals(1, result);
+        assertTrue(errContent.toString().contains("File 'invalid_path' not found"));
+
+        System.setErr(System.err);
+    }
+
+    @Test
+    public void getLocaleTest() {
+        EpubChecker checker = new EpubChecker();
+        assertNotNull(checker.getLocale());
+    }
+
+}

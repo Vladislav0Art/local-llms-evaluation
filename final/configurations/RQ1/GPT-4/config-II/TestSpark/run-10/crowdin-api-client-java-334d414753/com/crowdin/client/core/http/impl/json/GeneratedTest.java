@@ -1,0 +1,58 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseHttpExceptionTypeTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String jsonException = "{\"message\" : \"some exception\"}";
+
+        HttpException resultException = transformer.parse(jsonException, HttpException.class);
+        Assert.assertEquals("some exception", resultException.getMessage());
+    }
+
+    @Test
+    public void parseHttpBadRequestExceptionTypeTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String jsonException = "{\"message\" : \"some bad request exception\"}";
+
+        HttpBadRequestException resultException = transformer.parse(jsonException, HttpBadRequestException.class);
+        Assert.assertEquals("some bad request exception", resultException.getMessage());
+    }
+
+    @Test
+    public void parseProjectTypeTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String jsonProject = "{\"id\" : 1, \"name\":\"test\"}";
+
+        Project resultProject = transformer.parse(jsonProject, Project.class);
+        Assert.assertEquals("test", resultProject.getName());
+        Assert.assertEquals(Long.valueOf(1), resultProject.getId());
+    }
+
+    @Test
+    public void convertProjectToJSONTest() throws JsonProcessingException {
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("test");
+
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String jsonResult = transformer.convert(project);
+
+        ObjectMapper mapper = new ObjectMapper();
+        Project resultProject = mapper.readValue(jsonResult, Project.class);
+
+        Assert.assertEquals("test", resultProject.getName());
+        Assert.assertEquals(Long.valueOf(1), resultProject.getId());
+    }
+
+}

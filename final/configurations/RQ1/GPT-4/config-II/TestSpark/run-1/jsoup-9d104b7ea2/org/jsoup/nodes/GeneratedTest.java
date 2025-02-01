@@ -1,0 +1,89 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeCreationTest() {
+        String text = "Test Text";
+        TextNode node = new TextNode(text);
+        Assert.assertEquals(text, node.getWholeText());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode node = new TextNode("");
+        Assert.assertEquals("#text", node.nodeName());
+    }
+
+    @Test
+    public void getTextTest() {
+        String text = "Test Text   ";
+        TextNode node = new TextNode(text);
+        Assert.assertEquals(text.trim(), node.text());
+    }
+
+    @Test
+    public void setTextTest() {
+        String text = "Test Text";
+        TextNode node = new TextNode("");
+        node.text(text);
+        Assert.assertEquals(text, node.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        String text = "Test Text   ";
+        TextNode node = new TextNode(text);
+        Assert.assertEquals(text, node.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode node = new TextNode("");
+        Assert.assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void isNotBlankTest() {
+        TextNode node = new TextNode("Test Text");
+        Assert.assertFalse(node.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        String text = "Test Text";
+        TextNode node = new TextNode(text);
+        TextNode newNode = node.splitText(4);
+        Assert.assertEquals("Test", node.getWholeText());
+        Assert.assertEquals(" Text", newNode.getWholeText());
+    }
+
+    @Test
+    public void splitTextInvalidOffsetTest() {
+        String text = "Test Text";
+        TextNode node = new TextNode(text);
+        node.splitText(-1);
+    }
+
+    @Test
+    public void cloneTest() {
+        String text = "Test Text";
+        TextNode node = new TextNode(text);
+        TextNode cloneNode = node.clone();
+        Assert.assertNotSame(node, cloneNode);
+        Assert.assertEquals(node.getWholeText(), cloneNode.getWholeText());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        String encodedText = "&lt;a&gt;hello&lt;/a&gt;";
+        TextNode node = TextNode.createFromEncoded(encodedText);
+        Assert.assertEquals("<a>hello</a>", node.getWholeText());
+    }
+
+}

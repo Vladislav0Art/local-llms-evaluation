@@ -1,0 +1,93 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.Test;
+
+import java.net.URL;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildWithValidQueryTest() throws Exception {
+        URL testUrl = new URL("http://domain.com?param1=value&param2=value");
+        UrlBuilder urlBuilder = new UrlBuilder(testUrl);
+        URL builtUrl = urlBuilder.build();
+
+        assertNotNull(builtUrl);
+        assertEquals(testUrl, builtUrl);
+    }
+
+    @Test
+    public void buildWithValidRefTest() throws Exception {
+        URL testUrl = new URL("http://domain.com#ref");
+        UrlBuilder urlBuilder = new UrlBuilder(testUrl);
+        URL builtUrl = urlBuilder.build();
+
+        assertNotNull(builtUrl);
+        assertEquals(testUrl, builtUrl);
+    }
+
+    @Test
+    public void buildWithoutQueryTest() throws Exception {
+        URL testUrl = new URL("http://domain.com");
+        UrlBuilder urlBuilder = new UrlBuilder(testUrl);
+        URL builtUrl = urlBuilder.build();
+
+        assertNotNull(builtUrl);
+        assertEquals(testUrl, builtUrl);
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL testUrl = new URL("http://domain.com");
+        UrlBuilder urlBuilder = new UrlBuilder(testUrl);
+
+        Connection.KeyVal mockKeyVal = Mockito.mock(Connection.KeyVal.class);
+        Mockito.when(mockKeyVal.key()).thenReturn("key");
+        Mockito.when(mockKeyVal.value()).thenReturn("value");
+
+        urlBuilder.appendKeyVal(mockKeyVal);
+
+        URL builtUrl = urlBuilder.build();
+        URL expectedUrl = new URL("http://domain.com?key=value");
+
+        assertNotNull(builtUrl);
+        assertEquals(expectedUrl, builtUrl);
+    }
+
+    @Test
+    public void decodePartUnsupportedEncodingTest() throws Exception {
+        URL testUrl = new URL("http://domain.com?param=\uD83D\uDE0D");
+        UrlBuilder urlBuilder = new UrlBuilder(testUrl);
+        urlBuilder.build();
+    }
+
+    @Test
+    public void normalizeQueryTest() throws Exception {
+        URL testUrl = new URL("http://domain.com?param=space param");
+        UrlBuilder urlBuilder = new UrlBuilder(testUrl);
+        URL builtUrl = urlBuilder.build();
+
+        URL expectedUrl = new URL("http://domain.com?param=space+param");
+
+        assertNotNull(builtUrl);
+        assertEquals(expectedUrl, builtUrl);
+    }
+
+    @Test
+    public void normalizeRefTest() throws Exception {
+        URL testUrl = new URL("http://domain.com#space param");
+        UrlBuilder urlBuilder = new UrlBuilder(testUrl);
+        URL builtUrl = urlBuilder.build();
+
+        URL expectedUrl = new URL("http://domain.com#space%20param");
+        assertNotNull(builtUrl);
+        assertEquals(expectedUrl, builtUrl);
+    }
+
+}

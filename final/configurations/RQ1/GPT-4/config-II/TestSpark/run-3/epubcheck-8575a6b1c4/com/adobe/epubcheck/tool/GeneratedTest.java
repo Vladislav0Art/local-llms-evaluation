@@ -1,0 +1,104 @@
+package com.adobe.epubcheck.tool;
+
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.api.LocalizableReport;
+import com.adobe.epubcheck.util.Archive;
+import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.ReportingLevel;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.File;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleTest() {
+        EpubChecker checker = new EpubChecker();
+        Assert.assertEquals(checker.getLocale(), java.util.Locale.getDefault());
+    }
+
+    @Test
+    public void runValidArgumentsTest() {
+        String[] args = {"filename.epub"};
+        EpubChecker checker = Mockito.spy(new EpubChecker());
+        Mockito.doReturn(true).when(checker).processArguments(args);
+        Mockito.doReturn(new LocalizableReport("none")).when(checker).createReport();
+        Assert.assertEquals(0, checker.run(args));
+    }
+
+    @Test
+    public void runInvalidArgumentsTest() {
+        String[] args = {"filename.epub"};
+        EpubChecker checker = Mockito.spy(new EpubChecker());
+        Mockito.doReturn(false).when(checker).processArguments(args);
+        checker.run(args);
+    }
+
+    @Test
+    public void processEpubFileTest() {
+        String[] args = {"filename.epub"};
+        EpubChecker checker = Mockito.spy(new EpubChecker());
+        Mockito.doReturn(true).when(checker).processArguments(args);
+        Mockito.doReturn(new LocalizableReport("none")).when(checker).createReport();
+        Assert.assertEquals(0, checker.processEpubFile(args));
+    }
+
+    @Test
+    public void validateFileWithAbsolutePathTest() {
+        String path = new File("src/test/resources/test.epub").getAbsolutePath();
+        EpubChecker checker = new EpubChecker();
+        LocalizableReport report = new LocalizableReport("test");
+        int result = checker.validateFile(path, EPUBVersion.VERSION_2, report, EPUBProfile.DEFAULT);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void validateFileWithRelativePathTest() {
+        String path = "src/test/resources/test.epub";
+        EpubChecker checker = new EpubChecker();
+        LocalizableReport report = new LocalizableReport("test");
+        int result = checker.validateFile(path, EPUBVersion.VERSION_2, report, EPUBProfile.DEFAULT);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void printEpubCheckCompletedTest() {
+        EpubChecker checker = Mockito.spy(new EpubChecker());
+        LocalizableReport report = Mockito.mock(LocalizableReport.class);
+        Mockito.when(report.getFatalErrorCount()).thenReturn(0);
+        Mockito.when(report.getErrorCount()).thenReturn(0);
+        Mockito.when(report.getWarningCount()).thenReturn(0);
+        Mockito.when(report.getInfoCount()).thenReturn(0);
+        Mockito.when(report.getUsageCount()).thenReturn(0);
+        checker.printEpubCheckCompleted(report);
+        Mockito.verify(report, Mockito.times(1)).getFatalErrorCount();
+    }
+
+    @Test
+    public void processFileExpandedTest() {
+        String path = new File("src/test/resources/test.epub").getAbsolutePath();
+        EpubChecker checker = new EpubChecker();
+        checker.expanded = true;
+        LocalizableReport report = new LocalizableReport(path);
+        int result = checker.processFile(report);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void processArgumentsTest() {
+        String[] args = {"filename.epub"};
+        EpubChecker checker = new EpubChecker();
+        Assert.assertTrue(checker.processArguments(args));
+        Assert.assertEquals(checker.path, "filename.epub");
+    }
+
+    @Test
+    public void processArgumentsInvalidTest() {
+        String[] args = {"-nonexistent", "filename.epub"};
+        EpubChecker checker = new EpubChecker();
+        Assert.assertFalse(checker.processArguments(args));
+    }
+
+}

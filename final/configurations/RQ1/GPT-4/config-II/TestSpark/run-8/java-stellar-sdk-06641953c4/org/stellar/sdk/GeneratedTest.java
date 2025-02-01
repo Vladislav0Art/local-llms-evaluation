@@ -1,0 +1,155 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.SignerKey;
+
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void canSignTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertTrue(keyPair.canSign());
+    }
+
+    @Test
+    public void fromSecretSeedCharArrayTest() {
+        char[] seed = "SAZWMVSQCJTLSZSWCNDZUUGKFRPEHJZFDQLYIWYZACBLNTXXJ5MI7XIFA".toCharArray();
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromSecretSeedStringTest() {
+        String seed = "SAZWMVSQCJTLSZSWCNDZUUGKFRPEHJZFDQLYIWYZACBLNTXXJ5MI7XIFA";
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromSecretSeedByteArrayTest() throws GeneralSecurityException {
+        byte[] seed = new byte[32];
+        new java.security.SecureRandom().nextBytes(seed);
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromAccountIdTest() {
+        String accountId = "GBC3SG6NGTSZ2OMH3FFGB7UVRQWILW367U4GSOOF4TFSZONV42UJXUH7";
+        KeyPair keyPair = KeyPair.fromAccountId(accountId);
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromPublicKeyTest() throws GeneralSecurityException {
+        byte[] publicKey = new byte[32];
+        new java.security.SecureRandom().nextBytes(publicKey);
+        KeyPair keyPair = KeyPair.fromPublicKey(publicKey);
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void getAccountIdTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void getSecretSeedTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void getPublicKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void getSignatureHintTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getSignatureHint());
+    }
+
+    @Test
+    public void getXdrPublicKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        PublicKey publicKey = keyPair.getXdrPublicKey();
+        assertNotNull(publicKey);
+    }
+
+    @Test
+    public void getXdrSignerKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        SignerKey signerKey = keyPair.getXdrSignerKey();
+        assertNotNull(signerKey);
+    }
+
+    @Test
+    public void fromXdrPublicKeyTest() {
+        PublicKey key = new PublicKey();
+        KeyPair keyPair = KeyPair.fromXdrPublicKey(key);
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromXdrSignerKeyTest() {
+        SignerKey key = new SignerKey();
+        KeyPair keyPair = KeyPair.fromXdrSignerKey(key);
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void signTest() {
+        KeyPair keyPair = KeyPair.random();
+        byte[] data = new byte[32];
+        new java.security.SecureRandom().nextBytes(data);
+        assertNotNull(keyPair.sign(data));
+    }
+
+    @Test
+    public void signDecoratedTest() {
+        KeyPair keyPair = KeyPair.random();
+        byte[] data = new byte[32];
+        new java.security.SecureRandom().nextBytes(data);
+        assertNotNull(keyPair.signDecorated(data));
+    }
+
+    @Test
+    public void signPayloadDecoratedTest() {
+        KeyPair keyPair = KeyPair.random();
+        byte[] data = new byte[32];
+        new java.security.SecureRandom().nextBytes(data);
+        assertNotNull(keyPair.signPayloadDecorated(data));
+    }
+
+    @Test
+    public void equalsTest() {
+        KeyPair keyPair1 = KeyPair.random();
+        KeyPair keyPair2 = KeyPair.random();
+        assertFalse(keyPair1.equals(keyPair2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.hashCode());
+    }
+
+    @Test
+    public void verifyTest() throws GeneralSecurityException {
+        KeyPair keyPair = KeyPair.random();
+        byte[] data = new byte[32];
+        new java.security.SecureRandom().nextBytes(data);
+        byte[] signature = keyPair.sign(data);
+        assertTrue(keyPair.verify(data, signature));
+    }
+
+}

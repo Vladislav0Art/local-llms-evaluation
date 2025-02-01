@@ -1,0 +1,70 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.UrlBuilder;
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildNoQueryNoRefUrlTest() throws Exception {
+        URL inputUrl = new URL("http://www.google.com/test-path");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL actual = urlBuilder.build();
+
+        assertEquals(inputUrl, actual);
+    }
+
+    @Test
+    public void buildWithQueryParamTest() throws Exception {
+        URL inputUrl = new URL("http://www.google.com?k=v");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL actual = urlBuilder.build();
+
+        URL expected = new URL("http://www.google.com?k=v");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void buildWithRefTest() throws Exception {
+        URL inputUrl = new URL("http://www.google.com/#section1");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL actual = urlBuilder.build();
+
+        URL expected = new URL("http://www.google.com/#section1");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void buildWithNonAsciiPathTest() throws Exception {
+        URL inputUrl = new URL("http://www.google.com/тест");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL actual = urlBuilder.build();
+
+        URL expected = new URL("http://www.google.com/%D1%82%D0%B5%D1%81%D1%82");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("http://www.google.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        Connection.KeyVal kv = mock(Connection.KeyVal.class);
+        when(kv.key()).thenReturn("k1");
+        when(kv.value()).thenReturn("v1");
+
+        urlBuilder.appendKeyVal(kv);
+
+        URL actual = urlBuilder.build();
+        URL expected = new URL("http://www.google.com?k1=v1");
+        assertEquals(expected, actual);
+    }
+
+}

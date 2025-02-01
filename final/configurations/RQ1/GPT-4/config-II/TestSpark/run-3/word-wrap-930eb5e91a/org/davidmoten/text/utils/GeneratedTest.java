@@ -1,0 +1,87 @@
+package org.davidmoten.text.utils;
+
+import org.junit.Test;
+import org.davidmoten.text.utils.WordWrap;
+
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        StringWriter writer = new StringWriter();
+        WordWrap.from(new StringReader("Here is an example text string.").wrap(writer);
+        assertEquals("Here is an example text string.", writer.toString());
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        StringWriter writer = new StringWriter();
+        WordWrap.fromClasspathUtf8("/exists/resource.txt").wrap(writer);
+        assertEquals("", writer.toString()); // Assuming that the resource file is empty. It should have been mocked
+    }
+
+    @Test
+    public void fromClasspathCharsetTest() {
+        StringWriter writer = new StringWriter();
+        WordWrap.fromClasspath("/exists/resource.txt", StandardCharsets.US_ASCII).wrap(writer);
+        assertEquals("", writer.toString()); // Assuming that the resource file is empty. It should have been mocked
+    }
+
+    @Test
+    public void fromStringTest() {
+        StringWriter writer = new StringWriter();
+        WordWrap.from("This is a test string").wrap(writer);
+        assertEquals("This is a test string", writer.toString());
+    }
+
+    @Test
+    public void wrapToStringTest() {
+        String wrappedText = WordWrap.from("One Two Three Four Five Six").wrap();
+        assertEquals("One Two Three Four Five Six", wrappedText);
+    }
+
+    @Test
+    public void wrapToListTest() {
+        List<String> lines = WordWrap.from("One Two Three Four Five Six").wrapToList();
+        assertEquals("One Two Three Four Five Six", String.join("", lines));
+    }
+
+    @Test
+    public void maxWidthTest() {
+        HashSet<Character> extraWordChars = new HashSet<>();
+        extraWordChars.add('T');
+        String result = WordWrap
+                .from("Testing")
+                .maxWidth(80)
+                .stringWidth(CharSequence::length)
+                .newLine("\n")
+                .extraWordChars(extraWordChars)
+                .extraWordChars("\"")
+                .includeExtraWordChars("a")
+                .excludeExtraWordChars("e")
+                .insertHyphens(true)
+                .breakWords(true)
+                .wrap();
+        assertEquals("Testing", result);
+    }
+
+    @Test
+    public void wrapWithMaxWidthTest() {
+        String str = "This string will need to be wrapped because it's too long.";
+        String wrappedText = WordWrap.from(str).maxWidth(10).wrap();
+        assertEquals("This string will need to be wrapped because it's too long.", wrappedText);
+    }
+
+    @Test
+    public void closeReaderTest() {
+        WordWrap.close(new StringReader("Test"));
+    }
+
+}

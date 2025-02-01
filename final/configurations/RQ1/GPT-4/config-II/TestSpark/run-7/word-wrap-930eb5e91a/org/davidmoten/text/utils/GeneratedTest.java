@@ -1,0 +1,142 @@
+package org.davidmoten.text.utils;
+
+import org.davidmoten.text.utils.WordWrap;
+import org.junit.Test;
+
+import java.io.*;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        Reader reader = new StringReader("Test Reader");
+        assertNotNull(WordWrap.from(reader));
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        assertNotNull(WordWrap.fromClasspathUtf8("test-resource"));
+    }
+
+    @Test
+    public void fromClasspathUtf8NullTest() {
+        WordWrap.fromClasspathUtf8(null);
+    }
+
+    @Test
+    public void fromSequenceTest() {
+        assertNotNull(WordWrap.from("Test Sequence"));
+    }
+
+    @Test
+    public void fromSequenceNullTest() {
+        WordWrap.from((CharSequence) null);
+    }
+
+    @Test
+    public void fromInputStreamTest() {
+        InputStream in = new ByteArrayInputStream("Test InputStream".getBytes());
+        assertNotNull(WordWrap.fromUtf8(in));
+    }
+
+    @Test
+    public void fromInputStreamAndCharsetTest() {
+        InputStream in = new ByteArrayInputStream("Test InputStream".getBytes());
+        assertNotNull(WordWrap.from(in, java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void fromFileAndCharsetTest() {
+        File file = new File("test.txt");
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write("Test String".getBytes());
+            fos.close();
+            assertNotNull(WordWrap.from(file, java.nio.charset.StandardCharsets.UTF_8));
+            file.delete();
+        } catch (IOException e) {
+            fail("Unexpected exception thrown");
+        }
+    }
+
+    @Test
+    public void fromNonExistingFileAndCharsetTest() {
+        File file = new File("non-existing.txt");
+        WordWrap.from(file, java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    @Test
+    public void BuilderMaxWidthTest() {
+        WordWrap.Builder builder = WordWrap.from("Test").maxWidth(100);
+        assertEquals(100, builder.maxWidth.intValue());
+    }
+
+    @Test
+    public void BuilderMaxWidthZeroTest() {
+        WordWrap.from("Test").maxWidth(0);
+    }
+
+    @Test
+    public void BuilderNewLineTest() {
+        WordWrap.Builder builder = WordWrap.from("Test").newLine("\r\n");
+        assertEquals("\r\n", builder.newLine);
+    }
+
+    @Test
+    public void BuilderInsertHyphensTest() {
+        WordWrap.Builder builder = WordWrap.from("Test").insertHyphens(false);
+        assertFalse(builder.insertHyphens);
+    }
+
+    @Test
+    public void BuilderBreakWordsTest() {
+        WordWrap.Builder builder = WordWrap.from("Test").breakWords(false);
+        assertFalse(builder.breakWords);
+    }
+
+    @Test
+    public void BuilderWrapToStringTest() {
+        String str = "This is a test String which needs to be wrapped when it hits the max width";
+        WordWrap.Builder builder = WordWrap.from(str).maxWidth(10);
+        assertNotNull(builder.wrap());
+    }
+
+    @Test
+    public void BuilderWrapToFileTest() {
+        String str = "This is a test String which needs to be wrapped when it hits the max width";
+        WordWrap.Builder builder = WordWrap.from(str).maxWidth(10);
+        File file = new File("test.txt");
+        builder.wrap(file, java.nio.charset.StandardCharsets.UTF_8);
+        assertTrue(file.exists());
+        file.delete();
+    }
+
+    @Test
+    public void BuilderWrapToFileIOExceptionTest() {
+        String str = "This is a test String which needs to be wrapped when it hits the max width";
+        WordWrap.Builder builder = WordWrap.from(str).maxWidth(10);
+        File file = new File("/root/test.txt");
+        builder.wrap(file, java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    @Test
+    public void BuilderWrapToFileUtf8Test() {
+        String str = "This is a test String which needs to be wrapped when it hits the max width";
+        WordWrap.Builder builder = WordWrap.from(str).maxWidth(10);
+        File file = new File("test.txt");
+        builder.wrapUtf8(file);
+        assertTrue(file.exists());
+        file.delete();
+    }
+
+    @Test
+    public void BuilderWrapToFileUtf8IOExceptionTest() {
+        String str = "This is a test String which needs to be wrapped when it hits the max width";
+        WordWrap.Builder builder = WordWrap.from(str).maxWidth(10);
+        File file = new File("/root/test.txt");
+        builder.wrapUtf8(file);
+    }
+
+}

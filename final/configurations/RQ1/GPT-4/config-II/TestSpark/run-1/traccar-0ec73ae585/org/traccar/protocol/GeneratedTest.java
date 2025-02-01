@@ -1,0 +1,65 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.Unpooled;
+import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import org.junit.Assert;
+import org.junit.Test;
+import org.traccar.ProtocolTest;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+public class GeneratedTest {
+
+    @Test
+    public void decodePositionNotMatchTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new WatchProtocol());
+        assertNull(decoder.decodePosition(
+                new StandardDeviceSession(null, null, "testDevice", null, null, null),
+                null));
+    }
+
+    @Test
+    public void decodeAlarmTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new WatchProtocol());
+        assertNull(decoder.decodeAlarm(5));
+        assertNotNull(decoder.decodeAlarm(0));
+        assertNotNull(decoder.decodeAlarm(1));
+        assertNotNull(decoder.decodeAlarm(14));
+        assertNotNull(decoder.decodeAlarm(16));
+        assertNotNull(decoder.decodeAlarm(17));
+        assertNotNull(decoder.decodeAlarm(18));
+        assertNotNull(decoder.decodeAlarm(19));
+        assertNotNull(decoder.decodeAlarm(20));
+        assertNotNull(decoder.decodeAlarm(21));
+        assertNotNull(decoder.decodeAlarm(22));
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        WatchProtocol protocol = new WatchProtocol();
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        EmbeddedChannel channel = new EmbeddedChannel(new LengthFieldBasedFrameDecoder(2, 0, 2, 0, 2));
+        decoder.decode(channel, null, Unpooled.wrappedBuffer(new byte[]{0x00}));
+        Assert.assertNull(channel.readOutbound());
+
+        channel = new EmbeddedChannel(new LengthFieldBasedFrameDecoder(2, 0, 2, 0, 2));
+        decoder.decode(channel, null, Unpooled.wrappedBuffer(new byte[]{0x01}));
+        Assert.assertNull(channel.readOutbound());
+    }
+
+    @Test
+    public void getHasIndexTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new WatchProtocol());
+        Assert.assertFalse(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new WatchProtocol());
+        Assert.assertNull(decoder.getManufacturer());
+    }
+
+}

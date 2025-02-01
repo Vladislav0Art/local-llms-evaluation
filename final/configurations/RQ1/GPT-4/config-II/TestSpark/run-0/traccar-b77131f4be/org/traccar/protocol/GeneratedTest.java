@@ -1,0 +1,86 @@
+package org.traccar.protocol;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+
+public class GeneratedTest {
+
+    @Test
+    public void getTagLengthUnknownTagTest() {
+        GalileoProtocolDecoder.getTagLength(0xFFFF);
+    }
+
+    @Test
+    public void getTagLengthKnownTagTest() {
+        Assert.assertEquals(1, GalileoProtocolDecoder.getTagLength(0x01));
+        Assert.assertEquals(2, GalileoProtocolDecoder.getTagLength(0x04));
+        Assert.assertEquals(3, GalileoProtocolDecoder.getTagLength(0x63));
+        Assert.assertEquals(4, GalileoProtocolDecoder.getTagLength(0x20));
+        Assert.assertEquals(7, GalileoProtocolDecoder.getTagLength(0x5b));
+    }
+
+    @Test
+    public void DecodeTagValidTagsTest() {
+        ByteBuf buf = Unpooled.buffer(16);
+        buf.writeInt(2);
+        buf.writeShort(1);
+        buf.writeByte(1);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("protocol"));
+        Position position = new Position("protocol");
+
+        decoder.decodeTag(position, buf, 0x01);
+        Assert.assertEquals(1, position.getAttributes().size());
+    }
+
+    @Test
+    public void DecodeTagUnknownTagTest() {
+        ByteBuf buf = Unpooled.buffer(16);
+        buf.writeInt(2);
+        buf.writeShort(1);
+        buf.writeByte(1);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("protocol"));
+        Position position = new Position("protocol");
+
+        decoder.decodeTag(position, buf, 0xFF);
+    }
+
+    @Test
+    public void SendResponseTest() {
+        Channel channel = Mockito.mock(Channel.class);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("protocol"));
+        decoder.sendResponse(channel, 0x01, 100);
+        Mockito.verify(channel).writeAndFlush(Mockito.any());
+    }
+
+    @Test
+    public void DecodeTagOtherValidTagsTest() {
+        ByteBuf buf = Unpooled.buffer(16);
+        buf.writeInt(2);
+        buf.writeShort(1);
+        buf.writeByte(1);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("protocol"));
+        Position position = new Position("protocol");
+
+        decoder.decodeTagOther(position, buf, 0x01);
+        Assert.assertEquals(1, position.getAttributes().size());
+    }
+
+    @Test
+    public void DecodeTagOtherUnknownTagTest() {
+        ByteBuf buf = Unpooled.buffer(16);
+        buf.writeInt(2);
+        buf.writeShort(1);
+        buf.writeByte(1);
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new Protocol("protocol"));
+        Position position = new Position("protocol");
+
+        decoder.decodeTag(position, buf, 0xFF);
+    }
+
+}

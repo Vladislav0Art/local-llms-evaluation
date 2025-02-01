@@ -1,0 +1,97 @@
+package com.force.i18n.grammar.impl;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import com.force.i18n.HumanLanguage;
+import com.force.i18n.commons.util.collection.MapSerializer;
+import com.force.i18n.grammar.LanguageDictionary;
+import com.force.i18n.grammar.Noun;
+import com.force.i18n.grammar.RenamingProvider;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+
+public class GeneratedTest {
+
+    @Test
+    public void equalsSameObjectTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        assertTrue(map.equals(map));
+    }
+
+    @Test
+    public void equalsDifferentObjectsTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map1 = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> map2 = new GrammaticalTermMapImpl<>();
+        assertTrue(map1.equals(map2));
+    }
+
+    @Test
+    public void equalsDifferentTypesTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        assertFalse(map.equals(new Object()));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        assertEquals(map.map.hashCode(), map.hashCode());
+    }
+
+    @Test
+    public void isSkinnyTrueTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        assertFalse(map.isSkinny());
+    }
+
+    @Test
+    public void isSkinnyFalseTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        assertTrue(map.isSkinny());
+    }
+
+    @Test
+    public void makeSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> skinnyMap = (GrammaticalTermMapImpl<GrammaticalTerm>) map.makeSkinny();
+        assertTrue(skinnyMap.isSkinny());
+    }
+
+    @Test
+    public void writeJsonTest() throws IOException {
+        Appendable out = new StringBuilder();
+        RenamingProvider renamingProvider = mock(RenamingProvider.class);
+        LanguageDictionary dictionary = mock(LanguageDictionary.class);
+        HumanLanguage language = mock(HumanLanguage.class);
+
+        when(dictionary.getLanguage()).thenReturn(language);
+        when(renamingProvider.useRenamedNouns()).thenReturn(true);
+
+        Noun noun = mock(Noun.class);
+        when(noun.getName()).thenReturn("test");
+        when(renamingProvider.getRenamedNoun(language, "test")).thenReturn(noun);
+
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("key", noun);
+
+        map.writeJson(out, renamingProvider, dictionary, Arrays.asList("key"));
+
+        assertTrue(out.toString().trim().endsWith("}"));
+    }
+
+    @Test
+    public void putOnSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        map.put("key", mock(GrammaticalTerm.class));
+    }
+
+    @Test
+    public void putAllOnSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        map.putAll(new GrammaticalTermMapImpl<>());
+    }
+
+}

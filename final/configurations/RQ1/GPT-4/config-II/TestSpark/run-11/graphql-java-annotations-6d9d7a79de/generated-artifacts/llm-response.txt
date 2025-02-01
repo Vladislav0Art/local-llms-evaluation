@@ -1,0 +1,103 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.schema.*;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+
+public class DirectivesBuilderTest {
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void buildNotFoundDirectiveTest() {
+        Annotation annotation = Mockito.mock(Annotation.class);
+        Method method = Mockito.mock(Method.class);
+        Mockito.when(annotation.annotationType()).thenReturn((Class) method.getClass());
+
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        container.setDirectiveRegistry(new HashMap<>());
+
+        DirectivesBuilder builder = new DirectivesBuilder(annotation, container);
+        builder.build();
+    }
+
+    @Test
+    public void buildEmptyAnnotationTest() {
+        Annotation annotation = Mockito.mock(Annotation.class);
+        Mockito.when(annotation.annotationType()).thenReturn((Class) annotation.getClass());
+
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        container.setDirectiveRegistry(new HashMap<>());
+
+        DirectivesBuilder builder = new DirectivesBuilder(annotation, container);
+        Assert.assertEquals(0, builder.build().length);
+    }
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void buildExceedArgumentsTest() {
+        Annotation annotation = Mockito.mock(Annotation.class);
+
+        Method[] methods = new Method[]{Mockito.mock(Method.class)};
+        Mockito.when(annotation.annotationType()).thenReturn((Class) methods.getClass());
+
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        container.setDirectiveRegistry(new HashMap<>());
+
+        DirectivesBuilder builder = new DirectivesBuilder(annotation, container);
+        builder.build();
+    }
+
+    @Test
+    public void buildSampleDirectiveTest() {
+        Annotation annotation = Mockito.mock(Annotation.class);
+        Mockito.when(annotation.annotationType()).thenReturn((Class) annotation.getClass());
+
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        container.setDirectiveRegistry(new HashMap<>());
+
+        GraphQLDirective directive = GraphQLDirective.newDirective()
+                .name("sampleDirective")
+                .validLocations(Introspection.DirectiveLocation.FIELD)
+                .argument(GraphQLArgument.newArgument()
+                        .name("arg1")
+                        .type(Scalars.GraphQLString)
+                        .build())
+                .build();
+        GraphQLArgument argument = GraphQLArgument.newArgument().name("arg1").value("value1").build();
+        directive.getArguments().add(argument);
+        container.getDirectiveRegistry().put("sampleDirective", directive);
+
+        DirectivesBuilder builder = new DirectivesBuilder(annotation, container);
+        GraphQLDirective[] result = builder.build();
+        Assert.assertEquals(1, result.length);
+        Assert.assertEquals("sampleDirective", result[0].getName());
+    }
+
+    @Test(expected = GraphQLAnnotationsException.class)
+    public void transformArgsMoreValuesThanArgsTest() {
+        Annotation annotation = Mockito.mock(Annotation.class);
+        Method[] runningMethods = new Method[]{Mockito.mock(Method.class), Mockito.mock(Method.class)};
+        Mockito.when(annotation.annotationType()).thenReturn((Class) runningMethods.getClass());
+
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        GraphQLDirective directive = GraphQLDirective.newDirective()
+                .name("sampleDirective")
+                .validLocations(Introspection.DirectiveLocation.FIELD)
+                .build();
+        String[] argValues = new String[]{"val1", "val2", "val3"};
+        DirectivesBuilder builder = new DirectivesBuilder(annotation, container);
+        builder.transformArgs(directive, argValues);
+    }
+}
+```
+===================================================
+

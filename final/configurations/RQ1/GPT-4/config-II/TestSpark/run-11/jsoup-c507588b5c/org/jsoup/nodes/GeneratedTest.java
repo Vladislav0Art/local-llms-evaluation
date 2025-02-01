@@ -1,0 +1,89 @@
+package org.jsoup.nodes;
+
+import org.jsoup.parser.Tag;
+import org.junit.Test;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeCreationTest() {
+        TextNode textNode = new TextNode("Test");
+        assertNotNull(textNode);
+        assertTrue(textNode instanceof TextNode);
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode node = new TextNode("Test");
+        assertEquals("#text", node.nodeName());
+    }
+
+    @Test
+    public void getTextTest() {
+        TextNode node = new TextNode("  Test  ");
+        assertEquals("Test", node.text());
+    }
+
+    @Test
+    public void setTextTest() {
+        TextNode node = new TextNode("Test");
+        node.text("New Test");
+        assertEquals("New Test", node.getWholeText());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode node = new TextNode("    Test    ");
+        assertEquals("    Test    ", node.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode node = new TextNode("    ");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void isNotBlankTest() {
+        TextNode node = new TextNode("Test");
+        assertFalse(node.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode node = new TextNode("Test");
+        TextNode newTextNode = node.splitText(2);
+        assertEquals("Te", node.getWholeText());
+        assertEquals("st", newTextNode.getWholeText());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode node = new TextNode("Test");
+        TextNode clonedNode = node.clone();
+        assertEquals(node.getWholeText(), clonedNode.getWholeText());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode node = TextNode.createFromEncoded("&lt;");
+        assertEquals("<", node.getWholeText());
+    }
+
+    @Test
+    public void splitTextNegativeOffsetTest() {
+        TextNode node = new TextNode("Test");
+        node.splitText(-1);
+    }
+
+    @Test
+    public void splitTextExceedOffsetTest() {
+        TextNode node = new TextNode("Test");
+        node.splitText(10);
+    }
+
+}

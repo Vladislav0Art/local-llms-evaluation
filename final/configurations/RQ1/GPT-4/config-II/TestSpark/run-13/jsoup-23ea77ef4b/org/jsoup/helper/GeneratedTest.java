@@ -1,0 +1,91 @@
+package org.jsoup.helper;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.select.NodeVisitor;
+import org.jsoup.helper.W3CDom;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Text;
+import org.w3c.dom.NodeList;
+
+import javax.annotation.Nullable;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathFactoryConfigurationException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTest() {
+        W3CDom w3cDom = new W3CDom();
+        assertTrue(w3cDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAwareNotAwareTest() {
+        W3CDom w3cDom = new W3CDom();
+        w3cDom.namespaceAware(false);
+        assertFalse(w3cDom.namespaceAware());
+    }
+
+    @Test
+    public void convertNullInputTest() {
+        Document document = W3CDom.convert(null);
+        assertNull(document);
+    }
+
+    @Test
+    public void convertValidInputTest() {
+        Document document = org.jsoup.Jsoup.parse("<html><body><p>Test</p></body></html>");
+        org.w3c.dom.Document convertedDoc = W3CDom.convert(document);
+        assertNotNull(convertedDoc);
+    }
+
+    @Test
+    public void asStringNullInputTest() {
+        Document document = null;
+        String result = W3CDom.asString(document, null);
+        assertNull(result);
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = new HashMap<>();
+        map.put("test", "value");
+        Properties properties = W3CDom.propertiesFromMap(map);
+        assertNotNull(properties);
+        assertEquals("value", properties.getProperty("test"));
+    }
+
+    @Test
+    public void outputHtmlTest() {
+        HashMap<String, String> result = W3CDom.OutputHtml();
+        assertNotNull(result);
+        assertEquals("html", result.get("{http://xml.apache.org/xalan}content-handler"));
+    }
+
+    @Test
+    public void outputXmlTest() {
+        HashMap<String, String> result = W3CDom.OutputXml();
+        assertNotNull(result);
+        assertEquals("xml", result.get("{http://xml.apache.org/xalan}content-handler"));
+    }
+
+    @Test
+    public void selectXpathNullInputTest() {
+        W3CDom w3cDom = new W3CDom();
+        try {
+            NodeList nodeList = w3cDom.selectXpath("", null);
+            fail("Exception should have been thrown");
+        } catch (Exception e) {
+            assertTrue(e instanceof IllegalArgumentException);
+        }
+    }
+
+}

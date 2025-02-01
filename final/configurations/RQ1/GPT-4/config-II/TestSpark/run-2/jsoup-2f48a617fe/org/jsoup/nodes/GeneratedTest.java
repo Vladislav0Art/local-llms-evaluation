@@ -1,0 +1,94 @@
+package org.jsoup.nodes;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.parser.Parser;
+
+import java.io.IOException;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void CommentContructorTest() {
+        Comment comment = new Comment("Test comment");
+        Assert.assertEquals("Test comment", comment.getData());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("Test comment");
+        Assert.assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("Test comment");
+        Assert.assertEquals("Test comment", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("Initial comment");
+        comment.setData("New comment");
+        Assert.assertEquals("New comment", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("Test comment");
+        StringBuilder sb = new StringBuilder();
+        Document.OutputSettings settings = new Document("").outputSettings();
+        settings.prettyPrint(false);
+        comment.outerHtmlHead(sb, 0, settings);
+        Assert.assertEquals("<!--Test comment-->", sb.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("Test comment");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlTail(sb, 0, null);
+        Assert.assertEquals("", sb.toString()); // The method does not append anything to accumulator
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("Test comment");
+        Assert.assertEquals("<!--Test comment-->", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("Test comment");
+        Assert.assertEquals(comment.getData(), comment.clone().getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("?xml version=\"1.0\" ?");
+        Assert.assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void notXmlDeclarationTest() {
+        Comment comment = new Comment("xml version=\"1.0\" ?");
+        Assert.assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("?xml version=\"1.0\" ?");
+        Assert.assertNotNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void notAsXmlDeclarationTest() {
+        Comment comment = new Comment("xml version=\"1.0\" ?");
+        Assert.assertNull(comment.asXmlDeclaration());
+    }
+
+}

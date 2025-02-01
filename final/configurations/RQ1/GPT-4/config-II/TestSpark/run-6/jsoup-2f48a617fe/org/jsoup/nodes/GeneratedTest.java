@@ -1,0 +1,94 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("data");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("data");
+        assertEquals("data", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("data");
+        comment.setData("new data");
+        assertEquals("new data", comment.getData());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("data");
+        Comment cloned = comment.clone();
+        assertEquals(cloned.getData(), comment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("?xml version=\"1.0\" encoding=\"UTF-8\"?");
+        assertTrue(comment.isXmlDeclaration());
+
+        Comment nonXmlComment = new Comment("data");
+        assertFalse(nonXmlComment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("?xml version=\"1.0\" encoding=\"UTF-8\"?");
+        assertNotNull(comment.asXmlDeclaration());
+
+        // non-XML comment
+        Comment nonXmlComment = new Comment("data");
+        assertNull(nonXmlComment.asXmlDeclaration());
+
+        // test with comment that looks like XML but is not
+        Comment bogusComment = new Comment("?boguscomment?");
+        assertNull(bogusComment.asXmlDeclaration());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws Exception {
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        outputSettings.prettyPrint(true);
+        outputSettings.outline(true);
+        Comment comment = new Comment("data");
+        StringBuilder accum = new StringBuilder();
+        comment.outerHtmlHead(accum, 0, outputSettings);
+        String result = accum.toString();
+        assertTrue(result.contains("<!--"));
+        assertTrue(result.contains("data"));
+        assertTrue(result.contains("-->"));
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws Exception {
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        Comment comment = new Comment("data");
+        StringBuilder accum = new StringBuilder();
+        comment.outerHtmlTail(accum, 0, outputSettings);
+        // Expecting nothing in output as it is empty
+        String result = accum.toString();
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("data");
+        String result = comment.toString();
+        assertTrue(result.contains("<!--data-->"));
+    }
+
+}

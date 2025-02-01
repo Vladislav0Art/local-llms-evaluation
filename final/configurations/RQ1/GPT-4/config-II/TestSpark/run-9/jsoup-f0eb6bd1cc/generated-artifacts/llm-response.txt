@@ -1,0 +1,89 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.jsoup.Connection;
+import java.net.URL;
+import java.net.URLEncoder;
+
+public class UrlBuilderTests {
+    
+    @Test(expected = RuntimeException.class)
+    public void decodePartUnsupportedEncodingExceptionTest() throws Exception {
+        new URLBuilder(new URL("http://example.com")).decodePart("\u0000");
+    }
+    
+    @Test
+    public void appendKeyValTest() throws Exception {
+        Connection.KeyVal kv = Mockito.mock(Connection.KeyVal.class);
+        Mockito.when(kv.key()).thenReturn("key");
+        Mockito.when(kv.value()).thenReturn("value");
+        
+        UrlBuilder urlBuilder = new URLBuilder(new URL("http://example.com"));
+        urlBuilder.appendKeyVal(kv);
+
+        Assert.assertTrue(urlBuilder.q.toString().equals("key=value"));
+    }
+
+    @Test
+    public void appendToAsciiNonAsciiTest() throws Exception {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii("é", false, sb);
+        
+        Assert.assertEquals(URLEncoder.encode("é", "UTF-8"), sb.toString());
+    }
+
+    @Test
+    public void appendToAsciiSpaceTest() throws Exception {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii(" ", true, sb);
+
+        Assert.assertEquals("+", sb.toString());
+    }
+
+    @Test
+    public void appendToAsciiAsciiTest() throws Exception {
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii("a", false, sb);
+
+        Assert.assertEquals("a", sb.toString());
+    }
+    
+    @Test
+    public void buildReplacesSpaceWith20Test() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/a b"));
+        URL result = urlBuilder.build();
+        
+        Assert.assertTrue(result.toString().endsWith("a%20b"));
+    }
+
+    @Test
+    public void buildHandlesQueryParametersTest() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com?a=b"));
+
+        Connection.KeyVal kv = Mockito.mock(Connection.KeyVal.class);
+        Mockito.when(kv.key()).thenReturn("c");
+        Mockito.when(kv.value()).thenReturn("d");
+
+        urlBuilder.appendKeyVal(kv);
+
+        URL result = urlBuilder.build();
+        
+        Assert.assertTrue(result.toString().endsWith("?a=b&c=d"));
+    }
+
+    @Test
+    public void buildHandlesFragmentsTest() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com#a"));
+
+        URL result = urlBuilder.build();
+        
+        Assert.assertTrue(result.toString().endsWith("#a"));
+    } 
+}
+```
+===================================================
+

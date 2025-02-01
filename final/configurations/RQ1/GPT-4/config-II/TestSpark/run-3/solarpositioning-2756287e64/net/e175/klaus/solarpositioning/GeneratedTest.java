@@ -1,0 +1,68 @@
+package net.e175.klaus.solarpositioning;
+
+import net.e175.klaus.solarpositioning.AzimuthZenithAngle;
+import org.junit.Test;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSolarPositionBasicTest() {
+        ZonedDateTime utc = ZonedDateTime.of(2020, 6, 24, 13, 55, 0, 0, ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(utc, 51.2, 4.4, 69.8);
+
+        assertEquals(179.89225489004228, result.getAzimuth(), 0.00001);
+        assertEquals(41.8775321685398, result.getZenithAngle(), 0.00001);
+    }
+
+    @Test
+    public void calculateSolarPositionExtensiveTest() {
+        ZonedDateTime utc = ZonedDateTime.of(2050, 12, 31, 23, 59, 59, 0, ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(utc, 90.0, 180.0, 1000.0);
+
+        assertEquals(114.96711883242783, result.getAzimuth(), 0.00001);
+        assertEquals(110.94410007065352, result.getZenithAngle(), 0.00001);
+    }
+
+    @Test
+    public void calculateSolarPositionWithPressureTemperatureTest() {
+        ZonedDateTime utc = ZonedDateTime.of(2020, 6, 24, 13, 55, 0, 0, ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(utc, 51.2, 4.4, 69.8, 1013.25, 15.0);
+
+        assertEquals(179.8934896603313, result.getAzimuth(), 0.00001);
+        assertEquals(41.85630393472177, result.getZenithAngle(), 0.00001);
+    }
+
+    @Test
+    public void calculateSolarPositionWithNegativeCoordinatesTest() {
+        ZonedDateTime utc = ZonedDateTime.of(2020, 6, 24, 13, 55, 0, 0, ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(utc, -51.2, -4.4, 69.8);
+
+        assertEquals(355.58089634385693, result.getAzimuth(), 0.00001);
+        assertEquals(138.06515882012093, result.getZenithAngle(), 0.00001);
+    }
+
+    @Test
+    public void calculateSolarPositionWith
+
+    largeDeltaTTest() {
+        ZonedDateTime utc = ZonedDateTime.of(2020, 6, 24, 13, 55, 0, 0, ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(utc, 51.2, 4.4, 1000000.5);
+
+        assertEquals(219.86670612660706, result.getAzimuth(), 0.00001);
+        assertEquals(41.87753263754391, result.getZenithAngle(), 0.00001);
+    }
+
+    @Test
+    public void calculateSolarPositionWithNullDateTest() {
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(null, 51.2, 4.4, 69.8);
+
+        assertEquals(0.0, result.getAzimuth(), 0.00001);
+        assertEquals(0.0, result.getZenithAngle(), 0.00001);
+    }
+
+}

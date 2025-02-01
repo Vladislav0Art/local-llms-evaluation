@@ -1,0 +1,46 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.io.UnsupportedEncodingException;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws MalformedURLException {
+        URL url = new URL("http://test.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildValidUrlTest() throws MalformedURLException {
+        URL url = new URL("http://test.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL result = urlBuilder.build();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void buildInvalidUrlTest() throws MalformedURLException {
+        URL url = new URL("http://тест.ком");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL result = urlBuilder.build();
+    }
+
+    @Test
+    public void appendKeyValTest() throws MalformedURLException, UnsupportedEncodingException {
+        URL url = new URL("http://test.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Connection.KeyVal kv = new Connection.KeyVal("param", "value");
+        urlBuilder.appendKeyVal(kv);
+        URL result = urlBuilder.build();
+        assertTrue(result.getQuery().contains("param=value"));
+    }
+
+}

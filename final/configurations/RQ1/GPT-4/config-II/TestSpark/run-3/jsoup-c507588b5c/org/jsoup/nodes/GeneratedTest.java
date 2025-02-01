@@ -1,0 +1,101 @@
+package org.jsoup.nodes;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.Element;
+
+public class GeneratedTest {
+
+    @Test
+    public void textTest() {
+        TextNode textNode = new TextNode("Hello World");
+        Assert.assertEquals("Hello World", textNode.text());
+        textNode.text("Hello Jsoup");
+        Assert.assertEquals("Hello Jsoup", textNode.text());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("Hello World");
+        Assert.assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("Hello World");
+        Assert.assertEquals("Hello World", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("");
+        Assert.assertTrue(textNode.isBlank());
+        textNode.text("Hello");
+        Assert.assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("Hello World");
+        TextNode result = textNode.splitText(5);
+        Assert.assertEquals("Hello", textNode.getWholeText());
+        Assert.assertEquals(" World", result.getWholeText());
+    }
+
+    @Test
+    public void splitTextNegativeIndexTest() {
+        TextNode textNode = new TextNode("Hello World");
+        TextNode result = textNode.splitText(-1);
+    }
+
+    @Test
+    public void splitTextOutOfBoundsTest() {
+        TextNode textNode = new TextNode("Hello World");
+        TextNode result = textNode.splitText(20);
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode textNode = new TextNode("Hello World");
+        TextNode clonedNode = textNode.clone();
+        Assert.assertEquals(textNode.getWholeText(), clonedNode.getWholeText());
+
+        // Make sure changing original doesn't affect clone
+        textNode.text("Hello Jsoup");
+        Assert.assertNotEquals(textNode.getWholeText(), clonedNode.getWholeText());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode textNode = TextNode.createFromEncoded("Hello&amp;World");
+        Assert.assertEquals("Hello&World", textNode.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlHeadNoParentTest() throws IOException {
+        TextNode textNode = new TextNode(" Hello World ");
+        textNode.outerHtmlHead(new StringBuilder(), 0, new Document.OutputSettings());
+        Assert.assertEquals("Hello World", textNode.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlHeadWithParentTest() throws IOException {
+        Element parent = new Element("parent");
+        TextNode textNode = new TextNode(" Hello World ");
+        parent.appendChild(textNode);
+        textNode.outerHtmlHead(new StringBuilder(), 0, new Document.OutputSettings());
+        Assert.assertEquals("Hello World", textNode.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        TextNode textNode = new TextNode(" Hello World ");
+        textNode.outerHtmlTail(new StringBuilder(), 0, new Document.OutputSettings());
+        // outerHtmlTail call should not change the value
+        Assert.assertEquals(" Hello World ", textNode.getWholeText());
+    }
+
+}

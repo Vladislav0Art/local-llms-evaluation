@@ -1,0 +1,71 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class GeneratedTest {
+
+    @Test
+    public void decodeAlarmLowBatteryStatusCheckTest() {
+        WatchProtocolDecoder wDecoder = new WatchProtocolDecoder(new Protocol("watch"));
+        String expected = Position.ALARM_LOW_BATTERY;
+        String actual = wDecoder.decodeAlarm(0);
+        Assert.assertEquals(expected, actual);
+    }
+}
+
+@Test
+public void decodePositionTest() {
+    WatchProtocolDecoder wDecoder = new WatchProtocolDecoder(new Protocol("watch"));
+    DeviceSession ds = Mockito.mock(DeviceSession.class);
+    Mockito.when(ds.getDeviceId()).thenReturn(1L);
+    Position p = wDecoder.decodePosition(ds, "120822,014801,A,-27.477061,S,-48.52549,W,0.00,0.00,521.4,7,91,94,0,F,170180074632544,9,3410,30333,1,-0,647,13147,183,1,00:23:33:35:46:AC,255");
+    Assert.assertNotNull(p);
+    Assert.assertEquals(-48.52549, p.getLongitude(), 0);
+    Assert.assertEquals(-27.477061, p.getLatitude(), 0);
+    Assert.assertEquals(1L, p.getDeviceId(), 0);
+}
+	}
+
+@Test
+public void decodeAudioCheckTest() {
+    WatchProtocolDecoder wDecoder = new WatchProtocolDecoder(new Protocol("watch"));
+
+    Channel channel = Mockito.mock(Channel.class);
+    SocketAddress remoteAddress = Mockito.mock(SocketAddress.class);
+
+    ByteBuf buf = Unpooled.copiedBuffer("[OY*071610117773*0005*JXTK10,1,1,1,MZIuM]", StandardCharsets.US_ASCII);
+    Position p = (Position) wDecoder.decode(channel, remoteAddress, buf);
+
+    Assert.assertNotNull(p);
+    Assert.assertEquals(1L, p.getDeviceId());
+    Assert.assertEquals("MZIuM", p.get(Position.KEY_AUDIO));
+}
+
+@Test
+public void decodeInitCheckTest() throws Exception {
+    WatchProtocolDecoder wDecoder = new WatchProtocolDecoder(new Protocol("watch"));
+
+    Channel channel = Mockito.mock(Channel.class);
+    SocketAddress remoteAddress = Mockito.mock(SocketAddress.class);
+
+    ByteBuf buf = Unpooled.copiedBuffer("[3G*41001234561*007B*INIT1234562,820049040,1,null,-32003]", StandardCharsets.US_ASCII);
+    String expectedResponse = "[3G*41001234561*007B*0006*INIT,1]";
+
+    wDecoder.decode(channel, remoteAddress, buf);
+
+    Mockito.verify(channel).writeAndFlush(expectedResponse);
+}
+
+}

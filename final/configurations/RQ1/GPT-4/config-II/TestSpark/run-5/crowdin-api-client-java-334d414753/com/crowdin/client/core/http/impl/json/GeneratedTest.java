@@ -1,0 +1,66 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class GeneratedTest {
+
+    private JacksonJsonTransformer jacksonJsonTransformer = new JacksonJsonTransformer();
+
+    @Test
+    public void parseHttpExceptionClassTest() throws Exception {
+        HttpException httpException = jacksonJsonTransformer.parse("{\"message\":\"Test message\"}", HttpException.class);
+        assertNotNull(httpException);
+        assertEquals("Test message", httpException.getMessage());
+    }
+
+    @Test
+    public void parseHttpBadRequestExceptionClassTest() throws Exception {
+        HttpBadRequestException httpBadRequestException = jacksonJsonTransformer.parse("{\"message\":\"Test message\"}", HttpBadRequestException.class);
+        assertNotNull(httpBadRequestException);
+        assertEquals("Test message", httpBadRequestException.getMessage());
+    }
+
+    @Test
+    public void parseProjectClassTest() throws Exception {
+        Project project = jacksonJsonTransformer.parse("{\"id\":1, \"name\":\"Test Project\"}", Project.class);
+        assertNotNull(project);
+        assertEquals(1, project.getId().intValue());
+        assertEquals("Test Project", project.getName());
+    }
+
+    @Test
+    public void parseInvalidJsonTest() {
+        try {
+            jacksonJsonTransformer.parse("{\"id\":1, 'name':\"Test Project\"}", Project.class);
+        } catch (CrowdinApiException e) {
+            assertEquals("Cannot parse json", e.getMessage());
+        }
+    }
+
+    @Test
+    public void convertProjectClassTest() throws Exception {
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Test Project");
+        String serializedProject = jacksonJsonTransformer.convert(project);
+        assertNotEquals("", serializedProject);
+    }
+
+    @Test
+    public void convertNullExceptionTest() {
+        try {
+            jacksonJsonTransformer.convert(null);
+        } catch (CrowdinApiException e) {
+            assertEquals("Cannot convert null object", e.getMessage());
+        }
+    }
+
+}

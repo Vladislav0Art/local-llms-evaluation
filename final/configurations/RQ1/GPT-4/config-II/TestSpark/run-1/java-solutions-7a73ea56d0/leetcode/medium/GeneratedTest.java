@@ -1,0 +1,87 @@
+package leetcode.medium;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+import leetcode.medium.OnlineStockSpan;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextEmptyListTest() {
+        OnlineStockSpan os = new OnlineStockSpan();
+        int result = os.next(5);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextPriceLowerThanLastTest() {
+        OnlineStockSpan os = new OnlineStockSpan();
+        os.next(10);
+        int result = os.next(5);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextPriceHigherThanAllTest() {
+        OnlineStockSpan os = new OnlineStockSpan();
+        os.next(10);
+        os.next(15);
+        os.next(12);
+        int result = os.next(20);
+        assertEquals(4, result);
+    }
+
+    @Test
+    public void calculateSpansEmptyArrayTest() {
+        OnlineStockSpan os = new OnlineStockSpan();
+        int[] prices = {};
+        int[] spans = os.calculateSpans(prices);
+        assertEquals(0, spans.length);
+    }
+
+    @Test
+    public void calculateSpansOnlyOnePriceTest() {
+        OnlineStockSpan os = new OnlineStockSpan();
+        int[] prices = {10};
+        int[] spans = os.calculateSpans(prices);
+        assertEquals(1, spans.length);
+        assertEquals(1, spans[0]);
+    }
+
+    @Test
+    public void calculateSpansPriceIncreaseTest() {
+        OnlineStockSpan os = new OnlineStockSpan();
+        int[] prices = {1, 2, 3, 4};
+        int[] spans = os.calculateSpans(prices);
+        assertEquals(4, spans.length);
+        for (int i = 0; i < 4; i++) {
+            assertEquals(i + 1, spans[i]);
+        }
+    }
+
+    @Test
+    public void calculateSpansPriceDecreaseTest() {
+        OnlineStockSpan os = new OnlineStockSpan();
+        int[] prices = {4, 3, 2, 1};
+        int[] spans = os.calculateSpans(prices);
+        assertEquals(4, spans.length);
+        for (int i = 0; i < 4; i++) {
+            assertEquals(1, spans[i]);
+        }
+    }
+
+    @Test
+    public void calculateSpansMixedPricesTest() {
+        OnlineStockSpan os = new OnlineStockSpan();
+        int[] prices = {3, 2, 7, 4, 5};
+        int[] spans = os.calculateSpans(prices);
+        assertEquals(5, spans.length);
+        assertEquals(1, spans[0]);
+        assertEquals(1, spans[1]);
+        assertEquals(3, spans[2]);
+        assertEquals(1, spans[3]);
+        assertEquals(2, spans[4]);
+    }
+
+}

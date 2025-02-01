@@ -1,0 +1,136 @@
+package com.adobe.epubcheck.opf;
+
+import com.adobe.epubcheck.api.EPUBLocation;
+import com.adobe.epubcheck.api.ValidationContext;
+import com.adobe.epubcheck.opf.OPFChecker30;
+import com.adobe.epubcheck.opf.OPFItem;
+import com.adobe.epubcheck.opf.OPFHandler30;
+import com.adobe.epubcheck.util.FeatureEnum;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Collections;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void checkPackageInitHandlerTest() {
+        ValidationContext mockContext = mock(ValidationContext.class);
+        OPFChecker30 opfChecker30 = new OPFChecker30(mockContext);
+        opfChecker30.initHandler();
+        verify(mockContext, times(0)).setVersion(any());
+    }
+
+    @Test
+    public void checkContentAudioTypeTest() {
+        String audioType = "audio/mp4";
+        boolean actual = OPFChecker30.isAudioType(audioType);
+        assert actual;
+    }
+
+    @Test
+    public void checkContentBlessedAudioTypeTest() {
+        String audioType = "audio/mp4";
+        boolean actual = OPFChecker30.isBlessedAudioType(audioType);
+        assert actual;
+    }
+
+    @Test
+    public void checkContentVideoTypeTest() {
+        String videoType = "video/mp4";
+        boolean actual = OPFChecker30.isVideoType(videoType);
+        assert actual;
+    }
+
+    @Test
+    public void checkContentBlessedVideoTypeTest() {
+        String videoType = "video/mp4";
+        boolean actual = OPFChecker30.isBlessedVideoType(videoType);
+        assert actual;
+    }
+
+    @Test
+    public void checkContentFontTypeTest() {
+        String fontType = "font/ttf";
+        boolean actual = OPFChecker30.isFontType(fontType);
+        assert actual;
+    }
+
+    @Test
+    public void checkContentBlessedFontTypeTest() {
+        String fontType = "font/ttf";
+        boolean actual = OPFChecker30.isBlessedFontType(fontType);
+        assert actual;
+    }
+
+    @Test
+    public void checkItemDataUrlTest() {
+        ValidationContext context = mock(ValidationContext.class);
+        OPFChecker30 checker = new OPFChecker30(context);
+        OPFItem item = mock(OPFItem.class);
+        when(item.hasDataURL()).thenReturn(true);
+        when(item.getLocation()).thenReturn(EPUBLocation.create("test.epub"));
+        checker.checkItem(item, mock(OPFHandler30.class));
+        verify(context.getMessageDictionary(), times(1)).getMessage(any(), anyVararg());
+    }
+
+    @Test
+    public void checkItemMetaInfPathTest() {
+        ValidationContext context = mock(ValidationContext.class);
+        OPFChecker30 checker = new OPFChecker30(context);
+        OPFItem item = mock(OPFItem.class);
+        when(item.hasDataURL()).thenReturn(false);
+        when(item.getPath()).thenReturn("META-INF/test.epub");
+        checker.checkItem(item, mock(OPFHandler30.class));
+        verify(context.getMessageDictionary(), times(1)).getMessage(any(), anyVararg());
+    }
+
+    @Test
+    public void checkItemMimeTypeTest() {
+        ValidationContext context = mock(ValidationContext.class);
+        OPFChecker30 checker = new OPFChecker30(context);
+        OPFItem item = mock(OPFItem.class);
+        when(item.hasDataURL()).thenReturn(false);
+        when(item.getPath()).thenReturn("test.epub");
+        when(item.getMimeType()).thenReturn("");
+        checker.checkItem(item, mock(OPFHandler30.class));
+        verify(context.getMessageDictionary(), never()).getMessage(any(), anyVararg());
+    }
+
+    @Test
+    public void checkBlessedScriptTypeTest() {
+        String type = "application/javascript";
+        boolean actual = OPFChecker30.isBlessedScriptType(type);
+        assert actual;
+    }
+
+    @Test
+    public void checkCoreMediaTypeTest() {
+        String type = "audio/mpeg";
+        boolean actual = OPFChecker30.isCoreMediaType(type);
+        assert actual;
+    }
+
+    @Test
+    public void checkPreferredMediaTypeTest() {
+        String type = "application/font-sfnt";
+        String path = "fonts/test.otf";
+        String expected = "font/otf";
+        String actual = OPFChecker30.getPreferredMediaType(type, path);
+        assert actual.equals(expected);
+    }
+
+    @Test
+    public void checkItemAfterResourceValidationTest() {
+        ValidationContext context = mock(ValidationContext.class);
+        OPFItem item = mock(OPFItem.class);
+        when(context.referenceRegistry.get()).thenReturn(Collections.<Reference>emptyList());
+        when(item.isInSpine()).thenReturn(false);
+        OPFChecker30 checker = new OPFChecker30(context);
+        checker.checkItemAfterResourceValidation(item);
+        verify(context.getMessageDictionary(), times(1)).getMessage(any(), anyVararg());
+    }
+
+}

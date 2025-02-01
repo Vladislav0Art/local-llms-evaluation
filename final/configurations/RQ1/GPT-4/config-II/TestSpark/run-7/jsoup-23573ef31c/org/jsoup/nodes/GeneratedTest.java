@@ -1,0 +1,115 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.FormElement;
+import org.jsoup.select.Elements;
+import org.jsoup.helper.Validate;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
+public class GeneratedTest {
+
+    @Test
+    public void locationDefaultConstructorTest() {
+        Document document = new Document("https://www.google.com");
+        assertEquals("https://www.google.com", document.location());
+    }
+
+    @Test
+    public void connectionNullTest() {
+        Document document = new Document("https://www.google.com");
+        assertNotNull(document.connection());
+    }
+
+    @Test
+    public void connectionNonNullTest() {
+        Document document = new Document("https://www.google.com");
+        Connection connection = mock(Connection.class);
+        document.connection(connection);
+        assertEquals(connection, document.connection());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document document = new Document("https://www.google.com");
+        Element element = document.createElement("div");
+        assertEquals("<div></div>", element.toString());
+    }
+
+    @Test
+    public void formsTest() {
+        Document document = new Document("https://www.google.com");
+        document.appendElement("form");
+        List<FormElement> forms = document.forms();
+        assertEquals(1, forms.size());
+    }
+
+    @Test
+    public void expectFormNoMatchTest() {
+        Document document = new Document("https://www.google.com");
+        document.expectForm("#nonexistent");
+    }
+
+    @Test
+    public void charsetDefaultTest() {
+        Document document = new Document("https://www.google.com");
+        assertEquals(Charset.forName("UTF-8"), document.charset());
+    }
+
+    @Test
+    public void charsetSetTest() {
+        Document document = new Document("https://www.google.com");
+        document.charset(Charset.forName("ISO-8859-1"));
+        assertEquals(Charset.forName("ISO-8859-1"), document.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementDefaultTest() {
+        Document document = new Document("https://www.google.com");
+        assertFalse(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void updateMetaCharsetElementSetTrueTest() {
+        Document document = new Document("https://www.google.com");
+        document.updateMetaCharsetElement(true);
+        assertTrue(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document document = new Document("https://www.google.com");
+        Document clone = document.clone();
+        assertNotSame(document, clone);
+        assertEquals(document.outerHtml(), clone.outerHtml());
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        Document document = new Document("https://www.google.com");
+        Document shallowClone = document.shallowClone();
+        assertNotSame(document, shallowClone);
+        assertEquals(document.outerHtml(), shallowClone.outerHtml());
+    }
+
+    @Test
+    public void quirksModeDefaultTest() {
+        Document document = new Document("https://www.google.com");
+        assertEquals(Document.QuirksMode.noQuirks, document.quirksMode());
+    }
+
+    @Test
+    public void quirksModeSetTest() {
+        Document document = new Document("https://www.google.com");
+        document.quirksMode(Document.QuirksMode.quirks);
+        assertEquals(Document.QuirksMode.quirks, document.quirksMode());
+    }
+
+}

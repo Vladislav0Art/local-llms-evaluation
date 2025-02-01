@@ -1,0 +1,86 @@
+package org.jsoup.safety;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Element;
+import org.jsoup.safety.Safelist;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+public class GeneratedTest {
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("div", "span");
+        assertTrue(safelist.isSafeTag("div"));
+        assertTrue(safelist.isSafeTag("span"));
+        assertFalse(safelist.isSafeTag("script"));
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = Safelist.simpleText();
+        safelist.removeTags("b", "i");
+        assertFalse(safelist.isSafeTag("b"));
+        assertFalse(safelist.isSafeTag("i"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("div");
+        safelist.addAttributes("div", "id", "class");
+        Element element = new Element("div");
+        element.attr("id", "testId");
+        Attribute attribute = element.attributes().get("id");
+        assertTrue(safelist.isSafeAttribute("div", element, attribute));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.removeAttributes("a", "href");
+        Element element = new Element("a");
+        element.attr("href", "http://www.google.com");
+        Attribute attribute = element.attributes().get("href");
+        assertFalse(safelist.isSafeAttribute("a", element, attribute));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addEnforcedAttribute("a", "target", "_blank");
+        assertTrue(safelist.getEnforcedAttributes("a").hasKey("target"));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.basic();
+        safelist.removeEnforcedAttribute("a", "rel");
+        assertFalse(safelist.getEnforcedAttributes("a").hasKey("rel"));
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addProtocols("img", "src", "http", "https");
+        Element element = new Element("img");
+        element.attr("src", "http://www.google.com/image.jpg");
+        Attribute attribute = element.attributes().get("src");
+        assertTrue(safelist.isSafeAttribute("img", element, attribute));
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.removeProtocols("img", "src", "http", "https");
+        Element element = new Element("img");
+        element.attr("src", "http://www.google.com/image.jpg");
+        Attribute attribute = element.attributes().get("src");
+        assertFalse(safelist.isSafeAttribute("img", element, attribute));
+    }
+
+}

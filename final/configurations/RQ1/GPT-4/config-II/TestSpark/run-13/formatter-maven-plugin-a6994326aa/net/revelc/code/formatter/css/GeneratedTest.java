@@ -1,0 +1,81 @@
+package net.revelc.code.formatter.css;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
+    @Test
+    public void initTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        cssFormatter.init(new HashMap<String, String>(), null);
+        assertTrue(cssFormatter.isInitialized());
+    }
+
+    @Test
+    public void doFormatIndent4Test() throws IOException {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "4");
+        cssFormatter.init(options, null);
+
+        String code = "body {background-color: #efefef;margin: 0;}";
+        String expectedResult = "body {\n    background-color : #efefef;\n    margin : 0\n}";
+
+        assertEquals(expectedResult, cssFormatter.doFormat(code, null));
+    }
+
+    @Test
+    public void doFormatNoChangesTest() throws IOException {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "4");
+        cssFormatter.init(options, null);
+
+        String code = "body {\n    background-color : #efefef;\n    margin : 0\n}";
+
+        assertNull(cssFormatter.doFormat(code, null));
+    }
+
+    @Test
+    public void doFormatExceptionTest() throws IOException {
+        exceptionRule.expect(IOException.class);
+        CssFormatter cssFormatter = new CssFormatter();
+        cssFormatter.doFormat("", null);
+    }
+
+    @Test
+    public void isInitializedFalseTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        assertFalse(cssFormatter.isInitialized());
+    }
+
+    @Test
+    public void rgbAsHexFalseTest() throws IOException {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        options.put("rgbAsHex", "false");
+        cssFormatter.init(options, null);
+
+        String code = "body {background-color: rgb(239, 239, 239);margin: 0;}";
+        String expectedResult = "body {\n    background-color : rgb(239, 239, 239);\n    margin : 0\n}";
+
+        assertEquals(expectedResult, cssFormatter.doFormat(code, null));
+    }
+
+}

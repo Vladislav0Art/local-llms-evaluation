@@ -1,0 +1,83 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.StringUtil;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildTest() throws Exception {
+        URL inputUrl = new URL("http://www.test.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL url = urlBuilder.build();
+
+        assertNotNull(url);
+    }
+
+    @Test
+    public void buildExceptionHandledTest() throws Exception {
+        URL inputUrl = new URL("http:///www.test.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL url = urlBuilder.build();
+    }
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("http://www.test.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        Connection.KeyVal kv = mock(Connection.KeyVal.class);
+        when(kv.key()).thenReturn("key");
+        when(kv.value()).thenReturn("value");
+
+        urlBuilder.appendKeyVal(kv);
+
+        URL url = urlBuilder.build();
+
+        assertNotNull(url);
+        // additional checks can be done for URL query presence & correctness
+    }
+
+    @Test
+    public void appendKeyValUnsupportedEncodingExceptionTest() throws Exception {
+        URL inputUrl = new URL("http://www.test.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        Connection.KeyVal kv = mock(Connection.KeyVal.class);
+        when(kv.key()).thenReturn("key");
+        when(kv.value()).thenThrow(new UnsupportedEncodingException());
+
+        urlBuilder.appendKeyVal(kv);
+    }
+
+    @Test
+    public void UrlBuilderQueryAndRefEmptyTest() throws MalformedURLException {
+        URL inputUrl = new URL("http://www.test.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        // check that builder is not null (as we've passed in a legal URL)
+        assertNotNull(urlBuilder);
+        // check that query string has not been populated (no params passed)
+        assertNull(urlBuilder.q);
+    }
+
+    @Test
+    public void UrlBuilderQueryAndRefNonNullTest() throws MalformedURLException {
+        URL inputUrl = new URL("http://www.test.com?param=value#ref");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        // check that builder is not null (as we've passed in a legal URL)
+        assertNotNull(urlBuilder);
+        // check that query string has been populated
+        assertNotNull(urlBuilder.q);
+    }
+
+}

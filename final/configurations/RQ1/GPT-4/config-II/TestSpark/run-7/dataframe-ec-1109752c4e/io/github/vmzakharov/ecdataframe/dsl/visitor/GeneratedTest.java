@@ -1,0 +1,65 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.dsl.value.StringValue;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void exprToStringTest() {
+        Expression stringExpr = new StringValue("Hello");
+        String result = PrettyPrintVisitor.exprToString(stringExpr);
+        assertEquals("\"Hello\"", result);
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        AssingExpr expr = new AssingExpr("var1", new StringValue("value1"));
+        visitor.visitAssignExpr(expr);
+        assertEquals("var1 = \"value1\"", printer.toString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        BinaryExpr expr = new BinaryExpr(new VarExpr("var1"), BinaryExpr.Op.ADD, new VarExpr("var2"));
+        visitor.visitBinaryExpr(expr);
+        assertEquals("(var1 + var2)", printer.toString());
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        UnaryExpr expr = new UnaryExpr(UnaryExpr.Op.NOT, new VarExpr("var1"));
+        visitor.visitUnaryExpr(expr);
+        assertEquals("!(var1)", printer.toString());
+    }
+
+    @Test
+    public void visitConstExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        visitor.visitConstExpr(new StringValue("Hello"));
+        assertEquals("\"Hello\"", printer.toString());
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        CollectingPrinter printer = new CollectingPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        FunctionCallExpr expr = new FunctionCallExpr("sum", new VarExpr("var1"), new VarExpr("var2"));
+        visitor.visitFunctionCallExpr(expr);
+        assertEquals("sum(var1, var2)", printer.toString());
+    }
+
+}

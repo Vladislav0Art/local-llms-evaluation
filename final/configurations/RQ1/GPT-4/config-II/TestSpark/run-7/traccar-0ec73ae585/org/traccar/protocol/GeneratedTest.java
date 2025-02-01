@@ -1,0 +1,76 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.*;
+
+import io.netty.channel.Channel;
+
+import static org.junit.Assert.*;
+
+import java.net.InetSocketAddress;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void decodeAlarmTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        assertEquals(Position.ALARM_LOW_BATTERY, decoder.decodeAlarm(0));
+        assertEquals(Position.ALARM_GEOFENCE_EXIT, decoder.decodeAlarm(2));
+        assertEquals(Position.ALARM_GEOFENCE_ENTER, decoder.decodeAlarm(19));
+        assertEquals(Position.ALARM_REMOVING, decoder.decodeAlarm(20));
+        assertEquals(Position.ALARM_FALL_DOWN, decoder.decodeAlarm(22));
+    }
+
+    @Test
+    public void decodeTestHasIndex() throws Exception {
+        ByteBuf buf = Unpooled.copiedBuffer("[3G*3305889904*000A*LK,15,100]", StandardCharsets.US_ASCII);
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = new InetSocketAddress("localhost", 0);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        Position position = (Position) decoder.decode(channel, remoteAddress, buf);
+
+        assertTrue(decoder.getHasIndex());
+    }
+
+    @Test
+    public void decodeTestWithoutIndex() throws Exception {
+        ByteBuf buf = Unpooled.copiedBuffer("[3G*3305889904*LK,15,100]", StandardCharsets.US_ASCII);
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = new InetSocketAddress("localhost", 0);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        Position position = (Position) decoder.decode(channel, remoteAddress, buf);
+
+        assertFalse(decoder.getHasIndex());
+    }
+
+    @Test
+    public void decodeTestManuFacturer() throws Exception {
+        ByteBuf buf = Unpooled.copiedBuffer("[XY*3305889904*LK,15,100]", StandardCharsets.US_ASCII);
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = new InetSocketAddress("localhost", 0);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        Position position = (Position) decoder.decode(channel, remoteAddress, buf);
+
+        assertEquals("XY", decoder.getManufacturer());
+    }
+
+    @Test
+    public void decodeTestDeviceIsNotSessioned() throws Exception {
+        ByteBuf buf = Unpooled.copiedBuffer("[3G*0000000000*LK,15,100]", StandardCharsets.US_ASCII);
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = new InetSocketAddress("localhost", 0);
+
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol());
+        Position position = (Position) decoder.decode(channel, remoteAddress, buf);
+
+        assertNull(position);
+    }
+
+}

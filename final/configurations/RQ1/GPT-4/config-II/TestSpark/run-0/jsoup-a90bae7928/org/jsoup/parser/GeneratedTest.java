@@ -1,0 +1,88 @@
+package org.jsoup.parser;
+
+import org.jsoup.nodes.*;
+import org.jsoup.parser.*;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.StringReader;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<test></test>"), "http://base.uri", new Parser(xmlTreeBuilder));
+
+        Document.OutputSettings outputSettings = xmlTreeBuilder.doc.outputSettings();
+
+        Assert.assertEquals(Document.OutputSettings.Syntax.xml, outputSettings.syntax());
+        Assert.assertEquals(Entities.EscapeMode.xhtml, outputSettings.escapeMode());
+        Assert.assertFalse(outputSettings.prettyPrint());
+    }
+
+    @Test
+    public void parseReaderStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document document = xmlTreeBuilder.parse(new StringReader("<test></test>"), "http://base.uri");
+
+        Assert.assertNotNull(document);
+        Assert.assertEquals("<test></test>", document.body().html());
+    }
+
+    @Test
+    public void parseString_StringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document document = xmlTreeBuilder.parse("<test></test>", "http://base.uri");
+
+        Assert.assertNotNull(document);
+        Assert.assertEquals("<test></test>", document.body().html());
+    }
+
+    @Test
+    public void processTest() {
+        Token.StartTag startTagToken = new Token.StartTag();
+        startTagToken.nameAttr("test");
+
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.process(startTagToken);
+
+        Element element = xmlTreeBuilder.doc.body().child(0);
+        Assert.assertEquals("test", element.tagName());
+    }
+
+    @Test
+    public void popStackToCloseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+
+        Token.StartTag startTagToken = new Token.StartTag();
+        startTagToken.nameAttr("test");
+        xmlTreeBuilder.process(startTagToken);
+
+        Token.EndTag endTagToken = new Token.EndTag();
+        endTagToken.nameAttr("test");
+        xmlTreeBuilder.process(endTagToken);
+
+        Assert.assertFalse(xmlTreeBuilder.doc.body().hasText());
+    }
+
+    @Test
+    public void parseFragment_String_String_ParserTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<test></test>", "http://base.uri", new Parser(xmlTreeBuilder));
+
+        Assert.assertEquals(1, nodes.size());
+        Assert.assertEquals("test", nodes.get(0).nodeName());
+    }
+
+    @Test
+    public void parseFragment_String_Element_String_ParserTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<test></test>", new Element(Tag.valueOf("div"), "http://base.uri"), "http://base.uri", new Parser(xmlTreeBuilder));
+
+        Assert.assertEquals(1, nodes.size());
+        Assert.assertEquals("test", nodes.get(0).nodeName());
+    }
+
+}

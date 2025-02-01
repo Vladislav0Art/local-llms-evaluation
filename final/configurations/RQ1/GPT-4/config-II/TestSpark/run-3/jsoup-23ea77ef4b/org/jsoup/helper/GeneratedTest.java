@@ -1,0 +1,126 @@
+package org.jsoup.helper;
+
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+import org.w3c.dom.NodeList;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTest() {
+        W3CDom w3cDom = new W3CDom();
+        assertTrue(w3cDom.namespaceAware());
+    }
+
+    @Test
+    public void setNamespaceAwareTest() {
+        W3CDom w3cDom = new W3CDom();
+        w3cDom.namespaceAware(false);
+        assertFalse(w3cDom.namespaceAware());
+
+        w3cDom = w3cDom.namespaceAware(true);
+        assertTrue(w3cDom.namespaceAware());
+    }
+
+    @Test
+    public void convertTest() {
+        String html = "<html><head><title>First parse</title></head><body><p>First html</p></body></html>";
+        Document jsoupDoc = Document.createShell(html);
+        org.w3c.dom.Document doc = W3CDom.convert(jsoupDoc);
+
+        assertNotNull(doc);
+        assertEquals("html", doc.getDocumentElement().getTagName());
+    }
+
+    @Test
+    public void fromJsoupTest() {
+        String html = "<html><head><title>First parse</title></head><body><p>First html</p></body></html>";
+        Document jsoupDoc = Document.createShell(html);
+        W3CDom w3cDom = new W3CDom();
+        org.w3c.dom.Document doc = w3cDom.fromJsoup(jsoupDoc);
+
+        assertNotNull(doc);
+        assertEquals("html", doc.getDocumentElement().getTagName());
+    }
+
+    @Test
+    public void selectXpathTest() {
+        String html = "<html><head><title>First parse</title></head><body><p>First html</p></body></html>";
+        Document jsoupDoc = Document.createShell(html);
+        W3CDom w3cDom = new W3CDom();
+        org.w3c.dom.Document doc = w3cDom.fromJsoup(jsoupDoc);
+        NodeList nodeList = w3cDom.selectXpath("//p", doc);
+
+        assertNotNull(nodeList);
+        assertEquals(1, nodeList.getLength());
+    }
+
+    @Test
+    public void sourceNodesTest() {
+        String html = "<html><head><title>First parse</title></head><body><p>First html</p></body></html>";
+        Document jsoupDoc = Document.createShell(html);
+        W3CDom w3cDom = new W3CDom();
+        org.w3c.dom.Document doc = w3cDom.fromJsoup(jsoupDoc);
+        NodeList nodeList = w3cDom.selectXpath("//p", doc);
+
+        List<org.jsoup.nodes.Element> nodes = w3cDom.sourceNodes(nodeList, org.jsoup.nodes.Element.class);
+
+        assertNotNull(nodes);
+        assertFalse(nodes.isEmpty());
+        assertEquals("p", nodes.get(0).nodeName());
+    }
+
+    @Test
+    public void outputHtmlTest() {
+        HashMap<String, String> htmlOutput = W3CDom.OutputHtml();
+
+        assertNotNull(htmlOutput);
+        assertTrue(htmlOutput.containsKey("method"));
+        assertEquals("html", htmlOutput.get("method"));
+    }
+
+    @Test
+    public void outputXmlTest() {
+        HashMap<String, String> xmlOutput = W3CDom.OutputXml();
+
+        assertNotNull(xmlOutput);
+        assertTrue(xmlOutput.containsKey("method"));
+        assertEquals("xml", xmlOutput.get("method"));
+    }
+
+    @Test
+    public void asStringTest() {
+        String html = "<html><head><title>First parse</title></head><body><p>First html</p></body></html>";
+        Document jsoupDoc = Document.createShell(html);
+        W3CDom w3cDom = new W3CDom();
+        org.w3c.dom.Document doc = w3cDom.fromJsoup(jsoupDoc);
+
+        String out = w3cDom.asString(doc);
+        assertNotNull(out);
+        assertTrue(out.contains("<p>First html</p>"));
+    }
+
+    @Test
+    public void asStringWithPropertiesTest() {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("method", "xml");
+        properties.put("indent", "yes");
+        properties.put("omit-xml-declaration", "yes");
+
+        String html = "<html><head><title>First parse</title></head><body><p>First html</p></body></html>";
+        Document jsoupDoc = Document.createShell(html);
+        W3CDom w3cDom = new W3CDom();
+        org.w3c.dom.Document doc = w3cDom.fromJsoup(jsoupDoc);
+
+        String out = W3CDom.asString(doc, properties);
+        assertNotNull(out);
+        assertTrue(out.contains("<p>First html</p>"));
+    }
+
+}

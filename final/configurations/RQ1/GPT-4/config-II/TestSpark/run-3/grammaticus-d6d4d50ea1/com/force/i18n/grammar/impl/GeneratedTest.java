@@ -1,0 +1,84 @@
+package com.force.i18n.grammar.impl;
+
+import com.force.i18n.grammar.impl.GrammaticalTermMapImpl;
+import com.force.i18n.grammar.GrammaticalTerm;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void equalsIdenticalObjectTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>();
+        Assert.assertTrue(termMap.equals(termMap));
+    }
+
+    @Test
+    public void equalsDifferentClassTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>();
+        Assert.assertFalse(termMap.equals(new Object()));
+    }
+
+    @Test
+    public void equalsDifferentTermMapTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap1 = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap2 = new GrammaticalTermMapImpl<>();
+        termMap2.put("key", new GrammaticalTermImpl());
+        Assert.assertFalse(termMap1.equals(termMap2));
+    }
+
+    @Test
+    public void equalsSameTermMapTest() {
+        GrammaticalTermImpl term = new GrammaticalTermImpl();
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap1 = new GrammaticalTermMapImpl<>();
+        termMap1.put("key", term);
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap2 = new GrammaticalTermMapImpl<>();
+        termMap2.put("key", term);
+        Assert.assertTrue(termMap1.equals(termMap2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        Map<String, GrammaticalTerm> map = new HashMap<>();
+        map.put("key", new GrammaticalTermImpl());
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>(map, false);
+        Assert.assertEquals(termMap.hashCode(), map.hashCode());
+    }
+
+    @Test
+    public void isSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        Assert.assertTrue(termMap.isSkinny());
+    }
+
+    @Test
+    public void putIsSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        termMap.put("key", new GrammaticalTermImpl());
+    }
+
+    @Test
+    public void putAllIsSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap1 = new GrammaticalTermMapImpl<>(new HashMap<>(), false);
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap2 = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        termMap2.putAll(termMap1);
+    }
+
+    @Test
+    public void isEmptyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>();
+        Assert.assertTrue(termMap.isEmpty());
+    }
+
+    // Implement a simple version of the GrammaticalTerm interface for testing.
+    static class GrammaticalTermImpl implements GrammaticalTerm {
+        @Override
+        public String getName() {
+            return "TestTerm";
+        }
+    }
+
+}

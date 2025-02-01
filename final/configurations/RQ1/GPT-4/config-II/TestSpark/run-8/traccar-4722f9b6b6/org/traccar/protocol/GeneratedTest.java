@@ -1,0 +1,133 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.model.Command;
+import org.traccar.protocol.WatchProtocolEncoder;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    private WatchProtocolDecoder decoder;
+
+    @Test
+    public void sendResponseChannelNull() {
+        Channel channel = Mockito.mock(Channel.class);
+        decoder.sendResponse(channel, id, index, content);
+        Mockito.verify(decoder, Mockito.times(1)).sendResponse(Mockito.isNull(), Mockito.eq(id), Mockito.eq(index), Mockito.eq(content));
+    }
+
+    @Test
+    public void decodeAlarmWhenStatusZeroTest() {
+        assertEquals(Position.ALARM_LOW_BATTERY, decodeAlarm(0));
+    }
+
+    @Test
+    public void decodeAlarmWhenStatusOneTest() {
+        assertEquals(Position.ALARM_GEOFENCE_EXIT, decodeAlarm(1));
+    }
+
+    @Test
+    public void decodeAlarmWhenStatusTwoTest() {
+        assertEquals(Position.ALARM_GEOFENCE_ENTER, decodeAlarm(2));
+    }
+
+    @Test
+    public void decodeAlarmWhenStatusFourteenTest() {
+        assertEquals(Position.ALARM_POWER_CUT, decodeAlarm(14));
+    }
+
+    @Test
+    public void decodeAlarmWhenStatusSixteenTest() {
+        assertEquals(Position.ALARM_SOS, decodeAlarm(16));
+    }
+
+    @Test
+    public void decodeAlarmWhenStatusSeventeenTest() {
+        assertEquals(Position.ALARM_LOW_BATTERY, decodeAlarm(17));
+    }
+
+    @Test
+    public void decodeAlarmWhenStatusEighteenTest() {
+        assertEquals(Position.ALARM_GEOFENCE_EXIT, decodeAlarm(18));
+    }
+
+    @Test
+    public void decodeAlarmWhenStatusNineteenTest() {
+        assertEquals(Position.ALARM_GEOFENCE_ENTER, decodeAlarm(19));
+    }
+
+    @Test
+    public void decodeAlarm() {
+        assertEquals(Position.ALARM_REMOVING, decodeAlarm(20));
+        assertEquals(Position.ALARM_FALL_DOWN, decodeAlarm(21));
+        assertEquals(Position.ALARM_FALL_DOWN, decodeAlarm(22));
+    }
+
+    @Test
+    public void getHasIndexTest() {
+        assertEquals(false, getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerTest() {
+        assertEquals("", getManufacturer());
+    }
+
+    @Test
+    public void decodeInitialTest() {
+        assertEquals("INIT", decode(channel, remoteAddress, msg));
+    }
+
+    @Test
+    public void decodeLKTest() {
+        assertEquals("LK", decode(channel, remoteAddress, msg));
+    }
+
+    @Test
+    public void decodeUDTest() {
+        assertEquals("UD", decode(channel, remoteAddress, msg));
+    }
+
+    @Test
+    public void decodeALTest() {
+        assertEquals("AL", decode(channel, remoteAddress, msg));
+    }
+
+    @Test
+    public void decodeTKQTest() {
+        assertEquals("TKQ", decode(channel, remoteAddress, msg));
+    }
+
+    @Test
+    public void decodeHEARTTest() {
+        assertEquals("HEART", decode(channel, remoteAddress, msg));
+    }
+
+    @Test
+    public void decodeBLOODTest() {
+        assertEquals("BLOOD", decode(channel, remoteAddress, msg));
+    }
+
+    @Test
+    public void decodeBPHRTTest() {
+        assertEquals("BPHRT", decode(channel, remoteAddress, msg));
+    }
+
+    @Test
+    public void decodeTEMPTest() {
+        assertEquals("TEMP", decode(channel, remoteAddress, msg));
+    }
+
+    @Test
+    public void decodeJXTKTest() {
+        assertEquals("JXTK", decode(channel, remoteAddress, msg));
+    }
+
+    @Test
+    public void decodeTKTest() {
+        assertEquals("TK", decode(channel, remoteAddress, msg));
+    }
+
+}

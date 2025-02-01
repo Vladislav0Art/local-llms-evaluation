@@ -1,0 +1,81 @@
+package com.netflix.frigga.ami;
+
+import com.netflix.frigga.ami.AppVersion;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameValidFormatTest() {
+        String amiName = "sample-1.0.0-h586499.sample-WE-WAPP-sample/150";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        Assert.assertEquals("sample", appVersion.getPackageName());
+        Assert.assertEquals("1.0.0", appVersion.getVersion());
+        Assert.assertEquals("WE-WAPP-sample", appVersion.getBuildJobName());
+        Assert.assertEquals("586499", appVersion.getBuildNumber());
+        Assert.assertEquals("sample", appVersion.getCommit());
+    }
+
+    @Test
+    public void parseNameNullInputTest() {
+        assertNull(AppVersion.parseName(null));
+    }
+
+    @Test
+    public void parseNameInvalidFormatTest() {
+        assertNull(AppVersion.parseName("invalid-format-ami-name"));
+    }
+
+    @Test
+    public void compareToNullTest() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(1, appVersion.compareTo(null));
+    }
+
+    @Test
+    public void compareToSameObjectTest() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(0, appVersion.compareTo(appVersion));
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        assertEquals(AppVersion.APP_VERSION_PATTERN, AppVersion.getAppVersionPattern());
+    }
+
+    @Test
+    public void getChangelistTest() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(appVersion.getCommit(), appVersion.getChangelist());
+    }
+
+    @Test
+    public void equalsNullTest() {
+        AppVersion appVersion = new AppVersion();
+        Assert.assertFalse(appVersion.equals(null));
+    }
+
+    @Test
+    public void equalsSameObjectTest() {
+        AppVersion appVersion = new AppVersion();
+        Assert.assertTrue(appVersion.equals(appVersion));
+    }
+
+    @Test
+    public void equalsDifferentObjectTypeTest() {
+        AppVersion appVersion = new AppVersion();
+        Assert.assertFalse(appVersion.equals(new Object()));
+    }
+
+    @Test
+    public void equalsSameContentTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        Assert.assertTrue(appVersion1.equals(appVersion2));
+    }
+
+}

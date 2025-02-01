@@ -1,0 +1,70 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import org.junit.Test;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void defaultConstructorInitializationTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void constructorWithCommentsInitializationTest() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("test.path", Collections.singletonList("This is a test comment"));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+        assertEquals("This is a test comment", commentsConfiguration.getAllComments().get("test.path").get(0));
+    }
+
+    @Test
+    public void setCommentTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+
+        commentsConfiguration.setComment("test.path", "This is a test comment");
+        commentsConfiguration.setComment("other.path", "This is another test comment");
+
+        assertEquals(2, commentsConfiguration.getAllComments().size());
+        assertEquals("This is a test comment", commentsConfiguration.getAllComments().get("test.path").get(0));
+        assertEquals("This is another test comment", commentsConfiguration.getAllComments().get("other.path").get(0));
+    }
+
+    @Test
+    public void setCommentOverrideExistingCommentTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+
+        commentsConfiguration.setComment("test.path", "This is a test comment");
+        commentsConfiguration.setComment("test.path", "This comment overrides the previous one");
+
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+        assertEquals("This comment overrides the previous one", commentsConfiguration.getAllComments().get("test.path").get(0));
+    }
+
+    @Test
+    public void getAllCommentsEmptyTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void getAllCommentsNotEmptyTest() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("test.path", Collections.singletonList("This is a test comment"));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+        assertEquals("This is a test comment", commentsConfiguration.getAllComments().get("test.path").get(0));
+    }
+
+}

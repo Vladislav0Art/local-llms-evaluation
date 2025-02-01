@@ -1,0 +1,82 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.Assert;
+import org.jsoup.Jsoup;
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorTest() {
+        Document doc = new Document("http://example.com");
+        Assert.assertEquals(doc.location(), "http://example.com");
+    }
+
+    @Test
+    public void createShellTest() {
+        Document doc = Document.createShell("http://example.com");
+        Assert.assertNotNull(doc);
+        Assert.assertEquals(doc.location(), "http://example.com");
+    }
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("http://example.com");
+        Assert.assertEquals("http://example.com", doc.location());
+    }
+
+    @Test
+    public void documentTypeTest() {
+        Document doc = Jsoup.parse("<!DOCTYPE html><html><head><title>First parse</title></head><body><p>My body</p></body></html>", "http://example.com");
+        Assert.assertEquals("html", doc.documentType().name());
+    }
+
+    @Test
+    public void titleTest() {
+        Document doc = Jsoup.parse("<html><head><title>First parse</title></head><body><p>My body</p></body></html>", "http://example.com");
+        Assert.assertEquals("First parse", doc.title());
+    }
+
+    @Test
+    public void formsTest() {
+        Document doc = Jsoup.parse("<html><head><title>First parse</title></head><body><form id=\"loginForm\"><input type=\"text\" name=\"username\" /></form></body></html>", "http://example.com");
+        List<Element> forms = doc.forms();
+        Assert.assertEquals(1, forms.size());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document doc = new Document("http://example.com");
+        doc.charset(StandardCharsets.UTF_8);
+        Assert.assertEquals(StandardCharsets.UTF_8, doc.charset());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document doc = new Document("http://example.com");
+        Element el = doc.createElement("div");
+        Assert.assertEquals("div", el.nodeName());
+    }
+
+    @Test
+    public void expectFormTest() {
+        Document doc = new Document("http://example.com");
+        doc.expectForm("form");
+    }
+
+    @Test
+    public void parserTest() {
+        Document doc = new Document("http://example.com");
+        doc.parser(Parser.xmlParser());
+        Assert.assertEquals(Parser.xmlParser().getClass(), doc.parser().getClass());
+    }
+
+}

@@ -1,0 +1,112 @@
+package com.ezylang.evalex.parser;
+
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.config.FunctionDictionaryIfc;
+import com.ezylang.evalex.config.OperatorDictionaryIfc;
+import com.ezylang.evalex.functions.FunctionIfc;
+import com.ezylang.evalex.parser.Token;
+import com.ezylang.evalex.parser.Tokenizer;
+import com.ezylang.evalex.operators.OperatorIfc;
+import com.ezylang.evalex.parser.ParseException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
+    @Test
+    public void parseValidExpressionTest() throws ParseException {
+        String expression = "2+2";
+        ExpressionConfiguration expressionConfiguration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, expressionConfiguration);
+        List<Token> tokens = tokenizer.parse();
+
+        assertEquals(3, tokens.size());
+        assertEquals("2", tokens.get(0).getValue());
+        assertEquals("+", tokens.get(1).getValue());
+        assertEquals("2", tokens.get(2).getValue());
+    }
+
+    @Test
+    public void parseComplexExpressionTest() throws ParseException {
+        String expression = "(2+2)*3-1";
+        ExpressionConfiguration expressionConfiguration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, expressionConfiguration);
+        List<Token> tokens = tokenizer.parse();
+
+        assertEquals(9, tokens.size());
+        assertEquals("(", tokens.get(0).getValue());
+        assertEquals("2", tokens.get(1).getValue());
+        assertEquals("+", tokens.get(2).getValue());
+        // Other checks
+    }
+
+    @Test
+    public void parseExpressionWithExtraSpaceTest() throws ParseException {
+        String expression = "2 + 2";
+        ExpressionConfiguration expressionConfiguration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, expressionConfiguration);
+        List<Token> tokens = tokenizer.parse();
+
+        assertEquals(3, tokens.size());
+        assertEquals("+", tokens.get(1).getValue());
+    }
+
+    @Test
+    public void parseMissingClosingBraceTest() throws ParseException {
+        String expression = "(2+2";
+        ExpressionConfiguration expressionConfiguration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, expressionConfiguration);
+
+        exception.expect(ParseException.class);
+        exception.expectMessage("Closing brace not found");
+
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseMissingOpeningBraceTest() throws ParseException {
+        String expression = "2+2)";
+        ExpressionConfiguration expressionConfiguration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, expressionConfiguration);
+
+        exception.expect(ParseException.class);
+        exception.expectMessage("Unexpected closing brace");
+
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseWithMockValidExpressionTest() throws ParseException {
+        OperatorDictionaryIfc operatorDictionaryIfcMock = Mockito.mock(OperatorDictionaryIfc.class);
+        FunctionIfc functionMock = Mockito.mock(FunctionIfc.class);
+        OperatorIfc operatorMock = Mockito.mock(OperatorIfc.class);
+
+        String expression = "2+2";
+        ExpressionConfiguration expressionConfiguration = new ExpressionConfiguration();
+        expressionConfiguration.setOperatorDictionary(operatorDictionaryIfcMock);
+        expressionConfiguration.setFunctionDictionary(Mockito.mock(FunctionDictionaryIfc.class));
+        Tokenizer tokenizer = new Tokenizer(expression, expressionConfiguration);
+
+        Mockito.when(operatorDictionaryIfcMock.hasInfixOperator("+")).thenReturn(true);
+        Mockito.when(operatorDictionaryIfcMock.getInfixOperator("+")).thenReturn(operatorMock);
+        List<Token> tokens = tokenizer.parse();
+
+        assertEquals(3, tokens.size());
+        assertEquals("2", tokens.get(0).getValue());
+        assertEquals("+", tokens.get(1).getValue());
+        assertEquals("2", tokens.get(2).getValue());
+
+        Mockito.verify(operatorDictionaryIfcMock, Mockito.times(1)).getInfixOperator("+");
+    }
+
+}

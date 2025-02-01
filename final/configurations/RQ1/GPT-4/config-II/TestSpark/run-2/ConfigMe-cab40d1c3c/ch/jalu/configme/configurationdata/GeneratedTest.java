@@ -1,0 +1,93 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import ch.jalu.configme.properties.StringProperty;
+import org.junit.Test;
+
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
+public class GeneratedTest {
+
+    @Test
+    public void addPropertyWhenListIsEmptyTest() {
+        // Arrange
+        Property<?> property = new StringProperty("db.password", "secret");
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+
+        // Act
+        propertyListBuilder.add(property);
+        List<Property<?>> result = propertyListBuilder.create();
+
+        // Assert
+        assertThat(result.size(), is(1));
+        assertThat(result.get(0), equalTo(property));
+    }
+
+    @Test
+    public void addPropertyWhenListItemExistsTest() {
+        // Arrange
+        Property<?> property1 = new StringProperty("db.password", "secret");
+        Property<?> property2 = new StringProperty("db.user", "john");
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(property1);
+
+        // Act
+        propertyListBuilder.add(property2);
+        List<Property<?>> result = propertyListBuilder.create();
+
+        // Assert
+        assertThat(result.size(), is(2));
+        assertThat(result.get(1), equalTo(property2));
+    }
+
+    @Test
+    public void addPropertyWhenDuplicateExistsTest() {
+        // Arrange
+        Property<?> property1 = new StringProperty("db.password", "secret");
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(property1);
+
+        try {
+            // Act
+            propertyListBuilder.add(property1);
+            fail("Expected exception not thrown");
+        } catch (ConfigMeException ex) {
+            // Assert
+            assertThat(ex.getMessage(), equalTo("Path at 'db.password' already exists"));
+        }
+    }
+
+    @Test
+    public void createWhenPropertyListIsEmptyTest() {
+        // Arrange
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+
+        // Act
+        List<Property<?>> result = propertyListBuilder.create();
+
+        // Assert
+        assertThat(result.size(), is(0));
+    }
+
+    @Test
+    public void createWhenPropertyListIsNotEmptyTest() {
+        // Arrange
+        Property<?> property = new StringProperty("db.password", "secret");
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(property);
+
+        // Act
+        List<Property<?>> result = propertyListBuilder.create();
+
+        // Assert
+        assertThat(result.size(), is(1));
+        assertThat(result.get(0), equalTo(property));
+    }
+
+}

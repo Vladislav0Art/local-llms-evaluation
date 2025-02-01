@@ -1,0 +1,56 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextFirstInvocationTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int result = stockSpan.next(100);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextIncrementalTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        int result = stockSpan.next(101);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextDecrementalTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(101);
+        int result = stockSpan.next(100);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void calculateSpansMonotonicIncreasingTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 101, 102, 103, 104};
+        int[] expected = new int[]{1, 2, 3, 4, 5};
+        assertArrayEquals(expected, stockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpansMonotonicDecreasingTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{104, 103, 102, 101, 100};
+        int[] expected = new int[]{1, 1, 1, 1, 1};
+        assertArrayEquals(expected, stockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpansAlternatingTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 101, 100, 101, 100};
+        int[] expected = new int[]{1, 2, 1, 2, 1};
+        assertArrayEquals(expected, stockSpan.calculateSpans(prices));
+    }
+
+}

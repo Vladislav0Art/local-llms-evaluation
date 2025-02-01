@@ -1,0 +1,126 @@
+package org.jsoup.parser;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.parser.*;
+import org.junit.Test;
+
+import java.io.StringReader;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+public class GeneratedTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        ParseSettings parseSettings = xmlTreeBuilder.defaultSettings();
+        assertEquals(ParseSettings.preserveCase, parseSettings);
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<root></root>"), "/", new Parser(xmlTreeBuilder));
+        Document.OutputSettings settings = xmlTreeBuilder.doc.outputSettings();
+        assertEquals(Document.OutputSettings.Syntax.xml, settings.syntax());
+        assertEquals(Entities.EscapeMode.xhtml, settings.escapeMode());
+    }
+
+    @Test
+    public void parseReaderStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document doc = xmlTreeBuilder.parse(new StringReader("<root></root>"), "/");
+        assertTrue(doc instanceof Document);
+    }
+
+    @Test
+    public void parseStringStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document doc = xmlTreeBuilder.parse("<root></root>", "/");
+        assertTrue(doc instanceof Document);
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        XmlTreeBuilder newInstance = xmlTreeBuilder.newInstance();
+        assertTrue(newInstance instanceof XmlTreeBuilder);
+    }
+
+    @Test
+    public void processTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        try {
+            // Forcing unexpected token type
+            xmlTreeBuilder.process(new Token.Reset());
+            fail("Expected an ValidateException to be thrown");
+        } catch (Validate.ValidateException e) {
+            assertEquals("Unexpected token type: Reset", e.getMessage());
+        }
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<root></root>"), "/", new Parser(xmlTreeBuilder));
+
+        Element currentElement = xmlTreeBuilder.currentElement();
+        Element newNode = new Element(Tag.valueOf("newNode"), "/");
+        xmlTreeBuilder.insertNode(newNode);
+
+        Node childNode = currentElement.childNode(0);
+        assertEquals(newNode, childNode);
+    }
+
+    @Test
+    public void insertStartTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<root></root>"), "/", new Parser(xmlTreeBuilder));
+
+        Token.StartTag startTag = new Token.StartTag();
+        startTag.nameAttr("newTag");
+        Element newTag = xmlTreeBuilder.insert(startTag);
+
+        Node childNode = xmlTreeBuilder.currentElement().childNode(0);
+
+        assertTrue(childNode instanceof Element);
+        assertEquals(newTag, childNode);
+        assertEquals("newTag", childNode.nodeName());
+    }
+
+    @Test
+    public void insertCommentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<root></root>"), "/", new Parser(xmlTreeBuilder));
+
+        Token.Comment commentToken = new Token.Comment();
+        commentToken.setData("comment");
+        commentToken.bogus(false);
+
+        xmlTreeBuilder.insert(commentToken);
+
+        Node comment = xmlTreeBuilder.currentElement().childNode(0);
+
+        assertEquals("#comment", comment.nodeName());
+        assertEquals("comment", comment.outerHtml());
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<root><child></child></root>", "/", new Parser(xmlTreeBuilder));
+
+        assertTrue(nodes.size() > 0);
+        Node rootNode = nodes.get(0);
+        assertEquals("<root><child></child></root>", rootNode.outerHtml());
+    }
+
+}

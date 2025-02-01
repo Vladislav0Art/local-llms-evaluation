@@ -1,0 +1,130 @@
+package com.netflix.frigga.ami;
+
+import com.netflix.frigga.ami.AppVersion;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.regex.Pattern;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameValidAppPatternTest() {
+        String amiName = "subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        Assert.assertNotNull(appVersion);
+        Assert.assertEquals("subscriberha", appVersion.getPackageName());
+        Assert.assertEquals("1.0.0", appVersion.getVersion());
+        Assert.assertEquals("WE-WAPP-subscriberha", appVersion.getBuildJobName());
+        Assert.assertEquals("586499", appVersion.getBuildNumber());
+        Assert.assertEquals("150", appVersion.getCommit());
+    }
+
+    @Test
+    public void parseNameNullAppPatternTest() {
+        String amiName = null;
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        Assert.assertNull(appVersion);
+    }
+
+    @Test
+    public void parseNameInvalidAppPatternTest() {
+        String amiName = "invalidAMIName";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        Assert.assertNull(appVersion);
+    }
+
+    @Test
+    public void compareToEqualsTest() {
+        AppVersion appVersionOne = AppVersion.parseName("subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150");
+        AppVersion appVersionTwo = AppVersion.parseName("subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150");
+
+        int result = appVersionOne.compareTo(appVersionTwo);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void compareToNotEqualsTest() {
+        AppVersion appVersionOne = AppVersion.parseName("subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150");
+        AppVersion appVersionTwo = AppVersion.parseName("othersubscriber-1.1.1-h588899.h155/WE-WAPP-othersubscriber/155");
+
+        int result = appVersionOne.compareTo(appVersionTwo);
+        Assert.assertNotEquals(0, result);
+    }
+
+    @Test
+    public void compareToNullTest() {
+        AppVersion appVersionOne = AppVersion.parseName("subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150");
+
+        int result = appVersionOne.compareTo(null);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+
+        Assert.assertNotNull(pattern);
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        String amiName = "subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        Assert.assertEquals("subscriberha", appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersionTest() {
+        String amiName = "subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        Assert.assertEquals("1.0.0", appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        String amiName = "subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        Assert.assertEquals("WE-WAPP-subscriberha", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        String amiName = "subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        Assert.assertEquals("586499", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommitTest() {
+        String amiName = "subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        Assert.assertEquals("150", appVersion.getCommit());
+    }
+
+    @Test
+    public void getChangelistTest() {
+        String amiName = "subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        Assert.assertEquals("150", appVersion.getChangelist());
+    }
+
+    @Test
+    public void testToString() {
+        String amiName = "subscriberha-1.0.0-h586499.h150/WE-WAPP-subscriberha/150";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+
+        Assert.assertTrue(appVersion.toString().contains(appVersion.getPackageName())
+                && appVersion.toString().contains(appVersion.getBuildJobName())
+                && appVersion.toString().contains(appVersion.getBuildNumber())
+                && appVersion.toString().contains(appVersion.getCommit()));
+    }
+
+}

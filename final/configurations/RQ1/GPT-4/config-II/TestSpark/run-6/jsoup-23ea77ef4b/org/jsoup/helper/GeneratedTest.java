@@ -1,0 +1,121 @@
+package org.jsoup.helper;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.DataNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareDefaultTrueTest() {
+        W3CDom dom = new W3CDom();
+        assertTrue(dom.namespaceAware());
+    }
+
+    @Test
+    public void setNamespaceAwareFalseTest() {
+        W3CDom dom = new W3CDom();
+        dom.namespaceAware(false);
+        assertFalse(dom.namespaceAware());
+    }
+
+    @Test
+    public void convertTest() {
+        Document in = new Document("");
+        org.w3c.dom.Document out = W3CDom.convert(in);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void asStringTestWithProperties() throws ParserConfigurationException, TransformerConfigurationException {
+        Document in = new Document("");
+        org.w3c.dom.Document out = W3CDom.convert(in);
+        Map<String, String> properties = new HashMap<>();
+        properties.put("method", "xml");
+        properties.put("indent", "yes");
+        String output = W3CDom.asString(out, properties);
+        assertNotNull(output);
+    }
+
+    @Test
+    public void fromJsoupTest() {
+        Element in = new Element("div");
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document out = dom.fromJsoup(in);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void selectXpathTest() throws ParserConfigurationException, SAXException, IOException {
+        Document in = new Document("");
+        in.append("<html><body><div id='test'>Hello</div></body></html>");
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document out = dom.fromJsoup(in);
+        NodeList nodeList = dom.selectXpath("//div", out);
+        assertNotNull(nodeList);
+        assertEquals(1, nodeList.getLength());
+    }
+
+    @Test
+    public void sourceNodesTest() {
+        Document doc = new Document("");
+        Element element = new Element("div");
+        doc.appendElement(element);
+        W3CDom w3CDom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = w3CDom.fromJsoup(element);
+        NodeList nodeList = w3CDom.selectXpath("//div", w3cDoc);
+        List<Element> elements = w3CDom.sourceNodes(nodeList, Element.class);
+        assertFalse(elements.isEmpty());
+    }
+
+    @Test
+    public void fromJsoupTestWithNullElement() {
+        W3CDom dom = new W3CDom();
+        dom.fromJsoup((Element) null);
+    }
+
+    @Test
+    public void contextNodeTest() {
+        Element in = new Element("div");
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document out = dom.fromJsoup(in);
+        assertNotNull(dom.contextNode(out));
+    }
+
+    @Test
+    public void asStringTest() {
+        Document in = new Document("");
+        in.appendElement("div");
+        org.w3c.dom.Document out = W3CDom.convert(in);
+        String output = W3CDom.asString(out);
+        assertNotNull(output);
+    }
+
+    @Test
+    public void OutputHtmlTest() {
+        HashMap<String, String> outputHtml = W3CDom.OutputHtml();
+        assertNotNull(outputHtml);
+        assertEquals("html", outputHtml.get("method"));
+    }
+
+    @Test
+    public void OutputXmlTest() {
+        HashMap<String, String> outputXml = W3CDom.OutputXml();
+        assertNotNull(outputXml);
+        assertEquals("xml", outputXml.get("method"));
+    }
+
+}

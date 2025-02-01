@@ -1,0 +1,24 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedHasKeyTest {
+
+    @Test
+    public void hasKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+
+        assertTrue(attributes.hasKey("key"));
+        assertFalse(attributes.hasKey("unavailableKey"));
+    }
+
+}

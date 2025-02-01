@@ -1,0 +1,83 @@
+package net.revelc.code.formatter.css;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void initDefaultOptionsTest() {
+        CssFormatter formatter = new CssFormatter();
+        assertFalse(formatter.isInitialized());
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, null);
+        assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void initSpecificOptionsTest() {
+        CssFormatter formatter = new CssFormatter();
+        assertFalse(formatter.isInitialized());
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "2");
+        options.put("rgbAsHex", "false");
+        options.put("useSourceStringValues", "true");
+        formatter.init(options, null);
+        assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void doFormatEmptyCodeTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, null);
+        assertNull(formatter.doFormat("", null));
+    }
+
+    @Test
+    public void doFormatIdenticalCodeTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, null);
+        String cssCode = "body { color: #000; }";
+        assertNull(formatter.doFormat(cssCode, null));
+    }
+
+    @Test
+    public void doFormatDifferentCodeTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, null);
+        String cssCode = "body    {   color   :   #000 ; }   ";
+        assertNotNull(formatter.doFormat(cssCode, null));
+    }
+
+    @Test
+    public void doFormatCodeWithTabTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, null);
+        String cssCode = "body\t{ color: #000; }\t";
+        assertNotNull(formatter.doFormat(cssCode, null));
+    }
+
+    @Test
+    public void isInitializedBeforeInitTest() {
+        CssFormatter formatter = new CssFormatter();
+        assertFalse(formatter.isInitialized());
+    }
+
+    @Test
+    public void isInitializedAfterInitTest() {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, null);
+        assertTrue(formatter.isInitialized());
+    }
+
+}

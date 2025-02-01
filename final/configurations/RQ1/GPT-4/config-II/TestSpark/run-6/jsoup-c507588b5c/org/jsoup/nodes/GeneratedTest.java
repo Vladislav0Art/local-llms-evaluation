@@ -1,0 +1,73 @@
+package org.jsoup.nodes;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.nodes.TextNode;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("");
+        Assert.assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        TextNode textNode = new TextNode(" test test ");
+        Assert.assertEquals("test test", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode(" test test ");
+        Assert.assertEquals(" test test ", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest_True() {
+        TextNode textNode = new TextNode("");
+        Assert.assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlankTest_False() {
+        TextNode textNode = new TextNode("test");
+        Assert.assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode splitNode = textNode.splitText(2);
+        Assert.assertEquals("te", textNode.getWholeText());
+        Assert.assertEquals("st", splitNode.getWholeText());
+    }
+
+    @Test
+    public void splitTextTest_NegativeOffset() {
+        TextNode textNode = new TextNode("test");
+        textNode.splitText(-1);
+    }
+
+    @Test
+    public void splitTextTest_TooLargeOffset() {
+        TextNode textNode = new TextNode("test");
+        textNode.splitText(5);
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode cloneNode = textNode.clone();
+        Assert.assertNotSame(textNode, cloneNode);
+        Assert.assertEquals(textNode.getWholeText(), cloneNode.getWholeText());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode textNode = TextNode.createFromEncoded("&lt;test&gt;");
+        Assert.assertEquals("<test>", textNode.getWholeText());
+    }
+
+}

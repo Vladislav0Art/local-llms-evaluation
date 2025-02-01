@@ -1,0 +1,188 @@
+package org.jsoup.nodes;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.ParseSettings;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void getExistingKeyTest() {
+        String key = "attributeTestKey";
+        String value = "valueTestKey";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value);
+        Assert.assertEquals(value, attributes.get(key));
+    }
+
+    @Test
+    public void getNonExistingKeyTest() {
+        String key = "attributeTestKey";
+        Attributes attributes = new Attributes();
+        Assert.assertEquals("", attributes.get(key));
+    }
+
+    @Test
+    public void getIgnoreCaseExistingKeyTest() {
+        String key = "attributeTestKey";
+        String value = "valueTestKey";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value);
+        Assert.assertEquals(value, attributes.getIgnoreCase(key.toUpperCase()));
+    }
+
+    @Test
+    public void getIgnoreCaseNonExistingKeyTest() {
+        String key = "attributeTestKey";
+        Attributes attributes = new Attributes();
+        Assert.assertEquals("", attributes.getIgnoreCase(key));
+    }
+
+    @Test
+    public void addExistingKeyTest() {
+        String key = "attributeTestKey";
+        String value1 = "valueOne";
+        String value2 = "valueTwo";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value1);
+        attributes.add(key, value2);
+        Assert.assertEquals(value2, attributes.get(key));
+    }
+
+    @Test
+    public void addNonExistingKeyTest() {
+        String key = "attributeTestKey";
+        String value = "valueToAdd";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value);
+        Assert.assertEquals(value, attributes.get(key));
+    }
+
+    @Test
+    public void putExistingKeyTest() {
+        String key = "attributeTestKey";
+        String value1 = "valueOne";
+        String value2 = "valueTwo";
+        Attributes attributes = new Attributes();
+        attributes.put(key, value1);
+        attributes.put(key, value2);
+        Assert.assertEquals(value2, attributes.get(key));
+    }
+
+    @Test
+    public void putNonExistingKeyTest() {
+        String key = "attributeTestKey";
+        String value = "valueToAdd";
+        Attributes attributes = new Attributes();
+        attributes.put(key, value);
+        Assert.assertEquals(value, attributes.get(key));
+    }
+
+    @Test
+    public void putBooleanValueTest() {
+        String key = "booleanAttribute";
+        Attributes attributes = new Attributes();
+        attributes.put(key, true);
+        Assert.assertTrue(attributes.hasKey(key));
+    }
+
+    @Test
+    public void isEmptyTrueTest() {
+        Attributes attributes = new Attributes();
+        Assert.assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void isEmptyFalseTest() {
+        String key = "attributeTestKey";
+        String value = "valueToAdd";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value);
+        Assert.assertFalse(attributes.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        String key1 = "attribute_one";
+        String key2 = "attribute_two";
+        String value1 = "value_one";
+        String value2 = "value_two";
+        Attributes baseAttributes = new Attributes();
+        Attributes addAttributes = new Attributes();
+        baseAttributes.add(key1, value1);
+        addAttributes.add(key2, value2);
+        baseAttributes.addAll(addAttributes);
+        Assert.assertEquals(value1, baseAttributes.get(key1));
+        Assert.assertEquals(value2, baseAttributes.get(key2));
+    }
+
+    @Test
+    public void iteratorTest() {
+        String key = "attributeTestKey";
+        String value = "valueToAdd";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value);
+        Iterator it = attributes.iterator();
+        Assert.assertTrue(it.hasNext());
+    }
+
+    @Test
+    public void asListTest() {
+        String key = "attributeTestKey";
+        String value = "valueToAdd";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value);
+        List attributeList = attributes.asList();
+        Assert.assertFalse(attributeList.isEmpty());
+    }
+
+    @Test
+    public void datasetTest() {
+        String key = "data-attribute";
+        String value = "attributeValue";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value);
+        Map<String, String> dataAttributes = attributes.dataset();
+        Assert.assertEquals(value, dataAttributes.get("attribute"));
+    }
+
+    @Test
+    public void htmlTest() throws Exception {
+        String key = "attributeTestKey";
+        String value = "valueToAdd";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value);
+        String expectedHtml = key + "=\"" + value + "\" ";
+        Assert.assertEquals(expectedHtml, attributes.html());
+    }
+
+    @Test
+    public void normalizeTest() {
+        String key = "ATTRIBUTETESTKEY";
+        String value = "valueToAdd";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value);
+        attributes.normalize();
+        Assert.assertEquals(value, attributes.get(key.toLowerCase()));
+    }
+
+    @Test
+    public void deduplicateTest() {
+        String key = "attribute";
+        String value1 = "value_one";
+        String value2 = "value_two";
+        Attributes attributes = new Attributes();
+        attributes.add(key, value1);
+        attributes.add(key, value2);
+        int duplicates = attributes.deduplicate(ParseSettings.preserveCase);
+        Assert.assertEquals(1, duplicates);
+        Assert.assertEquals(value2, attributes.get(key));
+    }
+
+}

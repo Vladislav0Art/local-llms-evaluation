@@ -1,0 +1,110 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.traccar.model.Position;
+
+import java.net.SocketAddress;
+
+public class GeneratedTest {
+
+    private WatchProtocolDecoder decoder =
+            new WatchProtocolDecoder(Protocol.getInstance("WATCH", "watch", null));
+
+    @Test
+    public void decodePositionTest() {
+        String dataToParse = "130220092036,V,25.050928,N,55.222261,E,1.00,10.10,2.00,10,50,100,1000,xfa5a,2,2,425,02,3375,1234,50,32014,2304,30,1,DemoWifi,001122334455,30";
+        Position position;
+        position = decoder.decodePosition(ParserTest.getDeviceSession(), dataToParse);
+        Assert.assertTrue(position.getDeviceId() > 0);
+    }
+
+    @Test
+    public void decodeAlarmTest() {
+        Position position;
+        position = decoder.decodeAlarm(0);
+        assertEquals(Position.ALARM_LOW_BATTERY, position.getAlarm());
+        position = decoder.decodeAlarm(1);
+        assertEquals(Position.ALARM_GEOFENCE_EXIT, position.getAlarm());
+    }
+
+    @Test
+    public void decodeValidItegerValueTest() {
+        String id = "355626078698504";
+        int txInt = 2;
+        String message = "[3g*355626078698504*0009*UD2]";
+        Channel channel = Mockito.mock(Channel.class);
+        Mockito.when(channel.writeAndFlush(any())).thenAnswer(
+                invocation -> invocation.getArgumentAt(0, ByteBuf.class).release());
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.setByte(0, txInt);
+        decoder.decode(channel, null, buf);
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(channel).writeAndFlush(captor.capture());
+
+        ByteBuf result = (ByteBuf) captor.getValue();
+        assertEquals("UD2", result.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void decodeInvalidIndexTest() {
+        String id = "355626078698504";
+        int txInt = 2;
+        String message = "[3g*355626078698504*0344*AD]";
+        Channel channel = Mockito.mock(Channel.class);
+        Mockito.when(channel.writeAndFlush(any())).thenAnswer(
+                invocation -> invocation.getArgumentAt(0, ByteBuf.class).release());
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.setByte(0, txInt);
+        decoder.decode(channel, null, buf);
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(channel).writeAndFlush(captor.capture());
+
+        ByteBuf result = (ByteBuf) captor.getValue();
+        assertEquals("AD", result.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void decodeAudioTest() {
+        String id = "355626078698504";
+        String message = "[3g*355626078698504*0015*JXTK,0,0,0,0]";
+        Channel channel = Mockito.mock(Channel.class);
+        Mockito.when(channel.writeAndFlush(any())).thenAnswer(
+                invocation -> invocation.getArgumentAt(0, ByteBuf.class).release());
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.setByte(0, 'J');
+        decoder.decode(channel, null, buf);
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(channel).writeAndFlush(captor.capture());
+
+        ByteBuf result = (ByteBuf) captor.getValue();
+        assertEquals("JXTKR,1", result.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void decodeImgTest() {
+        String position = "355626078698504";
+        int txInt = 10;
+        String message = "[3g*355626078698504*0009*img10]";
+        Channel channel = Mockito.mock(Channel.class);
+        Mockito.when(channel.writeAndFlush(any())).thenAnswer(
+                invocation -> invocation.getArgumentAt(0, ByteBuf.class).release());
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.setByte(0, txInt);
+        decoder.decode(channel, null, buf);
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(channel).writeAndFlush(captor.capture());
+
+        ByteBuf result = (ByteBuf) captor.getValue();
+        assertEquals("img10", result.toString(StandardCharsets.UTF_8));
+    }
+
+}

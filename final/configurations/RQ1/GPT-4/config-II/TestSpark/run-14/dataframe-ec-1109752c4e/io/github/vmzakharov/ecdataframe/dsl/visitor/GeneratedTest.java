@@ -1,0 +1,90 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.dsl.value.DecimalValue;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void exprToStringWhenBinaryExprTest() {
+        BinaryExpr binaryExpr = new BinaryExpr(new DecimalExpr(new DecimalValue(BigDecimal.TEN)), BinaryOp.ADD,
+                new DecimalExpr(new DecimalValue(BigDecimal.TEN)));
+        Assert.assertEquals("(10 + 10)", PrettyPrintVisitor.exprToString(binaryExpr));
+    }
+
+    @Test
+    public void exprToStringWhenUnaryExprTest() {
+        UnaryExpr unaryExpr = new UnaryExpr(UnaryOp.NOT, new DecimalExpr(new DecimalValue(BigDecimal.TEN)));
+        Assert.assertEquals("!10.0", PrettyPrintVisitor.exprToString(unaryExpr));
+    }
+
+    @Test
+    public void exprToStringWhenValueTest() {
+        DecimalValue decimalValue = new DecimalValue(BigDecimal.TEN);
+        Assert.assertEquals("10", PrettyPrintVisitor.exprToString(decimalValue));
+    }
+
+    @Test
+    public void exprToStringWhenFunctionCallExprTest() {
+        //please fill in all necessary parameters and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenPropertyPathExprTest() {
+        //please define the PropertyPathExpr instance and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenAnonymousScriptTest() {
+        //please define the AnonymousScript instance and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenFunctionScriptTest() {
+        //please define the FunctionScript instance and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenStatementSequenceScriptTest() {
+        //please define the StatementSequenceScript instance and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenVarExprTest() {
+        //please define the VarExpr instance and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenProjectionExprTest() {
+        //please define the ProjectionExpr instance and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenAliasExprTest() {
+        //please define the AliasExpr instance and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenVectorExprTest() {
+        //please define the VectorExpr instance and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenIndexExprTest() {
+        //please define the IndexExpr instance and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenDecimalExprTest() {
+        //please define the DecimalExpr instance and then assert the string
+    }
+
+    @Test
+    public void exprToStringWhenIfElseExprTest() {
+        //please define the IfElseExpr instance and then assert the string
+    }
+
+}

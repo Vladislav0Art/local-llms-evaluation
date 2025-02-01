@@ -1,0 +1,125 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    private final static Charset UTF_CHARSET = StandardCharsets.UTF_8;
+    private final static String BASE_URI = "http://example.org";
+
+    @Test
+    public void DocumentConstructorTest() {
+        Document document = new Document(BASE_URI);
+        assertEquals(BASE_URI, document.location());
+        assertNotNull(document.parser());
+    }
+
+    @Test
+    public void createShellTest() {
+        Document document = Document.createShell(BASE_URI);
+        assertNotNull(document);
+        assertNotNull(document.head());
+        assertNotNull(document.body());
+    }
+
+    @Test
+    public void locationTest() {
+        Document document = new Document(BASE_URI);
+        assertEquals(BASE_URI, document.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Document document = new Document(BASE_URI);
+        Connection connection = document.connection();
+        assertNotNull(connection);
+        assertEquals(Connection.class, connection.getClass());
+    }
+
+    @Test
+    public void htmlElTest() {
+        Document document = new Document(BASE_URI);
+        Element htmlEl = document.prependElement("html");
+        assertEquals(htmlEl, document.htmlEl());
+    }
+
+    @Test
+    public void headTest() {
+        Document document = new Document(BASE_URI);
+        Element head = document.prependElement("head");
+        assertEquals(head, document.head());
+    }
+
+    @Test
+    public void bodyTest() {
+        Document document = new Document(BASE_URI);
+        Element body = document.prependElement("body");
+        assertEquals(body, document.body());
+    }
+
+    @Test
+    public void titleTest() {
+        Document document = new Document(BASE_URI);
+        String title = "Test title";
+        document.title(title);
+        assertEquals(title, document.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document document = new Document(BASE_URI);
+        Element el = document.createElement("p");
+        assertEquals("p", el.nodeName());
+        assertNotNull(el);
+    }
+
+    @Test
+    public void charsetGetSetTest() {
+        Document document = new Document(BASE_URI);
+        document.charset(UTF_CHARSET);
+        assertNotNull(document.charset());
+        assertEquals(UTF_CHARSET, document.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementGetSetTest() {
+        Document document = new Document(BASE_URI);
+        document.updateMetaCharsetElement(true);
+        assertTrue(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document document = new Document(BASE_URI);
+        Document clonedDocument = document.clone();
+        assertNotSame(document, clonedDocument);
+        assertEquals(document.location(), clonedDocument.location());
+        assertEquals(document.charset(), clonedDocument.charset());
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        Document document = new Document(BASE_URI);
+        Document shallowClonedDocument = document.shallowClone();
+        assertNotSame(document, shallowClonedDocument);
+        assertEquals(document.location(), shallowClonedDocument.location());
+    }
+
+    @Test
+    public void parserGetSetTest() {
+        Parser parser = Parser.htmlParser();
+        Document document = new Document(BASE_URI);
+        document.parser(parser);
+        assertEquals(parser, document.parser());
+    }
+
+}

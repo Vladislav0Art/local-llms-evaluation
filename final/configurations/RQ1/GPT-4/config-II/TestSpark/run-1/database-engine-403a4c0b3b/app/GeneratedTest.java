@@ -1,0 +1,87 @@
+package app;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+
+public class GeneratedTest {
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        Assert.assertNotNull(dbApp.getMyTables());
+        Assert.assertTrue(dbApp.getMyTables() instanceof HashSet);
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        Assert.assertNotNull(dbApp.getReader());
+        Assert.assertTrue(dbApp.getReader() instanceof CsvReader);
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        Assert.assertNotNull(dbApp.getWriter());
+        Assert.assertTrue(dbApp.getWriter() instanceof CsvWriter);
+    }
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = Mockito.spy(new DBApp());
+        dbApp.init();
+        Mockito.verify(dbApp.getReader(), Mockito.times(1)).readAllTables();
+    }
+
+    @Test
+    public void createTableTest() throws DBAppException {
+        DBApp dbApp = Mockito.spy(new DBApp());
+        Hashtable<String, String> hashTable1 = new Hashtable<>();
+        Hashtable<String, String> hashTable2 = new Hashtable<>();
+        Hashtable<String, String> hashTable3 = new Hashtable<>();
+        dbApp.createTable("tableName", "keyColumnName", hashTable1, hashTable2, hashTable3);
+        Mockito.verify(dbApp.getWriter(), Mockito.times(1)).write(Mockito.any());
+        Assert.assertTrue(dbApp.getMyTables().contains("tableName"));
+    }
+
+    @Test
+    public void insertIntoTableTest() throws DBAppException {
+        DBApp dbApp = Mockito.spy(new DBApp());
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        dbApp.insertIntoTable("tableName", htblColNameValue);
+        Mockito.verify(dbApp, Mockito.times(1)).takeAction(Action.INSERT, "tableName", htblColNameValue);
+    }
+
+    @Test
+    public void updateTableTest() throws DBAppException {
+        DBApp dbApp = Mockito.spy(new DBApp());
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        dbApp.updateTable("tableName", "keyValue", htblColNameValue);
+        Mockito.verify(dbApp, Mockito.times(1)).takeAction(Action.UPDATE, "tableName", htblColNameValue);
+    }
+
+    @Test
+    public void deleteFromTableTest() throws DBAppException {
+        DBApp dbApp = Mockito.spy(new DBApp());
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        dbApp.deleteFromTable("tableName", htblColNameValue);
+        Mockito.verify(dbApp, Mockito.times(1)).takeAction(Action.DELETE, "tableName", htblColNameValue);
+    }
+
+    @Test
+    public void selectFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        SQLTerm[] arrSQLTerms = new SQLTerm[1];
+        String[] strarrOperators = new String[1];
+
+        Iterator iterator = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+        Assert.assertNotNull(iterator);
+        Assert.assertTrue(iterator instanceof Iterator);
+    }
+
+}

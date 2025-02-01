@@ -1,0 +1,96 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.TimeZone;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GalileoProtocolDecoderTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getTagLengthTest() {
+        GalileoProtocolDecoder.getTagLength(0x25); // throw IllegalArgumentException
+    }
+
+    @Test
+    public void sendResponseTest() {
+        ByteBuf expectedReply = Unpooled.buffer(3);
+        expectedReply.writeByte(0x07);
+        expectedReply.writeShortLE(100);
+
+        Channel channel = Mockito.mock(Channel.class);
+        Mockito.when(channel.remoteAddress()).thenReturn(null);
+
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new GalileoProtocol());
+        decoder.sendResponse(channel, 0x07, 100);
+
+        verify(channel).writeAndFlush(new NetworkMessage(expectedReply, channel.remoteAddress()));
+    }
+
+
+    @Test
+    public void decodeTagTest() {
+        Position position = new Position("galileo");
+        ByteBuf buf = Unpooled.buffer(2);
+        buf.writeShortLE(0x07);
+
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new GalileoProtocol());
+        decoder.decodeTag(position, buf, 0x60);
+
+        assertEquals("fuel0", position.getString("fuel0"));
+        assertEquals(7, position.getDouble("fuel0"), 0.001);
+    }
+
+    @Test
+    public void decodeTagOtherTest() {
+        Position position = new Position("galileo");
+        ByteBuf buf = Unpooled.buffer(15);
+
+        String uniqueId = "1234567890123";
+        buf.writeByte(uniqueId.length());
+        buf.writeCharSequence(uniqueId, StandardCharsets.US_ASCII);
+
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new GalileoProtocol());
+        decoder.decodeTagOther(position, buf, 0xe1);
+
+        assertEquals(uniqueId, position.getString(Position.KEY_RESULT));
+    }
+
+
+    @Test
+    public void decodeMinimalDataSetTest() {
+        Position position = new Position("galileo");
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.set(Calendar.DAY_OF_YEAR, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMinimum(Calendar.HOUR_OF_DAY));
+        calendar.set(Calendar.MINUTE, calendar.getActualMinimum(Calendar.MINUTE));
+        calendar.set(Calendar.SECOND, calendar.getActualMinimum(Calendar.SECOND));
+        calendar.set(Calendar.MILLISECOND, calendar.getActualMinimum(Calendar.MILLISECOND));
+        calendar.add(Calendar.SECOND, 2);
+
+        ByteBuf buf = Unpooled.buffer(10);
+        buf.writeLong(calendar.getTimeInMillis() / 1000);
+        buf.writeByte(0x01); // alarm bit
+
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new GalileoProtocol());
+        decoder.decodeMinimalDataSet(position, buf);
+
+        assertEquals(calendar.getTime(), position.getDeviceTime());
+        assertEquals(Position.ALARM_GENERAL, position.getAlarm());
+    }
+}
+```
+===================================================
+

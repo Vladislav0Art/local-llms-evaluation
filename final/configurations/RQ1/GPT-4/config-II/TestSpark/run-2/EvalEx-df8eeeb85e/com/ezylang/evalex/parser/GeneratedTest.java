@@ -1,0 +1,105 @@
+package com.ezylang.evalex.parser;
+
+import org.junit.Test;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
+import com.ezylang.evalex.parser.Tokenizer;
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.config.FunctionDictionaryIfc;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Test
+    public void parseValidExpressionTest() {
+        String expression = "2+3";
+        ExpressionConfiguration config = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, config);
+        List<Token> parsedExpression = tokenizer.parse();
+        assertThat(parsedExpression, hasSize(3));
+    }
+
+    @Test
+    public void parseInvalidExpressionTest() {
+        String expression = "2++3";
+        ExpressionConfiguration config = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, config);
+        thrown.expect(ParseException.class);
+        List<Token> parsedExpression = tokenizer.parse();
+    }
+
+    @Test
+    public void parseEmptyExpressionTest() {
+        String expression = "";
+        ExpressionConfiguration config = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, config);
+        List<Token> parsedExpression = tokenizer.parse();
+        assertEquals(Collections.emptyList(), parsedExpression);
+    }
+
+    @Test
+    public void parseBraceBalanceTest() {
+        String expression = "((2+3)";
+        ExpressionConfiguration config = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, config);
+        thrown.expect(ParseException.class);
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseArrayBalanceTest() {
+        String expression = "2,3,";
+        ExpressionConfiguration config = new ExpressionConfiguration();
+        config.setArraysAllowed(true);
+        Tokenizer tokenizer = new Tokenizer(expression, config);
+        thrown.expect(ParseException.class);
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseImplicitMultiplicationAllowedTest() {
+        String expression = "2(3+2)";
+        ExpressionConfiguration config = new ExpressionConfiguration();
+        config.setImplicitMultiplicationAllowed(true);
+        Tokenizer tokenizer = new Tokenizer(expression, config);
+        List<Token> parsedExpression = tokenizer.parse();
+        assertThat(parsedExpression, hasSize(5));
+    }
+
+    @Test
+    public void parseImplicitMultiplicationNotAllowedTest() {
+        String expression = "2(3+2)";
+        ExpressionConfiguration config = new ExpressionConfiguration();
+        config.setImplicitMultiplicationAllowed(false);
+        Tokenizer tokenizer = new Tokenizer(expression, config);
+        thrown.expect(ParseException.class);
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseIdentifierTest() {
+        String expression = "a+3";
+        ExpressionConfiguration config = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, config);
+        List<Token> parsedExpression = tokenizer.parse();
+        assertThat(parsedExpression, hasSize(3));
+    }
+
+    @Test
+    public void parseArrayNotationTest() {
+        String expression = "[a, b, c]";
+        ExpressionConfiguration config = new ExpressionConfiguration();
+        config.setArraysAllowed(true);
+        Tokenizer tokenizer = new Tokenizer(expression, config);
+        assertThat(parsedExpression, hasSize(7));
+    }
+
+}

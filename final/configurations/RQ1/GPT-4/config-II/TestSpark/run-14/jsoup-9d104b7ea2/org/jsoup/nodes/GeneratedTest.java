@@ -1,0 +1,79 @@
+package org.jsoup.nodes;
+
+import junit.framework.TestCase;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNameNodeTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void testSplitTextNodeAtBeginningTest() {
+        TextNode textNode = new TextNode("Hello, world!");
+        TextNode result = textNode.splitText(0);
+        assertEquals("", textNode.text());
+        assertEquals("Hello, world!", result.text());
+    }
+
+    @Test
+    public void testSplitTextNodeInMiddleTest() {
+        TextNode textNode = new TextNode("Hello, world!");
+        TextNode result = textNode.splitText(7);
+        assertEquals("Hello,", textNode.text());
+        assertEquals(" world!", result.text());
+    }
+
+    @Test
+    public void testSplitTextNodeAtEndTest() {
+        TextNode textNode = new TextNode("Hello, world!");
+        TextNode result = textNode.splitText(13);
+        assertEquals("Hello, world!", textNode.text());
+        assertEquals("", result.text());
+    }
+
+    @Test
+    public void testGetWholeTextTest() {
+        TextNode textNode = new TextNode("  Hello, world!  ");
+        assertEquals("  Hello, world!  ", textNode.getWholeText());
+    }
+
+    @Test
+    public void testTextSetterTest() {
+        TextNode textNode = new TextNode("test");
+        textNode.text("changed!");
+        assertEquals("changed!", textNode.text());
+    }
+
+    @Test
+    public void testIsBlankFalseTest() {
+        TextNode textNode = new TextNode("Hello, world!");
+        assertEquals(false, textNode.isBlank());
+    }
+
+    @Test
+    public void testIsBlankTrueTest() {
+        TextNode textNode = new TextNode("         ");
+        assertEquals(true, textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextIllegalArgumentTest() {
+        TextNode textNode = new TextNode("Hello, world!");
+        textNode.splitText(-1);
+    }
+
+    @Test
+    public void testCreateFromEncodedTest() {
+        TextNode textNode = TextNode.createFromEncoded("&lt;div&gt;Hello, world!&lt;/div&gt;");
+        assertEquals("<div>Hello, world!</div>", textNode.getWholeText());
+    }
+
+}

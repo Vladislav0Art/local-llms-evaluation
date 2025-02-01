@@ -1,0 +1,75 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import org.junit.Test;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    private JacksonJsonTransformer jacksonJsonTransformer = new JacksonJsonTransformer();
+
+    @Test
+    public void parseHttpExceptionTest() throws Exception {
+        String json = "{\"message\":\"The request was invalid\"}";
+        HttpException result = jacksonJsonTransformer.parse(json, HttpException.class);
+        assertNotNull(result);
+        assertEquals("The request was invalid", result.getMessage());
+    }
+
+    @Test
+    public void parseHttpBadRequestExceptionTest() throws Exception {
+        String json = "{\"message\":\"The request was invalid\"}";
+        HttpBadRequestException result = jacksonJsonTransformer.parse(json, HttpBadRequestException.class);
+        assertNotNull(result);
+        assertEquals("The request was invalid", result.getMessage());
+    }
+
+    @Test
+    public void parseProjectTest() throws Exception {
+        String json = "{\"name\":\"TestProject\", \"description\":\"This is a test project\"}";
+        Project result = jacksonJsonTransformer.parse(json, Project.class);
+        assertNotNull(result);
+        assertEquals("TestProject", result.getName());
+        assertEquals("This is a test project", result.getDescription());
+    }
+
+    @Test
+    public void parseFileInfoTest() throws Exception {
+        String json = "{\"name\":\"TestFile\", \"type\":\"text\"}";
+        FileInfo result = jacksonJsonTransformer.parse(json, FileInfo.class);
+        assertNotNull(result);
+        assertEquals("TestFile", result.getName());
+        assertEquals("text", result.getType());
+    }
+
+    @Test
+    public void parseLanguageTranslationsTest() throws Exception {
+        String json = "{\"languageId\":1, \"translationsCount\":100}";
+        LanguageTranslations result = jacksonJsonTransformer.parse(json, LanguageTranslations.class);
+        assertNotNull(result);
+        assertEquals(1, result.getLanguageId().intValue());
+        assertEquals(100, result.getTranslationsCount().intValue());
+    }
+
+    @Test
+    public void convertProjectTest() throws Exception {
+        Project project = new Project();
+        project.setName("TestProject");
+        project.setDescription("This is a test project");
+        String result = jacksonJsonTransformer.convert(project);
+        assertTrue(result.contains("\"TestProject\""));
+        assertTrue(result.contains("\"This is a test project\""));
+    }
+
+}

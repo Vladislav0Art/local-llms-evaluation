@@ -1,0 +1,118 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class JacksonJsonTransformerTest {
+
+    @Test
+    public void parseHttpExceptionTest() throws JsonProcessingException {
+        ObjectMapper errorObjectMapper = new ObjectMapper();
+        errorObjectMapper.registerModule(new AfterburnerModule());
+        String json = "{\"message\" : \"Testing\"}";
+
+        JacksonJsonTransformer jacksonJsonTransformer = new JacksonJsonTransformer();
+
+        HttpException result = jacksonJsonTransformer.parse(json, HttpException.class);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result instanceof HttpException);
+        Assert.assertEquals("Testing", result.getMessage());
+    }
+
+    @Test
+    public void parseHttpBadRequestExceptionTest() throws JsonProcessingException {
+        ObjectMapper errorObjectMapper = new ObjectMapper();
+        errorObjectMapper.registerModule(new AfterburnerModule());
+        String json = "{\"message\" : \"Testing Bad Request\"}";
+
+        JacksonJsonTransformer jacksonJsonTransformer = new JacksonJsonTransformer();
+
+        HttpBadRequestException result = jacksonJsonTransformer.parse(json, HttpBadRequestException.class);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result instanceof HttpBadRequestException);
+        Assert.assertEquals("Testing Bad Request", result.getMessage());
+    }
+
+    @Test
+    public void parseNonHttpExceptionTest() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new AfterburnerModule());
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        String json = "{\"name\" : \"Testing Object\", \"id\" : 123}";
+
+        JacksonJsonTransformer jacksonJsonTransformer = new JacksonJsonTransformer();
+
+        TestObject result = jacksonJsonTransformer.parse(json, TestObject.class);
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result instanceof TestObject);
+        Assert.assertEquals("Testing Object", result.getName());
+        Assert.assertEquals(123, result.getId());
+    }
+
+    @Test
+    public void convertTestObjectTest() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new AfterburnerModule());
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        TestObject obj = new TestObject("Test", 123);
+
+        JacksonJsonTransformer jacksonJsonTransformer = new JacksonJsonTransformer();
+
+        String result = jacksonJsonTransformer.convert(obj);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals("{\"name\":\"Test\",\"id\":123}", result);
+    }
+
+    @Test
+    public void parseExceptionTest() throws JsonProcessingException {
+        ObjectMapper errorObjectMapper = Mockito.mock(ObjectMapper.class);
+        Mockito.when(errorObjectMapper.readValue(Mockito.anyString(), Mockito.any())).thenThrow(new JsonProcessingException("Test") {
+        });
+
+        JacksonJsonTransformer jacksonJsonTransformer = new JacksonJsonTransformer();
+        jacksonJsonTransformer.setErrorObjectMapper(errorObjectMapper);
+        try {
+            jacksonJsonTransformer.parse("{}", HttpException.class);
+            Assert.fail("Exception was not thrown.");
+        } catch (RuntimeException e) {
+            Assert.assertEquals("java.io.IOException: Test", e.getMessage());
+        }
+    }
+
+    @Test
+    public void convertExceptionTest() throws JsonProcessingException {
+        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        Mockito.when(objectMapper.writeValueAsString(Mockito.any())).thenThrow(new JsonProcessingException("Test") {
+        });
+        JacksonJsonTransformer jacksonJsonTransformer = new JacksonJsonTransformer();
+        jacksonJsonTransformer.setObjectMapper(objectMapper);
+        try {
+            jacksonJsonTransformer.convert(new TestObject());
+            Assert.fail("Exception was not thrown.");
+        } catch (RuntimeException e) {
+            Assert.assertEquals("java.io.IOException: Test", e.getMessage());
+        }
+    }
+}
+
+class TestObject {
+    private String name;
+    private int id;
+
+    // constructors, getters and setters
+}
+```
+===================================================
+

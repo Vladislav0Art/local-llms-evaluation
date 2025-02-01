@@ -1,0 +1,30 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedCreatePropertyListWithMultiplePropertiesTest {
+
+    @Test
+    public void createPropertyListWithMultiplePropertiesTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> property1 = new Property<>("my.first", "default1");
+        Property<String> property2 = new Property<>("my.second", "default2");
+        Property<String> property3 = new Property<>("my.third", "default3");
+        builder.add(property1);
+        builder.add(property2);
+        builder.add(property3);
+        List<Property<?>> properties = builder.create();
+        assertEquals(3, properties.size());
+        assertSame(property1, properties.get(0));
+        assertSame(property2, properties.get(1));
+        assertSame(property3, properties.get(2));
+    }
+
+}

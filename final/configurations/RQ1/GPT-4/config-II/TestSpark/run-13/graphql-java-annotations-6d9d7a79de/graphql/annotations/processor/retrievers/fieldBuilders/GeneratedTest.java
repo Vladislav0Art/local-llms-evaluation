@@ -1,0 +1,116 @@
+package graphql.annotations.processor.retrievers.fieldBuilders;
+
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLType;
+import graphql.schema.GraphQLScalarType;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildTestDirectiveNotFound() {
+        Field field = Mockito.mock(Field.class);
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        container.setDirectiveRegistry(new HashMap<>());
+        DirectivesBuilder builder = new DirectivesBuilder(field, container);
+        builder.build();
+    }
+
+    @Test
+    public void transformArgsTest() {
+        GraphQLDirective directive = Mockito.mock(GraphQLDirective.class);
+        Annotation annotation = Mockito.mock(Annotation.class);
+        DirectivesBuilder builder = new DirectivesBuilder(null, null);
+        GraphQLDirective result = builder.transformArgs(directive, annotation);
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void transformArgsTestTooMuchArgs() {
+        GraphQLDirective directive = Mockito.mock(GraphQLDirective.class);
+        Mockito.when(directive.getArguments()).thenReturn(new ArrayList<>());
+        String[] args = new String[]{"arg1", "arg2"};
+        DirectivesBuilder builder = new DirectivesBuilder(null, null);
+        builder.transformArgs(directive, args);
+    }
+
+    @Test
+    public void transformArgsTestSuccess() {
+        GraphQLDirective directive = Mockito.mock(GraphQLDirective.class);
+        GraphQLArgument argument = Mockito.mock(GraphQLArgument.class);
+        ArrayList<GraphQLArgument> args = new ArrayList<>();
+        args.add(argument);
+        Mockito.when(directive.getArguments()).thenReturn(args);
+        String[] argsValues = new String[]{"arg1"};
+        DirectivesBuilder builder = new DirectivesBuilder(null, null);
+        GraphQLDirective result = builder.transformArgs(directive, argsValues);
+        assertNotEquals(null, result);
+    }
+
+    @Test
+    public void transformArgumentTestNotScalar() {
+        Annotation annotation = Mockito.mock(Annotation.class);
+        GraphQLDirective.Builder directiveBuilder = Mockito.mock(GraphQLDirective.Builder.class);
+        GraphQLArgument argument = Mockito.mock(GraphQLArgument.class);
+        GraphQLType type = Mockito.mock(GraphQLType.class);
+        Mockito.when(argument.getType()).thenReturn(type);
+        ArrayList<GraphQLArgument> args = new ArrayList<>();
+        args.add(argument);
+        DirectivesBuilder builder = new DirectivesBuilder(null, null);
+        builder.transformArgument(annotation, directiveBuilder, args, 0);
+    }
+
+    @Test
+    public void transformArgumentTestCannotParse() {
+        Annotation annotation = Mockito.mock(Annotation.class);
+        Mockito.when(annotation.annotationType()).thenReturn(GraphQLDirectives.class);
+        GraphQLDirective.Builder directiveBuilder = Mockito.mock(GraphQLDirective.Builder.class);
+        GraphQLArgument argument = Mockito.mock(GraphQLArgument.class);
+        GraphQLScalarType type = Mockito.mock(GraphQLScalarType.class);
+        Mockito.when(argument.getType()).thenReturn(type);
+        ArrayList<GraphQLArgument> args = new ArrayList<>();
+        args.add(argument);
+        DirectivesBuilder builder = new DirectivesBuilder(null, null);
+        builder.transformArgument(annotation, directiveBuilder, args, 0);
+    }
+
+    @Test
+    public void transformArgumentTestNotScalarStringArgs() {
+        GraphQLDirective.Builder directiveBuilder = Mockito.mock(GraphQLDirective.Builder.class);
+        GraphQLArgument argument = Mockito.mock(GraphQLArgument.class);
+        GraphQLType type = Mockito.mock(GraphQLType.class);
+        Mockito.when(argument.getType()).thenReturn(type);
+        ArrayList<GraphQLArgument> args = new ArrayList<>();
+        args.add(argument);
+        String[] argsValues = new String[]{"arg1"};
+        DirectivesBuilder builder = new DirectivesBuilder(null, null);
+        builder.transformArgument(argsValues, directiveBuilder, args, 0);
+    }
+
+    @Test
+    public void transformArgumentTestCannotParseStringArgs() {
+        GraphQLDirective.Builder directiveBuilder = Mockito.mock(GraphQLDirective.Builder.class);
+        GraphQLArgument argument = Mockito.mock(GraphQLArgument.class);
+        GraphQLScalarType type = Mockito.mock(GraphQLScalarType.class);
+        Mockito.when(argument.getType()).thenReturn(type);
+        ArrayList<GraphQLArgument> args = new ArrayList<>();
+        args.add(argument);
+        String[] argsValues = new String[]{"arg1"};
+        DirectivesBuilder builder = new DirectivesBuilder(null, null);
+        builder.transformArgument(argsValues, directiveBuilder, args, 0);
+    }
+
+}

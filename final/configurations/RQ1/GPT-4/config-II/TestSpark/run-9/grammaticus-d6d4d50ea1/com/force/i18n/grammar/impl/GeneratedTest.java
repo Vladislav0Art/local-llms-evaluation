@@ -1,0 +1,138 @@
+package com.force.i18n.grammar.impl;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
+import org.junit.Test;
+import com.force.i18n.grammar.GrammaticalTerm;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        assertNotNull(map);
+        assertTrue(map.isEmpty());
+    }
+
+    @Test
+    public void constructorWithArgumentsTest() {
+        Map<String, GrammaticalTerm> testMap = new HashMap<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>(testMap, false);
+        assertNotNull(map);
+        assertTrue(map.isEmpty());
+    }
+
+    @Test
+    public void makeSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> skinnyMap = (GrammaticalTermMapImpl<GrammaticalTerm>) map.makeSkinny();
+        assertTrue(skinnyMap.isSkinny());
+    }
+
+    @Test
+    public void putTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("test", null);
+        assertNotNull(map.get("test"));
+    }
+
+    @Test
+    public void putWhenSkinnyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> skinnyMap = (GrammaticalTermMapImpl<GrammaticalTerm>) map.makeSkinny();
+        skinnyMap.put("test", null);
+    }
+
+    @Test
+    public void getTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("test", null);
+        GrammaticalTerm term = map.get("test");
+        assertNull(term);
+    }
+
+    @Test
+    public void keySetTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("test", null);
+        assertFalse(map.keySet().isEmpty());
+    }
+
+    @Test
+    public void containsKeyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("test", null);
+        assertTrue(map.containsKey("test"));
+    }
+
+    @Test
+    public void valuesTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("test", null);
+        assertFalse(map.values().isEmpty());
+    }
+
+    @Test
+    public void entrySetTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("test", null);
+        assertFalse(map.entrySet().isEmpty());
+    }
+
+    @Test
+    public void equalsSameObjectTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        assertEquals(map, map);
+    }
+
+    @Test
+    public void equalsDifferentObjectTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> map2 = new GrammaticalTermMapImpl<>();
+        assertEquals(map, map2);
+    }
+
+    @Test
+    public void hashCodeTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        int hashCode = map.hashCode();
+        map.put("test", null);
+        assertNotEquals(hashCode, map.hashCode());
+    }
+
+    @Test
+    public void writeJsonWithNoRenamingProviderTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> map = new GrammaticalTermMapImpl<>();
+        map.put("test", new MockGrammaticalTerm());
+        StringBuilder appendable = new StringBuilder();
+
+        try {
+            map.writeJson(appendable, null, null, new HashSet<String>());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    class MockGrammaticalTerm implements GrammaticalTerm {
+        @Override
+        public String getName() {
+            return "mock";
+        }
+
+        @Override
+        public void toJson(StringBuilder sb) {
+            sb.append(getName());
+        }
+    }
+
+}

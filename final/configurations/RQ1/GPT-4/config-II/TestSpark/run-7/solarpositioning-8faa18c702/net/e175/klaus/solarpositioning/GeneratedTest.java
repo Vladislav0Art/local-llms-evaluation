@@ -1,0 +1,104 @@
+package net.e175.klaus.solarpositioning;
+
+import net.e175.klaus.solarpositioning.DeltaT;
+import org.junit.Test;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    private static final double MAX_ERROR = 0.0001;
+
+    @Test
+    public void estimateYearNegative500Test() {
+        double result = DeltaT.estimate(LocalDate.of(-500, 1, 1));
+        assertEquals(result, -20.0, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan500Test() {
+        double result = DeltaT.estimate(LocalDate.of(0, 1, 1));
+        assertEquals(result, 10583.6, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan1600Test() {
+        double result = DeltaT.estimate(LocalDate.of(1599, 1, 1));
+        assertEquals(result, 879.012, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan1700Test() {
+        double result = DeltaT.estimate(LocalDate.of(1699, 1, 1));
+        assertEquals(result, 120.3752, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan1800Test() {
+        double result = DeltaT.estimate(LocalDate.of(1799, 1, 1));
+        assertEquals(result, 8.832457, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan1860Test() {
+        double result = DeltaT.estimate(LocalDate.of(1859, 1, 1));
+        assertEquals(result, 5.773014, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan1900Test() {
+        double result = DeltaT.estimate(LocalDate.of(1899, 1, 1));
+        assertEquals(result, 1.67418, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan1920Test() {
+        double result = DeltaT.estimate(LocalDate.of(1919, 1, 1));
+        assertEquals(result, -0.64178, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan1941Test() {
+        double result = DeltaT.estimate(LocalDate.of(1940, 1, 1));
+        assertEquals(result, 19.65745, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan1961Test() {
+        double result = DeltaT.estimate(LocalDate.of(1960, 1, 1));
+        assertEquals(result, 28.53984, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan1986Test() {
+        double result = DeltaT.estimate(LocalDate.of(1985, 1, 1));
+        assertEquals(result, 50.51984, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan2005Test() {
+        double result = DeltaT.estimate(LocalDate.of(2004, 1, 1));
+        assertEquals(result, 63.52261, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan2050Test() {
+        double result = DeltaT.estimate(LocalDate.of(2049, 1, 1));
+        assertEquals(result, 62.91645, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearLessThan2150Test() {
+        double result = DeltaT.estimate(LocalDate.of(2149, 1, 1));
+        assertEquals(result, -5.12528, MAX_ERROR);
+    }
+
+    @Test
+    public void estimateYearGreaterThan2150Test() {
+        double result = DeltaT.estimate(LocalDate.of(2151, 1, 1));
+        assertEquals(result, -20.000112, MAX_ERROR);
+    }
+
+}

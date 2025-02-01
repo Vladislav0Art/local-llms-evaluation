@@ -1,0 +1,141 @@
+package org.davidmoten.text.utils;
+
+import org.davidmoten.text.utils.WordWrap;
+import org.davidmoten.text.utils.WordWrap.Builder;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        Reader reader = new StringReader("a string reader");
+        Builder builder = WordWrap.from(reader);
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        Builder builder = WordWrap.fromClasspathUtf8("example.txt");
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void fromClasspathCharsetTest() {
+        Builder builder = WordWrap.fromClasspath("example.txt", StandardCharsets.UTF_8);
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        Builder builder = WordWrap.from("a string sequence");
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void fromUtf8Test() {
+        ByteArrayInputStream stream = new ByteArrayInputStream("stream content".getBytes());
+        Builder builder = WordWrap.fromUtf8(stream);
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void fromInputStreamCharsetTest() {
+        ByteArrayInputStream stream = new ByteArrayInputStream("stream content".getBytes());
+        Builder builder = WordWrap.from(stream, StandardCharsets.UTF_8);
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void fromFileCharsetTest() throws IOException {
+        File tempFile = File.createTempFile("testFile", ".txt");
+        Builder builder = WordWrap.from(tempFile, StandardCharsets.UTF_8);
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void extraWordCharsSetTest() {
+        Builder builder = WordWrap.from("hello text");
+        Set<Character> wordChars = new HashSet<>();
+        wordChars.add('a');
+        builder.extraWordChars(wordChars);
+    }
+
+    @Test
+    public void extraWordCharsStringTest() {
+        Builder builder = WordWrap.from("hello text");
+        builder.extraWordChars("abc");
+    }
+
+    @Test
+    public void includeExtraWordCharsTest() {
+        Builder builder = WordWrap.from("another text");
+        builder.includeExtraWordChars("def");
+    }
+
+    @Test
+    public void excludeExtraWordCharsTest() {
+        Builder builder = WordWrap.from("another text");
+        builder.excludeExtraWordChars("ijkl");
+    }
+
+    @Test
+    public void insertHyphensTest() {
+        Builder builder = WordWrap.from("some text");
+        builder.insertHyphens(true);
+    }
+
+    @Test
+    public void breakWordsTest() {
+        Builder builder = WordWrap.from("text with spaces");
+        builder.breakWords(true);
+    }
+
+    @Test
+    public void wrapWriterTest() {
+        WordWrap.from("hello world").wrap(new StringWriter());
+    }
+
+    @Test
+    public void wrapToListTest() {
+        List<String> result = WordWrap.from("some words to split").wrapToList();
+        Assert.assertEquals(4, result.size());
+    }
+
+    @Test
+    public void wrapFileCharsetTest() throws IOException {
+        File file = File.createTempFile("prefix", "suffix");
+        WordWrap.from("write to a file").wrap(file, StandardCharsets.UTF_8);
+    }
+
+    @Test
+    public void wrapUtf8FileTest() throws IOException {
+        File file = File.createTempFile("prefixFile", "suffixFile");
+        WordWrap.from("words to write to file").wrapUtf8(file);
+    }
+
+    @Test
+    public void wrapUtf8filenameTest() throws IOException {
+        File tempFile = File.createTempFile("prefixFilename", "suffixFilename");
+        WordWrap.from("words").wrapUtf8(tempFile.getAbsolutePath());
+    }
+
+    @Test
+    public void wrapFilenameCharsetTest() throws IOException {
+        File tempFile = File.createTempFile("filenamePrefix", "filenameSuffix");
+        WordWrap.from("content").wrap(tempFile.getAbsolutePath(), StandardCharsets.UTF_8);
+    }
+
+    @Test
+    public void wrapToStringTest() {
+        String result = WordWrap.from("convert to string").wrap();
+        Assert.assertEquals("convert to string", result);
+    }
+
+}

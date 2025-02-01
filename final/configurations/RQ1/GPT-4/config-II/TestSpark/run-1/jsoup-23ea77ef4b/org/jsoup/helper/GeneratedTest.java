@@ -1,0 +1,113 @@
+package org.jsoup.helper;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import javax.xml.transform.OutputKeys;
+import java.util.HashMap;
+
+import static org.junit.Assert.*;
+import static org.hamcrest.core.Is.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTest() {
+        W3CDom w3cDom = new W3CDom();
+        assertTrue(w3cDom.namespaceAware());
+
+        W3CDom w3cDom2 = w3cDom.namespaceAware(false);
+        assertFalse(w3cDom2.namespaceAware());
+    }
+
+    @Test
+    public void convertTest() {
+        org.jsoup.nodes.Document jsoupDocument = Jsoup.parse("<html><body><div>Text1</div><div>Text2</div></body></html>");
+        Document w3cDocument = W3CDom.convert(jsoupDocument);
+        assertEquals("html", w3cDocument.getDocumentElement().getTagName());
+    }
+
+    @Test
+    public void asStringTest() {
+        org.jsoup.nodes.Document jsoupDocument = Jsoup.parse("<html><body><div>Test</div></body></html>");
+        Document w3cDocument = W3CDom.convert(jsoupDocument);
+        String strDocument = W3CDom.asString(w3cDocument);
+        assertTrue(strDocument.contains("<div>Test</div>"));
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put(OutputKeys.METHOD, "xml");
+        Properties result = W3CDom.propertiesFromMap(properties);
+        assertTrue(result.get(OutputKeys.METHOD).equals("xml"));
+    }
+
+    @Test
+    public void methodMapTest() {
+        HashMap<String, String> result = W3CDom.methodMap("xml");
+        assertTrue(result.get(OutputKeys.METHOD).equals("xml"));
+    }
+
+    @Test
+    public void fromJsoupTest() {
+        org.jsoup.nodes.Document jsoupDocument = Jsoup.parse("<html><body><div>Test</div></body></html>");
+        W3CDom w3cDom = new W3CDom();
+        Document w3cDocument = w3cDom.fromJsoup(jsoupDocument);
+        assertEquals("html", w3cDocument.getDocumentElement().getTagName());
+    }
+
+    @Test
+    public void convertElementTest() {
+        org.jsoup.nodes.Document jsoupDocument = Jsoup.parse("<html><body><div>Test</div></body></html>");
+        Document w3cDocument = W3CDom.convert(jsoupDocument);
+        W3CDom w3cDom = new W3CDom();
+        w3cDom.convert(jsoupDocument.body(), w3cDocument);
+        Node node = w3cDocument.getElementsByTagName("body").item(0);
+        assertNotNull(node);
+    }
+
+    @Test
+    public void selectXpathTest() throws Exception {
+        org.jsoup.nodes.Document jsoupDocument = Jsoup.parse("<html><body><div class=\"test\">Test</div></body></html>");
+        Document w3cDocument = W3CDom.convert(jsoupDocument);
+        W3CDom w3cDom = new W3CDom();
+        NodeList nodeList = w3cDom.selectXpath("//div", w3cDocument);
+        assertThat(nodeList.getLength(), is(1));
+    }
+
+    @Test
+    public void sourceNodesTest() {
+        org.jsoup.nodes.Document jsoupDocument = Jsoup.parse("<html><body><div>Test</div><div>AnotherTest</div></body></html>");
+        Document w3cDocument = W3CDom.convert(jsoupDocument);
+        W3CDom w3cDom = new W3CDom();
+        Elements divElements = jsoupDocument.select("div");
+        NodeList nodeList = w3cDom.selectXpath("//div", w3cDocument);
+        assertNotNull(w3cDom.sourceNodes(nodeList, org.jsoup.nodes.Element.class));
+    }
+
+    @Test
+    public void contextNodeTest() {
+        org.jsoup.nodes.Element jsoupElement = new org.jsoup.nodes.Element(org.jsoup.parser.Tag.valueOf("body"), "");
+        jsoupElement.appendChild(new org.jsoup.nodes.Element(org.jsoup.parser.Tag.valueOf("p"), ""));
+        W3CDom w3cDom = new W3CDom();
+        Document w3cDocument = w3cDom.fromJsoup(jsoupElement);
+
+        assertNotNull(w3cDom.contextNode(w3cDocument));
+    }
+
+    @Test
+    public void asStringNullTest() {
+        org.jsoup.nodes.Document jsoupDocument = Jsoup.parse("<html><body><div>Test</div><div>AnotherTest</div></body></html>");
+        Document w3cDocument = W3CDom.convert(jsoupDocument);
+        W3CDom w3cDom = new W3CDom();
+
+        assertNotNull(w3cDom.asString(w3cDocument));
+    }
+
+}

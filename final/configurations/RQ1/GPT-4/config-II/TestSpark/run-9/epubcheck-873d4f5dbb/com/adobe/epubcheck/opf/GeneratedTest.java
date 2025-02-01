@@ -1,0 +1,86 @@
+package com.adobe.epubcheck.opf;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+import com.adobe.epubcheck.api.ValidationContext;
+import com.adobe.epubcheck.href.HrefCheckerFactory;
+import com.adobe.epubcheck.messages.MessageDictionary;
+import com.adobe.epubcheck.messages.Report;
+import com.adobe.epubcheck.opf.ValidationContext.ValidationContextBuilder;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void initHandlerTest() {
+        String path = "testPath";
+        EPUBVersion version = EPUBVersion.VERSION_3;
+        Report report = Mockito.mock(Report.class);
+        HrefCheckerFactory hrefCheckerFactory = Mockito.mock(HrefCheckerFactory.class);
+        MessageDictionary dictionary = Mockito.mock(MessageDictionary.class);
+
+        ValidationContext context = new ValidationContextBuilder()
+                .path(path)
+                .version(version)
+                .report(report)
+                .hrefCheckerFactory(hrefCheckerFactory)
+                .dictionary(dictionary)
+                .build();
+
+        OPFChecker30 opfChecker30 = new OPFChecker30(context);
+        opfChecker30.initHandler();
+
+        assertNotNull(opfChecker30.opfHandler);
+        assertTrue(opfChecker30.opfHandler instanceof OPFHandler30);
+    }
+
+    @Test
+    public void checkItemDataUrlTest() {
+        String path = "testPath";
+        String contentType = "application/xhtml+xml";
+        String mimeType = "application/xhtml+xml";
+        String fallback = null;
+        String mediaOverlay = null;
+        boolean linear = false;
+        boolean remote = false;
+
+        OPFItem item = new OPFItem(path, contentType, mimeType, fallback, mediaOverlay, linear, remote);
+        item.setDataURL("http://example.com");
+
+        OPFChecker30 checker = createOPFChecker();
+        checker.checkItem(item, checker.opfHandler);
+
+        verify(checker.report, times(1)).message(any(), any());
+    }
+
+    @Test
+    public void checkItemStartsWithMetaInfTest() {
+        String path = "META-INF/foo";
+        String contentType = "application/xhtml+xml";
+        String mimeType = "application/xhtml+xml";
+        String fallback = null;
+        String mediaOverlay = null;
+        boolean linear = false;
+        boolean remote = false;
+
+        OPFItem item = new OPFItem(path, contentType, mimeType, fallback, mediaOverlay, linear, remote);
+
+        OPFChecker30 checker = createOPFChecker();
+        checker.checkItem(item, checker.opfHandler);
+
+        verify(checker.report, times(1)).message(any(), any());
+    }
+
+    // add more tests ...
+
+    private OPFChecker30 createOPFChecker() {
+        ValidationContext validationContext = Mockito.mock(ValidationContext.class);
+        OPFChecker30 checker = new OPFChecker30(validationContext);
+        checker.report = Mockito.mock(Report.class);
+        checker.opfHandler = Mockito.mock(OPFHandler.class);
+        return checker;
+    }
+
+}

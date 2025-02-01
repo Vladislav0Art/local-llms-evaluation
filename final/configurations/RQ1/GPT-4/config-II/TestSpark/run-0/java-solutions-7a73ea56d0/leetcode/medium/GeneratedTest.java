@@ -1,0 +1,72 @@
+package leetcode.medium;
+
+import leetcode.medium.OnlineStockSpan;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextFirstPriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int result = onlineStockSpan.next(100);
+        assertTrue("First price has span of 1", result == 1);
+    }
+
+    @Test
+    public void nextGreaterPriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        int result = onlineStockSpan.next(150);
+        assertTrue("Greater price has span of 1", result == 1);
+    }
+
+    @Test
+    public void nextLowerPriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        onlineStockSpan.next(150);
+        int result = onlineStockSpan.next(50);
+        assertTrue("Lower price has span of 3", result == 3);
+    }
+
+    @Test
+    public void calculateSpansSingleElementTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertTrue("Single element array has span of 1", result[0] == 1);
+    }
+
+    @Test
+    public void calculateSpansAscendingOrderTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100, 150, 200, 250};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertTrue("Ascending elements have ascending span values",
+                result[0] == 1 && result[1] == 2 &&
+                        result[2] == 3 && result[3] == 4);
+    }
+
+    @Test
+    public void calculateSpansDescendingOrderTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {250, 200, 150, 100};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertTrue("Descending elements all have span of 1",
+                result[0] == 1 && result[1] == 1 &&
+                        result[2] == 1 && result[3] == 1);
+    }
+
+    @Test
+    public void calculateSpansRandomOrderTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {200, 100, 150, 100, 200};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertTrue("Random elements have span according to their position",
+                result[0] == 1 && result[1] == 1 &&
+                        result[2] == 2 && result[3] == 1 && result[4] == 5);
+    }
+
+}

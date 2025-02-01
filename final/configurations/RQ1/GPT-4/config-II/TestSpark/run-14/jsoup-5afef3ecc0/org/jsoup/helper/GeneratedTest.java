@@ -1,0 +1,81 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildNormalUrlTest() throws Exception {
+        URL url = new URL("https://google.com/search?q=java");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL outputUrl = builder.build();
+
+        assertEquals("https://google.com/search?q=java", outputUrl.toString());
+    }
+
+    @Test
+    public void buildWithQueryParamTest() throws Exception {
+        URL url = new URL("https://google.com");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        Connection.KeyVal kv = Mockito.mock(Connection.KeyVal.class);
+        Mockito.when(kv.key()).thenReturn("q");
+        Mockito.when(kv.value()).thenReturn("java");
+
+        builder.appendKeyVal(kv);
+        URL outputUrl = builder.build();
+
+        assertNotEquals("https://google.com", outputUrl.toString());
+    }
+
+    @Test
+    public void decodePartInvalidInputTest() throws Exception {
+        URL url = new URL("https://google.com");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        Connection.KeyVal kv = Mockito.mock(Connection.KeyVal.class);
+        Mockito.when(kv.key()).thenReturn("Invalid Input");
+        Mockito.when(kv.value()).thenReturn("This should throw an exception");
+
+        builder.appendKeyVal(kv);
+    }
+
+    @Test
+    public void normalizeQueryTest() {
+        String query = "jsoup   java";
+        String normalized = StringUtil.borrowBuilder().append(query).append("?").toString();
+
+        assertEquals("jsoup+++java", UrlBuilder.normalizeQuery(normalized));
+    }
+
+    @Test
+    public void normalizeRefTest() {
+        String ref = "jsoup   java";
+        String normalized = StringUtil.borrowBuilder().append(ref).append("#").toString();
+
+        assertEquals("jsoup%%%20java", UrlBuilder.normalizeRef(normalized));
+    }
+
+    @Test
+    public void buildMalformedURLExceptionTest() throws Exception {
+        URL url = new URL("abc://def");
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.build();
+    }
+
+    @Test
+    public void buildURISyntaxExceptionTest() throws Exception {
+        URL url = new URL("http://a:b@c:d");
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.build();
+    }
+
+}

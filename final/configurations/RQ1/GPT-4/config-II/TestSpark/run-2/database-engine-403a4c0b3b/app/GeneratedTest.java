@@ -1,0 +1,84 @@
+package app;
+
+import app.DBApp;
+import exceptions.DBAppException;
+import org.junit.Test;
+import org.mockito.Mockito;
+import storage.*;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Hashtable;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void initTest() {
+        CsvReader reader = Mockito.mock(CsvReader.class);
+        DBApp dbApp = new DBApp();
+        dbApp.setReader(reader);
+        dbApp.init();
+        verify(reader, times(1)).readAllTables();
+    }
+
+    @Test
+    public void createTableInvalidParamsTest() {
+        CsvWriter writer = Mockito.mock(CsvWriter.class);
+        DBApp dbApp = new DBApp();
+        dbApp.setWriter(writer);
+
+        try {
+            dbApp.createTable(null, null, null, null, null);
+        } catch (DBAppException e) {
+            // expected exception here, nothing to do
+        }
+        verify(writer, times(0)).write(any(Table.class));
+    }
+
+    @Test
+    public void insertIntoTableTest() {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        try {
+            dbApp.insertIntoTable("table", htblColNameValue);
+        } catch (DBAppException e) {
+            // expected exception here, do nothing
+        }
+    }
+
+    @Test
+    public void updateTableTest() {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        try {
+            dbApp.updateTable("table", "value", htblColNameValue);
+        } catch (DBAppException e) {
+            // expected exception here, do nothing
+        }
+    }
+
+    @Test
+    public void deleteFromTableTest() {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        try {
+            dbApp.deleteFromTable("table", htblColNameValue);
+        } catch (DBAppException e) {
+            // expected exception here, do nothing
+        }
+    }
+
+    @Test
+    public void selectFromTableTest() {
+        DBApp dbApp = new DBApp();
+        try {
+            dbApp.selectFromTable(new sql.SQLTerm[0], new String[0]);
+        } catch (DBAppException e) {
+            // expected exception here, do nothing
+        }
+    }
+
+}

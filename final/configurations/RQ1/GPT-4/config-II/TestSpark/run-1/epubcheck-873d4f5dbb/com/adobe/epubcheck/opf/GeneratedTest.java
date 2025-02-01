@@ -1,0 +1,84 @@
+package com.adobe.epubcheck.opf;
+
+import com.adobe.epubcheck.api.ValidationContext;
+import com.adobe.epubcheck.messages.MessageId;
+import com.adobe.epubcheck.util.FeatureReport;
+import com.adobe.epubcheck.util.FeatureReport.Feature;
+import com.adobe.epubcheck.util.FeatureEnum;
+import com.adobe.epubcheck.util.ReportingLevel;
+import com.adobe.epubcheck.opf.XPathLocation;
+import com.adobe.epubcheck.opf.OPFData;
+import com.adobe.epubcheck.opf.OPFChecker30;
+import com.adobe.epubcheck.util.ValidationContext.ValidationContextBuilder;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+public class GeneratedTest {
+
+    @Test
+    public void initHandlerTest() {
+        ValidationContext context = mock(ValidationContext.class);
+        OPFChecker30 opfChecker30 = new OPFChecker30(context);
+        opfChecker30.initHandler();
+        Mockito.verify(context, times(1)).getVersion();
+    }
+
+    @Test
+    public void checkPackageTest() {
+        ValidationContext context = mock(ValidationContext.class);
+        when(context.getReportingLevel()).thenReturn(ReportingLevel.Usage);
+        OPFChecker30 opfChecker30 = new OPFChecker30(context);
+        Boolean result = opfChecker30.checkPackage();
+        assert result.equals(false);
+        verify(context, times(3)).getFeatureReport();
+    }
+
+    @Test
+    public void checkContentTest() {
+        ValidationContext context = mock(ValidationContext.class);
+        when(context.getReportingLevel()).thenReturn(ReportingLevel.Usage);
+        OPFChecker30 opfChecker30 = new OPFChecker30(context);
+        Boolean result = opfChecker30.checkContent();
+        assert result.equals(true);
+        verify(context, times(1)).getFeatureReport();
+        verify(context, times(1)).getOPFHHandler();
+    }
+
+    @Test
+    public void checkItemTest() throws URISyntaxException {
+        ValidationContext context = mock(ValidationContext.class);
+        OPFHandler opfHandler = mock(OPFHandler.class);
+        OPFItem item = mock(OPFItem.class);
+        URI uri = new URI("http://example.com");
+        when(item.getURL()).thenReturn(uri);
+        when(item.getMimeType()).thenReturn("image/png");
+        OPFChecker30 o = new OPFChecker30(context);
+        o.checkItem(item, opfHandler);
+        verify(item, times(1)).hasDataURL();
+    }
+
+    @Test
+    public void checkItemAfterResourceValidationTest() throws URISyntaxException {
+        ValidationContext context = mock(ValidationContext.class);
+        OPFItem item = mock(OPFItem.class);
+        URI uri = new URI("http://example.com");
+        when(item.getURL()).thenReturn(uri);
+        when(item.getMimeType()).thenReturn("image/png");
+        FeatureReport.Feature itm = new Feature(XPathLocation.of(new OPFData("example", 1, 1)), "example", MessageId.INTERNAL_ERROR);
+        FeatureReport report = new FeatureReport();
+        report.reportFeature(itm);
+        when(context.getFeatureReport()).thenReturn(report);
+        OPFChecker30 o = new OPFChecker30(context);
+        o.checkItemAfterResourceValidation(item);
+        verify(item, times(1)).isRemote();
+    }
+
+}

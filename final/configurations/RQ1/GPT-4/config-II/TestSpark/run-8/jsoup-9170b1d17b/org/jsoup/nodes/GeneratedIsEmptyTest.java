@@ -1,0 +1,22 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attributes;
+import org.junit.Test;
+
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.Assert.*;
+
+public class GeneratedIsEmptyTest {
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        assertTrue(attributes.isEmpty());
+
+        attributes.put("key", "value");
+        assertFalse(attributes.isEmpty());
+    }
+
+}

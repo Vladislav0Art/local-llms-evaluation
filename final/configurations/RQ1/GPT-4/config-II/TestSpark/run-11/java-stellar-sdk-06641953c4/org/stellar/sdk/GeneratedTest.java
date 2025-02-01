@@ -1,0 +1,86 @@
+package org.stellar.sdk;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+import org.stellar.sdk.*;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void constructionWithOnlyPublicKeyTest() {
+        EdDSAPublicKey pubkey = Mockito.mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(pubkey);
+        assertEquals(keyPair.getPublicKey(), pubkey.getAbyte());
+    }
+
+    @Test
+    public void constructionWithPublicKeyAndPrivateKeyTest() {
+        EdDSAPublicKey pubkey = Mockito.mock(EdDSAPublicKey.class);
+        EdDSAPrivateKey privKey = Mockito.mock(EdDSAPrivateKey.class);
+        KeyPair keyPair = new KeyPair(pubkey, privKey);
+        assertEquals(pubkey, keyPair.getPublicKey());
+        assertTrue(keyPair.canSign());
+    }
+
+    @Test
+    public void signAndVerifyTest() {
+        KeyPair keyPair = KeyPair.random();
+        String data = "test data";
+        byte[] signature = keyPair.sign(data.getBytes());
+        assertTrue(keyPair.verify(data.getBytes(), signature));
+    }
+
+    @Test
+    public void hashcodeTest() {
+        EdDSAPublicKey pubkey = Mockito.mock(EdDSAPublicKey.class);
+        EdDSAPrivateKey privkey = Mockito.mock(EdDSAPrivateKey.class);
+        KeyPair keyPair1 = new KeyPair(pubkey, privkey);
+        KeyPair keyPair2 = new KeyPair(pubkey, privkey);
+        assertEquals(keyPair1.hashCode(), keyPair2.hashCode());
+    }
+
+    @Test
+    public void equalsTest() {
+        KeyPair keyPair1 = KeyPair.random();
+        KeyPair keyPair2 = keyPair1;
+        assertTrue(keyPair1.equals(keyPair2));
+
+        KeyPair keyPair3 = KeyPair.random();
+        assertFalse(keyPair1.equals(keyPair3));
+    }
+
+    @Test
+    public void fromSecretSeedTest() {
+        KeyPair keyPair1 = KeyPair.random();
+        char[] secretSeed = keyPair1.getSecretSeed();
+        KeyPair keyPair2 = KeyPair.fromSecretSeed(secretSeed);
+        assertEquals(keyPair1.getPublicKey(), keyPair2.getPublicKey());
+    }
+
+    @Test
+    public void fromAccountIdInvalidArgumentTest() {
+        String invalidAccountId = "Invalid";
+        KeyPair.fromAccountId(invalidAccountId);
+    }
+
+    @Test
+    public void fromPublicKeyInvalidArgumentTest() {
+        byte[] invalidPublicKey = new byte[0]; // An invalid public key which should be 32 bytes
+        KeyPair.fromPublicKey(invalidPublicKey);
+    }
+
+    @Test
+    public void signWithoutPrivateKeyTest() {
+        EdDSAPublicKey publicKey = Mockito.mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(publicKey);
+        keyPair.sign("Test data".getBytes());
+    }
+
+}

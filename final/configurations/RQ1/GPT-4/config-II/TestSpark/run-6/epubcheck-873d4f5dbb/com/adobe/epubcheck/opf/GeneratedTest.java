@@ -1,0 +1,72 @@
+package com.adobe.epubcheck.opf;
+
+import com.adobe.epubcheck.opf.*;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void initHandlerTest() {
+        ValidationContext context = Mockito.mock(ValidationContext.class);
+        OPFChecker30 checker = new OPFChecker30(context);
+
+        checker.initHandler();
+
+        verify(context, times(1)).report();
+    }
+
+    @Test
+    public void checkPackageTest() {
+        ValidationContext context = Mockito.mock(ValidationContext.class);
+        OPFChecker30 checker = new OPFChecker30(context);
+
+        checker.checkPackage();
+
+        verify(context, times(2)).report();
+    }
+
+    @Test
+    public void checkContentTest() {
+        ValidationContext context = Mockito.mock(ValidationContext.class);
+        OPFChecker30 checker = new OPFChecker30(context);
+
+        checker.checkContent();
+
+        verify(context, times(2)).report();
+    }
+
+    @Test
+    public void checkItemTest() {
+        ValidationContext context = Mockito.mock(ValidationContext.class);
+        OPFItem item = Mockito.mock(OPFItem.class);
+        when(item.hasDataURL()).thenReturn(false);
+        OPFChecker30 checker = new OPFChecker30(context);
+
+        OPFHandler opfHandler = mock(OPFHandler.class);
+        checker.checkItem(item, opfHandler);
+
+        verify(context, times(1)).report();
+    }
+
+    @Test
+    public void isAudioTypeTest() {
+        String type = "audio/mp3";
+        assert (OPFChecker30.isAudioType(type));
+    }
+
+    @Test
+    public void isBlessedAudioTypeTest() {
+        String type = "audio/mp4";
+        assert (OPFChecker30.isBlessedAudioType(type));
+    }
+
+    @Test
+    public void isVideoTypeTest() {
+        String type = "video/mp4";
+        assert (OPFChecker30.isVideoType(type));
+    }
+
+}

@@ -1,0 +1,140 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.parser.Token;
+import com.ezylang.evalex.parser.ParseException;
+import com.ezylang.evalex.parser.Tokenizer;
+import com.ezylang.evalex.operators.OperatorIfc;
+import com.ezylang.evalex.functions.FunctionIfc;
+import com.ezylang.evalex.config.OperatorDictionaryIfc;
+import com.ezylang.evalex.config.FunctionDictionaryIfc;
+import org.junit.Test;
+import org.junit.Assert;
+import org.mockito.Mockito;
+
+import java.util.Optional;
+
+public class TokenizerTest {
+
+    @Test
+    public void parseEmptyExpressionTest() {
+        String expression = "";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+
+        Assert.assertEquals(0, tokenizer.parse().size());
+    }
+
+    @Test
+    public void implicitMultiplicationPossiblePreviousTokenNullTest() {
+        String expression = "2*2";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+
+        Assert.assertFalse(tokenizer.implicitMultiplicationPossible(new Token()));
+    }
+
+    @Test(expected = ParseException.class)
+    public void parseUnexpectedTokenAfterInfixOperatorTest() throws ParseException {
+        String expression = "5 + /";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseImplicitMultiplicationAllowedFalseTest() throws ParseException {
+        String expression = "5(2)";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        configuration.setImplicitMultiplicationAllowed(false);
+
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+        Assert.assertEquals(3, tokenizer.parse().size());
+    }
+
+    @Test(expected = ParseException.class)
+    public void parseImplicitMultiplicationAllowedThrowTest() throws ParseException {
+        String expression = "(5)5";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        configuration.setImplicitMultiplicationAllowed(false);
+
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseIdentifierPrefixOperatorTest() throws ParseException {
+        OperatorDictionaryIfc operatorDictionary = Mockito.mock(OperatorDictionaryIfc.class);
+        Mockito.when(operatorDictionary.hasPrefixOperator(Mockito.anyString())).thenReturn(true);
+        OperatorIfc operator = Mockito.mock(OperatorIfc.class);
+        Mockito.when(operatorDictionary.getPrefixOperator(Mockito.anyString())).thenReturn(operator);
+
+        FunctionDictionaryIfc functionDictionary = Mockito.mock(FunctionDictionaryIfc.class);
+
+        ExpressionConfiguration configuration = new ExpressionConfiguration(operatorDictionary, functionDictionary);
+
+        String expression = "sin(2)";
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+        Assert.assertEquals(4, tokenizer.parse().size());
+    }
+
+    @Test(expected = ParseException.class)
+    public void parseIdentifierUndefinedFunctionTest() throws ParseException {
+        OperatorDictionaryIfc operatorDictionary = Mockito.mock(OperatorDictionaryIfc.class);
+        FunctionDictionaryIfc functionDictionary = Mockito.mock(FunctionDictionaryIfc.class);
+        Mockito.when(functionDictionary.hasFunction(Mockito.anyString())).thenReturn(false);
+
+        ExpressionConfiguration configuration = new ExpressionConfiguration(operatorDictionary, functionDictionary);
+
+        String expression = "sin(2)";
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseIdentifierFunctionTest() throws ParseException {
+        OperatorDictionaryIfc operatorDictionary = Mockito.mock(OperatorDictionaryIfc.class);
+        FunctionIfc function = Mockito.mock(FunctionIfc.class);
+        Mockito.when(operatorDictionary.hasPrefixOperator(Mockito.anyString())).thenReturn(false);
+
+        FunctionDictionaryIfc functionDictionary = Mockito.mock(FunctionDictionaryIfc.class);
+        Mockito.when(functionDictionary.hasFunction(Mockito.anyString())).thenReturn(true);
+        Mockito.when(functionDictionary.getFunction(Mockito.anyString())).thenReturn(function);
+
+        ExpressionConfiguration configuration = new ExpressionConfiguration(operatorDictionary, functionDictionary);
+
+        String expression = "sin(2)";
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+        Assert.assertEquals(4, tokenizer.parse().size());
+    }
+    
+    @Test
+    public void parseOperatorPrefixTest() throws ParseException {
+        OperatorDictionaryIfc operatorDictionary = Mockito.mock(OperatorDictionaryIfc.class);
+        Mockito.when(operatorDictionary.hasPrefixOperator(Mockito.anyString())).thenReturn(true);
+        OperatorIfc operator = Mockito.mock(OperatorIfc.class);
+        Mockito.when(operatorDictionary.getPrefixOperator(Mockito.anyString())).thenReturn(operator);
+
+        FunctionDictionaryIfc functionDictionary = Mockito.mock(FunctionDictionaryIfc.class);
+
+        ExpressionConfiguration configuration = new ExpressionConfiguration(operatorDictionary, functionDictionary);
+
+        String expression = "--5";
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+        Assert.assertEquals(2, tokenizer.parse().size());
+    }
+
+    @Test(expected = ParseException.class)
+    public void parseClosingQuoteNotFound() throws ParseException {
+        String expression = "\"5";
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer(expression, configuration);
+        tokenizer.parse();
+    }
+}
+```
+===================================================
+

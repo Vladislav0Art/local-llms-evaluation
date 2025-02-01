@@ -1,0 +1,177 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.helper.UnitsConverter;
+import org.traccar.model.Position;
+import org.traccar.session.DeviceSession;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
+
+public class GalileoProtocolDecoderTest {
+
+    @Test
+    public void decodeIridiumPositionTest() throws Exception {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new TestProtocol());
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x01);
+        buf.writeShortLE(0x32);
+        buf.writeByte(0x01);
+        buf.writeShortLE(0x0001);
+        buf.writeByte(0x1c);
+        buf.writeUnsignedIntLE(0x01);
+        buf.writeBytes("123456789012345".getBytes());
+        buf.writeByte(0x01); 
+        buf.writeZero(4);
+        buf.writeUnsignedIntLE(Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis()/1000);
+        buf.writeZero(23);
+        buf.writeBytes(new byte[] {0x01, 0x01, 0x01});
+        buf.writeZero(10);
+
+        Position position = decoder.decodeIridiumPosition(null, null, buf);
+
+        Assert.assertNotNull(position);
+        Assert.assertEquals("123456789012345", position.getDeviceId());
+    }
+
+    @Test
+    public void decodeTagOtherTest() {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new TestProtocol());
+        Position position = new Position();
+        ByteBuf buf = Unpooled.buffer();
+
+        int tag = 0x01;
+        buf.writeByte(0x01);
+        decoder.decodeTagOther(position, buf, tag);
+        Assert.assertEquals(0x01, position.getInt(Position.KEY_VERSION_HW));
+
+        buf.clear();
+        tag = 0x02;
+        buf.writeByte(0x02);
+        decoder.decodeTagOther(position, buf, tag);
+        Assert.assertEquals(0x02, position.getInt(Position.KEY_VERSION_FW));
+
+        buf.clear();
+        tag = 0x04;
+        buf.writeShortLE(2000);
+        decoder.decodeTagOther(position, buf, tag);
+        Assert.assertEquals(2000, position.getInt("deviceId"));
+
+        buf.clear();
+        tag = 0x10;
+        buf.writeShortLE(0x20);
+        decoder.decodeTagOther(position, buf, tag);
+        Assert.assertEquals(0x20, position.getInt(Position.KEY_INDEX));
+
+        buf.clear();
+        tag = 0x41;
+        buf.writeShortLE((short) (3.7 * 1000));
+        decoder.decodeTagOther(position, buf, tag);
+        Assert.assertEquals(3.7, position.getDouble(Position.KEY_POWER), 0.01);
+
+        buf.clear();
+        tag = 0x90;
+        buf.writeUnsignedIntLE(12345);
+        decoder.decodeTagOther(position, buf, tag);
+        Assert.assertEquals("12345", position.getString(Position.KEY_DRIVER_UNIQUE_ID));
+
+        int skippedBytes = buf.readableBytes();
+        buf.clear();
+        tag = 0x999;  // Nonexistent case
+        buf.writeZero(4);
+        decoder.decodeTagOther(position, buf, tag);
+        Assert.assertEquals(skippedBytes, buf.readableBytes());
+    }
+
+    @Test
+    public void decodeTagSingleByteTest() {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new TestProtocol());
+        int tag = 0x01;
+        Position position = new Position();
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(0x02);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(0x02, position.getInt(Position.PREFIX_ADC + (tag - 0x50)));
+
+        buf.clear();
+        tag = 0x62;
+        buf.writeShortLE(502);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(502, position.getInt("fuel2"));
+
+        buf.clear();
+        tag = 0xa0;
+        buf.writeByte(0x08);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(0x08, position.getInt("can8BitR15"));
+
+        buf.clear();
+        tag = 0xc4;
+        buf.writeByte(0x16);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(0x16, position.getInt("can8BitR0"));
+
+        buf.clear();
+        tag = 0xf9;
+        buf.writeIntLE(0x100);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(0x100, position.getInt("can32BitR14"));
+    }
+
+    @Test
+    public void decodeTagDoubleByteTest() {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new TestProtocol());
+        int tag = 0x60;
+        Position position = new Position();
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeShortLE(0x02);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(0x02, position.getInt("fuel0"));
+
+        buf.clear();
+        tag = 0xb1;
+        buf.writeShortLE(502);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(502, position.getInt("can16BitR6"));
+
+        buf.clear();
+        tag = 0xd6;
+        buf.writeShortLE(0x08);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(0x08, position.getInt("can16BitR0"));
+    }
+
+    @Test
+    public void decodeTagQuadraByteTest() {
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(new TestProtocol());
+        int tag = 0xdb;
+        Position position = new Position();
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeIntLE(0x02020202);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(0x02020202, position.getInt("can32BitR0"));
+
+        buf.clear();
+        tag = 0xe5;
+        buf.writeIntLE(0x50505050);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(0x50505050, position.getInt("userData5"));
+
+        buf.clear();
+        tag = 0xf8;
+        buf.writeIntLE(0x10101010);
+        decoder.decodeTag(position, buf, tag);
+        Assert.assertEquals(0x10101010, position.getInt("can32BitR13"));
+    }
+    
+}
+```
+===================================================
+

@@ -1,0 +1,76 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textSetAndGetTest() {
+        TextNode textNode = new TextNode("");
+        textNode.text("text");
+        assertEquals("text", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("whole text");
+        assertEquals("whole text", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTrueTest() {
+        TextNode textNode = new TextNode("   ");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlankFalseTest() {
+        TextNode textNode = new TextNode("not blank");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextNegativeOffsetTest() {
+        TextNode textNode = new TextNode("split me");
+        textNode.splitText(-5);
+    }
+
+    @Test
+    public void splitTextOffsetGreaterThanLengthTest() {
+        TextNode textNode = new TextNode("split me");
+        textNode.splitText(100);
+    }
+
+    @Test
+    public void splitTextValidOffsetTest() {
+        TextNode textNode = new TextNode("split me");
+        TextNode tailNode = textNode.splitText(5);
+        assertEquals("split", textNode.text());
+        assertEquals(" me", tailNode.text());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        String encoded = "Hello&amp;World";
+        TextNode textNode = TextNode.createFromEncoded(encoded);
+        assertEquals("Hello&World", textNode.text());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode original = new TextNode("Original node");
+        TextNode clone = original.clone();
+        assertNotSame(original, clone);
+        assertEquals(original.text(), clone.text());
+    }
+
+}
