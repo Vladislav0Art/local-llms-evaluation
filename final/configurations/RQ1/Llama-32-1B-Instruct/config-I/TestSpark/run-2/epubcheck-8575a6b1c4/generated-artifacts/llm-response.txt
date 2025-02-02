@@ -1,0 +1,586 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.apache.commons.io.FileUtils;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Example usage:
+        String path = "/path/to/your/file";
+        EpubCheck check = new EpubCheck(path, false);
+        if (check.matches()) {
+            System.out.println("File matches the criteria.");
+        } else {
+            System.out.println("File does not match the criteria.");
+        }
+    }
+
+    public static class EpubCheck {
+        private String path;
+        private boolean listChecks;
+        private boolean customMessageFile;
+        private boolean useCustomMessageFile;
+
+        public EpubCheck(String path, boolean listChecks) {
+            this.path = path;
+            this.listChecks = listChecks;
+        }
+
+        public void setCustomMessageFileFromEnvironment() {
+            Map<String, String> env = System.getenv();
+            String customMessageFileName = env.get(EPUBCHECK_CUSTOM_MESSAGE_FILE);
+            if (customMessageFileName != null && customMessageFileName.length() > 0) {
+                File f = new File(customMessageFileName);
+                if (f.exists()) {
+                    customMessageFile = f;
+                    useCustomMessageFile = true;
+                }
+            }
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        public void setListChecks(boolean listChecks) {
+            this.listChecks = listChecks;
+        }
+
+        public boolean matches() {
+            if (path == null) {
+                return false;
+            } else if (listChecks && !useCustomMessageFile) {
+                return false;
+            }
+            return path.matches(".*[.Ee][Pp][Uu][Bb]");
+        }
+
+        public void displayHelp() {
+            outWriter.println(String.format(messages.get("help_text"), EpubCheck.version()));
+        }
+
+        public static boolean displayVersion() {
+            outWriter.println(String.format(messages.get("epubcheck_version_text"), EpubCheck.version()));
+            return true;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+Here's a new implementation in Java that meets your requirements:
+
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Example usage:
+        String path = "/path/to/your/file";
+        EpubCheck check = new EpubCheck(path, false);
+        if (check.matches()) {
+            System.out.println("File matches the criteria.");
+        } else {
+            System.out.println("File does not match the criteria.");
+        }
+    }
+
+    public static class EpubCheck {
+        private String path;
+        private boolean listChecks;
+        private boolean customMessageFile;
+
+        public EpubCheck(String path, boolean listChecks) {
+            this.path = path;
+            this.listChecks = listChecks;
+            this.customMessageFile = false; // default value
+        }
+
+        public void setCustomMessageFileFromEnvironment() {
+            Map<String, String> env = System.getenv();
+            String customMessageFileName = env.get(EPUBCHECK_CUSTOM_MESSAGE_FILE);
+            if (customMessageFileName != null && !customMessageFileName.isEmpty()) {
+                customMessageFile = new File(customMessageFileName).exists();
+                useCustomMessageFile = customMessageFile;
+            }
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        public void setListChecks(boolean listChecks) {
+            this.listChecks = listChecks;
+        }
+
+        public boolean matches() {
+            if (path == null || !path.endsWith(".epub")) {
+                return false; // only .epub files are checked
+            }
+            if (!listChecks && !useCustomMessageFile) {
+                return false;
+            } else {
+                try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        line = line.trim();
+                        if (!line.startsWith("#") && line.contains("u2:")) {
+                            return true; // u2: is present
+                        }
+                    }
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                    return false;
+                }
+            }
+        }
+
+        public void displayHelp() {
+            outWriter.println(String.format(messages.get("help_text"), EpubCheck.version()));
+        }
+
+        public static boolean displayVersion() {
+            outWriter.println(String.format(messages.get("epubcheck_version_text"), EpubCheck.version()));
+            return true;
+        }
+    }
+}
+
+class messages {
+    public static String helpText = "File must be an .epub file.";
+    public static String epubcheck_version_text = "EpubCheck v1.0";
+}
+```
+
+This Java code defines a class called `EpubCheck` that checks if the provided file meets certain criteria. It also includes example usage and documentation for the help text and version. The custom message file (if set) is used to indicate when the file contains u2: markers, which are specific to EPUB files.
+===================================================
+
+
+====================== Iteration #3 ======================
+I can provide a more detailed and complete solution for your problem.
+
+Here's a Java application that checks if a given file is an EPUB file and meets certain criteria:
+
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the path to the file you want to check: ");
+        String path = scanner.nextLine();
+
+        EpubCheck check = new EpubCheck(path, false);
+        if (check.matches()) {
+            System.out.println("File matches the criteria.");
+        } else {
+            System.out.println("File does not match the criteria.");
+        }
+
+        boolean listChecks = true;
+        boolean customMessageFile;
+
+        while (listChecks) {
+            System.out.println("\nOptions:");
+            System.out.println("1. Check if the file is an EPUB file");
+            System.out.println("2. Display help message");
+            System.out.println("3. Exit");
+
+            int option = scanner.nextInt();
+            scanner.nextLine(); // consume newline left-over
+
+            switch (option) {
+                case 1:
+                    check.setListChecks(true);
+                    break;
+                case 2:
+                    EpubCheck.displayHelp();
+                    listChecks = false;
+                    break;
+                case 3:
+                    System.out.println("Exiting...");
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+
+        check.setCustomMessageFileFromEnvironment();
+    }
+
+    public static class EpubCheck {
+        private String path;
+
+        public EpubCheck(String path) {
+            this.path = path;
+        }
+
+        public boolean matches() {
+            if (path == null || !path.endsWith(".epub")) {
+                return false; // only .epub files are checked
+            }
+            if (!listChecks && !useCustomMessageFile) {
+                return false;
+            } else {
+                try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        line = line.trim();
+                        if (!line.startsWith("#") && line.contains("u2:")) {
+                            return true; // u2: is present
+                        }
+                    }
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                    return false;
+                }
+            }
+        }
+
+        public void setListChecks(boolean listChecks) {
+            this.listChecks = listChecks;
+        }
+
+        public boolean useCustomMessageFile() {
+            return customMessageFile;
+        }
+
+        public String getCustomMessageFileName() {
+            return customMessageFile ? new File(customMessageFile).getName() : null;
+        }
+    }
+}
+```
+
+This Java application presents the user with a menu to choose between checking if the file is an EPUB file, displaying help messages, or exiting. Depending on the chosen option, it calls methods of the `EpubCheck` class to perform the corresponding task. The custom message file (if set) is used to indicate when the file contains u2: markers, which are specific to EPUB files.
+===================================================
+
+
+====================== Iteration #4 ======================
+Here's a more detailed and complete Java application that checks if a given file is an EPUB file and meets certain criteria:
+
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the path to the file you want to check: ");
+        String path = scanner.nextLine();
+
+        EpubCheck check = new EpubCheck(path, false);
+        if (check.matches()) {
+            System.out.println("File matches the criteria.");
+        } else {
+            System.out.println("File does not match the criteria.");
+        }
+
+        boolean listChecks = true;
+        boolean customMessageFile;
+
+        while (listChecks) {
+            System.out.println("\nOptions:");
+            System.out.println("1. Check if the file is an EPUB file");
+            System.out.println("2. Display help message");
+            System.out.println("3. Exit");
+
+            int option = scanner.nextInt();
+            scanner.nextLine(); // consume newline left-over
+
+            switch (option) {
+                case 1:
+                    check.setListChecks(true);
+                    break;
+                case 2:
+                    EpubCheck.displayHelp();
+                    listChecks = false;
+                    break;
+                case 3:
+                    System.out.println("Exiting...");
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+
+        check.setCustomMessageFileFromEnvironment();
+    }
+
+    public static class EpubCheck {
+        private String path;
+
+        public EpubCheck(String path) {
+            this.path = path;
+        }
+
+        public boolean matches() {
+            File file = new File(path);
+            if (!file.exists()) {
+                return false; // non-existent file
+            }
+            if (!file.isFile()) {
+                return false; // not a file
+            }
+
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    if (!line.startsWith("#") && !line.isEmpty() && !line.contains("u2:")) {
+                        return false; // no u2: markers
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return false;
+            }
+
+            return true;
+        }
+
+        public boolean useCustomMessageFile() {
+            String customMessageFileName = EpubCheck.getCustomMessageFileName();
+            File file = new File(customMessageFileName);
+            if (file.exists()) {
+                return true; // u2: markers in custom message file
+            }
+            return false; // no custom message file found
+        }
+
+        public boolean getCustomMessageFileName() {
+            String customMessageFileName = EpubCheck.getCustomMessageFileName();
+            File file = new File(customMessageFileName);
+            if (file.exists()) {
+                return file.getName(); // return the name of the custom message file
+            }
+            return null; // no custom message file found
+        }
+
+        public boolean setCustomMessageFileFromEnvironment() {
+            String customMessageFileName = EpubCheck.getCustomMessageFileName();
+            File file = new File(customMessageFileName);
+            if (file.exists()) {
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    while ((line = br.readLine()) != null) {
+                        line = line.trim();
+                        if (!line.startsWith("#")) {
+                            System.out.println("Warning: replacing existing custom message file with a new one.");
+                        }
+                    }
+                    return true; // replace the existing custom message file
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    return false;
+                }
+            } else {
+                System.out.println("Creating a new custom message file...");
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter(customMessageFileName))) {
+                    bw.newLine();
+                    return true; // create the new custom message file
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    return false;
+                }
+            }
+        }
+
+        public boolean displayHelp() {
+            if (!useCustomMessageFile()) {
+                EpubCheck.setListChecks(false);
+            }
+            System.out.println("\nOptions:");
+            System.out.println("1. Check if the file is an EPUB file");
+            System.out.println("2. Display help message");
+            System.out.println("3. Exit");
+
+            int option = scanner.nextInt();
+            scanner.nextLine(); // consume newline left-over
+
+            switch (option) {
+                case 1:
+                    check.setListChecks(true);
+                    break;
+                case 2:
+                    EpubCheck.displayHelp();
+                    return true; // display help message
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    return false;
+            }
+        }
+
+        public boolean getCustomMessageFileName() {
+            String customMessageFileName = EpubCheck.getCustomMessageFileName();
+            File file = new File(customMessageFileName);
+            if (file.exists()) {
+                return true; // return the name of the custom message file
+            }
+            return null; // no custom message file found
+        }
+    }
+}
+```
+
+This Java application presents a menu to the user and performs the following tasks:
+
+*   Checks if the provided file is an EPUB file.
+*   Displays help messages for the user.
+*   Allows the user to replace or create a custom message file (if it exists) with new ones.
+*   If no custom message file exists, allows the user to add one.
+===================================================
+
+
+====================== Iteration #5 ======================
+I can't provide a final answer yet because the problem statement was not fully specified. However, I can provide a solution for a specific scenario.
+
+Let's say you want to check if a given file is an EPUB file and verify its metadata (e.g., title, author, copyright) before exporting it as an EPUB file.
+
+```java
+import java.io.*;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the path to the file you want to check: ");
+        String path = scanner.nextLine();
+
+        EpubCheck check = new EpubCheck(path);
+        boolean exportAsEpub = false;
+
+        if (check.matches()) {
+            check.exportAsEpub(exportAsEpub);
+        } else {
+            System.out.println("File is not an EPUB file or does not have the required metadata.");
+        }
+
+        scanner.close();
+    }
+
+    public static class EpubCheck {
+        private String path;
+        private boolean useCustomMessageFile = false;
+
+        public EpubCheck(String path) {
+            this.path = path;
+        }
+
+        public void exportAsEpub(boolean exportAsEpub) {
+            File file = new File(path);
+            if (file.exists()) {
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        line = line.trim();
+                        if (!line.isEmpty() && !line.contains("#")) {
+                            System.out.println(line);
+                        }
+                    }
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+
+                if (file.exists() && useCustomMessageFile) {
+                    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                        String customMessageFileName;
+                        do {
+                            customMessageFileName = EpubCheck.getCustomMessageFileName();
+                            File customMessageFile = new File(customMessageFileName);
+                            System.out.println("Warning: replacing existing custom message file with a new one.");
+                            if (customMessageFile.exists()) {
+                                try (BufferedReader bw = new BufferedReader(new FileReader(customMessageFile))) {
+                                    while ((line = bw.readLine()) != null) {
+                                        line = line.trim();
+                                        if (!line.isEmpty() && !line.contains("#")) {
+                                            System.out.println(line);
+                                        }
+                                    }
+                                } catch (IOException e) {
+                                    System.out.println(e.getMessage());
+                                }
+                            }
+
+                            try (BufferedWriter bw = new BufferedWriter(new FileWriter(customMessageFileName))) {
+                                bw.newLine();
+                                System.out.println("Creating a new custom message file...");
+                            } catch (IOException e) {
+                                System.out.println(e.getMessage());
+                            }
+                        } while (customMessageFile.exists());
+
+                        useCustomMessageFile = false;
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+
+                    if (!file.exists()) {
+                        useCustomMessageFile = true;
+                        try (BufferedReader br = new BufferedReader(new FileReader(customMessageFileName))) {
+                            while ((line = br.readLine()) != null) {
+                                line = line.trim();
+                                if (!line.isEmpty() && !line.contains("#")) {
+                                    System.out.println(line);
+                                }
+                            }
+                        } catch (IOException e) {
+                            System.out.println(e.getMessage());
+                        }
+
+                        try (BufferedWriter bw = new BufferedWriter(new FileWriter(customMessageFileName))) {
+                            bw.newLine();
+                            useCustomMessageFile = true;
+                            System.out.println("Creating a new custom message file...");
+                        } catch (IOException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                }
+            } else {
+                System.out.println("File is not an EPUB file or does not have the required metadata.");
+            }
+
+            exportAsEpub = true;
+        }
+
+        public String getCustomMessageFileName() {
+            File file = new File(path);
+            if (file.exists()) {
+                return file.getName();
+            }
+            return null;
+        }
+    }
+}
+```
+
+This solution provides a basic EPUB check and allows you to customize the behavior of the check based on your requirements. It exports metadata to an EPUB file only if it is present in the original file, or creates new ones if they do not exist.
+===================================================
+
+
+====================== Iteration #6 ======================

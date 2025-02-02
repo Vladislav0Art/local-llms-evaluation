@@ -1,0 +1,560 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TextNodeTest {
+
+    @Test
+    public void testIsBlank_EmptyText() {
+        // Arrange
+        String text = "";
+
+        // Act
+        boolean result = nodeIsBlank();
+
+        // Assert
+        assertTrue(result, "nodeIsBlank() returned unexpected result");
+    }
+
+    @Test
+    public void testIsBlank_OnlyWhitespace() {
+        // Arrange
+        String text = "   ";
+
+        // Act
+        boolean result = nodeIsBlank();
+
+        // Assert
+        assertTrue(result, "nodeIsBlank() returned unexpected result");
+    }
+
+    @Test
+    public void testGetWholeText_Splitting() {
+        // Arrange
+        String text = "Hello   World";
+
+        // Act
+        String wholeText = nodeGetWholeText();
+
+        // Assert
+        assertEquals("Hello World", wholeText, "nodeGetWholeText() returned unexpected result");
+    }
+
+    @Test
+    public void testSplitText_AddingNewNode() {
+        // Arrange
+        TextNode textNode = createFromEncoded("&amp;lt;");
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+
+        // Act
+        TextNode result = textNode.splitText(10);
+
+        // Assert
+        assertTrue(result != null, "splitText() returned unexpected result");
+    }
+
+    @Test
+    public void testGetWholeText_Splitting_NoNewNode() {
+        // Arrange
+        String text = "&amp;lt;";
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+
+        // Act
+        TextNode result = nodeGetWholeText();
+
+        // Assert
+        assertTrue(result != null, "nodeGetWholeText() returned unexpected result");
+    }
+
+    @Test
+    public void testClone_FieldsArePreserved() {
+        // Arrange
+        String text1 = "Hello";
+        String text2 = " World";
+
+        TextNode node1 = createFromEncoded(text1);
+        TextNode node2 = node1.clone();
+
+        // Act
+        node2.setText(text2);
+
+        // Assert
+        assertEquals(text1, node1.getText(), "nodeGetWholeText() returned unexpected result");
+    }
+
+    @Test
+    public void testToString_FieldsArePreserved() {
+        // Arrange
+        String text = "Hello";
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+
+        TextNode node = createFromEncoded(text);
+
+        // Act
+        String result = node.toString();
+
+        // Assert
+        assertEquals("Hello", result, "nodeToString() returned unexpected result");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Node {
+    // ...
+
+    public String getText() {
+        return nodeToString();
+    }
+
+    public boolean isBlank() {
+        return nodeIsBlank();
+    }
+
+    public static String nodeToString() {
+        try {
+            return node.toString().trim();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean nodeIsBlank() {
+        try {
+            Node n = getNode();
+            return !n.getText().isEmpty();
+        } catch (NullPointerException e) {
+            return true;
+        }
+    }
+
+    public static String nodeToString(Node node) {
+        if (node == null) {
+            return null;
+        }
+        return node.getText();
+    }
+
+    public static boolean nodeIsBlank(Node node) {
+        if (node == null) {
+            return false;
+        }
+        return !node.getText().isEmpty();
+    }
+
+    public String splitText() {
+        try {
+            TextNode text = createFromEncoded("&amp;lt;");
+            return splitText(text);
+        } catch (NullPointerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String splitText(TextNode text) {
+        int index = 0;
+        while (index < text.length()) {
+            if (text.getCharacterAt(index) == '&') {
+                index++;
+                break;
+            }
+            index++;
+        }
+        return text.getText().substring(index);
+    }
+
+    public Text createFromEncoded(String text) {
+        // ...
+    }
+
+    public static String createText() {
+        try {
+            return new String(nodeToString());
+        } catch (NullPointerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean splitText(String text) {
+        return text.split("&lt;").length > 0;
+    }
+}
+
+public class TextNode {
+    // ...
+
+    public String toString() {
+        try {
+            return nodeToString();
+        } catch (NullPointerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String nodeToString(Node node) {
+        if (node == null) {
+            return null;
+        }
+        return node.getText();
+    }
+
+    // ...
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I can provide a solution in Java for the problem you've asked.
+
+**Problem:** Write a Node class that represents a HTML element, and a TextNode class that represents a text node within that element. The goal is to create a method that splits the text of an element into substrings separated by `<` characters.
+
+Here's a possible implementation:
+
+```java
+public abstract class Node {
+    public String getText() {
+        try {
+            return nodeToString();
+        } catch (NullPointerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String nodeToString(Node node) {
+        if (node == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(node.getText());
+        sb.insert(0, "<");
+        for (int i = 1; i < sb.length(); i++) {
+            if (sb.charAt(i - 1) != '<' || sb.charAt(i) != '&') {
+                break;
+            }
+            sb.insert(i + 3, "&amp;");
+            i += 4;
+        }
+        sb.append(">");
+        return sb.toString();
+    }
+
+    public abstract Node getChildNodes();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Node node = (Node) o;
+
+        if (!getText().equals(node.getText())) return false;
+        return getChildNodes() != null ? getChildNodes().equals(node.getChildNodes()) : true;
+    }
+
+    @Override
+    public int hashCode() {
+        return getText().hashCode();
+    }
+}
+
+public class TextNode extends Node {
+    private String text;
+
+    public TextNode(String text) {
+        this.text = text;
+    }
+
+    public static TextNode createTextNode(String text) {
+        return new TextNode(text);
+    }
+
+    @Override
+    public List<Node> getChildNodes() {
+        if (text.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(new NodeText(text));
+    }
+
+    private class NodeText extends Node {
+        public NodeText(String text) {
+            super(text);
+        }
+
+        @Override
+        protected String getChildText(Node parent, int index) {
+            if (index == 0 || Character.isWhitespace(parent.getText().charAt(index - 1))) return "";
+            return parent.getText().substring(index);
+        }
+    }
+}
+
+public class HtmlElement extends Node {
+    private List<Node> children;
+
+    public HtmlElement(String text) {
+        this.text = text;
+        this.children = new ArrayList<>();
+    }
+
+    public static HtmlElement createHtmlElement(String text) {
+        return new HtmlElement(text);
+    }
+
+    @Override
+    protected List<Node> getChildNodes() {
+        if (text.isEmpty()) {
+            return children;
+        }
+        Node[] children = new Node[text.length()];
+        for (int i = 0; i < text.length(); i++) {
+            children[i] = createTextNode(text.substring(i));
+        }
+        children[children.length - 1].appendChild(children[0]);
+        return Arrays.asList(children);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HtmlElement element = (HtmlElement) o;
+
+        return text.equals(element.text) && getChildNodes().equals(element.getChildNodes());
+    }
+
+    @Override
+    public int hashCode() {
+        return getText().hashCode();
+    }
+}
+```
+
+You can use the following method to split a TextNode into substrings:
+
+```java
+public static List<String> splitText(TextNode node) {
+    return new ArrayList<>(node.getChildNodes());
+}
+```
+
+This will create an empty list, but it is guaranteed to contain all the text nodes. The `splitText` method creates a new Node array with all the child nodes of the given TextNode.
+
+Please note that this implementation assumes that the input strings are well-formed and do not contain any special characters or escape sequences. If you need to handle such cases, you may need to modify the `nodeToString` method accordingly.
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Node {
+    public abstract String getText();
+
+    public static String nodeToString(Node node) {
+        try {
+            return node.getText();
+        } catch (NullPointerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Node node = (Node) o;
+
+        if (!getText().equals(node.getText())) return false;
+        return getChildNodes() != null ? getChildNodes().equals(node.getChildNodes()) : true;
+    }
+
+    @Override
+    public int hashCode() {
+        return getText().hashCode();
+    }
+}
+
+public class TextNode extends Node {
+    private String text;
+
+    public TextNode(String text) {
+        this.text = text;
+    }
+
+    public static TextNode createTextNode(String text) {
+        return new TextNode(text);
+    }
+
+    @Override
+    protected List<Node> getChildNodes() {
+        if (text.isEmpty()) {
+            return null;
+        }
+        return new ArrayList<>();
+    }
+
+    private class NodeText extends Node {
+        public NodeText(String text) {
+            super(text);
+        }
+
+        @Override
+        protected String getChildText(Node parent, int index) {
+            if (index == 0 || Character.isWhitespace(parent.getText().charAt(index - 1))) return "";
+            return parent.getText().substring(index);
+        }
+    }
+}
+
+public class HtmlElement extends Node {
+    private List<Node> children;
+
+    public HtmlElement(String text) {
+        this.text = text;
+        this.children = new ArrayList<>();
+    }
+
+    public static HtmlElement createHtmlElement(String text) {
+        return new HtmlElement(text);
+    }
+
+    @Override
+    protected List<Node> getChildNodes() {
+        if (text.isEmpty()) {
+            return null;
+        }
+        Node[] children = new Node[text.length()];
+        for (int i = 0; i < text.length(); i++) {
+            children[i] = createTextNode(text.substring(i));
+        }
+        for (Node child : children) {
+            if (child != null) {
+                children[child.getIndexOf()] = child;
+            }
+        }
+        return Arrays.asList(children);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HtmlElement element = (HtmlElement) o;
+
+        return text.equals(element.text);
+    }
+
+    @Override
+    public int hashCode() {
+        return getText().hashCode();
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        HtmlElement root = new HtmlElement("<p>Hello, World!</p>");
+        List<String> substrings = splitText(root);
+
+        for (String substring : substrings) {
+            System.out.println(substring);
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Node {
+    // ...
+
+    public List<Node> getChildNodes() {
+        if (this == null) return Collections.emptyList();
+        else if (text.isEmpty()) return null;
+        else {
+            int index = this.getText().indexOf(' ');
+            if (index == -1) {
+                index = text.length();
+            }
+            return new ArrayList<>(Arrays.asList(this, createTextNode(text.substring(0, index))));
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (this == null || text.isEmpty()) return "null";
+        else if (text.startsWith("<")) return "<" + this.getText() + ">";
+        else if (text.endsWith(">")) return ">" + this.getText();
+        else {
+            int index = this.getText().indexOf(' ');
+            if (index == -1) {
+                index = text.length();
+            }
+            sb.append("<").append(this.getText()).append(">");
+            for (int i = 0; i < text.length(); i++) {
+                if (i > 0 && (text.charAt(i) == '<' || text.charAt(i) == '>')) {
+                    sb.append(" ").append(getChildNodes());
+                } else {
+                    sb.append(text.charAt(i));
+                }
+            }
+            sb.append("</").append(this.getText()).append(">");
+        }
+
+        return sb.toString();
+    }
+}
+
+public class TextNode extends Node {
+    public static TextNode createTextNode(String text) {
+        return new TextNode(text);
+    }
+}
+
+class HtmlElement {
+    // ...
+
+    @Override
+    protected List<Node> getChildNodes() {
+        if (this == null || text.isEmpty()) return null;
+        else {
+            int index = this.getText().indexOf(' ');
+            if (index == -1) {
+                index = text.length();
+            }
+
+            String[] children = new String[text.substring(0, index).length()];
+            for (int i = 0; i < text.substring(0, index).length(); i++) {
+                if (text.charAt(i) != ' ') {
+                    if (i > 0 && (text.charAt(i - 1) == '<' || text.charAt(i - 1) == '>')) {
+                        children[i - 1] = "";
+                    }
+                    String child = TextNode.createTextNode(text.substring(i));
+                    children[i - 1] += child;
+                } else if (i > 0 && (text.charAt(i - 1) != '<' || text.charAt(i - 1) != '>')) {
+                    children[i - 1] = "";
+                }
+            }
+
+            return new ArrayList<>(Arrays.asList(this, createTextNode(children[0])));
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

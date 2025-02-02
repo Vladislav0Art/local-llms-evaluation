@@ -1,0 +1,90 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Appendable;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testIsBlank() {
+        // Arrange
+        String text = "   Hello World";
+        TextNode node = new TextNode(text);
+
+        // Act
+        boolean result = node.isBlank();
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    public void testTextSplit() {
+        // Arrange
+        String text = "HelloWorld";
+        int offset = 7;
+        TextNode node1 = new TextNode("Hello");
+        TextNode node2 = new TextNode("World");
+
+        // Act
+        TextNode result = node1.splitText(offset);
+        Node sibling1 = result.nextSibling();
+
+        // Assert
+        assertTrue(sibling1 instanceof TextNode);
+        assertTrue(sibling1.text().equals("Hello"));
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        // Arrange
+        Document document = new Document();
+        Element parent = document.createElement("body");
+        parent.appendChild(document.createTextNode(""));
+        parent.appendChild(document.createTextNode(""));
+        TextNode node = new TextNode("");
+        node.parentNode = parent;
+        node.outerHtmlHead(new Appendable(), 0, null);
+
+        // Act
+        StringBuilder accum = new StringBuilder();
+        int depth = 1;
+        Document.OutputSettings out = new Document.OutputSettings();
+
+        // Assert
+        assertTrue(accum.toString().contains("    " + "Hello World"));
+        assertTrue(accum.toString().contains("    HelloWorld"));
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        // Arrange
+        String text = "Hello World";
+        Element parent = new Document("", "", document);
+        TextNode node = new TextNode(text);
+
+        // Act
+        StringBuilder accum = new StringBuilder();
+        int depth = 1;
+        Document.OutputSettings out = new Document.OutputSettings();
+
+        // Assert
+        assertTrue(accum.toString().contains("    Hello World"));
+    }
+
+    @Test
+    public void testClone() {
+        // Arrange
+        String text = "Hello World";
+        TextNode node1 = new TextNode(text);
+        TextNode node2 = node1.clone();
+
+        // Act
+        boolean result = node1.isBlank();
+        assertTrue(result);
+        assertTrue(node2.isBlank());
+    }
+
+}
