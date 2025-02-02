@@ -1,0 +1,112 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void newCommentIsCreatedCorrectly() {
+        String data = "Hello World";
+        Comment comment = new Comment(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void dataShouldBeRetrievedFromCoreValue() {
+        String data = "This is a test";
+        Comment comment = new Comment(data);
+        assertEquals(data, comment.getCoreValue());
+    }
+
+    @Test
+    public void setDataUpdatesTheDataCorrectly() {
+        Comment comment = new Comment("Initial Data");
+        comment.setData("New Data");
+        assertEquals("New Data", comment.getData());
+    }
+
+    @Test
+    public void nodeNameIsCorrectlyDefined() {
+        Comment comment = new Comment("Hello World");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void outerHtmlHeadShouldIncludeDataForPrettyPrintedComments() throws IOException {
+        String data = "This is a test";
+        Comment comment = new Comment(data);
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        Document document = mock(Document.class);
+        int depth = 0;
+        comment.outerHtmlHead(accum, depth, out);
+        verify(accum).append(anyString());
+    }
+
+    @Test
+    public void outerHtmlTailShouldNotIncludeDataForComments() {
+        Comment comment = new Comment("This is a test");
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        Document document = mock(Document.class);
+        int depth = 0;
+        comment.outerHtmlTail(accum, depth, out);
+        verifyNoMoreInteractions(accum);
+    }
+
+    @Test
+    public void outerHtmlShouldReturnCorrectString() throws IOException {
+        Comment comment = new Comment("Hello World");
+        String expectedOutput = "<!--Hello World-->";
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        Document document = mock(Document.class);
+        int depth = 0;
+        comment.outerHtml(accum, depth, out);
+        assertEquals(expectedOutput, comment.toString());
+    }
+
+    @Test
+    public void cloneShouldReturnNewComment() {
+        Comment comment = new Comment("Hello World");
+        Comment clonedComment = comment.clone();
+        assertNotSame(comment, clonedComment);
+        assertEquals("#comment", clonedComment.nodeName());
+        assertEquals(comment.getData(), clonedComment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationShouldReturnFalseForCommentsWithoutData() {
+        String data = "This is not an XML declaration";
+        Comment comment = new Comment(data);
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclarationShouldReturnTrueForXMLDeclarations() {
+        String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        Comment comment = new Comment(data);
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationShouldReturnNullForCommentsWithoutData() {
+        Comment comment = new Comment("This is not an XML declaration");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationShouldReturnCorrectXmlDeclarationForValidInput() throws IOException {
+        String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        Comment comment = new Comment(data);
+        XmlDeclaration expectedDeclarartion = mock(XmlDeclaration.class);
+        assertSame(expectedDeclarartion, comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationShouldNotCreateCommentIfItIsAlreadyAnXmlDeclaration() {
+        String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        Comment comment = new Comment(data);
+        XmlDeclaration decl = mock(XmlDeclaration.class);
+        assertEquals(decl, comment.asXmlDeclaration());
+    }
+
+}

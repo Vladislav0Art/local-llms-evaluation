@@ -1,0 +1,72 @@
+package com.adobe.epubcheck.tool;
+
+public class GeneratedTest {
+
+    @Test
+    public void testDisplayHelp() {
+        // Arrange
+        Main main = new Main();
+        List<String> args = new ArrayList<>();
+        args.add("--help");
+
+        // Act
+        boolean result = main.displayHelp(args);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    public void testDisplayVersion() {
+        // Arrange
+        Main main = new Main();
+        List<String> args = new ArrayList<>();
+
+        // Act
+        boolean result = main.displayVersion(args);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    public void testSetCustomMessageFileFromEnvironment() {
+        // Arrange
+        System.setProperty(EPUBCHECK_CUSTOM_MESSAGE_FILE, "custom_messages.properties");
+        Main main = new Main();
+        List<String> args = new ArrayList<>();
+
+        // Act
+        boolean result = main.setCustomMessageFileFromEnvironment(args);
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    public void testParseArguments() {
+        // Arrange
+        String[] args = {"--mode", "custom", "--version"};
+        Main main = new Main();
+        List<String> parsedArgs = main.parseArguments(args);
+
+        // Act
+
+        // Assert
+        assertEquals("custom", parsedArgs.get(1));
+    }
+
+    @Test
+    public void testNoMatchingArgument() {
+        // Arrange
+        String[] args = {"--locale", "de"};
+        Main main = new Main();
+        List<String> parsedArgs = main.parseArguments(args);
+
+        // Act
+
+        // Assert
+        assertTrue(parsedArgs.isEmpty());
+    }
+
+}

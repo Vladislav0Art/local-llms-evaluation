@@ -1,0 +1,517 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class CommentTest {
+
+    @Test
+    public void constructor_CreatesCommentNode() {
+        Comment comment = new Comment("This is a comment");
+        assertNotNull(comment);
+    }
+
+    @Test
+    public void nodeName_ReturnsCorrectValue() {
+        Comment comment = new Comment("This is a comment");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getData_ReturnsCommentContent() {
+        Comment comment = new Comment("This is a comment");
+        assertEquals("This is a comment", comment.getData());
+    }
+
+    @Test
+    public void setData_SetDataAndReturnsSelf() {
+        Comment comment = new Comment("This is a comment");
+        comment.setData("New data");
+        assertEquals("New data", comment.getData());
+        comment = comment.setData("Another data");
+        assertEquals("Another data", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHead_HandlesPrettyPrintedComments() {
+        Document document = Document.parse("<html><body><!--This is a comment--></body></html>");
+        Comment comment = new Comment("This is a comment");
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        out.prettyPrint(true);
+        comment.outerHtmlHead(accum, depth, out);
+        assertTrue(accum.toString().contains("<!--This is a comment---->"));
+    }
+
+    @Test
+    public void outerHtmlHead_IgnoresOutlineComments() {
+        Document document = Document.parse("<html><body><!--<!--This is a comment--!-->--></body></html>");
+        Comment comment = new Comment("This is a comment");
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        out.outline(true);
+        comment.outerHtmlHead(accum, depth, out);
+        assertTrue(accum.toString().contains("<!--This is a comment-->"));
+    }
+
+    @Test
+    public void outerHtmlTail_SetsEmptyStringForEmptyDocument() {
+        Document document = null;
+        Comment comment = new Comment("This is a comment");
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        comment.outerHtmlTail(accum, depth, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void outerHtml_ReturnsOuterHTML() {
+        Document document = null;
+        Comment comment = new Comment("This is a comment");
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        comment.outerHtml(accum, depth, out);
+        assertEquals("<!--This is a comment-->-->", accum.toString());
+    }
+
+    @Test
+    public void clone_ReturnsSameObject() {
+        Comment comment = new Comment("This is a comment");
+        Comment clonedComment = comment.clone();
+        assertTrue(comment == clonedComment);
+    }
+
+    @Test
+    public void isXmlDeclaration_ReturnsFalse() {
+        Comment comment = new Comment("This is not an XML declaration");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_ReturnsNullForInvalidData() {
+        Comment comment = new Comment("!");
+        assertNotNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_ReturnsXmlDeclarationForValidData() throws Exception {
+        Document document = null;
+        Comment comment = new Comment("!DOCTYPE PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+
+public class CommentTest {
+
+    @Test
+    public void constructor_CreatesCommentNode() {
+        Comment comment = new Comment("This is a comment");
+        assertNotNull(comment);
+    }
+
+    @Test
+    public void outerHtmlHead_SetsCorrectStringForEmptyDocument() {
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("");
+        comment.outerHtmlHead(accum, depth, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTail_SetsEmptyStringForEmptyDocument() {
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("");
+        comment.outerHtmlTail(accum, depth, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void outerHtml_SetsCorrectString() {
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("This is a comment");
+        comment.outerHtml(accum, depth, out);
+        assertEquals("<!--This is a comment-->", accum.toString());
+    }
+
+    @Test
+    public void clone_ReturnsSameObject() {
+        Comment comment = new Comment("This is a comment");
+        Comment clonedComment = comment.clone();
+        assertTrue(comment == clonedComment);
+    }
+
+    @Test
+    public void isXmlDeclaration_ReturnsFalse() {
+        Comment comment = new Comment("This is not an XML declaration");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_ReturnsNullForInvalidData() {
+        Comment comment = new Comment("!");
+        assertNotNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_ReturnsXmlDeclarationForValidData() throws Exception {
+        Document document = null;
+        Parser parser = new Parser(true);
+        String htmlString = "<!DOCTYPE PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html><body><!--This is a comment--></body></html>";
+        document = Document.parse(htmlString, parser);
+        Comment comment = new Comment("!");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class GeneratedTest {
+
+    @org.junit.Test
+    public void testGeneratedComment() {
+        String comment = "<!--This is a comment-->";
+        Comment generatedComment = (Comment) Jsoup.parse(comment).get(0);
+        assertNotNull(generatedComment);
+    }
+
+    @org.junit.Test
+    public void testGeneratedXmlDeclaration() {
+        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+        XmlDeclaration generatedXmlDeclaration = (XmlDeclaration) Jsoup.parse(xmlDeclaration).get(0);
+        assertNotNull(generatedXmlDeclaration);
+    }
+
+    @org.junit.Test
+    public void testOuterHtml() {
+        String htmlString = "<p>This is a paragraph.</p>";
+        Parser parser = new Parser(true);
+        Document document = Document.parse(htmlString, parser);
+        assertEquals("", document.body().outerHtml());
+    }
+
+    @org.junit.Test
+    public void testEquals AccumulatedText() {
+        String accum = "This is accumulated text";
+        String expectedAccum = "This ";
+        String htmlString = "<p>This is a paragraph.</p>";
+        Parser parser = new Parser(true);
+        Document document = Document.parse(htmlString, parser);
+        assertEquals(expectedAccum, document.body().html());
+    }
+
+    @org.junit.Test
+    public void testIsXmlDeclaration() {
+        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+        XmlDeclaration generatedXmlDeclaration = (XmlDeclaration) Jsoup.parse(xmlDeclaration).get(0);
+        assertFalse(generatedXmlDeclaration.isXmlDeclaration());
+    }
+
+    @org.junit.Test
+    public void testAsXmlDeclaration() {
+        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+        XmlDeclaration generatedXmlDeclaration = (XmlDeclaration) Jsoup.parse(xmlDeclaration).get(0);
+        assertNotNull(generatedXmlDeclaration.asXmlDeclaration());
+    }
+
+    @org.junit.Test
+    public void testParser() {
+        Parser parser = new Parser(true);
+        assertEquals(parser, Document.parse("<p>This is a paragraph.</p>", parser));
+    }
+}
+
+class Comment extends org.jsoup.nodes.Node {
+    public boolean isXmlDeclaration() {
+        return false;
+    }
+
+    @Override
+    public String asXmlDeclaration() {
+        return null;
+    }
+}
+
+class XmlDeclaration extends org.jsoup.nodes.Node {
+}
+
+class Parser {
+    private boolean treeBuilder;
+
+    public Parser(boolean treeBuilder) {
+        this.treeBuilder = treeBuilder;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+I apologize for the empty response earlier. Here are the answers to your questions in the same format:
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class GeneratedTest {
+
+    @org.junit.Test
+    public void testGeneratedComment() {
+        String comment = "<!--This is a comment-->";
+        Comment generatedComment = (Comment) Jsoup.parse(comment).get(0);
+        assertNotNull(generatedComment);
+        assertEquals("This is a comment", generatedComment.data());
+    }
+
+    @org.junit.Test
+    public void testGeneratedXmlDeclaration() {
+        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+        XmlDeclaration generatedXmlDeclaration = (XmlDeclaration) Jsoup.parse(xmlDeclaration).get(0);
+        assertNotNull(generatedXmlDeclaration);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"?>", generatedXmlDeclaration.asXmlDeclaration());
+    }
+
+    @org.junit.Test
+    public void testOuterHtml() {
+        String htmlString = "<p>This is a paragraph.</p>";
+        Parser parser = new Parser(true);
+        Document document = Document.parse(htmlString, parser);
+        assertEquals("", document.body().outerHtml());
+    }
+
+    @org.junit.Test
+    public void testEqualsAccumulatedText() {
+        String accum = "This is accumulated text";
+        String expectedAccum = "This ";
+        String htmlString = "<p>This is a paragraph.</p>";
+        Parser parser = new Parser(true);
+        Document document = Document.parse(htmlString, parser);
+        assertEquals(expectedAccum, document.body().html());
+    }
+
+    @org.junit.Test
+    public void testIsXmlDeclaration() {
+        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+        XmlDeclaration generatedXmlDeclaration = (XmlDeclaration) Jsoup.parse(xmlDeclaration).get(0);
+        assertTrue(generatedXmlDeclaration.isXmlDeclaration());
+    }
+
+    @org.junit.Test
+    public void testAsXmlDeclaration() {
+        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+        XmlDeclaration generatedXmlDeclaration = (XmlDeclaration) Jsoup.parse(xmlDeclaration).get(0);
+        assertNotNull(generatedXmlDeclaration.asXmlDeclaration());
+    }
+
+    @org.junit.Test
+    public void testParser() {
+        Parser parser = new Parser(true);
+        assertEquals(parser, Document.parse("<p>This is a paragraph.</p>", parser));
+    }
+}
+
+class Comment extends org.jsoup.nodes.Node {
+    private String data;
+
+    public Comment(String data) {
+        this.data = data;
+    }
+
+    @Override
+    public boolean isXmlDeclaration() {
+        return false;
+    }
+
+    @Override
+    public String asXmlDeclaration() {
+        return null;
+    }
+}
+
+class XmlDeclaration extends org.jsoup.nodes.Node {
+    private String xmlDeclaration;
+
+    public XmlDeclaration(String xmlDeclaration) {
+        this.xmlDeclaration = xmlDeclaration;
+    }
+
+    @Override
+    public boolean isXmlDeclaration() {
+        return true;
+    }
+
+    @Override
+    public String asXmlDeclaration() {
+        return xmlDeclaration;
+    }
+}
+
+class Parser {
+    private boolean treeBuilder;
+
+    public Parser(boolean treeBuilder) {
+        this.treeBuilder = treeBuilder;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+I apologize for the empty response earlier. Here are the answers to your questions in the same format:
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class GeneratedTest {
+
+    @org.junit.Test
+    public void testGeneratedComment() {
+        String comment = "<!--This is a comment-->";
+        Comment generatedComment = (Comment) Jsoup.parse(comment).get(0);
+        assertNotNull(generatedComment);
+        assertEquals("This is a comment", generatedComment.data());
+        assertTrue(generatedComment instanceof org.jsoup.nodes.Comment);
+    }
+
+    @org.junit.Test
+    public void testGeneratedXmlDeclaration() {
+        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+        XmlDeclaration generatedXmlDeclaration = (XmlDeclaration) Jsoup.parse(xmlDeclaration).get(0);
+        assertNotNull(generatedXmlDeclaration);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"?>", generatedXmlDeclaration.asXmlDeclaration());
+        assertTrue(generatedXmlDeclaration instanceof org.jsoup.nodes.XmlDeclaration);
+    }
+
+    @org.junit.Test
+    public void testOuterHtml() {
+        String htmlString = "<p>This is a paragraph.</p>";
+        Parser parser = new Parser(true);
+        Document document = Document.parse(htmlString, parser);
+        assertEquals("", document.body().outerHtml());
+        assertEquals("<p></p>", document.body().html());
+    }
+
+    @org.junit.Test
+    public void testEqualsAccumulatedText() {
+        String accum = "This is accumulated text";
+        String expectedAccum = "This ";
+        String htmlString = "<p>This is a paragraph.</p>";
+        Parser parser = new Parser(true);
+        Document document = Document.parse(htmlString, parser);
+        assertEquals(expectedAccum, document.body().html());
+        assertTrue(document.body().html().contains(expectedAccum));
+    }
+
+    @org.junit.Test
+    public void testIsXmlDeclaration() {
+        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+        XmlDeclaration generatedXmlDeclaration = (XmlDeclaration) Jsoup.parse(xmlDeclaration).get(0);
+        assertTrue(generatedXmlDeclaration.isXmlDeclaration());
+        assertFalse(generatedXmlDeclaration instanceof org.jsoup.nodes.Comment);
+    }
+
+    @org.junit.Test
+    public void testAsXmlDeclaration() {
+        String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+        XmlDeclaration generatedXmlDeclaration = (XmlDeclaration) Jsoup.parse(xmlDeclaration).get(0);
+        assertNotNull(generatedXmlDeclaration.asXmlDeclaration());
+        assertTrue(generatedXmlDeclaration.asXmlDeclaration().instanceof org.jsoup.nodes.XmlDeclaration);
+    }
+
+    @org.junit.Test
+    public void testParser() {
+        Parser parser = new Parser(true);
+        assertEquals(parser, Document.parse("<p>This is a paragraph.</p>", parser));
+        assertFalse(parser.treeBuilder);
+    }
+}
+
+class Comment extends org.jsoup.nodes.Node {
+    private String data;
+
+    public Comment(String data) {
+        this.data = data;
+    }
+
+    @Override
+    public boolean isXmlDeclaration() {
+        return false;
+    }
+
+    @Override
+    public String asXmlDeclaration() {
+        return null;
+    }
+}
+
+class XmlDeclaration extends org.jsoup.nodes.Node {
+    private String xmlDeclaration;
+
+    public XmlDeclaration(String xmlDeclaration) {
+        this.xmlDeclaration = xmlDeclaration;
+    }
+
+    @Override
+    public boolean isXmlDeclaration() {
+        return true;
+    }
+
+    @Override
+    public String asXmlDeclaration() {
+        return xmlDeclaration;
+    }
+}
+
+class Parser {
+    private boolean treeBuilder;
+
+    public Parser(boolean treeBuilder) {
+        this.treeBuilder = treeBuilder;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

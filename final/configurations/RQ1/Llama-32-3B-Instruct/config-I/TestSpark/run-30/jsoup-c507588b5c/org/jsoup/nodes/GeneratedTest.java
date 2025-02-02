@@ -1,0 +1,110 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNodeFromRawString() {
+        TextNode textNode = new TextNode("Hello World");
+        assertNotNull(textNode);
+        assertEquals("#text", textNode.nodeName());
+        assertEquals("Hello World", textNode.text());
+    }
+
+    @Test
+    public void createTextNodeFromEncodedData() {
+        TextNode textNode = TextNode.createFromEncoded("&lt;Hello&gt; &amp;World&quot;");
+        assertNotNull(textNode);
+        assertEquals("#text", textNode.nodeName());
+        assertEquals("Hello World", textNode.text());
+    }
+
+    @Test
+    public void splitTextAtStartOfNode() throws IOException {
+        TextNode node = new TextNode("This is a test");
+        TextNode splitNode = node.splitText(0);
+        assertNotNull(splitNode);
+        assertEquals("#text", splitNode.nodeName());
+        assertEquals(node.text(), splitNode.getWholeText());
+    }
+
+    @Test
+    public void splitTextAtMiddleOfNode() throws IOException {
+        TextNode node = new TextNode("This is a test");
+        TextNode splitNode1 = node.splitText(5);
+        TextNode splitNode2 = node.splitText(10);
+        assertNotNull(splitNode1);
+        assertNotNull(splitNode2);
+        assertEquals("#text", splitNode1.nodeName());
+        assertEquals(node.text(), splitNode1.getWholeText());
+        assertEquals("#text", splitNode2.nodeName());
+        assertEquals("is a", splitNode2.getWholeText());
+    }
+
+    @Test
+    public void splitTextAtEndOfNode() throws IOException {
+        TextNode node = new TextNode("This is a test");
+        TextNode splitNode = node.splitText(node.text().length());
+        assertNotNull(splitNode);
+        assertEquals("#text", splitNode.nodeName());
+        assertEquals("", splitNode.getWholeText());
+    }
+
+    @Test
+    public void getWholeText() {
+        TextNode textNode = new TextNode("This is a test");
+        String wholeText = textNode.getWholeText();
+        assertEquals(textNode.text(), wholeText);
+    }
+
+    @Test
+    public void text() {
+        TextNode textNode = new TextNode("Hello World");
+        String newText = textNode.text();
+        assertEquals(StringUtil.normaliseWhitespace(textNode.text()), newText);
+    }
+
+    @Test
+    public void isBlank() {
+        TextNode blankTextNode = new TextNode("");
+        assertTrue(blankTextNode.isBlank());
+        assertFalse(new TextNode("   ").isBlank());
+
+        TextNode nonBlankTextNode = new TextNode(" ");
+        assertFalse(nonBlankTextNode.isBlank());
+    }
+
+    @Test
+    public void clone() throws CloneNotSupportedException {
+        TextNode originalTextNode = new TextNode("Hello World");
+        TextNode clonedTextNode = (TextNode) originalTextNode.clone();
+        assertNotNull(clonedTextNode);
+        assertEquals(originalTextNode.nodeName(), clonedTextNode.nodeName());
+        assertEquals(originalTextNode.text(), clonedTextNode.text());
+    }
+
+    @Test
+    public void outerHtml() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Document document = new Document();
+        TextNode textNode = new TextNode("This is a test");
+        document.appendChild(textNode);
+        textNode.outerHtmlHead(outContent, 0, Document.OutputSettings.get());
+        assertEquals("<p>This is a test</p>", outContent.toString());
+    }
+
+    @Test
+    public void stripLeadingWhitespace() {
+        String leadingWhitespaces = "   Hello World";
+        String strippedText = TextNode.stripLeadingWhitespace(leadingWhitespaces);
+        assertEquals("Hello World", strippedText);
+    }
+
+}

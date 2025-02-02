@@ -1,0 +1,513 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.XmlDeclaration;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CommentTest {
+
+    @Test
+    public void newCommentCreatesNewInstance() {
+        Comment comment = new Comment("Hello, World!");
+        assertNotNull(comment);
+        assertTrue(comment instanceof LeafNode);
+        assertEquals("#comment", comment.nodeName());
+        assertEquals("Hello, World!", comment.getData());
+    }
+
+    @Test
+    public void newCommentIsXmlDeclarationFalse() {
+        Comment comment = new Comment("Hello, World!");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void newCommentIsXmlDeclarationTrue() {
+        Comment comment = new Comment("!<?xml version='1.0' encoding='UTF-8'?><root><child/></root>");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void newCommentAsXmlDeclarationReturnsNull() {
+        Comment comment = new Comment("Hello, World!");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void newCommentAsXmlDeclarationCorrectlyParses() throws IOException {
+        Comment comment = new Comment("!<?xml version='1.0' encoding='UTF-8'?><root><child/></root>");
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        assertNotNull(decl);
+        assertEquals("Hello, World!", decl.getDECLARATION());
+    }
+
+    @Test
+    public void outerHtmlHeadAppendsToStream() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        Document outputSettings = new Document.OutputSettings(false, true);
+        Comment comment = new Comment("Hello, World!");
+        comment.outerHtmlHead(accum, 0, outputSettings);
+        String expected = "<!--Hello, World!-->";
+        assertEquals(expected, outContent.toString());
+    }
+
+    @Test
+    public void outerHtmlTailDoesNotAppendToStream() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        Document outputSettings = new Document.OutputSettings(false, true);
+        Comment comment = new Comment("Hello, World!");
+        comment.outerHtmlTail(accum, 0, outputSettings);
+        String expected = "";
+        assertEquals(expected, outContent.toString());
+    }
+
+    @Test
+    public void outerHtmlHeadIsPrettiedWhenRequired() throws IOException {
+        Document outputSettings = new Document.OutputSettings(true, true);
+        Comment comment = new Comment("Hello, World!");
+        StringBuilder accum = new StringBuilder();
+        Appendable appendable = accum;
+        Document document = null;
+        int depth = 0;
+        comment.outerHtmlHead(appendable, depth, outputSettings);
+        String expected = "<div><p><!--Hello, World!--></p></div>";
+        assertEquals(expected, accum.toString());
+    }
+
+    @Test
+    public void outerHtmlHeadIsNotPrettiedWhenNotRequired() throws IOException {
+        Document outputSettings = new Document.OutputSettings(false, true);
+        Comment comment = new Comment("Hello, World!");
+        StringBuilder accum = new StringBuilder();
+        Appendable appendable = accum;
+        Document document = null;
+        int depth = 0;
+        comment.outerHtmlHead(appendable, depth, outputSettings);
+        String expected = "<!--Hello, World!-->";
+        assertEquals(expected, accum.toString());
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class CommentTest {
+
+    public static void main(String[] args) {
+        TestComment();
+        TestOuterHtmlHeadAppendsToStream();
+        TestOuterHtmlTailDoesNotAppendToStream();
+        TestOuterHtmlHeadIsPrettiedWhenRequired();
+        TestOuterHtmlHeadIsNotPrettiedWhenNotRequired();
+    }
+
+    public static void TestComment() throws IOException {
+        Comment comment = new Comment("Hello, World!");
+        assertNotNull(comment);
+        assertTrue(comment instanceof LeafNode);
+        assertEquals("#comment", comment.nodeName());
+        assertEquals("Hello, World!", comment.getData());
+    }
+
+    public static void TestOuterHtmlHeadAppendsToStream() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        Document outputSettings = new Document.OutputSettings(false, true);
+        Comment comment = new Comment("Hello, World!");
+        comment.outerHtmlHead(accum, 0, outputSettings);
+        String content = outContent.toString();
+        assertTrue(content.contains("<head>"));
+        assertTrue(content.contains("</head>"));
+    }
+
+    public static void TestOuterHtmlTailDoesNotAppendToStream() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        Document outputSettings = new Document.OutputSettings(true, true);
+        Comment comment = new Comment("Hello, World!");
+        comment.outerHtmlHead(accum, 0, outputSettings);
+        String content = outContent.toString();
+        assertTrue(!content.contains("<body>"));
+    }
+
+    public static void TestOuterHtmlHeadIsPrettiedWhenRequired() {
+        Document outputSettings = new Document.OutputSettings(true, true);
+        Comment comment = new Comment("Hello, World!");
+        Comment expected = new Comment("<head><title>Hello</title></head><body><p>Hello</p></body>");
+        assertSame(expected, comment.outerHtmlHead(outputSettings));
+    }
+
+    public static void TestOuterHtmlHeadIsNotPrettiedWhenNotRequired() {
+        Document outputSettings = new Document.OutputSettings(false, true);
+        Comment comment = new Comment("Hello, World!");
+        Comment expected = new Comment("<head><title>Hello</title></head><body><p>Hello</p></body>");
+        assertSame(expected, comment.outerHtmlHead(outputSettings));
+    }
+}
+
+class LeafNode {
+}
+
+class Comment {
+    private String data;
+
+    public Comment(String data) {
+        this.data = data;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    @Override
+    public String toString() {
+        return "<comment>" + data + "</comment>";
+    }
+
+    public Document outerHtmlHead(Document outputSettings) throws IOException {
+        // implement logic to generate HTML head with title and body
+        return new Document("<head><title>Hello</title></head>");
+    }
+}
+
+class Document {
+    private String content;
+
+    public Document(String content) {
+        this.content = content;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Document document = (Document) o;
+        return content.equals(document.content);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Comment {
+    private String data;
+
+    public Comment(String data) {
+        this.data = data;
+    }
+
+    public String getData() {
+        return data;
+    }
+}
+
+class Document {
+    private boolean prettied;
+    private String head;
+    private String body;
+
+    public Document(boolean prettied, boolean isPrettied) {
+        this.prettied = prettied;
+        if (isPrettied && !prettied) {
+            this.head = "<head><title>Hello</title></head>";
+        } else {
+            this.head = "";
+        }
+        this.body = "";
+    }
+
+    public Document(String head, String body) {
+        this.prettied = true;
+        this.head = head;
+        this.body = body;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Document document = (Document) o;
+        return prettied.equals(document.prettied);
+    }
+}
+
+class LeafNode {}
+
+public class CommentTest {
+
+    public static void main(String[] args) {
+        TestComment();
+        TestOuterHtmlHeadAppendsToStream();
+        TestOuterHtmlTailDoesNotAppendToStream();
+        TestOuterHtmlHeadIsPrettiedWhenRequired();
+        TestOuterHtmlHeadIsNotPrettiedWhenNotRequired();
+    }
+
+    public static void TestComment() throws IOException {
+        Comment comment = new Comment("Hello, World!");
+        assertNotNull(comment);
+        assertTrue(comment instanceof LeafNode);
+        assertEquals("#comment", comment.getData());
+    }
+
+    public static void TestOuterHtmlHeadAppendsToStream() throws IOException {
+        Document outputSettings = new Document(false, true);
+        Comment comment = new Comment("Hello, World!");
+        comment.outerHtmlHead(outputSettings);
+        assertNotNull(outputSettings.getHead());
+        assertNotNull(outputSettings.getBody());
+    }
+
+    public static void TestOuterHtmlTailDoesNotAppendToStream() throws IOException {
+        Document outputSettings = new Document(true, false);
+        Comment comment = new Comment("Hello, World!");
+        comment.outerHtmlHead(outputSettings);
+        assertNull(outputSettings.getBody());
+    }
+
+    public static void TestOuterHtmlHeadIsPrettiedWhenRequired() {
+        Document outputSettings = new Document(false, true);
+        Comment comment = new Comment("Hello, World!");
+        Document expected = new Document(true, false);
+        assertEquals(expected, comment.outerHtmlHead(outputSettings));
+    }
+
+    public static void TestOuterHtmlHeadIsNotPrettiedWhenNotRequired() {
+        Document outputSettings = new Document(true, false);
+        Comment comment = new Comment("Hello, World!");
+        Document expected = new Document(false, true);
+        assertEquals(expected, comment.outerHtmlHead(outputSettings));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class CommentTest {
+
+    public static void main(String[] args) {
+        TestComment();
+        TestOuterHtmlHeadAppendsToStream();
+        TestOuterHtmlTailDoesNotAppendToStream();
+        TestOuterHtmlHeadIsPrettiedWhenRequired();
+        TestOuterHtmlHeadIsNotPrettiedWhenNotRequired();
+    }
+
+    public static void TestComment() throws IOException {
+        Comment comment = new Comment("Hello, World!");
+        assertNotNull(comment);
+        assertTrue(comment instanceof LeafNode);
+        assertEquals("#comment", comment.getData());
+    }
+
+    public static void TestOuterHtmlHeadAppendsToStream() throws IOException {
+        Document outputSettings = new Document(true, true);
+        Comment comment = new Comment("Hello, World!");
+        String content = comment.outerHtmlHead(outputSettings);
+        assertTrue(content.contains("<head>"));
+        assertTrue(content.contains("</head>"));
+    }
+
+    public static void TestOuterHtmlTailDoesNotAppendToStream() throws IOException {
+        Document outputSettings = new Document(true, false);
+        Comment comment = new Comment("Hello, World!");
+        String content = comment.outerHtmlHead(outputSettings);
+        assertFalse(content.contains("<body>"));
+    }
+
+    public static void TestOuterHtmlHeadIsPrettiedWhenRequired() {
+        Document outputSettings = new Document(false, true);
+        Comment comment = new Comment("Hello, World!");
+        Document expected = new Document(true, false);
+        assertEquals(expected, comment.outerHtmlHead(outputSettings));
+    }
+
+    public static void TestOuterHtmlHeadIsNotPrettiedWhenNotRequired() {
+        Document outputSettings = new Document(false, false);
+        Comment comment = new Comment("Hello, World!");
+        Document expected = new Document(false, true);
+        assertEquals(expected, comment.outerHtmlHead(outputSettings));
+    }
+}
+
+class LeafNode {
+}
+
+class Document {
+    private boolean prettied;
+    private String head;
+    private String body;
+
+    public Document(boolean prettied, boolean isPrettied) {
+        this.prettied = prettied;
+        if (isPrettied && !prettied) {
+            this.head = "<head><title>Hello</title></head>";
+        } else {
+            this.head = "";
+        }
+        this.body = "";
+    }
+
+    public Document(String head, String body) {
+        this.prettied = true;
+        this.head = head;
+        this.body = body;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Document document = (Document) o;
+        return prettied.equals(document.prettied);
+    }
+}
+
+class Comment {
+    private String data;
+
+    public Comment(String data) {
+        this.data = data;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public String outerHtmlHead(Document outputSettings) throws IOException {
+        if (outputSettings.isPrettied()) {
+            return new Document(outputSettings.isPrettied(), true).toString();
+        } else {
+            return new Document(outputSettings.prettied, false).head + "<body>" + data + "</body>";
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class CommentTest {
+
+    public static void main(String[] args) {
+        TestComment();
+        TestOuterHtmlHeadAppendsToStream();
+        TestOuterHtmlTailDoesNotAppendToStream();
+        TestOuterHtmlHeadIsPrettiedWhenRequired();
+        TestOuterHtmlHeadIsNotPrettiedWhenNotRequired();
+    }
+
+    public static void TestComment() throws IOException {
+        Comment comment = new Comment("Hello, World!");
+        assertNotNull(comment);
+        assertTrue(comment instanceof LeafNode);
+        assertEquals("#comment", comment.getData());
+    }
+
+    public static void TestOuterHtmlHeadAppendsToStream() throws IOException {
+        Document outputSettings = new Document(true, true);
+        Comment comment = new Comment("Hello, World!");
+        String expectedContent = "<head><title>Hello, World!</title></head><body>#comment</body>";
+        assertEquals(expectedContent, comment.outerHtmlHead(outputSettings));
+    }
+
+    public static void TestOuterHtmlTailDoesNotAppendToStream() throws IOException {
+        Document outputSettings = new Document(true, false);
+        Comment comment = new Comment("Hello, World!");
+        String expectedContent = "<head><title>Hello, World!</title></head>";
+        assertEquals(expectedContent, comment.outerHtmlHead(outputSettings));
+    }
+
+    public static void TestOuterHtmlHeadIsPrettiedWhenRequired() {
+        Document outputSettings = new Document(false, true);
+        Comment comment = new Comment("Hello, World!");
+        Document expected = new Document(true, false);
+        assertEquals(expected, comment.outerHtmlHead(outputSettings));
+    }
+
+    public static void TestOuterHtmlHeadIsNotPrettiedWhenNotRequired() {
+        Document outputSettings = new Document(false, false);
+        Comment comment = new Comment("Hello, World!");
+        Document expected = new Document(false, true);
+        assertEquals(expected, comment.outerHtmlHead(outputSettings));
+    }
+}
+
+class LeafNode {
+}
+
+class Document {
+    private boolean prettied;
+    private String head;
+    private String body;
+
+    public Document(boolean prettied, boolean isPrettied) {
+        this.prettied = prettied;
+        if (isPrettied && !prettied) {
+            this.head = "<head><title>Hello</title></head>";
+        } else {
+            this.head = "";
+        }
+        this.body = "";
+    }
+
+    public Document(String head, String body) {
+        this.prettied = true;
+        this.head = head;
+        this.body = body;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Document document = (Document) o;
+        return prettied.equals(document.prettied);
+    }
+}
+
+class Comment {
+    private String data;
+
+    public Comment(String data) {
+        this.data = data;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public String outerHtmlHead(Document outputSettings) throws IOException {
+        if (outputSettings.isPrettied()) {
+            return new Document(outputSettings.prettied, true).toString();
+        } else {
+            return new Document(false, outputSettings.isPrettied()).head + "<body>" + data + "</body>";
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

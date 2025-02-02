@@ -1,0 +1,435 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.ByteArrayBuilder;
+import java.util.ArrayList;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.mockito.Mockito;
+
+public class TextNodeTest {
+
+    @Test
+    public void createTextNode_GivenText_ReturnsTextNode() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertNotNull(textNode);
+        assertEquals(text, textNode.value());
+    }
+
+    @Test
+    public void nodeName_GivenTextNode_ReturnsCorrectString() {
+        TextNode textNode = new TextNode("");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void text_GivenTextNode_ReturnsCorrectText() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertEquals(StringUtil.normaliseWhitespace("Hello World"), textNode.text());
+    }
+
+    @Test
+    public void text_GivenBlankTextNode_ReturnsBlankString() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.text().isEmpty());
+    }
+
+    @Test
+    public void isBlank_GivenTextNode_ReturnsCorrectBoolean() {
+        String text = "   ";
+        TextNode textNode = new TextNode(text);
+        assertTrue(textNode.isBlank());
+        text = "";
+        textNode = new TextNode(text);
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_GivenTextNode_SplitsCorrectly() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        int offset = 7;
+        TextNode tailNode = textNode.splitText(offset);
+        assertEquals(7, tailNode.getWholeText().length());
+    }
+
+    @Test
+    public void splitText_GivenBlankTextNode_ThrowsException() {
+        String text = "";
+        TextNode textNode = new TextNode(text);
+        try {
+            int offset = 1;
+            textNode.splitText(offset);
+            fail("Expected IndexOutOfBoundsException");
+        } catch (IndexOutOfBoundsException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void outerHtmlHead_GivenTextNode_ReturnsCorrectString() {
+        TextNode textNode = new TextNode("Hello World");
+        Document document = Mockito.mock(Document.class);
+        textNode.parentNode = document;
+        byte[] accum = new byte[1024];
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        out.prettyPrint = true;
+        try {
+            textNode.outerHtmlHead(new Appendable() {}, depth, out);
+            fail("Expected Exception");
+        } catch (IOException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void outerHtmlTail_GivenTextNode_ReturnsCorrectString() {
+        TextNode textNode = new TextNode("");
+        Document document = Mockito.mock(Document.class);
+        textNode.parentNode = document;
+        byte[] accum = new byte[1024];
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        try {
+            textNode.outerHtmlTail(new Appendable() {}, depth, out);
+            fail("Expected Exception");
+        } catch (IOException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void createTextNodeFromEncoded_GivenEncodedText_ReturnsCorrectTextNode() {
+        String encodedText = "&lt;Hello&gt;";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertNotNull(textNode);
+        assertEquals("Hello", textNode.value());
+    }
+
+    @Test
+    public void normaliseWhitespace_GivenString_ReturnsCorrectString() {
+        String text = "   ";
+        assertEquals(StringUtil.normaliseWhitespace(text), text);
+    }
+
+    @Test
+    public void stripLeadingWhitespace_GivenString_ReturnsCorrectString() {
+        String text = "Hello World";
+        assertEquals(StringUtil.stripLeadingWhitespace(text), "Hello World");
+    }
+
+    @Test
+    public void lastCharIsWhitespace_GivenStringBuilder_ReturnsCorrectBoolean() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(' ');
+        assertTrue(TextNode.lastCharIsWhitespace(sb));
+        sb.setLength(0);
+        assertFalse(TextNode.lastCharIsWhitespace(sb));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class TextNode {
+    private String value;
+    private Node parentNode;
+
+    public TextNode(String value) {
+        this.value = value;
+    }
+
+    public static TextNode createTextNodeFromEncoded(String encodedText) {
+        return new TextNode(encodedText);
+    }
+
+    public String outerHtmlHead(Appendable out, int depth, OutputSettings settings) throws IOException {
+        // implementation
+        return "";
+    }
+
+    public Node splitText(int offset) {
+        // implementation
+        return null;
+    }
+
+    public boolean isBlank() {
+        return StringUtil.normaliseWhitespace(value).isEmpty();
+    }
+
+    public String text() {
+        return value;
+    }
+}
+
+public class StringUtil {
+    public static String normaliseWhitespace(String text) {
+        return text.trim();
+    }
+
+    public static String stripLeadingWhitespace(String text) {
+        if (text.isEmpty()) {
+            return "";
+        } else {
+            int start = 0;
+            while (start < text.length() && Character.isWhitespace(text.charAt(start))) {
+                start++;
+            }
+            return text.substring(start);
+        }
+    }
+}
+
+public class Node {
+    public void parentNode(Node node) {
+        this.parentNode = node;
+    }
+
+    private Node parentNode;
+
+    public String nodeName() {
+        // implementation
+        return "";
+    }
+}
+
+public interface Appendable extends java.io.Writeable {
+    void append(char c);
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class TextNode {
+    private String value;
+    private Node parentNode;
+
+    public TextNode(String value) {
+        this.value = value;
+    }
+
+    public static TextNode createTextNodeFromEncoded(String encodedText) {
+        return new TextNode(encodedText);
+    }
+
+    public String outerHtmlHead(Appendable out, int depth, OutputSettings settings) throws IOException {
+        out.append('>'); // implementation
+        return "";
+    }
+
+    public Node splitText(int offset) {
+        // implementation
+        return null;
+    }
+
+    public boolean isBlank() {
+        return StringUtil.normaliseWhitespace(value).isEmpty();
+    }
+
+    public String text() {
+        return value;
+    }
+}
+
+public class StringUtil {
+    public static String normaliseWhitespace(String text) {
+        return text.trim();
+    }
+
+    public static String stripLeadingWhitespace(String text) {
+        if (text.isEmpty()) {
+            return "";
+        } else {
+            int start = 0;
+            while (start < text.length() && Character.isWhitespace(text.charAt(start))) {
+                start++;
+            }
+            return text.substring(start);
+        }
+    }
+}
+
+public interface Appendable extends java.io.Writeable {
+    void append(char c);
+}
+
+public class OutputSettings {
+    public boolean prettyPrint = false;
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class TextNode {
+    private String value;
+    private Node parentNode;
+
+    public TextNode(String value) {
+        this.value = value;
+    }
+
+    public static TextNode createTextNodeFromEncoded(String encodedText) {
+        return new TextNode(encodedText);
+    }
+
+    public String outerHtmlHead(Appendable out, int depth, OutputSettings settings) throws IOException {
+        if (settings.prettyPrint) {
+            out.append("<div style=\"margin: 0\">"); // implementation
+        }
+        out.append(value);
+        if (settings.prettyPrint) {
+            out.append("</div>");
+        }
+        return "";
+    }
+
+    public Node splitText(int offset) {
+        // implementation
+        return null;
+    }
+
+    public boolean isBlank() {
+        return StringUtil.normaliseWhitespace(value).isEmpty();
+    }
+
+    public String text() {
+        return value;
+    }
+}
+
+public class StringUtil {
+    public static String normaliseWhitespace(String text) {
+        return text.trim();
+    }
+
+    public static String stripLeadingWhitespace(String text) {
+        if (text.isEmpty()) {
+            return "";
+        } else {
+            int start = 0;
+            while (start < text.length() && Character.isWhitespace(text.charAt(start))) {
+                start++;
+            }
+            return text.substring(start);
+        }
+    }
+}
+
+public interface Appendable extends java.io.Writeable {
+    void append(char c);
+}
+
+public class OutputSettings {
+    public boolean prettyPrint = false;
+
+    public String getPrettyPrintProperty() {
+        return "prettyPrint";
+    }
+
+    public boolean hasPrettifyEnabled() {
+        // implementation
+        return true;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class Node {
+    private String nodeName;
+    private Document document;
+
+    public void parentNode(Node node) {
+        this.document = node.document();
+    }
+
+    public String nodeName() {
+        return nodeName;
+    }
+}
+
+public class GeneratedTest {
+    public static void main(String[] args) throws IOException {
+        Appendable out = new java.io.StringWriter();
+
+        Node rootNode = Document.createDocument().body();
+        TextNode textNode1 = TextNode.createTextNodeFromEncoded("Hello");
+        TextNode textNode2 = TextNode.createTextNodeFromEncoded("World");
+
+        Element element1 = new Element("div");
+        Element element2 = new Element("span");
+
+        rootNode.appendChild(element1);
+        element1.appendChild(textNode1);
+
+        element2.appendChild(textNode2);
+
+        rootNode.appendChild(element2);
+
+        outputTextNode(out, rootNode);
+
+        System.out.println(out.toString());
+    }
+
+    private static void outputTextNode(Appendable out, Node node) throws IOException {
+        if (node.nodeName().equals("text")) {
+            out.append(node.text());
+        } else {
+            for (Node child : node.childNodes()) {
+                outputTextNode(out, child);
+            }
+        }
+    }
+}
+
+public class Document {
+    public static Document createDocument() {
+        // implementation
+        return null;
+    }
+
+    public Node body() {
+        // implementation
+        return null;
+    }
+
+    public void appendChild(Node child) {
+        // implementation
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

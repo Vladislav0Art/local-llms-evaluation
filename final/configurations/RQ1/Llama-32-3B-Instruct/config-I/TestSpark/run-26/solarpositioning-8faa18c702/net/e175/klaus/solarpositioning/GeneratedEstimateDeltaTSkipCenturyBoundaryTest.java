@@ -1,0 +1,20 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.time.LocalDate;
+
+import static java.lang.Math.pow;
+
+public class GeneratedEstimateDeltaTSkipCenturyBoundaryTest {
+
+    @Test
+    public void estimateDeltaTSkipCenturyBoundaryTest() {
+        LocalDate date = LocalDate.of(2021, 1, 1);
+        double result = DeltaT.estimate(date);
+        assertEquals(-20 + 32 * pow((date.getYear() - 1820) / 100, 2), result);
+    }
+
+}

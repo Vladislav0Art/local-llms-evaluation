@@ -1,0 +1,69 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    private final OnlineStockSpan stockSpan = new OnlineStockSpan();
+
+    @Test
+    public void calculateSpans_OccupancyIsOneTest() {
+        int[] prices = {1, 2, 3, 4, 5};
+        int[] expected = {1, 2, 3, 4, 5};
+        int[] result = stockSpan.calculateSpans(prices);
+        for (int i = 0; i < result.length; i++) {
+            assertEquals(expected[i], result[i]);
+        }
+    }
+
+    @Test
+    public void next_SingleElementListTest() {
+        int price = 10;
+        stockSpan.list.clear();
+        stockSpan.next(price);
+        assertEquals(1, stockSpan.list.size());
+        assertEquals(0, stockSpan.next(price));
+    }
+
+    @Test
+    public void calculateSpans_NoSpanTest() {
+        int[] prices = {1};
+        int[] expected = {1};
+        int[] result = stockSpan.calculateSpans(prices);
+        for (int i = 0; i < result.length; i++) {
+            assertEquals(expected[i], result[i]);
+        }
+    }
+
+    @Test
+    public void next_DuplicateElementTest() {
+        int price = 5;
+        stockSpan.list.clear();
+        stockSpan.next(price);
+        assertEquals(1, stockSpan.list.size());
+        assertEquals(0, stockSpan.next(price));
+        assertEquals(0, stockSpan.next(price));
+    }
+
+    @Test
+    public void calculateSpans_LowestPriceAtEndTest() {
+        int[] prices = {1, 2, 3};
+        int[] expected = {1, 3, 5};
+        int[] result = stockSpan.calculateSpans(prices);
+        for (int i = 0; i < result.length; i++) {
+            assertEquals(expected[i], result[i]);
+        }
+    }
+
+    @Test
+    public void next_SingleElementListWithLowestPriceTest() {
+        int price = -1;
+        stockSpan.list.clear();
+        stockSpan.next(price);
+        assertEquals(1, stockSpan.list.size());
+        assertEquals(-1, stockSpan.next(price));
+    }
+
+}

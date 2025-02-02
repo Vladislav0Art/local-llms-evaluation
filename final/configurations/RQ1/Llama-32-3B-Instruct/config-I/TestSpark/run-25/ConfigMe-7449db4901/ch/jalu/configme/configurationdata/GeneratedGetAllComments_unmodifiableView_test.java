@@ -1,0 +1,31 @@
+package ch.jalu.configme.configurationdata;
+
+public class GeneratedGetAllComments_unmodifiableView_test {
+
+    private Map<String, List<String>> comments = new HashMap<>();
+
+    public void setComment(String path, String... lines) {
+        List<String> commentLines = new ArrayList<>();
+        for (String line : lines) {
+            if (!line.isEmpty()) {
+                commentLines.add(line);
+            }
+        }
+        comments.put(path, commentLines);
+    }
+
+    public Map<String, List<String>> getComments() {
+        return Collections.unmodifiableMap(comments);
+    }
+}
+
+public class CommentsConfigurationTest {
+
+    @Test
+    public void getAllComments_unmodifiableView_test() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        Map<String, List<String>> comments = commentsConfiguration.getComments();
+        assertTrue(comments.values().stream().allMatch(List::isEmpty));
+    }
+
+}

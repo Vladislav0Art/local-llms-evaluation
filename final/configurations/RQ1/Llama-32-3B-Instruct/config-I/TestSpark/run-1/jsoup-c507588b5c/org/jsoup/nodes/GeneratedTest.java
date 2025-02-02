@@ -1,0 +1,116 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNode_GivenText_ReturnsTextNode() throws IOException {
+        Document document = new Document("<html><body>" + new TextNode("Hello World").outerHtml());
+        assert (document.body().children().size() == 1);
+    }
+
+    @Test
+    public void createTextNode_EmptyString_ReturnsBlankTextNode() throws IOException {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void text_GivenTextNode_ReturnsEncodedText() throws IOException {
+        Document document = new Document("<html><body>" + new TextNode("Hello World").outerHtml());
+        assert (document.body().children().get(0).text().equals("Hello World"));
+    }
+
+    @Test
+    public void text_SplittingTextNode_GivesCorrectText() throws IOException {
+        String encodedText = "&lt;Hello&gt; &amp; World";
+        Document document = new Document(encodedText);
+        TextNode textNode = (TextNode) document.body().children().get(0);
+        assert (textNode.text().equals("&lt;Hello&gt; "));
+    }
+
+    @Test
+    public void isBlank_GivenTextNode_ReturnsFalse() throws IOException {
+        Document document = new Document("<html><body>" + new TextNode("Hello World").outerHtml());
+        assert (!((TextNode) document.body().children().get(0))..isBlank());
+    }
+
+    @Test
+    public void isBlank_SplittingTextNode_ReturnsTrue() throws IOException {
+        String encodedText = "&lt;Hello&gt; &amp; ";
+        Document document = new Document(encodedText);
+        TextNode textNode = (TextNode) document.body().children().get(0);
+        assert (textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_SplittingTextNode_GivesCorrectNodes() throws IOException {
+        String encodedText = "&lt;Hello&gt; &amp; World";
+        Document document = new Document(encodedText);
+        TextNode textNode = (TextNode) document.body().children().get(0);
+        TextNode node1 = (TextNode) textNode.splitText(8);
+        TextNode node2 = (TextNode) textNode.splitText(textNode.text().length());
+        assert (node1.text().equals("&lt;Hello&gt; "));
+        assert (node2.text().equals("&amp; "));
+    }
+
+    @Test
+    public void outerHtml_GivenTextNode_ReturnsEncodedHtml() throws IOException {
+        Document document = new Document("<html><body>" + new TextNode("Hello World").outerHtml());
+        assertEquals(document.body().outerHTML(), "<html><body>Hello World</body></html>");
+    }
+
+    @Test
+    public void clone_ReturnsCorrectClone() throws IOException {
+        TextNode originalTextNode = new TextNode("Hello World");
+        TextNode clonedTextNode = (TextNode) originalTextNode.clone();
+        assertNotNull(clonedTextNode);
+        assertEquals(originalTextNode, clonedTextNode);
+    }
+}
+
+class Document {
+
+    private String html;
+
+    public Document(String encodedText) {
+        this.html = encodedText;
+    }
+
+    public Element body() {
+        // implement
+        return null;
+    }
+
+    public Node children() {
+        // implement
+        return null;
+    }
+
+    public Appendable outerHtml() {
+        // implement
+        return null;
+    }
+}
+
+class Element {
+
+    public Tag tag() {
+        // implement
+        return null;
+    }
+}
+
+class Node {
+}
+
+}

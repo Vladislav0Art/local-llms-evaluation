@@ -1,0 +1,34 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.lang.reflect.Field;
+
+public class GeneratedTestGetValidador {
+
+    private final MDFInfoModalRodoviarioVeiculoReboque mdf = new MDFInfoModalRodoviarioVeiculoReboque();
+
+    public class DFStringValidador {
+        public String placadeveiculo(String valor, String mensagem) {
+            // implementacao da logica para a validacao do placa de veiculo
+            return "";
+        }
+
+        public boolean capacidadeNDigitos(String valor, String mensagem, int tamanho) {
+            // implementacao da logica para a validacao da capacidade do veiculo
+            return true;
+        }
+    }
+
+    @Test
+    public void testGetValidador() {
+        Field validatorField = mdf.getClass().getDeclaredField("validador");
+        validatorField.setAccessible(true);
+        DFStringValidador validator = (DFStringValidador) validatorField.get(mdf);
+        assertFalse(validator.placadeveiculo("123456", "Placa de Veiculo Invalida"));
+        assertTrue(validator.placadeveiculo("abcde", "Placa de Veiculo Invalida"));
+    }
+
+}

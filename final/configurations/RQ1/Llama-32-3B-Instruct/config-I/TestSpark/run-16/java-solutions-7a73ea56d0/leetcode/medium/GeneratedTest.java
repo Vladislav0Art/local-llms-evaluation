@@ -1,0 +1,107 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class GeneratedTest {
+
+    public List<Integer> list = new ArrayList<>();
+
+    public int next(int price) {
+        list.add(price);
+        int count = 0;
+        for (int i = list.size() - 1; i >= 0; i--) {
+            if (list.get(i) > price)
+                break;
+            count++;
+        }
+        return count;
+    }
+
+    public int[] calculateSpans(int[] prices) {
+
+        int[] spans = new int[prices.length];
+        spans[0] = 1;
+
+        Stack<Integer> indexStack = new Stack<>();
+
+        // Push the index of first element
+        indexStack.push(0);
+
+        for (int i = 1; i < prices.length; i++) {
+            while (!indexStack.isEmpty() && prices[indexStack.peek()] <= prices[i])
+                indexStack.pop();
+
+            if (indexStack.isEmpty())
+                spans[i] = i + 1;
+            else
+                spans[i] = i - indexStack.peek();
+
+            indexStack.push(i);
+        }
+
+        return spans;
+    }
+}
+
+public class OnlineStockSpanTest {
+
+    public static void main(String[] args) {
+        org.junit.runner.JUnitCore.main("OnlineStockSpanTest");
+    }
+
+    @Test
+    public void nextPriceValidInput_returnsCorrectSpan() {
+        OnlineStockSpan s = new OnlineStockSpan();
+        s.next(100);
+        s.next(80);
+        assertEquals(1, s.next(70));
+    }
+
+    @Test
+    public void nextPriceSameValue_NoSpan() {
+        OnlineStockSpan s = new OnlineStockSpan();
+        s.next(10);
+        s.next(20);
+        s.next(15);
+        assertEquals(0, s.next(10));
+    }
+
+    @Test
+    public void calculateSpansEmptyArray_returnsCorrectOutput() {
+        OnlineStockSpan s = new OnlineStockSpan();
+        int[] prices = {};
+        int[] result = s.calculateSpans(prices);
+        assertEquals(new int[]{0}, result);
+    }
+
+    @Test
+    public void calculateSpansOneElement_ReturnsCorrectSpan() {
+        OnlineStockSpan s = new OnlineStockSpan();
+        int[] prices = {10};
+        int[] result = s.calculateSpans(prices);
+        assertEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpansMultipleElements_CorrectOutput() {
+        OnlineStockSpan s = new OnlineStockSpan();
+        int[] prices = {100, 80, 70};
+        int[] result = s.calculateSpans(prices);
+        assertEquals(new int[]{2, 1, 1}, result);
+    }
+
+    @Test
+    public void calculateSpansDescendingOrder_CorrectOutput() {
+        OnlineStockSpan s = new OnlineStockSpan();
+        int[] prices = {10, 20, 30};
+        int[] result = s.calculateSpans(prices);
+        assertEquals(new int[]{3, 2, 1}, result);
+    }
+
+}

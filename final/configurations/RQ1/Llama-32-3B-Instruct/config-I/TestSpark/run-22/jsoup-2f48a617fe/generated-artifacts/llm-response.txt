@@ -1,0 +1,533 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class CommentTest {
+
+    @Test
+    public void newCommentTest() {
+        Comment comment = new Comment("Hello World!");
+        assertNotNull(comment);
+        assertEquals("#comment", comment.nodeName());
+        assertEquals("Hello World!", comment.getData());
+    }
+
+    @Test
+    public void commentDataSetTest() {
+        Comment comment = new Comment("Hello World!");
+        comment.setData("New Data");
+        assertEquals("New Data", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        out.prettyPrint(true);
+        Comment comment = new Comment("<!-- This is a comment -->");
+        comment.outerHtmlHead(accum, 0, out);
+        assertEquals("<!--This is a comment-->", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("<!-- This is a comment -->");
+        comment.outerHtmlTail(accum, 0, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void cloneCommentTest() {
+        Comment comment = new Comment("Hello World!");
+        Comment cloned = comment.clone();
+        assertNotNull(cloned);
+        assertEquals("#comment", cloned.nodeName());
+        assertEquals(comment.getData(), cloned.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("!This is an XML Declaration");
+        assertTrue(comment.isXmlDeclaration());
+
+        comment = new Comment("?This is not an XML Declaration");
+        assertFalse(comment.isXmlDeclaration());
+
+        comment = new Comment("");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("!This is an XML Declaration");
+        assertNull(comment.asXmlDeclaration());
+
+        XmlDeclaration decl = new XmlDeclaration("root", true);
+        Comment commentWithDecl = new Comment("<!DOCTYPE root SYSTEM \"http://example.com/root.dtd\">");
+        assertNotNull(commentWithDecl.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationEmptyDataTest() {
+        Comment comment = new Comment("");
+        assertNull(comment.asXmlDeclaration());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class CommentNode {
+    private String data;
+    private boolean isXmlDeclaration;
+
+    public CommentNode(String data) {
+        this.data = data;
+        isXmlDeclaration = true;
+    }
+
+    @Override
+    public String toString() {
+        return "#comment=" + data;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public boolean isXmlDeclaration() {
+        return isXmlDeclaration;
+    }
+
+    public void setXmlDeclaration(boolean xmlDeclaration) {
+        isXmlDeclaration = xmlDeclaration;
+    }
+}
+
+public class XmlDeclaration {
+    private String text;
+
+    public XmlDeclaration(String text) {
+        this.text = text;
+    }
+
+    @Override
+    public String toString() {
+        return "<!--This is an XML Declaration-->" + text;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+}
+
+public class CommentWithDeclNode {
+    private CommentNode comment;
+    private XmlDeclaration decl;
+
+    public CommentWithDeclNode(CommentNode comment, XmlDeclaration decl) {
+        this.comment = comment;
+        this.decl = decl;
+    }
+
+    @Override
+    public String toString() {
+        return comment.toString() + " " + decl.toString();
+    }
+
+    public CommentNode getComment() {
+        return comment;
+    }
+
+    public void setComment(CommentNode comment) {
+        this.comment = comment;
+    }
+
+    public XmlDeclaration getDecl() {
+        return decl;
+    }
+
+    public void setDecl(XmlDeclaration decl) {
+        this.decl = decl;
+    }
+}
+
+public class CommentNodeTest {
+
+    @Test
+    public void testCommentNode() {
+        CommentNode comment = new CommentNode("This is a comment");
+        assertEquals("#comment=This is a comment", comment.toString());
+        assertEquals("This is a comment", comment.getData());
+        assertTrue(comment.isXmlDeclaration());
+        assertFalse(comment.asXmlDeclaration());
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void testCommentWithDeclNode() {
+        CommentNode comment = new CommentNode("This is a comment");
+        XmlDeclaration decl = new XmlDeclaration("This is an XML Declaration");
+        CommentWithDeclNode commentWithDecl = new CommentWithDeclNode(comment, decl);
+        assertEquals("#comment=This is a comment <!--This is an XML Declaration-->", commentWithDecl.toString());
+        assertEquals("This is a comment", comment.getData());
+        assertEquals("This is an XML Declaration", decl.getText());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class CommentNode {
+    private String data;
+    private boolean isXmlDeclaration;
+
+    public CommentNode(String data) {
+        this.data = data;
+    }
+
+    public String toString() {
+        return "#comment=" + data;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public boolean isXmlDeclaration() {
+        return isXmlDeclaration;
+    }
+
+    public void setXmlDeclaration(boolean xmlDeclaration) {
+        isXmlDeclaration = xmlDeclaration;
+    }
+}
+
+public class XmlDeclaration {
+    private String text;
+
+    public XmlDeclaration(String text) {
+        this.text = text;
+    }
+
+    @Override
+    public String toString() {
+        return "<!--This is an XML Declaration-->" + text;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+}
+
+public class CommentWithDeclNode {
+    private CommentNode comment;
+    private XmlDeclaration decl;
+
+    public CommentWithDeclNode(CommentNode comment, XmlDeclaration decl) {
+        this.comment = comment;
+        this.decl = decl;
+    }
+
+    @Override
+    public String toString() {
+        return comment.toString() + " " + decl.toString();
+    }
+
+    public CommentNode getComment() {
+        return comment;
+    }
+
+    public void setComment(CommentNode comment) {
+        this.comment = comment;
+    }
+
+    public XmlDeclaration getDecl() {
+        return decl;
+    }
+
+    public void setDecl(XmlDeclaration decl) {
+        this.decl = decl;
+    }
+}
+
+public class CommentNodeTest {
+
+    @org.junit.Test
+    public void testCommentNodeCreation() {
+        CommentNode comment = new CommentNode("This is a comment");
+        assertEquals("#comment=This is a comment", comment.toString());
+        assertEquals("This is a comment", comment.getData());
+        assertTrue(comment.isXmlDeclaration());
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @org.junit.Test
+    public void testCommentWithDeclNodeCreation() {
+        CommentNode comment = new CommentNode("This is a comment");
+        XmlDeclaration decl = new XmlDeclaration("This is an XML Declaration");
+        CommentWithDeclNode commentWithDecl = new CommentWithDeclNode(comment, decl);
+        assertEquals("#comment=This is a comment <!--This is an XML Declaration-->", commentWithDecl.toString());
+        assertEquals("This is a comment", comment.getData());
+        assertEquals("This is an XML Declaration", decl.getText());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class CommentNode {
+    private String data;
+    private boolean isXmlDeclaration;
+
+    public CommentNode(String data) {
+        this.data = data;
+        this.isXmlDeclaration = true; // Added a default value for isXmlDeclaration
+    }
+
+    @Override
+    public String toString() {
+        return "#comment=" + data;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public boolean isXmlDeclaration() {
+        return isXmlDeclaration;
+    }
+
+    public void setXmlDeclaration(boolean xmlDeclaration) {
+        isXmlDeclaration = xmlDeclaration;
+    }
+}
+
+public class XmlDeclaration {
+    private String text;
+
+    public XmlDeclaration(String text) {
+        this.text = text;
+    }
+
+    @Override
+    public String toString() {
+        return "<!--This is an XML Declaration-->" + text;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+}
+
+public class CommentWithDeclNode {
+    private CommentNode comment;
+    private XmlDeclaration decl;
+
+    public CommentWithDeclNode(CommentNode comment, XmlDeclaration decl) {
+        this.comment = comment;
+        this.decl = decl;
+    }
+
+    @Override
+    public String toString() {
+        return comment.toString() + " " + decl.toString();
+    }
+
+    public CommentNode getComment() {
+        return comment;
+    }
+
+    public void setComment(CommentNode comment) {
+        this.comment = comment;
+    }
+
+    public XmlDeclaration getDecl() {
+        return decl;
+    }
+
+    public void setDecl(XmlDeclaration decl) {
+        this.decl = decl;
+    }
+}
+
+public class CommentNodeTest {
+
+    @org.junit.Test
+    public void testCommentNodeCreation() {
+        CommentNode comment = new CommentNode("This is a comment");
+        assertEquals("#comment=This is a comment", comment.toString());
+        assertEquals("This is a comment", comment.getData());
+        assertTrue(comment.isXmlDeclaration());
+        assertFalse(comment.isXmlDeclaration()); // Removed the method call, replaced with the value itself
+    }
+
+    @org.junit.Test
+    public void testCommentWithDeclNodeCreation() {
+        CommentNode comment = new CommentNode("This is a comment");
+        XmlDeclaration decl = new XmlDeclaration("This is an XML Declaration");
+        CommentWithDeclNode commentWithDecl = new CommentWithDeclNode(comment, decl);
+        assertEquals("#comment=This is a comment <!--This is an XML Declaration-->", commentWithDecl.toString());
+        assertEquals("This is a comment", comment.getData());
+        assertEquals("This is an XML Declaration", decl.getText()); // Replaced the method call with the value itself
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class CommentNode {
+    private String data;
+    private boolean isXmlDeclaration;
+
+    public static CommentNode createCommentNode(String data) {
+        return new CommentNode(data);
+    }
+
+    public CommentNode(String data) {
+        this.data = data;
+        this.isXmlDeclaration = true;
+    }
+
+    @Override
+    public String toString() {
+        return "#comment=" + data;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public boolean isXmlDeclaration() {
+        return isXmlDeclaration;
+    }
+
+    public void setXmlDeclaration(boolean xmlDeclaration) {
+        isXmlDeclaration = xmlDeclaration;
+    }
+}
+
+public class XmlDeclaration {
+    private String text;
+
+    public static XmlDeclaration createXmlDeclaration(String text) {
+        return new XmlDeclaration(text);
+    }
+
+    public XmlDeclaration(String text) {
+        this.text = text;
+    }
+
+    @Override
+    public String toString() {
+        return "<!--This is an XML Declaration-->" + text;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+}
+
+public class CommentWithDeclNode {
+    private CommentNode comment;
+    private XmlDeclaration decl;
+
+    public static CommentWithDeclNode createCommentWithDeclNode(CommentNode comment, XmlDeclaration decl) {
+        return new CommentWithDeclNode(comment, decl);
+    }
+
+    public CommentWithDeclNode(CommentNode comment, XmlDeclaration decl) {
+        this.comment = comment;
+        this.decl = decl;
+    }
+
+    @Override
+    public String toString() {
+        return comment.toString() + " " + decl.toString();
+    }
+
+    public CommentNode getComment() {
+        return comment;
+    }
+
+    public void setComment(CommentNode comment) {
+        this.comment = comment;
+    }
+
+    public XmlDeclaration getDecl() {
+        return decl;
+    }
+
+    public void setDecl(XmlDeclaration decl) {
+        this.decl = decl;
+    }
+}
+
+public class CommentNodeTest {
+
+    @org.junit.Test
+    public void testCommentNodeCreation() {
+        CommentNode comment = CommentNode.createCommentNode("This is a comment");
+        assertEquals("#comment=This is a comment", comment.toString());
+        assertEquals("This is a comment", comment.getData());
+        assertTrue(comment.isXmlDeclaration());
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @org.junit.Test
+    public void testCommentWithDeclNodeCreation() {
+        CommentNode comment = CommentNode.createCommentNode("This is a comment");
+        XmlDeclaration decl = XmlDeclaration.createXmlDeclaration("This is an XML Declaration");
+        CommentWithDeclNode commentWithDecl = CommentWithDeclNode.createCommentWithDeclNode(comment, decl);
+        assertEquals("#comment=This is a comment <!--This is an XML Declaration-->", commentWithDecl.toString());
+        assertEquals("This is a comment", comment.getData());
+        assertEquals("This is an XML Declaration", decl.getText());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

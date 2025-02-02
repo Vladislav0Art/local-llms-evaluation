@@ -1,0 +1,93 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+public class GeneratedTest {
+
+    private MDFInfoModalRodoviarioVeiculoReboque mdfInfoModalRodoviarioVeiculoReboque;
+
+    @Test
+    public void setCodigoInterno_InvalidString_ReturnsInvalidCódigoInterno() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String invalidCódigoInterno = "invalid";
+        mdfInfoModalRodoviarioVeiculoReboque.setCodigoInterno(invalidCódigoInterno);
+        assertEquals(DFStringValidador.INVALID, mdfInfoModalRodoviarioVeiculoReboque.getCodigoInterno());
+    }
+
+    @Test
+    public void setCodigoInterno_ValidString_ReturnsValidCódigoInterno() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String validCódigoInterno = "1234567890";
+        mdfInfoModalRodoviarioVeiculoReboque.setCodigoInterno(validCódigoInterno);
+        assertEquals("1234567890", mdfInfoModalRodoviarioVeiculoReboque.getCodigoInterno());
+    }
+
+    @Test
+    public void setPlaca_InvalidString_ReturnsPlacaDeVeiculo() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String invalidPlaca = "invalid";
+        DFStringValidador.placaDeVeiculo(invalidPlaca, "Placa do reboque");
+    }
+
+    @Test
+    public void setPlaca_ValidString_ReturnsPlacaDoReboque() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String validPlaca = "123456";
+        DFStringValidador.placaDeVeiculo(validPlaca, "Placa do reboque");
+    }
+
+    @Test
+    public void setRenavam_InvalidIntervalo_ReturnsRenavamDoReboque() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String invalidRenavam = "invalid";
+        DFStringValidador.renavamDoReboque(invalidRenavam, 9, 11);
+    }
+
+    @Test
+    public void setRenavam_ValidIntervalo_ReturnsRenavamDoReboque() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String validRenavam = "123456789";
+        DFStringValidador.renavamDoReboque(validRenavam, 9, 11);
+    }
+
+    @Test
+    public void setTara_InvalidDigits_ReturnsTaraEmReboque() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String invalidTara = "invalid";
+        assertEquals("invalid", mdfInfoModalRodoviarioVeiculoReboque.getTara());
+    }
+
+    @Test
+    public void setTara_ValidDigits_ReturnsTaraEmReboque() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String validTara = "123";
+        assertEquals("123", mdfInfoModalRodoviarioVeiculoReboque.getTara());
+    }
+
+    @Test
+    public void setCapacidadeKG_InvalidCapacity_ReturnsCapacidadeNDigitos() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String invalidCapacidadeKG = "invalid";
+        assertEquals("invalid", mdfInfoModalRodoviarioVeiculoReboque.getCapacidadeKG());
+    }
+
+    @Test
+    public void setCapacidadeKG_ValidCapacity_ReturnsCapacidadeNDigitos() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String validCapacidadeKG = "123";
+        assertEquals("123", mdfInfoModalRodoviarioVeiculoReboque.getCapacidadeKG());
+    }
+
+    @Test
+    public void setCapacidadeM3_InvalidCapacity_ReturnsCapacidadeNDigitos() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String invalidCapacidadeM3 = "invalid";
+        assertEquals("invalid", mdfInfoModalRodoviarioVeiculoReboque.getCapacidadeM3());
+    }
+
+    @Test
+    public void setCapacidadeM3_ValidCapacity_ReturnsCapacidadeNDigitos() {
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String validCapacidadeM3 = "1";
+        assertEquals("1", mdfInfoModalRodoviarioVeiculoReboque.getCapacidadeM3());
+    }
+
+}

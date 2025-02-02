@@ -1,0 +1,360 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class Element {
+    private String tag;
+    private Map<String, String> attributes = new HashMap<>();
+    private Text content = null;
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void addAttribute(String key, String value) {
+        attributes.put(key, value);
+    }
+
+    public Text getContent() {
+        return content;
+    }
+
+    public void setContent(String text) {
+        content = new Text(text);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("<" + tag);
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            sb.append(" " + entry.getKey()).append("=").append(entry.getValue());
+        }
+        if (content != null) {
+            sb.append(">").append(content.toString());
+        }
+        sb.append("</").append(tag).append(">");
+        return sb.toString();
+    }
+
+    public static class Text {
+        private String text;
+
+        public Text(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
+}
+
+public class ElementFactory {
+    public static Element createElement(Element element, org.jsoup.nodes.Element jsoupElement, int depth) {
+        Element el = new Element();
+        el.setTag(jsoupElement.tagName());
+        for (Attribute attribute : jsoupElement.attributes()) {
+            el.addAttribute(attribute.getKey(), attribute.getValue());
+        }
+        if (jsoupElement.childNodes() != null && !jsoupElement.childNodes().isEmpty()) {
+            Text textContent = new Element.Text("");
+            for (org.jsoup.nodes.Node childNode : jsoupElement.childNodes()) {
+                if (childNode instanceof org.jsoup.nodes.Element) {
+                    Element childEl = createElement(element, (org.jsoup.nodes.Element) childNode, depth + 1);
+                    textContent.setContent(childEl.toString());
+                } else if (childNode instanceof org.jsoup.nodes.TextNode) {
+                    Element childEl = new Element();
+                    childEl.setContent(((org.jsoup.nodes.TextNode) childNode).getWholeText());
+                    textContent.setContent(childEl.toString());
+                } else if (childNode instanceof org.jsoup.nodes.Comment) {
+                    textContent.setContent(((org.jsoup.nodes.Comment) childNode).getData());
+                }
+            }
+        }
+        el.setContent(textContent);
+        return el;
+    }
+
+    public static void main(String[] args) {
+        ElementFactory factory = new ElementFactory();
+        org.jsoup.nodes.Element jsoupElement = org.jsoup.Selector.select("div", new org.jsoup.nodes.Document()).first().get(0);
+        Element element = factory.createElement(null, jsoupElement, 1);
+        System.out.println(element.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+I apologize for the incomplete response earlier. Here is a complete Java implementation to parse HTML elements using Jsoup and map them to a custom `Element` class:
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Text;
+
+public class Element {
+    private String tag;
+    private Map<String, String> attributes = new HashMap<>();
+    private Text content = null;
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void addAttribute(String key, String value) {
+        attributes.put(key, value);
+    }
+
+    public Text getContent() {
+        return content;
+    }
+
+    public void setContent(String text) {
+        content = new Text(text);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("<" + tag);
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            sb.append(" " + entry.getKey()).append("=").append(entry.getValue());
+        }
+        if (content != null) {
+            sb.append(">").append(content.toString());
+        }
+        sb.append("</").append(tag).append(">");
+        return sb.toString();
+    }
+
+    public static class Text {
+        private String text;
+
+        public Text(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
+
+    public Element getElementsSibling(Element element) {
+        Element firstElement = null;
+        Element lastElement = null;
+        for (org.jsoup.nodes.Element childNode : element.getParent().getElementsByTag(element.getTag())) {
+            if (!childNode.equals(element)) {
+                if (firstElement == null) {
+                    firstElement = new Element();
+                    firstElement.setTag(childNode.tagName());
+                    firstElement.setAttributes(childNode.attributes());
+                    if (childNode.childNodes() != null && !childNode.childNodes().isEmpty()) {
+                        Text textContent = new Element.Text("");
+                        for (org.jsoup.nodes.Node child : childNode.childNodes()) {
+                            if (child instanceof org.jsoup.nodes.Element) {
+                                Element childEl = createElement(element, (org.jsoup.nodes.Element) child, 2);
+                                textContent.setContent(childEl.toString());
+                            } else if (child instanceof org.jsoup.nodes.TextNode) {
+                                Element childEl = new Element();
+                                childEl.setContent(((org.jsoup.nodes.TextNode) child).getWholeText());
+                                textContent.setContent(childEl.toString());
+                            } else if (child instanceof org.jsoup.nodes.Comment) {
+                                textContent.setContent(((org.jsoup.nodes.Comment) child).getData());
+                            }
+                        }
+                    } else {
+                        firstElement.setContent(childNode.toString());
+                    }
+                }
+                lastElement = new Element();
+                lastElement.setTag(childNode.tagName());
+                lastElement.setAttributes(childNode.attributes());
+                if (childNode.childNodes() != null && !childNode.childNodes().isEmpty()) {
+                    Text textContent = new Element.Text("");
+                    for (org.jsoup.nodes.Node child : childNode.childNodes()) {
+                        if (child instanceof org.jsoup.nodes.Element) {
+                            Element childEl = createElement(element, (org.jsoup.nodes.Element) child, 2);
+                            textContent.setContent(childEl.toString());
+                        } else if (child instanceof org.jsoup.nodes.TextNode) {
+                            Element childEl = new Element();
+                            childEl.setContent(((org.jsoup.nodes.TextNode) child).getWholeText());
+                            textContent.setContent(childEl.toString());
+                        } else if (child instanceof org.jsoup.nodes.Comment) {
+                            textContent.setContent(((org.jsoup.nodes.Comment) child).getData());
+                        }
+                    }
+                } else {
+                    lastElement.setContent(childNode.toString());
+                }
+            }
+        }
+        return new Element[]{firstElement, lastElement};
+    }
+
+    public static Element createElement(Element element, org.jsoup.nodes.Element jsoupElement, int depth) {
+        Element el = new Element();
+        el.setTag(jsoupElement.tagName());
+        for (Attribute attribute : jsoupElement.attributes()) {
+            el.addAttribute(attribute.getKey(), attribute.getValue());
+        }
+        if (jsoupElement.childNodes() != null && !jsoupElement.childNodes().isEmpty()) {
+            Text textContent = new Element.Text("");
+            for (org.jsoup.nodes.Node childNode : jsoupElement.childNodes()) {
+                if (childNode instanceof org.jsoup.nodes.Element) {
+                    Element childEl = createElement(element, (org.jsoup.nodes.Element) childNode, depth + 1);
+                    textContent.setContent(childEl.toString());
+                } else if (childNode instanceof org.jsoup.nodes.TextNode) {
+                    Element childEl = new Element();
+                    childEl.setContent(((org.jsoup.nodes.TextNode) childNode).getWholeText());
+                    textContent.setContent(childEl.toString());
+                } else if (childNode instanceof org.jsoup.nodes.Comment) {
+                    textContent.setContent(((org.jsoup.nodes.Comment) childNode).getData());
+                }
+            }
+        }
+        el.setContent(textContent);
+        return el;
+    }
+
+    public static void main(String[] args) {
+        Document document = Jsoup.connect("https://www.example.com").get();
+        Element element = createElement(null, (Element) document.body(), 1);
+        System.out.println(element.toString());
+    }
+}
+```
+
+This code parses an HTML page and creates a `Element` object from the parsed data. The `createElement` method is used to create new elements recursively. It also extracts sibling elements using the `getElementsSibling` method.
+
+Please note that you'll need to add Jsoup library to your project to run this code.
+===================================================
+
+
+====================== Iteration #3 ======================
+Here is a complete Java implementation to parse HTML elements using Jsoup and map them to a custom `Element` class:
+
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Text;
+
+public class Element {
+    private String tag;
+    private Map<String, String> attributes = new HashMap<>();
+    private Text content = null;
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void addAttribute(String key, String value) {
+        attributes.put(key, value);
+    }
+
+    public Text getContent() {
+        return content;
+    }
+
+    public void setContent(String text) {
+        content = new Text(text);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("<" + tag);
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            sb.append(" " + entry.getKey() + "=\"" + entry.getValue() + "\"");
+        }
+        if (content != null) {
+            sb.append(">").append(content.toString()).append("</").append(tag).append(">");
+        } else {
+            sb.append("/>").append(tag).append(">");
+        }
+        return sb.toString();
+    }
+
+    public static Element createElement(Element parent, String tag, Map<String, String> attributes, Text content) {
+        Element element = new Element();
+        element.setTag(tag);
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            element.addAttribute(entry.getKey(), entry.getValue());
+        }
+        if (content != null) {
+            element.setContent(content.toString());
+        } else {
+            element.setContent("");
+        }
+        return element;
+    }
+
+    public static Element createElement(Element parent, org.jsoup.nodes.Element jsoupElement, int depth) {
+        Element element = new Element();
+        element.setTag(jsoupElement.tagName());
+        for (Attribute attribute : jsoupElement.attributes()) {
+            element.addAttribute(attribute.getKey(), attribute.getValue());
+        }
+        if (jsoupElement.hasText()) {
+            Text textContent = new Text(jsoupElement.text());
+            element.setContent(textContent.toString());
+        } else if (jsoupElement.childNodes().size() > 0) {
+            for (org.jsoup.nodes.Node childNode : jsoupElement.childNodes()) {
+                if (childNode instanceof org.jsoup.nodes.Element) {
+                    Element childEl = createElement(element, (org.jsoup.nodes.Element) childNode, depth + 1);
+                    element.getChildren().add(childEl);
+                } else if (childNode instanceof org.jsoup.nodes.TextNode) {
+                    Text textContent = new Text(((org.jsoup.nodes.TextNode) childNode).text());
+                    element.getContent().append(textContent.toString());
+                }
+            }
+        }
+        return element;
+    }
+
+    public static void main(String[] args) {
+        Document document = Jsoup.connect("https://www.example.com").get();
+        Element root = createElement(null, (Element) document.body(), 1);
+        System.out.println(root.toString());
+    }
+}
+```
+
+This code defines a custom `Element` class with methods to create new elements and set their attributes and content. It also handles nested elements recursively.
+
+Please note that you'll need to add Jsoup library to your project to run this code.
+===================================================
+
+
+====================== Iteration #4 ======================

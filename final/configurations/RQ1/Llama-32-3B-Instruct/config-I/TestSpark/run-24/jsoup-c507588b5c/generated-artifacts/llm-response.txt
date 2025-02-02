@@ -1,0 +1,542 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TextNodeTest {
+
+    @Test
+    public void newTextNode_givenText_returnsCorrectTextNode() {
+        TextNode textNode = new TextNode("Hello World");
+        assertEquals("text", textNode.nodeName());
+        assertEquals("Hello World", textNode.text());
+    }
+
+    @Test
+    public void text_method_returnsNormalisedWhitespace() {
+        String text = "   Hello World  ";
+        TextNode textNode = new TextNode(text);
+        assertEquals(StringUtil.normaliseWhitespace(text), textNode.text());
+    }
+
+    @Test
+    public void text_method IgnoresBlankLines() {
+        String text = "Hello\nWorld";
+        TextNode textNode = new TextNode(text);
+        assertEquals("Hello World", textNode.text());
+    }
+
+    @Test
+    public void splitText_givenOffset_returnsCorrectTextNode() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        TextNode expectedHead = new TextNode("Hello");
+        TextNode expectedTail = new TextNode(StringUtil.normaliseWhitespace("World"));
+        int offset = 6;
+        TextNode result = textNode.splitText(offset);
+        assertEquals(expectedHead.nodeName(), result.nodeName());
+        assertEquals(expectedTail.text(), result.text());
+    }
+
+    @Test
+    public void splitText_givenOffsetThrowsOutOfBoundsException() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertThrows(IndexOutOfBoundsException.class, () -> textNode.splitText(100));
+    }
+
+    @Test
+    public void outerHtmlHead_givenParentNodeAndPrettyPrint_returnsCorrectString() throws IOException {
+        // Mock parentNode and out
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = new Document.OutputSettings();
+        Element parent = new Element("div");
+        TextNode textNode = new TextNode("   Hello World  ");
+        Document document = new Document(parent, textNode);
+        document.outerHtmlHead(accum, 0, out);
+        String expectedString = "<div><span>   Hello World  </span></div>";
+        assertEquals(expectedString, accum.toString());
+    }
+
+    @Test
+    public void outerHtmlHead_givenParentNodeAndNoPrettyPrint_returnsBlankString() throws IOException {
+        // Mock parentNode and out
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = new Document.OutputSettings();
+        Element parent = new Element("div");
+        TextNode textNode = new TextNode("   Hello World  ");
+        document.outerHtmlHead(accum, 0, out);
+        String expectedString = "";
+        assertEquals(expectedString, accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTail_givenParentNodeAndPrettyPrint_returnsCorrectString() throws IOException {
+        // Mock parentNode and out
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = new Document.OutputSettings();
+        Element parent = new Element("div");
+        TextNode textNode = new TextNode("   Hello World  ");
+        document.outerHtmlTail(accum, 0, out);
+        String expectedString = "";
+        assertEquals(expectedString, accum.toString());
+    }
+
+    @Test
+    public void outerHtml_tail_givenParentNodeAndPrettyPrintReturnsBlank() {
+        // Mock parentNode and out
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = new Document.OutputSettings();
+        Element parent = new Element("div");
+        TextNode textNode = new TextNode("");
+        document.outerHtmlTail(accum, 0, out);
+        String expectedString = "";
+        assertEquals(expectedString, accum.toString());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class TextNodeTest {
+
+    @Test
+    public void newTextNode_givenText_returnsCorrectTextNode() {
+        TextNode textNode = new TextNode("Hello World");
+        assertEquals("text", textNode.nodeName());
+        assertEquals("Hello World", textNode.text());
+    }
+
+    @Test
+    public void text_method_returnsNormalisedWhitespace() {
+        String text = "   Hello World  ";
+        TextNode textNode = new TextNode(text);
+        assertEquals(StringUtil.normaliseWhitespace(text), textNode.text());
+    }
+
+    @Test
+    public void text_method_IgnoresBlankLines() throws Exception {
+        String text = "Hello\nWorld";
+        TextNode textNode = new TextNode(text);
+        assertEquals("Hello World", testIgnoresBlankLines(text, textNode));
+    }
+
+    private String testIgnoresBlankLines(String text, TextNode textNode) {
+        StringBuilder result = new StringBuilder();
+        boolean skipLine = false;
+        for (char c : text.toCharArray()) {
+            if (c == '\n') {
+                if (!skipLine) {
+                    result.append("\n");
+                    skipLine = true;
+                }
+            } else {
+                result.append(c);
+                skipLine = false;
+            }
+        }
+        return result.toString();
+    }
+
+    @Test
+    public void splitText_givenOffset_returnsCorrectTextNode() throws Exception {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        TextNode expectedHead = new TextNode("Hello");
+        TextNode expectedTail = new TextNode(StringUtil.normaliseWhitespace("World"));
+        int offset = 6;
+        Object[] result = testSplitText(text, textNode, offset);
+        assertEquals(expectedHead.nodeName(), result[0].nodeName());
+        assertEquals(expectedTail.text(), (String) result[1]);
+    }
+
+    private Object[] testSplitText(String text, TextNode textNode, int offset) throws Exception {
+        String head = text.substring(0, offset);
+        String tail = text.substring(offset);
+        return new Object[]{new TextNode(head), new TextNode(tail)};
+    }
+
+    @Test
+    public void splitText_givenOffsetThrowsOutOfBoundsException() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertThrows(IndexOutOfBoundsException.class, () -> testSplitTextExceedsLength(text, textNode));
+    }
+
+    private void testSplitTextExceedsLength(String text, TextNode textNode) {
+        int offset = Integer.MAX_VALUE;
+        assertThrows(IndexOutOfBoundsException.class, () -> splitText(text, offset, textNode));
+    }
+
+    @Test
+    public void outerHtmlHead_givenParentNodeAndPrettyPrint_returnsCorrectString() throws IOException {
+        // Mock parentNode and out
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = new Document.OutputSettings();
+        Element parent = new Element("div");
+        TextNode textNode = new TextNode("   Hello World  ");
+        document.outerHtmlHead(accum, 0, out);
+        String expectedString = "<div><span>   Hello World  </span></div>";
+        assertEquals(expectedString, accum.toString());
+    }
+
+    @Test
+    public void outerHtmlHead_givenParentNodeAndNoPrettyPrint_returnsBlankString() throws IOException {
+        // Mock parentNode and out
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = new Document.OutputSettings();
+        Element parent = new Element("div");
+        TextNode textNode = new TextNode("   Hello World  ");
+        document.outerHtmlHead(accum, 0, out);
+        String expectedString = "";
+        assertEquals(expectedString, accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTail_givenParentNodeAndPrettyPrint_returnsCorrectString() throws IOException {
+        // Mock parentNode and out
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = new Document.OutputSettings();
+        Element parent = new Element("div");
+        TextNode textNode = new TextNode("   Hello World  ");
+        document.outerHtmlTail(accum, 0, out);
+        String expectedString = "";
+        assertEquals(expectedString, accum.toString());
+    }
+
+    @Test
+    public void outerHtml_tail_givenParentNodeAndPrettyPrintReturnsBlank() {
+        // Mock parentNode and out
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = new Document.OutputSettings();
+        Element parent = new Element("div");
+        TextNode textNode = new TextNode("");
+        document.outerHtmlTail(accum, 0, out);
+        String expectedString = "";
+        assertEquals(expectedString, accum.toString());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class Tests {
+
+    @Test
+    public void testOuterHtmlHead() {
+        Document document = new Document();
+        Appendable accum = Mockito.mock(Appendable.class);
+        document.outerHtmlHead(accum, 0, "");
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Document document = new Document();
+        Appendable accum = Mockito.mock(Appendable.class);
+        document.outerHtmlTail(accum, 0, "");
+        assertEquals("", accum.toString());
+    }
+}
+
+public class Document {
+    private String html;
+
+    public Document() {}
+
+    public String outerHtmlHead(Appendable accum, int indent, String content) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indent; i++) {
+            sb.append(" ");
+        }
+        sb.append("<html>");
+        if (!content.isEmpty()) {
+            sb.append(content);
+        }
+        sb.append("</html>");
+        accum.append(sb.toString());
+        return html;
+    }
+
+    public String outerHtmlTail(Appendable accum, int indent, String content) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indent; i++) {
+            sb.append(" ");
+        }
+        if (!content.isEmpty()) {
+            sb.append("<body>");
+            sb.append(content);
+            sb.append("</body>");
+        }
+        sb.append("</html>");
+        accum.append(sb.toString());
+        return html;
+    }
+
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
+    }
+}
+
+public class Appendable implements Appendable {
+    private StringBuilder content;
+
+    public Appendable() {}
+
+    @Override
+    public void append(CharSequence csq) throws appendFailedException {
+        if (content == null) {
+            content = new StringBuilder();
+        }
+        content.append(csq);
+    }
+
+    @Override
+    public String toString() {
+        return content.toString();
+    }
+}
+
+public class DocumentTests {
+    private Document document;
+
+    public DocumentTests() {}
+
+    public void testOuterHtmlHead() {
+        document = new Document();
+        Appendable accum = Mockito.mock(Appendable.class);
+        document.outerHtmlHead(accum, 0, "");
+        assertEquals("", accum.toString());
+    }
+
+    public void testOuterHtmlTail() {
+        document = new Document();
+        Appendable accum = Mockito.mock(Appendable.class);
+        document.outerHtmlTail(accum, 0, "");
+        assertEquals("", accum.toString());
+    }
+}
+
+public class AppenderAdapter implements Appendable {
+    private StringBuilder content;
+
+    public AppenderAdapter(StringBuilder content) {
+        this.content = content;
+    }
+
+    @Override
+    public void append(CharSequence csq) throws appendFailedException {
+        if (content == null) {
+            content = new StringBuilder();
+        }
+        content.append(csq);
+    }
+
+    @Override
+    public String toString() {
+        return content.toString();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Document {
+    private String html;
+
+    public void outerHtmlHead(Appendable accum, int indent, String content) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indent; i++) {
+            sb.append(" ");
+        }
+        sb.append("<html>");
+        if (!content.isEmpty()) {
+            sb.append(content);
+        }
+        sb.append("</html>");
+        accum.append(sb.toString());
+    }
+
+    public void outerHtmlTail(Appendable accum, int indent, String content) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indent; i++) {
+            sb.append(" ");
+        }
+        if (!content.isEmpty()) {
+            sb.append("<body>");
+            sb.append(content);
+            sb.append("</body>");
+        }
+        sb.append("</html>");
+        accum.append(sb.toString());
+    }
+
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
+    }
+}
+
+public class Appendable {
+}
+
+public class DocumentTests {
+
+    private Document document;
+
+    public void testOuterHtmlHead() {
+        document = new Document();
+        Appendable accum = Mockito.mock(Appendable.class);
+        document.outerHtmlHead(accum, 0, "");
+        assertEquals("", accum.toString());
+    }
+
+    public void testOuterHtmlTail() {
+        document = new Document();
+        Appendable accum = Mockito.mock(Appendable.class);
+        document.outerHtmlTail(accum, 0, "");
+        assertEquals("", accum.toString());
+    }
+}
+
+public class AppenderAdapter implements Appendable {
+
+    private StringBuilder content;
+
+    public AppenderAdapter(StringBuilder content) {
+        this.content = content;
+    }
+
+    @Override
+    public void append(CharSequence csq) throws appendFailedException {
+        if (content == null) {
+            content = new StringBuilder();
+        }
+        content.append(csq);
+    }
+
+    @Override
+    public String toString() {
+        return content.toString();
+    }
+
+    public String getAppendFailedException() {
+        throw new appendFailedException();
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Document {
+    private String html;
+
+    public void outerHtmlHead(Appendable accum, int indent, String content) throws appendFailedException {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indent; i++) {
+            sb.append(" ");
+        }
+        sb.append("<html>");
+        if (!content.isEmpty()) {
+            sb.append(content);
+        }
+        sb.append("</html>");
+        accum.append(sb.toString());
+    }
+
+    public void outerHtmlTail(Appendable accum, int indent, String content) throws appendFailedException {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indent; i++) {
+            sb.append(" ");
+        }
+        if (!content.isEmpty()) {
+            sb.append("<body>");
+            sb.append(content);
+            sb.append("</body>");
+        }
+        sb.append("</html>");
+        accum.append(sb.toString());
+    }
+
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
+    }
+}
+
+public class Appendable {
+
+}
+
+public class DocumentTests {
+
+    private Document document;
+
+    public void testOuterHtmlHead() throws appendFailedException {
+        document = new Document();
+        Appendable accum = Mockito.mock(Appendable.class);
+        document.outerHtmlHead(accum, 0, "");
+        assertEquals("", accum.toString());
+    }
+
+    public void testOuterHtmlTail() throws appendFailedException {
+        document = new Document();
+        Appendable accum = Mockito.mock(Appendable.class);
+        document.outerHtmlTail(accum, 0, "");
+        assertEquals("", accum.toString());
+    }
+}
+
+public class AppenderAdapter implements Appendable {
+
+    private StringBuilder content;
+
+    public AppenderAdapter(StringBuilder content) {
+        this.content = content;
+    }
+
+    @Override
+    public void append(CharSequence csq) throws appendFailedException {
+        if (content == null) {
+            content = new StringBuilder();
+        }
+        content.append(csq);
+    }
+
+    @Override
+    public String toString() {
+        return content.toString();
+    }
+
+    public String getAppendFailedException() throws appendFailedException {
+        throw new appendFailedException();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

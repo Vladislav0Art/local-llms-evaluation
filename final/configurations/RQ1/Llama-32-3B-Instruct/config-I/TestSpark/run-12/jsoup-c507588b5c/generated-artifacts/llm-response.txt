@@ -1,0 +1,542 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.HashMap;
+import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
+
+public class TextNodeTest {
+
+    @Test
+    public void constructorTextTest() {
+        TextNode node = new TextNode("Hello World");
+        assertNotNull(node.value);
+        assertEquals("Hello World", node.value);
+    }
+
+    @Test
+    public void textGetWholeTextTest() {
+        TextNode node = new TextNode("   ");
+        String result = node.getWholeText();
+        assertEquals("   ", result);
+
+        TextNode node2 = new TextNode("This is a test");
+        String result2 = node2.getWholeText();
+        assertEquals("This is a test", result2);
+    }
+
+    @Test
+    public void textGetWholeTextTrimmingWhitespaceTest() {
+        String normalisedText = StringUtil.normaliseWhitespace("   Hello World   ");
+        TextNode node = new TextNode(normalisedText);
+        String result = node.getWholeText();
+        assertEquals(normalisedText, result);
+    }
+
+    @Test
+    public void textSetAndGetTextTest() {
+        TextNode node = new TextNode("");
+        assertNotNull(node.text());
+        assertEquals("", node.text());
+
+        node.text("New test");
+        assertEquals("New test", node.text());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode node1 = new TextNode("");
+        assertTrue(node1.isBlank());
+
+        TextNode node2 = new TextNode("   ");
+        assertTrue(node2.isBlank());
+
+        TextNode node3 = new TextNode("Hello World");
+        assertFalse(node3.isBlank());
+    }
+
+    @Test
+    public void splitTextSplitAtOffsetTest() {
+        String text = "Hello World";
+        TextNode node = new TextNode(text);
+        TextNode tail = node.splitText(6);
+        assertEquals(0, tail.value.indexOf("World"));
+    }
+
+    @Test
+    public void splitTextInvalidOffsetTest() {
+        TextNode node = new TextNode("   ");
+        assertThrows(IndexOutOfBoundsException.class, () -> node.splitText(-1));
+        assertThrows(IndexOutOfBoundsException.class, () -> node.splitText(10));
+    }
+
+    @Test
+    public void outerHtmlHeadTest() {
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Document.OutputSettings settings = new Document.OutputSettings(true);
+        TextNode node = new TextNode("   ");
+        node.outerHtmlHead(outStream, 0, settings);
+        assertEquals("<p></p>", outStream.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Document.OutputSettings settings = new Document.OutputSettings(true);
+        TextNode node = new TextNode("   ");
+        node.outerHtmlTail(outStream, 0, settings);
+    }
+
+    @Test
+    public void toStringTest() {
+        TextNode node = new TextNode("");
+        assertEquals("", node.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode node = new TextNode("Hello World");
+        TextNode clone = node.clone();
+        assertNotNull(clone);
+        assertEquals(node.value, clone.value);
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        String encodedText = "&lt;Hello World&gt;";
+        TextNode node = TextNode.createFromEncoded(encodedText);
+        assertEquals("Hello World", node.text());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class StringUtil {
+    public static String normaliseWhitespace(String input) {
+        return input.replaceAll("\\s+", " ");
+    }
+}
+
+public class TextNode {
+    private String value;
+
+    public TextNode(String value) {
+        this.value = value;
+    }
+
+    public String text() {
+        return value;
+    }
+
+    public void setText(String value) {
+        this.value = value;
+    }
+
+    public String getWholeText() {
+        return value.trim();
+    }
+
+    public TextNode splitText(int offset) {
+        if (offset < 0 || offset > value.length()) {
+            throw new IndexOutOfBoundsException("Offset is out of range");
+        }
+        String tail = value.substring(offset);
+        return new TextNode(tail);
+    }
+
+    public void outerHtmlHead(ByteArrayOutputStream outStream, int offset, Document.OutputSettings settings) {
+        if (!settings.isPrettyPrint) {
+            outStream.write("<p>");
+        }
+        if (offset > 0 && offset < value.length()) {
+            outStream.write(value.substring(0, offset));
+        }
+    }
+
+    public void outerHtmlTail(ByteArrayOutputStream outStream, int offset, Document.OutputSettings settings) {
+        if (!settings.isPrettyPrint) {
+            outStream.write("</p>");
+        }
+        outStream.write(value.substring(offset).trim());
+    }
+
+    public static TextNode createFromEncoded(String encodedText) {
+        return new TextNode(encodedText);
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TextNode that = (TextNode) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class StringUtil {
+    public static String normaliseWhitespace(String input) {
+        return input.replaceAll("\\s+", " ").trim();
+    }
+
+    public static boolean isEmpty(String input) {
+        return input.isEmpty();
+    }
+}
+
+public class TextNode {
+    private String value;
+
+    public TextNode() {}
+
+    public TextNode(String value) {
+        this.value = value;
+    }
+
+    public String text() {
+        return value.trim();
+    }
+
+    public void setText(String value) {
+        this.value = StringUtil.normaliseWhitespace(value);
+    }
+
+    public String getWholeText() {
+        return value;
+    }
+
+    public boolean isBlank() {
+        return StringUtil.isEmpty(text());
+    }
+
+    public TextNode splitText(int offset) throws IndexOutOfBoundsException {
+        if (offset < 0 || offset > value.length()) {
+            throw new IndexOutOfBoundsException("Offset is out of range");
+        }
+        String tail = value.substring(offset);
+        return new TextNode(tail);
+    }
+
+    public void outerHtmlHead(ByteArrayOutputStream outStream, int offset) throws IOException {
+        if (!isPrettyPrint(outStream)) {
+            outStream.write("<p>");
+        }
+        if (offset > 0 && offset < value.length()) {
+            outStream.write(value.substring(0, offset));
+        }
+    }
+
+    public void outerHtmlTail(ByteArrayOutputStream outStream, int offset) throws IOException {
+        if (!isPrettyPrint(outStream)) {
+            outStream.write("</p>");
+        }
+        outStream.write(value.substring(offset).trim());
+    }
+
+    public static TextNode createFromEncoded(String encodedText) {
+        return new TextNode(encodedText);
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TextNode that = (TextNode) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+}
+
+public class Document {
+    private boolean isPrettyPrint;
+
+    public void setPrettyPrint(boolean prettyPrint) {
+        isPrettyPrint = prettyPrint;
+    }
+
+    public boolean isPrettyPrint() throws IOException {
+        if (isPrettyPrint()) {
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            for (char c : value.toCharArray()) {
+                throw new UnsupportedOperationException("Not implemented yet");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private String value;
+
+    public Document(String value) {
+        this.value = value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class StringUtil {
+    public static String normaliseWhitespace(String input) {
+        return input.replaceAll("\\s+", " ").trim();
+    }
+
+    public static boolean isEmpty(String input) {
+        return input.isEmpty();
+    }
+}
+
+public class TextNode {
+    private String value;
+
+    public TextNode() {}
+
+    public TextNode(String value) {
+        this.value = StringUtil.normaliseWhitespace(value);
+    }
+
+    public String text() {
+        return value;
+    }
+
+    public void setText(String value) {
+        this.value = StringUtil.normaliseWhitespace(value);
+    }
+
+    public String getWholeText() {
+        return value;
+    }
+
+    public boolean isBlank() {
+        return StringUtil.isEmpty(text());
+    }
+
+    public TextNode splitText(int offset) throws IndexOutOfBoundsException {
+        if (offset < 0 || offset > value.length()) {
+            throw new IndexOutOfBoundsException("Offset is out of range");
+        }
+        String tail = value.substring(offset);
+        return new TextNode(tail);
+    }
+
+    public void outerHtmlHead(ByteArrayOutputStream outStream, int offset) throws IOException {
+        if (!Document.this.isPrettyPrint(outStream)) {
+            outStream.write("<p>");
+        }
+        if (offset > 0 && offset < value.length()) {
+            outStream.write(value.substring(0, offset));
+        }
+    }
+
+    public void outerHtmlTail(ByteArrayOutputStream outStream, int offset) throws IOException {
+        if (!Document.this.isPrettyPrint(outStream)) {
+            outStream.write("</p>");
+        }
+        outStream.write(value.substring(offset).trim());
+    }
+
+    public static TextNode createFromEncoded(String encodedText) {
+        return new TextNode(encodedText);
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TextNode that = (TextNode) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+}
+
+public class Document {
+    private boolean isPrettyPrint;
+
+    public Document(boolean isPrettyPrint) {
+        this.isPrettyPrint = isPrettyPrint;
+    }
+
+    public void setPrettyPrint(boolean prettyPrint) {
+        isPrettyPrint = prettyPrint;
+    }
+
+    public boolean isPrettyPrint() throws IOException {
+        if (isPrettyPrint()) {
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            for (char c : value.toCharArray()) {
+                throw new UnsupportedOperationException("Not implemented yet");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private String value;
+
+    public Document(String value) {
+        this.value = value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class StringUtil {
+    public static String replaceAll(String input, String oldString, String newString) {
+        return input.replaceAll(oldString, newString);
+    }
+
+    public static boolean contains(String input, String oldString) {
+        return input.indexOf(oldString) != -1;
+    }
+}
+
+public class TextNode {
+    private String value;
+
+    public TextNode() {}
+
+    public TextNode(String value) {
+        this.value = StringUtil.replaceAll(value, "\\s+", " ");
+    }
+
+    public String text() {
+        return value.trim();
+    }
+
+    public void setText(String value) {
+        this.value = StringUtil.replaceAll(value, "\\s+", " ");
+    }
+
+    public String getWholeText() {
+        return value;
+    }
+
+    public boolean isBlank() {
+        return StringUtil.contains(this.text(), "");
+    }
+
+    public TextNode splitText(int offset) throws IndexOutOfBoundsException {
+        if (offset < 0 || offset > value.length()) {
+            throw new IndexOutOfBoundsException("Offset is out of range");
+        }
+        String tail = value.substring(offset);
+        return new TextNode(tail);
+    }
+
+    public void outerHtmlHead(ByteArrayOutputStream outStream, int offset) throws IOException {
+        if (!Document.this.isPrettyPrint(outStream)) {
+            outStream.write("<p>");
+        }
+        if (offset > 0 && offset < value.length()) {
+            outStream.write(value.substring(0, offset));
+        }
+    }
+
+    public void outerHtmlTail(ByteArrayOutputStream outStream, int offset) throws IOException {
+        if (!Document.this.isPrettyPrint(outStream)) {
+            outStream.write("</p>");
+        }
+        outStream.write(value.substring(offset).trim());
+    }
+
+    public static TextNode createFromEncoded(String encodedText) {
+        return new TextNode(encodedText);
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TextNode that = (TextNode) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+}
+
+public class Document {
+    private boolean isPrettyPrint;
+
+    public Document(boolean isPrettyPrint) {
+        this.isPrettyPrint = isPrettyPrint;
+    }
+
+    public void setPrettyPrint(boolean prettyPrint) {
+        isPrettyPrint = prettyPrint;
+    }
+
+    public boolean isPrettyPrint() throws IOException {
+        if (isPrettyPrint()) {
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            for (char c : value.toCharArray()) {
+                throw new UnsupportedOperationException("Not implemented yet");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private String value;
+
+    public Document(String value) {
+        this.value = value;
+    }
+}
+```
+
+Note: In the `Document` class, I've left out the implementation of `isPrettyPrint()` and `value.toCharArray()` as they are not clear from the provided information. You would need to implement these based on your specific requirements.
+===================================================
+
+
+====================== Iteration #6 ======================

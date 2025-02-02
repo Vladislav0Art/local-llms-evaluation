@@ -1,0 +1,435 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class CommentTest {
+
+    @Test
+    public void createCommentFromDataShouldReturnValidComment() {
+        Comment comment = new Comment("<!-- data -->");
+        assertEquals("#comment", comment.nodeName());
+        assertEquals("data", comment.getData());
+    }
+
+    @Test
+    public void setDataShouldUpdateTheCommentContents() {
+        Comment comment = new Comment("<!-- original data -->");
+        String updatedData = "<!-- updated data -->";
+        comment.setData(updatedData);
+        assertEquals(updatedData, comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadShouldAppendCommentWithDataToAccumulator() {
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("<!-- data -->");
+        comment.outerHtmlHead(accum, 0, out);
+        assertEquals("<!--data-->", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailShouldNotAppendAnythingToAccumulator() {
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("");
+        comment.outerHtmlTail(accum, 0, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toStringShouldReturnOuterHtmlStringOfComment() {
+        Comment comment = new Comment("<!-- data -->");
+        String expectedOutput = "<!--data-->";
+        assertEquals(expectedOutput, comment.toString());
+    }
+
+    @Test
+    public void cloneShouldReturnValidCloneObject() throws CloneNotSupportedException {
+        Comment comment = new Comment("");
+        Comment clonedComment = comment.clone();
+        assertTrue(clonedComment instanceof Comment);
+        assertEquals(comment.nodeName(), clonedComment.nodeName());
+        assertEquals(comment.getData(), clonedComment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationShouldReturnFalseForCommentWithoutData() {
+        Comment comment = new Comment("");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclarationShouldReturnTrueIfDataStartsWithXmlDeclarationSignature() {
+        Comment comment = new Comment("<!-- !xml declaration -->");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationShouldReturnNullIfDataDoesNotContainXmlDeclarationSignature() {
+        Comment comment = new Comment("<!-- bogus data -->");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationShouldReturnValidXmlDeclarationObjectWhenDataContainsXmlDeclarationSignature() {
+        Comment comment = new Comment("<!-- !xml declaration -->");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+    }
+
+    @Test
+    public void asXmlDeclarationShouldReturnEmptyDeclarationIfInnerHtmlFragmentIsInvalidXml() throws IOException, ParseSettings {
+        Document doc = Parser.htmlParser().settings(ParseSettings.preserveCase).parseInput("< invalid xml fragment >", null);
+        Comment comment = new Comment("<!-- !xml declaration -->");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class TestGeneratedComments {
+    @Test
+    public void testXmlDeclaration() {
+        Comment comment = new Comment("xml_declaration", "<!-- xml_declaration -->");
+        assertTrue(comment.isXmlDeclaration());
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void testCommentCreation() {
+        Document doc = Parser.htmlParser().settings(ParseSettings.preserveCase).parseInput("< invalid xml fragment >", null);
+        assertNotNull(doc);
+        assertEquals(1, doc.elementCount());
+    }
+}
+
+public class Comment {
+    private String name;
+    private String value;
+
+    public Comment(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public boolean isXmlDeclaration() {
+        return "xml_declaration".equals(name);
+    }
+
+    public XmlDeclaration asXmlDeclaration() {
+        return new XmlDeclaration("xml_declaration", value);
+    }
+}
+
+public class XmlDeclaration {
+    private String name;
+    private String value;
+
+    public XmlDeclaration(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Comment {
+    private String name;
+    private String value;
+
+    public Comment(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public boolean isXmlDeclaration() {
+        return "xml_declaration".equals(name);
+    }
+
+    public XmlDeclaration asXmlDeclaration() {
+        return new XmlDeclaration("xml_declaration", value);
+    }
+}
+
+public class XmlDeclaration {
+    private String name;
+    private String value;
+
+    public XmlDeclaration(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof XmlDeclaration))
+            return false;
+        XmlDeclaration other = (XmlDeclaration) obj;
+        return Objects.equals(name, other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+}
+
+public class ParseSettings {
+    public static ParseSettings preserveCase = new ParseSettings();
+}
+
+public class Parser {
+    public static Parser htmlParser() {
+        return new Parser();
+    }
+}
+
+public class Document {
+    private int elementCount;
+
+    public Document(int elementCount) {
+        this.elementCount = elementCount;
+    }
+
+    public int elementCount() {
+        return elementCount;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof Document))
+            return false;
+        Document other = (Document) obj;
+        return elementCount == other.elementCount();
+    }
+}
+
+public class GeneratedTest {
+
+    @org.junit.Test
+    public void testXmlDeclaration() {
+        Comment comment = new Comment("xml_declaration", "<!-- xml_declaration -->");
+        assertTrue(comment.isXmlDeclaration());
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @org.junit.Test
+    public void testCommentCreation() {
+        Document doc = Parser.htmlParser().settings(ParseSettings.preserveCase).parseInput("< invalid xml fragment >", null);
+        assertNotNull(doc);
+        assertEquals(1, doc.elementCount());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class TestGeneratedComments {
+    public static void main(String[] args) {
+        org.junit.Test
+        public void testXmlDeclaration() {
+            Comment comment = new Comment("xml_declaration", "<!-- xml_declaration -->");
+            assertTrue(comment.isXmlDeclaration());
+            assertNull(comment.asXmlDeclaration());
+        }
+
+        @org.junit.Test
+        public void testCommentCreation() {
+            Document doc = Parser.htmlParser().settings(ParseSettings.preserveCase).parseInput("< invalid xml fragment >", null);
+            assertNotNull(doc);
+            assertEquals(1, doc.elementCount());
+        }
+    }
+}
+
+public class Comment {
+    private String name;
+    private String value;
+
+    public static Comment createComment(String name, String value) {
+        return new Comment(name, value);
+    }
+
+    public boolean isXmlDeclaration() {
+        return "xml_declaration".equals(name);
+    }
+
+    public XmlDeclaration asXmlDeclaration() {
+        return new XmlDeclaration("xml_declaration", value);
+    }
+}
+
+public class XmlDeclaration implements java.lang.Comparable<XmlDeclaration> {
+    private String name;
+    private String value;
+
+    public static boolean isXmlDeclaration(String name) {
+        return "xml_declaration".equals(name);
+    }
+
+    public XmlDeclaration(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public int compareTo(XmlDeclaration o) {
+        if (this == o)
+            return 0;
+        if (!(o instanceof XmlDeclaration))
+            return -1;
+        XmlDeclaration other = (XmlDeclaration) o;
+        if (!name.equals(other.name))
+            return name.compareTo(o.name);
+        else
+            return value.compareTo(o.value);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof XmlDeclaration))
+            return false;
+        XmlDeclaration other = (XmlDeclaration) obj;
+        return Objects.equals(name, other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+}
+
+public class Document {
+    private int elementCount;
+
+    public static boolean isDocument(Document doc) {
+        return true; // assume this will be replaced with actual logic in future
+    }
+
+    public Document(int elementCount) {
+        this.elementCount = elementCount;
+    }
+
+    public int elementCount() {
+        return elementCount;
+    }
+}
+
+public class ParseSettings {
+    public static ParseSettings preserveCase = new ParseSettings();
+}
+
+public class Parser {
+    public static Parser htmlParser() {
+        return new Parser();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Comment {
+    private String name;
+    private String value;
+
+    public Comment(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public boolean isXmlDeclaration() {
+        return "xml_declaration".equals(name);
+    }
+
+    public XmlDeclaration asXmlDeclaration() {
+        return new XmlDeclaration("xml_declaration", value);
+    }
+}
+
+public class XmlDeclaration {
+    private String name;
+    private String value;
+
+    public XmlDeclaration(String name, String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof XmlDeclaration))
+            return false;
+        XmlDeclaration other = (XmlDeclaration) obj;
+        return Objects.equals(name, other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+}
+
+public class ParseSettings {
+    public static ParseSettings preserveCase = new ParseSettings();
+}
+
+public class Parser {
+    public static Parser htmlParser() {
+        return new Parser();
+    }
+}
+
+public class Document {
+    private int elementCount;
+
+    public Document(int elementCount) {
+        this.elementCount = elementCount;
+    }
+
+    public int elementCount() {
+        return elementCount;
+    }
+}
+
+public class GeneratedTest {
+
+    @org.junit.Test
+    public void testXmlDeclaration() {
+        Comment comment = new Comment("xml_declaration", "<!-- xml_declaration -->");
+        assertTrue(comment.isXmlDeclaration());
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @org.junit.Test
+    public void testCommentCreation() {
+        Document doc = new Document(1);
+        assertNotNull(Parser.htmlParser().settings(ParseSettings.preserveCase).parseInput("< invalid xml fragment >", null));
+        assertEquals(1, doc.elementCount());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

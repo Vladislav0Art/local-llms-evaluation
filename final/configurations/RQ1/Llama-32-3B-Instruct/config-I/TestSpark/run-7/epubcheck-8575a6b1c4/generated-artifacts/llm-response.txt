@@ -1,0 +1,244 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class EpubCheck {
+    // ...
+
+    public static void main(String[] args) throws Exception {
+        new EpubCheck().run(args);
+    }
+
+    private boolean run(String[] args) {
+        if (args.length == 0) {
+            displayHelp();
+            return false;
+        }
+        if (!parseArguments(args)) {
+            return false;
+        }
+        setCustomMessageFileFromEnvironment();
+
+        // ... rest of the code ...
+
+        List<CheckResult> results = checkFiles();
+        List<String> errors = getErrors();
+        writeResultsToOutput(results, errors);
+
+        return true;
+    }
+
+    private boolean parseArguments(String[] args) {
+        String path = null;
+        for (String arg : args) {
+            if (!arg.startsWith("-")) {
+                // Assume the first non-option argument is a file path
+                path = arg;
+                break;
+            }
+            // ... rest of option parsing ...
+        }
+        return path != null;
+    }
+
+    private List<CheckResult> checkFiles() {
+        // ... perform file checks and collect results ...
+        return Collections.emptyList();
+    }
+
+    private List<String> getErrors() {
+        // ... get any errors that occurred during the checks ...
+        return Collections.emptyList();
+    }
+
+    private void writeResultsToOutput(List<CheckResult> results, List<String> errors) {
+        // ... write the results to a file or stdout ...
+    }
+}
+
+public class CheckResult {
+    public enum Result { PASS, FAIL };
+    public Result getResult() { return result; }
+    public String getErrorLine() { return errorLine; }
+    private Result result;
+    private String errorLine;
+
+    public CheckResult(Result result, String errorLine) {
+        this.result = result;
+        this.errorLine = errorLine;
+    }
+}
+
+public class EpubCheckMessages extends Messages {
+    // Custom message instances
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+I apologize for the incomplete response earlier. Here's a more detailed example of how you could implement an `EpubCheck` class that checks for certain issues in EPUB files:
+
+```java
+import org.apache.commons.io.IOUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class EpubCheck {
+    private static final String[] ALLOWED_EXTENSIONS = {"epub", "zip"};
+
+    public static void main(String[] args) throws Exception {
+        new EpubCheck().run(args);
+    }
+
+    public boolean run(String[] args) {
+        if (args.length == 0) {
+            displayHelp();
+            return false;
+        }
+        if (!parseArguments(args)) {
+            return false;
+        }
+        setCustomMessageFileFromEnvironment();
+
+        // Check file extension
+        if (!checkFileExtension()) {
+            return false;
+        }
+
+        // Parse HTML content
+        Document doc = parseHTMLContent();
+        if (doc == null) {
+            return false;
+        }
+
+        // Find all link elements
+        List<Element> linkElements = findLinkElements(doc);
+        if (linkElements.isEmpty()) {
+            return true; // No links found, no issue
+        }
+
+        // Check for relative URLs in links
+        boolean hasRelativeUrl = hasRelativeUrlInLinks(linkElements);
+        if (!hasRelativeUrl) {
+            return false;
+        }
+
+        // Check for duplicate content
+        List<String> duplicateContent = findDuplicateContent(doc);
+        if (duplicateContent.isEmpty()) {
+            return true; // No duplicate content found
+        }
+
+        // Write results to output file
+        List<CheckResult> results = new ArrayList<>();
+        results.add(new CheckResult(CheckResult.Result.FAIL, "Relative URLs not allowed"));
+        writeResultsToOutput(results);
+
+        return false;
+    }
+
+    private boolean checkFileExtension() {
+        for (String ext : ALLOWED_EXTENSIONS) {
+            if (args[0].endsWith("." + ext)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Document parseHTMLContent() throws Exception {
+        String html = IOUtils.readFileToString(new java.io.File(args[0]), "UTF-8");
+        return Jsoup.parse(html);
+    }
+
+    private List<Element> findLinkElements(Document doc) {
+        return doc.select("a[href]");
+    }
+
+    private boolean hasRelativeUrlInLinks(List<Element> linkElements) {
+        for (Element link : linkElements) {
+            String href = link.attr("href");
+            if (!href.startsWith("http")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<String> findDuplicateContent(Document doc) {
+        // This is a simplified implementation and may not work correctly for all cases
+        Set<String> contentSet = new HashSet<>();
+        List<Element> elements = doc.select("[content]");
+        for (Element element : elements) {
+            String content = element.attr("content");
+            if (contentSet.contains(content)) {
+                return Collections.singletonList(content);
+            }
+            contentSet.add(content);
+        }
+        return Collections.emptyList();
+    }
+
+    private void displayHelp() {
+        System.out.println("Usage: java EpubCheck [options]");
+        System.out.println("Options:");
+        System.out.println("  -h, --help     Show this help message and exit");
+        System.out.println("  <file>         EPUB file to check");
+    }
+
+    private void setCustomMessageFileFromEnvironment() {
+        // Set custom message file from environment variable
+        String messageFile = System.getenv("EPUB_CHECK_MESSAGE_FILE");
+        if (messageFile != null) {
+            messages = new EpubCheckMessages(messageFile);
+        }
+    }
+
+    private boolean parseArguments(String[] args) {
+        for (int i = 1; i < args.length - 1; i++) {
+            String option = args[i];
+            switch (option.toLowerCase()) {
+                case "h":
+                    return true;
+                case "--help":
+                    displayHelp();
+                    return false;
+                default:
+                    break;
+            }
+        }
+        return true;
+    }
+
+    private EpubCheckMessages messages;
+
+    public void writeResultsToOutput(List<CheckResult> results) throws Exception {
+        // Write results to output file
+        File outputFile = new File(args[0] + ".results");
+        IOUtils.writeToString(outputFile, "Pass\n" + results.stream().map(result -> result.getErrorLine()).collect(Collectors.joining("\n")), "UTF-8");
+    }
+}
+
+public class CheckResult {
+    public enum Result { PASS, FAIL };
+    public Result getResult() { return result; }
+    public String getErrorLine() { return errorLine; }
+    private Result result;
+    private String errorLine;
+
+    public CheckResult(Result result, String errorLine) {
+        this.result = result;
+        this.errorLine = errorLine;
+    }
+}
+
+public class EpubCheckMessages extends Messages {
+    // Custom message instances
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================

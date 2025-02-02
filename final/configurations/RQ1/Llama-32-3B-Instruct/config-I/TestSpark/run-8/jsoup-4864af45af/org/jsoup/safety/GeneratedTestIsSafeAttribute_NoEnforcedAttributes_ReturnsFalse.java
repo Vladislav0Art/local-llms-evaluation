@@ -1,0 +1,63 @@
+package org.jsoup.safety;
+
+public class GeneratedTestIsSafeAttribute_NoEnforcedAttributes_ReturnsFalse {
+
+    private String tag;
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+}
+
+public class Attribute extends Element {
+    private String key;
+    private String value;
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}
+
+public class Attributes extends Element {
+    private Map<String, Attribute> attributes = new HashMap<>();
+
+    public Map<String, Attribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttribute(Attribute attribute) {
+        attributes.put(attribute.getKey(), attribute);
+    }
+
+    public boolean hasAttribute(String key) {
+        return attributes.containsKey(key);
+    }
+}
+
+public class ElementTest {
+
+    @Test
+    public void testIsSafeAttribute_NoEnforcedAttributes_ReturnsFalse() {
+        Element element = new Element();
+        element.setTag("test");
+        Attributes attrs = new Attributes();
+        Assert.assertFalse(Element.isSafeAttribute("test", element, null));
+    }
+
+}

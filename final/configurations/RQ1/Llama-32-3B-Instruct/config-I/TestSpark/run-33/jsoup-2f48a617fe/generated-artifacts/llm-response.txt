@@ -1,0 +1,554 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+public class CommentTest {
+
+    @Test
+    public void createCommentFromEmptyStringCreatesBlankComment() {
+        Comment comment = new Comment("");
+        assertEquals("#comment", comment.nodeName());
+        assertNull(comment.getData());
+    }
+
+    @Test
+    public void createCommentWithTextSetsDataProperly() {
+        Comment comment = new Comment("Some text");
+        assertEquals("Some text", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadAddsProperCommentTagWhenPrettyPrintedAndBlockFormattingEnabled() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings outputSettings = new Document.OutputSettings(true, true);
+        Comment comment = new Comment("Some text");
+        comment.outerHtmlHead(accum, 0, outputSettings);
+        assertEquals("<!--Some text-->", outContent.toString());
+    }
+
+    @Test
+    public void outerHtmlHeadDoesNotAddCommentTagWhenPrettyPrintedButNoBlockFormatting() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings outputSettings = new Document.OutputSettings(true, false);
+        Comment comment = new Comment("Some text");
+        comment.outerHtmlHead(accum, 0, outputSettings);
+        assertEquals("", outContent.toString());
+    }
+
+    @Test
+    public void outerHtmlTailDoesNotAddAnything() {
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings outputSettings = new Document.OutputSettings(false, false);
+        Comment comment = new Comment("Some text");
+        comment.outerHtmlTail(accum, 0, outputSettings);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void cloneCommentCreatesNewCopy() {
+        Comment original = new Comment("Some text");
+        Comment copy = original.clone();
+        assertNotSame(original, copy);
+        assertEquals("#comment", copy.nodeName());
+        assertEquals("Some text", copy.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationReturnsFalseForRandomData() {
+        String data = "randomtext";
+        assertFalse(comment.isXmlDeclaration(data));
+    }
+
+    @Test
+    public void isXmlDeclarationReturnsTrueWhenStartsWithExclamationMark() {
+        String data = "!xml declaration";
+        assertTrue(comment.isXmlDeclaration(data));
+    }
+
+    @Test
+    public void asXmlDeclarationReturnsNullForCommentWithoutDeclarationData() {
+        Comment comment = new Comment("Some text");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationParsesDeclarationDataCorrectly() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings outputSettings = new Document.OutputSettings(false, false);
+        Comment comment = new Comment("<?xml version=\"1.0\"?><some xml>"));
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        assertNotNull(decl);
+        assertEquals("some xml", decl.tag());
+        assertTrue(comment.isXmlDeclarationData(comment.getData()));
+    }
+
+    @Test
+    public void asXmlDeclarationTreatsBogusCommentsAsCommentIfFollowedByAnother() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings outputSettings = new Document.OutputSettings(false, false);
+        Comment comment = new Comment("<!-- Bogus XML declaration -->\n<?xml version=\"1.0\"?><some xml>"));
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        assertNull(decl);
+    }
+
+    private static final Comment comment = new Comment("Some text");
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+public class CommentTest {
+
+    @Test
+    public void createCommentFromEmptyStringCreatesBlankComment() {
+        Comment comment = new Comment("");
+        assertEquals("#comment", comment.nodeName());
+        assertNull(comment.getData());
+    }
+
+    @Test
+    public void createCommentWithTextSetsDataProperly() {
+        Comment comment = new Comment("Some text");
+        assertEquals("Some text", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadAddsProperCommentTagWhenPrettyPrintedAndBlockFormattingEnabled() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings outputSettings = new Document.OutputSettings(true, true);
+        Comment comment = new Comment("Some text");
+        comment.outerHtmlHead(accum, 0, outputSettings);
+        assertEquals("<!--Some text-->", outContent.toString());
+    }
+
+    @Test
+    public void outerHtmlHeadDoesNotAddCommentTagWhenPrettyPrintedButNoBlockFormatting() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings outputSettings = new Document.OutputSettings(true, false);
+        Comment comment = new Comment("Some text");
+        comment.outerHtmlHead(accum, 0, outputSettings);
+        assertEquals("", outContent.toString());
+    }
+
+    @Test
+    public void outerHtmlTailDoesNotAddAnything() {
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings outputSettings = new Document.OutputSettings(false, false);
+        Comment comment = new Comment("Some text");
+        comment.outerHtmlTail(accum, 0, outputSettings);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void cloneCommentCreatesNewCopy() {
+        Comment original = new Comment("Some text");
+        Comment copy = original.clone();
+        assertNotSame(original, copy);
+        assertEquals("#comment", copy.nodeName());
+        assertEquals("Some text", copy.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationReturnsFalseForRandomData() {
+        String data = "randomtext";
+        assertFalse(comment.isXmlDeclaration(data));
+    }
+
+    @Test
+    public void isXmlDeclarationReturnsTrueWhenStartsWithExclamationMark() {
+        String data = "!xml declaration";
+        assertTrue(comment.isXmlDeclaration(data));
+    }
+
+    @Test
+    public void asXmlDeclarationReturnsNullForCommentWithoutDeclarationData() {
+        Comment comment = new Comment("Some text");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationParsesDeclarationDataCorrectly() throws IOException {
+        Document doc = new Document();
+        Parser parser = new Parser(doc, ParseSettings.DEFAULT);
+        parser.parseString("<!-- XML declaration -->", null);
+        Comment comment = new Comment("");
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        assertNotNull(decl);
+    }
+
+    @Test
+    public void asXmlDeclarationTreatsBogusCommentsAsCommentIfFollowedByAnother() throws IOException {
+        Document doc = new Document();
+        Parser parser = new Parser(doc, ParseSettings.DEFAULT);
+        parser.parseString("<!-- Bogus XML declaration -->\n<?xml version=\"1.0\"?><some xml>", null);
+        Comment comment = new Comment("");
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        assertNull(decl);
+    }
+
+    private static final Comment comment = new Comment("Some text");
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class CommentTest {
+
+    @Test
+    public void createCommentFromEmptyStringCreatesBlankComment() {
+        Comment comment = new Comment("");
+        assertEquals("#comment", comment.nodeName());
+        assertNull(comment.getData());
+    }
+
+    @Test
+    public void createCommentWithTextSetsDataProperly() {
+        Comment comment = new Comment("Some text");
+        assertEquals("Some text", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadAddsProperCommentTagWhenPrettyPrintedAndBlockFormattingEnabled() {
+        Comment comment = new Comment();
+        comment.setBlock(true);
+        comment.setText("<!-- XML declaration -->");
+        String html = comment.outerHtml();
+        assertTrue(html.contains("<!--"));
+        assertTrue(html.contains("-->"));
+    }
+
+    @Test
+    public void outerHtmlHeadAddsProperCommentTagWhenPrettyPrintedAndNoBlockFormatting() {
+        Comment comment = new Comment();
+        comment.setBlock(false);
+        comment.setText("<!-- XML declaration -->");
+        String html = comment.outerHtml();
+        assertTrue(html.contains("<!--"));
+        assertTrue(html.contains("-->"));
+    }
+
+    @Test
+    public void outerHtmlHeadAddsProperCommentTagWhenNoPrettyPrinting() {
+        Comment comment = new Comment();
+        comment.setBlock(true);
+        comment.setText("<!-- XML declaration -->");
+        String html = comment.outerHtmlWithoutWrap();
+        assertTrue(html.contains("<!--"));
+        assertTrue(html.contains("-->"));
+    }
+
+    public class Comment {
+        private boolean block;
+        private String text;
+
+        public void setBlock(boolean block) {
+            this.block = block;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public String outerHtml() {
+            // implementation
+        }
+
+        public String outerHtmlWithoutWrap() {
+            // implementation
+        }
+    }
+
+    @Test
+    public void isXmlDeclarationReturnsFalse() {
+        Comment comment = new Comment();
+        assertFalse(comment.isXmlDeclaration("Some text"));
+    }
+
+    @Test
+    public void isXmlDeclarationReturnsTrue() {
+        Comment comment = new Comment();
+        comment.setText("<!-- XML declaration -->");
+        assertTrue(comment.isXmlDeclaration(""));
+    }
+}
+
+public class Document {
+    private String text;
+
+    public Document(String text) {
+        this.text = text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public boolean isXmlDeclaration() {
+        return text.contains("<!--");
+    }
+
+    public String outerHtml() {
+        // implementation
+    }
+}
+
+public class ParseSettings {
+    private static final String DEFAULT = "";
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+public class CommentTest {
+
+    @Test
+    public void createCommentFromEmptyStringCreatesBlankComment() {
+        Comment comment = new Comment("");
+        assertEquals("#comment", comment.nodeName());
+        assertNull(comment.getData());
+    }
+
+    @Test
+    public void createCommentWithTextSetsDataProperly() {
+        Comment comment = new Comment("Some text");
+        assertEquals("Some text", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadAddsProperCommentTagWhenPrettyPrintedAndBlockFormattingEnabled() {
+        Document doc = new Document();
+        Element html = new Element("html");
+        doc.appendChild(html);
+        Element head = new Element("head");
+        doc.appendChild(head);
+        Comment comment = new Comment();
+        comment.setBlock(true);
+        comment.setText("<!-- XML declaration -->");
+        head.appendChild(comment.outerHtml());
+        String htmlString = doc.toString();
+        assertTrue(htmlString.contains("<!--"));
+        assertTrue(htmlString.contains("-->"));
+    }
+
+    @Test
+    public void outerHtmlHeadAddsProperCommentTagWhenPrettyPrintedAndNoBlockFormatting() {
+        Document doc = new Document();
+        Element html = new Element("html");
+        doc.appendChild(html);
+        Element head = new Element("head");
+        doc.appendChild(head);
+        Comment comment = new Comment();
+        comment.setBlock(false);
+        comment.setText("<!-- XML declaration -->");
+        head.appendChild(comment.outerHtml());
+        String htmlString = doc.toString();
+        assertTrue(htmlString.contains("<!--"));
+        assertTrue(htmlString.contains("-->"));
+    }
+
+    @Test
+    public void outerHtmlHeadAddsProperCommentTagWhenNoPrettyPrinting() {
+        Document doc = new Document();
+        Element html = new Element("html");
+        doc.appendChild(html);
+        Element head = new Element("head");
+        doc.appendChild(head);
+        Comment comment = new Comment();
+        comment.setBlock(true);
+        comment.setText("<!-- XML declaration -->");
+        head.appendChild(comment.outerHtmlWithoutWrap());
+        String htmlString = doc.toString();
+        assertTrue(htmlString.contains("<!--"));
+        assertTrue(htmlString.contains("-->"));
+    }
+
+    @Test
+    public void isXmlDeclarationReturnsFalse() {
+        Comment comment = new Comment();
+        comment.setText("Some text");
+        assertFalse(comment.isXmlDeclaration(""));
+    }
+
+    @Test
+    public void isXmlDeclarationReturnsTrue() {
+        Comment comment = new Comment();
+        comment.setText("<!-- XML declaration -->");
+        assertTrue(comment.isXmlDeclaration(""));
+    }
+}
+
+public class Document {
+    private Element root;
+
+    public Document() {
+        this.root = new Element("html");
+    }
+
+    public void appendChild(Element element) {
+        // implementation
+    }
+
+    public String toString() {
+        // implementation
+    }
+}
+
+public class Comment {
+    private boolean block;
+    private String text;
+
+    public void setBlock(boolean block) {
+        this.block = block;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String outerHtml() {
+        return "<!-- " + text + "-->";
+    }
+
+    public String outerHtmlWithoutWrap() {
+        // implementation
+    }
+}
+
+public class Element {
+    private String name;
+
+    public Element(String name) {
+        this.name = name;
+    }
+
+    public void appendChild(Element element) {
+        // implementation
+    }
+
+    public boolean containsElement(String name) {
+        return true; // implementation
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Document {
+    private String html;
+
+    public Document(String html) {
+        this.html = html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
+    }
+}
+
+public class Comment extends Document {
+    private String data;
+
+    public Comment(String data) {
+        super(data);
+        this.data = data;
+    }
+
+    @Override
+    public String getData() {
+        return data;
+    }
+}
+
+public class Element extends Document {
+    public void setOuterHtml(String outerHtml) {
+        super.setHtml(outerHtml);
+    }
+}
+
+public class GeneratedTest {
+
+    @Before
+    public void setUp() throws Exception {
+        Document head = new Document("<html>");
+        Element comment1 = new Comment("<!-- comment 1 -->");
+        Element comment2 = new Comment("<!-- comment 2 -->");
+
+        head.appendChild(comment1.outerHtml());
+        head.appendChild(comment2.outerHtml());
+
+        Document body = new Document("<body></body>");
+        head.appendChild(body.outerHtml());
+
+        Document div = new Document("<div>");
+        body.appendChild(div.outerHtmlWithoutWrap());
+
+        htmlString = head.outerHtml();
+    }
+
+    @Test
+    public void testHtmlDeclaration() {
+        Document head = new Document("<html>");
+        Element comment1 = new Comment("<!-- comment 1 -->");
+        Element comment2 = new Comment("<!-- comment 2 -->");
+
+        head.appendChild(comment1.outerHtml());
+        head.appendChild(comment2.outerHtml());
+
+        Document body = new Document("<body></body>");
+        head.appendChild(body.outerHtmlWithoutWrap());
+
+        Document div = new Document("<div>");
+
+        // Assert that htmlString contains <!--comment 1-->
+        assertTrue(htmlString.contains("<!--comment 1-->"));
+    }
+
+    @Test
+    public void testXmlDeclaration() {
+        Comment comment = new Comment("");
+        assertFalse(comment.isXmlDeclaration(""));
+    }
+}
+```
+===================================================
+

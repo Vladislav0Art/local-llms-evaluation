@@ -1,0 +1,400 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+public class TextNodeTest {
+
+    public TextNode testNode(String text) {
+        return new TextNode(text);
+    }
+
+    @Test
+    public void [TextNodeCreatedWithText]Test() {
+        TextNode node = testNode("Hello, World!");
+        assertEquals("Hello, World!", node.text());
+    }
+
+    @Test
+    public void [TextNodeSplitText]Test() {
+        TextNode node = testNode("Hello, World!");
+        TextNode result = node.splitText(6);
+        assertEquals("World", result.text());
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void [TextNodeIsBlank]Test() {
+        TextNode node = testNode("");
+        assertTrue(node.isBlank());
+        assertSame("", node.getWholeText());
+    }
+
+    @Test
+    public void [TextNodeNotBlank]Test() {
+        TextNode node = testNode("Hello, World!");
+        assertFalse(node.isBlank());
+        assertNotEquals("", node.getWholeText());
+    }
+
+    @Test
+    public void [TextNodeNormaliseWhitespace]Test() {
+        String input = "   ";
+        String expected = StringUtil.stripLeadingWhitespace(input);
+        assertEquals(expected, TextNode.normaliseWhitespace(input));
+    }
+
+    @Test
+    public void [TextNodeUnescape]Test() {
+        String encodedText = "&lt;";
+        String expected = "<";
+        assertEquals(expected, TextNode.createFromEncoded(encodedText).text());
+    }
+}
+
+class MockableTextNode extends TextNode {
+    private boolean coreValueCalled;
+    private String coreValue;
+
+    public MockableTextNode(String text) {
+        super(text);
+        coreValueCalled = false;
+    }
+
+    @Override
+    protected void coreValue(String text) {
+        super.coreValue(text);
+        coreValueCalled = true;
+        this.coreValue = text;
+    }
+}
+
+public class TextNodeTest {
+
+    @Test
+    public void [MockableTextNodeCoreValue]Test() {
+        MockableTextNode node = new MockableTextNode("");
+        node.coreValue("Hello, World!");
+        assertTrue(node.coreValueCalled);
+        assertEquals("Hello, World!", node.coreValue);
+    }
+
+    @Test
+    public void [MockableTextNodeNoWhitespace]Test() {
+        MockableTextNode node = new MockableTextNode("");
+        assertFalse(node.coreValueCalled);
+        assertNull(node.coreValue);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class MockableTextNodeCoreValueTest {
+
+    @Test
+    public void testMockableTextNodeCoreValue() {
+        String coreValue = "Hello, World!";
+        MockableTextNode node = new MockableTextNode();
+
+        node.coreValue(coreValue);
+
+        assertTrue(node.coreValueCalled);
+        assertEquals(coreValue, node.coreValue());
+    }
+}
+
+public class MockableTextNodeNoWhitespaceTest {
+
+    @Test
+    public void testMockableTextNodeNoWhitespace() {
+        String coreValue = "Hello";
+        MockableTextNode node = new MockableTextNode();
+
+        node.coreValue(coreValue);
+
+        assertFalse(node.coreValueCalled);
+        assertNull(node.coreValue());
+    }
+}
+
+public class MockableTextNodeUnescapeTest {
+
+    @Test
+    public void testMockableTextNodeUnescape() {
+        String coreValue = "&lt;Hello&gt;, World!";
+        MockableTextNode node = new MockableTextNode();
+
+        node.coreValue(coreValue);
+
+        assertTrue(node.coreValueCalled);
+        assertEquals("&lt;Hello&gt;, World!", node.coreValue());
+    }
+}
+
+public class MockableTextNodeCoreValueCalledTest {
+
+    @Test
+    public void testMockableTextNodeCoreValueCalled() {
+        String coreValue = "Hello, World!";
+        MockableTextNode node = new MockableTextNode();
+
+        node.coreValue(coreValue);
+
+        assertTrue(node.coreValueCalled);
+    }
+}
+
+public class MockableTextNodeCoreValueNotCalledTest {
+
+    @Test
+    public void testMockableTextNodeCoreValueNotCalled() {
+        String coreValue = "Hello, World!";
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class MockableTextNode {
+    private boolean coreValueCalled = false;
+
+    public void coreValue(String coreValue) {
+        this.coreValueCalled = true;
+    }
+
+    public String coreValue() {
+        return coreValue;
+    }
+}
+
+public class MockableTextNodeNoWhitespaceTest {
+    @Test
+    public void testMockableTextNodeNoWhitespace() {
+        String coreValue = "Hello";
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue(coreValue);
+        assertEquals("Hello", node.coreValue());
+
+        assertTrue(node.coreValueCalled);
+    }
+}
+
+public class MockableTextNodeWithCoreValueTest {
+    @Test
+    public void testMockableTextNodeWithCoreValue() {
+        String coreValue = "&lt;Hello&gt;, World!";
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue(coreValue);
+        assertEquals("&lt;Hello&gt;, World!", node.coreValue());
+
+        assertTrue(node.coreValueCalled);
+    }
+}
+
+public class MockableTextNodeCoreValueCalledTest {
+    @Test
+    public void testMockableTextNodeCoreValueCalled() {
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue("test");
+        assertEquals("test", node.coreValue());
+
+        assertTrue(node.coreValueCalled);
+    }
+}
+
+public class MockableTextNodeCoreValueNotCalledTest {
+    @Test
+    public void testMockableTextNodeCoreValueNotCalled() {
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue("test");
+        assertEquals("test", node.coreValue());
+
+        assertFalse(node.coreValueCalled);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class MockableTextNode {
+    private boolean coreValueCalled = false;
+
+    public void coreValue(String coreValue) {
+        this.coreValueCalled = true;
+    }
+
+    public String coreValue() {
+        return coreValue;
+    }
+}
+
+public class TestMockableTextNodeNoWhitespace {
+
+    @Test
+    public void testMockableTextNodeNoWhitespace() {
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue("Hello");
+        assertEquals("Hello", node.coreValue());
+
+        assertTrue(node.coreValueCalled);
+    }
+}
+
+public class TestMockableTextNodeWithCoreValue {
+
+    @Test
+    public void testMockableTextNodeWithCoreValue() {
+        String coreValue = "&lt;Hello&gt;, World!";
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue(coreValue);
+        assertEquals("&lt;Hello&gt;, World!", node.coreValue());
+
+        assertTrue(node.coreValueCalled);
+    }
+}
+
+public class TestMockableTextNodeCoreValueCalled {
+
+    @Test
+    public void testMockableTextNodeCoreValueCalled() {
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue("test");
+        assertEquals("test", node.coreValue());
+
+        assertTrue(node.coreValueCalled);
+    }
+}
+
+public class TestMockableTextNodeCoreValueNotCalled {
+
+    @Test
+    public void testMockableTextNodeCoreValueNotCalled() {
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue("test");
+        assertEquals("", node.coreValue());
+
+        assertFalse(node.coreValueCalled);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class MockableTextNode {
+    private boolean coreValueCalled = false;
+
+    public void coreValue(String coreValue) {
+        this.coreValueCalled = true;
+    }
+
+    public String coreValue() {
+        return coreValue;
+    }
+}
+
+public class TestMockableTextNodeNoWhitespace {
+
+    @Test
+    public void testMockableTextNodeNoWhitespace() {
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue("Hello");
+        assertEquals("Hello", node.coreValue());
+
+        assertTrue(node.coreValueCalled);
+    }
+}
+
+public class TestMockableTextNodeWithCoreValue {
+
+    @Test
+    public void testMockableTextNodeWithCoreValue() {
+        String coreValue = "&lt;Hello&gt;, World!";
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue(coreValue);
+        assertEquals("&lt;Hello&gt;, World!", node.coreValue());
+
+        assertTrue(node.coreValueCalled);
+    }
+}
+
+public class TestMockableTextNodeCoreValueCalled {
+
+    @Test
+    public void testMockableTextNodeCoreValueCalled() {
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue("test");
+        assertEquals("test", node.coreValue());
+
+        assertTrue(node.coreValueCalled);
+    }
+}
+
+public class TestMockableTextNodeCoreValueNotCalled {
+
+    @Test
+    public void testMockableTextNodeCoreValueNotCalled() {
+        MockableTextNode node = new MockableTextNode();
+
+        assertFalse(node.coreValueCalled);
+
+        node.coreValue("test");
+        assertEquals("", node.coreValue());
+
+        assertFalse(node.coreValueCalled);
+    }
+}
+```
+===================================================
+

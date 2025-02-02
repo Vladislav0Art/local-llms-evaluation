@@ -1,0 +1,27 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.LeafNode;
+
+public class GeneratedOuterHtmlTail_GivenEmptyTextNode_ReturnsNoop {
+
+    @Test
+    public void outerHtmlTail_GivenEmptyTextNode_ReturnsNoop() {
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        int depth = 0;
+        TextNode node = new TextNode("");
+        Node child = mock(Node.class);
+        when(node.parentNode()).thenReturn(child);
+        String result = node.outerHtmlTail(accum, depth, out);
+        assertTrue(result.isEmpty());
+    }
+
+}

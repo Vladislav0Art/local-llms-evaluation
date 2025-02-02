@@ -1,0 +1,28 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.XmlDeclaration;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+public class GeneratedOuterHtmlHeadAddsCommentsCorrectly {
+
+    @Test
+    public void outerHtmlHeadAddsCommentsCorrectly() {
+        // Given
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        Comment comment = new Comment("data");
+
+        // When
+        comment.outerHtmlHead(accum, 0, out);
+
+        // Then
+        verify(accum).append(eq("<!--"));
+        verify(accum).append(comment.value);
+        verify(accum).append("-->");
+    }
+
+}

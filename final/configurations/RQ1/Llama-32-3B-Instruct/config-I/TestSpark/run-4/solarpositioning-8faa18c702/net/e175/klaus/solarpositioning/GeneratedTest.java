@@ -1,0 +1,60 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.time.LocalDate;
+
+public class GeneratedTest {
+
+    @Test
+    public void EstimateDeltaT_YearBefore500() {
+        final LocalDate forDate = LocalDate.of(-499, 1, 1);
+        double deltaT = DeltaT.estimate(forDate);
+        assertEquals(10583.6, deltaT, 0.001);
+    }
+
+    @Test
+    public void EstimateDeltaT_YearAfter500() {
+        final LocalDate forDate = LocalDate.of(501, 1, 1);
+        double deltaT = DeltaT.estimate(forDate);
+        assertEquals(-20 + 32 * pow((forDate.getYear() - 1820) / 100, 2), deltaT, 0.001);
+    }
+
+    @Test
+    public void EstimateDeltaT_YearBefore1600() {
+        final LocalDate forDate = LocalDate.of(-1599, 1, 1);
+        double deltaT = DeltaT.estimate(forDate);
+        assertEquals(1574.2 - 556.01 * ((forDate.getYear() - 1000) / 100) + 71.23472 * pow(((forDate.getYear() - 1000) / 100), 2),
+                deltaT, 0.001);
+    }
+
+    @Test
+    public void EstimateDeltaT_YearAfter1600ButBefore1700() {
+        final LocalDate forDate = LocalDate.of(1619, 1, 1);
+        double deltaT = DeltaT.estimate(forDate);
+        assertEquals(120 - 0.9808 * (forDate.getYear() - 1600) - 0.01532 * pow((forDate.getYear() - 1600), 2) + pow((forDate.getYear() - 1600), 3) / 7129,
+                deltaT, 0.001);
+    }
+
+    @Test
+    public void EstimateDeltaT_YearAfter1700ButBefore1800() {
+        final LocalDate forDate = LocalDate.of(1719, 1, 1);
+        double deltaT = DeltaT.estimate(forDate);
+        assertEquals(8.83 + 0.1603 * (forDate.getYear() - 1700) - 0.0059285 * pow((forDate.getYear() - 1700), 2)
+                        + 0.00013336 * pow((forDate.getYear() - 1700), 3) - pow((forDate.getYear() - 1700), 4) / 7129,
+                deltaT, 0.001);
+    }
+
+    @Test
+    public void EstimateDeltaT_YearAfter1800ButBefore2005() {
+        final LocalDate forDate = LocalDate.of(2014, 1, 1);
+        double deltaT = DeltaT.estimate(forDate);
+        assertEquals(63.86 + 0.3345 * (forDate.getYear() - 2000) - 0.060374 * pow((forDate.getYear() - 2000), 2)
+                        + 0.0017275 * pow((forDate.getYear() - 2000), 3) + 0.000651814 * pow((forDate.getYear() - 2000), 4)
+                        + 0.00002373599 * pow((forDate.getYear() - 2000), 5),
+                deltaT, 0.001);
+    }
+
+}

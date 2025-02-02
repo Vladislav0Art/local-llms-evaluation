@@ -1,0 +1,397 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class CommentsConfigurationTest {
+
+    @Test
+    public void constructorShouldInitializeCommentsMap() {
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        assertEquals(comments, c.comments);
+    }
+
+    @Test
+    public void constructorShouldUsePassedCommentsMapWhenProvided() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("line1"));
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        assertNotNull(c.comments);
+        assertEquals(comments, c.comments);
+    }
+
+    @Test
+    public void setCommentShouldOverwriteExistingComments() {
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        c.setComment("path1", "line1");
+        assertEquals(1, c.comments.get("path1").size());
+    }
+
+    @Test
+    public void setCommentShouldAddNewLinesAsEmptyLines() {
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        String commentLines[] = {"line1", "\n", "line2"};
+        c.setComment("path1", commentLines);
+        assertEquals(3, c.comments.get("path1").size());
+    }
+
+    @Test
+    public void setCommentShouldRegisterCommentForProvidedPath() {
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        String commentLines[] = {"line1", "\n", "line2"};
+        c.setComment("path1", commentLines);
+        assertNotNull(c.comments.get("path1"));
+    }
+
+    @Test
+    public void setCommentShouldNotRegisterMultipleTimesForSamePath() {
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        String commentLines[] = {"line1", "\n", "line2"};
+        c.setComment("path1", commentLines);
+        assertEquals(1, c.comments.get("path1").size());
+    }
+
+    @Test
+    public void getAllCommentsShouldReturnUnmodifiableMap() {
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        Map<String, @UnmodifiableView List<String>> result = c.getAllComments();
+        assertTrue(result instanceof java.util.Map);
+        assertFalse(java.util.Collections.unmodifiableMap(result).isMutable());
+    }
+
+    @Test
+    public void getAllCommentsShouldReturnMapWithAllComments() {
+        Map<String, List<String>> comments = new HashMap<>();
+        String commentLines[] = {"line1", "\n", "line2"};
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        c.setComment("path1", commentLines);
+        assertEquals(1, c.comments.get("path1").size());
+        Map<String, @UnmodifiableView List<String>> result = c.getAllComments();
+        assertNotNull(result);
+        assertTrue(result.containsKey("path1"));
+    }
+
+    @Test
+    public void getAllCommentsShouldReturnEmptyMapWhenNoComments() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        assertEquals(0, ((java.util.Map) c.getAllComments()).size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class CommentsConfiguration {
+    private Map<String, List<String>> comments;
+
+    @PublicConstructor
+    public CommentsConfiguration(Map<String, List<String>> comments) {
+        this.comments = comments;
+    }
+
+    @PublicMethod
+    public Map<String, @UnmodifiableView List<String>> getAllComments() {
+        return Collections.unmodifiableMap(comments);
+    }
+
+    @PublicMethod
+    public void setComment(String path, String[] lines) {
+        if (lines == null || lines.length == 0) {
+            lines = new String[0];
+        }
+        comments.put(path, Arrays.asList(lines));
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorShouldInitializeCommentsMap() {
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        assertEquals(comments, c.getAllComments());
+    }
+
+    @Test
+    public void constructorShouldUsePassedCommentsMapWhenProvided() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("line1"));
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        assertEquals(comments, c.getAllComments());
+    }
+
+    @Test
+    public void setCommentShouldAddLinesToMap() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {"line1", "line2"};
+        c.setComment("path1", lines);
+        assertEquals(2, ((List<String>)c.getAllComments().get("path1")).size());
+    }
+
+    @Test
+    public void setCommentShouldEmptyMapIfLinesIsZero() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {};
+        c.setComment("path1", lines);
+        assertTrue(((List<String>)c.getAllComments().get("path1")).isEmpty());
+    }
+
+    @Test
+    public void getAllCommentsShouldReturnUnmodifiableMap() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        Map<String, List<String>> map = c.getAllComments();
+        assertFalse(map.isMutable());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class CommentsConfiguration {
+    private Map<String, @UnmodifiableView List<String>> comments;
+
+    @PublicConstructor
+    public CommentsConfiguration(Map<String, @UnmodifiableView List<String>> comments) {
+        this.comments = comments;
+    }
+
+    @PublicMethod
+    public Map<String, @UnmodifiableView List<String>> getAllComments() {
+        return comments;
+    }
+
+    @PublicMethod
+    public void setComment(String path, String[] lines) {
+        if (lines == null || Arrays.asList(lines).isEmpty()) {
+            this.comments.remove(path);
+        } else {
+            List<String> linesList = Arrays.asList(lines);
+            this.comments.putIfAbsent(path, linesList);
+        }
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorShouldInitializeCommentsMap() {
+        Map<String, @UnmodifiableView List<String>> comments = new HashMap<>();
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        assertEquals(comments, c.getAllComments());
+    }
+
+    @Test
+    public void constructorShouldUsePassedCommentsMapWhenProvided() {
+        Map<String, @UnmodifiableView List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("line1"));
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        assertEquals(comments, c.getAllComments());
+    }
+
+    @Test
+    public void setCommentShouldAddLinesToMap() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {"line1", "line2"};
+        c.setComment("path1", lines);
+        assertEquals(2, ((List<String>)c.getAllComments().get("path1")).size());
+    }
+
+    @Test
+    public void setCommentShouldEmptyMapIfLinesIsZero() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {};
+        c.setComment("path1", lines);
+        assertTrue(((List<String>)c.getAllComments().get("path1")).isEmpty());
+    }
+
+    @Test
+    public void setCommentShouldAddNewLinesToMapIfItIsNotPresent() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {"line1"};
+        c.setComment("path1", lines);
+        assertEquals(1, ((List<String>)c.getAllComments().get("path1")).size());
+    }
+
+    @Test
+    public void setCommentShouldNotModifyExistingLines() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {"line1"};
+        c.setComment("path1", lines);
+        assertEquals(1, ((List<String>)c.getAllComments().get("path1")).size());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class CommentsConfiguration {
+
+    private Map<String, @UnmodifiableView List<String>> comments;
+
+    public CommentsConfiguration(Map<String, @UnmodifiableView List<String>> comments) {
+        this.comments = comments;
+    }
+
+    public Map<String, @UnmodifiableView List<String>> getAllComments() {
+        return Collections.unmodifiableMap(comments);
+    }
+
+    public void setComment(String path, String[] lines) {
+        if (lines == null || Arrays.asList(lines).isEmpty()) {
+            this.comments.remove(path);
+        } else {
+            List<String> linesList = Arrays.asList(lines);
+            this.comments.putIfAbsent(path, linesList);
+        }
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorShouldInitializeCommentsMap() {
+        Map<String, @UnmodifiableView List<String>> comments = new HashMap<>();
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        assertEquals(comments, c.getAllComments());
+    }
+
+    @Test
+    public void constructorShouldUsePassedCommentsMapWhenProvided() {
+        Map<String, @UnmodifiableView List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("line1"));
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        assertEquals(comments, c.getAllComments());
+    }
+
+    @Test
+    public void setCommentShouldAddLinesToMap() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {"line1", "line2"};
+        c.setComment("path1", lines);
+        assertEquals(2, ((List<String>)c.getAllComments().get("path1")).size());
+    }
+
+    @Test
+    public void setCommentShouldEmptyMapIfLinesIsZero() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {};
+        c.setComment("path1", lines);
+        assertTrue(((List<String>)c.getAllComments().get("path1")).isEmpty());
+    }
+
+    @Test
+    public void setCommentShouldAddNewLinesToMapIfItIsNotPresent() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {"line1"};
+        c.setComment("path1", lines);
+        assertEquals(1, ((List<String>)c.getAllComments().get("path1")).size());
+    }
+
+    @Test
+    public void setCommentShouldNotModifyExistingLines() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {"line1"};
+        c.setComment("path1", lines);
+        assertEquals(1, ((List<String>)c.getAllComments().get("path1")).size());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class CommentsConfiguration {
+
+    private Map<String, @UnmodifiableView List<String>> comments;
+
+    public CommentsConfiguration(Map<String, @UnmodifiableView List<String>> comments) {
+        this.comments = comments;
+    }
+
+    public Map<String, @UnmodifiableView List<String>> getAllComments() {
+        return Collections.unmodifiableMap(comments);
+    }
+
+    public void setComment(String path, String[] lines) {
+        if (lines == null || Arrays.asList(lines).isEmpty()) {
+            this.comments.remove(path);
+        } else {
+            List<String> linesList = Arrays.asList(lines);
+            this.comments.putIfAbsent(path, linesList);
+        }
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorShouldInitializeCommentsMap() {
+        Map<String, @UnmodifiableView List<String>> comments = new HashMap<>();
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        assertEquals(comments, c.getAllComments());
+    }
+
+    @Test
+    public void constructorShouldUsePassedCommentsMapWhenProvided() {
+        Map<String, @UnmodifiableView List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("line1"));
+        CommentsConfiguration c = new CommentsConfiguration(comments);
+        assertEquals(comments, c.getAllComments());
+    }
+
+    @Test
+    public void setCommentShouldAddLinesToMap() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {"line1", "line2"};
+        c.setComment("path1", lines);
+        assertEquals(2, ((List<String>)c.getAllComments().get("path1")).size());
+    }
+
+    @Test
+    public void setCommentShouldEmptyMapIfLinesIsZero() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {};
+        c.setComment("path1", lines);
+        assertTrue(((List<String>)c.getAllComments().get("path1")).isEmpty());
+    }
+
+    @Test
+    public void setCommentShouldAddNewLinesToMapIfItIsNotPresent() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {"line1"};
+        c.setComment("path1", lines);
+        assertEquals(1, ((List<String>)c.getAllComments().get("path1")).size());
+    }
+
+    @Test
+    public void setCommentShouldNotModifyExistingLines() {
+        CommentsConfiguration c = new CommentsConfiguration(new HashMap<>());
+        String[] lines = {"line1"};
+        c.setComment("path1", lines);
+        assertEquals(1, ((List<String>)c.getAllComments().get("path1")).size());
+    }
+
+}
+```
+===================================================
+

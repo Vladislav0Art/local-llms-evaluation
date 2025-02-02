@@ -1,0 +1,459 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.IOException;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Document;
+import org.mockito.Mockito;
+import org.mockito.SpyBehavior;
+
+public class TextNodeTest {
+
+    public TextNode testTextNode(String text) {
+        return new TextNode(text);
+    }
+
+    @Test
+    public void createTextNodeText() {
+        TextNode textNode = testTextNode("Hello");
+        assertEquals("Hello", textNode.text());
+    }
+
+    @Test
+    public void createTextNodeBlank() {
+        TextNode textNode = testTextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void setTextNodeText() {
+        TextNode textNode = testTextNode("");
+        textNode.text("Hello");
+        assertEquals("Hello", textNode.text());
+    }
+
+    @Test
+    public void getWholeText() {
+        TextNode textNode = testTextNode("Hello World!");
+        assertEquals("Hello World!", textNode.getWholeText());
+    }
+
+    @Test
+    public void splitTextOffset() throws IOException {
+        TextNode textNode = testTextNode("Hello World!");
+        int offset = 6;
+        TextNode tailNode = textNode.splitText(offset);
+        assertEquals(7, tailNode.text().length());
+    }
+
+    @Test
+    public void outerHtmlHeadWithTrailingWhitespace() throws IOException {
+        Document document = new Document();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        TextNode textNode = testTextNode("   ");
+        textNode.outerHtmlHead(writer, 0, document.outputSettings());
+        assertEquals("\n", out.toString().trim());
+    }
+
+    @Test
+    public void outerHtmlHeadWithLeadingWhitespace() throws IOException {
+        Document document = new Document();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        TextNode textNode = testTextNode("   ");
+        textNode.outerHtmlHead(writer, 0, document.outputSettings());
+        assertEquals("\n", out.toString().trim());
+    }
+
+    @Test
+    public void outerHtmlTail() {
+        TextNode textNode = testTextNode("");
+        textNode.outerHtmlTail(null, 0, null);
+    }
+}
+
+class Document {
+    private int outline;
+    private ArrayList<Element> siblingNodes;
+
+    public Element outputSettings() {
+        return new Element();
+    }
+
+    public boolean shouldIndent(Document doc) {
+        return false;
+    }
+}
+
+public class LeafNode extends Node {}
+
+public abstract class Node {
+    protected String coreValue() {
+        return "";
+    }
+
+    protected TextNode createTextNode(String text) {
+        return new TextNode(text);
+    }
+
+    protected Element createElement(String tag) {
+        return new Element(tag);
+    }
+
+    public void addChildren(int siblingIndex, Object child) {}
+}
+
+public class Document.OutputSettings {
+    public boolean prettyPrint;
+    public Element parent;
+
+    public Element preserveWhitespace(Element element) {
+        return null;
+    }
+}
+
+public class Element extends Node {
+    private String tag();
+
+    public Element(String tag) {
+        this.tag = tag;
+    }
+
+    public int siblingIndex() {
+        return 0;
+    }
+
+    public Element shouldIndent(Document doc) {
+        return new Element();
+    }
+
+    public void indent(OutputStreamWriter writer, int depth, Document.OutputSettings out) {}
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Node {
+    protected String coreValue() {
+        return "";
+    }
+
+    protected TextNode createTextNode(String text) {
+        return new TextNode(text);
+    }
+
+    protected Element createElement(String tag) {
+        return new Element(tag);
+    }
+
+    public void addChildren(int siblingIndex, Object child) {}
+}
+
+public class Document extends Node {
+    private int outline;
+    private ArrayList<Node> siblingNodes;
+
+    public Element outputSettings() {
+        return new Element();
+    }
+
+    public boolean shouldIndent(Document doc) {
+        return false;
+    }
+}
+
+public class LeafNode extends Node {}
+
+public class Element extends Node {
+    private String tag;
+
+    public Element(String tag) {
+        this.tag = tag;
+    }
+
+    public int siblingIndex() {
+        return 0;
+    }
+
+    public Element shouldIndent(Node doc) {
+        return new Element();
+    }
+
+    public void indent(OutputStreamWriter writer, int depth, Document.OutputSettings out) {}
+}
+
+public class TextNode extends Node {
+    private String text;
+
+    public TextNode(String text) {
+        this.text = text;
+    }
+
+    public String text() {
+        return text;
+    }
+
+    public boolean isBlank() {
+        return text.isEmpty();
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public Element getWholeText() {
+        return new Element(text);
+    }
+
+    public TextNode splitText(int offset) {
+        return new TextNode("");
+    }
+
+    public void outerHtmlHead(OutputStreamWriter writer, int depth, Document.OutputSettings out) throws IOException {
+        // implementation
+    }
+
+    public void outerHtmlTail(OutputStreamWriter writer, int depth, Node parent) throws IOException {
+        // implementation
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Document extends Node {
+    private int outline;
+    private ArrayList<Node> siblingNodes;
+
+    public Element outputSettings() {
+        return new Element();
+    }
+
+    public boolean shouldIndent(Document doc) {
+        return false;
+    }
+}
+
+public abstract class Node {
+    protected String coreValue() {
+        return "";
+    }
+
+    protected TextNode createTextNode(String text) {
+        return new TextNode(text);
+    }
+
+    protected Element createElement(String tag) {
+        return new Element(tag);
+    }
+
+    public void addChildren(int siblingIndex, Object child) {}
+}
+
+public class LeafNode extends Node {}
+
+public class Element extends Node {
+    private String tag;
+
+    public Element(String tag) {
+        this.tag = tag;
+    }
+
+    public int siblingIndex() {
+        return 0;
+    }
+
+    public Element shouldIndent(Document doc) {
+        return new Element();
+    }
+
+    public void indent(OutputStreamWriter writer, int depth, Document.OutputSettings out) {}
+}
+
+public class TextNode extends Node {
+    private String text;
+
+    public TextNode(String text) {
+        this.text = text;
+    }
+
+    public String text() {
+        return text;
+    }
+
+    public boolean isBlank() {
+        return StringUtil.isEmpty(text);
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public Element getWholeText() {
+        return new Element(text);
+    }
+
+    public TextNode splitText(int offset) {
+        return new TextNode("");
+    }
+
+    public void outerHtmlHead(OutputStreamWriter writer, int depth, Document.OutputSettings outSettings) throws IOException {
+        writer.append(outSettings.prettyPrint ? "\n" : "");
+        writer.append("<").append(tag()).append(">");
+        indent(writer, 0, outSettings);
+        if (siblingIndex() > 0 || !isBlank()) {
+            writer.write("\n");
+        }
+    }
+
+    public void outerHtmlTail(OutputStreamWriter writer, int depth, Node parent) throws IOException {
+        writer.append("</").append(tag()).append(">");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class DocumentTest {
+
+    public TextNode testTextNode(String text) {
+        return new TextNode(text);
+    }
+
+    @Test
+    public void createTextNodeText() {
+        TextNode textNode = testTextNode("Hello");
+        assertEquals("Hello", textNode.text());
+    }
+
+    @Test
+    public void createTextNodeBlank() {
+        TextNode textNode = testTextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void setTextNodeText() {
+        TextNode textNode = testTextNode("");
+        textNode.setText("Hello");
+        assertEquals("Hello", textNode.text());
+    }
+
+    @Test
+    public void getWholeText() {
+        TextNode textNode = testTextNode("Hello World!");
+        assertEquals("Hello World!", textNode.getWholeText().text());
+    }
+
+    @Test
+    public void splitTextOffset() throws IOException {
+        TextNode textNode = testTextNode("Hello World!");
+        int offset = 6;
+        TextNode tailNode = textNode.splitText(offset);
+        assertEquals(7, tailNode.text().length());
+    }
+
+    @Test
+    public void outerHtmlHeadWithTrailingWhitespace() throws IOException {
+        Document document = new Document();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        TextNode textNode = testTextNode("   ");
+        textNode.outerHtmlHead(writer, 0, document.outputSettings());
+        assertEquals("\n", out.toString().trim());
+    }
+
+    @Test
+    public void outerHtmlHeadWithLeadingWhitespace() throws IOException {
+        Document document = new Document();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        TextNode textNode = testTextNode("   ");
+        textNode.outerHtmlHead(writer, 0, document.outputSettings());
+        assertEquals("\n", out.toString().trim());
+    }
+
+    @Test
+    public void outerHtmlTail() throws IOException {
+        Document document = new Document();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        TextNode textNode = testTextNode("");
+        textNode.outerHtmlTail(writer, 0, null);
+        assertEquals("", out.toString().trim());
+    }
+
+    @Test
+    public void outerHtmlHeadDepth() throws IOException {
+        Document document = new Document();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        TextNode textNode = testTextNode("   ");
+        textNode.outerHtmlHead(writer, 1, document.outputSettings());
+        assertEquals("\n", out.toString().trim());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+public class Main {
+
+    public static String getHtml(String html) {
+        return Jsoup.parse(html).html();
+    }
+
+    public static boolean hasClass(Elements elements, String className) {
+        for (Element element : elements) {
+            if (element.hasAttr("class") && element.attr("class").contains(className)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        // Test 1
+        Document doc = Jsoup.parse("<html><body class='test-class'><p>Hello World!</p></body></html>");
+        System.out.println(getHtml(doc.html()));
+        System.out.println(hasClass(doc.select("body"), "test-class"));  // true
+
+        // Test 2
+        doc = Jsoup.parse("<html><body><p>Hello World!</p></body></html>");
+        System.out.println(getHtml(doc.html()));
+        System.out.println(hasClass(doc.select("body"), "test-class"));  // false
+
+        // Test 3
+        doc = Jsoup.parse("<html><body class='test-class'><div>Hello World!</div></body></html>");
+        System.out.println(getHtml(doc.html()));
+        System.out.println(hasClass(doc.select("body"), "test-class"));  // true
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================
