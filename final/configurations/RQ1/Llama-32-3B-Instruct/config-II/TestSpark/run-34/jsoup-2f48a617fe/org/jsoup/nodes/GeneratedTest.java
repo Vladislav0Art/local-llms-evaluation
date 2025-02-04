@@ -1,0 +1,94 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorTestsCommentCreation() {
+        Comment comment = new Comment("This is a test");
+        assertNotNull(comment);
+    }
+
+    @Test
+    public void nodeNameTestsCorrectNodeName() {
+        Comment comment = new Comment("This is a test");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTestsDataRetrieval() {
+        Comment comment = new Comment("This is a test");
+        assertNotNull(comment.getData());
+    }
+
+    @Test
+    public void setDataTestsDataUpdate() throws IOException {
+        Comment comment = new Comment("This is a test");
+        comment.setData("New data");
+        assertEquals("New data", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTestsHtmlOutputCorrectly() throws IOException {
+        Comment comment = new Comment("<xml version=\"1.0\"?xml declaration=\"...\">This is a test</xml>");
+        Appendable output = new StringBuilder();
+        Document.OutputSettings settings = Document.OutputSettings.preserveCase;
+        comment.outerHtmlHead(output, 0, settings);
+        assertTrue(output.toString().contains("<!--This is a test-->"));
+    }
+
+    @Test
+    public void outerHtmlTailTestsEmptyOutputCorrectly() {
+        Comment comment = new Comment("");
+        Appendable output = new StringBuilder();
+        Document.OutputSettings settings = Document.OutputSettings.preserveCase;
+        comment.outerHtmlHead(output, 0, settings);
+        assertTrue(output.toString().isEmpty());
+    }
+
+    @Test
+    public void toStringTestsCorrectStringRepresentation() throws IOException {
+        Comment comment = new Comment("This is a test");
+        String expectedOutput = "<!--This is a test-->";
+        assertEquals(expectedOutput, comment.toString());
+    }
+
+    @Test
+    public void cloneTestsCorrectCloneCreation() {
+        Comment comment = new Comment("This is a test");
+        Comment clonedComment = (Comment) comment.clone();
+        assertNotNull(clonedComment);
+    }
+
+    @Test
+    public void isXmlDeclarationTestsCorrectResultForValidDeclaration() {
+        Comment comment = new Comment("<xml version=\"1.0\"?xml declaration=\"...\">This is a test</xml>");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclarationTestsCorrectResultForInvalidDeclaration() {
+        Comment comment = new Comment("This is a test");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTestsCorrectResultWithValidDeclaration() throws IOException {
+        Comment comment = new Comment("<xml version=\"1.0\"?xml declaration=\"...\">This is a test</xml>");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+    }
+
+    @Test
+    public void asXmlDeclarationTestsCorrectResultWithInvalidDeclaration() throws IOException {
+        Comment comment = new Comment("This is a test");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNull(xmlDeclaration);
+    }
+
+}

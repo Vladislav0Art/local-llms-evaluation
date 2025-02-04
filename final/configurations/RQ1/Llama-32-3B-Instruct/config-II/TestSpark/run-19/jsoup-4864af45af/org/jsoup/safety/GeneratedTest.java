@@ -1,0 +1,90 @@
+package org.jsoup.safety;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void testCreateConfig() {
+        Config config = new Config();
+        assertEquals("default", config.getDefaultValue());
+    }
+
+    @Test
+    public void testAddAttribute() {
+        Config config = new Config();
+        config.add(All, "value1");
+        config.add(All, "value2");
+
+        Map<String, List<String>> attrs = config.getAttributes();
+        assertTrue(attrs.containsKey(All));
+        assertEquals(Arrays.asList("value1", "value2"), attrs.get(All));
+    }
+
+    @Test
+    public void testEnforce() {
+        Config config = new Config();
+        config.enforce(All, "key1");
+        config.enforce(All, "key2");
+
+        Map<String, Attributes> enforced = config.getEnforcedAttributes();
+        assertTrue(enforced.containsKey(All));
+        assertEquals(Arrays.asList("key1", "key2"), enforced.get(All).getKeys());
+    }
+
+    @Test
+    public void testGetValue() {
+        Config config = new Config();
+        config.add(All, "value");
+
+        Map<String, AttributeValue> values = config.getValues();
+        assertTrue(values.containsKey(All));
+        assertEquals("value", values.get(All).getValue());
+    }
+}
+
+public class All {
+}
+
+class TypedValue implements Comparable<TypedValue> {
+    private final String value;
+
+    public TypedValue(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public int compareTo(TypedValue other) {
+        return value.compareTo(other.value);
+    }
+}
+
+class Attributes implements Iterable<String> {
+    private List<String> keys = new ArrayList<>();
+
+    public void put(String key, String value) {
+        keys.add(key);
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return keys.iterator();
+    }
+}
+
+class AttributeValue {
+    private final String value;
+
+    public AttributeValue(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+}

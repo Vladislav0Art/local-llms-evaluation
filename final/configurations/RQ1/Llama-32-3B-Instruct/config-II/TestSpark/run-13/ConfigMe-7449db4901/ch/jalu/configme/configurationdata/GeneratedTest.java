@@ -1,0 +1,94 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Map<String, List<String>> commentsMap;
+
+    @Test
+    public void testCommentsConfiguration_ConstructorSetsCommentsMap() {
+        new CommentsConfiguration(commentsMap);
+        assertNotNull(commentsMap);
+    }
+
+    @Test
+    public void testCommentsConfiguration_ConstructorSetsCommentsMapWhenPassedArguments() {
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentLines.add("line2");
+        commentsMap.put("path", commentLines);
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(commentsMap);
+        assertEquals(commentLines, commentsConfiguration.comments.get("path"));
+    }
+
+    @Test
+    public void testCommentsConfiguration_setComment_AddsNewEntryIfNotExists() {
+        when(commentsMap.containsKey("newPath")).thenReturn(false);
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        commentsConfiguration.setComment("newPath", "line1");
+        assertTrue(commentsConfiguration.comments.containsKey("newPath"));
+    }
+
+    @Test
+    public void testCommentsConfiguration_setComment_AddsNewEntryIfNotExistsAndHasPreviousValues() {
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsMap.put("oldPath", commentLines);
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(commentsMap);
+        commentsConfiguration.setComment("newPath", "line2");
+        assertNotNull(commentsConfiguration.comments.get("newPath"));
+    }
+
+    @Test
+    public void testCommentsConfiguration_setComment_OverwritesExistingEntry() {
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentLines.add("line2");
+        commentsMap.put("path", commentLines);
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(commentsMap);
+        commentsConfiguration.setComment("path", "newLine");
+        assertEquals(1, commentsConfiguration.comments.get("path").size());
+    }
+
+    @Test
+    public void testCommentsConfiguration_setComment_AddsNewEntryIfPreviousValueWasEmpty() {
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("\n");
+        commentsMap.put("oldPath", commentLines);
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(commentsMap);
+        String newLine = "newLine";
+        commentsConfiguration.setComment("oldPath", newLine, "\n");
+        assertNotNull(commentsConfiguration.comments.get("oldPath"));
+    }
+
+    @Test
+    public void testCommentsConfiguration_getAllComments_ReturnsUnmodifiableView() {
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsMap.put("path", commentLines);
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(commentsMap);
+        Map<String, @UnmodifiableView List<String>> allComments = commentsConfiguration.getAllComments();
+        assertTrue(allComments instanceof UnmodifiableView);
+    }
+
+    @Test
+    public void testCommentsConfiguration_getAllComments_ReturnsEmptyListWhenNoEntries() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        Map<String, @UnmodifiableView List<String>> allComments = commentsConfiguration.getAllComments();
+        assertEquals(0, allComments.size());
+    }
+
+}

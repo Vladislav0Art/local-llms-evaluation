@@ -1,0 +1,167 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private LeafNode parentNode;
+
+    @Mock
+    private Appendable accum;
+
+    @Mock
+    private Document.OutputSettings out;
+
+    @InjectMocks
+    private TextNode textNode;
+
+    @Test
+    public void createTextNode_GivenText_ReturnsTextNode() {
+        // Given
+        String text = "Hello World";
+
+        // When
+        textNode = new TextNode(text);
+
+        // Then
+        assertNotNull(textNode);
+        assertEquals(text, textNode.value());
+    }
+
+    @Test
+    public void nodeNamereturnsCorrectValue() {
+        // Given
+        String expectedValue = "#text";
+
+        // When
+        String result = textNode.nodeName();
+
+        // Then
+        assertEquals(expectedValue, result);
+    }
+
+    @Test
+    public void textReturnsUnencodedText() {
+        // Given
+        String encodedText = "&lt;Hello&gt; World";
+
+        // When
+        String result = textNode.text();
+
+        // Then
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void textSetsCorrectTextValue() {
+        // Given
+        String expectedText = "New Text";
+        String encodedText = "&lt;Old&gt;";
+
+        // When
+        textNode.text(expectedText);
+
+        // Then
+        assertEquals(expectedText, textNode.value());
+    }
+
+    @Test
+    public void getWholeTextReturnsUnencodedText() {
+        // Given
+        String encodedText = "&lt;Hello&gt; World";
+
+        // When
+        String result = textNode.getWholeText();
+
+        // Then
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void isBlank_GivenEmptyString_ReturnsTrue() {
+        // Given
+        String expectedValue = "";
+
+        // When
+        boolean result = textNode.isBlank();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void isBlank_GivenNonEmptyString_ReturnsFalse() {
+        // Given
+        String nonEmptyText = "Hello World";
+
+        // When
+        boolean result = textNode.isBlank(nonEmptyText);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void splitText_SplitsCorrectly() {
+        // Given
+        String originalText = "Hello World";
+        int offset = 6;
+
+        // When
+        TextNode result = textNode.splitText(offset);
+
+        // Then
+        assertNotNull(result.value());
+        assertEquals(originalText.substring(0, offset), result.value().text());
+    }
+
+    @Test
+    public void outerHtmlHead_AppendsCorrectHTML() {
+        // Given
+        String expectedHtml = "<p> Hello World </p>";
+        Document document = new Document();
+
+        // When
+        textNode.outerHtmlHead(accum, 0, out);
+
+        // Then
+        assertEquals(expectedHtml, accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailDoesNotAppendAnything() {
+        // Given
+
+        // When
+        textNode.outerHtmlTail(accum, 0, out);
+
+        // Then
+        assertNull(accum.toString());
+    }
+
+    @Test
+    public void clone_ReturnsCorrectClone() {
+        // Given
+        String expectedText = "Hello World";
+
+        // When
+        TextNode result = textNode.clone();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(expectedText, result.value().text());
+    }
+
+}

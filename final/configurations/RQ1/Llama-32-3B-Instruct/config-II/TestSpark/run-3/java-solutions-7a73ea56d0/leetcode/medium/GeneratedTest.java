@@ -1,0 +1,80 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class GeneratedTest {
+
+    private OnlineStockSpan solution = new OnlineStockSpan();
+
+    @Test
+    public void next_SinglePriceReturnsOne() {
+        assertEquals(1, solution.next(10));
+    }
+
+    @Test
+    public void next_PriceLessThanPreviousIncreasesCount() {
+        int[] result = Arrays.stream(new int[]{10, 8, 6}).mapToInt(o -> solution.next(o)).toArray();
+        assertArrayEquals(new int[]{1, 2, 3}, result);
+    }
+
+    @Test
+    public void next_PriceGreaterOrEqualToPreviousIncreasesCount() {
+        int[] result = Arrays.stream(new int[]{10, 10, 8}).mapToInt(o -> solution.next(o)).toArray();
+        assertArrayEquals(new int[]{1, 2, 3}, result);
+    }
+
+    @Test
+    public void calculateSpans_SinglePriceReturnsOne() {
+        int[] result = solution.calculateSpans(new int[]{10});
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpans_TwoPricesDifferentCounts() {
+        int[] result = solution.calculateSpans(new int[]{100, 80, 60});
+        assertArrayEquals(new int[]{2, 3, 4}, result);
+    }
+
+    @Test
+    public void calculateSpans_PricesIncreasesConsecutiveCounts() {
+        int[] result = solution.calculateSpans(new int[]{10, 8, 6, 4});
+        assertArrayEquals(new int[]{1, 2, 3, 4}, result);
+    }
+
+    @Test
+    public void calculateSpans_PricesDecreasesConsecutiveCounts() {
+        int[] result = solution.calculateSpans(new int[]{100, 80, 60, 40});
+        assertArrayEquals(new int[]{1, 2, 3, 4}, result);
+    }
+
+    @Test
+    public void calculateSpans_MultiplePricesDifferentCounts() {
+        int[] result = solution.calculateSpans(new int[]{10, 20, 30, 40, 50});
+        assertArrayEquals(new int[]{1, 2, 3, 4, 5}, result);
+    }
+
+    @Test
+    public void calculateSpans_MultiplePricesSameCount() {
+        int[] result = solution.calculateSpans(new int[]{10, 10, 10, 10});
+        assertArrayEquals(new int[]{1, 1, 1, 1}, result);
+    }
+
+    @Test
+    public void next_NullPriceThrowsException() {
+        assertThrows(NullPointerException.class, () -> solution.next(null));
+    }
+
+    @Test
+    public void calculateSpans_NullPricesThrowException() {
+        int[] nullArray = new int[0];
+        assertThrows(NullPointerException.class, () -> solution.calculateSpans(nullArray));
+    }
+
+}

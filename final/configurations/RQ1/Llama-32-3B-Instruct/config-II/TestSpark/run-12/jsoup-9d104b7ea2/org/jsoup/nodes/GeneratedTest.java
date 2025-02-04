@@ -1,0 +1,134 @@
+package org.jsoup.nodes;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private LeafNode parentNode;
+
+    @Mock
+    private Appendable accum;
+
+    private TextNode textNode;
+
+    @Before
+    public void setup() {
+        textNode = new TextNode("Hello World");
+    }
+
+    public static String normaliseWhitespace(String text) {
+        return StringUtil.normaliseWhitespace(text);
+    }
+
+    public static String stripLeadingWhitespace(String text) {
+        return text.replaceFirst("^\\s+", "");
+    }
+
+    public static boolean lastCharIsWhitespace(StringBuilder sb) {
+        return sb.length() != 0 && sb.charAt(sb.length() - 1) == ' ';
+    }
+
+    @Test
+    public void [TextNode_CreateFromEncoded][Success]
+
+    Test() {
+        TextNode textNode = TextNode.createFromEncoded("<p>Hello World</p>");
+        assertEquals("Hello World", textNode.text());
+    }
+
+    @Test
+    public void [TextNode_CreateFromEncoded][Failure]
+
+    Test() {
+        TextNode textNode = TextNode.createFromEncoded(null);
+        assertNull(textNode.text());
+    }
+
+    @Test
+    public void [TextNode_Create][Success]
+
+    Test() {
+        TextNode textNode = new TextNode("Hello World");
+        textNode.text("New Text");
+        assertEquals("New Text", textNode.text());
+    }
+
+    @Test
+    public void [TextNode_Create][Failure]
+
+    Test() {
+        TextNode textNode = new TextNode("");
+        assertNull(textNode.text());
+    }
+
+    @Test
+    public void [TextNode_GetWholeText][Success]
+
+    Test() {
+        TextNode textNode = new TextNode("Hello World");
+        assertEquals("Hello World", textNode.getWholeText());
+    }
+
+    @Test
+    public void [TextNode_GetWholeText][Failure]
+
+    Test() {
+        TextNode textNode = new TextNode("");
+        assertNull(textNode.getWholeText());
+    }
+
+    @Test
+    public void [TextNode_IsBlank][Success]
+
+    Test() {
+        TextNode textNode = new TextNode("   ");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void [TextNode_IsBlank][Failure]
+
+    Test() {
+        TextNode textNode = new TextNode("Hello World");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void [TextNode_SplitText][Success]
+
+    Test() {
+        TextNode textNode = new TextNode("Hello World");
+        int offset = 5;
+        TextNode result = textNode.splitText(offset);
+        assertEquals(6, result.getWholeText().length());
+    }
+
+    @Test
+    public void [TextNode_SplitText][Failure]
+
+    Test() {
+        TextNode textNode = new TextNode("");
+        assertNull(textNode.splitText(-1));
+    }
+
+    @Test
+    public void [TextNode_GetNodeName][Success]
+
+    Test() {
+        TextNode textNode = new TextNode("Hello World");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+}

@@ -1,0 +1,90 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.time.ZonedDateTime;
+
+import static java.lang.Math.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSolarPosition_AtomomicNoRefraction() {
+        ZonedDateTime date = ZonedDateTime.of(2022, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        double latitude = -37.7749;
+        double longitude = -122.4194;
+        double deltaT = 86400;
+
+        AzimuthZenithAngle angle = Grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        assertNotNull(angle);
+    }
+
+    @Test
+    public void calculateSolarPosition_AtomomicWithRefraction() {
+        ZonedDateTime date = ZonedDateTime.of(2022, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        double latitude = -37.7749;
+        double longitude = -122.4194;
+        double deltaT = 86400;
+        double pressure = 1013.25;
+        double temperature = 20;
+
+        AzimuthZenithAngle angle = Grena3.calculateSolarPosition(date, latitude, longitude, deltaT, pressure, temperature);
+
+        assertNotNull(angle);
+    }
+
+    @Test
+    public void calcT_Atomic() {
+        ZonedDateTime date = ZonedDateTime.of(2022, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        double t = Grena3.calcT(date);
+
+        assertEquals(2440587.5, t, 0.01);
+    }
+
+    @Test
+    public void calcT_NoLeapYear() {
+        ZonedDateTime date = ZonedDateTime.of(2022, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        double t = Grena3.calcT(date);
+
+        assertEquals(2440587.5, t, 0.01);
+    }
+
+    @Test
+    public void calcT_LeapYear() {
+        ZonedDateTime date = ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        double t = Grena3.calcT(date);
+
+        assertEquals(2440579.5, t, 0.01);
+    }
+}
+
+public class AzimuthZenithAngle {
+    public double azimuth;
+    public double zenith;
+
+    public AzimuthZenithAngle(double azimuth, double zenith) {
+        this.azimuth = azimuth % 360;
+        this.zenith = toDegrees(zenith);
+    }
+
+    public static double toDegrees(double radians) {
+        return Math.toDegrees(radians);
+    }
+}
+
+public class Grena3 {
+    public static AzimuthZenithAngle calculateSolarPosition(ZonedDateTime date, double latitude, double longitude, double deltaT, double pressure, double temperature) {
+        // ...
+    }
+
+    public static double calcT(ZonedDateTime date) {
+        // ...
+    }
+
+}

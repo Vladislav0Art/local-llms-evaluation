@@ -1,0 +1,99 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void newNodeTextIsEmpty() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.text().isEmpty());
+    }
+
+    @Test
+    public void newNodeTextHasLeadingWhitespaceRemoved() {
+        TextNode textNode = new TextNode("   Hello World!");
+        String expectedOutput = "Hello World!";
+        assertEquals(expectedOutput, StringUtil.stripLeadingWhitespace(textNode.text()));
+    }
+
+    @Test
+    public void newNodeTextHasTrailingWhitespaceRemoved() {
+        TextNode textNode = new TextNode("Hello World!   ");
+        String expectedOutput = "Hello World";
+        assertEquals(expectedOutput, StringUtil.stripLeadingWhitespace(textNode.text()));
+    }
+
+    @Test
+    public void newNodeTextIsBlankIfOnlyWhitespace() {
+        TextNode textNode = new TextNode(" \t\n");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void newNodeTextIsNotBlankIfContainsNonWhitespace() {
+        TextNode textNode = new TextNode("Hello World!");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextNodeAtOffsetReturnsCorrectSubstring() {
+        TextNode textNode = new TextNode("Hello World!");
+        int offset = 6;
+        String expectedOutput = "World!";
+        TextNode result = textNode.splitText(offset);
+        assertEquals(expectedOutput, result.text());
+    }
+
+    @Test
+    public void splitTextNodeAtOffsetReturnsCorrectSibling() {
+        TextNode textNode = new TextNode("Hello World!");
+        int offset = 6;
+        String expectedOutput = "World!";
+        TextNode sibling = textNode.splitText(offset);
+        assertEquals(expectedOutput, sibling.text());
+    }
+
+    @Test
+    public void splitTextNodeAtOffsetThrowsWithInvalidOffset() {
+        TextNode textNode = new TextNode("Hello World!");
+        int offset = -1;
+        assertTrue(Validate.isFalse(textNode.splitText(offset)));
+
+        int offset2 = 11;
+        assertTrue(Validate.isFalse(textNode.splitText(offset2)));
+    }
+
+    @Test
+    public void outerHtmlPrintsCorrectly() {
+        String expectedOutput = "<p>Hello World!</p>";
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(outContent));
+        TextNode textNode = new TextNode("Hello World!");
+        textNode.outerHtmlHead(System.out, 0, Document.OutputSettings.DEFAULT);
+        String output = outContent.toString().trim();
+        assertEquals(expectedOutput, output);
+        System.setOut(originalOut);
+    }
+
+    @Test
+    public void outerHtmlPrintsCorrectlyWithTrailingWhitespace() {
+        String expectedOutput = "<p>Hello World!   </p>";
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(outContent));
+        TextNode textNode = new TextNode("Hello World!   ");
+        textNode.outerHtmlHead(System.out, 0, Document.OutputSettings.DEFAULT);
+        String output = outContent.toString().trim();
+        assertEquals(expectedOutput, output);
+        System.setOut(originalOut);
+    }
+
+}

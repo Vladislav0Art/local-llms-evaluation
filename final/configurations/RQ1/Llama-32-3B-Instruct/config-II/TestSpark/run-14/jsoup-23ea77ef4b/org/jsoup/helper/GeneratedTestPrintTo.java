@@ -1,0 +1,99 @@
+package org.jsoup.helper;
+
+public class GeneratedTestPrintTo {
+
+    private Document document;
+
+    public XmlDom(String xmlString) {
+        this.document = parseXml(xmlString);
+    }
+
+    public Element getDocumentElement() {
+        return (Element) document.getDocumentElement();
+    }
+
+    public void printTo(StringBuilder sb) {
+        printTo(sb, 0);
+    }
+
+    private void printTo(StringBuilder sb, int indent) {
+        for (int i = 0; i < indent; i++) {
+            sb.append("  ");
+        }
+        sb.append(document.getDocumentElement().getNodeName());
+        if (document.getDocumentElement().getAttributes() != null && !document.getDocumentElement().getAttributes().isEmpty()) {
+            sb.append(" " + document.getDocumentElement().getAttributeNS(null, null));
+        }
+        sb.append("\n");
+    }
+
+    public static Document parseXml(String xmlString) throws Exception {
+        // implementation of xml parsing
+    }
+
+    public static class Element {
+        private Node node;
+
+        public Element(Node node) {
+            this.node = node;
+        }
+
+        public String getTagName() {
+            return node.getNodeName();
+        }
+
+        public Attribute getAttributeNS(String namespaceURI, String localName) {
+            // implementation of getting attribute
+        }
+    }
+
+    public static class Attribute {
+        private Node node;
+
+        public Attribute(Node node) {
+            this.node = node;
+        }
+
+        public String getKey() {
+            return node.getNodeName();
+        }
+
+        public String getValue() {
+            return node.getTextContent();
+        }
+
+        public static String getValidKey(String key, Syntax syntax) {
+            // implementation of getting valid key
+        }
+    }
+
+    public static class Node {
+        private Node document;
+        private String nodeName;
+
+        public Node(Node document, String nodeName) {
+            this.document = document;
+            this.nodeName = nodeName;
+        }
+
+        public String getNodeName() {
+            return nodeName;
+        }
+    }
+
+    public interface Syntax {
+        // implementation of syntax
+    }
+}
+
+class Tests {
+
+    @Test
+    public void testPrintTo() {
+        XmlDom xmlDom = new XmlDom("<root><person><name>John</name></person></root>");
+        StringBuilder sb = new StringBuilder();
+        xmlDom.printTo(sb);
+        assertEquals("<root><person><name>John</name></person></root>", sb.toString());
+    }
+
+}

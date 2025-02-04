@@ -1,0 +1,104 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+import java.io.ByteArrayOutputStream;
+
+public class GeneratedTest {
+
+    @Test
+    public void CommentConstructorTest() {
+        String data = "test";
+        Comment comment = new Comment(data);
+        assertNotNull(comment);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void CommentDataGetterTest() {
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
+    }
+
+    @Test
+    public void CommentSetDataSetterTest() {
+        String data = "test";
+        Comment comment = new Comment(data);
+        comment.setData("newData");
+        assertEquals("newData", comment.getData());
+    }
+
+    @Test
+    public void OuterHtmlHeadTest() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("<!-- test -->");
+        comment.outerHtmlHead(accum, depth, out);
+        assertEquals("<!--test-->", outContent.toString());
+    }
+
+    @Test
+    public void OuterHtmlHeadPrettyPrintTest() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        out.prettyPrint(true);
+        Comment comment = new Comment("<!-- test -->");
+        comment.outerHtmlHead(accum, depth, out);
+        assertEquals("<!--test-->", outContent.toString());
+    }
+
+    @Test
+    public void OuterHtmlTailTest() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("<!-- test -->");
+        comment.outerHtmlTail(accum, depth, out);
+        assertEquals("", outContent.toString());
+    }
+
+    @Test
+    public void ToStringTest() {
+        String expected = "<!--test-->";
+        Comment comment = new Comment(expected);
+        assertEquals(expected, comment.toString());
+    }
+
+    @Test
+    public void CloneTest() {
+        Comment originalComment = new Comment("<!-- test -->");
+        Comment clonedComment = (Comment) originalComment.clone();
+        assertNotNull(clonedComment);
+        assertEquals(originalComment.getData(), clonedComment.getData());
+    }
+
+    @Test
+    public void IsXmlDeclarationDataTest() {
+        assertTrue(Comment.isXmlDeclarationData("!--test-->");
+		));
+        assertFalse(Comment.isXmlDeclarationData(""));
+    }
+
+    @Test
+    public void AsXmlDeclarationTest() {
+        Comment comment = new Comment("<!-- test -->");
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        assertNull(decl);
+    }
+
+    @Test
+    public void IsXmlDeclarationDataFragmentTest() {
+        String fragment = "<!test>";
+        assertTrue(Comment.isXmlDeclarationData(fragment));
+        assertFalse(Comment.isXmlDeclarationData(""));
+    }
+
+}

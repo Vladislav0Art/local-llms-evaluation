@@ -1,0 +1,97 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.lang.reflect.Field;
+
+public class GeneratedTest {
+
+    private MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+
+    @Test
+    public void setCodigoInterno_validadorTest() {
+        String codigoInterno = "1234567890";
+        obj.setCodigoInterno(codigoInterno);
+        assertTrue(DFStringValidador.validador(codigoInterno, "Codigo interno Veiculo Reboque", 10, false, false));
+    }
+
+    @Test
+    public void setPlaca_invalidadaTest() {
+        String placa = "";
+        obj.setPlaca(placa);
+        assertFalse(DFStringValidador.placaDeVeiculo(placa, "Placa do reboque"));
+    }
+
+    @Test
+    public void setRenavam_intervaloValidoTest() {
+        String renavam = "123456789";
+        obj.setRenavam(renavam);
+        assertTrue(DFStringValidador.validaIntervalo(renavam, 9, 11, "Renavam do reboque"));
+    }
+
+    @Test
+    public void setTara_digitoVálidoTest() {
+        String tara = "12345";
+        obj.setTara(tara);
+        assertTrue(DFStringValidador.capacidadeNDigitos(tara, "Tara em reboque", 5));
+    }
+
+    @Test
+    public void setCapacidadeKG_digitoVálidoTest() {
+        String capacidadeKG = "12345";
+        obj.setCapacidadeKG(capacidadeKG);
+        assertTrue(DFStringValidador.capacidadeNDigitos(capacidadeKG, "Capacidade em KG reboque", 5));
+    }
+
+    @Test
+    public void setCapacidadeM3_digitoVálidoTest() {
+        String capacidadeM3 = "12";
+        obj.setCapacidadeM3(capacidadeM3);
+        assertTrue(DFStringValidador.capacidadeNDigitos(capacidadeM3, "Capacidade em M3 reboque", 2));
+    }
+
+    @Test
+    public void getCodigoInterno_test() {
+        String codigoInterno = "1234567890";
+        obj.setCodigoInterno(codigoInterno);
+        assertEquals(codigoInterno, obj.getCodigoInterno());
+    }
+
+    @Test
+    public void getPlaca_test() {
+        String placa = "ABC123";
+        obj.setPlaca(placa);
+        assertEquals(placa, obj.getPlaca());
+    }
+
+    @Test
+    public void getRenavam_test() {
+        String renavam = "123456789";
+        obj.setRenavam(renavam);
+        assertEquals(renavam, obj.getRenavam());
+    }
+
+    @Test
+    public void getTara_test() {
+        String tara = "12345";
+        obj.setTara(tara);
+        assertEquals(tara, obj.getTara());
+    }
+
+    @Test
+    public void getCapacidadeKG_test() {
+        String capacidadeKG = "12345";
+        obj.setCapacidadeKG(capacidadeKG);
+        assertEquals(capacidadeKG, obj.getCapacidadeKG());
+    }
+
+    @Test
+    public void getCapacidadeM3_test() {
+        String capacidadeM3 = "12";
+        obj.setCapacidadeM3(capacidadeM3);
+        assertEquals(capacidadeM3, obj.getCapacidadeM3());
+    }
+
+}

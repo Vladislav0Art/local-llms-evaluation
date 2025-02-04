@@ -1,0 +1,81 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorHasCorrectData() {
+        String data = "test";
+        Comment comment = new Comment(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void setDataSetsCorrectData() {
+        String data = "test";
+        Comment comment = new Comment("");
+        comment.setData(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadWithPrettyPrintIsUsedWhenConditionsAreMet() {
+        Comment comment = new Comment("test");
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        int depth = 0;
+        comment.outerHtmlHead(accum, depth, out);
+        verify(accum).append(eq("<!--"));
+        verify(accum).append(eq(comment.getData()));
+        verify(accum).append(eq("-->"));
+    }
+
+    @Test
+    public void outerHtmlTailIsNotUsed() {
+        Comment comment = new Comment("");
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        int depth = 0;
+        comment.outerHtmlTail(accum, depth, out);
+        verifyNoMoreInteractions(accum);
+    }
+
+    @Test
+    public void outerHtmlSetsCorrectHtml() {
+        Comment comment = new Comment("test");
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        int depth = 0;
+        comment.outerHtmlHead(accum, depth, out);
+        String html = accum.toString();
+        assertTrue(html.startsWith("<!--"));
+        assertTrue(html.endsWith("-->"));
+    }
+
+    @Test
+    public void asXmlDeclarationReturnsNullWhenNotAnXMLDeclaration() {
+        Comment comment = new Comment("test");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationReturnsXmlDeclarationWhenIsXmlDeclaration() {
+        String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><test></test>";
+        Comment comment = new Comment(data);
+        XmlDeclaration decl = comment.asXmlDeclaration();
+        assertNotNull(decl);
+        assertTrue(decl.getData().equals(data));
+    }
+
+    @Test
+    public void cloneReturnsCorrectComment() {
+        String data = "test";
+        Comment comment = new Comment(data);
+        Comment cloned = comment.clone();
+        assertEquals(comment, cloned);
+    }
+
+}

@@ -1,0 +1,119 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    // ...
+
+    public OutputSettings outputSettings() {
+        return outputSettings;
+    }
+
+    public Document outputSettings(OutputSettings outputSettings) {
+        Validate.notNull(outputSettings);
+        this.outputSettings = outputSettings;
+        return this;
+    }
+
+    public Parser parser() {
+        return parser;
+    }
+
+    public Document parser(Parser parser) {
+        this.parser = parser;
+        return this;
+    }
+}
+
+public class OutputSettings {
+    // ...
+
+    public OutputSettings indentAmount(int indentAmount) {
+        Validate.isTrue(indentAmount >= 0);
+        this.indentAmount = indentAmount;
+        return this;
+    }
+
+    public OutputSettings maxPaddingWidth(int maxPaddingWidth) {
+        Validate.isTrue(maxPaddingWidth >= -1);
+        this.maxPaddingWidth = maxPaddingWidth;
+        return this;
+    }
+}
+
+public class Parser {
+    // ...
+}
+
+public class QuirksMode {
+    // ...
+}
+
+public class DocumentTest {
+
+    @Test
+    public void testDocument() {
+        Document document = new Document();
+        OutputSettings outputSettings = new OutputSettings();
+        Parser parser = new Parser();
+        document.outputSettings(outputSettings);
+        document.parser(parser);
+    }
+
+    @Test
+    public void testOutputSettings() {
+        Document document = new Document();
+        OutputSettings outputSettings = new OutputSettings();
+        Validate.isTrue(document.outputSettings(outputSettings).indentAmount(10) == document.outputSettings());
+    }
+
+    @Test
+    public void testParser() {
+        Document document = new Document();
+        Parser parser = new Parser();
+        document.parser(parser);
+    }
+}
+
+@Test
+public void testIndentAmount() {
+    OutputSettings outputSettings = new OutputSettings();
+    Validate.isTrue(outputSettings.indentAmount(10) == 10);
+}
+
+@Test
+public void testMaxPaddingWidth() {
+    OutputSettings outputSettings = new OutputSettings();
+    Validate.isTrue(outputSettings.maxPaddingWidth(-1) == -1);
+}
+	}
+
+@Test
+public void testParser() {
+    Parser parser = new Parser();
+    // test parser initialization
+}
+
+@Test
+public void testParserWithDocument() {
+    Document document = new Document();
+    Parser parser = new Parser();
+    document.parser(parser);
+    // test parser with document
+}
+	}
+
+@Test
+public void testQuirksMode() {
+    QuirksMode quirksMode = QuirksMode.noQuirks;
+    Validate.isTrue(quirksMode == QuirksMode.noQuirks);
+}
+
+@Test
+public void testParserWithQuirksMode() {
+    Document document = new Document();
+    Parser parser = new Parser();
+    document.quirksMode(QuirksMode.quirks);
+    // test parser with quirks mode
+}
+
+}

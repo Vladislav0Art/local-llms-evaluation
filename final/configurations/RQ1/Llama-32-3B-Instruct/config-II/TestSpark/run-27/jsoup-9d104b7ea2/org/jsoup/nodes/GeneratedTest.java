@@ -1,0 +1,132 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.Node;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNode_GivenText_ReturnsTextNode() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertNotNull(textNode);
+        assertEquals("text", textNode.nodeName());
+        assertTrue(textNode.text().equals(text));
+    }
+
+    @Test
+    public void createTextNodeBlank_GivenBlankText_ReturnsTextNodeWithBlankValue() {
+        String text = "";
+        TextNode textNode = new TextNode(text);
+        assertNotNull(textNode);
+        assertEquals("text", textNode.nodeName());
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void text_GivenTextNode_ReturnsNormalizedText() {
+        TextNode textNode = new TextNode("   Hello   World  ");
+        String result = textNode.text();
+        assertNotNull(result);
+        assertTrue(result.contains("\n"));
+        assertEquals("text", textNode.nodeName());
+    }
+
+    @Test
+    public void text_GivenBlankTextNode_ReturnsBlankString() {
+        TextNode textNode = new TextNode("");
+        String result = textNode.text();
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        assertEquals("text", textNode.nodeName());
+    }
+
+    @Test
+    public void text_GivenTextNodeWithWhitespaceAtEnd_ReturnsNormalizedTextWithTrailingSpacesRemoved() {
+        TextNode textNode = new TextNode("   Hello World  ");
+        String result = textNode.text();
+        assertNotNull(result);
+        assertTrue(!result.contains("\n"));
+        assertEquals("text", textNode.nodeName());
+    }
+
+    @Test
+    public void splitText_GivenTextNodeAndOffset_ReturnsNewTextNode() throws IOException {
+        Document document = new Document();
+        TextNode textNode = new TextNode("Hello World");
+        Element parent = new Element(document, "parent");
+        textNode.set parentNode (parent);
+        TextNode tailNode = textNode.splitText(6);
+
+        assertNotNull(tailNode);
+        assertEquals("text", tailNode.nodeName());
+        assertTrue(tailNode.text().equals("World"));
+    }
+
+    @Test
+    public void splitText_GivenBlankTextNodeAndOffset_ReturnsBlankTextNode() {
+        Document document = new Document();
+        TextNode textNode = new TextNode("");
+        Element parent = new Element(document, "parent");
+        textNode.set parentNode (parent);
+        TextNode tailNode = textNode.splitText(6);
+
+        assertNotNull(tailNode);
+        assertEquals("text", tailNode.nodeName());
+        assertTrue(tailNode.isBlank());
+    }
+
+    @Test
+    public void splitText_GivenTextNodeAndOffsetGreaterThanLength_ReturnsOriginalTextNode() {
+        Document document = new Document();
+        TextNode textNode = new TextNode("Hello World");
+        Element parent = new Element(document, "parent");
+        textNode.set parentNode (parent);
+        TextNode tailNode = textNode.splitText(13);
+
+        assertNotNull(tailNode);
+        assertEquals("text", tailNode.nodeName());
+        assertTrue(tailNode.text().equals("World"));
+    }
+
+    @Test
+    public void isBlank_GivenTextNode_ReturnsTrueIfBlank() {
+        Document document = new Document();
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_GivenTextNodeWithText_ReturnsFalse() {
+        Document document = new Document();
+        TextNode textNode = new TextNode("Hello World");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void createFromEncoded_GivenEncodedText_ReturnsTextNode() {
+        String encodedText = "&lt;Hello&gt;";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertNotNull(textNode);
+        assertEquals("text", textNode.nodeName());
+        assertTrue(textNode.text().equals("Hello"));
+    }
+
+    @Test
+    public void clone_GivenTextNode_ReturnsClone() {
+        Document document = new Document();
+        TextNode textNode = new TextNode("Hello World");
+        TextNode clonedTextNode = textNode.clone();
+
+        assertNotNull(clonedTextNode);
+        assertEquals("text", clonedTextNode.nodeName());
+        assertTrue(clonedTextNode.text().equals(textNode.text()));
+    }
+
+}

@@ -1,0 +1,98 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseName_GivenNullReturnsNull() {
+        AppVersion result = AppVersion.parseName(null);
+        assertNull(result);
+    }
+
+    @Test
+    public void parseName_GivenEmptyStringReturnsNull() {
+        AppVersion result = AppVersion.parseName("");
+        assertNull(result);
+    }
+
+    @Test
+    public void parseName_MatchingPattern_ReturnsParsedAppVersion() {
+        String amiName = "subscriberha-1.0.0-586499";
+        AppVersion expected = new AppVersion();
+        expected.packageName = "subscriberha";
+        expected.version = "1.0.0-586499";
+        AppVersion result = AppVersion.parseName(amiName);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void parseName_NonMatchingPattern_ReturnsNull() {
+        String amiName = "nonmatchingpattern";
+        AppVersion result = AppVersion.parseName(amiName);
+        assertNull(result);
+    }
+
+    @Test
+    public void compareTo_EqualReturnsZero() {
+        AppVersion one = new AppVersion();
+        one.packageName = "one";
+        one.version = "1.0.0-586499";
+        one.buildJobName = "hudson job";
+        one.buildNumber = "123";
+        AppVersion two = one;
+        int result = one.compareTo(two);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void compareTo_DifferentPackagesReturnsNegative() {
+        AppVersion one = new AppVersion();
+        one.packageName = "one";
+        one.version = "1.0.0-586499";
+        one.buildJobName = "hudson job";
+        one.buildNumber = "123";
+        AppVersion two = new AppVersion();
+        two.packageName = "two";
+        two.version = "2.0.0-586499";
+        int result = one.compareTo(two);
+        assertLessThan(0, result);
+    }
+
+    @Test
+    public void getPackageName_ReturnsPackageName() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.packageName = "one";
+        assertEquals("one", appVersion.getPackageName());
+    }
+
+    @Test
+    public void getPackageName_NoPackageNameReturnsNull() {
+        AppVersion appVersion = new AppVersion();
+        assertNull(appVersion.getPackageName());
+    }
+}
+
+public class AppVersion {
+    // getters and setters for fields
+
+    private String packageName;
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public static AppVersion parseName(String amiName) {
+        // implementation
+    }
+
+    @Override
+    public int compareTo(AppVersion other) {
+        // implementation
+    }
+
+}

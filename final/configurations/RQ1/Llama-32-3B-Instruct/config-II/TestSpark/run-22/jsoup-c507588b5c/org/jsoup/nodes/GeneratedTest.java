@@ -1,0 +1,76 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNode_textIsBlank
+
+    returnsBlank() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void createTextNode_textIsNotBlank
+
+    returnsNotBlank() {
+        TextNode textNode = new TextNode("not blank");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void text_returnsCorrectText() {
+        TextNode textNode = new TextNode("Hello, World!");
+        assertEquals("Hello, World!", textNode.text());
+    }
+
+    @Test
+    public void text_setsCorrectText() {
+        TextNode textNode = new TextNode();
+        textNode.text("new text");
+        assertEquals("new text", textNode.text());
+    }
+
+    @Test
+    public void splitText_offsetIsLessThanZero_throwsIOException() {
+        TextNode textNode = new TextNode("Hello, World!");
+        try {
+            textNode.splitText(-1);
+            assert false;
+        } catch (IOException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void splitText_offsetIsGreaterThanTextLength_throwsIOException() {
+        TextNode textNode = new TextNode("Hello, World!");
+        try {
+            textNode.splitText(10);
+            assert false;
+        } catch (IOException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void clone_returnsCorrectClone() throws CloneNotSupportedException {
+        TextNode originalTextNode = new TextNode("Hello, World!");
+        TextNode clonedTextNode = originalTextNode.clone();
+        assertEquals(originalTextNode, clonedTextNode);
+    }
+
+    @Test
+    public void createFromEncoded_textIsBlank_returnsBlank() {
+        String encodedText = "&amp;lt;";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertTrue(textNode.isBlank());
+    }
+
+}

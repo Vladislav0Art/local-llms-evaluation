@@ -1,0 +1,146 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNode_GivenText_ReturnsTextNode() {
+        // given
+        String text = "Hello World";
+
+        // when
+        TextNode textNode = new TextNode(text);
+
+        // then
+        assertNotNull(textNode);
+    }
+
+    @Test
+    public void nodeName
+
+    ReturnsCorrectValue() {
+        // given
+        TextNode textNode = new TextNode("Test Node");
+
+        // when
+        String nodeName = textNode.nodeName();
+
+        // then
+        assertEquals("#text", nodeName);
+    }
+
+    @Test
+    public void text_ReturnsUnencodedText() {
+        // given
+        TextNode textNode = new TextNode("Hello World");
+
+        // when
+        String text = textNode.text();
+
+        // then
+        assertEquals("Hello World", text);
+    }
+
+    @Test
+    public void setTextNode_GivenText_ReturnsTextNode() {
+        // given
+        String text = "Hello World";
+
+        // when
+        TextNode textNode = new TextNode(text).text(text);
+
+        // then
+        assertNotNull(textNode);
+    }
+
+    @Test
+    public void getWholeText_ReturnsUnencodedText() {
+        // given
+        TextNode textNode = new TextNode("Hello\nWorld");
+
+        // when
+        String wholeText = textNode.getWholeText();
+
+        // then
+        assertEquals("Hello World", wholeText);
+    }
+
+    @Test
+    public void isBlank_ReturnsTrueIfBlank() {
+        // given
+        TextNode textNode1 = new TextNode("");
+        TextNode textNode2 = new TextNode("   ");
+
+        // when
+        boolean result1 = textNode1.isBlank();
+        boolean result2 = textNode2.isBlank();
+
+        // then
+        assertTrue(result1);
+        assertFalse(result2);
+    }
+
+    @Test
+    public void splitText_GivenOffset_ReturnsTextNode() throws IOException {
+        // given
+        TextNode textNode = new TextNode("Hello World");
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+
+        int offset = 6;
+
+        // when
+        TextNode result = textNode.splitText(offset);
+
+        // then
+        assertNotNull(result);
+    }
+
+    @Test
+    public void outerHtmlHead_GivenParentNode_ReturnsOuterHtml() throws IOException {
+        // given
+        Document document = new Document();
+        Appendable accum = mock(Appendable.class);
+        TextNode textNode = new TextNode("Hello World");
+        Element parent = mock(Element.class);
+
+        when(parentNode).thenReturn(document);
+        doReturn(document).when(parent).nodeType();
+
+        // when
+        String outerHtml = textNode.outerHtmlHead(accum, 0, out);
+
+        // then
+        assertNotNull(outerHtml);
+    }
+
+    @Test
+    public void outerHtmlTail_GivenParentNode_ReturnsOuterHtml() throws IOException {
+        // given
+        Document document = new Document();
+        Appendable accum = mock(Appendable.class);
+        TextNode textNode = new TextNode("Hello World");
+        Element parent = mock(Element.class);
+
+        when(parentNode).thenReturn(document);
+        doReturn(document).when(parent).nodeType();
+
+        // when
+        String outerHtml = textNode.outerHtmlTail(accum, 0, out);
+
+        // then
+        assertNotNull(outerHtml);
+    }
+
+    @Test
+    public void toString_ReturnsOuterHtml() {
+        // given
+        TextNode textNode = new TextNode("Hello World");
+
+        // when
+        String outerHtml = textNode.toString();
+
+        // then
+        assertEquals(outerHtml, "Hello World");
+    }
+
+}

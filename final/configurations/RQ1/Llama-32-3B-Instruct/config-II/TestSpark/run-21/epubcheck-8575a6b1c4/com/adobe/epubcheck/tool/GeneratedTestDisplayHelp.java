@@ -1,0 +1,49 @@
+package com.adobe.epubcheck.tool;
+
+public class GeneratedTestDisplayHelp {
+
+    // Constructor to initialize the tool
+    public EpubCheck() {
+        this.messages = Messages.getInstance(Locale.getDefault());
+    }
+
+    // Method to display help message
+    public void displayHelp() {
+        outWriter.println(String.format(messages.get("help_text"), version));
+    }
+
+    // Method to display EpubCheck version
+    public void displayVersion() {
+        outWriter.println(String.format(messages.get("epubcheck_version_text"), version));
+    }
+}
+
+// Public class for Messages instance
+public class Messages {
+    private Locale locale;
+
+    // Constructor to initialize the messages instance
+    public Messages(Locale locale) {
+        this.locale = locale;
+    }
+
+    // Method to get a message
+    public String get(String key) {
+        return MessageFormat.format(messages.get(key), locale).toString();
+    }
+}
+
+// Test class for EpubCheck tool
+public class TestEpubCheck {
+
+    @Test
+    public void testDisplayHelp() {
+        // Create an instance of EpubCheck
+        EpubCheck epubCheck = new EpubCheck();
+
+        // Display help message
+        epubCheck.displayHelp();
+        verify(outWriter, "Help text with EpubCheck version");
+    }
+
+}

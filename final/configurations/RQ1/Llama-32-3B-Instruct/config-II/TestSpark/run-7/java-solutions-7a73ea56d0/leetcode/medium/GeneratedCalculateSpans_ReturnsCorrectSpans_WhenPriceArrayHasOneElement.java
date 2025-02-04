@@ -1,0 +1,21 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class GeneratedCalculateSpans_ReturnsCorrectSpans_WhenPriceArrayHasOneElement {
+
+    @Test
+    public void calculateSpans_ReturnsCorrectSpans_WhenPriceArrayHasOneElement() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {10};
+        int[] expectedSpans = {1};
+        int[] actualSpans = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expectedSpans, actualSpans);
+    }
+
+}

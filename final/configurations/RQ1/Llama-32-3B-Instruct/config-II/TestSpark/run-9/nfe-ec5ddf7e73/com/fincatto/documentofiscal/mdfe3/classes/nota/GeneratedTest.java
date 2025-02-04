@@ -1,0 +1,95 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import java.util.UUID;
+
+public class GeneratedTest {
+
+    @Test
+    public void testCodigoInternoValidadorShouldReturnNullWhenParamIsInvalid() {
+        String invalidCode = "a".repeat(11);
+        String validCode = "ABC123456";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCodigoInterno(invalidCode);
+        assertThat(obj.getCodigoInterno(), is(validCode));
+    }
+
+    @Test
+    public void testPlacaDeVeiculoShouldReturnNullWhenParamIsInvalid() {
+        String invalidPlate = "a".repeat(9);
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setPlaca(invalidPlate);
+        assertThat(obj.getPlaca(), is(null));
+    }
+
+    @Test
+    public void testRenavamValidadorShouldReturnNullWhenParamIsInvalid() {
+        String invalidRenvam = "a".repeat(11);
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setRenavam(invalidRenvam);
+        assertThat(obj.getRenavam(), is(null));
+    }
+
+    @Test
+    public void testTaraValidadorShouldReturnNullWhenParamIsInvalid() {
+        String invalidTara = "a".repeat(6);
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setTara(invalidTara);
+        assertThat(obj.getTara(), is(null));
+    }
+
+    @Test
+    public void testCapacidadeKGValidadorShouldReturnNullWhenParamIsInvalid() {
+        String invalidCapacity = "a".repeat(6);
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeKG(invalidCapacity);
+        assertThat(obj.getCapacidadeKG(), is(null));
+    }
+
+    @Test
+    public void testCapacidadeM3ValidadorShouldReturnNullWhenParamIsInvalid() {
+        String invalidCapacity = "a".repeat(3);
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeM3(invalidCapacity);
+        assertThat(obj.getCapacidadeM3(), is(null));
+    }
+}
+
+@Test
+public void testPlacaDeVeiculoShouldReturnNullWhenParamIsInvalid() {
+    String invalidPlate = "a".repeat(9);
+    DFStringValidador placaDeVeiculo = new DFStringValidador();
+    placaDeVeiculo.setPlaca(invalidPlate);
+    assertThat(placaDeVeiculo.getPlaca(), is(null));
+}
+
+@Test
+public void testCapacidadeNDigitosShouldReturnNullWhenParamIsInvalid() {
+    String invalidCapacity = "a".repeat(6);
+    DFStringValidador capacidadeNDigitos = new DFStringValidador();
+    capacidadeNDigitos.setTara(invalidCapacity);
+    assertThat(capacidadeNDigitos.getTara(), is(null));
+}
+	}
+
+@Test
+public void testSetPlacaShouldReturnCorrectValue() {
+    MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+    String placa = PLACA_VEICULO_REBOQUE;
+    obj.setPlaca(placa);
+    assertThat(obj.getPlaca(), is(PLACA_VEICULO_REBOQUE));
+}
+
+@Test
+public void testSetRenavamShouldReturnCorrectValue() {
+    MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+    String renavam = RENAVAM_VEICULO_REBOQUE;
+    obj.setRenavam(renavam);
+    assertThat(obj.getRenavam(), is(RENAVAM_VEICULO_REBOQUE));
+}
+
+}

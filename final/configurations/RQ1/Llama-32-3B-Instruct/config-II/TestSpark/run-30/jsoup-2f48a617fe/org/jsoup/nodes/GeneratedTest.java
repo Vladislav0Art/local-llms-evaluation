@@ -1,0 +1,108 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void createNewCommentTest() {
+        Comment comment = new Comment("This is a test");
+        assertNotNull(comment);
+    }
+
+    @Test
+    public void nodeNameMethod_ReturnsCorrectValueTest() {
+        Comment comment = new Comment("This is a test");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataMethod_ReturnsCorrectValueTest() {
+        Comment comment = new Comment("This is a test");
+        assertEquals(comment.getData(), "This is a test");
+    }
+
+    @Test
+    public void setDataMethod_SetAndReturnCorrectValueTest() {
+        Comment comment = new Comment("This is a test");
+        String newValue = "New value";
+        comment.setData(newValue);
+        assertEquals(newValue, comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadMethod_PrettyPrintAndSiblingIndexEqualAppendIndentAndDataTest() {
+        Document document = Mockito.mock(Document.class);
+        Appendable appendable = Mockito.mock(Appendable.class);
+        int depth = 0;
+        Comment comment = new Comment("<!-- This is a test -->");
+        String expectedOutput = "<!--This is a test-->\n";
+        comment.outerHtmlHead(appendable, depth, document.OutputSettings.Builder().prettyPrint().build());
+        assertEquals(expectedOutput, appendable.toString());
+    }
+
+    @Test
+    public void outerHtmlTailMethod_NoActionWhenCalledTest() {
+        Document document = Mockito.mock(Document.class);
+        Appendable appendable = Mockito.mock(Appendable.class);
+        int depth = 0;
+        Comment comment = new Comment("This is a test");
+        comment.outerHtmlTail(appendable, depth, document.OutputSettings.Builder().build());
+    }
+
+    @Test
+    public void toStringMethod_ReturnsCorrectValueWhenPrettyPrintEnabledTest() {
+        Document document = Mockito.mock(Document.class);
+        Appendable appendable = Mockito.mock(Appendable.class);
+        int depth = 0;
+        Comment comment = new Comment("<!-- This is a test -->");
+        String expectedOutput = "<!--This is a test-->\n";
+        comment.toString();
+        assertEquals(expectedOutput, appendable.toString());
+    }
+
+    @Test
+    public void cloneMethod_ReturnsSameInstanceWhenNoChangesMadeTest() {
+        Comment comment = new Comment("This is a test");
+        Comment clonedComment = (Comment) comment.clone();
+        assertSame(comment, clonedComment);
+    }
+
+    @Test
+    public void cloneMethod_ReturnsNewInstanceWithCorrectDataWhenChangesMadeTest() {
+        Comment comment = new Comment("This is a test");
+        String newValue = "New value";
+        comment.setData(newValue);
+        Comment clonedComment = (Comment) comment.clone();
+        assertNotNull(clonedComment);
+        assertEquals(newValue, clonedComment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationMethod_ReturnsTrueWhenStartingWithExclamationMarkOrQuestionMarkAndLengthGreaterThanOneTest() {
+        Comment comment = new Comment("!");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationMethod_ReturnsNullWhenCannotBeParsedAsDeclarationTest() {
+        Comment comment = new Comment("This is a test");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationMethod_ReturnsCorrectValueWhenCanBeParsedAsDeclarationTest() {
+        Comment comment = new Comment("<!--<?xml version=\"1.0\" encoding=\"UTF-8\"?-->']");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+    }
+
+}

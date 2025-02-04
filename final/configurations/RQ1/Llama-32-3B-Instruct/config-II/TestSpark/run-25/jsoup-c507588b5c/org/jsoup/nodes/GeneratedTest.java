@@ -1,0 +1,100 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNode_GivenText_ReturnsTextNode() {
+        TextNode textNode = new TextNode("Hello World");
+        assertNotNull(textNode);
+        assertEquals("Hello World", textNode.text());
+    }
+
+    @Test
+    public void nodeName_ReturnsCorrectValue() {
+        TextNode textNode = new TextNode("Some text");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void getWholeText_ReturnsUnencodedText() {
+        TextNode textNode = new TextNode("Hello World");
+        String wholeText = textNode.getWholeText();
+        assertTrue(wholeText.contains("Hello "));
+        assertTrue(wholeText.contains("World"));
+    }
+
+    @Test
+    public void text_SetCorrectValue() {
+        TextNode textNode = new TextNode("Some text");
+        textNode.text("New text");
+        assertEquals("New text", textNode.text());
+    }
+
+    @Test
+    public void isBlank_ReturnsTrueIfEmptyOrWhitespace() {
+        TextNode textNode1 = new TextNode("");
+        assertTrue(textNode1.isBlank());
+
+        TextNode textNode2 = new TextNode("   ");
+        assertTrue(textNode2.isBlank());
+    }
+
+    @Test
+    public void splitText_SplitsTextNodeAtOffset_ReturnsNewTextNode() throws IOException {
+        TextNode textNode = new TextNode("Hello World");
+        TextNode newTextNode = textNode.splitText(6);
+        assertEquals("World", newTextNode.text());
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void outerHtmlHead_AppendsToStream() throws IOException {
+        Appendable accum = new ByteArrayOutputStream();
+        Document.OutputSettings out = new Document.OutputSettings();
+        TextNode textNode = new TextNode("<p>Hello World</p>");
+        textNode.outerHtmlHead(accum, 0, out);
+        String result = accum.toString();
+        assertTrue(result.contains("<p>"));
+    }
+
+    @Test
+    public void outerHtmlTail_AppendsToStream() throws IOException {
+        Appendable accum = new ByteArrayOutputStream();
+        Document.OutputSettings out = new Document.OutputSettings();
+        TextNode textNode = new TextNode("Hello World");
+        textNode.outerHtmlTail(accum, 0, out);
+        String result = accum.toString();
+        assertTrue(result.contains(""));
+    }
+
+    @Test
+    public void clone_ReturnsCorrectClone() {
+        TextNode textNode = new TextNode("Some text");
+        TextNode clonedTextNode = textNode.clone();
+        assertEquals(textNode.text(), clonedTextNode.text());
+    }
+
+    @Test
+    public void createFromEncoded_ReturnsCorrectTextNode() {
+        String encodedText = "&lt;Hello World&gt;";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertEquals("Hello World", textNode.text());
+    }
+
+    @Test
+    public void normaliseWhitespace_AppendsToBuilder() {
+        StringBuilder builder = new StringBuilder();
+        List<String> builderList = new ArrayList<>();
+        builderList.add(StringUtil.normaliseWhitespace(builder.toString()));
+        assertEquals(1, builderList.size());
+    }
+
+}

@@ -1,0 +1,136 @@
+package leetcode.medium;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private List<Integer> list;
+
+    @InjectMocks
+    private OnlineStockSpan onlineStockSpan;
+
+    @Test
+    public void next_OkayPrice_ReturnsCount() {
+        when(list.size()).thenReturn(10);
+        when(list.get(0)).thenReturn(10);
+        when(list.get(anyInt())).thenReturn(9);
+
+        onlineStockSpan.list = list;
+        int actual = onlineStockSpan.next(11);
+        assertEquals(1, actual);
+    }
+
+    @Test
+    public void next_LowerPrice_ReturnsCount() {
+        when(list.size()).thenReturn(10);
+        when(list.get(0)).thenReturn(12);
+        when(list.get(anyInt())).thenReturn(9);
+
+        onlineStockSpan.list = list;
+        int actual = onlineStockSpan.next(11);
+        assertEquals(2, actual);
+    }
+
+    @Test
+    public void next_SamePrice_ReturnsCount() {
+        when(list.size()).thenReturn(10);
+        when(list.get(0)).thenReturn(12);
+        when(list.get(anyInt())).thenReturn(9);
+
+        onlineStockSpan.list = list;
+        int actual = onlineStockSpan.next(11);
+        assertEquals(1, actual);
+    }
+
+    @Test
+    public void next_EmptyList_ReturnsCount() {
+        when(list.size()).thenReturn(0);
+
+        onlineStockSpan.list = list;
+        int actual = onlineStockSpan.next(10);
+        assertEquals(1, actual);
+    }
+
+    @Test
+    public void calculateSpans_SingleElement_ReturnsSpanOne() {
+        List<Integer> prices = new ArrayList<>();
+        prices.add(100);
+        when(list.size()).thenReturn(prices.size());
+        when(list.get(anyInt())).thenReturn(0);
+
+        onlineStockSpan.list = list;
+        int[] actual = onlineStockSpan.calculateSpans(prices.toCharArray());
+        assertEquals(1, actual[0]);
+    }
+
+    @Test
+    public void calculateSpans_MultipleElements_ReturnsCorrectSpans() {
+        List<Integer> prices = new ArrayList<>();
+        prices.add(100);
+        prices.add(80);
+        when(list.size()).thenReturn(prices.size());
+        when(list.get(anyInt())).thenReturn(0);
+
+        onlineStockSpan.list = list;
+        int[] actual = onlineStockSpan.calculateSpans(prices.toCharArray());
+        assertEquals(new int[]{1, 2}, actual);
+    }
+
+    @Test
+    public void calculateSpans_EmptyList_ReturnsCorrectSpans() {
+        List<Integer> prices = new ArrayList<>();
+        when(list.size()).thenReturn(prices.size());
+
+        onlineStockSpan.list = list;
+        int[] actual = onlineStockSpan.calculateSpans(prices.toCharArray());
+        for (int i = 0; i < actual.length; i++) {
+            assertEquals(i + 1, actual[i]);
+        }
+    }
+
+    @Test
+    public void calculateSpans_SamePrice_ReturnsCorrectSpans() {
+        List<Integer> prices = new ArrayList<>();
+        prices.add(100);
+        prices.add(80);
+        when(list.size()).thenReturn(prices.size());
+        when(list.get(anyInt())).thenReturn(0);
+
+        onlineStockSpan.list = list;
+        int[] actual = onlineStockSpan.calculateSpans(prices.toCharArray());
+        for (int i = 1; i < actual.length; i++) {
+            assertEquals(i, actual[i]);
+        }
+    }
+
+    @Test
+    public void calculateSpans_SpanIncorrectly() {
+        List<Integer> prices = new ArrayList<>();
+        prices.add(10);
+        when(list.size()).thenReturn(prices.size());
+        when(list.get(anyInt())).thenReturn(-1);
+
+        onlineStockSpan.list = list;
+        int[] actual = onlineStockSpan.calculateSpans(prices.toCharArray());
+        for (int i = 0; i < actual.length; i++) {
+            assertFalse(actual[i] == i + 1);
+        }
+    }
+
+}

@@ -1,0 +1,128 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void newComment_withData_isCreated() {
+        // Given
+        String data = "This is a comment";
+
+        // When
+        Comment comment = new Comment(data);
+
+        // Then
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void comment
+
+    nodeName_isCorrect() {
+        // Given
+        Comment comment = new Comment("This is a comment");
+
+        // When
+        String nodeName = comment.nodeName();
+
+        // Then
+        assertEquals("#comment", nodeName);
+    }
+
+    @Test
+    public void outerHtmlHead_withData_isGenerated() throws IOException {
+        // Given
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        Comment comment = new Comment("This is a comment");
+
+        when(out.prettyPrint()).thenReturn(true);
+        when(out.outline()).thenReturn(false);
+
+        // When
+        comment.outerHtmlHead(accum, 0, out);
+
+        // Then
+        verify(accum).append("<!--");
+        verify(accum).append(comment.getData());
+        verify(accum).append("-->");
+    }
+
+    @Test
+    public void outerHtmlTail_isGenerated() throws IOException {
+        // Given
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+
+        // When
+        Comment comment = new Comment("This is a comment");
+        comment.outerHtmlHead(accum, 0, out);
+
+        comment.outerHtmlTail(accum, 0, out);
+
+        // Then
+        verifyNoMoreInteractions(accum);
+    }
+
+    @Test
+    public void clone_isCorrect() {
+        // Given
+        Comment comment = new Comment("This is a comment");
+
+        // When
+        Comment clonedComment = comment.clone();
+
+        // Then
+        assertEquals(comment, clonedComment);
+    }
+
+    @Test
+    public void isXmlDeclaration_isCorrect() {
+        // Given
+        String data = "This is an XML declaration";
+
+        // When
+        boolean isDeclaration = new Comment(data).isXmlDeclaration();
+
+        // Then
+        assertTrue(isDeclaration);
+    }
+
+    @Test
+    public void isXmlDeclaration_isNotCorrectForNonDeclarationData() {
+        // Given
+        String data = "This is not a comment";
+
+        // When
+        boolean isDeclaration = new Comment(data).isXmlDeclaration();
+
+        // Then
+        assertFalse(isDeclaration);
+    }
+
+    @Test
+    public void asXmlDeclaration_isNullForInvalidData() {
+        // Given
+        String data = "This is invalid data";
+
+        // When
+        XmlDeclaration decl = new Comment(data).asXmlDeclaration();
+
+        // Then
+        assertNull(decl);
+    }
+
+    @Test
+    public void asXmlDeclaration_returnsCorrectDeclForValidData() throws IOException {
+        // Given
+        String data = "<xml version=\"1.0\" xmlns=\"http://www.w3.org/1999/xhtml\"><root></root>";
+
+        // When
+        XmlDeclaration decl = new Comment(data).asXmlDeclaration();
+
+        // Then
+        assertNotNull(decl);
+        assertEquals("xml", decl.tagName());
+        assertTrue(decl.attributes().containsKey("xmlns"));
+    }
+
+}

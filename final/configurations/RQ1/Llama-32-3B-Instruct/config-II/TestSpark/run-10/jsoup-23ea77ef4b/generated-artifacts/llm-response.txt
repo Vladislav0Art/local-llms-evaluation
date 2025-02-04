@@ -1,0 +1,67 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+public class NamespaceAwareAttributeFilter implements javax.xml.transform sourceResolver {
+    private final javax.xml.transform SourceResolver parent;
+    private final javax.xml.transform OutputTarget target;
+
+    public NamespaceAwareAttributeFilter(javax.xml.transform.SourceResolver parent, javax.xml.transform.OutputTarget target) {
+        this.parent = parent;
+        this.target = target;
+    }
+
+    @Override
+    public java.io.InputStream getInputStream(String uri, String publicId, String systemId) throws IOException, SAXException {
+        return parent.getOutputTarget().getOutputStream();
+    }
+}
+
+public class NamespaceAwareTransformer extends javax.xml.transform.Transformer {
+    private final javax.xml.transform sourceResolver;
+
+    public NamespaceAwareTransformer(javax.xml.transform.SourceResolver sourceResolver) {
+        this.sourceResolver = sourceResolver;
+    }
+
+    @Override
+    public void transform(java.io.OutputStream out, javax.xml.transform.TransformException e) throws java.io.IOException {
+        if (out instanceof java.io.InputStream) {
+            ((java.io.InputStream) out).close();
+        }
+    }
+
+    @Override
+    public javax.xml.transform.Result newResult(javax.xml.transform.Source source, javax.xml.transform.TransformerConfig config) throws java.io.IOException, java.lang.NullPointerException, java.lang.NoSuchMethodException, java.lang.ClassCastException, javax.xml.transform.TransformException {
+        javax.xml.transform.OutputTarget target = new NamespaceAwareAttributeFilter(sourceResolver, new javax.xml.transform.Result(new java.io.ByteArrayOutputStream()));
+        return super.newResult(source, config);
+    }
+}
+
+public class TransformerTest {
+    @Test
+    public void testTransformer() throws Exception {
+        javax.xml.transform.Source source = new javax.xml.transform.dom.DOMSource(new org.jsoup.nodes.Element("root"));
+        javax.xml.transform.Transformer transformer = new NamespaceAwareTransformer(new javax.xml.transform.SourceResolver() {
+            @Override
+            public java.io.InputStream getInputStream(String uri, String publicId, String systemId) throws IOException, SAXException {
+                return null;
+            }
+
+            @Override
+            public java.lang.Class<?> getNamespaceURI(String prefix) {
+                return null;
+            }
+        });
+        javax.xml.transform.Result result = transformer.newResult(source, new javax.xml.transform.TransformerConfig());
+        result.write(new java.io.ByteArrayOutputStream());
+
+        org.jsoup.nodes.Element element = source.getOwnerDocument().getRootElement();
+        org.jsoup.nodes.Document document = org.jsoup.nodes.Document.parse(element.outerHtml());
+
+        assertEquals(1, document.querySelectorAll("*").size());
+    }
+}
+```
+===================================================
+

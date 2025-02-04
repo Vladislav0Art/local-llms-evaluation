@@ -1,0 +1,76 @@
+package ch.jalu.configme.configurationdata;
+
+public class GeneratedTest {
+
+    private static final String PATH = "path";
+
+    @Test
+    public void givenEmptyMapWhenConstructorIsCalledThenNewMapIsCreated() {
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+        Map<String, List<String>> expectedMap = Collections.emptyMap();
+        assertEquals(expectedMap, commentsConfig.comments);
+    }
+
+    @Test
+    public void givenExistingMapWhenConstructorIsCalledThenExistingMapIsPassedToComments() {
+        Map<String, List<String>> existingMap = new HashMap<>();
+        CommentsConfiguration commentsConfig = new CommentsConfiguration(existingMap);
+        assertSame(existingMap, commentsConfig.comments);
+    }
+
+    @Test
+    public void whenSetComment_thenReturnPathAndCommentLinesAreAddedToMap() {
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+        List<String> commentLines = Arrays.asList("line1", "line2");
+        commentsConfig.setComment(PATH, commentLines);
+        assertEquals(1, commentsConfig.comments.size());
+        assertTrue(commentsConfig.comments.containsKey(PATH));
+    }
+
+    @Test
+    public void whenSetComment_ThenPathAndSingleEmptyLineAreAddedToMap() {
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+        List<String> commentLines = Collections.singletonList("\n");
+        commentsConfig.setComment(PATH, commentLines);
+        assertEquals(1, commentsConfig.comments.size());
+        assertTrue(commentsConfig.comments.containsKey(PATH));
+    }
+
+    @Test
+    public void whenSetMultipleComments_ThenMultiplePathsAreAddedToMap() {
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+        List<String> commentLine1 = Arrays.asList("line1");
+        List<String> commentLine2 = Collections.singletonList("\n");
+        commentsConfig.setComment(PATH, commentLine1);
+        commentsConfig.setComment(PATH + "1", commentLine2);
+        assertEquals(2, commentsConfig.comments.size());
+        assertTrue(commentsConfig.comments.containsKey(PATH));
+        assertTrue(commentsConfig.comments.containsKey(PATH + "1"));
+    }
+
+    @Test
+    public void whenSetMultipleComments_ThenSingleEmptyLineForPathIsAddedToMap() {
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+        List<String> commentLines = Arrays.asList("\n", "line2");
+        commentsConfig.setComment(PATH, commentLines);
+        assertEquals(1, commentsConfig.comments.size());
+        assertTrue(commentsConfig.comments.containsKey(PATH));
+    }
+
+    @Test
+    public void whenGetAllComments_thenReturnUnmodifiableMap() {
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+        List<String> commentLines = Arrays.asList("line1", "line2");
+        commentsConfig.setComment(PATH, commentLines);
+        Map<String, @UnmodifiableView List<String>> expectedMap = Collections.unmodifiableMap(Collections.singletonMap(PATH, commentLines));
+        assertEquals(expectedMap, commentsConfig.getAllComments());
+    }
+
+    @Test
+    public void whenGetAllComments_thenReturnEmptyMapIfNoCommentsAreSet() {
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+        Map<String, @UnmodifiableView List<String>> expectedMap = Collections.emptyMap();
+        assertEquals(expectedMap, commentsConfig.getAllComments());
+    }
+
+}

@@ -1,0 +1,114 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+public class XmlConverter {
+    private Document doc;
+    private Stack<HashMap<String, String>> namespacesStack = new Stack<>();
+    private boolean namespaceAware = true;
+
+    public XmlConverter(Document doc) {
+        this.doc = doc;
+        namespacesStack.push(new HashMap<>());
+    }
+
+    public Element convert() {
+        return buildElement(null);
+    }
+
+    private void addNamespace(String prefix) {
+        namespacesStack.peek().put(prefix, getUrn());
+    }
+
+    private String getUrn() {
+        if (namespaceAware && namespacesStack.size() > 0) {
+            return namespacesStack.peek().getFirstKey();
+        }
+        return null;
+    }
+
+    public Element buildElement(org.jsoup.nodes.Element element) {
+        Element el = doc.createElement(element.tagName());
+        copyAttributes(element, el);
+        addNamespace(el.getTagName());
+
+        for (org.jsoup.nodes.Node child : element.childNodes()) {
+            if (child instanceof org.jsoup.nodes.Element) {
+                el.appendChild(buildElement((org.jsoup.nodes.Element) child));
+            } else if (child instanceof org.jsoup.nodes.TextNode) {
+                Text text = doc.createTextNode(((org.jsoup.nodes.TextNode) child).getWholeText());
+                el.appendChild(text);
+            } else if (child instanceof org.jsoup.nodes.Comment) {
+                Comment comment = doc.createComment(((org.jsoup.nodes.Comment) child).getData());
+                el.appendChild(comment);
+            } else if (child instanceof org.jsoup.nodes.DataNode) {
+                Text node = doc.createTextNode(((org.jsoup.nodes.DataNode) child).getWholeData());
+                el.appendChild(node);
+            }
+        }
+
+        return el;
+    }
+
+    private void copyAttributes(org.jsoup.nodes.Node source, Element dest) {
+        for (Attribute attribute : source.attributes()) {
+            String key = Attribute.getValidKey(attribute.getKey(), getSyntax());
+            if (key != null) { // null if couldn't be coerced to validity
+                dest.setAttribute(key, attribute.getValue());
+            }
+        }
+    }
+
+    private Syntax getSyntax() {
+        return doc.getSyntax();
+    }
+}
+
+class Document {
+    public Element convertElement(String tag) {
+        return buildElement(getElement(tag));
+    }
+
+    private Element buildElement(Element element) {
+        // ...
+    }
+
+    private Element getElement(String tag) {
+        // ...
+    }
+
+    public Syntax getSyntax() {
+        return syntax;
+    }
+}
+
+public class TestXmlConverter {
+    @Test
+    public void testConvert() {
+        Document doc = new Document();
+        XmlConverter converter = new XmlConverter(doc);
+        Element element = converter.convert();
+
+        assertNotNull(element);
+    }
+
+    private static class Attribute {
+        private String key;
+        private String value;
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    private enum Syntax {
+        xml, html
+    }
+}
+```
+===================================================
+

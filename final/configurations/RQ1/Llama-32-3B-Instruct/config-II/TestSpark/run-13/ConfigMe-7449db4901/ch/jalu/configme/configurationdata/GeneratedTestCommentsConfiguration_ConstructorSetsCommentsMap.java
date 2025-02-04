@@ -1,0 +1,27 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTestCommentsConfiguration_ConstructorSetsCommentsMap {
+
+    @Mock
+    private Map<String, List<String>> commentsMap;
+
+    @Test
+    public void testCommentsConfiguration_ConstructorSetsCommentsMap() {
+        new CommentsConfiguration(commentsMap);
+        assertNotNull(commentsMap);
+    }
+
+}

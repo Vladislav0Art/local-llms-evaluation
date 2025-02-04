@@ -1,0 +1,94 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void newComment_isNew() {
+        Comment comment = new Comment("Data");
+        assertNotNull(comment);
+        assertEquals("#comment", comment.nodeName());
+        assertTrue(comment instanceof LeafNode);
+    }
+
+    @Test
+    public void newComment_dataIsSetCorrectly() {
+        String data = "Data";
+        Comment comment = new Comment(data);
+        assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void outerHtml_head_isIndentedIfPrettyPrintedAndIsBlock() throws IOException {
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        int depth = 0;
+        Comment comment = new Comment("Data");
+        when(comment.outerHtmlHead(accum, depth, out)).thenReturn("");
+        when(out.prettyPrint()).thenReturn(true);
+        Element parent = mock(Element.class);
+        when(parent.tag()).thenReturn(new Tag("#parent"));
+        when(parent instanceof Element).thenReturn(true);
+        when(parent.tagName()).thenReturn("block").thenReturn("#comment");
+        comment.set parentNode (parent);
+        assertEquals(0, accum.size());
+    }
+
+    @Test
+    public void outerHtml_tail_isNotUsed() {
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        int depth = 0;
+        Comment comment = new Comment("Data");
+        when(comment.outerHtmlHead(accum, depth, out)).thenReturn("");
+        comment.set parentNode (mock(Element.class));
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void outerHtml_returnsCorrectString() {
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        int depth = 0;
+        Comment comment = new Comment("Data");
+        when(comment.outerHtmlHead(accum, depth, out)).thenReturn("");
+        assertEquals("<!--Data-->", comment.outerHtml());
+    }
+
+    @Test
+    public void clone_returnsSameComment() {
+        Comment comment = new Comment("Data");
+        Comment cloned = comment.clone();
+        assertSame(comment, cloned);
+    }
+
+    @Test
+    public void isXmlDeclaration_returnsFalseWhenNoPrefix() {
+        Comment comment = new Comment("Data");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclaration_returnsTrueWhenStartsWithQuestionMarkOrExclamationMark() {
+        Comment comment = new Comment("?Data");
+        assertTrue(comment.isXmlDeclaration());
+        Comment comment2 = new Comment("!Data");
+        assertTrue(comment2.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_returnsNullWhenNoPrefix() {
+        Comment comment = new Comment("Data");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration_returnsCorrectDeclaration() throws IOException {
+        String data = "Data";
+        Comment comment = new Comment(data);
+        XmlDeclaration declaration = comment.asXmlDeclaration();
+        assertNotNull(declaration);
+        assertEquals(data.substring(1, data.length() - 1), declaration.getValue());
+        assertTrue(declaration.getPrefix().equals("xml"));
+    }
+
+}

@@ -1,0 +1,118 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.NodeContainer;
+import org.jsoup.nodes.ParentNode;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNode_GivenText_ReturnsTextNode() {
+        // [MethodUnderTest][Scenario]Test
+        TextNode textNode = new TextNode("Hello, World!");
+        assertNotNull(textNode);
+    }
+
+    @Test
+    public void nodeName_TreeNodeReturnsCorrectNodeName() {
+        // [MethodUnderTest][Scenario]Test
+        TextNode textNode = new TextNode("Hello, World!");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void text_GivenText_ReturnsUnencodedText() {
+        // [MethodUnderTest][Scenario]Test
+        TextNode textNode = new TextNode("Hello, World!");
+        assertEquals("Hello, World!", textNode.text());
+    }
+
+    @Test
+    public void text_SettingText_ReturnsTextNode() {
+        // [MethodUnderTest][Scenario]Test
+        TextNode textNode = new TextNode();
+        textNode.text("Hello, World!");
+        assertNotNull(textNode);
+    }
+
+    @Test
+    public void getWholeText_GivenText_ReturnsUnencodedText() {
+        // [MethodUnderTest][Scenario]Test
+        TextNode textNode = new TextNode("Hello\nWorld");
+        assertEquals("Hello\nWorld", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlank_GivenEmptyTextNode_ReturnsTrue() {
+        // [MethodUnderTest][Scenario]Test
+        TextNode textNode = new TextNode();
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_GivenNonBlankTextNode_ReturnsFalse() {
+        // [MethodUnderTest][Scenario]Test
+        TextNode textNode = new TextNode("Hello, World!");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_SplittingTextNodeAtOffset_ReturnsTextNodeWithSplitContent() throws IOException {
+        // [MethodUnderTest][Scenario]Test
+        TextNode textNode = new TextNode("Hello\nWorld");
+        TextNode result = textNode.splitText(0);
+        assertEquals("Hello", result.text());
+    }
+
+    @Test
+    public void splitText_SplittingTextNodeAtOffset
+
+    ReturnsTextNodeWithSplitContentAndNewTextNode() throws IOException {
+        // [MethodUnderTest][Scenario]Test
+        TextNode textNode = new TextNode("Hello\nWorld");
+        TextNode result1 = textNode.splitText(0);
+        TextNode result2 = textNode.splitText(5);
+        assertNotNull(result1);
+        assertNotNull(result2);
+    }
+
+    @Test
+    public void outerHtmlHead_SplittingTextNodeAtOffset_ReturnsAccumulatedString() throws IOException {
+        // [MethodUnderTest][Scenario]Test
+        Document document = new Document();
+        TextNode textNode = new TextNode("Hello\nWorld");
+        ByteArrayOutputStream accum = new ByteArrayOutputStream();
+        textNode.outerHtmlHead(accum, 0, null);
+        assertEquals("Hello", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTail_ApplyingNoChangesToTextNode_ReturnsAccumulatedString() throws IOException {
+        // [MethodUnderTest][Scenario]Test
+        Document document = new Document();
+        TextNode textNode = new TextNode("Hello\nWorld");
+        ByteArrayOutputStream accum = new ByteArrayOutputStream();
+        textNode.outerHtmlTail(accum, 0, null);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toString_SimpleTextNode_ReturnsSimpleString() {
+        // [MethodUnderTest][Scenario]Test
+        TextNode textNode = new TextNode("Hello, World!");
+        assertEquals("Hello, World!", textNode.toString());
+    }
+
+}

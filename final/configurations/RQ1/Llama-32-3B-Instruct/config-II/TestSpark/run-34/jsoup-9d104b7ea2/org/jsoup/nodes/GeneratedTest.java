@@ -1,0 +1,106 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNode_GivenText_ReturnsTextNode() {
+        String text = "Hello";
+        TextNode textNode = new TextNode(text);
+        assertNotNull(textNode);
+    }
+
+    @Test
+    public void nodeName_ReturnsExpectedValue() {
+        String text = "Hello";
+        TextNode textNode = new TextNode(text);
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void text_GivenText_ReturnsUnencodedText() {
+        String text = "Hello";
+        TextNode textNode = new TextNode(text);
+        assertEquals("Hello", textNode.text());
+    }
+
+    @Test
+    public void text_SplittingTextNode_atOffset_ReturnsExpectedValue() {
+        String text = "Hello World";
+        int offset = 6;
+        TextNode textNode = new TextNode(text);
+        TextNode expected = new TextNode("World");
+        assertEquals(expected, textNode.text(offset));
+    }
+
+    @Test
+    public void isBlank_GivenText_ReturnsExpectedValue() {
+        String text = "Hello World";
+        assertTrue(textNode.isBlank());
+        assertFalse(new TextNode("").isBlank());
+    }
+
+    @Test
+    public void splitText_GivenOffset_ReturnsExpectedValue() {
+        String text = "Hello World";
+        int offset = 6;
+        TextNode textNode = new TextNode(text);
+        TextNode expected = new TextNode("World");
+        assertEquals(expected, textNode.splitText(offset));
+    }
+
+    @Test
+    public void outerHtmlHead_GivenDocumentSettings_ReturnsExpectedString() {
+        String text = "Hello World";
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(out));
+        Document document = new Document();
+        TextNode textNode = new TextNode(text);
+        document.appendChild(textNode);
+        assertEquals("   Hello World  ", TextNode.outerHtmlHead(document, 0, Document.OutputSettings.DEFAULTS).toString());
+        System.setOut(originalOut);
+    }
+
+    @Test
+    public void clone_ReturnsExpectedTextNode() {
+        String text = "Hello";
+        TextNode textNode = new TextNode(text);
+        TextNode expected = new TextNode(text);
+        assertEquals(expected, textNode.clone());
+    }
+}
+
+public class Document {
+
+    private ArrayList<Node> children;
+
+    public Document() {
+        this.children = new ArrayList<>();
+    }
+
+    public void appendChild(Node child) {
+        this.children.add(child);
+    }
+
+    public int getSiblingIndex() {
+        return 0;
+    }
+
+    public Node nextSibling() {
+        return null;
+    }
+
+    public Node previousSibling() {
+        return null;
+    }
+}
+
+}

@@ -1,0 +1,72 @@
+package com.netflix.frigga.ami;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseName_WithValidAmpiName_ReturnsParsedAppVersion() {
+        // given
+        String amiName = "subscriberha-1.0.0-586499";
+        // when
+        AppVersion parsedAppVersion = AppVersion.parseName(amiName);
+        // then
+        Assert.assertNotNull(parsedAppVersion);
+        Assert.assertEquals("subscriberha", parsedAppVersion.getPackageName());
+        Assert.assertEquals("1.0.0-586499", parsedAppVersion.getVersion());
+    }
+
+    @Test
+    public void parseName_WithInvalidAmpiName_ReturnsNull() {
+        // given
+        String amiName = "invalid";
+        // when
+        AppVersion parsedAppVersion = AppVersion.parseName(amiName);
+        // then
+        Assert.assertNull(parsedAppVersion);
+    }
+
+    @Test
+    public void parseName_WithMultipleGroups_ReturnsParsedAppVersion() {
+        // given
+        String amiName = "subscriberha-1.0.0-586499.h150";
+        // when
+        AppVersion parsedAppVersion = AppVersion.parseName(amiName);
+        // then
+        Assert.assertNotNull(parsedAppVersion);
+        Assert.assertEquals("subscriberha", parsedAppVersion.getPackageName());
+        Assert.assertEquals("1.0.0-586499", parsedAppVersion.getVersion());
+    }
+
+    @Test
+    public void parseName_WithMultipleGroupsInRegexPattern_ReturnsParsedAppVersion() {
+        // given
+        String amiName = "subscriberha-1.0.0-586499.h150";
+        // when
+        AppVersion parsedAppVersion = AppVersion.parseName(amiName);
+        // then
+        Assert.assertNotNull(parsedAppVersion);
+        Assert.assertEquals("subscriberha", parsedAppVersion.getPackageName());
+        Assert.assertEquals("1.0.0-586499", parsedAppVersion.getVersion());
+    }
+
+    @Test
+    public void getPackageName_ReturnsParsedAppVersionPackageName() {
+        // given
+        String amiName = "subscriberha-1.0.0-586499";
+        AppVersion parsedAppVersion = AppVersion.parseName(amiName);
+        // when
+        String packageName = parsedAppVersion.getPackageName();
+        // then
+        Assert.assertEquals("subscriberha", packageName);
+    }
+
+    @Test
+    public void getPackageName_WithEmptyString_ReturnsNull() {
+        // given
+        AppVersion parsedAppVersion = new AppVersion("", "", "", "");
+        // when
+        String packageName = parsedAppVersion.getPackageName();
+        // then
+        Assert.assertNull(packageName);
+    }
+
+}

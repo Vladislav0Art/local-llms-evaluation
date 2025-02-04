@@ -1,0 +1,93 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void newCommentsConfiguration_isNotNull() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        assertNotNull(config);
+    }
+
+    @Test
+    public void setComment_setsCommentLinesForPath() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        String path = "path";
+        String[] commentLines = {"comment1", "comment2"};
+        config.setComment(path, commentLines);
+        assertEquals(Arrays.asList(commentLines), config.comments.get(path));
+    }
+
+    @Test
+    public void setComment_setsEmptyLineForNewline() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        String path = "path";
+        String newline = "\n";
+        config.setComment(path, newline);
+        assertEquals(Collections.singletonList(newline), config.comments.get(path));
+    }
+
+    @Test
+    public void getComments_returnsReadOnlyViewOfMap() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path", "comment1");
+        Map<String, List<String>> comments = config.getAllComments();
+        assertNotNull(comments);
+        assertTrue(comments instanceof java.util.Map.UnmodifiableMap);
+    }
+
+    @Test
+    public void getComments_returnsEmptyListForNonExistingPath() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        String path = "path";
+        config.setComment("otherPath", "comment1");
+        Map<String, List<String>> comments = config.getAllComments();
+        assertNotNull(comments);
+        assertEquals(Collections.emptyList(), comments.get(path));
+    }
+
+    @Test
+    public void setComment_setsCommentsToUnmodifiableList() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        String path = "path";
+        String[] commentLines = {"comment1", "comment2"};
+        config.setComment(path, commentLines);
+        List<String> list = config.comments.get(path);
+        assertTrue(list instanceof java.util.List.UnmodifiableList);
+    }
+
+    @Test
+    public void getComments_setsCommentsToUnmodifiableMap() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        String path = "path";
+        config.setComment("otherPath", "comment1");
+        Map<String, List<String>> comments = config.getAllComments();
+        assertTrue(comments instanceof java.util.Map.UnmodifiableMap);
+    }
+
+    @Test
+    public void setComment_throwsNullPointerException_ifCommentLinesIsNull() {
+        CommentsConfiguration config = mock(CommentsConfiguration.class);
+        String path = "path";
+        when(config.comments).thenReturn(new HashMap<>());
+        when(config.comments.putAny()).thenThrow(NullPointerException::new);
+        assertThrows(NullPointerException.class, () -> config.setComment(path, null));
+    }
+
+    @Test
+    public void setComment_throwsNullPointerException_ifPathIsNull() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        when(config.comments).thenReturn(new HashMap<>());
+        when(config.comments.putAny()).thenThrow(NullPointerException::new);
+        assertThrows(NullPointerException.class, () -> config.setComment(null, "comment1"));
+    }
+
+}

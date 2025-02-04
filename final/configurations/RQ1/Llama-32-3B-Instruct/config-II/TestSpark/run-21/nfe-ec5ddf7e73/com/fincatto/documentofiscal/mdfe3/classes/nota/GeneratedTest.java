@@ -1,0 +1,96 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Arrays;
+
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+@RunWith(Parameterized.class)
+public class GeneratedTest {
+
+    @Mock
+    private DFStringValidador validador;
+
+    private MDFInfoModalRodoviarioVeiculoReboque mdfInfoModalRodoviarioVeiculoReboque;
+    private String valorCapacidadeKg;
+    private boolean valorPlacaVeiculoReboque;
+    private int valorRenavamDoReboque;
+    private String valorTaraEmReboque;
+
+    public MDFInfoModalRodoviarioVeiculoReboqueTest(String valorCapacidadeKg, boolean valorPlacaVeiculoReboque, int valorRenavamDoReboque, String valorTaraEmReboque) {
+        MockitoAnnotations.initMocks(this);
+        this.valorCapacidadeKg = valorCapacidadeKg;
+        this.valorPlacaVeiculoReboque = valorPlacaVeiculoReboque;
+        this.valorRenavamDoReboque = valorRenavamDoReboque;
+        this.valorTaraEmReboque = valorTaraEmReboque;
+
+        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+    }
+
+    @Parameters
+    public static Object[] data() {
+        return new Object[][]{
+                {"12345", true, 9, "10"},
+                {"12345", false, 0, "5"},
+                {"12345", true, 9, ""},
+                {"12345", true, 9, "abc"}
+        };
+    }
+
+    @Test
+    public void codigoInternoSet
+
+    deveValidarCodigoInterno() {
+        mdfInfoModalRodoviarioVeiculoReboque.setCodigoInterno("12345");
+        assertEquals("12345", mdfInfoModalRodoviarioVeiculoReboque.getCodigoInterno());
+    }
+
+    @Test
+    public void placaDeVeiculoSet
+
+    deveValidarPlacaDoReboque() {
+        mdfInfoModalRodoviarioVeiculoReboque.setPlaca("1234");
+        assertTrue(mdfInfoModalRodoviarioVeiculoReboque.isPlacaDeVeiculoReboque());
+    }
+
+    @Test
+    public void renavamDoReboqueSet
+
+    deveValidarRenavamDoReboque() {
+        mdfInfoModalRodoviarioVeiculoReboque.setRenavam("12345");
+        assertEquals(9, mdfInfoModalRodoviarioVeiculoReboque.getRenavam());
+    }
+
+    @Test
+    public void taraEmReboqueSet
+
+    deveValidarTaraDoReboque() {
+        mdfInfoModalRodoviarioVeiculoReboque.setTara("123");
+        assertEquals(5, mdfInfoModalRodoviarioVeiculoReboque.getTara());
+    }
+
+    @Test
+    public void capacidadeKgSet
+
+    deveValidarCapacidadeDoReboque() {
+        mdfInfoModalRodoviarioVeiculoReboque.setCapacidadeKG("12345");
+        assertEquals(5, mdfInfoModalRodoviarioVeiculoReboque.getCapacidadeKG().length());
+    }
+
+    @Test
+    public void capacidadeM3Set
+
+    deveValidarCapacidadeDoReboque() {
+        mdfInfoModalRodoviarioVeiculoReboque.setCapacidadeM3("123");
+        assertEquals(2, mdfInfoModalRodoviarioVeiculoReboque.getCapacidadeM3().length());
+    }
+
+}

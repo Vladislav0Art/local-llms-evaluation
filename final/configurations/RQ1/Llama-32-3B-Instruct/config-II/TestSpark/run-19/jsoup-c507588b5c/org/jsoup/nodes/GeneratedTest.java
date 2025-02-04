@@ -1,0 +1,65 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+import static org.jsoup.nodes.TextNode.NORMALISED_WHITE_SPACE;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Node parentNode;
+
+    @Mock
+    private Document document;
+
+    @Test
+    public void whenCreatedWithText_thenValueIsSet() {
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.value);
+    }
+
+    @Test
+    public void whenSplitAtOffset_thenTailIsNewTextNode() {
+        TextNode textNode = new TextNode("Hello World");
+        int offset = 6;
+        Node tailNode = textNode.splitText(offset);
+        assertTrue(tailNode instanceof TextNode);
+    }
+
+    @Test
+    public void whenNormalizedWhitespaceThenReturnNormalisedWhitespace() {
+        String text = "   ";
+        assertEquals(NORMALISED_WHITE_SPACE, StringUtil.normaliseWhitespace(text));
+    }
+
+    @Test
+    public void whenTrimmingLeadingAndTrailingSpaces_thenTrimmedTextIsReturned() {
+        String text = "   Hello World  ";
+        assertEquals("Hello World", StringUtil.stripLeadingWhitespace(text));
+    }
+
+    @Test
+    public void whenSplittingTextNode_thenReturnsNewTextNodeWithTail() {
+        TextNode textNode = new TextNode("Hello World");
+        int offset = 6;
+        Node tailNode = textNode.splitText(offset);
+        String tailText = tailNode.text();
+        assertEquals("World", tailText);
+    }
+
+    @Test
+    public void whenCreatedFromEncodedText_thenReturnsTextNodeWithUnescapedText() {
+        String encodedText = "&lt;Hello&gt;";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertEquals("Hello", textNode.text());
+    }
+
+}

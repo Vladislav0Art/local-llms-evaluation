@@ -1,0 +1,119 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.UUID;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCodigoInterno_InvalidString_ReturnsNothing() {
+        String codigoInterno = "abc";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCodigoInterno(codigoInterno);
+        assertEquals("", obj.getCodigoInterno());
+    }
+
+    @Test
+    public void setCodigoInterno_ValidString_ReturnsValidString() {
+        String codigoInterno = "1234567890";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCodigoInterno(codigoInterno);
+        assertEquals(codigoInterno, obj.getCodigoInterno());
+    }
+
+    @Test
+    public void setPlaca_InvalidString_ReturnsNothing() {
+        String placa = "abc";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setPlaca(placa);
+        assertEquals("", obj.getPlaca());
+    }
+
+    @Test
+    public void setPlaca_ValidString_ReturnsValidString() {
+        String placa = "1234567890";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setPlaca(placa);
+        assertEquals(placa, obj.getPlaca());
+    }
+
+    @Test
+    public void setRenavam_InvalidString_ReturnsNothing() {
+        String renavam = "abc";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setRenavam(renavam);
+        assertEquals("", obj.getRenavam());
+    }
+
+    @Test
+    public void setRenavam_ValidString_ReturnsValidString() {
+        String renavam = "1234567890";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setRenavam(renavam);
+        assertEquals(renavam, obj.getRenavam());
+    }
+
+    @Test
+    public void setTara_InvalidString_ReturnsNothing() {
+        String tara = "abc";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setTara(tara);
+        assertEquals("", obj.getTara());
+    }
+
+    @Test
+    public void setTara_ValidString_ReturnsValidString() {
+        String tara = "1234567890";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setTara(tara);
+        assertEquals(tara, obj.getTara());
+    }
+
+    @Test
+    public void getCapacidadeKG_ReturnsNull() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        assertNull(obj.getCapacidadeKG());
+    }
+
+    @Test
+    public void setCapacidadeKG_InvalidString_ReturnsNothing() {
+        String capacidadeKG = "abc";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeKG(capacidadeKG);
+        assertEquals("", obj.getCapacidadeKG());
+    }
+
+    @Test
+    public void setCapacidadeKG_ValidString_ReturnsValidString() {
+        String capacidadeKG = "1234567890";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeKG(capacidadeKG);
+        assertEquals(capacidadeKG, obj.getCapacidadeKG());
+    }
+
+    @Test
+    public void getCapacidadeM3_ReturnsNull() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        assertNull(obj.getCapacidadeM3());
+    }
+
+    @Test
+    public void setCapacidadeM3_InvalidString_ReturnsNothing() {
+        String capacidadeM3 = "abc";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeM3(capacidadeM3);
+        assertEquals("", obj.getCapacidadeM3());
+    }
+
+    @Test
+    public void setCapacidadeM3_ValidString_ReturnsValidString() {
+        String capacidadeM3 = "1234567890";
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeM3(capacidadeM3);
+        assertEquals(capacidadeM3, obj.getCapacidadeM3());
+    }
+
+}

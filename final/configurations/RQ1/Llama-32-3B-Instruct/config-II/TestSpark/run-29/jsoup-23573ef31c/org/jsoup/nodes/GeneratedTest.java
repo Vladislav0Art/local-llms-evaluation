@@ -1,0 +1,107 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testDocument() {
+        Document document = new Document();
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void testOutputSettings() {
+        Document document = new Document();
+        OutputSettings outputSettings = new OutputSettings();
+        document.outputSettings(outputSettings);
+        Assert.assertEquals(outputSettings, document.outputSettings());
+    }
+
+    @Test
+    public void testParser() {
+        Document document = new Document();
+        Parser parser = new Parser();
+        document.parser(parser);
+        Assert.assertEquals(parser, document.parser());
+    }
+
+    @Test
+    public void testConnection() {
+        Document document = new Document();
+        Connection connection = new Connection();
+        document.connection(connection);
+        Assert.assertEquals(connection, document.connection());
+    }
+}
+
+@Test
+public void testOutputSettingsClone() {
+    OutputSettings outputSettings = new OutputSettings();
+    outputSettings.prettyPrint(true);
+    outputSettings.indentAmount(4);
+    Document document = new Document();
+    document.outputSettings(outputSettings.clone());
+    Assert.assertTrue(document.outputSettings().prettyPrint());
+    Assert.assertEquals(4, document.outputSettings().indentAmount());
+}
+
+@Test
+public void testOutputSettingsNull() {
+    Document document = new Document();
+    assertThrows(NullPointerException.class, () -> document.outputSettings(null));
+}
+	}
+
+@Test
+public void testParserClone() {
+    Parser parser = new Parser();
+    parser.setParseMode(Parser ParseMode.HTML);
+    Document document = new Document();
+    document.parser(parser.clone());
+    Assert.assertEquals(ParseMode.HTML, document.parser().getParseMode());
+}
+
+@Test
+public void testParserNull() {
+    Document document = new Document();
+    assertThrows(NullPointerException.class, () -> document.parser(null));
+}
+	}
+
+@Test
+public void testConnectionClone() {
+    Connection connection = new Connection();
+    Document document = new Document();
+    document.connection(connection.clone());
+    Assert.assertEquals(connection, document.connection());
+}
+
+@Test
+public void testConnectionNull() {
+    Document document = new Document();
+    assertThrows(NullPointerException.class, () -> document.connection(null));
+}
+	}
+
+@Test
+public void testQuirksModeValueOf() {
+    QuirksMode quirksMode = QuirksMode.limitedQuirks;
+    Assert.assertEquals(QuirksMode.valueOf("limitedQuirks"), quirksMode);
+}
+
+@Test
+public void testQuirksModeNull() {
+    assertThrows(NullPointerException.class, () -> QuirksMode.valueOf(null));
+}
+	}
+
+@Test
+public void testQuirksModeStringToInt() {
+    Assert.assertEquals(2, QuirksMode.valueOf("quirks").ordinal());
+}
+
+@Test
+public void testQuirksModeNullToString() {
+    assertThrows(NullPointerException.class, () -> QuirksMode.valueOf(null).toString());
+}
+
+}

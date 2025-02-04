@@ -1,0 +1,106 @@
+package org.jsoup.safety;
+
+public class GeneratedTestEnforcedAttributes {
+
+
+    private Attributes attributes;
+    private Map<TagName, Set<AttributeKey>> enforcedAttributes;
+    private boolean preserveRelativeLinks;
+
+    public Config() {
+        this.attributes = new Attributes();
+        this.enforcedAttributes = new HashMap<>();
+        this.preserveRelativeLinks = false;
+    }
+
+    // getters and setters for attributes
+    public Attributes getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Attributes attributes) {
+        this.attributes = attributes;
+    }
+
+    public Map<TagName, Set<AttributeKey>> getEnforcedAttributes() {
+        return enforcedAttributes;
+    }
+
+    public void setEnforcedAttributes(Map<TagName, Set<AttributeKey>> enforcedAttributes) {
+        this.enforcedAttributes = enforcedAttributes;
+    }
+
+    public boolean isPreserveRelativeLinks() {
+        return preserveRelativeLinks;
+    }
+
+    public void setPreserveRelativeLinks(boolean preserveRelativeLinks) {
+        this.preserveRelativeLinks = preserveRelativeLinks;
+    }
+
+    // getters and setters for protocols
+
+}
+
+public class TestConfig {
+
+    @Test
+    public void testEnforcedAttributes() {
+        Config config = new Config();
+
+        TagName tagName = TagName.valueOf("tag");
+
+        Set<AttributeKey> attributeKeys = new HashSet<>();
+        attributeKeys.add(AttributeKey.valueOf("attr1"));
+        attributeKeys.add(AttributeKey.valueOf("attr2"));
+
+        Map<TagName, Set<AttributeKey>> enforcedAttributes = new HashMap<>();
+        enforcedAttributes.put(tagName, attributeKeys);
+
+        config.setEnforcedAttributes(enforcedAttributes);
+
+        Attributes attrs = config.getEnforcedAttributes().get(tagName);
+
+        assertEquals(attributeKeys, attrs.keySet());
+    }
+}
+
+class Element {
+
+    private String text;
+
+    public Element(String text) {
+        this.text = text;
+    }
+
+    public void setAttribute(String key, String value) {
+    }
+
+    public String getAttribute(String key) {
+        return null;
+    }
+
+    public String absUrl(String key) {
+        return null;
+    }
+}
+
+class Attribute {
+
+    private String key;
+    private String value;
+
+    public Attribute(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+    }
+}
+
+}

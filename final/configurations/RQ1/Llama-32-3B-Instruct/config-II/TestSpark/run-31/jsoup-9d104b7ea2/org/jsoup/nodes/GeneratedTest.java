@@ -1,0 +1,99 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void TextNodeCreationTest() {
+        TextNode textNode = new TextNode("Hello World");
+        assertEquals("#text", textNode.nodeName());
+        assertNotNull(textNode.text());
+    }
+
+    @Test
+    public void NormaliseWhitespaceTest() {
+        String normalisedText = TextNode.normaliseWhitespace("   Hello World  ");
+        assertEquals("Hello World", normalisedText);
+    }
+
+    @Test
+    public void IsBlankTest() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+        textNode.text("Hello World");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void SplitTextTest() {
+        String text = "Hello World";
+        TextNode originalTextNode = new TextNode(text);
+        TextNode tailTextNode = originalTextNode.splitText(6);
+
+        assertEquals(0, originalTextNode.text().length());
+        assertEquals("World", tailTextNode.text());
+    }
+
+    @Test
+    public void OuterHtmlHeadTest() {
+        Document document = new Document();
+        Appendable appendable = new StringBuilder();
+
+        TextNode textNode = new TextNode("   Hello World  ");
+        Document.OutputSettings outputSettings = new Document.OutputSettings(true);
+
+        try {
+            textNode.outerHtmlHead(appendable, 0, outputSettings);
+        } catch (IOException e) {
+        }
+
+        assertEquals("<span>Hello World</span>", appendable.toString());
+    }
+
+    @Test
+    public void CloneTest() throws CloneNotSupportedException {
+        TextNode originalTextNode = new TextNode("Hello World");
+        TextNode clonedTextNode = (TextNode) originalTextNode.clone();
+
+        assertNotNull(clonedTextNode);
+        assertEquals(originalTextNode.nodeName(), clonedTextNode.nodeName());
+        assertEquals(originalTextNode.text(), clonedTextNode.text());
+    }
+
+    @Test
+    public void CreateFromEncodedTest() {
+        String encodedText = "Hello &lt;World&gt;";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+
+        assertEquals("Hello World", textNode.text());
+    }
+}
+
+class Document {
+    public Appendable appendable;
+    public OutputSettings outputSettings;
+
+    public Document() {
+    }
+}
+
+class Appendable {
+    private StringBuilder builder = new StringBuilder();
+
+    public void append(String value) {
+        builder.append(value);
+    }
+
+    @Override
+    public String toString() {
+        return builder.toString();
+    }
+}
+
+}

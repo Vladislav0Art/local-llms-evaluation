@@ -1,0 +1,59 @@
+package com.netflix.frigga.ami;
+
+public class GeneratedTest {
+
+    @Test
+    public void emptyAppVersionShouldReturnNull() {
+        AppVersion appVersion = AppVersion.parseName("");
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void invalidAppVersionPatternShouldReturnNull() {
+        Matcher matcher = Pattern.compile("").matcher("test");
+        assertNull(AppVersion.parseName("test"));
+    }
+
+    @Test
+    public void validAppVersionShouldParseCorrectly() {
+        AppVersion appVersion = AppVersion.parseName("subscriberha-1.0.0-586499");
+        assertNotNull(appVersion);
+        assertEquals("subscriberha", appVersion.getPackageName());
+        assertEquals("1.0.0-586499", appVersion.getVersion());
+    }
+
+    @Test
+    public void appVersionWithInvalidPatternShouldReturnNull() {
+        Matcher matcher = Pattern.compile("[a-z]").matcher("test");
+        assertNull(AppVersion.parseName("test"));
+    }
+
+    @Test
+    public void sameAppVersionShouldBeEqual() {
+        AppVersion appVersion1 = AppVersion.parseName("subscriberha-1.0.0-586499");
+        AppVersion appVersion2 = AppVersion.parseName("subscriberha-1.0.0-586499");
+        assertTrue(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void differentAppVersionsShouldNotBeEqual() {
+        AppVersion appVersion1 = AppVersion.parseName("subscriberha-1.0.0-586499");
+        AppVersion appVersion2 = AppVersion.parseName("subscriberha-1.0.0-586500");
+        assertFalse(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void appVersionShouldHaveCorrectHashCode() {
+        AppVersion appVersion = AppVersion.parseName("subscriberha-1.0.0-586499");
+        int expectedHash = 12345;
+        assertEquals(expectedHash, appVersion.hashCode());
+    }
+
+    @Test
+    public void appVersionToStringShouldReturnExpectedString() {
+        AppVersion appVersion = AppVersion.parseName("subscriberha-1.0.0-586499");
+        String expectedString = "AppVersion [packageName=subscriberha, version=1.0.0-586499, buildJobName=null, buildNumber=null, changelist=null]";
+        assertEquals(expectedString, appVersion.toString());
+    }
+
+}

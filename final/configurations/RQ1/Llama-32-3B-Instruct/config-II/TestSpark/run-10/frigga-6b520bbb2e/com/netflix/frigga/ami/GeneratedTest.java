@@ -1,0 +1,107 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedTest {
+
+    @Test
+    public void [parseName_NullInput_ReturnsNull]()
+
+    {
+        AppVersion result = AppVersion.parseName(null);
+        assertNull(result);
+    }
+
+    @Test
+    public void [parseName_InValidPattern_ReturnsNull]()
+
+    {
+        String amiName = "invalid-pattern";
+        AppVersion result = AppVersion.parseName(amiName);
+        assertNull(result);
+    }
+
+    @Test
+    public void [parseName_ValidPattern_ReturnsInstance]()
+
+    {
+        String amiName = "subscriberha-1.0.0-586499";
+        AppVersion result = AppVersion.parseName(amiName);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void [parseName_MultipleGroups_ReturnsAllValues]()
+
+    {
+        String amiName = "subscriberha-1.0.0-586499.h150";
+        AppVersion result = AppVersion.parseName(amiName);
+        assertEquals("subscriberha", result.packageName);
+        assertEquals("1.0.0-586499", result.version);
+    }
+
+    @Test
+    public void [parseName_WithCommit_ReturnsCommit]()
+
+    {
+        String amiName = "subscriberha-1.0.0-586499.h150/WE-WAPP-subscriberha/150";
+        AppVersion result = AppVersion.parseName(amiName);
+        assertNotNull(result.commit);
+    }
+
+    @Test
+    public void [getPackageName_ReturnValue]()
+
+    {
+        AppVersion appVersion = new AppVersion("subscriberha", "1.0.0-586499");
+        assertEquals("subscriberha", appVersion.getPackageName());
+    }
+
+    @Test
+    public void [getVersion_ReturnValue]()
+
+    {
+        AppVersion appVersion = new AppVersion("subscriberha", "1.0.0-586499");
+        assertEquals("1.0.0-586499", appVersion.getVersion());
+    }
+
+    @Test
+    public void [getBuildJobName_ReturnValue]()
+
+    {
+        AppVersion appVersion = new AppVersion("subscriberha", "1.0.0-586499", null, null);
+        assertNotNull(appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void [getBuildNumber_ReturnValue]()
+
+    {
+        AppVersion appVersion = new AppVersion(null, null, null, "123");
+        assertNotNull(appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void [toString_ReturnsCorrectString]()
+
+    {
+        String expected = "AppVersion [packageName=subscriberha, version=1.0.0-586499, buildJobName=null, buildNumber=null, changelist=null]";
+        AppVersion appVersion = new AppVersion("subscriberha", "1.0.0-586499");
+        assertEquals(expected, appVersion.toString());
+    }
+
+    @Test
+    public void [hashCode_ReturnsCorrectValue]()
+
+    {
+        String expected = 0x2c8e8e85;
+        AppVersion appVersion = new AppVersion("subscriberha", "1.0.0-586499");
+        assertEquals(expected, appVersion.hashCode());
+    }
+
+}

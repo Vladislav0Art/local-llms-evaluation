@@ -1,0 +1,107 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.UUID;
+
+public class GeneratedTest {
+
+    @Test
+    public void testCodigoInternoNotNull() {
+        String codigoInterno = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setCodigoInterno(codigoInterno);
+        assertNotNull(modal.getCodigoInterno());
+    }
+
+    @Test
+    public void testPlacaNotNull() {
+        String placa = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setPlaca(placa);
+        assertNotNull(modal.getPlaca());
+    }
+
+    @Test
+    public void testRenavamNotNull() {
+        String renavam = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setRenavam(renavam);
+        assertNotNull(modal.getRenavam());
+    }
+
+    @Test
+    public void testTaraNotNull() {
+        String tara = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setTara(tara);
+        assertNotNull(modal.getTara());
+    }
+
+    @Test
+    public void testCapacidadeKGNotNull() {
+        String capacidadeKG = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setCapacidadeKG(capacidadeKG);
+        assertNotNull(modal.getCapacidadeKG());
+    }
+
+    @Test
+    public void testCapacidadeM3NotNull() {
+        String capacidadeM3 = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setCapacidadeM3(capacidadeM3);
+        assertNotNull(modal.getCapacidadeM3());
+    }
+
+    @Test
+    public void testSetCodigoInternoValido() {
+        String codigoInterno = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setCodigoInterno(codigoInterno);
+        assertTrue(DFStringValidador.validador(codigoInterno, "Codigo interno Veiculo Reboque", 10, false, false));
+    }
+
+    @Test
+    public void testSetPlacaValida() {
+        String placa = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setPlaca(placa);
+        assertTrue(DFStringValidador.placaDeVeiculo(placa, "Placa do reboque"));
+    }
+
+    @Test
+    public void testSetRenavamValido() {
+        String renavam = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setRenavam(renavam);
+        assertTrue(DFStringValidador.validaIntervalo(renavam, 9, 11, "Renavam do reboque"));
+    }
+
+    @Test
+    public void testSetTaraValida() {
+        String tara = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setTara(tara);
+        assertTrue(DFStringValidador.capacidadeNDigitos(tara, "Tara em reboque", 5));
+    }
+
+    @Test
+    public void testSetCapacidadeKGValida() {
+        String capacidadeKG = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setCapacidadeKG(capacidadeKG);
+        assertTrue(DFStringValidador.capacidadeNDigitos(capacidadeKG, "Capacidade em KG reboque", 5));
+    }
+
+    @Test
+    public void testSetCapacidadeM3Valida() {
+        String capacidadeM3 = UUID.randomUUID().toString();
+        MDFInfoModalRodoviarioVeiculoReboque modal = new MDFInfoModalRodoviarioVeiculoReboque();
+        modal.setCapacidadeM3(capacidadeM3);
+        assertTrue(DFStringValidador.capacidadeNDigitos(capacidadeM3, "Capacidade em M3 reboque", 2));
+    }
+
+}

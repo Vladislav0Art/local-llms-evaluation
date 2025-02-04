@@ -1,0 +1,82 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.List;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void newCommentsConfigurationIsEmpty() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        assertTrue(config.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void newCommentsConfigurationIsUnmodifiable() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        Map<String, List<String>> comments = config.getAllComments();
+        assertNotEquals(comments, null);
+        assertEquals(0, comments.size());
+    }
+
+    @Test
+    public void existingCommentsConfigurationIsEmpty() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path", "line1\n", "line2");
+        assertTrue(config.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void setCommentForNewPathAddsLines() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("newPath", "line1\n", "line2");
+        Map<String, List<String>> comments = config.getAllComments();
+        assertEquals(1, comments.size());
+        assertTrue(comments.containsKey("newPath"));
+    }
+
+    @Test
+    public void setCommentForExistingPathOverwritesLines() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path", "line1\n");
+        config.setComment("path", "line2\n", "line3");
+        Map<String, List<String>> comments = config.getAllComments();
+        assertEquals(1, comments.size());
+        assertTrue(comments.containsKey("path"));
+        assertTrue(comments.get("path").containsAll(Arrays.asList("line2")));
+    }
+
+    @Test
+    public void setCommentForExistingPathAddsLines() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("existingPath", "line1\n");
+        config.setComment("existingPath", "line2\n", "line3");
+        Map<String, List<String>> comments = config.getAllComments();
+        assertEquals(1, comments.size());
+        assertTrue(comments.containsKey("existingPath"));
+        assertTrue(comments.get("existingPath").containsAll(Arrays.asList("line2")));
+    }
+
+    @Test
+    public void setCommentForEmptyStringPathAddsLines() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("", "line1\n", "line2");
+        Map<String, List<String>> comments = config.getAllComments();
+        assertEquals(1, comments.size());
+        assertTrue(comments.containsKey(""));
+        assertTrue(comments.get("").containsAll(Arrays.asList("line1")));
+    }
+
+    @Test
+    public void setCommentForEmptyStringPathDoesNotAddNewLines() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("", "\n");
+        Map<String, List<String>> comments = config.getAllComments();
+        assertEquals(0, comments.size());
+    }
+
+}

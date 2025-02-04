@@ -1,0 +1,92 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextPriceIsHigherThanLastElement_ReturnsCorrectSpan() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        int result = onlineStockSpan.next(10);
+        assertEquals(1, result);
+
+        int nextResult = onlineStockSpan.next(20);
+        assertEquals(2, nextResult);
+    }
+
+    @Test
+    public void NextPriceIsLowerThanLastElement_ReturnsCorrectSpan() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        int result = onlineStockSpan.next(10);
+        assertEquals(1, result);
+
+        int nextResult = onlineStockSpan.next(20);
+        assertEquals(3, nextResult);
+    }
+
+    @Test
+    public void NextPriceIsEqualToLastElement_ReturnsCorrectSpan() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        int result = onlineStockSpan.next(10);
+        assertEquals(1, result);
+
+        int nextResult = onlineStockSpan.next(10);
+        assertEquals(2, nextResult);
+    }
+
+    @Test
+    public void CalculateSpans_ReturnsCorrectArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        int[] result = onlineStockSpan.calculateSpans(new int[]{10, 20, 30});
+        assertArrayEquals(new int[]{1, 3, 4}, result);
+    }
+
+    @Test
+    public void CalculateSpans_EmptyArray_ReturnsCorrectResult() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        int[] result = onlineStockSpan.calculateSpans(new int[]{});
+        assertArrayEquals(new int[]{0}, result);
+    }
+
+    @Test
+    public void CalculateSpans_SingleElementArray_ReturnsCorrectResult() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        int[] result = onlineStockSpan.calculateSpans(new int[]{10});
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void CalculateSpans_SingleElementArray_withLastElementAsZero_ReturnsCorrectResult() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        int[] result = onlineStockSpan.calculateSpans(new int[]{0});
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+}

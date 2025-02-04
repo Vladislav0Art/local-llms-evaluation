@@ -1,0 +1,81 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void next_ReturnsCorrectCount_WhenPriceIsHigherThanAllPreviousPrices() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 10;
+        int expectedCount = 1;
+        int actualCount = onlineStockSpan.next(price);
+        assertEquals(expectedCount, actualCount);
+    }
+
+    @Test
+    public void next_ReturnsCorrectCount_WhenPriceIsNotHigherThanAllPreviousPrices() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 5;
+        int expectedCount = 1;
+        int actualCount = onlineStockSpan.next(price);
+        assertEquals(expectedCount, actualCount);
+    }
+
+    @Test
+    public void next_ReturnsCorrectCount_WhenPriceIsEqualToAllPreviousPrices() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 5;
+        int expectedCount = 2;
+        int actualCount = onlineStockSpan.next(price);
+        assertEquals(expectedCount, actualCount);
+    }
+
+    @Test
+    public void calculateSpans_ReturnsCorrectSpans_WhenPriceArrayIsEmpty() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {};
+        int[] expectedSpans = {};
+        int[] actualSpans = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expectedSpans, actualSpans);
+    }
+
+    @Test
+    public void calculateSpans_ReturnsCorrectSpans_WhenPriceArrayHasOneElement() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {10};
+        int[] expectedSpans = {1};
+        int[] actualSpans = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expectedSpans, actualSpans);
+    }
+
+    @Test
+    public void calculateSpans_ReturnsCorrectSpans_WhenPriceArrayHasMultipleElements() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {10, 5, 8, 2};
+        int[] expectedSpans = {1, 2, 3, 4};
+        int[] actualSpans = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expectedSpans, actualSpans);
+    }
+
+    @Test
+    public void calculateSpans_ReturnsCorrectSpans_WhenPriceArrayHasSameValueMultipleTimes() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {10, 5, 8, 2};
+        List<Integer> list = new ArrayList<>();
+        list.add(10);
+        list.add(5);
+        list.add(5);
+        list.add(2);
+        onlineStockSpan.list = list;
+        int[] expectedSpans = {1, 2, 3, 4};
+        int[] actualSpans = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expectedSpans, actualSpans);
+    }
+
+}

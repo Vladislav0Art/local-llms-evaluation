@@ -1,0 +1,109 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextPriceReturnsCorrectCount() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        onlineStockSpan.next(80);
+        onlineStockSpan.next(75);
+        assertThat(onlineStockSpan.list, containsExactly(100, 80, 75));
+    }
+
+    @Test
+    public void nextPriceWithMultipleDecreasesReturnsCorrectCount() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        onlineStockSpan.next(90);
+        onlineStockSpan.next(85);
+        assertThat(onlineStockSpan.list, containsExactly(100, 90, 85));
+    }
+
+    @Test
+    public void calculateSpans_ReturnsCorrectLengthArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100, 80, 75};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertThat(result.length, is(3));
+    }
+
+    @Test
+    public void calculateSpans_SingleElementArray_ReturnsCorrectLengthArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertThat(result.length, is(1));
+    }
+
+    @Test
+    public void calculateSpans_EmptyArray_ReturnsEmptyLengthArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertThat(result.length, is(0));
+    }
+
+    @Test
+    public void nextPriceWithSingleElementInList_ReturnsCorrectLengthArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        int[] result = onlineStockSpan.calculateSpans(new int[]{100});
+        assertThat(result.length, is(1));
+        assertThat(result[0], is(1));
+    }
+
+    @Test
+    public void nextPriceWithMultipleElementsInList_ReturnsCorrectLengthArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        onlineStockSpan.next(80);
+        int[] result = onlineStockSpan.calculateSpans(new int[]{100, 80});
+        assertThat(result.length, is(2));
+        assertThat(result[0], is(1));
+        assertThat(result[1], is(1));
+    }
+
+}
+
+class MockedOnlineStockSpan {
+    private List<Integer> list;
+    private Stack<Integer> indexStack;
+
+    public MockedOnlineStockSpan() {
+        this.list = new ArrayList<>();
+        this.indexStack = new Stack<>();
+    }
+
+    public void next(int price) {
+        list.add(price);
+        // No-op
+    }
+
+    public int[] calculateSpans(int[] prices) {
+        // No-op, just returns the mock values
+        return getMockedValues();
+    }
+
+    private int[] getMockedValues() {
+        int[] mockedPrices = new int[]{100, 80, 75};
+        Stack<Integer> stack = new Stack<>(Arrays.asList(0, 1, 2));
+        return Arrays.stream(mockedPrices).map(index -> {
+            if (stack.isEmpty()) {
+                return index + 1;
+            } else {
+                return index - stack.peek();
+            }
+        }).toArray();
+    }
+
+}

@@ -1,0 +1,71 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNode_GivenText_ReturnsTextNode() {
+        // Given
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // Then
+        assertEquals(text, textNode.text());
+    }
+
+    @Test
+    public void createTextNode_EmptyString_ReturnsBlankTextNode() {
+        // Given
+        String text = "";
+        TextNode textNode = new TextNode(text);
+
+        // Then
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_GivenOffsetReturnsCorrectSplitTextNode() throws IOException {
+        // Given
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        int offset = 5;
+        TextNode tailNode = new TextNode();
+
+        // When
+        TextNode result = textNode.splitText(offset);
+
+        // Then
+        assertEquals(tailNode, result.text());
+    }
+
+    @Test
+    public void splitText_GivenNegativeOffsetThrowsException() {
+        // Given
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+        int offset = -5;
+
+        // When
+        assertThrows(IllegalArgumentException.class, () -> textNode.splitText(offset));
+    }
+
+    @Test
+    public void isBlank_ReturnsTrueWhenTextIsBlank() {
+        // Given
+        String text = "";
+        TextNode textNode = new TextNode(text);
+
+        // Then
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_ReturnsFalseWhenTextContainsData() {
+        // Given
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // Then
+        assertFalse(textNode.isBlank());
+    }
+
+}

@@ -1,0 +1,66 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    private OnlineStockSpan stockSpan = new OnlineStockSpan();
+
+    @Test
+    public void next_Price_HigherThanAllPreviousPrices_ReturnsCorrectSpan() {
+        assertEquals(1, stockSpan.next(100));
+    }
+
+    @Test
+    public void next_Price_LowerThanAllPreviousPrices_ReturnsCorrectSpan() {
+        stockSpan.list.add(10);
+        stockSpan.list.add(20);
+        stockSpan.list.add(5);
+        assertEquals(4, stockSpan.next(3));
+    }
+
+    @Test
+    public void next_Price_SameAsPreviousPrice_ReturnsCorrectSpan() {
+        stockSpan.list.add(10);
+        stockSpan.list.add(10);
+        stockSpan.list.add(10);
+        assertEquals(1, stockSpan.next(10));
+    }
+
+    @Test
+    public void calculateSpans_PricesInAscendingOrder_ReturnsCorrectSpans() {
+        int[] prices = {100, 80, 70, 60, 50};
+        int[] expectedSpans = {1, 2, 3, 4, 5};
+        int[] actualSpans = stockSpan.calculateSpans(prices);
+        assertArrayEquals(expectedSpans, actualSpans);
+    }
+
+    @Test
+    public void calculateSpans_PricesInDescendingOrder_ReturnsCorrectSpans() {
+        int[] prices = {50, 60, 70, 80, 100};
+        int[] expectedSpans = {1, 2, 3, 4, 5};
+        int[] actualSpans = stockSpan.calculateSpans(prices);
+        assertArrayEquals(expectedSpans, actualSpans);
+    }
+
+    @Test
+    public void calculateSpans_MultiplePrices_ReturnsCorrectSpans() {
+        int[] prices = {100, 80, 70, 60, 50};
+        int[] expectedSpans = {1, 2, 3, 4, 5};
+        int[] actualSpans = stockSpan.calculateSpans(prices);
+        assertArrayEquals(expectedSpans, actualSpans);
+    }
+
+    @Test
+    public void calculateSpans_EmptyPricesArray_ReturnsCorrectSpans() {
+        int[] prices = {};
+        int[] expectedSpans = {1};
+        int[] actualSpans = stockSpan.calculateSpans(prices);
+        assertArrayEquals(expectedSpans, actualSpans);
+    }
+
+}

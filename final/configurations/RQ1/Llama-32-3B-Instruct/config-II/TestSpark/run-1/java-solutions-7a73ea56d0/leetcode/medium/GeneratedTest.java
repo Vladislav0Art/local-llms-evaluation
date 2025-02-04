@@ -1,0 +1,91 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void next_SingleElementPrice_ReturnsCorrectSpan() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 10;
+        int expected = 1;
+        assertEquals(expected, onlineStockSpan.next(price));
+    }
+
+    @Test
+    public void next_DuplicatePrice_ReturnsCorrectCount() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 100;
+        int expected = 0;
+        assertEquals(expected, onlineStockSpan.next(price));
+    }
+
+    @Test
+    public void calculateSpans_EmptyArray_ThrowsNullPointerException() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {};
+        assertThrows(NullPointerException.class, () -> onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_SingleElementArray_ReturnsCorrectSpan() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {10};
+        int[] expected = {1};
+        int[] actual = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void calculateSpans_DuplicatePrices_ReturnsCorrectSpans() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {10, 20, 30};
+        int[] expected = {1, 2, 3};
+        int[] actual = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void calculateSpans_IncreasingPrices_ReturnsCorrectSpans() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {10, 20, 30, 40};
+        int[] expected = {1, 2, 3, 4};
+        int[] actual = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void calculateSpans_DecreasingPrices_ReturnsCorrectSpans() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {40, 30, 20, 10};
+        int[] expected = {4, 3, 2, 1};
+        int[] actual = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void calculateSpans_MixedPrices_ReturnsCorrectSpans() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {10, 20, 30, 40, 50};
+        int[] expected = {1, 2, 3, 4, 5};
+        int[] actual = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void next_MockStack() {
+        Stack<Integer> stack = Mockito.mock(Stack.class);
+        when(stack.isEmpty()).thenReturn(true);
+        when(stack.pop()).thenReturn(0);
+
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 10;
+        onlineStockSpan.list.add(price);
+        onlineStockSpan.next(price);
+
+        assertEquals(1, ((Stack<Integer>) stack).peek());
+    }
+
+}

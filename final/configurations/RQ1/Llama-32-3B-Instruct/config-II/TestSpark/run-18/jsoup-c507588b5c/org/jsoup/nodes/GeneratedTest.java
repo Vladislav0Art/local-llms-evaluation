@@ -1,0 +1,118 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Node parentNode;
+
+    @Mock
+    private Appendable accum;
+
+    @Mock
+    private Document.OutputSettings out;
+
+    public String getWholeText() {
+        return "Hello World";
+    }
+
+    public String coreValue() {
+        return "Hello World";
+    }
+
+    @Test
+    public void text_[
+    Scenario1]
+
+    Test() {
+        TextNode node = new TextNode(getWholeText());
+        assertEquals(getWholeText(), node.text());
+    }
+
+    @Test
+    public void nodeName_[
+    Scenario2]
+
+    Test() {
+        TextNode node = new TextNode(getWholeText());
+        assertEquals("#text", node.nodeName());
+    }
+
+    @Test
+    public void text_[
+    Scenario3]
+
+    Test() {
+        TextNode node = new TextNode(getWholeText());
+        node.text("New Text");
+        assertEquals("New Text", node.text());
+    }
+
+    @Test
+    public void getWholeText_[
+    Scenario4]
+
+    Test() {
+        TextNode node = new TextNode(getWholeText());
+        assertEquals(getWholeText(), node.getWholeText());
+    }
+
+    @Test
+    public void isBlank_[
+    Scenario5]
+
+    Test() {
+        assertFalse(node.isBlank());
+    }
+
+    @Test
+    public void splitText_[
+    Scenario6]
+
+    Test() throws IOException {
+        TextNode node = new TextNode(getWholeText());
+        TextNode tail = node.splitText(7);
+        assertEquals("Hello ", tail.getWholeText());
+        assertEquals(" World", node.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlHead_[
+    Scenario7]
+
+    Test() throws IOException {
+        when(out.prettyPrint()).thenReturn(true);
+        Document.OutputSettings outSettings = new Document.OutputSettings();
+        Document.OutputSettings expectedOutSettings = Mockito.mock(Document.OutputSettings.class);
+
+        TextNode node = new TextNode(getWholeText());
+        node.outerHtmlHead(accum, 0, outSettings);
+
+        verify(out).prettyPrint();
+        verify(outSettings).isBlock();
+    }
+
+    @Test
+    public void outerHtmlTail_[
+    Scenario8]
+
+    Test() throws IOException {
+        Document.OutputSettings outSettings = Mockito.mock(Document.OutputSettings.class);
+
+        TextNode node = new TextNode(getWholeText());
+        node.outerHtmlTail(accum, 0, outSettings);
+    }
+
+}

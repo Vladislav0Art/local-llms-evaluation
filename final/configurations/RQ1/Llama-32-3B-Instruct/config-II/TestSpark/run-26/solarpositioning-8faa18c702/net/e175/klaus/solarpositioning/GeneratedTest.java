@@ -1,0 +1,47 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.time.LocalDate;
+
+public class GeneratedTest {
+
+    @Test
+    public void [estimateForDateEarlyCentury]
+
+    Test() {
+        LocalDate date = LocalDate.of(1900, 1, 1);
+        double result = net.e175.klaus.solarpositioning.DeltaT.estimate(date);
+        assertEquals(-2.79, result, 0.001);
+    }
+
+    @Test
+    public void [estimateForDateEarlyMiddleCentury]
+
+    Test() {
+        LocalDate date = LocalDate.of(1950, 1, 1);
+        double result = net.e175.klaus.solarpositioning.DeltaT.estimate(date);
+        assertEquals(-20, result, 0.001);
+    }
+
+    @Test
+    public void [estimateForDateLateMiddleCentury]
+
+    Test() {
+        LocalDate date = LocalDate.of(2005, 1, 1);
+        double result = net.e175.klaus.solarpositioning.DeltaT.estimate(date);
+        assertEquals(-20 + 32 * pow(((date.getYear() - 1820) / 100), 2), result, 0.001);
+    }
+
+    @Test
+    public void [decimalYearEarlyCentury]
+
+    Test() {
+        LocalDate date = LocalDate.of(1900, 1, 1);
+        double result = net.e175.klaus.solarpositioning.DeltaT.decimalYear(date);
+        assertEquals((double) (date.getYear() + (date.getMonthValue() - 0.5) / 12), result, 0.001);
+    }
+
+}

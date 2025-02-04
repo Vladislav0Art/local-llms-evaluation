@@ -1,0 +1,82 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.XmlDeclaration;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void commentCreatesWithData() {
+        Comment comment = new Comment("Hello World");
+        assertEquals("Hello World", comment.getData());
+    }
+
+    @Test
+    public void nodeNameIsCorrect() {
+        Comment comment = new Comment("data");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void outerHtmlHeadIsGeneratedCorrectly() throws IOException {
+        Comment comment = new Comment("data");
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = Mockito.mock(Document.OutputSettings.class);
+        int depth = 0;
+        comment.outerHtmlHead(accum, depth, out);
+        assertEquals("<!--data-->_", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailIsNotGenerated() {
+        Comment comment = new Comment("data");
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = Mockito.mock(Document.OutputSettings.class);
+        int depth = 0;
+        comment.outerHtmlTail(accum, depth, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toStringIsCorrect() {
+        Comment comment = new Comment("data");
+        assertEquals(comment.outerHtml(), comment.toString());
+    }
+
+    @Test
+    public void cloneReturnsSameComment() {
+        Comment comment = new Comment("data");
+        Comment cloned = comment.clone();
+        assertSame(comment, cloned);
+    }
+
+    @Test
+    public void isXmlDeclarationIsCorrect() {
+        Comment comment1 = new Comment("Hello World");
+        assertTrue(comment1.isXmlDeclaration());
+
+        Comment comment2 = new Comment("!XML Declaration");
+        assertTrue(comment2.isXmlDeclaration());
+
+        Comment comment3 = new Comment("?XML Declaration");
+        assertTrue(comment3.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationReturnsNullIfNotXml() {
+        Comment comment1 = new Comment("data");
+        assertNull(comment1.asXmlDeclaration());
+
+        Comment comment2 = new Comment("!XML Declaration");
+        assertNull(comment2.asXmlDeclaration());
+    }
+
+}

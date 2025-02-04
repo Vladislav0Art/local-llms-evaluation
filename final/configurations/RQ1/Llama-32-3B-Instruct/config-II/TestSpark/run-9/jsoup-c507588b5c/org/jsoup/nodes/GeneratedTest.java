@@ -1,0 +1,85 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+import org.jsoup.helper.Validate;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeCreation_test() throws IOException {
+        String text = "Hello World!";
+        TextNode textNode = new TextNode(text);
+        assertNotNull(textNode);
+        assertEquals(text, textNode.text());
+    }
+
+    @Test
+    public void textNodeNormalization_test() {
+        String text = "   ";
+        TextNode textNode = new TextNode(text);
+        assertEquals(StringUtil.normaliseWhitespace(text), textNode.text());
+    }
+
+    @Test
+    public void splitText_offsetAtBeginning_test() throws IOException {
+        String text = "Hello World!";
+        TextNode textNode = new TextNode(text);
+        int offset = 0;
+        TextNode result = textNode.splitText(offset);
+        assertEquals("Hello", result.text());
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_offsetAtEnd_test() throws IOException {
+        String text = "Hello World!";
+        TextNode textNode = new TextNode(text);
+        int offset = 11; // 10 characters for "Hello" + null terminator
+        TextNode result = textNode.splitText(offset);
+        assertNotNull(result);
+        assertEquals("", result.text());
+    }
+
+    @Test
+    public void splitText_offsetNegative_test() throws IOException {
+        String text = "Hello World!";
+        TextNode textNode = new TextNode(text);
+        int offset = -1;
+        textNode.splitText(offset);
+    }
+
+    @Test
+    public void splitText_offsetGreaterThanLength_test() throws IOException {
+        String text = "Hello World!";
+        TextNode textNode = new TextNode(text);
+        int offset = 12; // 11 characters for "Hello" + null terminator
+        textNode.splitText(offset);
+    }
+
+    @Test
+    public void isBlank_textEmpty_test() {
+        String text = "";
+        TextNode textNode = new TextNode(text);
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_textWhitespace_test() {
+        String text = "   ";
+        TextNode textNode = new TextNode(text);
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_textNonWhitespace_test() {
+        String text = "Hello World!";
+        TextNode textNode = new TextNode(text);
+        assertFalse(textNode.isBlank());
+    }
+
+}

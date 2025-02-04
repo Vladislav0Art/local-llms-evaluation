@@ -1,0 +1,82 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Pattern appVersionPattern;
+
+    @Mock
+    private String amiName;
+
+    @Test
+    public void givenAppVersionPattern_whenParseName_thenParsedSuccessfully() {
+        AppVersion parsedName = AppVersion.parseName(amiName);
+        assertNotNull(parsedName);
+        assertEquals(amiName, parsedName.packageName);
+        assertEquals(amiName, parsedName.version);
+    }
+
+    @Test
+    public void whenNoMatch_whenParseName_thenReturnsNull() {
+        AppVersion parsedName = AppVersion.parseName(null);
+        assertNull(parsedName);
+    }
+
+    @Test
+    public void givenAppVersionPatternAndValidData_whenParseName_thenParsedSuccessfully() {
+        Pattern appVersionPatternMocked = Mockito.mock(Pattern.class);
+        Matcher matcher = Mockito.mock(Matcher.class);
+        when(appVersionPattern.matcher(amiName)).thenReturn(matcher);
+        AppVersion parsedName = AppVersion.parseName(amiName);
+        assertNotNull(parsedName);
+        assertEquals(amiName, parsedName.packageName);
+        assertEquals(amiName, parsedName.version);
+    }
+
+    @Test
+    public void givenAppVersionPatternAndInvalidData_whenParseName_thenReturnsNull() {
+        Pattern appVersionPatternMocked = Mockito.mock(Pattern.class);
+        Matcher matcher = Mockito.mock(Matcher.class);
+        when(appVersionPattern.matcher(amiName)).thenReturn(matcher);
+        AppVersion parsedName = AppVersion.parseName("invalidData");
+        assertNull(parsedName);
+    }
+
+    @Test
+    public void givenAppVersionPatternAndMultipleMatches_whenParseName_thenParsedSuccessfully() {
+        Pattern appVersionPatternMocked = Mockito.mock(Pattern.class);
+        Matcher matcher = Mockito.mock(Matcher.class);
+        when(appVersionPattern.matcher(amiName)).thenReturn(matcher);
+        AppVersion parsedName = AppVersion.parseName("multipleMatch");
+        assertNotNull(parsedName);
+        assertEquals(amiName, parsedName.packageName);
+        assertEquals(amiName, parsedName.version);
+    }
+
+    @Test
+    public void givenNoAppVersionPattern_whenParseName_thenThrowsException() {
+        AppVersion parsedName = null;
+        try {
+            AppVersion.parseName("invalidData");
+        } catch (Exception e) {
+            assertNull(parsedName);
+        }
+    }
+
+    @Test
+    public void whenParseName_thenPackageNameAndVersionAreEqual() {
+        AppVersion parsedName = AppVersion.parseName("packageNameversion");
+        assertEquals("packageName", parsedName.packageName);
+        assertEquals("version", parsedName.version);
+    }
+
+}

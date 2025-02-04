@@ -1,0 +1,115 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+public class Config {
+
+    private boolean preserveRelativeLinks;
+    private boolean enforcedAttributesEnabled;
+
+    @ConstructorParameters({
+            @ConstructorParameter(
+                    name = "preserveRelativeLinks",
+                    type = boolean.class,
+                    description = "Preserve relative links?"
+            ),
+            @ConstructorParameter(
+                    name = "enforcedAttributesEnabled",
+                    type = boolean.class,
+                    description = "Allow enforced attributes?"
+            )
+    })
+    public Config(boolean preserveRelativeLinks, boolean enforcedAttributesEnabled) {
+        this.preserveRelativeLinks = preserveRelativeLinks;
+        this.enforcedAttributesEnabled = enforcedAttributesEnabled;
+    }
+
+    public Attributes getEnforcedAttributes(String tagName) {
+        return new Attributes();
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(ElementType.TYPE)
+    public @interface EnforcedAttributes {
+        String[] value();
+    }
+
+    public static class EnforcedAttribute {
+        private final String tagName;
+        private final EnforcedAttributes annotation;
+
+        @ConstructorParameters({
+                @ConstructorParameter(
+                        name = "tagName",
+                        type = String.class,
+                        description = "Tag Name"
+                ),
+                @ConstructorParameter(
+                        name = "annotation",
+                        type = EnforcedAttributes.class,
+                        description = "Annotation"
+                )
+        })
+        public EnforcedAttribute(String tagName, EnforcedAttributes annotation) {
+            this.tagName = tagName;
+            this.annotation = annotation;
+        }
+
+        public String getTagName() {
+            return tagName;
+        }
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(ElementType.TYPE)
+    public @interface All {
+    }
+
+    // ...
+
+    private boolean isSafeAttribute(String tagName, Element el, Attribute attr) {
+        TagName tag = TagName.valueOf(tagName);
+        AttributeKey key = AttributeKey.valueOf(attr.getKey());
+
+        Set<AttributeKey> okSet = attributes.get(tag);
+        if (okSet != null && okSet.contains(key)) {
+            return !attrProts.containsKey(key) || testValidProtocol(el, attr, attrProts.get(key));
+        }
+        // ...
+    }
+
+    private void testValidProtocol(Element el, Attribute attr, Set<Protocol> protocols) {
+        String value = el.absUrl(attr.getKey());
+        if (value.length() == 0)
+            value = attr.getValue(); // if it could not be made abs, run as-is to allow custom unknown protocols
+        for (Protocol protocol : protocols) {
+            String prot = protocol.toString();
+
+            if (prot.equals("#")) { // allows anchor links
+                if (isValidAnchor(value)) {
+                    return;
+                } else {
+                    continue;
+                }
+            }
+
+            prot += ":";
+            if (lowerCase(value).startsWith(prot)) {
+                return;
+            }
+        }
+    }
+
+    private boolean isValidAnchor(String value) {
+        return value.startsWith("#") && !value.matches(".*\\s.*");
+    }
+
+    public static class Attributes {
+        // ...
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

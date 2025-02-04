@@ -1,0 +1,67 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void next_PriceIsLessThanAllPreviousPrices_ReturnsCount() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] expectedResult = {1, 2, 3};
+        for (int i = 0; i < expectedResult.length; i++) {
+            assertTrue(solution.next(i) == expectedResult[i]);
+        }
+    }
+
+    @Test
+    public void next_PriceIsEqualToAllPreviousPrices_ReturnsCountMinusOne() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] expectedResult = {1, 0, 0};
+        for (int i = 0; i < expectedResult.length; i++) {
+            assertTrue(solution.next(i) == expectedResult[i]);
+        }
+    }
+
+    @Test
+    public void next_PriceIsGreaterThanAllPreviousPrices_ReturnsCountPlusOne() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] expectedResult = {1, 2, 3};
+        for (int i = 0; i < expectedResult.length; i++) {
+            assertTrue(solution.next(i) == expectedResult[i]);
+        }
+    }
+
+    @Test
+    public void next_NoInputPassed_ReturnsZero() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        assertEquals(0, solution.next(0));
+    }
+
+    @Test
+    public void calculateSpans_PricesAreIncreasing_ReturnsCorrectSpans() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {100, 80, 60, 120};
+        int[] expectedResult = {1, 2, 3, 4};
+        assertArrayEquals(expectedResult, solution.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_PricesAreDecreasing_ReturnsCorrectSpans() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {120, 100, 80, 60};
+        int[] expectedResult = {1, 2, 3, 4};
+        assertArrayEquals(expectedResult, solution.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_NoInputPassed_ReturnsEmptyArray() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        assertArrayEquals(new int[0], solution.calculateSpans(new int[0]));
+    }
+
+}

@@ -1,0 +1,136 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseName_GivenNullReturnsNull() {
+        AppVersion appVersion = AppVersion.parseName(null);
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void parseName_GivenEmptyStringReturnsNull() {
+        AppVersion appVersion = AppVersion.parseName("");
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void parseName_GivenValidPatternMatches() {
+        String amiName = "subscriberha-1.0.0-586499";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion);
+        assertEquals("subscriberha", appVersion.packageName);
+        assertEquals("1.0.0-586499", appVersion.version);
+    }
+
+    @Test
+    public void parseName_GivenInvalidPatternDoesNotMatch() {
+        String amiName = "invalid";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void compareTo_GivenNullReturnsNegative() {
+        AppVersion firstAppVersion = new AppVersion();
+        AppVersion secondAppVersion = null;
+        int result = firstAppVersion.compareTo(secondAppVersion);
+        assertEquals(-1, result);
+    }
+
+    @Test
+    public void compareTo_GivenEqualReturnsZero() {
+        AppVersion firstAppVersion = new AppVersion();
+        AppVersion secondAppVersion = new AppVersion();
+        assertEquals(0, firstAppVersion.compareTo(secondAppVersion));
+    }
+
+    @Test
+    public void compareTo_GivenNegativeEqualsReturnsPositive() {
+        AppVersion firstAppVersion = new AppVersion();
+        AppVersion secondAppVersion = new AppVersion();
+        secondAppVersion.setPackageName("a");
+        firstAppVersion.setPackageName("b");
+        assertEquals(1, firstAppVersion.compareTo(secondAppVersion));
+    }
+
+    @Test
+    public void getPackageName_GivenInitializedReturnsValue() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.setPackageName("test");
+        assertEquals("test", appVersion.getPackageName());
+    }
+
+    @Test
+    public void getPackageName_GivenNullReturnsNull() {
+        AppVersion appVersion = new AppVersion();
+        assertNull(appVersion.getPackageName());
+    }
+}
+
+public class AppVersion {
+
+    private String packageName;
+    private String version;
+    private String buildJobName;
+    private String buildNumber;
+    private String commit;
+
+    public static AppVersion parseName(String pattern) {
+        // implementation
+    }
+
+    public int compareTo(AppVersion otherAppVersion) {
+        // implementation
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getBuildJobName() {
+        return buildJobName;
+    }
+
+    public void setBuildJobName(String buildJobName) {
+        this.buildJobName = buildJobName;
+    }
+
+    public String getBuildNumber() {
+        return buildNumber;
+    }
+
+    public void setBuildNumber(String buildNumber) {
+        this.buildNumber = buildNumber;
+    }
+
+    public String getCommit() {
+        return commit;
+    }
+
+    public static AppVersion parseNameFromMap(Map<String, Object> map) {
+        // implementation
+    }
+
+}

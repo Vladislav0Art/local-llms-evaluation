@@ -1,0 +1,59 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class GeneratedTest {
+
+    private OnlineStockSpan stockSpan = new OnlineStockSpan();
+
+    @Test
+    public void nextPrice_ReturnsCorrectValue() {
+        int price = 10;
+        int expected = 1;
+        assertEquals(expected, stockSpan.next(price));
+    }
+
+    @Test
+    public void nextPrice_MultipleIterationsReturnSameValue() {
+        int price = 10;
+        int price2 = 20;
+        int expected = 1;
+        assertEquals(expected, stockSpan.next(price));
+        assertEquals(expected, stockSpan.next(price2));
+    }
+
+    @Test
+    public void calculateSpans_ReturnsCorrectArray() {
+        int[] prices = {100, 80, 75, 60, 55, 65, 70, 85};
+        int[] expected = {1, 1, 2, 4, 6, 5, 4, 7};
+        assertArrayEquals(expected, stockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_SingleElementReturnCorrectValue() {
+        int[] prices = {10};
+        int[] expected = {1};
+        assertArrayEquals(expected, stockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void nextPrice_EmptyList_Returns0() {
+        int price = 100;
+        int expected = 0;
+        assertEquals(expected, stockSpan.next(price));
+    }
+
+    @Test
+    public void calculateSpans_NoPricesReturnCorrectValue() {
+        int[] prices = {};
+        int[] expected = {};
+        assertArrayEquals(expected, stockSpan.calculateSpans(prices));
+    }
+
+}

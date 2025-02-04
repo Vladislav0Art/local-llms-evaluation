@@ -1,0 +1,68 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyMap;
+
+public class GeneratedTest {
+
+    @Test
+    public void ofNewInstance_hasEmptyComments() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        assertEquals(0, configuration.comments.size());
+    }
+
+    @Test
+    public void ofExistingInstance_returnsCorrectComments() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("line1", "line2"));
+        CommentsConfiguration configuration = new CommentsConfiguration(comments);
+        assertEquals(1, configuration.comments.size());
+        assertEquals(anyList(), configuration.comments.values().iterator().next());
+    }
+
+    @Test
+    public void setComment_addsNewEntry() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        configuration.setComment("path1", "line1");
+        assertEquals(1, configuration.comments.size());
+        assertEquals(1, ((List<String>) configuration.comments.get("path1")).size());
+    }
+
+    @Test
+    public void setComment_overwritesExistingEntry() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("line1"));
+        CommentsConfiguration configuration = new CommentsConfiguration(comments);
+        configuration.setComment("path1", "newLine");
+        assertEquals(1, ((List<String>) configuration.comments.get("path1")).size());
+    }
+
+    @Test
+    public void setComment_addsSoloNewLine() {
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration configuration = new CommentsConfiguration(comments);
+        configuration.setComment("path1", "\n");
+        assertEquals(0, ((List<String>) configuration.comments.get("path1")).size());
+    }
+
+    @Test
+    public void getAllComments_returnsEmptyMap() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        assertNull(configuration.getAllComments());
+    }
+
+    @Test
+    public void getAllComments_returnsUnmodifiableMap() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("line1"));
+        CommentsConfiguration configuration = new CommentsConfiguration(comments);
+        assertEquals(1, configuration.getAllComments().size());
+        assertTrue(configuration.getAllComments().containsKey("path1"));
+    }
+
+}

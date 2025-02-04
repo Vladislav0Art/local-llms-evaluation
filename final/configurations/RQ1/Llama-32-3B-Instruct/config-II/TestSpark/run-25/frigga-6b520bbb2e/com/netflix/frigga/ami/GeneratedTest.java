@@ -1,0 +1,101 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameNullReturnsNull() {
+        AppVersion parsed = AppVersion.parseName(null);
+        assertNotNull(parsed);
+        assertNull(parsed.packageName);
+        assertNull(parsed.version);
+    }
+
+    @Test
+    public void parseNameEmptyStringReturnsNull() {
+        AppVersion parsed = AppVersion.parseName("");
+        assertNotNull(parsed);
+        assertNull(parsed.packageName);
+        assertNull(parsed.version);
+    }
+
+    @Test
+    public void parseNameMatchesPattern() {
+        String amiName = "subscriberha-1.0.0-586499";
+        AppVersion parsed = AppVersion.parseName(amiName);
+        assertNotNull(parsed);
+        assertEquals("subscriberha", parsed.packageName);
+        assertEquals("1.0.0-586499", parsed.version);
+    }
+
+    @Test
+    public void parseNameDoesNotMatchPattern() {
+        String amiName = "invalid";
+        AppVersion parsed = AppVersion.parseName(amiName);
+        assertNull(parsed);
+    }
+
+    @Test
+    public void compareToNullReturnsNegativeInteger() {
+        AppVersion first = new AppVersion();
+        AppVersion second = null;
+        assertEquals(-1, first.compareTo(second));
+    }
+
+    @Test
+    public void compareToSameObjectsReturnsZero() {
+        AppVersion first = new AppVersion();
+        AppVersion second = first;
+        assertEquals(0, first.compareTo(second));
+    }
+
+    @Test
+    public void compareToDifferentObjectsReturnsPositiveInteger() {
+        AppVersion first = new AppVersion("A", "1.0.0-586499");
+        AppVersion second = new AppVersion("B", "2.0.0-587499");
+        assertEquals(1, first.compareTo(second));
+    }
+
+    @Test
+    public void getPackageNameReturnsNonNullValue() {
+        AppVersion parsed = AppVersion.parseName("subscriberha-1.0.0-586499");
+        assertNotNull(parsed.packageName);
+    }
+
+    @Test
+    public void getVersionReturnsNonNullValue() {
+        AppVersion parsed = AppVersion.parseName("subscriberha-1.0.0-586499");
+        assertNotNull(parsed.version);
+    }
+}
+
+public class AppVersion {
+
+    private String packageName;
+    private String version;
+
+    public static AppVersion parseName(String amiName) {
+        Pattern pattern = Pattern.compile("[a-zA-Z]+-[a-zA-Z]+-[0-9]+");
+        Matcher matcher = pattern.matcher(amiName);
+        if (matcher.matches()) {
+            return new AppVersion(matcher.group(1), matcher.group(2));
+        } else {
+            return null;
+        }
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+}
