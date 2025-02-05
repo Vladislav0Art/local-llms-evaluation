@@ -1,0 +1,124 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringTest() {
+        Connection connection = HttpConnection.connect("http://localhost");
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void connectStringInvalidUrlTest() {
+        HttpConnection.connect("//");
+    }
+
+    @Test
+    public void connectUrlTest() throws Exception {
+        Connection connection = HttpConnection.connect(new URL("http://localhost"));
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void newRequestTest() {
+        Assert.assertNotNull(new HttpConnection().newRequest());
+    }
+
+    @Test
+    public void urlTest() throws Exception {
+        Assert.assertEquals("http://localhost", new HttpConnection().url("http://localhost").request().url().toString());
+    }
+
+    @Test
+    public void timeoutTest() {
+        Assert.assertEquals(3000, new HttpConnection().timeout(3000).request().timeout());
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        Assert.assertEquals(1024, new HttpConnection().maxBodySize(1024).request().maxBodySize());
+    }
+
+    @Test
+    public void ignoreHttpErrorsTest() {
+        Assert.assertTrue(new HttpConnection().ignoreHttpErrors(true).request().ignoreHttpErrors());
+    }
+
+    @Test
+    public void dataCollectionTest() {
+        Connection.KeyVal keyVal = Connection.KeyVal.create("key", "value");
+        Assert.assertEquals("value", new HttpConnection().data(Arrays.asList(keyVal)).request().data().iterator().next().value());
+    }
+
+    @Test
+    public void requestBodyTest() {
+        Assert.assertEquals("body", new HttpConnection().requestBody("body").request().requestBody());
+    }
+
+    @Test
+    public void cookieStoreTest() {
+        Assert.assertNotNull(new HttpConnection().cookieStore());
+    }
+
+    @Test
+    public void getDocumentTest() throws IOException {
+        Document document = new HttpConnection().url("https://jsoup.org/").get();
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void postDocumentTest() throws IOException {
+        Document document = new HttpConnection().url("https://jsoup.org/").post();
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void executeTest() throws IOException {
+        Connection.Response response = new HttpConnection().url("https://jsoup.org/").execute();
+        Assert.assertNotNull(response);
+    }
+
+    @Test
+    public void dataStreamTest() {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
+        Connection connection = new HttpConnection().data("key", "file", inputStream);
+        Assert.assertTrue(connection.request().data().iterator().next().hasInputStream());
+    }
+
+    @Test
+    public void headerTest() {
+        Assert.assertEquals("value", new HttpConnection().header("name", "value").request().headers().get("name"));
+    }
+
+    @Test
+    public void headersTest() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("name", "value");
+        Assert.assertEquals("value", new HttpConnection().headers(headers).request().headers().get("name"));
+    }
+
+    @Test
+    public void parserTest() {
+        Parser parser = Parser.xmlParser();
+        Assert.assertEquals(parser, new HttpConnection().parser(parser).request().parser());
+    }
+
+    @Test
+    public void postDataCharsetTest() {
+        Assert.assertEquals("UTF-8", new HttpConnection().postDataCharset("UTF-8").request().postDataCharset());
+    }
+
+}

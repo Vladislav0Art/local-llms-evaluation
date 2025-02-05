@@ -1,0 +1,76 @@
+package net.e175.klaus.solarpositioning;
+
+import net.e175.klaus.solarpositioning.AzimuthZenithAngle;
+import net.e175.klaus.solarpositioning.Grena3;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSolarPositionWithFourArgsValidInputTest() {
+        ZonedDateTime date = ZonedDateTime.of(2021, 9, 20, 0, 0, 0, 0, ZoneId.of("Z"));
+        double latitude = 20.0;
+        double longitude = 30.0;
+        double deltaT = 1.0;
+
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionWithFourArgsInvalidLatitudeTest() {
+        ZonedDateTime date = ZonedDateTime.of(2021, 9, 20, 0, 0, 0, 0, ZoneId.of("Z"));
+        double latitude = 200.0;
+        double longitude = 30.0;
+        double deltaT = 1.0;
+
+        Grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+    }
+
+    @Test
+    public void calculateSolarPositionWithSixArgsValidInputTest() {
+        ZonedDateTime date = ZonedDateTime.of(2021, 9, 20, 0, 0, 0, 0, ZoneId.of("Z"));
+        double latitude = 20.0;
+        double longitude = 30.0;
+        double deltaT = 1.0;
+        double pressure = 1013.25;
+        double temperature = 20.0;
+
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, deltaT, pressure, temperature);
+
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionWithSixArgsInvalidPressureTest() {
+        ZonedDateTime date = ZonedDateTime.of(2021, 9, 20, 0, 0, 0, 0, ZoneId.of("Z"));
+        double latitude = 20.0;
+        double longitude = 30.0;
+        double deltaT = 1.0;
+        double pressure = -50.0;
+        double temperature = 20.0;
+
+        Grena3.calculateSolarPosition(date, latitude, longitude, deltaT, pressure, temperature);
+    }
+
+    @Test
+    public void calculateSolarPositionWithSixArgsZeroPressureTest() {
+        ZonedDateTime date = ZonedDateTime.of(2021, 9, 20, 0, 0, 0, 0, ZoneId.of("Z"));
+        double latitude = 20.0;
+        double longitude = 30.0;
+        double deltaT = 1.0;
+        double pressure = 0;
+        double temperature = 20.0;
+
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, deltaT, pressure, temperature);
+
+        Assert.assertNotNull(result);
+    }
+
+}

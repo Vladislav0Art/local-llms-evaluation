@@ -1,0 +1,23 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+public class GeneratedAsListTest {
+
+    @Test
+    public void asListTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        List<Attribute> list = attributes.asList();
+        assertEquals(1, list.size());
+    }
+
+}

@@ -1,0 +1,104 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+import org.w3c.dom.Node;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void newInstanceTest() {
+        assertNotNull(new W3CDom());
+    }
+
+    @Test
+    public void namespaceAwareTest() {
+        assertTrue(new W3CDom().namespaceAware(true).namespaceAware());
+        assertFalse(new W3CDom().namespaceAware(false).namespaceAware());
+    }
+
+    @Test
+    public void convertFromDocumentTest() {
+        Document document = new Document("Test Title");
+        assertNotNull(W3CDom.convert(document));
+    }
+
+    @Test
+    public void asStringTest() {
+        Document wDoc = W3CDom.convert(new Document("Test Title"));
+        String str = W3CDom.asString(wDoc, new HashMap<String, String>());
+
+        assertNotNull(str);
+        assertTrue(str.contains("Test Title"));
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("indent", "yes");
+        map.put("omit-xml-declaration", "no");
+        map.put("method", "html");
+
+        assertEquals(W3CDom.propertiesFromMap(map).keySet(), map.keySet());
+    }
+
+    @Test
+    public void outputHtmlTest() {
+        assertEquals(W3CDom.OutputHtml().get("indent"), "yes");
+        assertEquals(W3CDom.OutputHtml().get("method"), "html");
+    }
+
+    @Test
+    public void outputXmlTest() {
+        assertEquals(W3CDom.OutputXml().get("indent"), "yes");
+        assertEquals(W3CDom.OutputXml().get("method"), "xml");
+    }
+
+    @Test
+    public void fromJsoupDocumentTest() {
+        Document document = new Document("Test Title");
+        assertNotNull(new W3CDom().fromJsoup(document));
+    }
+
+    @Test
+    public void fromJsoupElementTest() {
+        Element element = new Element("body");
+        assertNotNull(new W3CDom().fromJsoup(element));
+    }
+
+    @Test
+    public void convertFromElementToDocumentTest() {
+        Element element = new Element("body");
+        org.w3c.dom.Document wDoc = W3CDom.convert(new Document("Test Title"));
+
+        new W3CDom().convert(element, wDoc);
+
+        assertNotNull(wDoc.getElementsByTagName("body").item(0));
+    }
+
+    @Test
+    public void contextNodeTest() {
+        org.w3c.dom.Document wDoc = W3CDom.convert(new Document("Test Title"));
+        Node node = new W3CDom().contextNode(wDoc);
+
+        assertNotNull(node);
+        assertTrue(node.getNodeName().contains("html"));
+    }
+
+    @Test
+    public void asStringWithoutPropertiesTest() {
+        Document wDoc = W3CDom.convert(new Document("Test Title"));
+        String str = new W3CDom().asString(wDoc);
+
+        assertNotNull(str);
+        assertTrue(str.contains("Test Title"));
+    }
+
+}

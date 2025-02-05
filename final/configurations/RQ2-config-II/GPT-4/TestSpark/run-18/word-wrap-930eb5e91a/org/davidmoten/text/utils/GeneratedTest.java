@@ -1,0 +1,99 @@
+package org.davidmoten.text.utils;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.nio.charset.Charset;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        String testString = "Hello World";
+        StringReader reader = new StringReader(testString);
+        Builder result = WordWrap.from(reader);
+        assertThat(result.toString(), is(testString));
+    }
+
+    @Test
+    public void fromNullReaderTest() {
+        WordWrap.from(null);
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        String resource = "/test/resource";
+        Builder result = WordWrap.fromClasspathUtf8(resource);
+        assertEquals("Resource mismatch.", resource, result.getResource());
+    }
+
+    @Test
+    public void fromClasspathCharsetTest() {
+        String resource = "/test/resource";
+        Charset charset = Charset.forName("UTF-8");
+        Builder result = WordWrap.fromClasspath(resource, charset);
+        assertEquals("Resource mismatch.", resource, result.getResource());
+        assertEquals("Charset mismatch.", charset, result.getCharset());
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        String testData = "Test data";
+        Builder result = WordWrap.from(testData);
+        assertEquals("Data mismatch.", testData, result.getData());
+    }
+
+    @Test
+    public void fromUtf8Test() {
+        InputStream in = new ByteArrayInputStream("test".getBytes());
+        Builder result = WordWrap.fromUtf8(in);
+        assertEquals("Data mismatch.", "test", result.getData());
+    }
+
+    @Test
+    public void fromUtf8CharsetTest() {
+        InputStream in = new ByteArrayInputStream("test".getBytes());
+        Charset charset = Charset.forName("UTF-8");
+        Builder result = WordWrap.from(in, charset);
+        assertEquals("Data mismatch.", "test", result.getData());
+    }
+
+    @Test
+    public void fromFileCharsetTest() {
+        File file = new File("src/test/resources/test.txt");
+        Charset charset = Charset.forName("UTF-8");
+        Builder result = WordWrap.from(file, charset);
+        assertEquals("File mismatch.", file, result.getFile());
+        assertEquals("Charset mismatch.", charset, result.getCharset());
+    }
+
+    @Test
+    public void rightTrimTest() {
+        CharSequence trimData = "  Test Data  ";
+        assertEquals("Trim error.", "  Test Data", WordWrap.rightTrim(trimData));
+    }
+
+    @Test
+    public void isWhiteSpaceTest() {
+        CharSequence data = "  ";
+        assertEquals("Whitespace error.", true, WordWrap.isWhitespace(data));
+    }
+
+    @Test
+    public void leftTrimTest() {
+        StringBuilder2 testData = new StringBuilder2("  Test data  ");
+        WordWrap.leftTrim(testData);
+        assertEquals("Trim error.", "Test data  ", testData.toString());
+    }
+
+}

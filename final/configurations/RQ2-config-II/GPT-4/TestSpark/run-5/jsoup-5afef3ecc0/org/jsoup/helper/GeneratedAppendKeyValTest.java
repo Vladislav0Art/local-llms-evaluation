@@ -1,0 +1,32 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+
+import static org.junit.Assert.*;
+
+public class GeneratedAppendKeyValTest {
+
+    @Test
+    public void appendKeyValTest() throws MalformedURLException, UnsupportedEncodingException {
+        URL testURL = new URL("http://testurl.com");
+        UrlBuilder urlBuilder = new UrlBuilder(testURL);
+        Connection.KeyVal kv = Mockito.mock(Connection.KeyVal.class);
+
+        Mockito.when(kv.key()).thenReturn("testKey");
+        Mockito.when(kv.value()).thenReturn("testValue");
+
+        urlBuilder.appendKeyVal(kv);
+
+        URL resultURL = urlBuilder.build();
+
+        assertEquals(new URL("http://testurl.com?testKey=" + URLEncoder.encode("testValue", "UTF-8")), resultURL);
+    }
+
+}

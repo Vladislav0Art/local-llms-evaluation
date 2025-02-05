@@ -1,0 +1,34 @@
+package org.traccar.protocol;
+
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.model.Position;
+import org.traccar.protocol.WatchProtocolDecoder;
+import org.traccar.protocol.WatchProtocol;
+import org.traccar.Protocol;
+
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+
+public class GeneratedDecodeValidMessageTest {
+
+    private WatchProtocolDecoder decoder = new WatchProtocolDecoder(new WatchProtocol());
+
+    @Test
+    public void decodeValidMessageTest() throws Exception {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        String msg = new String("2A48512C3335363330373034303230353932302C56312C30363231323331383130312C562C33312E3538333134382C4E2C3132352E3332353936312C457C30302C30307C302E30307C302E30307C302C302C302C302C302C302C312C392C31324335313246443A34383A35353A36393A39383A3939");
+
+        Object position = decoder.decode(channel, remoteAddress, Unpooled.copiedBuffer(msg.getBytes(StandardCharsets.US_ASCII)));
+
+        assertNotNull(position);
+        assertEquals(Position.class, position.getClass());
+    }
+
+}

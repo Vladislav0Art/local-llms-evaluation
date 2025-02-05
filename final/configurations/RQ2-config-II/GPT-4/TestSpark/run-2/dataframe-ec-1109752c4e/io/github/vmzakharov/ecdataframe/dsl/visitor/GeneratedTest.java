@@ -1,0 +1,49 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import io.github.vmzakharov.ecdataframe.util.PrinterFactory;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void exprToStringTest() {
+        BinaryExpr binaryExpr = new BinaryExpr(null, BinaryOp.ADD, new VarExpr(null, "a"), new VarExpr(null, "b"));
+        String expected = "a + b";
+        assertEquals(expected, PrettyPrintVisitor.exprToString(binaryExpr));
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        CollectingPrinter collectingPrinter = new CollectingPrinter();
+        PrettyPrintVisitor prettyPrintVisitor = new PrettyPrintVisitor(collectingPrinter);
+        AssingExpr assingExpr = new AssingExpr(null, "a", new VarExpr(null, "b"));
+        prettyPrintVisitor.visitAssignExpr(assingExpr);
+        String expected = "a := b";
+        assertEquals(expected, collectingPrinter.getBuffer());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        CollectingPrinter collectingPrinter = new CollectingPrinter();
+        PrettyPrintVisitor prettyPrintVisitor = new PrettyPrintVisitor(collectingPrinter);
+        BinaryExpr binaryExpr = new BinaryExpr(null, BinaryOp.ADD, new VarExpr(null, "a"), new VarExpr(null, "b"));
+        prettyPrintVisitor.visitBinaryExpr(binaryExpr);
+        String expected = "a + b";
+        assertEquals(expected, collectingPrinter.getBuffer());
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        CollectingPrinter collectingPrinter = new CollectingPrinter();
+        PrettyPrintVisitor prettyPrintVisitor = new PrettyPrintVisitor(collectingPrinter);
+        UnaryExpr unaryExpr = new UnaryExpr(null, UnaryOp.NOT, new VarExpr(null, "a"));
+        prettyPrintVisitor.visitUnaryExpr(unaryExpr);
+        String expected = "a.not";
+        assertEquals(expected, collectingPrinter.getBuffer());
+    }
+
+}

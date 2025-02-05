@@ -1,0 +1,122 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.HttpConnection;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.CookieStore;
+import java.net.URL;
+import java.net.Proxy;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.junit.Test;
+import org.junit.Assert;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectUrlTest() {
+        String url = "http://example.com";
+        Connection connection = HttpConnection.connect(url);
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void connectUrlWithNullTest() {
+        HttpConnection.connect((String) null);
+    }
+
+    @Test
+    public void newRequestTest() {
+        HttpConnection connection = new HttpConnection();
+        Assert.assertNotNull(connection.newRequest());
+    }
+
+    @Test
+    public void urlTest() throws Exception {
+        Connection connection = new HttpConnection();
+        URL url = new URL("http://example.com");
+        connection.url(url);
+    }
+
+    @Test
+    public void urlWithNullTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.url((URL) null);
+    }
+
+    @Test
+    public void proxyTest() {
+        Proxy proxy = Mockito.mock(Proxy.class);
+        HttpConnection connection = new HttpConnection();
+        connection.proxy(proxy);
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.userAgent("Test UserAgent");
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.timeout(5000);
+    }
+
+    @Test
+    public void sslSocketFactoryTest() {
+        SSLSocketFactory sslSocketFactory = Mockito.mock(SSLSocketFactory.class);
+        HttpConnection connection = new HttpConnection();
+        connection.sslSocketFactory(sslSocketFactory);
+    }
+
+    @Test
+    public void dataTest() {
+        HttpConnection connection = new HttpConnection();
+        InputStream inputStream = Mockito.mock(InputStream.class);
+        connection.data("key", "filename", inputStream, "contentType");
+    }
+
+    @Test
+    public void cookieStoreTest() {
+        CookieStore cookieStore = Mockito.mock(CookieStore.class);
+        HttpConnection connection = new HttpConnection();
+        connection.cookieStore(cookieStore);
+    }
+
+    @Test
+    public void headersTest() {
+        HttpConnection connection = new HttpConnection();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "text/html");
+        connection.headers(headers);
+    }
+
+    @Test
+    public void postWithIOExceptionTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.post();
+    }
+
+    @Test
+    public void getWithIOExceptionTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.get();
+    }
+
+    @Test
+    public void executeWithIOExceptionTest() {
+        HttpConnection connection = new HttpConnection();
+        try {
+            connection.execute();
+        } catch (IOException e) {
+            // pass
+        }
+    }
+
+}

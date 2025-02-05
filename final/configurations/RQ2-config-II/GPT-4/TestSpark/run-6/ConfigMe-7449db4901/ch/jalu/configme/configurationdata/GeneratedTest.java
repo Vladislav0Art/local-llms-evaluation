@@ -1,0 +1,62 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorNoArgsTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        assertTrue(config.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void constructorWithArgsTest() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("This is a line.", "Another line here."));
+        comments.put("path2", Arrays.asList("Third line here."));
+
+        CommentsConfiguration config = new CommentsConfiguration(comments);
+        assertEquals(2, config.getAllComments().size());
+    }
+
+    @Test
+    public void setCommentTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path1", "This is a comment.");
+
+        Map<String, @UnmodifiableView List<String>> allComments = config.getAllComments();
+        assertEquals(1, allComments.size());
+        assertEquals(Arrays.asList("This is a comment."), allComments.get("path1"));
+    }
+
+    @Test
+    public void setEmptyCommentTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path1");
+
+        Map<String, @UnmodifiableView List<String>> allComments = config.getAllComments();
+        assertEquals(1, allComments.size());
+        assertTrue(allComments.get("path1").isEmpty());
+    }
+
+    @Test
+    public void setCommentOverrideTest() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        config.setComment("path1", "This is a comment.");
+        config.setComment("path1", "This is a new comment.");
+
+        Map<String, @UnmodifiableView List<String>> allComments = config.getAllComments();
+        assertEquals(1, allComments.size());
+        assertEquals(Arrays.asList("This is a new comment."), allComments.get("path1"));
+    }
+
+}

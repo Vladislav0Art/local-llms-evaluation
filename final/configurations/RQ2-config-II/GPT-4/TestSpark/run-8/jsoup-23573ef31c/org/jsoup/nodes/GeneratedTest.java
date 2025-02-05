@@ -1,0 +1,86 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellNullUriTest() {
+        Document doc = Document.createShell(null);
+        assertNull(doc.location());
+    }
+
+    @Test
+    public void createShellWithBaseUriTest() {
+        Document doc = Document.createShell("https://www.example.com");
+        assertEquals("https://www.example.com", doc.location());
+    }
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("https://www.example.com");
+        assertEquals("https://www.example.com", doc.location());
+    }
+
+    @Test
+    public void connectionValidTest() {
+        Document document = new Document("");
+        Connection mockedConnection = Mockito.mock(Connection.class);
+        document.connection(mockedConnection);
+        assertEquals(mockedConnection, document.connection());
+    }
+
+    @Test
+    public void charsetTest() {
+        Charset charset = StandardCharsets.UTF_8;
+        Document document = new Document("");
+        document.charset(charset);
+        assertEquals(charset, document.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementTest() {
+        Document document = new Document("");
+        document.updateMetaCharsetElement(true);
+        assertTrue(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document document = new Document("");
+        Document clone = document.clone();
+        assertEquals(clone.outerHtml(), document.outerHtml());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Document document = new Document("");
+        assertEquals("#document", document.nodeName());
+    }
+
+    @Test
+    public void parserTest() {
+        Document document = new Document("");
+        Parser parser = Parser.htmlParser();
+        document.parser(parser);
+        assertEquals(parser, document.parser());
+    }
+
+    @Test
+    public void formsTest() {
+        Document document = new Document("");
+        List<FormElement> forms = document.forms();
+        assertNotNull(forms);
+        assertTrue(forms.isEmpty());
+    }
+
+}

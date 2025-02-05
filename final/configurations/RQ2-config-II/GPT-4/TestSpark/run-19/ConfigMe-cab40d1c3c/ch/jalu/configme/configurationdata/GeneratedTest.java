@@ -1,0 +1,59 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import ch.jalu.configme.configurationdata.PropertyListBuilder;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Collections;
+
+public class GeneratedTest {
+
+    @Test
+    public void addPropertyTest() {
+        Property<Object> property = new Property<Object>("test_property") {
+        };
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        builder.add(property);
+
+        Assert.assertFalse(builder.create().isEmpty());
+        Assert.assertEquals(property, builder.create().get(0));
+    }
+
+    @Test
+    public void addNullPropertyTest() {
+        Property<Object> property = null;
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        builder.add(property);
+    }
+
+    @Test
+    public void createEmptyListTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        Assert.assertTrue(builder.create().isEmpty());
+    }
+
+    @Test
+    public void getRootEntriesOnInitTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        Assert.assertEquals(Collections.emptyMap(), builder.getRootEntries());
+    }
+
+    @Test
+    public void getRootEntriesAfterAddingPropertyTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<Object> property = new Property<Object>("test_property") {
+        };
+
+        builder.add(property);
+
+        Assert.assertTrue(builder.getRootEntries().containsKey("test_property"));
+        Assert.assertEquals(property.getDefaultValue(), builder.getRootEntries().get("test_property"));
+    }
+
+}

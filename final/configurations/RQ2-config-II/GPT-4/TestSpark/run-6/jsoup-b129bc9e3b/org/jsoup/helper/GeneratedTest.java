@@ -1,0 +1,112 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
+import org.jsoup.UnsupportedMimeTypeException;
+import org.jsoup.internal.ConstrainableInputStream;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.InputStream;
+import java.net.CookieStore;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private URL mockUrl;
+
+    @Mock
+    private Proxy mockProxy;
+
+    @Mock
+    private CookieStore mockCookieStore;
+
+    @Mock
+    private Parser mockParser;
+
+    @Mock
+    private InputStream mockInputStream;
+
+    private Map<String, String> data = new HashMap<>();
+
+    @Test
+    public void connectUrlTest() {
+        HttpConnection.connect(mockUrl);
+        verify(mockUrl, times(1)).toString();
+    }
+
+    @Test
+    public void connectStringTest() {
+        String url = "http://example.com";
+        HttpConnection.connect(url);
+    }
+
+    @Test
+    public void newRequestTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        assertNotNull(httpConnection.newRequest());
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        assertEquals("Mozilla", httpConnection.userAgent("Mozilla").request().userAgent());
+    }
+
+    @Test
+    public void proxyUrlPortTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.proxy(mockUrl.getHost(), mockUrl.getDefaultPort());
+        assertNotNull(httpConnection.request().proxy());
+    }
+
+    @Test
+    public void cookieStoreTest() {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.cookieStore(cookieStore);
+        assertEquals(cookieStore, httpConnection.cookieStore());
+    }
+
+    @Test
+    public void parserTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.parser(mockParser);
+        assertEquals(mockParser, httpConnection.request().parser());
+    }
+
+    @Test
+    public void dataStringTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.data("key", "value");
+        assertNotNull(httpConnection.request().data());
+    }
+
+    @Test
+    public void dataMapTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.data(data);
+        assertNotNull(httpConnection.request().data());
+    }
+
+    @Test
+    public void dataKeyValTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection.KeyVal keyVal = HttpConnection.KeyVal.create("key", "value");
+        httpConnection.data(keyVal);
+        assertNotNull(httpConnection.request().data());
+    }
+
+}

@@ -1,0 +1,108 @@
+package app;
+
+import app.DBApp;
+import exceptions.DBAppException;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import sql.SQLTerm;
+
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.HashSet;
+
+public class GeneratedTest {
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> result = dbApp.getMyTables();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        CsvReader reader = dbApp.getReader();
+        Assert.assertNotNull(reader);
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        CsvWriter writer = dbApp.getWriter();
+        Assert.assertNotNull(writer);
+    }
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+        // method doesn't return anything assert statements can't be used
+    }
+
+    @Test
+    public void createTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, String> nameType = new Hashtable<>();
+        Hashtable<String, String> nameMin = new Hashtable<>();
+        Hashtable<String, String> nameMax = new Hashtable<>();
+        dbApp.createTable("Test", "Key", nameType, nameMin, nameMax);
+    }
+
+    @Test
+    public void insertIntoTableTest() {
+        DBApp dbApp = Mockito.spy(DBApp.class);
+        Hashtable<String, Object> colNameValue = new Hashtable<>();
+        colNameValue.put("test1", "value1");
+        try {
+            dbApp.insertIntoTable("Test", colNameValue);
+        } catch (DBAppException e) {
+            Assert.fail("Test failed due to exception: " + e.getMessage());
+        }
+        Mockito.verify(dbApp, Mockito.times(1)).insertIntoTable("Test", colNameValue);
+    }
+
+    @Test
+    public void updateTableTest() {
+        DBApp dbApp = Mockito.spy(DBApp.class);
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("test1", "value1");
+        try {
+            dbApp.updateTable("Test", "Key", htblColNameValue);
+        } catch (DBAppException e) {
+            Assert.fail("Test failed due to exception: " + e.getMessage());
+        }
+        Mockito.verify(dbApp, Mockito.times(1)).updateTable("Test", "Key", htblColNameValue);
+    }
+
+    @Test
+    public void deleteFromTableTest() {
+        DBApp dbApp = Mockito.spy(DBApp.class);
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("test1", "value1");
+        try {
+            dbApp.deleteFromTable("Test", htblColNameValue);
+        } catch (DBAppException e) {
+            Assert.fail("Test failed due to exception: " + e.getMessage());
+        }
+        Mockito.verify(dbApp, Mockito.times(1)).deleteFromTable("Test", htblColNameValue);
+    }
+
+    @Test
+    public void selectFromTableTest() {
+        DBApp dbApp = Mockito.spy(DBApp.class);
+        SQLTerm[] terms = new SQLTerm[1];
+        terms[0] = Mockito.mock(SQLTerm.class);
+        String[] operators = new String[1];
+        operators[0] = "OR";
+
+        try {
+            dbApp.selectFromTable(terms, operators);
+        } catch (DBAppException e) {
+            Assert.fail("Test failed due to exception: " + e.getMessage());
+        }
+        Mockito.verify(dbApp, Mockito.times(1)).selectFromTable(terms, operators);
+    }
+
+}

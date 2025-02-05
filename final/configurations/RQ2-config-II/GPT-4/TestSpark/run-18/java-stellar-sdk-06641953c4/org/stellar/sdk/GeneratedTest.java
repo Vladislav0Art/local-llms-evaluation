@@ -1,0 +1,131 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.SignerKey;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromSecretSeedCharSequenceTest() {
+        assertNotNull(KeyPair.fromSecretSeed("SAZSYMJQBB6L3OJXQA4M2YQJTWSZ5CFSLV4PAUCJAFSFRENFTP4U3G4Z"));
+    }
+
+    @Test
+    public void fromSecretSeedStringTest() {
+        assertNotNull(KeyPair.fromSecretSeed("SAZSYMJQBB6L3OJXQA4M2YQJTWSZ5CFSLV4PAUCJAFSFRENFTP4U3G4Z"));
+    }
+
+    @Test
+    public void fromSecretSeedBytesTest() {
+        byte[] seed = new byte[32];
+        assertNotNull(KeyPair.fromSecretSeed(seed));
+    }
+
+    @Test
+    public void fromAccountIdTest() {
+        assertNotNull(KeyPair.fromAccountId("GDRLK6GNWNUJEDKWIB6YYPUEX55FWPM6KRXSQHXV5SEODRESQ6HRJQBR"));
+    }
+
+    @Test
+    public void fromPublicKeyTest() {
+        byte[] publicKey = new byte[32];
+        assertNotNull(KeyPair.fromPublicKey(publicKey));
+    }
+
+    @Test
+    public void fromBip39SeedAndAccountTest() {
+        byte[] bip39Seed = new byte[64];
+        int accountNumber = 5;
+        assertNotNull(KeyPair.fromBip39Seed(bip39Seed, accountNumber));
+    }
+
+    @Test
+    public void randomTest() {
+        assertNotNull(KeyPair.random());
+    }
+
+    @Test
+    public void signTest() {
+        byte[] data = new byte[256];
+        KeyPair keyPair = KeyPair.random();
+        assertTrue(keyPair.canSign());
+        assertNotNull(keyPair.sign(data));
+    }
+
+    @Test
+    public void verifyTest() {
+        byte[] data = new byte[256];
+        KeyPair keyPair = KeyPair.random();
+        assertTrue(keyPair.canSign());
+        byte[] signature = keyPair.sign(data);
+        assertTrue(keyPair.verify(data, signature));
+    }
+
+    @Test
+    public void getAccountIdTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void getSecretSeedTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void getPublicKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void getSignatureHintTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getSignatureHint());
+    }
+
+    @Test
+    public void getXdrPublicKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getXdrPublicKey());
+    }
+
+    @Test
+    public void getXdrSignerKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getXdrSignerKey());
+    }
+
+    @Test
+    public void equalsTest() {
+        KeyPair keyPair1 = KeyPair.random();
+        KeyPair keyPair2 = KeyPair.random();
+        assertTrue(keyPair1.equals(keyPair1));
+        assertFalse(keyPair1.equals(keyPair2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.hashCode());
+    }
+
+    @Test
+    public void fromXdrPublicKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        PublicKey publicKey = keyPair.getXdrPublicKey();
+        assertNotNull(KeyPair.fromXdrPublicKey(publicKey));
+    }
+
+    @Test
+    public void fromXdrSignerKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        SignerKey signerKey = keyPair.getXdrSignerKey();
+        assertNotNull(KeyPair.fromXdrSignerKey(signerKey));
+    }
+
+}

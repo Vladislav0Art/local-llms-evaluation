@@ -1,0 +1,65 @@
+package com.ezylang.evalex.parser;
+
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import org.junit.Test;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void tokenizerInitializationTest() {
+        String expressionString = "3+4";
+        ExpressionConfiguration config = mock(ExpressionConfiguration.class);
+
+        Tokenizer tokenizer = new Tokenizer(expressionString, config);
+
+        assertNotNull(tokenizer);
+    }
+
+    @Test
+    public void parseInvalidExpressionTest() throws ParseException {
+        String invalidExpressionString = "3+*4";
+        ExpressionConfiguration config = mock(ExpressionConfiguration.class);
+
+        Tokenizer tokenizer = new Tokenizer(invalidExpressionString, config);
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseValidExpressionTest() throws ParseException {
+        String validExpressionString = "3+4";
+        ExpressionConfiguration config = mock(ExpressionConfiguration.class);
+
+        Tokenizer tokenizer = new Tokenizer(validExpressionString, config);
+        List<Token> tokens = tokenizer.parse();
+
+        assertNotNull(tokens);
+        assertEquals(3, tokens.size());
+    }
+
+    @Test
+    public void parseStringLiteralEmptyStringTest() throws ParseException {
+        String emptyString = "";
+        ExpressionConfiguration config = mock(ExpressionConfiguration.class);
+
+        Tokenizer tokenizer = new Tokenizer(emptyString, config);
+        tokenizer.parseStringLiteral();
+    }
+
+    @Test
+    public void parseStringLiteralValidStringTest() throws ParseException {
+        String validStringLiteral = "\"Hello, World!\"";
+        ExpressionConfiguration config = mock(ExpressionConfiguration.class);
+
+        Tokenizer tokenizer = new Tokenizer(validStringLiteral, config);
+        Token result = tokenizer.parseStringLiteral();
+
+        assertNotNull(result);
+        assertEquals("\"Hello, World!\"", result.getSurface());
+    }
+
+}

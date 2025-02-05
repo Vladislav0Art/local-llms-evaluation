@@ -1,0 +1,65 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+
+public class GeneratedTest {
+
+    @Test
+    public void Gt06ProtocolDecoderCreationTest() {
+        Protocol protocol = new Protocol("gt06");
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(protocol);
+        assertEquals(protocol, decoder.getProtocol());
+    }
+
+    @Test
+    public void decodeGpsPositionAndBufferWithoutLengthTest() {
+        Position position = new Position();
+        byte[] bytes = "01020304".getBytes(StandardCharsets.UTF_8);
+        Gt06ProtocolDecoder.decodeGps(
+                position, Unpooled.copiedBuffer(bytes), false, TimeZone.getTimeZone("GMT"));
+        assertEquals(position, bytes);
+    }
+
+    @Test
+    public void decodeGpsPositionBufferWithLengthTest() {
+        Position position = new Position();
+        byte[] bytes = "01020304".getBytes(StandardCharsets.UTF_8);
+        Gt06ProtocolDecoder.decodeGps(
+                position, Unpooled.copiedBuffer(bytes), true, TimeZone.getTimeZone("GMT"));
+        assertEquals(position, bytes);
+    }
+
+    @Test
+    public void decodeGpsExtendedTest() {
+        Position position = new Position();
+        byte[] bytes = "01020304".getBytes(StandardCharsets.UTF_8);
+        Gt06ProtocolDecoder.decodeGps(
+                position, Unpooled.wrappedBuffer(bytes), true, true, true, TimeZone.getTimeZone("GMT"));
+        assertEquals(position, bytes);
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        Channel channel = mock(Channel.class);
+        byte[] bytes = "01020304".getBytes(StandardCharsets.UTF_8);
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(new Protocol("gt06"));
+        assertEquals(null, decoder.decode(channel, null, Unpooled.wrappedBuffer(bytes)));
+    }
+
+    @Test
+    public void decodeExceptionTest() throws Exception {
+        Channel channel = mock(Channel.class);
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(new Protocol("gt06"));
+        decoder.decode(channel, null, null);
+    }
+
+}

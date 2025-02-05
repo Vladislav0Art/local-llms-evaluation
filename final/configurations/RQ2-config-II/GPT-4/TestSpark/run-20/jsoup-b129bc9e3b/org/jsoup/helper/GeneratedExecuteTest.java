@@ -1,0 +1,22 @@
+package org.jsoup.helper;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.HttpConnection;
+
+import java.net.URL;
+import java.net.Proxy;
+
+public class GeneratedExecuteTest {
+
+    @Test
+    public void executeTest() throws Exception {
+        Connection connection = Jsoup.connect("http://example.com");
+        Connection.Response response = connection.execute();
+
+        assertNotNull(response);
+    }
+
+}

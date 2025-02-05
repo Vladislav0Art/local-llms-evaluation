@@ -1,0 +1,111 @@
+package io.github.vmzakharov.ecdataframe.dataframe;
+
+import io.github.vmzakharov.ecdataframe.dataframe.DataFrame;
+import io.github.vmzakharov.ecdataframe.dataframe.DfColumnSortOrder;
+import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.list.mutable.IntInterval;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void addStringColumnStringColumnNameTest() {
+        DataFrame pdf = new DataFrame("PDF");
+        pdf.addStringColumn("newColumn");
+        assertEquals("newColumn", pdf.getColumnAt(0).getName());
+    }
+
+    @Test
+    public void addStringColumnStringColumnNameExpressionAsStringTest() {
+        DataFrame pdf = new DataFrame("PDF");
+        pdf.addStringColumn("newColumn", "abc");
+        assertEquals("abc", pdf.getValueAt(0, 0).toString());
+    }
+
+    @Test
+    public void addLongColumnStringColumnNameExpressionAsStringTest() {
+        DataFrame pdf = new DataFrame("PDF");
+        pdf.addLongColumn("newColumn", "2");
+        assertEquals(2, pdf.getLong("newColumn", 0));
+    }
+
+    @Test
+    public void addLongColumnStringColumnNameLongIterableTest() {
+        DataFrame pdf = new DataFrame("PDF");
+        pdf.addLongColumn("newColumn", IntInterval.fromTo(3, 6));
+        assertEquals(3, pdf.getLong("newColumn", 0));
+    }
+
+    @Test
+    public void addRowObjectsTest() {
+        DataFrame pdf = new DataFrame("PDF");
+        pdf.addStringColumn("StringColumn")
+                .addLongColumn("LongColumn")
+                .addRow("TestValue", 123);
+
+        assertEquals("TestValue", pdf.getString("StringColumn", 0));
+        assertEquals(123, pdf.getLong("LongColumn", 0));
+    }
+
+    @Test
+    public void columnCountTest() {
+        DataFrame pdf = new DataFrame("PDF");
+        pdf.addStringColumn("StringColumn")
+                .addLongColumn("LongColumn");
+
+        assertEquals(2, pdf.columnCount());
+    }
+
+    @Test
+    public void sortByTest() {
+        DataFrame pdf = new DataFrame("PDF");
+        pdf.addStringColumn("StringColumn")
+                .addRow("c")
+                .addRow("a")
+                .addRow("b");
+        pdf.sortBy(Lists.immutable.of("StringColumn"));
+
+        assertEquals("a", pdf.getString("StringColumn", 0));
+    }
+
+    @Test
+    public void sortByColumnAndOrderTest() {
+        DataFrame pdf = new DataFrame("PDF");
+        pdf.addStringColumn("StringColumn")
+                .addRow("c")
+                .addRow("a")
+                .addRow("b");
+        pdf.sortBy(Lists.immutable.of("StringColumn"), Lists.immutable.of(DfColumnSortOrder.DESC));
+
+        assertEquals("c", pdf.getString("StringColumn", 0));
+    }
+
+    @Test
+    public void unionTest() {
+        DataFrame df1 = new DataFrame("DF1");
+        df1.addStringColumn("StringColumn")
+                .addRow("a");
+
+        DataFrame df2 = new DataFrame("DF2");
+        df2.addStringColumn("StringColumn")
+                .addRow("b");
+
+        DataFrame unionDF = df1.union(df2);
+
+        assertEquals("a", unionDF.getString("StringColumn", 0));
+        assertEquals("b", unionDF.getString("StringColumn", 1));
+    }
+
+    @Test
+    public void dropColumnTest() {
+        DataFrame df1 = new DataFrame("DF1");
+        df1.addStringColumn("StringColumn");
+
+        df1.dropColumn("StringColumn");
+
+        assertEquals(0, df1.columnCount());
+    }
+
+}

@@ -1,0 +1,64 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+import org.junit.Assert;
+import org.mockito.Mock;
+
+import static org.mockito.Mockito.when;
+
+import org.mockito.Mockito;
+
+import java.time.LocalDate;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateNonNullTest() {
+        LocalDate fordate = LocalDate.now();
+        Assert.assertNotNull(DeltaT.estimate(fordate));
+    }
+
+    @Test
+    public void estimateForRandomDateTest() {
+        LocalDate fordate = LocalDate.of(2015, 3, 15);
+        Assert.assertNotNull(DeltaT.estimate(fordate));
+    }
+
+    @Test
+    public void estimateNullDateTest() {
+        LocalDate fordate = null;
+        double result = DeltaT.estimate(fordate);
+    }
+
+    @Test
+    public void estimateLeapYearDateTest() {
+        LocalDate leapYearDate = LocalDate.of(2020, 2, 29);
+        double deltaT = DeltaT.estimate(leapYearDate);
+        Assert.assertNotNull(deltaT);
+    }
+
+    @Test
+    public void estimateNonLeapYearDateTest() {
+        LocalDate nonLeapYearDate = LocalDate.of(2019, 2, 28);
+        double deltaT = DeltaT.estimate(nonLeapYearDate);
+        Assert.assertNotNull(deltaT);
+    }
+
+    @Test
+    public void estimateMockedDateTest() {
+        LocalDate mockedDate = Mockito.mock(LocalDate.class);
+        when(mockedDate.getYear()).thenReturn(2022);
+        when(mockedDate.getMonthValue()).thenReturn(12);
+        when(mockedDate.getDayOfMonth()).thenReturn(10);
+        double result = DeltaT.estimate(mockedDate);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void estimateDifferentYearsTest() {
+        LocalDate date1 = LocalDate.of(2000, 1, 1);
+        LocalDate date2 = LocalDate.of(2020, 1, 1);
+        Assert.assertNotEquals(DeltaT.estimate(date1), DeltaT.estimate(date2));
+    }
+
+}

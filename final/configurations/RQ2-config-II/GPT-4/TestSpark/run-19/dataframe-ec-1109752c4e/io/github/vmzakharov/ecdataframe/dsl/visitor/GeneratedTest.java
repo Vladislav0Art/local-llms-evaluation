@@ -1,0 +1,153 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void visitAssignExprTest() {
+        AssingExpr assignExpr = Mockito.mock(AssingExpr.class);
+        Mockito.doCallRealMethod().when(assignExpr).accept(Mockito.any());
+
+        assignExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(assignExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        BinaryExpr binaryExpr = Mockito.mock(BinaryExpr.class);
+        Mockito.doCallRealMethod().when(binaryExpr).accept(Mockito.any());
+
+        binaryExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(binaryExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        UnaryExpr unaryExpr = Mockito.mock(UnaryExpr.class);
+        Mockito.doCallRealMethod().when(unaryExpr).accept(Mockito.any());
+
+        unaryExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(unaryExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitConstExprTest() {
+        Value constExpr = Mockito.mock(Value.class);
+        Mockito.doCallRealMethod().when(constExpr).accept(Mockito.any());
+
+        constExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(constExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        FunctionCallExpr functionCallExpr = Mockito.mock(FunctionCallExpr.class);
+        Mockito.doCallRealMethod().when(functionCallExpr).accept(Mockito.any());
+
+        functionCallExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(functionCallExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitPropertyPathExprTest() {
+        PropertyPathExpr propertyPathExpr = Mockito.mock(PropertyPathExpr.class);
+        Mockito.doCallRealMethod().when(propertyPathExpr).accept(Mockito.any());
+
+        propertyPathExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(propertyPathExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitAnonymousScriptExprTest() {
+        AnonymousScript anonymousScript = Mockito.mock(AnonymousScript.class);
+        Mockito.doCallRealMethod().when(anonymousScript).accept(Mockito.any());
+
+        anonymousScript.accept(new PrettyPrintVisitor());
+        Mockito.verify(anonymousScript, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        FunctionScript functionScript = Mockito.mock(FunctionScript.class);
+        Mockito.doCallRealMethod().when(functionScript).accept(Mockito.any());
+
+        functionScript.accept(new PrettyPrintVisitor());
+        Mockito.verify(functionScript, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitStatementSequenceScriptTest() {
+        StatementSequenceScript statementSequenceScript = Mockito.mock(StatementSequenceScript.class);
+        Mockito.doCallRealMethod().when(statementSequenceScript).accept(Mockito.any());
+
+        statementSequenceScript.accept(new PrettyPrintVisitor());
+        Mockito.verify(statementSequenceScript, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitVarExprTest() {
+        VarExpr varExpr = Mockito.mock(VarExpr.class);
+        Mockito.doCallRealMethod().when(varExpr).accept(Mockito.any());
+
+        varExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(varExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitProjectionExprTest() {
+        ProjectionExpr projExpr = Mockito.mock(ProjectionExpr.class);
+        Mockito.doCallRealMethod().when(projExpr).accept(Mockito.any());
+
+        projExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(projExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitAliasExprTest() {
+        AliasExpr aliasExpr = Mockito.mock(AliasExpr.class);
+        Mockito.doCallRealMethod().when(aliasExpr).accept(Mockito.any());
+
+        aliasExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(aliasExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitVectorExprTest() {
+        VectorExpr vectorExpr = Mockito.mock(VectorExpr.class);
+        Mockito.doCallRealMethod().when(vectorExpr).accept(Mockito.any());
+
+        vectorExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(vectorExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitIndexExprTest() {
+        IndexExpr indexExpr = Mockito.mock(IndexExpr.class);
+        Mockito.doCallRealMethod().when(indexExpr).accept(Mockito.any());
+
+        indexExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(indexExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitDecimalExprTest() {
+        DecimalExpr decimalExpr = Mockito.mock(DecimalExpr.class);
+        Mockito.doCallRealMethod().when(decimalExpr).accept(Mockito.any());
+
+        decimalExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(decimalExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+    @Test
+    public void visitIfElseExprTest() {
+        IfElseExpr ifElseExpr = Mockito.mock(IfElseExpr.class);
+        Mockito.doCallRealMethod().when(ifElseExpr).accept(Mockito.any());
+
+        ifElseExpr.accept(new PrettyPrintVisitor());
+        Mockito.verify(ifElseExpr, Mockito.times(1)).accept(Mockito.any());
+    }
+
+}

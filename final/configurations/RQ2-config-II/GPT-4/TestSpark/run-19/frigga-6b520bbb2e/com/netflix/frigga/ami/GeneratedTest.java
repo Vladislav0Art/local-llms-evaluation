@@ -1,0 +1,88 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameNullTest() {
+        assertNull(AppVersion.parseName(null));
+    }
+
+    @Test
+    public void parseNameTest() {
+        assertNotNull(AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion"));
+    }
+
+    @Test
+    public void compareToTest() {
+        AppVersion appVersion1 = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion");
+        AppVersion appVersion2 = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion");
+        assertEquals(0, appVersion1.compareTo(appVersion2));
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        assertNotNull(AppVersion.getAppVersionPattern());
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        AppVersion appVersion = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion");
+        assertEquals("com.netflix.frigga.ami.AppVersion", appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersionTest() {
+        AppVersion appVersion = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion");
+        assertEquals("testversion", appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        AppVersion appVersion = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion-buildJob-testJob");
+        assertEquals("testJob", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        AppVersion appVersion = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion-buildNumber-123");
+        assertEquals("123", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommitTest() {
+        AppVersion appVersion = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion-commit-testCommit");
+        assertEquals("testCommit", appVersion.getCommit());
+    }
+
+    @Test
+    public void toStringTest() {
+        AppVersion appVersion = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion-commit-testCommit");
+        String expectedResult = "com.netflix.frigga.ami.AppVersion: testversion, commit: testCommit";
+        assertEquals(expectedResult, appVersion.toString());
+    }
+
+    @Test
+    public void hashCodeTest() {
+        AppVersion appVersion = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion");
+        assertNotNull(appVersion.hashCode());
+    }
+
+    @Test
+    public void equalsTest() {
+        AppVersion appVersion1 = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion");
+        AppVersion appVersion2 = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion");
+        assertTrue(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void equalsFalseTest() {
+        AppVersion appVersion1 = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-testversion");
+        AppVersion appVersion2 = AppVersion.parseName("com.netflix.frigga.ami.AppVersion-differentversion");
+        assertFalse(appVersion1.equals(appVersion2));
+    }
+
+}

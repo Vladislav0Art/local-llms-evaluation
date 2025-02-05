@@ -1,0 +1,110 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+import org.jsoup.parser.Tag;
+import org.jsoup.parser.ParseSettings;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getName_DefaultTagTest() {
+        Tag tag = Tag.valueOf("tagName");
+        assertEquals("tagName", tag.getName());
+    }
+
+    @Test
+    public void normalName_DefaultTagTest() {
+        Tag tag = Tag.valueOf("tagName");
+        assertEquals("tagname", tag.normalName());
+    }
+
+    @Test
+    public void valueOf_WithSettingsTest() {
+        ParseSettings parseSettings = new ParseSettings(true, true);
+        Tag tag = Tag.valueOf("tagName", parseSettings);
+        assertEquals("TAGNAME", tag.getName());
+    }
+
+    @Test
+    public void isBlock_DefaultTagTest() {
+        Tag tag = Tag.valueOf("div");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void isInline_DefaultTagTest() {
+        Tag tag = Tag.valueOf("span");
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmpty_DefaultTagTest() {
+        Tag tag = Tag.valueOf("img");
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosing_DefaultTagTest() {
+        Tag tag = Tag.valueOf("img").setSelfClosing();
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTag_UnknownTagTest() {
+        Tag tag = Tag.valueOf("unknownTag");
+        assertFalse(tag.isKnownTag());
+    }
+
+    @Test
+    public void isKnownTag_StaticKnownTagTest() {
+        assertTrue(Tag.isKnownTag("div"));
+    }
+
+    @Test
+    public void preserveWhitespace_PreservingTagTest() {
+        Tag tag = Tag.valueOf("pre");
+        assertTrue(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void isFormListed_FormTagTest() {
+        Tag tag = Tag.valueOf("option");
+        assertTrue(tag.isFormListed());
+    }
+
+    @Test
+    public void isFormSubmittable_SubmittableTagTest() {
+        Tag tag = Tag.valueOf("input");
+        assertTrue(tag.isFormSubmittable());
+    }
+
+    @Test
+    public void equals_SameTagTest() {
+        Tag tag1 = Tag.valueOf("input");
+        Tag tag2 = Tag.valueOf("input");
+        assertTrue(tag1.equals(tag2));
+    }
+
+    @Test
+    public void hashCode_SameTagTest() {
+        Tag tag1 = Tag.valueOf("input");
+        Tag tag2 = Tag.valueOf("input");
+        assertEquals(tag1.hashCode(), tag2.hashCode());
+    }
+
+    @Test
+    public void toString_SameTagTest() {
+        Tag tag1 = Tag.valueOf("input");
+        assertEquals("<input>", tag1.toString());
+    }
+
+    @Test
+    public void clone_SameTagTest() {
+        Tag tag1 = Tag.valueOf("input");
+        Tag tag2 = tag1.clone();
+        assertTrue(tag1.equals(tag2));
+    }
+
+}

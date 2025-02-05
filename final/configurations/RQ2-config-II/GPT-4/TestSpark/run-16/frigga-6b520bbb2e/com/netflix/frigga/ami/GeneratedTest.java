@@ -1,0 +1,113 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void parseNameNotNullInputTest() {
+        assertNotNull(AppVersion.parseName("input"));
+    }
+
+    @Test
+    public void parseNameNullInputTest() {
+        assertNull(AppVersion.parseName(null));
+    }
+
+    @Test
+    public void compareToOtherNotNullTest() {
+        AppVersion appVersion = new AppVersion();
+        AppVersion other = mock(AppVersion.class);
+
+        assertTrue(appVersion.compareTo(other) instanceof Integer);
+    }
+
+    @Test
+    public void compareToOtherNullTest() {
+        AppVersion appVersion = new AppVersion();
+
+        appVersion.compareTo(null);
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        assertNotNull(AppVersion.getAppVersionPattern());
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        AppVersion appVersion = new AppVersion();
+
+        assertNull(appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersionTest() {
+        AppVersion appVersion = new AppVersion();
+
+        assertNull(appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        AppVersion appVersion = new AppVersion();
+
+        assertNull(appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        AppVersion appVersion = new AppVersion();
+
+        assertNull(appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommitTest() {
+        AppVersion appVersion = new AppVersion();
+
+        assertNull(appVersion.getCommit());
+    }
+
+    @Test
+    public void getChangelistTest() {
+        AppVersion appVersion = new AppVersion();
+
+        assertNull(appVersion.getChangelist());
+    }
+
+    @Test
+    public void hashCodeTest() {
+        AppVersion appVersion = new AppVersion();
+
+        assertTrue(appVersion.hashCode() instanceof Integer);
+    }
+
+    @Test
+    public void equalsTest() {
+        AppVersion appVersion = new AppVersion();
+
+        assertFalse(appVersion.equals(appVersion));
+    }
+
+    @Test
+    public void equalsNotInstanceOfAppVersionTest() {
+        AppVersion appVersion = new AppVersion();
+
+        assertFalse(appVersion.equals(new Object()));
+    }
+
+    @Test
+    public void toStringTest() {
+        AppVersion appVersion = new AppVersion();
+
+        assertTrue(appVersion.toString() instanceof String);
+    }
+
+}

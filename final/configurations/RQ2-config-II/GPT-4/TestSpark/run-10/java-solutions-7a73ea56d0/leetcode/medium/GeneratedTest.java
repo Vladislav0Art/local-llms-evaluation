@@ -1,0 +1,77 @@
+package leetcode.medium;
+
+import leetcode.medium.OnlineStockSpan;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void next_FirstCallTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int price = 100;
+        int expectedSpan = 1;
+
+        assertEquals(expectedSpan, stockSpan.next(price));
+    }
+
+    @Test
+    public void next_PriceIncreasesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 150, 200, 250};
+        int[] expectedSpans = new int[]{1, 2, 3, 4};
+
+        for (int i = 0; i < prices.length; i++) {
+            assertEquals(expectedSpans[i], stockSpan.next(prices[i]));
+        }
+    }
+
+    @Test
+    public void next_PriceDecreasesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 80, 60, 40};
+        int[] expectedSpans = new int[]{1, 1, 1, 1};
+
+        for (int i = 0; i < prices.length; i++) {
+            assertEquals(expectedSpans[i], stockSpan.next(prices[i]));
+        }
+    }
+
+    @Test
+    public void calculateSpans_EmptyArrayTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[0];
+        int[] expectedSpans = new int[0];
+
+        assertArrayEquals(expectedSpans, stockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_SingleItemArrayTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100};
+        int[] expectedSpans = new int[]{1};
+
+        assertArrayEquals(expectedSpans, stockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_PriceIncreasesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 150, 200, 250};
+        int[] expectedSpans = new int[]{1, 2, 3, 4};
+
+        assertArrayEquals(expectedSpans, stockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_PriceDecreasesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 80, 60, 40};
+        int[] expectedSpans = new int[]{1, 1, 1, 1};
+
+        assertArrayEquals(expectedSpans, stockSpan.calculateSpans(prices));
+    }
+
+}

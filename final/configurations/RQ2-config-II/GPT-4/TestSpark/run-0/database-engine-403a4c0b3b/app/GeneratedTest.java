@@ -1,0 +1,74 @@
+package app;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mock;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    LinkedHashMap<String, Object> map;
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = spy(DBApp.class);
+        dbApp.init();
+        verify(dbApp).init();
+    }
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        assertTrue(dbApp.getMyTables() instanceof HashSet);
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        assertTrue(dbApp.getReader() instanceof CsvReader);
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        assertTrue(dbApp.getWriter() instanceof CsvWriter);
+    }
+
+    @Test
+    public void createTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.createTable("table", "key", map, map, map);
+    }
+
+    @Test
+    public void insertIntoTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.insertIntoTable("table", map);
+    }
+
+    @Test
+    public void updateTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.updateTable("table", "key", map);
+    }
+
+    @Test
+    public void deleteFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.deleteFromTable("table", map);
+    }
+
+    @Test
+    public void selectFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        SQLTerm[] terms = {new SQLTerm()};
+        String[] operators = {"AND"};
+        dbApp.selectFromTable(terms, operators);
+    }
+
+}

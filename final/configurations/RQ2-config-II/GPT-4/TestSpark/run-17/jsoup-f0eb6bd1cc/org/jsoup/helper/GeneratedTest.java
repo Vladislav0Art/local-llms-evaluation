@@ -1,0 +1,63 @@
+package org.jsoup.helper;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.Connection;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class GeneratedTest {
+
+    @Test
+    public void UrlBuilder_ConstructorTest() {
+        URL url = null;
+        try {
+            url = new URL("https://example.com");
+        } catch (MalformedURLException mue) {
+            Assert.fail(mue.getMessage());
+        }
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Assert.assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void build_ValidURLTest() {
+        URL url = null;
+        try {
+            url = new URL("https://example.com");
+        } catch (MalformedURLException mue) {
+            Assert.fail(mue.getMessage());
+        }
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL resultURL = urlBuilder.build();
+        Assert.assertEquals(url, resultURL);
+    }
+
+    @Test
+    public void build_InvalidURLTest() {
+        URL url = null;
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        try {
+            URL resultURL = urlBuilder.build();
+            Assert.fail("Expected exception to be thrown");
+        } catch (IllegalArgumentException iae) {
+            Assert.assertEquals("URL cannot be null", iae.getMessage());
+        }
+    }
+
+    @Test
+    public void appendKeyVal_ValidKeyValTest() throws UnsupportedEncodingException {
+        URL url = null;
+        try {
+            url = new URL("https://example.com");
+        } catch (MalformedURLException mue) {
+            Assert.fail(mue.getMessage());
+        }
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Connection.KeyVal keyVal = Connection.KeyVal.create("key", "value");
+        urlBuilder.appendKeyVal(keyVal);
+    }
+
+}

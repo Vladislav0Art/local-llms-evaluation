@@ -1,0 +1,90 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.api.EPUBProfile;
+import org.mockito.Mockito;
+
+import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
+
+@RunWith(JUnit4.class)
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Locale locale = epubChecker.getLocale();
+
+        // Assuming system's default locale
+        assertEquals(Locale.getDefault(), locale);
+    }
+
+    @Test
+    public void runValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"arg1", "arg2"};
+        int result = epubChecker.run(args);
+
+        // Assuming successful run returns 1
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void runEmptyArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {};
+        int result = epubChecker.run(args);
+
+        // Assuming unsuccessful run due to no args returns 0
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void processEpubFileValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"arg1", "arg2"};
+        int result = epubChecker.processEpubFile(args);
+
+        // Assuming successful process returns 1
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void processEpubFileEmptyArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {};
+        int result = epubChecker.processEpubFile(args);
+
+        // Assuming process fails due to no args returns 0
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void validateFileValidPathTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        EPUBVersion version = EPUBVersion.VERSION_3;
+        Report report = Mockito.mock(Report.class);
+        EPUBProfile profile = EPUBProfile.DEFAULT;
+
+        int result = epubChecker.validateFile("valid/path", version, report, profile);
+
+        // Assuming successful validation returns 1
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void validateFileInvalidPathTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        EPUBVersion version = EPUBVersion.VERSION_3;
+        Report report = Mockito.mock(Report.class);
+        EPUBProfile profile = EPUBProfile.DEFAULT;
+
+        epubChecker.validateFile("invalid/path", version, report, profile);
+    }
+
+}

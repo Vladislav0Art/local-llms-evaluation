@@ -1,0 +1,70 @@
+package com.adobe.epubcheck.tool;
+
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.DefaultReportImpl;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        assertEquals(epubChecker.getLocale(), Locale.getDefault());
+    }
+
+    @Test
+    public void runValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"test.epub"};
+        assertEquals(0, epubChecker.run(args));
+    }
+
+    @Test
+    public void runInvalidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {};
+        assertEquals(1, epubChecker.run(args));
+    }
+
+    @Test
+    public void processEpubFileValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"test.epub"};
+        assertEquals(0, epubChecker.processEpubFile(args));
+    }
+
+    @Test
+    public void processEpubFileInvalidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {};
+        assertEquals(1, epubChecker.processEpubFile(args));
+    }
+
+    @Test
+    public void validateFileValidTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Report report = Mockito.mock(DefaultReportImpl.class);
+        int result = epubChecker.validateFile("test.epub", EPUBVersion.VERSION_3, report, EPUBProfile.DEFAULT);
+        assertEquals(0, result);
+        verify(report, times(1)).info(anyString(), anyString());
+    }
+
+    @Test
+    public void validateFileInvalidTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Report report = Mockito.mock(DefaultReportImpl.class);
+        int result = epubChecker.validateFile("nonexistent.epub", EPUBVersion.VERSION_3, report, EPUBProfile.DEFAULT);
+        assertEquals(1, result);
+        verify(report, times(1)).error(anyString(), anyString());
+    }
+
+}

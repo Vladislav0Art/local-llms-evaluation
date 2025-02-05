@@ -1,0 +1,105 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.W3CDom;
+import org.junit.Assert;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.jsoup.nodes.Document;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareDefaultTest() {
+        W3CDom w3CDom = new W3CDom();
+        Assert.assertFalse(w3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAwareSetTrueTest() {
+        W3CDom w3CDom = new W3CDom().namespaceAware(true);
+        Assert.assertTrue(w3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAwareSetFalseTest() {
+        W3CDom w3CDom = new W3CDom().namespaceAware(false);
+        Assert.assertFalse(w3CDom.namespaceAware());
+    }
+
+    @Test
+    public void convertDocumentTest() {
+        Document document = Document.createShell("");
+        W3CDom w3CDom = new W3CDom();
+        Document out = w3CDom.fromJsoup(document);
+        Assert.assertEquals(document.toString(), out.toString());
+    }
+
+    @Test
+    public void convertElementTest() {
+        Document document = Document.createShell("");
+        Element element = document.appendElement("test");
+        W3CDom w3CDom = new W3CDom();
+        Document out = w3CDom.fromJsoup(element);
+        Assert.assertEquals(element.toString(), out.get.toString());
+    }
+
+    @Test
+    public void selectXpathDocumentTest() {
+        Document document = Document.createShell("");
+        W3CDom w3CDom = new W3CDom();
+        NodeList nodeList = w3CDom.selectXpath("//*", document);
+        Assert.assertEquals(0, nodeList.getLength());
+    }
+
+    @Test
+    public void selectXpathContextNodeTest() {
+        Document document = Document.createShell("");
+        W3CDom w3CDom = new W3CDom();
+        NodeList nodeList = w3CDom.selectXpath("//*", document);
+        NodeList selected = w3CDom.selectXpath("//*", nodeList.item(0));
+        Assert.assertEquals(0, selected.getLength());
+    }
+
+    @Test
+    public void sourceNodesTest() {
+        Document document = Document.createShell("");
+        W3CDom w3CDom = new W3CDom();
+        NodeList nodeList = w3CDom.selectXpath("//*", document);
+        List<org.jsoup.nodes.Node> result = w3CDom.sourceNodes(nodeList, org.jsoup.nodes.Element.class);
+        Assert.assertEquals(0, result.size());
+    }
+
+    @Test
+    public void contextNodeTest() {
+        Document document = Document.createShell("");
+        W3CDom w3CDom = new W3CDom();
+        Node contextNode = w3CDom.contextNode(document);
+        Assert.assertNotNull(contextNode);
+    }
+
+    @Ignore("Test ignored")
+    public void OutputHtmlTest() {
+    }
+
+    @Ignore("Test ignored")
+    public void OutputXmlTest() {
+    }
+
+    @Ignore("Test ignored")
+    public void asStringMapTest() {
+    }
+
+    @Ignore("Test ignored")
+    public void asStringTest() {
+    }
+
+    @Ignore("Test ignored")
+    public void propertiesFromMapTest() {
+    }
+
+}

@@ -1,0 +1,94 @@
+package org.davidmoten.text.utils;
+
+import org.davidmoten.text.utils.WordWrap;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        Reader in = new StringReader("Testing fromReader method.");
+        WordWrap.Builder builder = WordWrap.from(in);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        WordWrap.Builder builder = WordWrap.fromClasspathUtf8("test.txt");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromClasspathCharsetTest() {
+        WordWrap.Builder builder = WordWrap.fromClasspath("test.txt", Charset.defaultCharset());
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        WordWrap.Builder builder = WordWrap.from("Testing from method.");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromUtf8InputStreamTest() {
+        InputStream inputStream = new ByteArrayInputStream("Testing fromUtf8 method.".getBytes());
+        WordWrap.Builder builder = WordWrap.fromUtf8(inputStream);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromInputStreamCharsetTest() {
+        InputStream inputStream = new ByteArrayInputStream("Testing from method.".getBytes());
+        WordWrap.Builder builder = WordWrap.from(inputStream, Charset.defaultCharset());
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromFileCharsetTest() throws FileNotFoundException {
+        File file = new File("test.txt");
+        WordWrap.Builder builder = WordWrap.from(file, Charset.defaultCharset());
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void wordWrapReaderWriterTest() throws IOException {
+        Reader in = new StringReader("Testing wordWrap method.");
+        Writer out = new StringWriter();
+        WordWrap.wordWrap(in, out, "\n", 10,
+                CharSequence::length, new HashSet<>(), false, false);
+        assertEquals("Testing wordWrap method.", out.toString().trim());
+    }
+
+    @Test
+    public void wordWrapReaderLineConsumerTest() throws IOException {
+        Reader in = new StringReader("Testing wordWrap method.");
+        WordWrap.wordWrap(in, System.out::println, 10,
+                CharSequence::length, new HashSet<>(), false, false);
+    }
+
+    @Test
+    public void rightTrimTest() {
+        CharSequence result = WordWrap.rightTrim("    Testing    ");
+        assertEquals("    Testing", result);
+    }
+
+    @Test
+    public void isWhitespaceTest() {
+        assertTrue(WordWrap.isWhitespace("    "));
+        assertFalse(WordWrap.isWhitespace("Test"));
+    }
+
+    @Test
+    public void leftTrimTest() {
+        StringBuilder2 word = new StringBuilder2();
+        word.append("    Testing");
+        WordWrap.leftTrim(word);
+        assertEquals("Testing", word.toString());
+    }
+
+}

@@ -1,0 +1,97 @@
+package ch.jalu.configme.configurationdata;
+
+import static org.junit.Assert.assertEquals;
+
+import ch.jalu.configme.properties.Property;
+import org.junit.Test;
+
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void addSinglePropertyTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<?> propertyUnderTest = mock(Property.class);
+
+        // Act
+        builder.add(propertyUnderTest);
+
+        // Assert
+        List<Property<?>> properties = builder.create();
+        assertEquals(1, properties.size());
+        assertEquals(propertyUnderTest, properties.get(0));
+    }
+
+    @Test
+    public void addDuplicatePropertyTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<?> propertyUnderTest = mock(Property.class);
+        when(propertyUnderTest.getPath()).thenReturn("test.path");
+
+        // Act
+        builder.add(propertyUnderTest);
+        builder.add(propertyUnderTest);
+    }
+
+    @Test
+    public void getRootEntriesEmptyTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        // Act
+        Map<String, Object> rootEntries = builder.getRootEntries();
+
+        // Assert
+        assertTrue(rootEntries.isEmpty());
+    }
+
+    @Test
+    public void getRootEntriesNonEmptyTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<?> propertyUnderTest = mock(Property.class);
+        when(propertyUnderTest.getPath()).thenReturn("test.path");
+        when(propertyUnderTest.getDefaultValue()).thenReturn("test.default");
+        builder.add(propertyUnderTest);
+
+        // Act
+        Map<String, Object> rootEntries = builder.getRootEntries();
+
+        // Assert
+        assertEquals(1, rootEntries.size());
+        assertTrue(rootEntries.containsKey("test.path"));
+    }
+
+    @Test
+    public void createEmptyListTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        // Act
+        List<Property<?>> properties = builder.create();
+
+        // Assert
+        assertTrue(properties.isEmpty());
+    }
+
+    @Test
+    public void createNonEmptyListTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<?> propertyUnderTest = mock(Property.class);
+        when(propertyUnderTest.getPath()).thenReturn("test.path");
+        when(propertyUnderTest.getDefaultValue()).thenReturn("test.default");
+        builder.add(propertyUnderTest);
+
+        // Act
+        List<Property<?>> properties = builder.create();
+
+        // Assert
+        assertEquals(1, properties.size());
+        assertEquals(propertyUnderTest, properties.get(0));
+    }
+
+}

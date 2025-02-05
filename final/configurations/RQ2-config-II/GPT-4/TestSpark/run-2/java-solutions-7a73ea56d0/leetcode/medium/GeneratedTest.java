@@ -1,0 +1,65 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSingleValueTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int result = onlineStockSpan.next(100);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextMultipleValuesTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        int result = onlineStockSpan.next(110);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void nextMultipleValuesDescendingTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        onlineStockSpan.next(110);
+        int result = onlineStockSpan.next(90);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextMultipleValuesAscendingTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(100);
+        onlineStockSpan.next(90);
+        int result = onlineStockSpan.next(110);
+        assertEquals(3, result);
+    }
+
+    @Test
+    public void calculateSpansEmptyArrayTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] spans = onlineStockSpan.calculateSpans(new int[]{});
+        assertEquals(0, spans.length);
+    }
+
+    @Test
+    public void calculateSpansSingleValueTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] spans = onlineStockSpan.calculateSpans(new int[]{100});
+        assertEquals(1, spans.length);
+        assertEquals(1, spans[0]);
+    }
+
+    @Test
+    public void calculateSpansMultipleValuesTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] spans = onlineStockSpan.calculateSpans(new int[]{100, 110, 90, 110});
+        assertEquals(4, spans.length);
+        assertArrayEquals(new int[]{1, 2, 1, 3}, spans);
+    }
+
+}

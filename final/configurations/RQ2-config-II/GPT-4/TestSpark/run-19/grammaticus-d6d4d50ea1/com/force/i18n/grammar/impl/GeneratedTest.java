@@ -1,0 +1,94 @@
+package com.force.i18n.grammar.impl;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Map;
+import java.util.Set;
+
+import com.force.i18n.grammar.impl.GrammaticalTermMapImpl;
+
+public class GeneratedTest {
+
+    @Test
+    public void equalsSameObjectsTest() {
+        GrammaticalTermMapImpl map1 = new GrammaticalTermMapImpl<>();
+        assertTrue(map1.equals(map1));
+    }
+
+    @Test
+    public void equalsDifferentObjectsTest() {
+        GrammaticalTermMapImpl map1 = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl map2 = new GrammaticalTermMapImpl<>();
+        assertTrue(map1.equals(map2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        GrammaticalTermMapImpl map = new GrammaticalTermMapImpl<>();
+        assertEquals(map.hashCode(), map.hashCode());
+    }
+
+    @Test
+    public void makeSkinnyTest() {
+        GrammaticalTermMapImpl map = new GrammaticalTermMapImpl<>();
+        assertEquals(map.makeSkinny(), map);
+    }
+
+    @Test
+    public void keySetTest() {
+        GrammaticalTermMapImpl map = new GrammaticalTermMapImpl<>();
+        Set<String> keySet = map.keySet();
+        assertTrue(keySet.isEmpty());
+    }
+
+    @Test
+    public void getTest() {
+        GrammaticalTermMapImpl map = new GrammaticalTermMapImpl<>();
+        assertNull(map.get("test"));
+    }
+
+    @Test
+    public void containsKeyTest() {
+        GrammaticalTermMapImpl map = new GrammaticalTermMapImpl<>();
+        assertFalse(map.containsKey("test"));
+    }
+
+    @Test
+    public void entrySetTest() {
+        GrammaticalTermMapImpl map = new GrammaticalTermMapImpl<>();
+        Set<Map.Entry<String, GrammaticalTerm>> entries = map.entrySet();
+        assertTrue(entries.isEmpty());
+    }
+
+    @Test
+    public void valuesTest() {
+        GrammaticalTermMapImpl map = new GrammaticalTermMapImpl<>();
+        Collection<GrammaticalTerm> values = map.values();
+        assertTrue(values.isEmpty());
+    }
+
+    @Test
+    public void putTest() {
+        GrammaticalTermMapImpl map = new GrammaticalTermMapImpl<>();
+        map.put("test", new GrammaticalTerm());
+        assertTrue(map.containsKey("test"));
+    }
+
+    @Test
+    public void putAllTest() {
+        GrammaticalTermMapImpl map1 = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl map2 = new GrammaticalTermMapImpl<>();
+        map1.put("test", new GrammaticalTerm());
+        map2.putAll(map1);
+        assertTrue(map2.containsKey("test"));
+    }
+
+    @Test
+    public void isEmptyTest() {
+        GrammaticalTermMapImpl map = new GrammaticalTermMapImpl<>();
+        assertTrue(map.isEmpty());
+    }
+
+}

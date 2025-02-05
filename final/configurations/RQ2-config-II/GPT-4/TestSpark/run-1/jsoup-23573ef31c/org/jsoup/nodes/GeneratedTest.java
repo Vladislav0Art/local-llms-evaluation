@@ -1,0 +1,107 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+import org.junit.Assert;
+
+import static org.mockito.Mockito.*;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellValidInputTest() {
+        Document doc = Document.createShell("http://test.com");
+        Assert.assertNotNull(doc);
+    }
+
+    @Test
+    public void createShellNullInputTest() {
+        Document.createShell(null);
+    }
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("http://test.com");
+        String location = doc.location();
+        Assert.assertEquals("http://test.com", location);
+    }
+
+    @Test
+    public void connectionDefaultTest() {
+        Document doc = new Document("http://test.com");
+        Assert.assertNotNull(doc.connection());
+    }
+
+    @Test
+    public void connectionUpdateTest() {
+        Connection mockConnection = mock(Connection.class);
+        Document doc = new Document("http://test.com");
+        doc.connection(mockConnection);
+        // Since there is no method to verify the connection in Document, we just check that no exceptions are thrown
+    }
+
+    @Test
+    public void titleGetSetTest() {
+        Document doc = new Document("http://test.com");
+        doc.title("Test Title");
+        Assert.assertEquals("Test Title", doc.title());
+    }
+
+    @Test
+    public void charsetGetSetTest() {
+        Document doc = new Document("http://test.com");
+        Charset charset = Charset.forName("UTF-8");
+        doc.charset(charset);
+        Assert.assertEquals(charset, doc.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementGetSetTest() {
+        Document doc = new Document("http://test.com");
+        doc.updateMetaCharsetElement(true);
+        Assert.assertEquals(true, doc.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document doc = new Document("http://test.com");
+        Assert.assertNotSame(doc, doc.clone());
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        Document doc = new Document("http://test.com");
+        Assert.assertNotSame(doc, doc.shallowClone());
+    }
+
+    @Test
+    public void outputSettingsGetSetTest() {
+        Document doc = new Document("http://test.com");
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        doc.outputSettings(outputSettings);
+        Assert.assertEquals(outputSettings, doc.outputSettings());
+    }
+
+    @Test
+    public void quirksModeGetSetTest() {
+        Document doc = new Document("http://test.com");
+        Document.QuirksMode quirksMode = Document.QuirksMode.quirks;
+        doc.quirksMode(quirksMode);
+        Assert.assertEquals(quirksMode, doc.quirksMode());
+    }
+
+    @Test
+    public void parserGetSetTest() {
+        Document doc = new Document("http://test.com");
+        Parser parser = Parser.htmlParser();
+        doc.parser(parser);
+        Assert.assertEquals(parser, doc.parser());
+    }
+
+}

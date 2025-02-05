@@ -1,0 +1,75 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.net.URL;
+import java.net.MalformedURLException;
+import javax.net.ssl.SSLSocketFactory;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectUrlTest() throws MalformedURLException {
+        Connection connection = HttpConnection.connect(new URL("http://google.com"));
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void connectStringTest() {
+        Connection connection = HttpConnection.connect("http://google.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void urlTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.url("http://google.com");
+        assertNotNull(connection.url());
+    }
+
+    @Test
+    public void proxyTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.proxy("192.168.1.1", 8080);
+        assertNotNull(connection.proxy());
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.userAgent("Mozilla");
+        assertEquals("Mozilla", connection.userAgent());
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.timeout(5000);
+        assertEquals(5000, connection.maxBodySize());
+    }
+
+    @Test
+    public void sslSocketFactoryTest() {
+        HttpConnection connection = new HttpConnection();
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        connection.sslSocketFactory(sslSocketFactory);
+        assertEquals(sslSocketFactory, connection.sslSocketFactory());
+    }
+
+    @Test
+    public void postDataCharsetTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.postDataCharset("UTF-8");
+        assertEquals("UTF-8", connection.postDataCharset());
+    }
+
+    @Test
+    public void getTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.url("http://invalidurl.com").get();
+    }
+
+}

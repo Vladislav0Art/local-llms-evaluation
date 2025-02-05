@@ -1,0 +1,64 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.embedded.EmbeddedChannel;
+import org.junit.Test;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void WatchProtocolDecoderConstructorTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("watchProtocolTest", 0));
+        assertNotNull(decoder);
+    }
+
+    @Test
+    public void getHasIndexTrueTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("watchProtocolTest", 0));
+        assertTrue(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("watchProtocolTest", 0));
+        assertEquals(decoder.getManufacturer(), "WatchManufacturer");
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        String testMessage = "testMessage";
+        ByteBuf buf = Unpooled.copiedBuffer(testMessage, StandardCharsets.US_ASCII);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("watchProtocolTest", 0));
+
+        Position result = (Position) decoder.decode(null, null, buf.toString(StandardCharsets.US_ASCII));
+
+        assertNotNull(result);
+        assertEquals(result.getProtocol(), "watchProtocolTest");
+        assertEquals(result.getDeviceId(), testMessage);
+    }
+
+    @Test
+    public void decodeWithChannelTest() throws Exception {
+        String testMessage = "testMessage";
+        ByteBuf buf = Unpooled.copiedBuffer(testMessage, StandardCharsets.US_ASCII);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("watchProtocolTest", 0));
+
+        EmbeddedChannel channel = new EmbeddedChannel(decoder);
+
+        channel.writeInbound(buf.toString(StandardCharsets.US_ASCII));
+
+        Position result = (Position) channel.readInbound();
+
+        assertNotNull(result);
+        assertEquals(result.getProtocol(), "watchProtocolTest");
+        assertEquals(result.getDeviceId(), testMessage);
+    }
+
+}

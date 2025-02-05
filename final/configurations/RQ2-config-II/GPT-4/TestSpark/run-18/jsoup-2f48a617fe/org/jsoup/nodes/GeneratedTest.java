@@ -1,0 +1,73 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void CommentDataTest() {
+        Comment comment = new Comment("test");
+        Assert.assertEquals("test", comment.getData());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("test");
+        Assert.assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("test");
+        comment.setData("newTest");
+        Assert.assertEquals("newTest", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("test");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlHead(sb, 0, new Document("").outputSettings());
+        Assert.assertTrue(sb.toString().contains("test"));
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        Comment comment = new Comment("test");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlTail(sb, 0, new Document("").outputSettings());
+        Assert.assertEquals("", sb.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("test");
+        Assert.assertTrue(comment.toString().contains("test"));
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment1 = new Comment("test");
+        Comment comment2 = comment1.clone();
+        Assert.assertEquals(comment1.getData(), comment2.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("test");
+        Assert.assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("test");
+        Assert.assertNull(comment.asXmlDeclaration());
+    }
+
+}

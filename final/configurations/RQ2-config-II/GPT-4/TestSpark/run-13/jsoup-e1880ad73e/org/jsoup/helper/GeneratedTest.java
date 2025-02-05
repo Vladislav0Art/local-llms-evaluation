@@ -1,0 +1,65 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.UnsupportedEncodingException;
+
+public class GeneratedTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() {
+        try {
+            URL url = new URL("http://test.com");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+            Assert.assertNotNull(urlBuilder);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void buildTest() {
+        try {
+            URL url = new URL("http://test.com");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+            url = urlBuilder.build();
+            Assert.assertEquals("http://test.com", url.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void appendKeyValTest() {
+        try {
+            URL url = new URL("http://test.com");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+            Connection.KeyVal keyVal = Mockito.mock(Connection.KeyVal.class);
+            Mockito.when(keyVal.toString()).thenReturn("key=value");
+            urlBuilder.appendKeyVal(keyVal);
+            url = urlBuilder.build();
+            Assert.assertEquals("http://test.com?key=value", url.toString());
+        } catch (UnsupportedEncodingException | MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void appendKeyValUnsupportedEncodingExceptionTest() throws UnsupportedEncodingException {
+        try {
+            URL url = new URL("http://test.com");
+            UrlBuilder urlBuilder = new UrlBuilder(url);
+            Connection.KeyVal keyVal = Mockito.mock(Connection.KeyVal.class);
+            Mockito.when(keyVal.toString()).thenReturn(new String(new byte[]{(byte) 0xC3, (byte) 0x28}, "ISO-8859-1"));
+            urlBuilder.appendKeyVal(keyVal);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+}

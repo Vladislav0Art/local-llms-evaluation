@@ -1,0 +1,23 @@
+package com.force.i18n.grammar.impl;
+
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.mockito.Mockito;
+
+public class GeneratedKeySetTest {
+
+    @Test
+    public void keySetTest() {
+        Map<String, GrammaticalTerm> map = new HashMap<>();
+        map.put("key1", Mockito.mock(GrammaticalTerm.class));
+
+        GrammaticalTermMapImpl termMap = new GrammaticalTermMapImpl(map, true);
+        Assert.assertEquals(1, termMap.keySet().size());
+        Assert.assertTrue(termMap.keySet().contains("key1"));
+    }
+
+}

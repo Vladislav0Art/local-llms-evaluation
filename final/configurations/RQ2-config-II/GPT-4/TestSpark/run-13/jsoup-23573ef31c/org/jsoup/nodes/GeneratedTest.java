@@ -1,0 +1,93 @@
+package org.jsoup.nodes;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellBaseUriTest() {
+        assertNotNull(Document.createShell("http://example.com"));
+    }
+
+    @Test
+    public void locationTest() {
+        String baseUri = "http://example.com";
+        Document doc = new Document(baseUri);
+        assertEquals(baseUri, doc.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        String baseUri = "http://example.com";
+        Connection connection = Jsoup.connect(baseUri);
+        Document doc = new Document(baseUri);
+        doc.connection(connection);
+        assertEquals(connection, doc.connection());
+    }
+
+    @Test
+    public void charsetTest() {
+        String baseUri = "http://example.com";
+        Document doc = new Document(baseUri);
+        Charset charset = Charset.forName("UTF-8");
+        doc.charset(charset);
+        assertEquals(charset, doc.charset());
+    }
+
+    @Test
+    public void outerHtmlTest() {
+        String baseUri = "http://example.com";
+        Document doc = new Document(baseUri);
+        assertEquals("<html>\n <head></head>\n <body></body>\n</html>", doc.outerHtml());
+    }
+
+    @Test
+    public void titleTest() {
+        String baseUri = "http://example.com";
+        Document doc = new Document(baseUri);
+        String title = "Test Title";
+        doc.title(title);
+        assertEquals(title, doc.title());
+    }
+
+    @Test
+    public void bodyTest() {
+        String baseUri = "http://example.com";
+        Document doc = new Document(baseUri);
+        assertNotNull(doc.body());
+    }
+
+    @Test
+    public void cloneTest() {
+        String baseUri = "http://example.com";
+        Document doc = new Document(baseUri);
+        Document cloneDoc = doc.clone();
+        assertEquals(doc.outerHtml(), cloneDoc.outerHtml());
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        String baseUri = "http://example.com";
+        Document doc = new Document(baseUri);
+        Document shallowClone = doc.shallowClone();
+        assertEquals(doc.outerHtml(), shallowClone.outerHtml());
+    }
+
+    @Test
+    public void parserTest() {
+        String baseUri = "http://example.com";
+        Document doc = new Document(baseUri);
+        Parser parser = Parser.htmlParser();
+        doc.parser(parser);
+        assertEquals(parser, doc.parser());
+    }
+
+}

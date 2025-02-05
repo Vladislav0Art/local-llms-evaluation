@@ -1,0 +1,117 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import io.github.vmzakharov.ecdataframe.util.PrinterFactory;
+import io.github.vmzakharov.ecdataframe.dsl.value.DecimalValue;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void exprToStringTest() {
+        String output = PrettyPrintVisitor.exprToString(new DecimalExpr(new DecimalValue(10)));
+        Assert.assertEquals("10", output);
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitAssignExpr(new AssingExpr("x", new DecimalExpr(new DecimalValue(10))));
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitBinaryExpr(new BinaryExpr(new DecimalExpr(new DecimalValue(10)), BinaryOp.ADD, new DecimalExpr(new DecimalValue(20))));
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitUnaryExpr(new UnaryExpr(UnaryOp.MINUS, new DecimalExpr(new DecimalValue(10))));
+    }
+
+    @Test
+    public void visitConstExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitConstExpr(new DecimalExpr(new DecimalValue(10)));
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitFunctionCallExpr(new FunctionCallExpr("func", new VarExpr("var")));
+    }
+
+    @Test
+    public void visitPropertyPathExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitPropertyPathExpr(new PropertyPathExpr("path"));
+    }
+
+    @Test
+    public void visitAnonymousScriptExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitAnonymousScriptExpr(new AnonymousScript());
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        String[] args = {"arg"};
+        visitor.visitFunctionScriptExpr(new FunctionScript("func", args, new AnonymousScript()));
+    }
+
+    @Test
+    public void visitStatementSequenceScriptTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        ExprSequence exprSequence = new ExprSequence();
+        exprSequence.add(new AssingExpr("x", new DecimalExpr(new DecimalValue(10))));
+        visitor.visitStatementSequenceScript(new StatementSequenceScript(exprSequence));
+    }
+
+    @Test
+    public void visitVarExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitVarExpr(new VarExpr("var"));
+    }
+
+    @Test
+    public void visitProjectionExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitProjectionExpr(new ProjectionExpr(new DecimalExpr(new DecimalValue(10)), new VarExpr("var")));
+    }
+
+    @Test
+    public void visitAliasExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitAliasExpr(new AliasExpr(new DecimalExpr(new DecimalValue(10)), "alias"));
+    }
+
+    @Test
+    public void visitVectorExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitVectorExpr(new VectorExpr(new DecimalExpr(new DecimalValue(10)), new VarExpr("var")));
+    }
+
+    @Test
+    public void visitIndexExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitIndexExpr(new IndexExpr(new DecimalExpr(new DecimalValue(10))));
+    }
+
+    @Test
+    public void visitDecimalExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitDecimalExpr(new DecimalExpr(new DecimalValue(10)));
+    }
+
+    @Test
+    public void visitIfElseExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.systemOutPrinter());
+        visitor.visitIfElseExpr(new IfElseExpr(new DecimalExpr(new DecimalValue(10)), new VarExpr("ifVar"), new VarExpr("elseVar")));
+    }
+
+}

@@ -1,0 +1,68 @@
+package com.ezylang.evalex.parser;
+
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.parser.ParseException;
+import com.ezylang.evalex.parser.Token;
+import com.ezylang.evalex.parser.Tokenizer;
+import org.junit.Test;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseEmptyExpressionTest() {
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer("", configuration);
+
+        List<Token> result = tokenizer.parse();
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void parseMultipleTokensTest() {
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer("1 2 3", configuration);
+
+        List<Token> result = tokenizer.parse();
+
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        for (Token token : result) {
+            assertEquals(Token.TokenType.TT_NUMBER, token.type);
+        }
+    }
+
+    @Test
+    public void parseInvalidExpressionTest() {
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer("invalid expression", configuration);
+
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseStringLiteralTest() {
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer("\"Hello World\" ", configuration);
+
+        Token token = tokenizer.parseStringLiteral();
+
+        assertNotNull(token);
+        assertEquals(Token.TokenType.TT_STRING, token.type);
+        assertEquals("Hello World", token.surface.toUpperCase());
+    }
+
+    @Test
+    public void parseStringLiteralWithoutClosingQuoteTest() {
+        ExpressionConfiguration configuration = new ExpressionConfiguration();
+        Tokenizer tokenizer = new Tokenizer("\"Hello World", configuration);
+
+        tokenizer.parseStringLiteral();
+    }
+
+}

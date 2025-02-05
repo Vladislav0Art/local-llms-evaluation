@@ -1,0 +1,112 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.jsoup.internal.Attributes;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getWithExistingKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key_one", "value_one");
+        assertEquals("value_one", attributes.get("key_one"));
+    }
+
+    @Test
+    public void getIgnoreCaseWithExistingKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key_one", "value_one");
+        assertEquals("value_one", attributes.getIgnoreCase("KEY_ONE"));
+    }
+
+    @Test
+    public void addAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key_two", "value_two");
+        assertTrue(attributes.hasKey("key_two"));
+    }
+
+    @Test
+    public void putAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key_three", "value_three");
+        assertTrue(attributes.hasKey("key_three"));
+    }
+
+    @Test
+    public void removeAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key_four", "value_four");
+        attributes.remove("key_four");
+        assertFalse(attributes.hasKey("key_four"));
+    }
+
+    @Test
+    public void removeIgnoreCaseAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key_five", "value_five");
+        attributes.removeIgnoreCase("KEY_FIVE");
+        assertFalse(attributes.hasKey("key_five"));
+    }
+
+    @Test
+    public void hasDeclaredValueForKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key_six", null);
+        assertFalse(attributes.hasDeclaredValueForKey("key_six"));
+    }
+
+    @Test
+    public void isEmptyWhenEmptyTest() {
+        Attributes attributes = new Attributes();
+        assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void isEmptyWhenNotEmptyTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key_seven", "value_seven");
+        assertFalse(attributes.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.add("key_eight", "value_eight");
+
+        Attributes attributes2 = new Attributes();
+        attributes2.addAll(attributes1);
+
+        assertTrue(attributes2.hasKey("key_eight"));
+    }
+
+    @Test
+    public void datasetTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("data-test", "value_nine");
+        Map<String, String> dataset = attributes.dataset();
+        assertEquals("value_nine", dataset.get("test"));
+    }
+
+    @Test
+    public void equalsTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.add("key_ten", "value_ten");
+
+        Attributes attributes2 = new Attributes();
+        attributes2.add("key_ten", "value_ten");
+
+        assertEquals(attributes1, attributes2);
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.add("key_eleven", "value_eleven");
+        Attributes attributes2 = attributes1.clone();
+        assertEquals(attributes1, attributes2);
+    }
+
+}

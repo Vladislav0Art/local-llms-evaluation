@@ -1,0 +1,53 @@
+package org.jsoup.safety;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Safelist safelist;
+
+    @Test
+    public void noneTest() {
+        when(safelist.none()).thenReturn(new Safelist());
+        assertEquals(new Safelist(), safelist.none());
+    }
+
+    @Test
+    public void simpleTextTest() {
+        when(safelist.simpleText()).thenReturn(new Safelist());
+        assertEquals(new Safelist(), safelist.simpleText());
+    }
+
+    @Test
+    public void basicTest() {
+        when(safelist.basic()).thenReturn(new Safelist());
+        assertEquals(new Safelist(), safelist.basic());
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        when(safelist.basicWithImages()).thenReturn(new Safelist());
+        assertEquals(new Safelist(), safelist.basicWithImages());
+    }
+
+    @Test
+    public void relaxedTest() {
+        when(safelist.relaxed()).thenReturn(new Safelist());
+        assertEquals(new Safelist(), safelist.relaxed());
+    }
+
+    @Test
+    public void addTagsTest() {
+        when(safelist.addTags("tag1", "tag2")).thenReturn(new Safelist());
+        assertEquals(new Safelist(), safelist.addTags("tag1", "tag2"));
+    }
+
+}

@@ -1,0 +1,67 @@
+package com.adobe.epubcheck.tool;
+
+import com.adobe.epubcheck.api.EpubCheckFactory;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.DefaultReportImpl;
+import com.adobe.epubcheck.util.EPUBVersion;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Locale;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleDefaultTest() {
+        EpubChecker checker = new EpubChecker();
+        Locale locale = checker.getLocale();
+        Assert.assertEquals(Locale.US, locale);
+    }
+
+    @Test
+    public void runInvalidArgsTest() {
+        EpubChecker checker = new EpubChecker();
+        Assert.assertEquals(1, checker.run(new String[]{"invalid"}));
+    }
+
+    @Test
+    public void runDumpDictionaryTest() {
+        EpubChecker checker = new EpubChecker();
+        Assert.assertEquals(0, checker.run(new String[]{"-mode", "dump-dict"}));
+    }
+
+    @Test
+    public void runEmptyArgsTest() {
+        EpubChecker checker = new EpubChecker();
+        int processResult = checker.run(new String[]{});
+        // check if the returned code states that execution was not successful
+        Assert.assertTrue(processResult != 0);
+    }
+
+    @Test
+    public void processEpubFileTest() {
+        EpubChecker checker = new EpubChecker();
+        String[] args = {"example.epub"};
+        Assert.assertEquals(1, checker.processEpubFile(args));
+    }
+
+    @Test
+    public void validateFileTest() {
+        EpubChecker checker = new EpubChecker();
+        Report report = new DefaultReportImpl("test.epub");
+        int validationResult = checker.validateFile("test.epub", EPUBVersion.VERSION_2, report, EpubCheckFactory.profileFor("2.0"));
+        // check if the returned code states that execution was successful
+        Assert.assertTrue(validationResult == 0);
+    }
+
+    @Test
+    public void validateFileMockTest() {
+        EpubChecker checker = new EpubChecker();
+        Report mockReport = Mockito.mock(Report.class);
+        int validationResult = checker.validateFile("test.epub", EPUBVersion.VERSION_3, mockReport, EpubCheckFactory.profileFor("3.0"));
+        Mockito.verify(mockReport, Mockito.times(1)).initialize("test.epub");
+    }
+
+}

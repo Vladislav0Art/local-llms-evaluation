@@ -1,0 +1,48 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateNullDateTest() {
+        try {
+            DeltaT.estimate(null);
+        } catch (Exception e) {
+            assertTrue(e instanceof NullPointerException);
+        }
+    }
+
+    @Test
+    public void estimateWorkForAValidDateTest() {
+        LocalDate date = LocalDate.of(2020, 1, 1);
+        double result = DeltaT.estimate(date);
+        assertTrue(result >= 0);
+    }
+
+    @Test
+    public void estimateWorkForLeapYearTest() {
+        LocalDate date = LocalDate.of(2020, 2, 29);
+        double result = DeltaT.estimate(date);
+        assertTrue(result >= 0);
+    }
+
+    @Test
+    public void estimateWorkForFutureDateTest() {
+        LocalDate date = LocalDate.of(2050, 1, 1);
+        double result = DeltaT.estimate(date);
+        assertTrue(result >= 0);
+    }
+
+    @Test
+    public void estimateWorkForPastDateTest() {
+        LocalDate date = LocalDate.of(1950, 1, 1);
+        double result = DeltaT.estimate(date);
+        assertTrue(result >= 0);
+    }
+
+}

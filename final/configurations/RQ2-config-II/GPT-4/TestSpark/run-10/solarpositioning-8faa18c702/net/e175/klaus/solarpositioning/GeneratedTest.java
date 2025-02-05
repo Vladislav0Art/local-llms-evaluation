@@ -1,0 +1,54 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateFutureDateTest() {
+        LocalDate futureDate = LocalDate.of(2050, 1, 1);
+        double deltaT = DeltaT.estimate(futureDate);
+
+        assertTrue("DeltaT for future date should be positive", deltaT > 0);
+    }
+
+    @Test
+    public void estimatePastDateTest() {
+        LocalDate pastDate = LocalDate.of(1500, 1, 1);
+        double deltaT = DeltaT.estimate(pastDate);
+
+        assertTrue("DeltaT for past date should be positive", deltaT > 0);
+    }
+
+    @Test
+    public void estimateBoundaryYear2005Test() {
+        LocalDate boundaryYear = LocalDate.of(2005, 1, 1);
+        double deltaT = DeltaT.estimate(boundaryYear);
+
+        assertTrue("DeltaT for boundary year 2005 should be positive", deltaT > 0);
+    }
+
+    @Test
+    public void estimateLeapYearTest() {
+        LocalDate leapYearDate = LocalDate.of(2020, 2, 29);
+        double deltaT = DeltaT.estimate(leapYearDate);
+
+        assertTrue("DeltaT for leap year should be positive", deltaT > 0);
+    }
+
+    @Test
+    public void estimateNonLeapYearTest() {
+        LocalDate nonLeapYearDate = LocalDate.of(2019, 2, 28);
+        double deltaT = DeltaT.estimate(nonLeapYearDate);
+
+        assertTrue("DeltaT for non-leap year should be positive", deltaT > 0);
+    }
+
+    @Test
+    public void estimateNullDateTest() {
+        DeltaT.estimate(null);
+    }
+
+}

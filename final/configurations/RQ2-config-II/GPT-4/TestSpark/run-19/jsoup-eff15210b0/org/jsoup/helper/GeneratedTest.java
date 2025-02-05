@@ -1,0 +1,91 @@
+package org.jsoup.helper;
+
+import org.jsoup.nodes.Document;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.jsoup.Connection;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private HttpConnection httpConnection;
+
+    @Mock
+    private URL mockedUrl;
+
+    @Test
+    public void connectUrlTest() throws IOException {
+        when(httpConnection.connect(mockedUrl)).thenReturn(httpConnection);
+        Assert.assertEquals("Failed to connect to URL", httpConnection, HttpConnection.connect(mockedUrl));
+    }
+
+    @Test
+    public void connectStringTest() throws IOException {
+        String url = "http://example.com";
+        when(httpConnection.connect(url)).thenReturn(httpConnection);
+        Assert.assertEquals("Failed to connect", httpConnection, HttpConnection.connect(url));
+    }
+
+    @Test
+    public void urlTest() throws MalformedURLException {
+        URL url = new URL("http://example.com");
+        when(httpConnection.url(url)).thenReturn(httpConnection);
+        Assert.assertEquals("Failed to set URL", httpConnection, httpConnection.url(url));
+    }
+
+    @Test
+    public void userAgentTest() {
+        String userAgent = "Mozilla";
+        when(httpConnection.userAgent(userAgent)).thenReturn(httpConnection);
+        Assert.assertEquals("Failed to set user agent", httpConnection, httpConnection.userAgent(userAgent));
+    }
+
+    @Test
+    public void timeoutTest() {
+        int timeout = 5000;
+        when(httpConnection.timeout(timeout)).thenReturn(httpConnection);
+        Assert.assertEquals("Failed to set timeout", httpConnection, httpConnection.timeout(timeout));
+    }
+
+    @Test
+    public void cookieTest() {
+        String name = "name";
+        String value = "value";
+        when(httpConnection.cookie(name, value)).thenReturn(httpConnection);
+        Assert.assertEquals("Failed to set cookie", httpConnection, httpConnection.cookie(name, value));
+    }
+
+    @Test
+    public void cookiesTest() {
+        Map<String, String> cookies = new HashMap<>();
+        cookies.put("name", "value");
+        when(httpConnection.cookies(cookies)).thenReturn(httpConnection);
+        Assert.assertEquals("Failed to set cookies", httpConnection, httpConnection.cookies(cookies));
+    }
+
+    @Test
+    public void getTest() throws IOException {
+        Document doc = new Document("<html><body><p>Test</p></body></html>");
+        when(httpConnection.get()).thenReturn(doc);
+        Assert.assertEquals("Failed to get document", doc, httpConnection.get());
+    }
+
+    @Test
+    public void postTest() throws IOException {
+        Document doc = new Document("<html><body><p>Test</p></body></html>");
+        when(httpConnection.post()).thenReturn(doc);
+        Assert.assertEquals("Failed to post document", doc, httpConnection.post());
+    }
+
+}

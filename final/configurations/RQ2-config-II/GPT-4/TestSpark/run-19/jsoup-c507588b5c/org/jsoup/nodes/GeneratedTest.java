@@ -1,0 +1,90 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.text());
+    }
+
+    @Test
+    public void setTextTest() {
+        TextNode textNode = new TextNode("test");
+        textNode.text("new test");
+        assertEquals("new test", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextPositiveTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode splitNode = textNode.splitText(2);
+        assertEquals("te", textNode.getWholeText());
+        assertEquals("st", splitNode.getWholeText());
+    }
+
+    @Test
+    public void splitTextNegativeTest() {
+        TextNode textNode = new TextNode("test");
+        textNode.splitText(-1);
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode cloneNode = textNode.clone();
+        assertEquals(textNode.text(), cloneNode.text());
+        assertNotSame(textNode, cloneNode);
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode textNode = TextNode.createFromEncoded("test", false);
+        assertEquals("test", textNode.getWholeText());
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String text = "   test   text with   multiple   whitespaces  ";
+        assertEquals(" test text with multiple whitespaces ", TextNode.normaliseWhitespace(text));
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String text = "     test text";
+        assertEquals("test text", TextNode.stripLeadingWhitespace(text));
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        StringBuilder sb = new StringBuilder("test text ");
+        assertTrue(TextNode.lastCharIsWhitespace(sb));
+        sb = new StringBuilder("test text");
+        assertFalse(TextNode.lastCharIsWhitespace(sb));
+    }
+
+}

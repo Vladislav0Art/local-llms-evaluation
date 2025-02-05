@@ -1,0 +1,132 @@
+package org.stellar.sdk;
+
+import org.hamcrest.core.IsEqual;
+import org.junit.Test;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.SignerKey;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromSecretSeedCharArrayTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TESTSEED".toCharArray());
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromSecretSeedStringTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TESTSEED");
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromSecretSeedByteArrayTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TESTSEED".getBytes());
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromAccountIdTest() {
+        KeyPair keyPair = KeyPair.fromAccountId("accountId");
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromPublicKeyTest() {
+        KeyPair keyPair = KeyPair.fromPublicKey("PUBLIC KEY".getBytes());
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromBip39SeedTest() {
+        KeyPair keyPair = KeyPair.fromBip39Seed("BIP39".getBytes(), 1);
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void randomTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void getAccountIdTest() {
+        KeyPair keyPair = KeyPair.fromAccountId("accountId");
+        assertEquals("accountId", keyPair.getAccountId());
+    }
+
+    @Test
+    public void getSecretSeedTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TESTSEED".toCharArray());
+        assertArrayEquals("TESTSEED".toCharArray(), keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void getPublicKeyTest() {
+        KeyPair keyPair = KeyPair.fromPublicKey("PUBLIC KEY".getBytes());
+        assertArrayEquals("PUBLIC KEY".getBytes(), keyPair.getPublicKey());
+    }
+
+    @Test
+    public void getXdrPublicKeyTest() {
+        KeyPair keyPair = KeyPair.fromAccountId("accountId");
+        PublicKey publicKey = keyPair.getXdrPublicKey();
+        assertNotNull(publicKey);
+    }
+
+    @Test
+    public void getXdrSignerKeyTest() {
+        KeyPair keyPair = KeyPair.fromAccountId("accountId");
+        SignerKey signerKey = keyPair.getXdrSignerKey();
+        assertNotNull(signerKey);
+    }
+
+    @Test
+    public void fromXdrPublicKeyTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TESTSEED".getBytes());
+        PublicKey publicKey = keyPair.getXdrPublicKey();
+        KeyPair fromXdr = KeyPair.fromXdrPublicKey(publicKey);
+        assertNotNull(fromXdr);
+    }
+
+    @Test
+    public void fromXdrSignerKeyTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TESTSEED".getBytes());
+        SignerKey signerKey = keyPair.getXdrSignerKey();
+        KeyPair fromXdr = KeyPair.fromXdrSignerKey(signerKey);
+        assertNotNull(fromXdr);
+    }
+
+    @Test
+    public void signTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TESTSEED".getBytes());
+        byte[] data = "DATA".getBytes();
+        byte[] signedData = keyPair.sign(data);
+        assertNotNull(signedData);
+    }
+
+    @Test
+    public void verifyTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TESTSEED".getBytes());
+        byte[] data = "DATA".getBytes();
+        byte[] signedData = keyPair.sign(data);
+        assertTrue(keyPair.verify(data, signedData));
+    }
+
+    @Test
+    public void equalsTest() {
+        KeyPair firstKeyPair = KeyPair.fromSecretSeed("TESTSEED".getBytes());
+        KeyPair secondKeyPair = KeyPair.fromSecretSeed("TESTSEED".getBytes());
+        assertTrue(firstKeyPair.equals(secondKeyPair));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TESTSEED".getBytes());
+        int hashCode = keyPair.hashCode();
+        assertThat(hashCode, IsEqual.equalTo(keyPair.hashCode()));
+    }
+
+}

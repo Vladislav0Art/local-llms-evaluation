@@ -1,0 +1,16 @@
+package org.jsoup.parser;
+
+import org.jsoup.helper.Validate;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedCloneTest {
+
+    @Test
+    public void cloneTest() {
+        Tag tag = Tag.valueOf("p");
+        assertEquals(tag, tag.clone());
+    }
+
+}

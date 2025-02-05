@@ -1,0 +1,19 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.*;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+
+public class GeneratedHasKeyTest {
+
+    @Test
+    public void hasKeyTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        assertTrue(attrs.hasKey("key"));
+    }
+
+}

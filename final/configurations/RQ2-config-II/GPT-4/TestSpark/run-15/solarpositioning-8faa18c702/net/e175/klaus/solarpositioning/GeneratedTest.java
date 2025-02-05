@@ -1,0 +1,53 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateTestWithNullDate() {
+        try {
+            DeltaT.estimate(null);
+            fail("Should have thrown NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected exception
+        }
+    }
+
+    @Test
+    public void estimateTestWithPastDate() {
+        LocalDate pastDate = LocalDate.of(1950, 1, 1);
+        double deltaT = DeltaT.estimate(pastDate);
+        assertEquals(29.07, deltaT, 0.01);
+    }
+
+    @Test
+    public void estimateTestWithFutureDate() {
+        LocalDate futureDate = LocalDate.of(2100, 12, 31);
+        double deltaT = DeltaT.estimate(futureDate);
+        assertEquals(420.17, deltaT, 0.01);
+    }
+
+    @Test
+    public void estimateTestWithPresentDate() {
+        LocalDate presentDate = LocalDate.now();
+        double deltaT = DeltaT.estimate(presentDate);
+        assertEquals(69.10, deltaT, 0.01);
+    }
+
+    @Test
+    public void estimateTestWithMockDate() {
+        LocalDate date = Mockito.mock(LocalDate.class);
+        Mockito.when(date.getYear()).thenReturn(2000);
+        Mockito.when(date.getMonthValue()).thenReturn(1);
+        Mockito.when(date.getDayOfMonth()).thenReturn(1);
+        double deltaT = DeltaT.estimate(date);
+        assertEquals(63.83, deltaT, 0.01);
+    }
+
+}

@@ -1,0 +1,41 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.model.Position;
+import org.traccar.Protocol;
+import org.traccar.NetworkMessage;
+
+import java.nio.charset.StandardCharsets;
+import java.util.TimeZone;
+import java.util.Date;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+import static org.traccar.protocol.Gt06ProtocolDecoder.decodeGps;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedDecodeGpsWithoutLengthSignatureTest {
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private Protocol protocol;
+
+    @Test
+    public void decodeGpsWithoutLengthSignatureTest() {
+        String content = "120705.2644115010227841001001000001FCC81602EC64F70";
+        ByteBuf input = Unpooled.copiedBuffer(content, StandardCharsets.US_ASCII);
+
+        Position position = new Position();
+        assertTrue(decodeGps(position, input, false, TimeZone.getTimeZone("GMT")));
+    }
+
+}

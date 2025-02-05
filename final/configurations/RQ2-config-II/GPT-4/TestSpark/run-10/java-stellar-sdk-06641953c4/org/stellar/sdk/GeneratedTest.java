@@ -1,0 +1,168 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.SignerKey;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void keyPairConstructorTest() {
+        EdDSAPublicKey publicKey = new EdDSAPublicKey(new EdDSAPublicKeySpec(new byte[32], EdDSANamedCurveTable.getByName("Ed25519")));
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void canSignTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertTrue(keyPair.canSign());
+    }
+
+    @Test
+    public void fromSecretSeedCharArrayTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TestSeed".toCharArray());
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromSecretSeedStringTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TestSeed");
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromSecretSeedByteArrayTest() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("TestSeed".getBytes());
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void fromAccountIdTest() {
+        KeyPair keyPair = KeyPair.random();
+        KeyPair fromAccountIdKeyPair = KeyPair.fromAccountId(keyPair.getAccountId());
+        assertEquals(keyPair, fromAccountIdKeyPair);
+    }
+
+    @Test
+    public void fromPublicKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        KeyPair fromPublicKeyKeyPair = KeyPair.fromPublicKey(keyPair.getPublicKey());
+        assertEquals(keyPair, fromPublicKeyKeyPair);
+    }
+
+    @Test
+    public void fromBip39SeedTest() {
+        KeyPair keyPair = KeyPair.fromBip39Seed("TestSeed".getBytes(), 123);
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void randomTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair);
+    }
+
+    @Test
+    public void getAccountIdTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void getSecretSeedTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void getPublicKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void getSignatureHintTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getSignatureHint());
+    }
+
+    @Test
+    public void getXdrPublicKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getXdrPublicKey());
+    }
+
+    @Test
+    public void getXdrSignerKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getXdrSignerKey());
+    }
+
+    @Test
+    public void fromXdrPublicKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        KeyPair fromXdrPublicKeyKeyPair = KeyPair.fromXdrPublicKey(keyPair.getXdrPublicKey());
+        assertEquals(keyPair, fromXdrPublicKeyKeyPair);
+    }
+
+    @Test
+    public void fromXdrSignerKeyTest() {
+        KeyPair keyPair = KeyPair.random();
+        KeyPair fromXdrSignerKeyKeyPair = KeyPair.fromXdrSignerKey(keyPair.getXdrSignerKey());
+        assertEquals(keyPair, fromXdrSignerKeyKeyPair);
+    }
+
+    @Test
+    public void signTest() {
+        KeyPair keyPair = KeyPair.random();
+        byte[] sign = keyPair.sign("TestData".getBytes(StandardCharsets.UTF_8));
+        assertNotNull(sign);
+    }
+
+    @Test
+    public void signDecoratedTest() {
+        KeyPair keyPair = KeyPair.random();
+        DecoratedSignature decoratedSignature = keyPair.signDecorated("TestData".getBytes(StandardCharsets.UTF_8));
+        assertNotNull(decoratedSignature);
+    }
+
+    @Test
+    public void signPayloadDecoratedTest() {
+        KeyPair keyPair = KeyPair.random();
+        DecoratedSignature decoratedSignature = keyPair.signPayloadDecorated("TestData".getBytes(StandardCharsets.UTF_8));
+        assertNotNull(decoratedSignature);
+    }
+
+    @Test
+    public void verifyTest() {
+        KeyPair keyPair = KeyPair.random();
+        byte[] data = "TestData".getBytes(StandardCharsets.UTF_8);
+        byte[] sign = keyPair.sign(data);
+        assertTrue(keyPair.verify(data, sign));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        KeyPair keyPair = KeyPair.random();
+        int hashCode = keyPair.hashCode();
+        assertTrue(hashCode != 0);
+    }
+
+    @Test
+    public void equalsTest() {
+        KeyPair keyPair = KeyPair.random();
+        assertTrue(keyPair.equals(keyPair));
+        assertFalse(keyPair.equals(null));
+        assertFalse(keyPair.equals("TestObject"));
+    }
+
+}

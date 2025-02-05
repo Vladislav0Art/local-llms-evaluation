@@ -1,0 +1,94 @@
+package org.jsoup.helper;
+
+import static org.junit.Assert.assertEquals;
+
+import org.jsoup.internal.ConstrainableInputStream;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.Proxy;
+import javax.net.ssl.SSLSocketFactory;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringTest() throws Exception {
+        Connection connection = HttpConnection.connect("https://github.com/");
+        assertEquals("https://github.com/", connection.response().url());
+    }
+
+    @Test
+    public void connectUrlTest() throws Exception {
+        Connection connection = HttpConnection.connect(new URL("https://github.com/"));
+        assertEquals("https://github.com/", connection.response().url());
+    }
+
+    @Test
+    public void urlUnitTest() throws Exception {
+        HttpConnection connection = new HttpConnection();
+        connection.url(new URL("https://github.com/"));
+        assertEquals("https://github.com/", connection.response().url());
+    }
+
+    @Test
+    public void proxyHostAndPortTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.proxy("localhost", 8000);
+        assertEquals(Proxy.Type.HTTP, connection.proxy().type());
+        assertEquals("localhost", ((InetSocketAddress) connection.proxy().address()).getHostName());
+        assertEquals(8000, ((InetSocketAddress) connection.proxy().address()).getPort());
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.userAgent("test user agent string");
+        assertEquals("test user agent string", connection.request().userAgent());
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.timeout(10000);
+        assertEquals(10000, connection.request().timeout());
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.maxBodySize(2048);
+        assertEquals(2048, connection.request().maxBodySize());
+    }
+
+    @Test
+    public void postTest() throws IOException {
+        Connection connection = HttpConnection.connect("https://httpbin.org/post");
+        Document doc = connection
+                .data("name", "Ross")
+                .post();
+        assertEquals("Ross", doc.body().text());
+    }
+
+    @Test
+    public void executeTest() throws Exception {
+        HttpConnection connection = new HttpConnection();
+        connection.url("https://github.com/");
+        connection.execute();
+    }
+
+    @Test
+    public void responseTest() {
+        new HttpConnection().response();
+    }
+
+    @Test
+    public void postDataCharsetTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.postDataCharset("ISO-8859-1");
+        assertEquals("ISO-8859-1", connection.request().postDataCharset());
+    }
+
+}

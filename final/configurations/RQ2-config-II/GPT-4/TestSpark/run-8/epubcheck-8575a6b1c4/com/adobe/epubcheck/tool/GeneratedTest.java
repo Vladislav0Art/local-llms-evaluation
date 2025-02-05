@@ -1,0 +1,82 @@
+package com.adobe.epubcheck.tool;
+
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.api.EpubCheck;
+import com.adobe.epubcheck.api.LocalizableReport;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.DefaultReportImpl;
+import com.adobe.epubcheck.util.EPUBVersion;
+import io.mola.galimatias.URL;
+import org.junit.Test;
+
+import java.util.Locale;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleFrenchLocaleTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        epubChecker.setDefaultLocale(Locale.FRENCH);
+        assertEquals(Locale.FRENCH, epubChecker.getLocale());
+    }
+
+    @Test
+    public void getLocaleJapaneseLocaleTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        epubChecker.setDefaultLocale(Locale.JAPANESE);
+        assertEquals(Locale.JAPANESE, epubChecker.getLocale());
+    }
+
+    @Test
+    public void runNoArgumentsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        assertEquals(1, epubChecker.run(new String[]{}));
+    }
+
+    @Test
+    public void runInvalidArgumentsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        assertEquals(1, epubChecker.run(new String[]{"invalid"}));
+    }
+
+    @Test
+    public void processEpubFileNoArgumentsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        assertEquals(1, epubChecker.processEpubFile(new String[]{}));
+    }
+
+    @Test
+    public void processEpubFileInvalidArgumentsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        assertEquals(1, epubChecker.processEpubFile(new String[]{"invalid"}));
+    }
+
+    @Test
+    public void validateFileNoPathTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Report report = mock(Report.class);
+        assertEquals(1, epubChecker.validateFile("", EPUBVersion.VERSION_2, report, EPUBProfile.DEFAULT));
+        verify(report).message(null, 0, 0, "No file to process.");
+    }
+
+    @Test
+    public void validateFileInvalidFileTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Report report = mock(Report.class);
+        assertEquals(1, epubChecker.validateFile("Test", EPUBVersion.VERSION_2, report, EPUBProfile.DEFAULT));
+        verify(report).message(null, 0, 0, null);
+    }
+
+    @Test
+    public void validateFileValidFileTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Report report = new DefaultReportImpl("Test");
+        assertEquals(0, epubChecker.validateFile("Test", EPUBVersion.VERSION_2, report, EPUBProfile.DEFAULT));
+    }
+
+}

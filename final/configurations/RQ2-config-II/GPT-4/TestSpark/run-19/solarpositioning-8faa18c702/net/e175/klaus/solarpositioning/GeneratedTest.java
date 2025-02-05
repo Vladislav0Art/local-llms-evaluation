@@ -1,0 +1,41 @@
+package net.e175.klaus.solarpositioning;
+
+import net.e175.klaus.solarpositioning.DeltaT;
+import org.junit.Test;
+
+import java.time.LocalDate;
+import java.time.Month;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateLeapYearTest() {
+        LocalDate leapYearDate = LocalDate.of(2000, Month.FEBRUARY, 29);
+        double actual = DeltaT.estimate(leapYearDate);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void estimateNonLeapYearTest() {
+        LocalDate nonLeapYearDate = LocalDate.of(2003, Month.JUNE, 27);
+        double actual = DeltaT.estimate(nonLeapYearDate);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void estimateBoundaryLeapYearTest() {
+        LocalDate leapYearBoundaryDate = LocalDate.of(2004, Month.FEBRUARY, 28);
+        double actual = DeltaT.estimate(leapYearBoundaryDate);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void estimateYearBeforeLeapYearTest() {
+        LocalDate yearBeforeLeapYearDate = LocalDate.of(1999, Month.JULY, 30);
+        double actual = DeltaT.estimate(yearBeforeLeapYearDate);
+        assertNotNull(actual);
+    }
+
+}

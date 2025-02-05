@@ -1,0 +1,61 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Assert;
+import org.junit.Test;
+import org.traccar.model.Position;
+import org.traccar.protocol.Gt06ProtocolDecoder;
+
+import java.nio.charset.StandardCharsets;
+import java.util.TimeZone;
+
+public class GeneratedTest {
+
+    @Test
+    public void decodeGpsDefaultParametersTest() {
+        Position position = new Position();
+        String data = "000000000000000000000000";
+        ByteBuf buf = Unpooled.wrappedBuffer(data.getBytes(StandardCharsets.UTF_8));
+        TimeZone timeZone = TimeZone.getDefault();
+
+        Assert.assertFalse(Gt06ProtocolDecoder.decodeGps(position, buf, false, timeZone));
+    }
+
+    @Test
+    public void decodeGpsCustomParametersTest() {
+        Position position = new Position();
+        String data = "010101010101010101010101";
+        ByteBuf buf = Unpooled.wrappedBuffer(data.getBytes(StandardCharsets.UTF_8));
+        TimeZone timeZone = TimeZone.getTimeZone("GMT");
+
+        Assert.assertFalse(Gt06ProtocolDecoder.decodeGps(position, buf, false, timeZone));
+    }
+
+    @Test
+    public void decodeGpsWithSatellitesParametersTest() {
+        Position position = new Position();
+        String data = "111111111111111111111111";
+        ByteBuf buf = Unpooled.wrappedBuffer(data.getBytes(StandardCharsets.UTF_8));
+        TimeZone timeZone = TimeZone.getTimeZone("GMT");
+
+        Assert.assertFalse(Gt06ProtocolDecoder.decodeGps(position, buf, true, true, true, timeZone));
+    }
+
+    @Test
+    public void decodeCustomParametersTest() throws Exception {
+        MockChannel channel = new MockChannel();
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(new MockProtocol());
+        String data = "111111111111111111111111";
+        decoder.decode(channel, null, data);
+
+        Assert.assertNotNull(channel.readOutbound());
+    }
+}
+
+class MockChannel implements Channel {
+    /* Mocked implementation of the Channel interface */
+}
+
+}

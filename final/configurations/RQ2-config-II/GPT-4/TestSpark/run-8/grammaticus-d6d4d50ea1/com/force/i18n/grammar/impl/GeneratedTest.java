@@ -1,0 +1,116 @@
+package com.force.i18n.grammar.impl;
+
+import com.force.i18n.grammar.impl.GrammaticalTermMapImpl;
+import org.junit.Assert;
+import org.junit.Test;
+import com.force.i18n.grammar.LanguageDictionary;
+import com.force.i18n.grammar.RenamingProvider;
+import com.force.i18n.grammar.GrammaticalTerm;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.mockito.Mockito.mock;
+
+public class GeneratedTest {
+
+    @Test
+    public void equalsNullTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>();
+        Assert.assertFalse(grammaticalTermMapImpl.equals(null));
+    }
+
+    @Test
+    public void equalsSameObjectTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>();
+        Assert.assertTrue(grammaticalTermMapImpl.equals(grammaticalTermMapImpl));
+    }
+
+    @Test
+    public void isSkinnyTest() {
+        Map<String, GrammaticalTerm> map = new HashMap<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>(map, true);
+        Assert.assertTrue(grammaticalTermMapImpl.isSkinny());
+    }
+
+    @Test
+    public void makeSkinnyTest() {
+        Map<String, GrammaticalTerm> map = new HashMap<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>(map, false);
+        Assert.assertFalse(grammaticalTermMapImpl.isSkinny());
+        grammaticalTermMapImpl.makeSkinny();
+        Assert.assertTrue(grammaticalTermMapImpl.isSkinny());
+    }
+
+    @Test
+    public void keySetTest() {
+        Map<String, GrammaticalTerm> map = new HashMap<>();
+        map.put("test", mock(GrammaticalTerm.class));
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>(map, true);
+        Assert.assertEquals(1, grammaticalTermMapImpl.keySet().size());
+    }
+
+    @Test
+    public void getTest() {
+        String key = "test";
+        GrammaticalTerm term = mock(GrammaticalTerm.class);
+        Map<String, GrammaticalTerm> map = new HashMap<>();
+        map.put(key, term);
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>(map, true);
+        Assert.assertEquals(term, grammaticalTermMapImpl.get(key));
+    }
+
+    @Test
+    public void containsKeyTest() {
+        String key = "test";
+        Map<String, GrammaticalTerm> map = new HashMap<>();
+        map.put(key, mock(GrammaticalTerm.class));
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>(map, true);
+        Assert.assertTrue(grammaticalTermMapImpl.containsKey(key));
+    }
+
+    @Test
+    public void entrySetTest() {
+        Map<String, GrammaticalTerm> map = new HashMap<>();
+        map.put("test", mock(GrammaticalTerm.class));
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>(map, true);
+        Assert.assertEquals(1, grammaticalTermMapImpl.entrySet().size());
+    }
+
+    @Test
+    public void valuesTest() {
+        Map<String, GrammaticalTerm> map = new HashMap<>();
+        map.put("test", mock(GrammaticalTerm.class));
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>(map, true);
+        Assert.assertEquals(1, grammaticalTermMapImpl.values().size());
+    }
+
+    @Test
+    public void putTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>();
+        grammaticalTermMapImpl.put("test", mock(GrammaticalTerm.class));
+        Assert.assertEquals(1, grammaticalTermMapImpl.keySet().size());
+    }
+
+    @Test
+    public void putAllTest() {
+        Map<String, GrammaticalTerm> map = new HashMap<>();
+        map.put("test", mock(GrammaticalTerm.class));
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>();
+        grammaticalTermMapImpl.putAll(new GrammaticalTermMapImpl<>(map, true));
+        Assert.assertEquals(1, grammaticalTermMapImpl.keySet().size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>();
+        Assert.assertTrue(grammaticalTermMapImpl.isEmpty());
+    }
+
+    @Test
+    public void writeJsonTestShouldRaisedException() throws IOException {
+        GrammaticalTermMapImpl<GrammaticalTerm> grammaticalTermMapImpl = new GrammaticalTermMapImpl<>();
+        grammaticalTermMapImpl.writeJson(null, mock(RenamingProvider.class), mock(LanguageDictionary.class), null);
+    }
+
+}

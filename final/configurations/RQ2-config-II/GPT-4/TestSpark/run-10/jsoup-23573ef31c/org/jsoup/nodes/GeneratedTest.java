@@ -1,0 +1,115 @@
+package org.jsoup.nodes;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.FormElement;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void DocumentValidUriTest() {
+        Document doc = new Document("http://www.google.com");
+        assertNotNull(doc);
+    }
+
+    @Test
+    public void DocumentInvalidUriTest() {
+        Document doc = new Document(null);
+    }
+
+    @Test
+    public void createShellTest() {
+        Document shellDoc = Document.createShell("http://www.google.com");
+        assertNotNull(shellDoc);
+    }
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("http://www.google.com");
+        assertEquals("http://www.google.com", doc.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Document doc = new Document("http://www.google.com");
+        Connection conn = doc.connection();
+        assertNotNull(conn);
+    }
+
+    @Test
+    public void documentTypeTest() {
+        Document doc = new Document("http://www.google.com");
+        assertNull(doc.documentType());
+    }
+
+    @Test
+    public void headAndBodyTest() {
+        Document doc = new Document("http://www.google.com");
+        Element head = doc.head();
+        Element body = doc.body();
+        assertNotNull(head);
+        assertNotNull(body);
+    }
+
+    @Test
+    public void formsTest() {
+        Document doc = new Document("http://www.google.com");
+        List<FormElement> forms = doc.forms();
+        assertNotNull(forms);
+    }
+
+    @Test
+    public void titleTest() {
+        Document doc = new Document("http://www.google.com");
+        doc.title("Google");
+        assertEquals("Google", doc.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document doc = new Document("http://www.google.com");
+        Element newElement = doc.createElement("div");
+        assertEquals("div", newElement.tagName());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document doc = new Document("http://www.google.com");
+        Charset utf8Charset = Charset.forName("UTF-8");
+        doc.charset(utf8Charset);
+        assertEquals(utf8Charset, doc.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementTest() {
+        Document doc = new Document("http://www.google.com");
+        doc.updateMetaCharsetElement(true);
+        assertTrue(doc.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document doc = new Document("http://www.google.com");
+        Document cloneDoc = doc.clone();
+        assertNotNull(cloneDoc);
+        assertNotSame(doc, cloneDoc);
+    }
+
+    @Test
+    public void parserTest() {
+        Document doc = new Document("http://www.google.com");
+        Parser parser = Parser.htmlParser();
+        doc.parser(parser);
+        assertEquals(parser, doc.parser());
+    }
+
+}

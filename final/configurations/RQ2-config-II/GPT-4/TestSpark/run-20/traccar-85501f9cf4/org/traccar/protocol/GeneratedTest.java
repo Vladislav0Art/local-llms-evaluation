@@ -1,0 +1,75 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.nio.charset.StandardCharsets;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import java.util.TimeZone;
+import java.net.SocketAddress;
+
+import io.netty.channel.Channel;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void Gt06ProtocolDecoderConstructorTest() {
+        Protocol protocolMock = Mockito.mock(Protocol.class);
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(protocolMock);
+        assertNotNull(decoder);
+    }
+
+    @Test
+    public void decodeGpsPostionBufferTest() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.wrappedBuffer("Test Buffer".getBytes(StandardCharsets.UTF_8));
+        TimeZone timezone = TimeZone.getDefault();
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, timezone);
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsPositionBufferFalseLengthTest() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.wrappedBuffer("Test Buffer".getBytes(StandardCharsets.UTF_8));
+        TimeZone timezone = TimeZone.getDefault();
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false, timezone);
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeGpsSatelliteSpeedTest() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.wrappedBuffer("Test Buffer".getBytes(StandardCharsets.UTF_8));
+        TimeZone timezone = TimeZone.getDefault();
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, true, true, timezone);
+        assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsMissingSatelliteSpeedTest() {
+        Position position = new Position();
+        ByteBuf buf = Unpooled.wrappedBuffer("Test Buffer".getBytes(StandardCharsets.UTF_8));
+        TimeZone timezone = TimeZone.getDefault();
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, false, false, timezone);
+        assertFalse(result);
+    }
+
+    @Test
+    public void decodeTest() throws Exception {
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(Mockito.mock(Protocol.class));
+        Channel channelMock = Mockito.mock(Channel.class);
+        SocketAddress addressMock = Mockito.mock(SocketAddress.class);
+        ByteBuf buf = Unpooled.wrappedBuffer("Test Buffer".getBytes(StandardCharsets.UTF_8));
+        Object result = decoder.decode(channelMock, addressMock, buf);
+        assertNotNull(result);
+    }
+
+}

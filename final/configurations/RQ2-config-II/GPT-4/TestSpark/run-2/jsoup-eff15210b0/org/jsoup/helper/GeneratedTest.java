@@ -1,0 +1,92 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection.Method;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringTest() throws MalformedURLException {
+        String url = "http://www.example.com";
+        assertEquals(HttpConnection.connect(url).request().url(), new URL(url));
+    }
+
+    @Test
+    public void connectUrlTest() throws MalformedURLException {
+        URL url = new URL("http://www.example.com");
+        assertEquals(HttpConnection.connect(url).request().url(), url);
+    }
+
+    @Test
+    public void newRequestTest() {
+        HttpConnection connection = new HttpConnection();
+        assertEquals(connection.request(), connection.newRequest().execute().request());
+    }
+
+    @Test
+    public void urlConstringTest() throws MalformedURLException {
+        String url = "http://example.com";
+        assertEquals(HttpConnection.connect(url).request().url(), new URL(url));
+    }
+
+    @Test
+    public void urlConnectionTest() throws MalformedURLException {
+        URL url = new URL("http://www.example.com");
+        assertEquals(HttpConnection.connect(url).request().url(), url);
+    }
+
+    @Test
+    public void proxyConnectionTest() {
+        HttpConnection connection = new HttpConnection();
+        Proxy proxy = mock(Proxy.class);
+        assertEquals(connection.proxy(proxy).request().proxy(), proxy);
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection connection = new HttpConnection();
+        String userAgent = "Mozilla/5.0";
+        assertEquals(connection.userAgent(userAgent).request().userAgent(), userAgent);
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection connection = new HttpConnection();
+        int timeout = 5000;
+        assertEquals(connection.timeout(timeout).request().timeout(), timeout);
+    }
+
+    @Test
+    public void cookiesMapTest() {
+        HttpConnection connection = new HttpConnection();
+        Map<String, String> cookies = Mockito.mock(Map.class);
+        assertEquals(connection.cookies(cookies).request().cookies(), cookies);
+    }
+
+    @Test
+    public void getTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.get();
+    }
+
+    @Test
+    public void postTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.post();
+    }
+
+}

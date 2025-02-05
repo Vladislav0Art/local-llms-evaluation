@@ -1,0 +1,102 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
+import org.jsoup.UnsupportedMimeTypeException;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.net.CookieStore;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringUrlTest() {
+        Connection con = HttpConnection.connect("http://example.com");
+        Assert.assertNotNull(con);
+    }
+
+    @Test
+    public void connectNullStringUrlTest() {
+        HttpConnection.connect((String) null);
+    }
+
+    @Test
+    public void connectUrlTest() throws Exception {
+        Connection con = HttpConnection.connect(new URL("http://example.com"));
+        Assert.assertNotNull(con);
+    }
+
+    @Test
+    public void connectNullUrlTest() {
+        HttpConnection.connect((URL) null);
+    }
+
+    @Test
+    public void newRequestTest() {
+        HttpConnection http = new HttpConnection();
+        Assert.assertNotNull(http.newRequest());
+    }
+
+    @Test
+    public void urlWithStringInputTest() {
+        HttpConnection http = new HttpConnection();
+        http.url("http://example.com");
+        Assert.assertEquals("http://example.com", http.request().url().toString());
+    }
+
+    @Test
+    public void urlWithNullStringInputTest() {
+        HttpConnection http = new HttpConnection();
+        http.url((String) null);
+    }
+
+    @Test
+    public void urlWithUrlInputTest() throws Exception {
+        HttpConnection http = new HttpConnection();
+        http.url(new URL("http://example.com"));
+        Assert.assertEquals("http://example.com", http.request().url().toString());
+    }
+
+    @Test
+    public void urlWithNullUrlInputTest() {
+        HttpConnection http = new HttpConnection();
+        http.url((URL) null);
+    }
+
+    @Test
+    public void proxyWithProxyTest() {
+        HttpConnection http = new HttpConnection();
+        http.proxy(Proxy.NO_PROXY);
+        Assert.assertEquals(Proxy.NO_PROXY, http.request().proxy());
+    }
+
+    @Test
+    public void proxyWithHostAndPortTest() {
+        HttpConnection http = new HttpConnection();
+        http.proxy("localhost", 8080);
+        Assert.assertEquals(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8080)), http.request().proxy());
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection http = new HttpConnection();
+        http.userAgent("Test");
+        Assert.assertEquals("Test", http.request().userAgent());
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection http = new HttpConnection();
+        http.timeout(1000);
+        Assert.assertEquals(1000, http.request().timeout());
+    }
+
+}

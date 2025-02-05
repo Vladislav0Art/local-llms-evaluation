@@ -1,0 +1,116 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.Tag;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getNameTest() {
+        Tag tag = Tag.valueOf("div");
+        assertEquals("div", tag.getName());
+    }
+
+    @Test
+    public void normalNameTest() {
+        Tag tag = Tag.valueOf("DIV");
+        assertEquals("div", tag.normalName());
+    }
+
+    @Test
+    public void valueOfTestWithSettings() {
+        Tag tag = Tag.valueOf("input", ParseSettings.htmlDefault);
+        assertNotNull(tag);
+        assertEquals("input", tag.toString());
+    }
+
+    @Test
+    public void valueOfTestWithoutSettings() {
+        Tag tag = Tag.valueOf("p");
+        assertNotNull(tag);
+        assertEquals("p", tag.toString());
+    }
+
+    @Test
+    public void isBlockTest() {
+        Tag tag = Tag.valueOf("div");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag tag = Tag.valueOf("span");
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Tag tag = Tag.valueOf("img");
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        Tag tag = Tag.valueOf("br");
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTagTest() {
+        boolean isKnown = Tag.isKnownTag("div");
+        assertTrue(isKnown);
+    }
+
+    @Test
+    public void preserveWhitespaceTest() {
+        Tag tag = Tag.valueOf("pre");
+        assertTrue(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void isFormListedTest() {
+        Tag tag = Tag.valueOf("button");
+        assertTrue(tag.isFormListed());
+    }
+
+    @Test
+    public void isFormSubmittableTest() {
+        Tag tag = Tag.valueOf("input");
+        assertTrue(tag.isFormSubmittable());
+    }
+
+    @Test
+    public void equalsTest() {
+        Tag tag1 = Tag.valueOf("p");
+        Tag tag2 = Tag.valueOf("p");
+
+        assertEquals(tag1, tag2);
+    }
+
+    @Test
+    public void notEqualsTest() {
+        Tag tag1 = Tag.valueOf("p");
+        Tag tag2 = Tag.valueOf("span");
+
+        assertNotEquals(tag1, tag2);
+    }
+
+    @Test
+    public void cloneTest() {
+        Tag tag1 = Tag.valueOf("p");
+        Tag tag2 = tag1.clone();
+
+        assertNotSame(tag1, tag2);
+        assertEquals(tag1, tag2);
+    }
+
+    @Test
+    public void hashCodeTest() {
+        Tag tag = Tag.valueOf("div");
+        assertNotNull(tag.hashCode());
+    }
+
+}

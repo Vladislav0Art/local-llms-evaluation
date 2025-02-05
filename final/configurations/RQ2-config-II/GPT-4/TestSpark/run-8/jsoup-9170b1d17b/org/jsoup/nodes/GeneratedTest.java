@@ -1,0 +1,119 @@
+package org.jsoup.nodes;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.jsoup.nodes.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getValidKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void getInValidKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertNull(attributes.get("notExist"));
+    }
+
+    @Test
+    public void putTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void putBooleanTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", true);
+        assertEquals("", attributes.get("key"));
+    }
+
+    @Test
+    public void hasKeyTrueTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertTrue(attributes.hasKey("key"));
+    }
+
+    @Test
+    public void hasKeyFalseTest() {
+        Attributes attributes = new Attributes();
+        assertFalse(attributes.hasKey("key"));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals(1, attributes.size());
+    }
+
+    @Test
+    public void isEmptyTrueTest() {
+        Attributes attributes = new Attributes();
+        assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void isEmptyFalseTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertFalse(attributes.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.add("key1", "value1");
+        Attributes attributes2 = new Attributes();
+        attributes2.add("key2", "value2");
+
+        attributes1.addAll(attributes2);
+        assertEquals(2, attributes1.size());
+        assertEquals("value1", attributes1.get("key1"));
+        assertEquals("value2", attributes1.get("key2"));
+    }
+
+    @Test
+    public void toStringTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals(" key=\"value\"", attributes.toString());
+    }
+
+    @Test
+    public void equalsTrueTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.add("key ", "value");
+        Attributes attributes2 = new Attributes();
+        attributes2.add("key ", "value");
+
+        assertTrue(attributes1.equals(attributes2));
+    }
+
+    @Test
+    public void equalsFalseTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.add("key ", "value");
+        Attributes attributes2 = new Attributes();
+        attributes2.add("keyB", "valueB");
+
+        assertFalse(attributes1.equals(attributes2));
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        Attributes cloneAttributes = attributes.clone();
+        assertEquals(cloneAttributes, attributes);
+    }
+
+}

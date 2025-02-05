@@ -1,0 +1,83 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.util.Printer;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void visitAssignExprTest() {
+        Printer mockPrinter = Mockito.mock(Printer.class);
+        AssingExpr mockExpr = Mockito.mock(AssingExpr.class);
+        new PrettyPrintVisitor(mockPrinter).visitAssignExpr(mockExpr);
+        Mockito.verify(mockPrinter).print(Mockito.anyString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        Printer mockPrinter = Mockito.mock(Printer.class);
+        BinaryExpr mockExpr = Mockito.mock(BinaryExpr.class);
+        new PrettyPrintVisitor(mockPrinter).visitBinaryExpr(mockExpr);
+        Mockito.verify(mockPrinter).print(Mockito.anyString());
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        Printer mockPrinter = Mockito.mock(Printer.class);
+        UnaryExpr mockExpr = Mockito.mock(UnaryExpr.class);
+        new PrettyPrintVisitor(mockPrinter).visitUnaryExpr(mockExpr);
+        Mockito.verify(mockPrinter).print(Mockito.anyString());
+    }
+
+    @Test
+    public void visitConstExprTest() {
+        Printer mockPrinter = Mockito.mock(Printer.class);
+        Value mockExpr = Mockito.mock(Value.class);
+        new PrettyPrintVisitor(mockPrinter).visitConstExpr(mockExpr);
+        Mockito.verify(mockPrinter).print(Mockito.anyString());
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        Printer mockPrinter = Mockito.mock(Printer.class);
+        FunctionCallExpr mockExpr = Mockito.mock(FunctionCallExpr.class);
+        new PrettyPrintVisitor(mockPrinter).visitFunctionCallExpr(mockExpr);
+        Mockito.verify(mockPrinter).print(Mockito.anyString());
+    }
+
+    @Test
+    public void visitPropertyPathExprTest() {
+        Printer mockPrinter = Mockito.mock(Printer.class);
+        PropertyPathExpr mockExpr = Mockito.mock(PropertyPathExpr.class);
+        new PrettyPrintVisitor(mockPrinter).visitPropertyPathExpr(mockExpr);
+        Mockito.verify(mockPrinter).print(Mockito.anyString());
+    }
+
+    @Test
+    public void visitAnonymousScriptExprTest() {
+        // Add your test here for the 'visitAnonymousScriptExpr' method
+    }
+
+    @Test
+    public void visitFunctionScriptExprTest() {
+        // Add your test here for the 'visitFunctionScriptExpr' method
+    }
+
+    @Test
+    public void visitStatementSequenceScriptTest() {
+        // Add your test here for the 'visitStatementSequenceScript' method
+    }
+
+    @Test
+    public void exprToStringTest() {
+        Expression mockExpression = Mockito.mock(Expression.class);
+        String result = PrettyPrintVisitor.exprToString(mockExpression);
+        assertEquals(result, mockExpression.toString());
+    }
+
+}

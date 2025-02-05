@@ -1,0 +1,96 @@
+package org.jsoup.parser;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.parser.Token;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.Reader;
+import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertNotNull(xmlTreeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(Mockito.mock(Reader.class), "baseUri", Mockito.mock(Parser.class));
+    }
+
+    @Test
+    public void parseReaderTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document result = xmlTreeBuilder.parse(Mockito.mock(Reader.class), "baseUri");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void parseInputTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document result = xmlTreeBuilder.parse("<root></root>", "baseUri");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        assertNotNull(xmlTreeBuilder.newInstance());
+    }
+
+    @Test
+    public void processTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.process(new Token.StartTag());
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insertNode(new Element("element"));
+    }
+
+    @Test
+    public void insertCharacterTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Character());
+    }
+
+    @Test
+    public void insertDoctypeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Doctype());
+    }
+
+    @Test
+    public void popStackToCloseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.popStackToClose(new Token.EndTag());
+    }
+
+    @Test
+    public void parseFragmentInputTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> result = xmlTreeBuilder.parseFragment("<root></root>", "baseUri", Mockito.mock(Parser.class));
+        assertNotNull(result);
+    }
+
+    @Test
+    public void parseFragmentContextTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> result = xmlTreeBuilder.parseFragment("<root></root>", new Element("div"), "baseUri", Mockito.mock(Parser.class));
+        assertNotNull(result);
+    }
+
+}

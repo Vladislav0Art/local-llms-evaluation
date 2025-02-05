@@ -1,0 +1,133 @@
+package io.github.vmzakharov.ecdataframe.dataframe;
+
+import io.github.vmzakharov.ecdataframe.dataframe.*;
+import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.primitive.LongLists;
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.junit.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void addStringColumnTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("Name");
+        assertEquals(1, dataFrame.columnCount());
+        assertEquals("Name", dataFrame.getColumnAt(0).getName());
+    }
+
+    @Test
+    public void addLongColumnTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addLongColumn("Age");
+        assertEquals(1, dataFrame.columnCount());
+        assertEquals("Age", dataFrame.getColumnAt(0).getName());
+    }
+
+    @Test
+    public void addDoubleColumnTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addDoubleColumn("Salary");
+        assertEquals(1, dataFrame.columnCount());
+        assertEquals("Salary", dataFrame.getColumnAt(0).getName());
+    }
+
+    @Test
+    public void addDateColumnTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addDateColumn("DOB");
+        assertEquals(1, dataFrame.columnCount());
+        assertEquals("DOB", dataFrame.getColumnAt(0).getName());
+    }
+
+    @Test
+    public void addDecimalColumnTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addDecimalColumn("Price");
+        assertEquals(1, dataFrame.columnCount());
+        assertEquals("Price", dataFrame.getColumnAt(0).getName());
+    }
+
+    @Test
+    public void addRowTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("Name");
+        dataFrame.addRow(new Value("John Doe"));
+        assertEquals(1, dataFrame.rowCount());
+        assertEquals("John Doe", dataFrame.getString("Name", 0));
+    }
+
+    @Test
+    public void hasColumnTrueTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("Name");
+        assertTrue(dataFrame.hasColumn("Name"));
+    }
+
+    @Test
+    public void hasColumnFalseTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("Name");
+        assertFalse(dataFrame.hasColumn("Age"));
+    }
+
+    @Test
+    public void cloneStructureTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("Name");
+        DataFrame clonedFrame = dataFrame.cloneStructure("ClonedTest");
+        assertEquals("ClonedTest", clonedFrame.getName());
+        assertEquals(1, clonedFrame.columnCount());
+        assertEquals("Name", clonedFrame.getColumnAt(0).getName());
+    }
+
+    @Test
+    public void copyTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("Name");
+        dataFrame.addRow("John Doe");
+        DataFrame copiedFrame = dataFrame.copy("CopiedTest");
+        assertEquals("CopiedTest", copiedFrame.getName());
+        assertEquals(1, copiedFrame.columnCount());
+        assertEquals("Name", copiedFrame.getColumnAt(0).getName());
+        assertEquals(1, copiedFrame.rowCount());
+        assertEquals("John Doe", copiedFrame.getString("Name", 0));
+    }
+
+    @Test
+    public void joinTest() {
+        DataFrame dataFrame1 = new DataFrame("Test1");
+        DataFrame dataFrame2 = new DataFrame("Test2");
+
+        dataFrame1.addLongColumn("ID");
+        dataFrame1.addRow(LongLists.mutable.with(1));
+
+        dataFrame2.addLongColumn("ID");
+        dataFrame2.addRow(LongLists.mutable.with(1));
+
+        DataFrame joinedFrame = dataFrame1.join(dataFrame2, Lists.mutable.with("ID"), Lists.mutable.with("ID"));
+        assertEquals(dataFrame1.rowCount(), joinedFrame.columnCount());
+    }
+
+    @Test
+    public void isEmptyFalseTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("Name");
+        dataFrame.addRow("John Doe");
+        assertFalse(dataFrame.isEmpty());
+    }
+
+    @Test
+    public void isEmptyTrueTest() {
+        DataFrame dataFrame = new DataFrame("Test");
+        dataFrame.addStringColumn("Name");
+        assertTrue(dataFrame.isEmpty());
+    }
+
+}

@@ -1,0 +1,55 @@
+package leetcode.medium;
+
+import leetcode.medium.OnlineStockSpan;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextWhenCalledSequentiallyTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(100));
+        assertEquals(1, stockSpan.next(80));
+        assertEquals(1, stockSpan.next(60));
+        assertEquals(1, stockSpan.next(70));
+        assertEquals(2, stockSpan.next(60));
+        assertEquals(1, stockSpan.next(75));
+        assertEquals(4, stockSpan.next(85));
+    }
+
+    @Test
+    public void nextWhenCalledRandomlyTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(100));
+        assertEquals(2, stockSpan.next(110));
+        assertEquals(1, stockSpan.next(90));
+        assertEquals(2, stockSpan.next(120));
+        assertEquals(1, stockSpan.next(50));
+        assertEquals(4, stockSpan.next(130));
+    }
+
+    @Test
+    public void calculateSpansWithEmptyInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] spans = stockSpan.calculateSpans(new int[0]);
+        assertEquals(0, spans.length);
+    }
+
+    @Test
+    public void calculateSpansWithSingleElementTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] spans = stockSpan.calculateSpans(new int[]{100});
+        assertEquals(1, spans.length);
+        assertEquals(1, spans[0]);
+    }
+
+    @Test
+    public void calculateSpansWithMultipleElementsTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] spans = stockSpan.calculateSpans(new int[]{100, 80, 60, 70, 60, 75, 85});
+        assertArrayEquals(new int[]{1, 1, 1, 2, 1, 2, 4}, spans);
+    }
+
+}

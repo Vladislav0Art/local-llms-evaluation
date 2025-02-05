@@ -1,0 +1,105 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document.OutputSettings;
+import org.jsoup.nodes.TextNode;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("Sample text");
+        Assert.assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        TextNode textNode = new TextNode("Sample text");
+        Assert.assertEquals("Sample text", textNode.text());
+    }
+
+    @Test
+    public void textAssignmentTest() {
+        TextNode textNode = new TextNode("");
+        textNode.text("New Text Sample");
+        Assert.assertEquals("New Text Sample", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("Sample Text");
+        Assert.assertEquals("Sample Text", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("");
+        Assert.assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("Sample");
+        TextNode splitNode = textNode.splitText(3);
+        Assert.assertEquals("ple", splitNode.text());
+        Assert.assertEquals("Sam", textNode.text());
+    }
+
+    @Test
+    public void toStringTest() {
+        TextNode textNode = new TextNode("Sample Text");
+        Assert.assertEquals("Sample Text", textNode.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode textNode = new TextNode("Sample Text");
+        Assert.assertNotSame(textNode, textNode.clone());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode textNode = TextNode.createFromEncoded("Sample&amp;text", false);
+        Assert.assertEquals("Sample&text", textNode.text());
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String normalized = TextNode.normaliseWhitespace("Sample  Text   String");
+        Assert.assertEquals("Sample Text String", normalized);
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String withoutLeadingWhitespace = TextNode.stripLeadingWhitespace("  Sample Text");
+        Assert.assertEquals("Sample Text", withoutLeadingWhitespace);
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        StringBuilder stringBuilder = new StringBuilder("Sample Text ");
+        Assert.assertTrue(TextNode.lastCharIsWhitespace(stringBuilder));
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        StringBuilder builder = new StringBuilder();
+        OutputSettings outputSettings = new OutputSettings();
+        TextNode textNode = new TextNode("Sample Text");
+        textNode.outerHtmlHead(builder, 0, outputSettings);
+        Assert.assertEquals("Sample Text", builder.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        StringBuilder builder = new StringBuilder();
+        OutputSettings outputSettings = new OutputSettings();
+        TextNode textNode = new TextNode("");
+        textNode.outerHtmlTail(builder, 0, outputSettings);
+        Assert.assertEquals("", builder.toString());
+    }
+
+}

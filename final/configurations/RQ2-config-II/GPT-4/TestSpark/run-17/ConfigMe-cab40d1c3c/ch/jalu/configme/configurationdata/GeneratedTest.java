@@ -1,0 +1,65 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Test
+    public void addNullPropertyTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        thrown.expect(NullPointerException.class);
+        builder.add(null);
+    }
+
+    @Test
+    public void addMockedPropertyTest() {
+        Property mockProperty = Mockito.mock(Property.class);
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(mockProperty);
+    }
+
+    @Test
+    public void createWithNoPropertiesTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        List<Property<?>> propertyList = builder.create();
+        // should return an empty list
+        assert propertyList.isEmpty();
+    }
+
+    @Test
+    public void createWithMockedPropertyTest() {
+        Property mockProperty = Mockito.mock(Property.class);
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(mockProperty);
+        List<Property<?>> propertyList = builder.create();
+        // should return a list with the added property
+        assert propertyList.contains(mockProperty);
+    }
+
+    @Test
+    public void getRootEntriesWithNoPropertiesTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        assert builder.getRootEntries().isEmpty();
+    }
+
+    @Test
+    public void getRootEntriesWithMockedPropertyTest() {
+        Property mockProperty = Mockito.mock(Property.class);
+        Mockito.when(mockProperty.getPath()).thenReturn("mockPath");
+        Mockito.when(mockProperty.getDefaultValue()).thenReturn("mockValue");
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(mockProperty);
+        assert builder.getRootEntries().get("mockPath").equals("mockValue");
+    }
+
+}

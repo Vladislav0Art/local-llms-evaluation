@@ -1,0 +1,82 @@
+package com.ezylang.evalex.parser;
+
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void constructor_ValidParametersTest() {
+        String expressionString = "2+2";
+        ExpressionConfiguration configuration = Mockito.mock(ExpressionConfiguration.class);
+        try {
+            Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+            assertNotNull(tokenizer);
+        } catch (Exception e) {
+            fail("Exception should not have been thrown");
+        }
+    }
+
+    @Test
+    public void parse_NoParseExceptionTest() {
+        String expressionString = "2+2";
+        ExpressionConfiguration configuration = new ExpressionConfiguration(new OperatorDictionaryIfc() {
+        },
+                new FunctionDictionaryIfc() {
+                }, 1, true);
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        try {
+            List<Token> tokens = tokenizer.parse();
+            assertNotNull(tokens);
+        } catch (ParseException e) {
+            fail("ParseException should not have been thrown");
+        }
+    }
+
+    @Test
+    public void parse_ParseExceptionTest() throws ParseException {
+        String expressionString = "2++";
+        ExpressionConfiguration configuration = new ExpressionConfiguration(new OperatorDictionaryIfc() {
+        },
+                new FunctionDictionaryIfc() {
+                }, 1, true);
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        tokenizer.parse();
+    }
+
+    @Test
+    public void parseStringLiteral_NoParseExceptionTest() {
+        String expressionString = "\"string\"";
+        ExpressionConfiguration configuration = new ExpressionConfiguration(new OperatorDictionaryIfc() {
+        },
+                new FunctionDictionaryIfc() {
+                }, 1, true);
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        try {
+            Token token = tokenizer.parseStringLiteral();
+            assertNotNull(token);
+            assertEquals(token.getType(), Token.TokenType.STRING_LITERAL);
+        } catch (ParseException e) {
+            fail("ParseException should not have been thrown");
+        }
+    }
+
+    @Test
+    public void parseStringLiteral_ParseExceptionTest() throws ParseException {
+        String expressionString = "\"string";
+        ExpressionConfiguration configuration = new ExpressionConfiguration(new OperatorDictionaryIfc() {
+        },
+                new FunctionDictionaryIfc() {
+                }, 1, true);
+        Tokenizer tokenizer = new Tokenizer(expressionString, configuration);
+        tokenizer.parseStringLiteral();
+    }
+
+}

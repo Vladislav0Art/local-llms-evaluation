@@ -1,0 +1,64 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+
+import org.jsoup.Connection;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void UrlBuilderConstructorWithUrlTest() {
+        URL url = new URL("https://www.test.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void buildValidUrlTest() {
+        URL url = new URL("https://www.test.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL resultUrl = builder.build();
+        assertEquals(url, resultUrl);
+    }
+
+    @Test
+    public void buildInvalidUrlTest() {
+        URL url = new URL("htps:www.test.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL resultUrl = builder.build();
+        assertNotEquals(url, resultUrl);
+    }
+
+    @Test
+    public void appendKeyValValidTest() throws UnsupportedEncodingException {
+        URL url = new URL("https://www.test.com");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        Connection.KeyVal kvMock = Mockito.mock(Connection.KeyVal.class);
+        Mockito.when(kvMock.key()).thenReturn("key");
+        Mockito.when(kvMock.value()).thenReturn("value");
+
+        builder.appendKeyVal(kvMock);
+        URL resultUrl = builder.build();
+        assertEquals("https://www.test.com?key=value", resultUrl.toString());
+    }
+
+    @Test
+    public void appendKeyValInvalidCharactersTest() throws UnsupportedEncodingException {
+        URL url = new URL("https://www.test.com");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        Connection.KeyVal kvMock = Mockito.mock(Connection.KeyVal.class);
+        Mockito.when(kvMock.key()).thenReturn("ke:y");
+        Mockito.when(kvMock.value()).thenReturn("va:lue");
+
+        builder.appendKeyVal(kvMock);
+    }
+
+}

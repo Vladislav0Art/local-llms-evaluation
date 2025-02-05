@@ -1,0 +1,83 @@
+package com.force.i18n.grammar.impl;
+
+import com.force.i18n.grammar.LanguageDictionary;
+import com.force.i18n.grammar.RenamingProvider;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+
+public class GeneratedTest {
+
+    @Test
+    public void equalsSameObjectTest() {
+        GrammaticalTermMapImpl sampleMap = new GrammaticalTermMapImpl();
+        assertTrue(sampleMap.equals(sampleMap));
+    }
+
+    @Test
+    public void equalsDifferentObjectTest() {
+        GrammaticalTermMapImpl sampleMap1 = new GrammaticalTermMapImpl();
+        GrammaticalTermMapImpl sampleMap2 = new GrammaticalTermMapImpl();
+        assertTrue(sampleMap1.equals(sampleMap2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        GrammaticalTermMapImpl sampleMap = new GrammaticalTermMapImpl();
+        int expectedHashCode = sampleMap.hashCode();
+        assertEquals(expectedHashCode, sampleMap.hashCode());
+    }
+
+    @Test
+    public void isSkinnyTest() {
+        GrammaticalTermMapImpl sampleMap = new GrammaticalTermMapImpl();
+        assertFalse(sampleMap.isSkinny());
+    }
+
+    @Test
+    public void makeSkinnyTest() {
+        GrammaticalTermMapImpl sampleMap = new GrammaticalTermMapImpl();
+        GrammaticalTermMap skinnyMap = sampleMap.makeSkinny();
+        assertNotNull(skinnyMap);
+        assertTrue(skinnyMap.isSkinny());
+    }
+
+    @Test
+    public void putAndGetTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> sampleMap = new GrammaticalTermMapImpl<>();
+        GrammaticalTerm mockTerm = Mockito.mock(GrammaticalTerm.class);
+        sampleMap.put("term", mockTerm);
+        assertEquals(mockTerm, sampleMap.get("term"));
+    }
+
+    @Test
+    public void containsKeyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> sampleMap = new GrammaticalTermMapImpl<>();
+        GrammaticalTerm mockTerm = Mockito.mock(GrammaticalTerm.class);
+        sampleMap.put("term", mockTerm);
+        assertTrue(sampleMap.containsKey("term"));
+        assertFalse(sampleMap.containsKey("notPresent"));
+    }
+
+    @Test
+    public void isEmptyTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> sampleMap = new GrammaticalTermMapImpl<>();
+        assertTrue(sampleMap.isEmpty());
+        GrammaticalTerm mockTerm = Mockito.mock(GrammaticalTerm.class);
+        sampleMap.put("term", mockTerm);
+        assertFalse(sampleMap.isEmpty());
+    }
+
+    @Test
+    public void putAllTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> sampleMap1 = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<GrammaticalTerm> sampleMap2 = new GrammaticalTermMapImpl<>();
+        GrammaticalTerm mockTerm = Mockito.mock(GrammaticalTerm.class);
+        sampleMap1.put("term", mockTerm);
+        sampleMap2.putAll(sampleMap1);
+        assertEquals(sampleMap1.get("term"), sampleMap2.get("term"));
+    }
+
+}

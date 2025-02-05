@@ -1,0 +1,19 @@
+package app;
+
+import app.DBApp;
+import exceptions.DBAppException;
+import org.junit.Assert;
+import org.junit.Test;
+import util.search.SQLTerm;
+
+import java.util.Hashtable;
+
+public class GeneratedCreateTableTest {
+
+    @Test
+    public void createTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.createTable("", "", new Hashtable<>(), new Hashtable<>(), new Hashtable<>());
+    }
+
+}

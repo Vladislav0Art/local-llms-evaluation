@@ -1,0 +1,113 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getNameTest() {
+        Tag tag = Tag.valueOf("tagName");
+        assertEquals("tagName", tag.getName());
+    }
+
+    @Test
+    public void normalNameTest() {
+        Tag tag = Tag.valueOf("tagName");
+        assertEquals("tagname", tag.normalName());
+    }
+
+    @Test
+    public void valueOfWithSettingsTest() {
+        Tag tag = Tag.valueOf("tagName", ParseSettings.htmlDefault);
+        assertNotNull(tag);
+    }
+
+    @Test
+    public void valueOfTest() {
+        Tag tag = Tag.valueOf("tagName");
+        assertNotNull(tag);
+    }
+
+    @Test
+    public void isBlockTest() {
+        Tag tag = Tag.valueOf("tagName");
+        assertEquals(false, tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlockTest() {
+        Tag tag = Tag.valueOf("div");
+        assertEquals(true, tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag tag = Tag.valueOf("span");
+        assertEquals(true, tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Tag tag = Tag.valueOf("img");
+        assertEquals(true, tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        Tag tag = Tag.valueOf("br");
+        assertEquals(true, tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTagInstanceTest() {
+        Tag tag = Tag.valueOf("p");
+        assertEquals(true, tag.isKnownTag());
+    }
+
+    @Test
+    public void isKnownTagStaticTest() {
+        boolean result = Tag.isKnownTag("a");
+        assertEquals(true, result);
+    }
+
+    @Test
+    public void preserveWhitespaceTest() {
+        Tag tag = Tag.valueOf("pre");
+        assertEquals(true, tag.preserveWhitespace());
+    }
+
+    @Test
+    public void isFormListedTest() {
+        Tag tag = Tag.valueOf("button");
+        assertEquals(true, tag.isFormListed());
+    }
+
+    @Test
+    public void isFormSubmittableTest() {
+        Tag tag = Tag.valueOf("input");
+        assertEquals(true, tag.isFormSubmittable());
+    }
+
+    @Test
+    public void equalsTest() {
+        Tag tag1 = Tag.valueOf("tagName");
+        Tag tag2 = Tag.valueOf("tagName");
+        assertEquals(tag1, tag2);
+    }
+
+    @Test
+    public void hashCodeTest() {
+        Tag tag = Tag.valueOf("tagName");
+        assertNotEquals(0, tag.hashCode());
+    }
+
+    @Test
+    public void cloneTest() {
+        Tag tag1 = Tag.valueOf("tagName");
+        Tag tag2 = tag1.clone();
+        assertEquals(tag1, tag2);
+    }
+
+}

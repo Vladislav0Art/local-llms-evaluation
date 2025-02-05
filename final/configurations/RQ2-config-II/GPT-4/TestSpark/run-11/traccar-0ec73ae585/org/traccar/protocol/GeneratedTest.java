@@ -1,0 +1,66 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.traccar.Protocol;
+
+import java.net.InetSocketAddress;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+
+    @Mock
+    private Protocol protocol;
+
+    @Mock
+    private Channel channel;
+
+    @Test
+    public void WatchProtocolDecoderDefaultConstructorTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        assertNotNull(decoder);
+    }
+
+    @Test
+    public void getHasIndexDefaultTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        assertFalse(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerDefaultTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        assertNull(decoder.getManufacturer());
+    }
+
+    @Test
+    public void decodeValidMessageTest() {
+        // Assuming a valid message for decode
+        String validMessage = "WatchProtocolDecoderTest";
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        Object result = decoder.decode(channel, new InetSocketAddress("localhost", 8080),
+                validMessage);
+
+        // assuming decode will return the same validMessage
+        assertEquals(validMessage, result);
+    }
+
+    @Test
+    public void decodeWithExceptionTest() {
+        // Assuming a invalid message that throws exception
+        String invalidMessage = "invalidMessage";
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+
+        decoder.decode(channel, new InetSocketAddress("localhost", 8080), invalidMessage);
+    }
+
+}

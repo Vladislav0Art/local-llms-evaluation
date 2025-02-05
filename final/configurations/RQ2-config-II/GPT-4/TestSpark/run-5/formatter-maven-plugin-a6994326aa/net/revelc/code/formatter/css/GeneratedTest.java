@@ -1,0 +1,73 @@
+package net.revelc.code.formatter.css;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.revelc.code.formatter.ConfigurationSource;
+import net.revelc.code.formatter.LineEnding;
+import net.revelc.code.formatter.css.CssFormatter;
+
+public class GeneratedTest {
+
+    @Test
+    public void initOptionsConfigurationSourceTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("option1", "value1");
+        ConfigurationSource cfg = new ConfigurationSource() {
+            @Override
+            public LineEnding getLineEnding() {
+                return LineEnding.CRLF;
+            }
+        };
+        cssFormatter.init(options, cfg);
+        // Add validation
+        assertTrue(cssFormatter.isInitialized());
+    }
+
+    @Test
+    public void doFormatValidCodeTest() throws IOException {
+        String code = "p { color: red; }";
+        LineEnding ending = LineEnding.CRLF;
+        CssFormatter cssFormatter = new CssFormatter();
+        String result = cssFormatter.doFormat(code, ending);
+        // Add validation
+        assertEquals("p { color: red; }\r\n", result);
+    }
+
+    @Test
+    public void doFormatEmptyCodeTest() throws IOException {
+        String code = "";
+        LineEnding ending = LineEnding.CRLF;
+        CssFormatter cssFormatter = new CssFormatter();
+        cssFormatter.doFormat(code, ending);
+    }
+
+    @Test
+    public void isInitializedAfterInitTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = new HashMap<String, String>();
+        ConfigurationSource cfg = new ConfigurationSource() {
+            @Override
+            public LineEnding getLineEnding() {
+                return LineEnding.CRLF;
+            }
+        };
+        cssFormatter.init(options, cfg);
+        // Add validation
+        assertTrue(cssFormatter.isInitialized());
+    }
+
+    @Test
+    public void isInitializedBeforeInitTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        // Add validation
+        assertFalse(cssFormatter.isInitialized());
+    }
+
+}

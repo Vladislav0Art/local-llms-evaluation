@@ -1,0 +1,101 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.parser.Tag;
+import org.jsoup.select.Elements;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void tagNameTest() {
+        Element element = new Element(Tag.valueOf("p"), "");
+        element.tagName("div");
+        Assert.assertEquals("div", element.tagName());
+    }
+
+    @Test
+    public void attrTest() {
+        Element element = new Element(Tag.valueOf("p"), "");
+        element.attr("key", "value");
+        Assert.assertEquals("value", element.attr("key"));
+    }
+
+    @Test
+    public void parentTest() {
+        Document document = Jsoup.parse("<div><p>text</p></div>");
+        Assert.assertEquals("div", document.select("p").first().parent().tagName());
+    }
+
+    @Test
+    public void childTest() {
+        Document document = Jsoup.parse("<div><p>text</p></div>");
+        Assert.assertEquals("p", document.select("div").first().child(0).tagName());
+    }
+
+    @Test
+    public void selectTest() {
+        Document document = Jsoup.parse("<div><p class='pclass'>text</p><p>no class</p></div>");
+        Elements elements = document.select(".pclass");
+        Assert.assertEquals(1, elements.size());
+    }
+
+    @Test
+    public void appendChildTest() {
+        Element div = new Element(Tag.valueOf("div"), "");
+        Element para = new Element(Tag.valueOf("p"), "");
+        div.appendChild(para);
+        Assert.assertEquals(1, div.children().size());
+    }
+
+    @Test
+    public void appendTest() {
+        Element div = new Element(Tag.valueOf("div"), "");
+        div.append("<p>text</p>");
+        Assert.assertEquals(1, div.children().size());
+    }
+
+    @Test
+    public void prependChildTest() {
+        Element div = new Element(Tag.valueOf("div"), "");
+        Element para = new Element(Tag.valueOf("p"), "");
+        div.prependChild(para);
+        Assert.assertEquals(1, div.children().size());
+    }
+
+    @Test
+    public void prependTest() {
+        Element div = new Element(Tag.valueOf("div"), "");
+        div.prepend("<p>text</p>");
+        Assert.assertEquals(1, div.children().size());
+    }
+
+    @Test
+    public void textTest() {
+        Element element = new Element(Tag.valueOf("p"), "");
+        element.text("test text");
+        Assert.assertEquals("test text", element.text());
+    }
+
+    @Test
+    public void htmlTest() {
+        Element element = new Element(Tag.valueOf("p"), "");
+        element.html("<span>text</span>");
+        Assert.assertEquals("<span>text</span>", element.html());
+    }
+
+    @Test
+    public void cloneTest() {
+        Element div = new Element(Tag.valueOf("div"), "");
+        Element clonedDiv = div.clone();
+        Assert.assertEquals(div, clonedDiv);
+    }
+
+}

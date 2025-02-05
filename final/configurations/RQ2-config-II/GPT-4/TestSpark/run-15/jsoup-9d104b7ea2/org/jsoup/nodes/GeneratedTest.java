@@ -1,0 +1,100 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("Some text");
+        Assert.assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        String text = "Some text";
+        TextNode textNode = new TextNode(text);
+        Assert.assertEquals(text, textNode.text());
+    }
+
+    @Test
+    public void setTextTest() {
+        String text = "Some text";
+        TextNode textNode = new TextNode("");
+        textNode.text(text);
+        Assert.assertEquals(text, textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        String text = "Some text";
+        TextNode textNode = new TextNode(text);
+        Assert.assertEquals(text, textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("");
+        Assert.assertTrue(textNode.isBlank());
+
+        textNode.text("Not blank anymore");
+        Assert.assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("Some text");
+        TextNode newTextNode = textNode.splitText(4);
+        Assert.assertEquals("Some", textNode.text());
+        Assert.assertEquals(" text", newTextNode.text());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        TextNode textNode = new TextNode("Some text");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document("").outputSettings();
+        textNode.outerHtmlHead(accum, 0, out);
+        Assert.assertEquals("Some text", accum.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode textNode = new TextNode("Some text");
+        TextNode clonedTextNode = textNode.clone();
+        Assert.assertEquals(textNode.text(), clonedTextNode.text());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        String encodedText = "&lt;p&gt;Some text&lt;/p&gt;";
+        TextNode textNode = TextNode.createFromEncoded(encodedText, false);
+        Assert.assertEquals("<p>Some text</p>", textNode.getWholeText());
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String textWithWhitespace = " Some     text in   here ";
+        Assert.assertEquals("Some text in here", TextNode.normaliseWhitespace(textWithWhitespace));
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String text = "      Some text";
+        Assert.assertEquals("Some text", TextNode.stripLeadingWhitespace(text));
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        StringBuilder stringBuilder = new StringBuilder("Some text ");
+        Assert.assertTrue(TextNode.lastCharIsWhitespace(stringBuilder));
+
+        stringBuilder = new StringBuilder("Some text");
+        Assert.assertFalse(TextNode.lastCharIsWhitespace(stringBuilder));
+    }
+
+}

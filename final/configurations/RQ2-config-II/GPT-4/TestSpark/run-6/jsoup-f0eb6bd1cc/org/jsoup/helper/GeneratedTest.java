@@ -1,0 +1,68 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.io.UnsupportedEncodingException;
+
+public class GeneratedTest {
+
+    @Test
+    public void UrlBuilderValidInputTest() {
+        try {
+            URL inputUrl = new URL("http://example.com");
+            UrlBuilder builder = new UrlBuilder(inputUrl);
+            Assert.assertNotNull(builder);
+        } catch (MalformedURLException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void UrlBuilderNullInputTest() {
+        URL inputUrl = null;
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+    }
+
+    @Test
+    public void buildValidTest() {
+        try {
+            URL inputUrl = new URL("http://example.com");
+            UrlBuilder builder = new UrlBuilder(inputUrl);
+            URL outputUrl = builder.build();
+            Assert.assertEquals(inputUrl, outputUrl);
+        } catch (MalformedURLException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void appendKeyValValidTest() {
+        try {
+            URL inputUrl = new URL("http://example.com");
+            UrlBuilder builder = new UrlBuilder(inputUrl);
+            Connection.KeyVal kv = Connection.KeyVal.create("Key", "Value");
+            builder.appendKeyVal(kv);
+            URL outputUrl = builder.build();
+            Assert.assertTrue(outputUrl.toString().contains("Key=Value"));
+        } catch (MalformedURLException | UnsupportedEncodingException e) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void appendKeyValInvalidTest() throws UnsupportedEncodingException {
+        try {
+            URL inputUrl = new URL("http://example.com");
+            UrlBuilder builder = new UrlBuilder(inputUrl);
+            Connection.KeyVal kv = Connection.KeyVal.create("Key", "\uD83D\uDE00");
+            builder.appendKeyVal(kv);
+        } catch (MalformedURLException e) {
+            Assert.fail();
+        }
+    }
+
+}

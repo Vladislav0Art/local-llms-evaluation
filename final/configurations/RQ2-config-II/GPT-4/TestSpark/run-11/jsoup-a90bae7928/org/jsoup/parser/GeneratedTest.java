@@ -1,0 +1,115 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.*;
+import org.jsoup.nodes.*;
+import org.junit.Test;
+
+import java.io.StringReader;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        ParseSettings settings = xmlTreeBuilder.defaultSettings();
+        assertNotNull(settings);
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(new StringReader("<xml></xml>"), "http://test.com", new Parser(xmlTreeBuilder));
+        Document document = xmlTreeBuilder.getDocument();
+        assertNotNull(document);
+    }
+
+    @Test
+    public void parseReaderTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document document = xmlTreeBuilder.parse(new StringReader("<xml></xml>"), "http://test.com");
+        assertNotNull(document);
+    }
+
+    @Test
+    public void parseStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document document = xmlTreeBuilder.parse("<xml></xml>", "http://test.com");
+        assertNotNull(document);
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        XmlTreeBuilder newInstance = xmlTreeBuilder.newInstance();
+        assertNotNull(newInstance);
+    }
+
+    @Test
+    public void processTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        boolean result = xmlTreeBuilder.process(new Token.StartTag());
+        assertTrue(result);
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insertNode(new TextNode("test"));
+        assertEquals(1, xmlTreeBuilder.getStack().size());
+    }
+
+    @Test
+    public void insertTokenStartTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Element element = xmlTreeBuilder.insert(new Token.StartTag());
+        assertNotNull(element);
+    }
+
+    @Test
+    public void insertTokenCommentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Comment());
+        assertEquals(1, xmlTreeBuilder.getStack().size());
+    }
+
+    @Test
+    public void insertTokenCharacterTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Character());
+        assertEquals(1, xmlTreeBuilder.getStack().size());
+    }
+
+    @Test
+    public void insertTokenDoctypeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Doctype());
+        assertEquals(1, xmlTreeBuilder.getStack().size());
+    }
+
+    @Test
+    public void popStackToCloseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.StartTag());
+        xmlTreeBuilder.popStackToClose(new Token.EndTag());
+        assertTrue(xmlTreeBuilder.getStack().isEmpty());
+    }
+
+    @Test
+    public void parseFragmentStringTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<xml></xml>", "http://test.com", xmlTreeBuilder.getParser());
+        assertFalse(nodes.isEmpty());
+    }
+
+    @Test
+    public void parseFragmentElementTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Element context = new Element(Tag.valueOf("xml"), "");
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<xml></xml>", context, "http://test.com", xmlTreeBuilder.getParser());
+        assertFalse(nodes.isEmpty());
+    }
+
+}

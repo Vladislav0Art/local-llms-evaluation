@@ -1,0 +1,102 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        TextNode node = new TextNode("test");
+        assertEquals("#text", node.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.text());
+    }
+
+    @Test
+    public void textWithParamTest() {
+        TextNode node = new TextNode("test");
+        node.text("other");
+        assertEquals("other", node.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode node = new TextNode("");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode node = new TextNode("test");
+        TextNode secondNode = node.splitText(2);
+        assertEquals("te", node.getWholeText());
+        assertEquals("st", secondNode.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        TextNode node = new TextNode("test");
+        StringBuilder sb = new StringBuilder();
+        node.outerHtmlHead(sb, 0, new Document.OutputSettings());
+        assertEquals("test", sb.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        TextNode node = new TextNode("test");
+        StringBuilder sb = new StringBuilder();
+        node.outerHtmlTail(sb, 0, new Document.OutputSettings());
+        assertEquals("", sb.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode node = new TextNode("test");
+        TextNode clone = node.clone();
+        assertFalse(node == clone);
+        assertEquals(node.text(), clone.text());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode node = TextNode.createFromEncoded("dGVzdA==", false);
+        assertEquals("test", node.text());
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        assertTrue(TextNode.lastCharIsWhitespace(new StringBuilder("test ")));
+        assertFalse(TextNode.lastCharIsWhitespace(new StringBuilder("test")));
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        assertEquals("test", TextNode.normaliseWhitespace(" t e s t "));
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        assertEquals("test", TextNode.stripLeadingWhitespace(" test"));
+    }
+
+    @Test
+    public void toStringTest() {
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.toString());
+    }
+
+}

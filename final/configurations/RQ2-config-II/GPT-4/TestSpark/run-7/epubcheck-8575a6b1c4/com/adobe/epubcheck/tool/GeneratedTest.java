@@ -1,0 +1,64 @@
+package com.adobe.epubcheck.tool;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleDefaultTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Locale defaultLocale = Locale.getDefault();
+        assertTrue(defaultLocale.equals(epubChecker.getLocale()));
+    }
+
+    @Test
+    public void runCorrectArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"arg1", "arg2"};
+        assertEquals(0, epubChecker.run(args));
+    }
+
+    @Test
+    public void runEmptyArgsTest() {
+        EpubChecker epubCheck = new EpubChecker();
+        String[] args = {};
+        assertEquals(-1, epubCheck.run(args));
+    }
+
+    @Test
+    public void processEpubFileCorrectArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"arg1", "arg2"};
+        assertEquals(0, epubChecker.processEpubFile(args));
+    }
+
+    @Test
+    public void processEpubFileEmptyArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {};
+        assertEquals(-1, epubChecker.processEpubFile(args));
+    }
+
+    @Test
+    public void validateFileValidParametersTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String path = "validPath";
+        EPUBVersion version = EPUBVersion.VERSION_3;
+        Report report = new DefaultReportImpl("validPath");
+        EPUBProfile profile = EPUBProfile.DEFAULT;
+        assertEquals(0, epubChecker.validateFile(path, version, report, profile));
+    }
+
+    @Test
+    public void validateFileInvalidPathTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String path = "invalidPath";
+        EPUBVersion version = EPUBVersion.VERSION_3;
+        Report report = new DefaultReportImpl("invalidPath");
+        EPUBProfile profile = EPUBProfile.DEFAULT;
+        assertEquals(-1, epubChecker.validateFile(path, version, report, profile));
+    }
+
+}

@@ -1,0 +1,142 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.jsoup.nodes.Document;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.HashMap;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTest() {
+        W3CDom instance = new W3CDom();
+        boolean result = instance.namespaceAware();
+        assertTrue(result);
+    }
+
+    @Test
+    public void namespaceAwareBoolTest() {
+        W3CDom instance = new W3CDom().namespaceAware(false);
+        assertFalse(instance.namespaceAware());
+    }
+
+    @Test
+    public void convertNodeDocumentTest() {
+        Document input = new Document("input");
+        org.w3c.dom.Document result = W3CDom.convert(input);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void asStringWithNullDocumentTest() {
+        Map<String, String> properties = new HashMap<>();
+        W3CDom.asString(null, properties);
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = new HashMap<>();
+        map.put("key1", "value1");
+        map.put("key2", "value2");
+        Properties props = W3CDom.propertiesFromMap(map);
+        assertEquals(props.getProperty("key1"), map.get("key1"));
+        assertEquals(props.getProperty("key2"), map.get("key2"));
+    }
+
+    @Test
+    public void OutputHtmlTest() {
+        HashMap<String, String> result = W3CDom.OutputHtml();
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
+    public void OutputXmlTest() {
+        HashMap<String, String> result = W3CDom.OutputXml();
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
+    public void fromJsoupDocumentTest() {
+        Document input = new Document("input");
+        W3CDom instance = new W3CDom();
+        assertNotNull(instance.fromJsoup(input));
+    }
+
+    @Test
+    public void fromJsoupElementTest() {
+        Element input = new Document("input").body();
+        W3CDom instance = new W3CDom();
+        assertNotNull(instance.fromJsoup(input));
+    }
+
+    @Test
+    public void convertDocumentsTest() throws Exception {
+        org.jsoup.nodes.Document input = new Document("");
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        org.w3c.dom.Document output = builder.newDocument();
+
+        W3CDom instance = new W3CDom();
+        instance.convert(input, output);
+        assertEquals(output.getDocumentURI(), input.baseUri());
+    }
+
+    @Test
+    public void convertElementsWithNullInputTest() {
+        Element input = null;
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        org.w3c.dom.Document output = builder.newDocument();
+
+        W3CDom instance = new W3CDom();
+        instance.convert(input, output);
+    }
+
+    @Test
+    public void selectXpathDocumentTest() {
+        String xpath = "//body";
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        W3CDom instance = new W3CDom();
+        NodeList result = instance.selectXpath(xpath, doc);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void selectXpathNodeTest() {
+        String xpath = "//body";
+        Node contextNode = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().getDocumentElement();
+        W3CDom instance = new W3CDom();
+        NodeList result = instance.selectXpath(xpath, contextNode);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void sourceNodesTest() {
+        NodeList nodeList = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().getElementsByTagName("*");
+        W3CDom instance = new W3CDom();
+        List<org.jsoup.nodes.Node> result = instance.sourceNodes(nodeList, org.jsoup.nodes.Node.class);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void contextNodeTest() {
+        org.w3c.dom.Document wDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        W3CDom instance = new W3CDom();
+        Node result = instance.contextNode(wDoc);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void asStringWithValidDocumentTest() {
+        org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        String result = new W3CDom().asString(doc);
+        assertNotNull(result);
+    }
+
+}

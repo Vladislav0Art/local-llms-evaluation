@@ -1,0 +1,19 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+
+import static org.junit.Assert.*;
+
+public class GeneratedLastCharIsWhitespaceTest {
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        StringBuilder sb = new StringBuilder("test text ");
+        assertTrue(TextNode.lastCharIsWhitespace(sb));
+        sb = new StringBuilder("test text");
+        assertFalse(TextNode.lastCharIsWhitespace(sb));
+    }
+
+}

@@ -1,0 +1,132 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.junit.Test;
+
+import java.util.Iterator;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getValidKeyTest() {
+        Attributes attrs = new Attributes();
+
+        attrs.add("key", "value");
+        assertEquals("value", attrs.get("key"));
+    }
+
+    @Test
+    public void getInvalidKeyTest() {
+        Attributes attrs = new Attributes();
+
+        assertNull(attrs.get("key"));
+    }
+
+    @Test
+    public void addKeyAndValueTest() {
+        Attributes attrs = new Attributes();
+
+        attrs.add("key", "value");
+        assertTrue(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void putValidKeyAndValueTest() {
+        Attributes attrs = new Attributes();
+
+        attrs.put("key", "value");
+        assertTrue(attrs.hasKey("key"));
+        assertEquals("value", attrs.get("key"));
+    }
+
+    @Test
+    public void putInvalidKeyAndValueTest() {
+        Attributes attrs = new Attributes();
+
+        attrs.put("key", "value");
+        assertTrue(attrs.hasKey("key"));
+        assertEquals("value", attrs.get("key"));
+    }
+
+    @Test
+    public void removeKeyTest() {
+        Attributes attrs = new Attributes();
+
+        attrs.add("key", "value");
+        attrs.remove("key");
+        assertFalse(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void hasKeyValidKeyTest() {
+        Attributes attrs = new Attributes();
+
+        attrs.add("key", "value");
+        assertTrue(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void hasKeyInvalidKeyTest() {
+        Attributes attrs = new Attributes();
+
+        assertFalse(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void isEmptyAfterAddingKeyTest() {
+        Attributes attrs = new Attributes();
+
+        attrs.add("key", "value");
+        assertFalse(attrs.isEmpty());
+    }
+
+    @Test
+    public void isEmptyBeforeAddingKeyTest() {
+        Attributes attrs = new Attributes();
+
+        assertTrue(attrs.isEmpty());
+    }
+
+    @Test
+    public void addAllAttributesTest() {
+        Attributes attrs = new Attributes();
+
+        attrs.add("key1", "value1");
+        attrs.add("key2", "value2");
+
+        Attributes newAttrs = new Attributes();
+
+        newAttrs.addAll(attrs);
+
+        assertEquals(2, newAttrs.size());
+        assertTrue(newAttrs.hasKey("key1"));
+        assertTrue(newAttrs.hasKey("key2"));
+    }
+
+    @Test
+    public void iteratorTest() {
+        Attributes attrs = new Attributes();
+
+        attrs.add("key", "value");
+
+        Iterator<Attribute> iterator = attrs.iterator();
+
+        assertTrue(iterator.hasNext());
+        assertEquals("key", iterator.next().getKey());
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attrs = new Attributes();
+
+        attrs.add("key", "value");
+
+        Attributes cloned = attrs.clone();
+
+        assertEquals(attrs, cloned);
+    }
+
+}

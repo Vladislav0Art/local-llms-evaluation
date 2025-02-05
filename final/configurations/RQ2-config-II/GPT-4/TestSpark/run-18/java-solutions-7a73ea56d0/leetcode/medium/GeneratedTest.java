@@ -1,0 +1,60 @@
+package leetcode.medium;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSingleInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(100));
+    }
+
+    @Test
+    public void nextMultipleInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        assertEquals(2, stockSpan.next(105));
+    }
+
+    @Test
+    public void nextNonIncreasingInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        assertEquals(1, stockSpan.next(95));
+    }
+
+    @Test
+    public void nextEqualInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        assertEquals(2, stockSpan.next(100));
+    }
+
+    @Test
+    public void calculateSpansEmptyInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{};
+        int[] expectedSpans = new int[]{};
+        assertEquals(expectedSpans, stockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpansNonEmptyInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 105, 85, 90, 110};
+        int[] expectedSpans = new int[]{1, 2, 1, 2, 5};
+        assertEquals(expectedSpans, stockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpansAllEqualInputTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 100, 100, 100, 100};
+        int[] expectedSpans = new int[]{1, 2, 3, 4, 5};
+        assertEquals(expectedSpans, stockSpan.calculateSpans(prices));
+    }
+
+}

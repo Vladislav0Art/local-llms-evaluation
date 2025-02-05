@@ -1,0 +1,104 @@
+package org.davidmoten.text.utils;
+
+import org.davidmoten.text.utils.WordWrap;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.HashSet;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromInputStreamCharsetTest() throws IOException {
+        Charset charset = Charset.forName("UTF-8");
+        String text = "Hello World";
+        InputStream inputStream = new ByteArrayInputStream(text.getBytes(charset));
+        WordWrap.Builder builder = WordWrap.from(inputStream, charset);
+        Assert.assertNotNull(builder);
+        inputStream.close();
+    }
+
+    @Test
+    public void fromReaderTest() throws IOException {
+        StringReader reader = new StringReader("Hello World");
+        WordWrap.Builder builder = WordWrap.from(reader);
+        Assert.assertNotNull(builder);
+        reader.close();
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        CharSequence text = "Hello World";
+        WordWrap.Builder builder = WordWrap.from(text);
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void isWhitespaceTest() {
+        CharSequence text = "Hello World";
+        boolean result = WordWrap.isWhitespace(text);
+        Assert.assertFalse(result);
+
+        text = " \n\t\r";
+        result = WordWrap.isWhitespace(text);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void fromUtf8Test() throws IOException {
+        String text = "Hello World";
+        InputStream in = new ByteArrayInputStream(text.getBytes());
+        WordWrap.Builder builder = WordWrap.fromUtf8(in);
+        Assert.assertNotNull(builder);
+        in.close();
+    }
+
+    @Test
+    public void fromFileCharsetTest() throws IOException {
+        Charset charset = Charset.forName("UTF-8");
+        File testFile = new File("test.txt");
+        FileOutputStream fos = new FileOutputStream(testFile);
+        Writer out = new OutputStreamWriter(fos, charset);
+        out.write("Hello World");
+        out.close();
+        WordWrap.Builder builder = WordWrap.from(testFile, charset);
+        Assert.assertNotNull(builder);
+        testFile.delete();
+    }
+
+    @Test
+    public void fromReaderWithCloseFalseTest() {
+        StringReader reader = new StringReader("Hello World");
+        WordWrap.Builder builder = WordWrap.from(reader, false);
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void fromReaderWithCloseTrueTest() {
+        StringReader reader = new StringReader("Hello World");
+        WordWrap.Builder builder = WordWrap.from(reader, true);
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void rightTrimTest() {
+        CharSequence text = "Hello World    ";
+        text = WordWrap.rightTrim(text);
+        Assert.assertEquals("Hello World", text.toString());
+    }
+
+    @Test
+    public void leftTrimTest() {
+        WordWrap.StringBuilder2 text = new WordWrap.StringBuilder2("    Hello World");
+        WordWrap.leftTrim(text);
+        Assert.assertEquals("Hello World", text.toString());
+    }
+
+    @Test
+    public void fromInvalidFileCharsetTest() throws IOException {
+        WordWrap.from(new File("Invalid.txt"), Charset.defaultCharset());
+    }
+
+}

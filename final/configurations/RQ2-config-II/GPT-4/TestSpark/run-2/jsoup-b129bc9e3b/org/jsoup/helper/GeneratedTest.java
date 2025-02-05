@@ -1,0 +1,98 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.HttpConnection;
+import org.jsoup.Connection;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorDefaultTest() {
+        HttpConnection connection = new HttpConnection();
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void connectUrlTest() throws IOException {
+        Connection connection = HttpConnection.connect("https://www.example.com");
+        Assert.assertEquals("https://www.example.com", connection.request().url().toString());
+    }
+
+    @Test
+    public void connectStringTest() throws IOException {
+        String url = "https://www.example.com";
+        Connection connection = HttpConnection.connect(url);
+        Assert.assertEquals(url, connection.request().url().toString());
+    }
+
+    @Test
+    public void connectProxyTest() throws IOException {
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8080));
+        Connection connection = HttpConnection.connect("https://www.example.com").proxy(proxy);
+        Assert.assertEquals(proxy, connection.request().proxy());
+    }
+
+    @Test
+    public void dataStreamTest() throws IOException {
+        Connection connection = HttpConnection.connect("https://www.example.com");
+        ByteArrayInputStream stream = new ByteArrayInputStream("Test".getBytes());
+        connection.data("Key", "File", stream);
+        Assert.assertEquals(1, connection.request().data().size());
+    }
+
+    @Test
+    public void executeTest() throws IOException {
+        Connection connection = HttpConnection.connect("https://www.example.com");
+        Connection.Response response = connection.execute();
+        Assert.assertEquals(200, response.statusCode());
+    }
+
+    @Test
+    public void parserTest() throws IOException {
+        Connection connection = HttpConnection.connect("https://www.example.com");
+        connection.parser(Parser.htmlParser());
+        Assert.assertEquals(Parser.htmlParser().getClass(), connection.request().parser().getClass());
+    }
+
+    @Test
+    public void userAgentTest() throws IOException {
+        String userAgent = "Mozilla";
+        Connection connection = HttpConnection.connect("https://www.example.com").userAgent(userAgent);
+        Assert.assertEquals(userAgent, connection.request().userAgent());
+    }
+
+    @Test
+    public void sslSocketFactoryTest() throws IOException {
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        Connection connection = HttpConnection.connect("https://www.example.com").sslSocketFactory(sslSocketFactory);
+        Assert.assertEquals(sslSocketFactory, connection.request().sslSocketFactory());
+    }
+
+    @Test
+    public void dataTest() {
+        Connection connection = new HttpConnection();
+        Map<String, String> data = new HashMap<>();
+        data.put("key1", "value1");
+        data.put("key2", "value2");
+        connection.data(data);
+        Assert.assertEquals(2, connection.request().data().size());
+    }
+
+    @Test
+    public void cookieTest() {
+        Connection connection = new HttpConnection();
+        connection.cookie("name", "value");
+        Assert.assertEquals("value", connection.request().cookie("name"));
+    }
+
+}

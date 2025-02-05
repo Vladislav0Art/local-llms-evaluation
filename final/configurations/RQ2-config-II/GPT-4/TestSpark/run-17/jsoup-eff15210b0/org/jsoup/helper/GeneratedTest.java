@@ -1,0 +1,108 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringTest() {
+        Connection connection = HttpConnection.connect("http://google.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void connectURLTest() throws Exception {
+        Connection connection = HttpConnection.connect(new URL("http://google.com"));
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void urlTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection result = connection.url("http://google.com");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void proxyDetailsTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection result = connection.proxy("localhost", 8080);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void dataMethodTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection result = connection.data("key", "value");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void headerMethodTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection result = connection.header("Content-Type", "text/html");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void cookieMethodTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection result = connection.cookie("key", "value");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void getMethodTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Document doc = connection.get();
+        assertNotNull(doc);
+    }
+
+    @Test
+    public void postMethodTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Document doc = connection.post();
+        assertNotNull(doc);
+    }
+
+    @Test
+    public void executeMethodTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Connection.Response response = connection.execute();
+        assertNotNull(response);
+    }
+
+    @Test
+    public void requestMethodTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection.Request request = connection.request();
+        assertNotNull(request);
+    }
+
+    @Test
+    public void responseMethodTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection.Response response = connection.response();
+        assertNotNull(response);
+    }
+
+    @Test
+    public void postDataCharsetTest() {
+        HttpConnection connection = new HttpConnection();
+        assertNotNull(connection);
+        connection.postDataCharset("UTF-8");
+    }
+
+}

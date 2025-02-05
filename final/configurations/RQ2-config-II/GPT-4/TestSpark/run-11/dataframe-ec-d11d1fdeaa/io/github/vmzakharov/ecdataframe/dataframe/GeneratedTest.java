@@ -1,0 +1,130 @@
+package io.github.vmzakharov.ecdataframe.dataframe;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void getDataFrameNameTest() {
+        DataFrame df = new DataFrame("TestName");
+        assertEquals("TestName", df.getName());
+    }
+
+    @Test
+    public void addStringColumnTest() {
+        DataFrame df = new DataFrame("TestName");
+        df.addStringColumn("Column1");
+        assertEquals(1, df.columnCount());
+    }
+
+    @Test
+    public void addLongColumnTest() {
+        DataFrame df = new DataFrame("Test");
+        df.addLongColumn("Column1");
+        assertEquals(1, df.columnCount());
+    }
+
+    @Test
+    public void addDoubleColumnTest() {
+        DataFrame df = new DataFrame("Test");
+        df.addDoubleColumn("Column1");
+        assertEquals(1, df.columnCount());
+    }
+
+    @Test
+    public void addDateColumnTest() {
+        DataFrame df = new DataFrame("Test");
+        df.addDateColumn("Column1");
+        assertEquals(1, df.columnCount());
+    }
+
+    @Test
+    public void addDateTimeColumnTest() {
+        DataFrame df = new DataFrame("Test");
+        df.addDateTimeColumn("Column1");
+        assertEquals(1, df.columnCount());
+    }
+
+    @Test
+    public void addDecimalColumnTest() {
+        DataFrame df = new DataFrame("Test");
+        df.addDecimalColumn("Column1");
+        assertEquals(1, df.columnCount());
+    }
+
+    @Test
+    public void addRowTestWithStringValues() {
+        DataFrame df = new DataFrame("Test");
+        df.addStringColumn("Column1");
+        df.addRow("testValue");
+        assertEquals(1, df.rowCount());
+    }
+
+    @Test
+    public void addRowTestWithLongValues() {
+        DataFrame df = new DataFrame("Test");
+        df.addLongColumn("Column1");
+        df.addRow(1L);
+        assertEquals(1, df.rowCount());
+    }
+
+    @Test
+    public void addRowTestWithDoubleValues() {
+        DataFrame df = new DataFrame("Test");
+        df.addDoubleColumn("Column1");
+        df.addRow(1.0);
+        assertEquals(1, df.rowCount());
+    }
+
+    @Test
+    public void addRowTestWithDateValues() {
+        DataFrame df = new DataFrame("Test");
+        df.addDateColumn("Column1");
+        df.addRow(LocalDate.now());
+        assertEquals(1, df.rowCount());
+    }
+
+    @Test
+    public void addRowTestWithDateTimeValues() {
+        DataFrame df = new DataFrame("Test");
+        df.addDateTimeColumn("Column1");
+        df.addRow(LocalDateTime.now());
+        assertEquals(1, df.rowCount());
+    }
+
+    @Test
+    public void addRowTestWithDecimalValues() {
+        DataFrame df = new DataFrame("Test");
+        df.addDecimalColumn("Column1");
+        df.addRow(BigDecimal.ONE);
+        assertEquals(1, df.rowCount());
+    }
+
+    @Test
+    public void evaluateExpressionTest() {
+        DataFrame df = Mockito.spy(new DataFrame("Test"));
+        Expression expr = Mockito.mock(Expression.class);
+        when(df.evaluateExpression(expr, 0)).thenReturn(Value.of("test"));
+        assertEquals("test", df.evaluateExpression(expr, 0).asStringLiteral());
+        Mockito.verify(df).evaluateExpression(expr, 0);
+    }
+
+    @Test
+    public void isFlaggedTest() {
+        DataFrame df = Mockito.spy(new DataFrame("Test"));
+        df.setFlag(1);
+        assertTrue(df.isFlagged(1));
+    }
+
+}

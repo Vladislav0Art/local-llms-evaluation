@@ -1,0 +1,119 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.*;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.mockito.Mockito.*;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellTest() {
+        String baseUri = "https://google.com";
+        Document doc = Document.createShell(baseUri);
+        Assert.assertEquals(baseUri, doc.baseUri());
+    }
+
+    @Test
+    public void locationTest() {
+        String baseUri = "https://google.com";
+        Document doc = new Document(baseUri);
+        Assert.assertEquals(baseUri, doc.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Connection mockConnection = mock(Connection.class);
+        Document doc = new Document("https://google.com");
+        doc.connection(mockConnection);
+        Assert.assertEquals(mockConnection, doc.connection());
+    }
+
+    @Test
+    public void headTest() {
+        Document doc = Document.createShell("https://google.com");
+        Element head = doc.head();
+        Assert.assertNotNull(head);
+    }
+
+    @Test
+    public void bodyTest() {
+        Document doc = Document.createShell("https://google.com");
+        Element body = doc.body();
+        Assert.assertNotNull(body);
+    }
+
+    @Test
+    public void formsTest() {
+        Document doc = Document.createShell("https://google.com");
+        List<FormElement> forms = doc.forms();
+        Assert.assertNotNull(forms);
+    }
+
+    @Test
+    public void titleTest() {
+        String title = "Test Title";
+        Document doc = Document.createShell("https://google.com");
+        doc.title(title);
+        Assert.assertEquals(title, doc.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        String tagName = "p";
+        Document doc = new Document("https://google.com");
+        Element createdElement = doc.createElement(tagName);
+        Assert.assertEquals(tagName, createdElement.tagName());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document doc = new Document("https://google.com");
+        Charset charset = Charset.forName("UTF-8");
+        doc.charset(charset);
+        Assert.assertEquals(charset, doc.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementTest() {
+        Document doc = new Document("https://google.com");
+        doc.updateMetaCharsetElement(true);
+        Assert.assertTrue(doc.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document doc = new Document("https://google.com");
+        Document clone = doc.clone();
+        Assert.assertEquals(doc.outerHtml(), clone.outerHtml());
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document doc = new Document("https://google.com");
+        OutputSettings outputSettings = new OutputSettings();
+        doc.outputSettings(outputSettings);
+        Assert.assertEquals(outputSettings, doc.outputSettings());
+    }
+
+    @Test
+    public void quirksModeTest() {
+        Document doc = new Document("https://google.com");
+        doc.quirksMode(QuirksMode.quirks);
+        Assert.assertEquals(QuirksMode.quirks, doc.quirksMode());
+    }
+
+    @Test
+    public void parserTest() {
+        Document doc = new Document("https://google.com");
+        Parser parser = new Parser(doc);
+        doc.parser(parser);
+        Assert.assertEquals(parser, doc.parser());
+    }
+
+}

@@ -1,0 +1,24 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import io.github.vmzakharov.ecdataframe.util.PrinterFactory;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.math.BigDecimal;
+
+public class GeneratedVisitAssignExprTest {
+
+    private static final PrettyPrintVisitor visitor = new PrettyPrintVisitor(PrinterFactory.newCollectingPrinter());
+
+    @Test
+    public void visitAssignExprTest() {
+        AssingExpr expr = new AssingExpr(new VarExpr("a"), AssignOp.EQUAL, new DecimalExpr(new BigDecimal(1)));
+        expr.visit(visitor);
+
+        Assert.assertEquals("a = 1", visitor.getPrinter().toString());
+    }
+
+}

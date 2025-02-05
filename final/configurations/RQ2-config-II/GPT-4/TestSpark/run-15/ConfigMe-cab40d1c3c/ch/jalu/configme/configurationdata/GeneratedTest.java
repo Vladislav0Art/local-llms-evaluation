@@ -1,0 +1,77 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.configurationdata.PropertyListBuilder;
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void addValidPropertyTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> property = new StringProperty("test.path", "default");
+
+        // Act
+        builder.add(property);
+        List<Property<?>> properties = builder.create();
+
+        // Assert
+        Assert.assertEquals(1, properties.size());
+        Assert.assertEquals(property, properties.get(0));
+    }
+
+    @Test
+    public void addNullPropertyTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        // Act
+        builder.add(null);
+    }
+
+    @Test
+    public void createEmptyPropertyListTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        // Act
+        List<Property<?>> properties = builder.create();
+
+        // Assert
+        Assert.assertTrue(properties.isEmpty());
+    }
+
+    @Test
+    public void getRootEntriesWithNoPropertiesTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        // Act
+        Map<String, Object> rootView = builder.getRootEntries();
+
+        // Assert
+        Assert.assertTrue(rootView.isEmpty());
+    }
+
+    @Test
+    public void getRootEntriesWithOnePropertyTest() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> property = new StringProperty("test.path", "default");
+        builder.add(property);
+
+        // Act
+        Map<String, Object> rootView = builder.getRootEntries();
+
+        // Assert
+        Assert.assertEquals(1, rootView.size());
+        Assert.assertTrue(rootView.containsKey(property.getPath()));
+        Assert.assertEquals(property.getDefaultValue(), rootView.get(property.getPath()));
+    }
+
+}

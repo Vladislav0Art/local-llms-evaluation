@@ -1,0 +1,79 @@
+package org.jsoup.helper;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTest() {
+        W3CDom w3CDom = new W3CDom();
+        Assert.assertFalse(w3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAwareFlagTest() {
+        W3CDom w3CDom = new W3CDom();
+        w3CDom.namespaceAware(true);
+        Assert.assertTrue(w3CDom.namespaceAware());
+    }
+
+    @Test
+    public void fromJsoupElementToDocumentTest() throws ParserConfigurationException {
+        org.jsoup.nodes.Element element = new org.jsoup.nodes.Element(org.jsoup.parser.Tag.valueOf("p"), "");
+        W3CDom w3CDom = new W3CDom();
+        Document document = w3CDom.fromJsoup(element);
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void convertJsoupDocumentTest() throws ParserConfigurationException {
+        org.jsoup.nodes.Document document = new org.jsoup.nodes.Document("");
+        W3CDom w3CDom = new W3CDom();
+        Document convertedDocument = w3CDom.fromJsoup(document);
+        Assert.assertNotNull(convertedDocument);
+    }
+
+    @Test
+    public void selectXpathWithNodeTest() throws ParserConfigurationException {
+        org.jsoup.nodes.Element element = new org.jsoup.nodes.Element(org.jsoup.parser.Tag.valueOf("p"), "");
+        W3CDom w3CDom = new W3CDom();
+        Document document = w3CDom.fromJsoup(element);
+        NodeList nodeList = w3CDom.selectXpath("//p", document);
+        Assert.assertEquals(1, nodeList.getLength());
+    }
+
+    @Test
+    public void sourceNodesTest() throws ParserConfigurationException {
+        org.jsoup.nodes.Element element = new org.jsoup.nodes.Element(org.jsoup.parser.Tag.valueOf("p"), "");
+        W3CDom w3CDom = new W3CDom();
+        Document document = w3CDom.fromJsoup(element);
+        NodeList nodeList = w3CDom.selectXpath("//p", document);
+        List<org.jsoup.nodes.Node> sourceNodes = w3CDom.sourceNodes(nodeList, org.jsoup.nodes.Node.class);
+        Assert.assertEquals(1, sourceNodes.size());
+    }
+
+    @Test
+    public void contextNodeTest() throws ParserConfigurationException {
+        org.jsoup.nodes.Element element = new org.jsoup.nodes.Element(org.jsoup.parser.Tag.valueOf("p"), "");
+        W3CDom w3CDom = new W3CDom();
+        Document document = w3CDom.fromJsoup(element);
+        org.w3c.dom.Node contextNode = w3CDom.contextNode(document);
+        Assert.assertNotNull(contextNode);
+    }
+
+    @Test
+    public void asStringTest() throws ParserConfigurationException {
+        org.jsoup.nodes.Element element = new org.jsoup.nodes.Element(org.jsoup.parser.Tag.valueOf("p"), "");
+        W3CDom w3CDom = new W3CDom();
+        Document document = w3CDom.fromJsoup(element);
+        String documentString = w3CDom.asString(document);
+        Assert.assertTrue(documentString.contains("<p>"));
+    }
+
+}

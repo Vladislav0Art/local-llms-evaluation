@@ -1,0 +1,60 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Channel channel;
+
+    @Mock
+    private SocketAddress remoteAddress;
+
+    @Test
+    public void decodeValidMessageTest() throws Exception {
+        Protocol protocol = new Protocol("galileo");
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+        Object decoded = decoder.decode(channel, remoteAddress, "sample valid message");
+
+        assertNotNull(decoded);
+        assertEquals(Position.class, decoded.getClass());
+    }
+
+    @Test
+    public void decodeInvalidMessageTest() throws Exception {
+        Protocol protocol = new Protocol("galileo");
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+        Object decoded = decoder.decode(channel, remoteAddress, "sample invalid message");
+
+        assertNull(decoded);
+    }
+
+    @Test
+    public void decodeNullMessageTest() throws Exception {
+        Protocol protocol = new Protocol("galileo");
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+        Object decoded = decoder.decode(channel, remoteAddress, null);
+
+        assertNull(decoded);
+    }
+
+    @Test
+    public void decodeEmptyMessageTest() throws Exception {
+        Protocol protocol = new Protocol("galileo");
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+        Object decoded = decoder.decode(channel, remoteAddress, "");
+
+        assertNull(decoded);
+    }
+
+}

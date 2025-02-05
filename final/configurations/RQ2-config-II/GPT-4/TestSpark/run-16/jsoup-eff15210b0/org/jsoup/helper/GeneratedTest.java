@@ -1,0 +1,144 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectUrlTest() {
+        Connection connection = HttpConnection.connect("https://www.google.com");
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void connectStringTest() throws Exception {
+        Connection connection = HttpConnection.connect(new URL("https://www.google.com"));
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void urlUrlTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.url("https://www.google.com");
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void urlStringTest() throws Exception {
+        HttpConnection connection = new HttpConnection();
+        connection.url(new URL("https://www.google.com"));
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void proxyTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.proxy("127.0.0.1", 8000);
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.userAgent("Mozilla");
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.timeout(1000);
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.maxBodySize(100000);
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void followRedirectsTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.followRedirects(true);
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void referrerTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.referrer("https://www.refererwebsite.com");
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void methodTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.method(Connection.Method.GET);
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void ignoreHttpErrorsTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.ignoreHttpErrors(true);
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void ignoreContentTypeTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.ignoreContentType(true);
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void dataKeyStringTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.data("key", "value");
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void postDataCharsetTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.postDataCharset("UTF-8");
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void getTest() throws IOException {
+        HttpConnection connection = new HttpConnection().url("https://www.google.com");
+        Document document = connection.get();
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void postTest() throws IOException {
+        HttpConnection connection = new HttpConnection().url("https://www.google.com");
+        Document document = connection.post();
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void executeTest() throws IOException {
+        HttpConnection connection = new HttpConnection().url("https://www.google.com");
+        Connection.Response response = connection.execute();
+        Assert.assertNotNull(response);
+    }
+
+    @Test
+    public void responseTest() {
+        HttpConnection connection = new HttpConnection();
+        Connection.Response mockResponse = mock(Connection.Response.class);
+        connection.response(mockResponse);
+        Assert.assertNotNull(connection.response());
+    }
+
+}

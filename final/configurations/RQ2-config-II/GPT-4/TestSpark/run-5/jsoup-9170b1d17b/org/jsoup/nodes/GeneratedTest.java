@@ -1,0 +1,142 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void putValidAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        assertEquals("1", attributes.get("id"));
+    }
+
+    @Test
+    public void putInvalidAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", null);
+        assertNull(attributes.get("id"));
+    }
+
+    @Test
+    public void addAllAttributesTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.put("id", "1");
+
+        Attributes attributes2 = new Attributes();
+        attributes2.put("class", "container");
+
+        attributes1.addAll(attributes2);
+        assertTrue(attributes1.hasKey("class"));
+    }
+
+    @Test
+    public void removeExistingAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        attributes.remove("id");
+        assertFalse(attributes.hasKey("id"));
+    }
+
+    @Test
+    public void iteratorTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        assertNotNull(attributes.iterator());
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        attributes.put("class", "container");
+        assertEquals(2, attributes.size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void cloneTest() throws CloneNotSupportedException {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        Attributes cloned = attributes.clone();
+        assertEquals(attributes.get("id"), cloned.get("id"));
+    }
+
+    @Test
+    public void toStringTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        assertNotNull(attributes.toString());
+    }
+
+    @Test
+    public void htmlTest() throws IOException {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        StringBuilder sb = new StringBuilder();
+        attributes.html(sb);
+        assertTrue(sb.toString().contains("id=\"1\""));
+    }
+
+    @Test
+    public void equalsTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.put("id", "1");
+
+        Attributes attributes2 = new Attributes();
+        attributes2.put("id", "1");
+
+        assertTrue(attributes1.equals(attributes2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        assertNotNull(attributes.hashCode());
+    }
+
+    @Test
+    public void normalizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        attributes.normalize();
+        assertTrue(attributes.hasKey("id"));
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        List<Attribute> list = attributes.asList();
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    public void hasDeclaredValueForKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        assertTrue(attributes.hasDeclaredValueForKey("id"));
+    }
+
+    @Test
+    public void datasetTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("id", "1");
+        assertNotNull(attributes.dataset());
+    }
+
+}

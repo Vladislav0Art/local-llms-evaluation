@@ -1,0 +1,103 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeConstructorTest() {
+        TextNode textNode = new TextNode("text");
+        assertNotNull(textNode);
+        assertEquals("text", textNode.text());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("text");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textSetGetTest() {
+        TextNode textNode = new TextNode("oldText");
+        assertEquals("oldText", textNode.text());
+        textNode.text("newText");
+        assertEquals("newText", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("text");
+        assertEquals("text", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode blankNode = new TextNode("  ");
+        assertTrue(blankNode.isBlank());
+        TextNode notBlankNode = new TextNode("notBlank");
+        assertFalse(notBlankNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("textNode");
+        TextNode splitNode = textNode.splitText(4);
+        assertEquals("text", textNode.text());
+        assertEquals("Node", splitNode.text());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() {
+        TextNode textNode = new TextNode("textNode");
+        StringBuilder accum = new StringBuilder();
+        textNode.outerHtmlHead(accum, 0, new Document("").outputSettings());
+        assertEquals("textNode", accum.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        TextNode textNode = new TextNode("text");
+        assertEquals("text", textNode.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode textNode = new TextNode("text");
+        TextNode cloneNode = textNode.clone();
+        assertNotSame(textNode, cloneNode);
+        assertEquals(textNode.text(), cloneNode.text());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode textNode = TextNode.createFromEncoded("text", false);
+        assertNotNull(textNode);
+        assertEquals("text", textNode.text());
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String text = TextNode.normaliseWhitespace(" text     space ");
+        assertEquals(" text space ", text);
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String text = TextNode.stripLeadingWhitespace("    leadingspace");
+        assertEquals("leadingspace", text);
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        StringBuilder sb = new StringBuilder("text ");
+        assertTrue(TextNode.lastCharIsWhitespace(sb));
+        sb = new StringBuilder("text");
+        assertFalse(TextNode.lastCharIsWhitespace(sb));
+    }
+
+}

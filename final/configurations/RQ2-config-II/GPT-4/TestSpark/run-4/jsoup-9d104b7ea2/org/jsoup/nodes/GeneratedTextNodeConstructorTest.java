@@ -1,0 +1,18 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTextNodeConstructorTest {
+
+    @Test
+    public void textNodeConstructorTest() {
+        TextNode tn = new TextNode("testing");
+        assertNotNull(tn);
+        assertEquals("testing", tn.text());
+    }
+
+}

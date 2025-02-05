@@ -1,0 +1,65 @@
+package leetcode.medium;
+
+import leetcode.medium.OnlineStockSpan;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSmallerValueTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int next = onlineStockSpan.next(10);
+        assertEquals(1, next);
+    }
+
+    @Test
+    public void nextGreaterValueTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(10);
+        int next = onlineStockSpan.next(20);
+        assertEquals(2, next);
+    }
+
+    @Test
+    public void nextEqualValueTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.next(10);
+        int next = onlineStockSpan.next(10);
+        assertEquals(2, next);
+    }
+
+    @Test
+    public void calculateSpansEmptyArrayTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] emptyArray = new int[0];
+        int[] spans = onlineStockSpan.calculateSpans(emptyArray);
+        assertArrayEquals(emptyArray, spans);
+    }
+
+    @Test
+    public void calculateSpansOneElementArrayTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] oneElementArray = new int[]{10};
+        int[] spans = onlineStockSpan.calculateSpans(oneElementArray);
+        assertArrayEquals(new int[]{1}, spans);
+    }
+
+    @Test
+    public void calculateSpansDecreasingArrayTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] decreasingArray = new int[]{10, 9, 8, 7, 6};
+        int[] spans = onlineStockSpan.calculateSpans(decreasingArray);
+        assertArrayEquals(new int[]{1, 1, 1, 1, 1}, spans);
+    }
+
+    @Test
+    public void calculateSpansIncreasingArrayTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] increasingArray = new int[]{6, 7, 8, 9, 10};
+        int[] spans = onlineStockSpan.calculateSpans(increasingArray);
+        assertArrayEquals(new int[]{1, 2, 3, 4, 5}, spans);
+    }
+
+}

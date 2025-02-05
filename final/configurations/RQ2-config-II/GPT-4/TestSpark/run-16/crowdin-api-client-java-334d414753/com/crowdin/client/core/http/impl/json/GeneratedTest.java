@@ -1,0 +1,56 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.impl.json.JacksonJsonTransformer;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNonNullJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String jsonString = "{\"id\": 1,\"name\": \"project\"}";
+        Project result = transformer.parse(jsonString, Project.class);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId().longValue());
+        assertEquals("project", result.getName());
+    }
+
+    @Test
+    public void parseNullJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        transformer.parse(null, Project.class);
+    }
+
+    @Test
+    public void parseInvalidJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String jsonString = "{\"invalidId\": 1,\"name\": \"project\"}";
+        transformer.parse(jsonString, Project.class);
+    }
+
+    @Test
+    public void convertNonNullObjectTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setId(1L);
+        fileInfo.setName("file");
+
+        String result = transformer.convert(fileInfo);
+
+        assertNotNull(result);
+        assertTrue(result.contains("\"id\":1"));
+        assertTrue(result.contains("\"name\":\"file\""));
+    }
+
+    @Test
+    public void convertNullObjectTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        transformer.convert(null);
+    }
+
+}

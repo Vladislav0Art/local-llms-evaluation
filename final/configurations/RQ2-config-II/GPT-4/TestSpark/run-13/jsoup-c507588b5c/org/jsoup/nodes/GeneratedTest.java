@@ -1,0 +1,97 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("Test");
+        assertThat(textNode.nodeName()).isEqualTo("#text");
+    }
+
+    @Test
+    public void textTest() {
+        TextNode textNode = new TextNode("Test");
+        assertThat(textNode.text()).isEqualTo("Test");
+    }
+
+    @Test
+    public void setTextTest() {
+        TextNode textNode = new TextNode("Test");
+        textNode.text("NewTest");
+        assertThat(textNode.text()).isEqualTo("NewTest");
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("Test");
+        assertThat(textNode.getWholeText()).isEqualTo("Test");
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode blankTextNode = new TextNode(" ");
+        TextNode nonBlankTextNode = new TextNode("Test");
+        assertThat(blankTextNode.isBlank()).isTrue();
+        assertThat(nonBlankTextNode.isBlank()).isFalse();
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("TestNode");
+        TextNode splittedNode = textNode.splitText(4);
+        assertThat(textNode.getWholeText()).isEqualTo("Test");
+        assertThat(splittedNode.getWholeText()).isEqualTo("Node");
+    }
+
+    @Test
+    public void outerHtmlHeadAndTailTest() throws IOException {
+        TextNode textNode = new TextNode("TestNode");
+        StringBuilder sb = new StringBuilder();
+        textNode.outerHtmlHead(sb, 0, new Document.OutputSettings());
+        textNode.outerHtmlTail(sb, 0, new Document.OutputSettings());
+        assertThat(sb.toString()).isEqualTo("TestNode");
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode textNode = new TextNode("TestNode");
+        TextNode clonedNode = textNode.clone();
+        assertThat(clonedNode).isEqualTo(textNode);
+        assertThat(clonedNode).isNotSameAs(textNode);
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        String encodedText = "TestNode";
+        TextNode textNode = TextNode.createFromEncoded(encodedText, false);
+        assertThat(textNode.getWholeText()).isEqualTo("TestNode");
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String textWithWhitespace = " Test Node ";
+        String normalisedText = TextNode.normaliseWhitespace(textWithWhitespace);
+        assertThat(normalisedText).isEqualTo("Test Node");
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String textWithLeadingWhitespace = " TestNode";
+        String strippedLeadingWhitespaceText = TextNode.stripLeadingWhitespace(textWithLeadingWhitespace);
+        assertThat(strippedLeadingWhitespaceText).isEqualTo("TestNode");
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        StringBuilder stringBuilderWhitespace = new StringBuilder("Test ");
+        StringBuilder stringBuilderNonWhitespace = new StringBuilder("Test");
+        assertThat(TextNode.lastCharIsWhitespace(stringBuilderWhitespace)).isTrue();
+        assertThat(TextNode.lastCharIsWhitespace(stringBuilderNonWhitespace)).isFalse();
+    }
+
+}

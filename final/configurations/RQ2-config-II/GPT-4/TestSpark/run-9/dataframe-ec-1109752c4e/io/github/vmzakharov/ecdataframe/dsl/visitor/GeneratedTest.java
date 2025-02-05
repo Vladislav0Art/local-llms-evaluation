@@ -1,0 +1,100 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.value.Value;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void assignExprTest() {
+        AssingExpr expr = new AssingExpr("var1", new VarExpr("values"));
+        String expectedOutput = "var1 = values";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void binaryExpressionTest() {
+        BinaryExpr expr = new BinaryExpr(new VarExpr("var1"), BinaryOp.ADD, new VarExpr("var2"));
+        String expectedOutput = "(var1 + var2)";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void unaryExpressionTest() {
+        UnaryExpr expr = new UnaryExpr(UnaryOp.NEG, new VarExpr("var1"));
+        String expectedOutput = "-var1";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void functionCallExpressionTest() {
+        FunctionCallExpr expr = new FunctionCallExpr(new VarExpr("func1"), new VarExpr("var1"));
+        String expectedOutput = "func1(var1)";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void propertyPathExpressionTest() {
+        PropertyPathExpr expr = new PropertyPathExpr(new VarExpr("var1"), "property1");
+        String expectedOutput = "var1.property1";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void varExpressionTest() {
+        VarExpr expr = new VarExpr("var1");
+        String expectedOutput = "var1";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void projectionExpressionTest() {
+        ProjectionExpr expr = new ProjectionExpr(new VarExpr("var1"), new VarExpr("var2"));
+        String expectedOutput = "var1[var2]";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void aliasExpressionTest() {
+        AliasExpr expr = new AliasExpr(new VarExpr("var1"), "alias1");
+        String expectedOutput = "(var1 as alias1)";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void vectorExpressionTest() {
+        VectorExpr expr = new VectorExpr();
+        expr.add(new VarExpr("var1"));
+        expr.add(new VarExpr("var2"));
+        expr.add(new VarExpr("var3"));
+        String expectedOutput = "[var1, var2, var3]";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void indexExpressionTest() {
+        IndexExpr expr = new IndexExpr(new VarExpr("var1"), new VarExpr("var2"));
+        String expectedOutput = "var1[var2]";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void decimalExpressionTest() {
+        DecimalExpr expr = new DecimalExpr(123.45);
+        String expectedOutput = "123.45";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void ifElseExpressionTest() {
+        IfElseExpr expr = new IfElseExpr(new VarExpr("cond1"), new VarExpr("var1"), new VarExpr("var2"));
+        String expectedOutput = "(cond1 ? var1 : var2)";
+        assertEquals(expectedOutput, PrettyPrintVisitor.exprToString(expr));
+    }
+
+}

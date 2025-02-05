@@ -1,0 +1,56 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.impl.json.JacksonJsonTransformer;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.stringtranslations.model.LanguageTranslations;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.exc.InvocationTargetException;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.HashMap;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseValidJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String jsonString = "{\"name\":\"Test project\",\"id\":1001}";
+        Project project = transformer.parse(jsonString, Project.class);
+        Assert.assertEquals("Test project", project.getName());
+        Assert.assertEquals(1001, project.getId());
+    }
+
+    @Test
+    public void parseInvalidJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String jsonString = "{\"name\"\"Test project\",\"id\":1001}"; // Invalid JSON string
+        transformer.parse(jsonString, Project.class);
+    }
+
+    @Test
+    public void parseJsonWithUndefinedFieldTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String jsonString = "{\"undefinedField\":\"Undefined\",\"id\":1001}"; // Unknown field
+        transformer.parse(jsonString, Project.class);
+    }
+
+    @Test
+    public void convertObjectToJSONTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        HashMap<String, String> map = new HashMap<>();
+        map.put("name", "Test project");
+        map.put("id", "1001");
+        String actual = transformer.convert(map);
+        String expected = "{\"name\":\"Test project\",\"id\":\"1001\"}";
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void convertInvalidObjectToJSONTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        transformer.convert(new DeserializationFeature[]{}); // Pass invalid object to convert
+    }
+
+}

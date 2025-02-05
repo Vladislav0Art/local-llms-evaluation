@@ -1,0 +1,192 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.InputStream;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringUrlTest() {
+        try {
+            Connection connection = HttpConnection.connect("https://www.google.com");
+            Assert.assertNotNull(connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void connectUrlTest() {
+        try {
+            Connection connection = HttpConnection.connect(new URL("https://www.google.com"));
+            Assert.assertNotNull(connection);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void urlTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.url("https://www.google.com");
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void proxyTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Proxy proxy = Mockito.mock(Proxy.class);
+
+        Connection connection = httpConnection.proxy(proxy);
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.userAgent("Mozilla/5.0");
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.timeout(1000);
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.maxBodySize(1000);
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void followRedirectsTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.followRedirects(true);
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void referrerTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.referrer("https://www.google.com");
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void methodTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.method(Connection.Method.GET);
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void ignoreHttpErrorsTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.ignoreHttpErrors(true);
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void ignoreContentTypeTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.ignoreContentType(true);
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void dataKeyValueTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.data("key", "value");
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void sslSocketFactoryTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        SSLSocketFactory sslSocketFactory = Mockito.mock(SSLSocketFactory.class);
+
+        Connection connection = httpConnection.sslSocketFactory(sslSocketFactory);
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void dataTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        InputStream inputStream = Mockito.mock(InputStream.class);
+
+        Connection connection = httpConnection.data("key", "file.txt", inputStream);
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void dataWithContentTypeTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        InputStream inputStream = Mockito.mock(InputStream.class);
+
+        Connection connection = httpConnection.data("key", "file.txt", inputStream, "text/plain");
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void dataMapTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Map<String, String> dataMap = new HashMap<>();
+
+        dataMap.put("key", "value");
+
+        Connection connection = httpConnection.data(dataMap);
+
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void dataMultipleParametersTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection httpConnectionData = httpConnection.data("key", "value", "key2", "value2");
+        Assert.assertNotNull(httpConnectionData);
+    }
+
+    @Test
+    public void parserTest() throws Exception {
+        HttpConnection httpConnection = new HttpConnection();
+        Parser parser = Parser.htmlParser();
+        Connection con = httpConnection.parser(parser);
+        Assert.assertNotNull(con);
+    }
+
+    @Test
+    public void executeTest() throws Exception {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection.Response response = httpConnection.execute();
+        Assert.assertNotNull(response);
+    }
+
+}

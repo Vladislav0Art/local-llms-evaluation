@@ -1,0 +1,49 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.parser.Parser;
+import org.jsoup.helper.HttpConnection;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.CookieStore;
+import java.net.Proxy;
+import java.net.SocketException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedGetTest {
+
+    @Mock
+    private URL urlMock;
+
+    @Mock
+    private InputStream inputStreamMock;
+
+    @Mock
+    private Proxy proxyMock;
+
+    @Mock
+    private CookieStore cookieStoreMock;
+
+    @Mock
+    private Parser parserMock;
+
+    @Test
+    public void getTest() throws IOException {
+        when(urlMock.toString()).thenReturn("https://test.com");
+
+        Connection connection = new HttpConnection().url(urlMock);
+        assertNotNull(connection.get());
+    }
+
+}

@@ -1,0 +1,14 @@
+package org.jsoup.parser;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedValueOfTest {
+
+    @Test
+    public void valueOfTest() {
+        Tag tag = Tag.valueOf("div");
+        Assert.assertEquals("div", tag.getName());
+    }
+
+}

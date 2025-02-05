@@ -1,0 +1,118 @@
+package io.github.vmzakharov.ecdataframe.dataframe;
+
+import io.github.vmzakharov.ecdataframe.dataframe.DfColumn;
+import io.github.vmzakharov.ecdataframe.dataframe.DfColumnSortOrder;
+import io.github.vmzakharov.ecdataframe.dataframe.DataFrame;
+import io.github.vmzakharov.ecdataframe.dsl.value.ValueType;
+import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.impl.factory.Lists;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void addStringColumnTest() {
+        DataFrame df = new DataFrame("testAddColumn");
+        df.addStringColumn("stringCol");
+        assertTrue(df.hasColumn("stringCol"));
+    }
+
+    @Test
+    public void addLongColumnTest() {
+        DataFrame df = new DataFrame("testAddColumn");
+        df.addLongColumn("longCol");
+        assertTrue(df.hasColumn("longCol"));
+    }
+
+    @Test
+    public void addDoubleColumnTest() {
+        DataFrame df = new DataFrame("testAddColumn");
+        df.addDoubleColumn("doubleCol");
+        assertTrue(df.hasColumn("doubleCol"));
+    }
+
+    @Test
+    public void addDateColumnTest() {
+        DataFrame df = new DataFrame("testAddColumn");
+        df.addDateColumn("dateCol");
+        assertTrue(df.hasColumn("dateCol"));
+    }
+
+    @Test
+    public void addDateTimeColumnTest() {
+        DataFrame df = new DataFrame("testAddColumn");
+        df.addDateTimeColumn("dateTimeCol");
+        assertTrue(df.hasColumn("dateTimeCol"));
+    }
+
+    @Test
+    public void addDecimalColumnTest() {
+        DataFrame df = new DataFrame("testAddColumn");
+        df.addDecimalColumn("decimalCol");
+        assertTrue(df.hasColumn("decimalCol"));
+    }
+
+    @Test
+    public void addColumnTest() {
+        DataFrame df = new DataFrame("testAddColumn");
+        df.addColumn("stringCol", ValueType.STRING);
+        assertTrue(df.hasColumn("stringCol"));
+    }
+
+    @Test
+    public void getNameTest() {
+        DataFrame df = new DataFrame("testGetName");
+        assertEquals("testGetName", df.getName());
+    }
+
+    @Test
+    public void isPoolingEnabledTest() {
+        DataFrame df = new DataFrame("testPoolingEnabled");
+        assertFalse(df.isPoolingEnabled());
+    }
+
+    @Test
+    public void enablePoolingTest() {
+        DataFrame df = new DataFrame("testEnablePooling");
+        df.enablePooling();
+        assertTrue(df.isPoolingEnabled());
+    }
+
+    @Test
+    public void dropColumnTest() {
+        DataFrame df = new DataFrame("testDropColumn");
+        df.enablePooling();
+        df.addStringColumn("col1");
+        df.dropColumn("col1");
+        assertFalse(df.hasColumn("col1"));
+    }
+
+    @Test
+    public void isEmptyTest() {
+        DataFrame df = new DataFrame("testIsEmpty");
+        assertTrue(df.isEmpty());
+    }
+
+    @Test
+    public void isNotEmptyTest() {
+        DataFrame df = new DataFrame("testIsNotEmpty");
+        df.addStringColumn("col1");
+        df.addRow(Lists.mutable.with("value1"));
+        assertTrue(df.isNotEmpty());
+    }
+
+    @Test
+    public void sortByTest() {
+        DataFrame df = new DataFrame("dataframe");
+        df.addColumn("column1");
+        DfColumn column = df.getColumnNamed("column1");
+        MutableList<DfColumnSortOrder> orders = Lists.mutable.of(DfColumnSortOrder.ASC);
+        df.sortBy(Lists.mutable.with(column.getColumnName()), orders);
+        assertEquals(records, df.getData());
+        df.sortBy(Lists.mutable.with(column.getColumnName()), orders.reverseThis());
+        assertEquals(records.reverseThis(), df.getData());
+    }
+
+}

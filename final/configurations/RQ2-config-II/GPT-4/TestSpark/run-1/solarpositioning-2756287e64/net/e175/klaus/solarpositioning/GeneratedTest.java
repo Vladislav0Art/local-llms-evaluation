@@ -1,0 +1,69 @@
+package net.e175.klaus.solarpositioning;
+
+import net.e175.klaus.solarpositioning.AzimuthZenithAngle;
+import net.e175.klaus.solarpositioning.Grena3;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSolarPositionLatitudeWithMaxValueTest() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, 90, 0, 0);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionLongitudeWithMaxValueTest() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, 0, 180, 0);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionLatitudeWithMinValueTest() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, -90, 0, 0);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionLongitudeWithMinValueTest() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, 0, -180, 0);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionPressureTemperatureTest() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, 0, 0, 0, 1013, 15);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionPressureZeroTemperatureZeroTest() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, 0, 0, 0, 0, 0);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionMaxPressureMaxTemperatureTest() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, 0, 0, 0, Double.MAX_VALUE, Double.MAX_VALUE);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionMinPressureMinTemperatureTest() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, 0, 0, 0, Double.MIN_VALUE, Double.MIN_VALUE);
+        Assert.assertNotNull(result);
+    }
+
+}

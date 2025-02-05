@@ -1,0 +1,96 @@
+package com.force.i18n.grammar.impl;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void equalsSameObjectTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        assertTrue(termMap.equals(termMap));
+    }
+
+    @Test
+    public void equalsDifferentObjectTest() {
+        GrammaticalTermMapImpl<Noun> termMap1 = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<Noun> termMap2 = new GrammaticalTermMapImpl<>();
+        assertTrue(termMap1.equals(termMap2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        assertNotNull(termMap.hashCode());
+    }
+
+    @Test
+    public void isSkinnyTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        assertFalse(termMap.isSkinny());
+    }
+
+    @Test
+    public void makeSkinnyTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        assertNotNull(termMap.makeSkinny());
+    }
+
+    @Test
+    public void keySetTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        assertTrue(termMap.keySet().isEmpty());
+    }
+
+    @Test
+    public void getTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        assertNull(termMap.get("nonExistingKey"));
+    }
+
+    @Test
+    public void containsKeyTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        assertFalse(termMap.containsKey("nonExistingKey"));
+    }
+
+    @Test
+    public void entrySetTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        assertTrue(termMap.entrySet().isEmpty());
+    }
+
+    @Test
+    public void valuesTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        assertTrue(termMap.values().isEmpty());
+    }
+
+    @Test
+    public void putTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        Noun noun = new Noun(HumanLanguage.ENGLISH, "Name");
+        termMap.put("Name", noun);
+        assertEquals(noun, termMap.get("Name"));
+    }
+
+    @Test
+    public void putAllTest() {
+        GrammaticalTermMapImpl<Noun> termMap1 = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<Noun> termMap2 = new GrammaticalTermMapImpl<>();
+        Noun noun = new Noun(HumanLanguage.ENGLISH, "Name");
+        termMap2.put("Name", noun);
+        termMap1.putAll(termMap2);
+        assertEquals(noun, termMap1.get("Name"));
+    }
+
+    @Test
+    public void isEmptyTest() {
+        GrammaticalTermMapImpl<Noun> termMap = new GrammaticalTermMapImpl<>();
+        assertTrue(termMap.isEmpty());
+    }
+
+}

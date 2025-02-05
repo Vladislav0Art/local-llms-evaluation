@@ -1,0 +1,17 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+import org.stellar.sdk.xdr.SignatureHint;
+
+import static org.junit.Assert.*;
+
+public class GeneratedFromSecretSeedValidByteArrayTest {
+
+    @Test
+    public void fromSecretSeedValidByteArrayTest() {
+        byte[] seed = "SBUV3MRGVTBKP2I72AWYI2Z27YE2UBOAO4ZG5DJUKFCH3OG472U6WZ2F".getBytes();
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNotNull(keyPair);
+    }
+
+}

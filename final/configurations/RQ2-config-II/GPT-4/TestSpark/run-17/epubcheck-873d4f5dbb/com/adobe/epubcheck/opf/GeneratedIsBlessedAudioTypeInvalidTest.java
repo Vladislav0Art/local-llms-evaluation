@@ -1,0 +1,15 @@
+package com.adobe.epubcheck.opf;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import com.adobe.epubcheck.opf.OPFChecker30;
+
+public class GeneratedIsBlessedAudioTypeInvalidTest {
+
+    @Test
+    public void isBlessedAudioTypeInvalidTest() {
+        assertFalse(OPFChecker30.isBlessedAudioType("video/mp4"));
+    }
+
+}

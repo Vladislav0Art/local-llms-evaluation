@@ -1,0 +1,150 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.*;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellTest() {
+        Document document = Document.createShell("http://localhost");
+        assertNotNull(document);
+    }
+
+    @Test
+    public void locationTest() {
+        Document document = new Document("http://localhost");
+        assertEquals("http://localhost", document.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Document document = new Document("http://localhost");
+        Connection connection = document.connection();
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void headTest() {
+        Document document = new Document("http://localhost");
+        Element head = document.head();
+        assertNotNull(head);
+    }
+
+    @Test
+    public void bodyTest() {
+        Document document = new Document("http://localhost");
+        Element body = document.body();
+        assertNotNull(body);
+    }
+
+    @Test
+    public void formsTest() {
+        Document document = new Document("http://localhost");
+        List<FormElement> forms = document.forms();
+        assertNotNull(forms);
+    }
+
+    @Test
+    public void titleTest() {
+        Document document = new Document("http://localhost");
+        document.title("Title");
+        assertEquals("Title", document.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document document = new Document("http://localhost");
+        Element element = document.createElement("div");
+        assertNotNull(element);
+    }
+
+    @Test
+    public void outerHtmlTest() {
+        Document document = new Document("http://localhost");
+        String html = document.outerHtml();
+        assertNotNull(html);
+    }
+
+    @Test
+    public void textTest() {
+        Document document = new Document("http://localhost");
+        document.text("Some text");
+        assertNotNull(document.text());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Document document = new Document("http://localhost");
+        assertEquals("#document", document.nodeName());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document document = new Document("http://localhost");
+        document.charset(Charset.defaultCharset());
+        assertEquals(Charset.defaultCharset(), document.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementTest() {
+        Document document = new Document("http://localhost");
+        document.updateMetaCharsetElement(true);
+        assertTrue(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document document = new Document("http://localhost");
+        Document clone = document.clone();
+        assertNotNull(clone);
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        Document document = new Document("http://localhost");
+        Document clone = document.shallowClone();
+        assertNotNull(clone);
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document document = new Document("http://localhost");
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        document.outputSettings(outputSettings);
+        assertEquals(outputSettings, document.outputSettings());
+    }
+
+    @Test
+    public void quirksModeTest() {
+        Document document = new Document("http://localhost");
+        document.quirksMode(Document.QuirksMode.quirks);
+        assertEquals(Document.QuirksMode.quirks, document.quirksMode());
+    }
+
+    @Test
+    public void parserTest() {
+        Document document = new Document("http://localhost");
+        Parser parser = mock(Parser.class);
+        document.parser(parser);
+        assertEquals(parser, document.parser());
+    }
+
+    @Test
+    public void connectionSettingTest() {
+        Document document = new Document("http://localhost");
+        Connection connection = mock(Connection.class);
+        document.connection(connection);
+        assertEquals(connection, document.connection());
+    }
+
+}

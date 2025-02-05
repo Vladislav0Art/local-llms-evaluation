@@ -1,0 +1,106 @@
+package com.netflix.frigga.ami;
+
+import com.netflix.frigga.ami.AppVersion;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.regex.Pattern;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameValidInputTest() {
+        AppVersion result = AppVersion.parseName("validName");
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void parseNameInvalidInputTest() {
+        AppVersion.parseName("");
+    }
+
+    @Test
+    public void compareToEqualAppVersionTest() {
+        AppVersion appVersion1 = AppVersion.parseName("name1");
+        AppVersion appVersion2 = AppVersion.parseName("name1");
+        Assert.assertEquals(0, appVersion1.compareTo(appVersion2));
+    }
+
+    @Test
+    public void compareToDifferentAppVersionTest() {
+        AppVersion appVersion1 = AppVersion.parseName("name1");
+        AppVersion appVersion2 = AppVersion.parseName("name2");
+        Assert.assertNotEquals(0, appVersion1.compareTo(appVersion2));
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        Assert.assertNotNull(pattern);
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        AppVersion appVersion = AppVersion.parseName("name1");
+        Assert.assertNotNull(appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersionTest() {
+        AppVersion appVersion = AppVersion.parseName("name1");
+        Assert.assertNotNull(appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        AppVersion appVersion = AppVersion.parseName("name1");
+        Assert.assertNotNull(appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        AppVersion appVersion = AppVersion.parseName("name1");
+        Assert.assertNotNull(appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommitTest() {
+        AppVersion appVersion = AppVersion.parseName("name1");
+        Assert.assertNotNull(appVersion.getCommit());
+    }
+
+    @Test
+    public void getChangelistTest() {
+        AppVersion appVersion = AppVersion.parseName("name1");
+        Assert.assertNotNull(appVersion.getChangelist());
+    }
+
+    @Test
+    public void hashCodeTest() {
+        AppVersion appVersion = AppVersion.parseName("name1");
+        int hashCode = appVersion.hashCode();
+        Assert.assertNotEquals(0, hashCode);
+    }
+
+    @Test
+    public void equalsTest() {
+        AppVersion appVersion1 = AppVersion.parseName("name1");
+        AppVersion appVersion2 = AppVersion.parseName("name1");
+        Assert.assertTrue(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void notEqualsTest() {
+        AppVersion appVersion1 = AppVersion.parseName("name1");
+        AppVersion appVersion2 = AppVersion.parseName("name2");
+        Assert.assertFalse(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void toStringTest() {
+        AppVersion appVersion = AppVersion.parseName("name1");
+        String stringRepresentation = appVersion.toString();
+        Assert.assertNotNull(stringRepresentation);
+    }
+
+}
