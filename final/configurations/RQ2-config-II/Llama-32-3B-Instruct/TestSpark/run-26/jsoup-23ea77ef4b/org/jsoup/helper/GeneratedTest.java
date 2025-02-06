@@ -1,0 +1,176 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.NodeTraversor;
+import org.jsoup.select.Selector;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(JUnit4.class)
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAware_ReturnsTrue() {
+        assertTrue(W3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAware_SetReturnsFalse() {
+        assertFalse(W3CDom.namespaceAware(false));
+    }
+
+    @Test
+    public void convert_JsoupToW3CDom() {
+        Document doc = mock(Document.class);
+        Document wDoc = W3CDom.convert(mock(org.jsoup.nodes.Document.class));
+
+        when(doc.toElement()).thenReturn(mock(Element.class));
+        assertNotNull(wDoc);
+        assertTrue(wDoc.getDocumentElement() != null);
+    }
+
+    @Test
+    public void asString_W3CDomToJsoup() {
+        Document doc = mock(Document.class);
+        String str = W3CDom.asString(doc, Collections.emptyMap());
+
+        when(doc.getDocumentElement()).thenReturn(mock(Element.class));
+        assertNotNull(str);
+        assertTrue(str.contains("<"));
+    }
+
+    @Test
+    public void propertiesFromMap_ReturnsProperties() {
+        Map<String, String> map = new HashMap<>();
+        map.put("key", "value");
+        Properties props = W3CDom.propertiesFromMap(map);
+
+        assertEquals(1, props.size());
+        assertTrue(props.getProperty("key").equals("value"));
+    }
+
+    @Test
+    public void OutputHtml_ReturnsProperties() {
+        Map<String, String> map = Collections.emptyMap();
+        HashMap<String, String> result = W3CDom.OutputHtml(map);
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void OutputXml_ReturnsProperties() {
+        Map<String, String> map = Collections.emptyMap();
+        HashMap<String, String> result = W3CDom.OutputXml(map);
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void fromJsoup_JsoupToW3CDom() {
+        Document doc = mock(Document.class);
+        Document wDoc = W3CDom.fromJsoup(doc);
+
+        assertNotNull(wDoc);
+        assertTrue(wDoc.getDocumentElement() != null);
+    }
+
+    @Test
+    public void fromJsoup_JsoupElementToW3CElement() {
+        Element element = mock(Element.class);
+        Document wDoc = W3CDom.fromJsoup(element);
+
+        assertNotNull(wDoc);
+        assertTrue(wDoc.getDocumentElement() != null);
+    }
+
+    @Test
+    public void convert_JsoupToW3CDomElement() {
+        Document doc = mock(Document.class);
+        Element element = W3CDom.convert(doc);
+
+        assertNotNull(element);
+        assertTrue(element.getTagName() != null);
+    }
+
+    @Test
+    public void convert_JsoupElementToW3CElement() {
+        Document doc = mock(Document.class);
+        Element element = W3CDom.convert((org.jsoup.nodes.Element) doc);
+
+        assertNotNull(element);
+        assertTrue(element.getTagName() != null);
+    }
+
+    @Test
+    public void contextNode_ReturnsDocument() {
+        Document doc = mock(Document.class);
+        Document wDoc = W3CDom.contextNode(doc);
+
+        assertNotNull(wDoc);
+        assertTrue(wDoc.getDocumentElement() != null);
+    }
+
+    @Test
+    public void sourceNodes_SimpleNodeList_ReturnsSimpleList() {
+        NodeList nodeList = mock(NodeList.class);
+        List<org.jsoup.nodes.Node> result = W3CDom.sourceNodes(nodeList, org.jsoup.nodes.Node.class);
+
+        assertNotNull(result);
+        assertTrue(result.size() == 0);
+    }
+
+    @Test
+    public void sourceNodes_MultipleNodeList_ReturnsMultipleList() {
+        NodeList nodeList1 = mock(NodeList.class);
+        NodeList nodeList2 = mock(NodeList.class);
+        List<org.jsoup.nodes.Node> result = W3CDom.sourceNodes(List.of(nodeList1, nodeList2), org.jsoup.nodes.Node.class);
+
+        assertNotNull(result);
+        assertTrue(result.size() == 0);
+    }
+
+    @Test
+    public void selectXpath_SimpleNodeList_ReturnsSimple
+
+    NodeList() {
+        NodeList nodeList = mock(NodeList.class);
+        NodeList result = W3CDom.selectXpath("xpath", nodeList);
+
+        assertNotNull(result);
+        assertTrue(result.size() == 0);
+    }
+
+    @Test
+    public void selectXpath_SimpleNodeList_XPathContext_ReturnsSimple
+
+    NodeList() {
+        Node contextNode = mock(Node.class);
+        NodeList nodeList = mock(NodeList.class);
+        NodeList result = W3CDom.selectXpath("xpath", nodeList, contextNode);
+
+        assertNotNull(result);
+        assertTrue(result.size() == 0);
+    }
+
+    @Test
+    public void asString_W3CDomToJsoupElement() {
+        Element element = mock(Element.class);
+        String str = W3CDom.asString(element);
+
+        assertNotNull(str);
+        assertTrue(str.contains("<"));
+    }
+
+}

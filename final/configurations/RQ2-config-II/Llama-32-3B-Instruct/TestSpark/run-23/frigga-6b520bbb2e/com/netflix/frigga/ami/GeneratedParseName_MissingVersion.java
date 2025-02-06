@@ -1,0 +1,23 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedParseName_MissingVersion {
+
+    @Test
+    public void parseName_MissingVersion() {
+        String amiName = "amazon-linux-2.5.0-x86_64-gp2.8.3.1";
+        try {
+            AppVersion.parseName(amiName);
+            fail("Expected ParseException");
+        } catch (ParseException e) {
+            // Expected
+        }
+    }
+
+}

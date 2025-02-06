@@ -1,0 +1,104 @@
+package org.jsoup.safety;
+
+import org.jsoup.safety.Safelist;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private String tag;
+
+    @Test
+    public void none_SafelistIsEmpty() {
+        Safelist safelist = Safelist.none();
+        assertTrue(safelist.isEmpty());
+    }
+
+    @Test
+    public void simpleText_SafeTagsAreInSimpleTextSafelist() {
+        when(Safelist.isSafeTag(tag)).thenReturn(true);
+        Safelist safelist = Safelist.simpleText();
+        assertTrue(safelist.containsTags(new String[]{tag}));
+    }
+
+    @Test
+    public void basic_SafeTagsAreNotInBasicSafelist() {
+        when(Safelist.isSafeTag(tag)).thenReturn(false);
+        Safelist safelist = Safelist.basic();
+        assertFalse(safelist.containsTags(new String[]{tag}));
+    }
+
+    @Test
+    public void addTags_SafelistContainsNewTags() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.addTags("a", "b");
+        assertTrue(safelist.containsTags(new String[]{"a", "b"}));
+    }
+
+    @Test
+    public void removeTags_SafelistDoesNotContainRemovedTags() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.addTags("a", "b");
+        safelist = safelist.removeTags("a");
+        assertFalse(safelist.containsTags(new String[]{"a"}));
+    }
+
+    @Test
+    public void addAttributes_SafelistContainsNewAttributes() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.addAttributes("img", "src", "https://example.com/image.jpg");
+        assertEquals(1, safelist.getEnforcedAttributes("img").size());
+    }
+
+    @Test
+    public void removeAttributes_SafelistDoesNotContainRemovedAttributes() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.addAttributes("img", "src", "https://example.com/image.jpg");
+        safelist = safelist.removeAttributes("img", "src");
+        assertEquals(0, safelist.getEnforcedAttributes("img").size());
+    }
+
+    @Test
+    public void isSafeTag_ReturnsFalseForNotSafeTags() {
+        when(Safelist.isSafeTag(tag)).thenReturn(false);
+        assertTrue(!Safelist.basic().containsTags(new String[]{tag}));
+    }
+
+    @Test
+    public void isSafeAttribute_ReturnsTrueWhenAllAttributesAreSafe() {
+        Safelist safelist = Safelist.none();
+        Element element = new Element("div");
+        Attribute attribute = new Attribute("class", "safe-class");
+        when(Safelist.isSafeAttribute(tag, element, attribute)).thenReturn(true);
+        assertTrue(Safelist.basic().isSafeAttribute(tag, element, attribute));
+    }
+
+    @Test
+    public void preserveRelativeLinks_ReturnsFalseByDefault() {
+        Safelist safelist = Safelist.none();
+        assertFalse(safelist.preserveRelativeLinks(false));
+    }
+
+    @Test
+    public void addProtocols_SafelistContainsNewProtocols() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.addProtocols("img", "src", "https://example.com/image.jpg");
+        assertEquals(1, safelist.getEnforcedAttributes("img").size());
+    }
+
+    @Test
+    public void removeProtocols_SafelistDoesNotContainRemovedProtocols() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.addProtocols("img", "src", "https://example.com/image.jpg");
+        safelist = safelist.removeProtocols("img", "src", new String[]{"https://example.com"});
+        assertEquals(0, safelist.getEnforcedAttributes("img").size());
+    }
+
+}

@@ -1,0 +1,178 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+package org.jsoup.safety;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import static org.jsoup.internal.Normalizer.lowerCase;
+
+public class SafelistTest {
+
+    @org.junit.Test
+    public void none_SafelistReturned() {
+        Safelist result = Safelist.none();
+        Validate.notNull(result);
+    }
+
+    @org.junit.Test
+    public void simpleText_SimpleTextAdded() {
+        Safelist result = Safelist.simpleText();
+        Validate.isTrue(Safelist.isSafeTag("text"));
+    }
+
+    @org.junit.Test
+    public void basic_BasicTagsRemoved() {
+        Safelist result = Safelist.basic();
+        Validate.isNull(result.addTags(new String[] {"a", "b"}));
+        Validate.isNull(result.removeTags(new String[] {"a", "b"}));
+    }
+
+    @org.junit.Test
+    public void basicWithImages_ImagesTaggedAndUntagged() {
+        Safelist result = Safelist.basic();
+        result = result.addTags("img");
+        Validate.isTrue(Safelist.isSafeTag("img"));
+        result = result.removeTags(new String[] {"img"});
+        Validate.isNull(result.addTags(new String[] {"img"}));
+    }
+
+    @org.junit.Test
+    public void relaxed_RelaxedTagsRemoved() {
+        Safelist result = Safelist.relaxed();
+        Validate.isNull(result.addTags(new String[] {"a", "b"}));
+        Validate.isNull(result.removeTags(new String[] {"a", "b"}));
+    }
+
+    @org.junit.Test
+    public void noneAddedTagsNotSafe() {
+        Safelist result = Safelist.none();
+        boolean safe = result.isSafeTag("a");
+        Validate.assertFalse(safe);
+    }
+
+    @org.junit.Test
+    public void basicWithImagesRemovedTagsNotSafe() {
+        Safelist result = Safelist.basic();
+        result = result.addTags("img");
+        boolean safe = result.isSafeTag("img");
+        Validate.assertFalse(safe);
+        result = result.removeTags(new String[] {"img"});
+        Validate.isTrue(Safelist.isSafeTag("img"));
+    }
+
+    @org.junit.Test
+    public void nonePreservesExistingTags() {
+        Safelist result = Safelist.none();
+        result = result.addTags(new String[] {"a", "b"});
+        boolean safe = result.isSafeTag("a");
+        Validate.assertTrue(safe);
+        boolean safe2 = result.isSafeTag("b");
+        Validate.assertTrue(safe2);
+    }
+
+    @org.junit.Test
+    public void basicAddsAttributesToElements() {
+        Safelist result = Safelist.basic();
+        Attributes attrs = result.getEnforcedAttributes("img");
+        Validate.notNull(attrs);
+        Validate.isTrue(attrs.containsKey("src"));
+    }
+
+    @org.junit.Test
+    public void noneAddsAttributesToElements() {
+        Safelist result = Safelist.none();
+        Attributes attrs = result.getEnforcedAttributes("img");
+        Validate.isNull(attrs);
+    }
+
+    @org.junit.Test
+    public void basicRemovesAttributesFromElements() {
+        Safelist result = Safelist.basic();
+        result.addTags("img");
+        Attributes attrs = result.getEnforcedAttributes("img");
+        Validate.notNull(attrs);
+        result.removeTags(new String[] {"src"});
+        attrs = result.getEnforcedAttributes("img");
+        Validate.isNull(attrs);
+    }
+
+    @org.junit.Test
+    public void noneRemovesAttributesFromElements() {
+        Safelist result = Safelist.none();
+        result.addTags("img");
+        Attributes attrs = result.getEnforcedAttributes("img");
+        Validate.notNull(attrs);
+        result.removeTags(new String[] {"src"});
+        attrs = result.getEnforcedAttributes("img");
+        Validate.isNull(attrs);
+    }
+
+    @org.junit.Test
+    public void basicAddsProtocolsToElements() {
+        Safelist result = Safelist.basic();
+        result.addTags("a[href]");
+        result = result.addProtocols("a", "href", new String[] {"http"});
+        Attributes attrs = result.getEnforcedAttributes("a");
+        Validate.notNull(attrs);
+        Validate.isTrue(attrs.containsKey("href"));
+    }
+
+    @org.junit.Test
+    public void noneAddsProtocolsToElements() {
+        Safelist result = Safelist.none();
+        result.addTags("a[href]");
+        result = result.addProtocols("a", "href", new String[] {"http"});
+        Attributes attrs = result.getEnforcedAttributes("a");
+        Validate.isNull(attrs);
+    }
+
+    @org.junit.Test
+    public void basicRemovesProtocolsFromElements() {
+        Safelist result = Safelist.basic();
+        result.addTags("a[href]");
+        result = result.removeProtocols("a", "href", new String[] {"http"});
+        Attributes attrs = result.getEnforcedAttributes("a");
+        Validate.isNull(attrs);
+    }
+
+    @org.junit.Test
+    public void noneRemovesProtocolsFromElements() {
+        Safelist result = Safelist.none();
+        result.addTags("a[href]");
+        result = result.removeProtocols("a", "href", new String[] {"http"});
+        Attributes attrs = result.getEnforcedAttributes("a");
+        Validate.isNull(attrs);
+    }
+
+    @org.junit.Test
+    public void basicPreservesRelativeLinks() {
+        Safelist result = Safelist.basic();
+        boolean preserve = result.preserveRelativeLinks(true);
+        Validate.isTrue(preserve);
+        boolean preserve2 = result.preserveRelativeLinks(false);
+        Validate.isTrue(!preserve2);
+    }
+
+    @org.junit.Test
+    public void nonePreservesRelativeLinks() {
+        Safelist result = Safelist.none();
+        boolean preserve = result.preserveRelativeLinks(true);
+        Validate.isFalse(preserve);
+        boolean preserve2 = result.preserveRelativeLinks(false);
+        Validate.isTrue(preserve2);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

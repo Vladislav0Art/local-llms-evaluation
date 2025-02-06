@@ -1,0 +1,61 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void givenNewCommentsConfigurationthenEmptyMapIsReturned() {
+        CommentsConfiguration comments = new CommentsConfiguration();
+        Map<String, List<String>> result = comments.getAllComments();
+        assertThat(result.isEmpty(), is(true));
+    }
+
+    @Test
+    public void givenExistingCommentsConfigurationthenAllEntriesExist() {
+        String path1 = "path1";
+        String path2 = "path2";
+
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put(path1, Arrays.asList("line1", "line2"));
+        comments.put(path2, Collections.singletonList("line3"));
+
+        CommentsConfiguration config = new CommentsConfiguration(comments);
+        Map<String, @UnmodifiableView List<String>> result = config.getAllComments();
+        assertThat(result.size(), is(2));
+        assertThat(result.get(path1).size(), is(2));
+        assertThat(result.get(path2).get(0), is("line3"));
+    }
+
+    @Test
+    public void givenSetCommentWithNewLineThenEmptyStringIsReturned() {
+        CommentsConfiguration comments = new CommentsConfiguration();
+        String path = "path";
+        Map<String, List<String>> result = comments.setComment(path, "");
+        assertThat(result.get(path).get(0), is(""));
+    }
+
+    @Test
+    public void givenSetCommentsAndNewLineThenEntryExists() {
+        CommentsConfiguration comments = new CommentsConfiguration();
+        String path = "path";
+        String comment1 = "line1";
+        Map<String, List<String>> result = comments.setComment(path, comment1);
+        assertThat(result.get(path).get(0), is(comment1));
+    }
+
+    @Test
+    public void givenSetCommentsAndNewLineWithEmptyStringThenEntryExists() {
+        CommentsConfiguration comments = new CommentsConfiguration();
+        String path = "path";
+        Map<String, List<String>> result = comments.setComment(path, "");
+        assertThat(result.get(path).size(), is(0));
+    }
+
+}

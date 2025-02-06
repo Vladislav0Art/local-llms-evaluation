@@ -1,0 +1,120 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeName_ReturnsnodeName() {
+        TextNode node = new TextNode("test");
+        assertEquals("text", node.nodeName());
+    }
+
+    @Test
+    public void text_ReturnsText() {
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.text());
+    }
+
+    @Test
+    public void text_SetsText() {
+        TextNode node = new TextNode();
+        node.text("test");
+        assertEquals("test", node.text());
+    }
+
+    @Test
+    public void getWholeText_ReturnsText() {
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.getWholeText());
+    }
+
+    @Test
+    public void isBlank_ReturnsTrueForEmptyString() {
+        TextNode node = new TextNode("");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void isBlank_ReturnsFalseForNonEmptyString() {
+        TextNode node = new TextNode("test");
+        assertFalse(node.isBlank());
+    }
+
+    @Test
+    public void splitText_SplitsAtOffset() throws IOException {
+        String text = "hello world";
+        TextNode node = new TextNode(text);
+        TextNode left = node.splitText(6);
+        assertEquals("helli", left.text());
+        assertEquals("world", node.text());
+    }
+
+    @Test
+    public void outerHtmlHead_ProducesOuterHTML() throws IOException {
+        String html = "<p>Hello World!</p>";
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = null;
+        TextNode node = new TextNode(html);
+        node.outerHtmlHead(accum, 0, out);
+        assertEquals("<html><body><p>Hello World!</p></body></html>", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTail_ProducesOuterHTML() {
+        String html = "<script>alert('test');</script>";
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = null;
+        TextNode node = new TextNode(html);
+        node.outerHtmlTail(accum, 0, out);
+        assertEquals("<html><body><script>alert('test');</script></body></html>", accum.toString());
+    }
+
+    @Test
+    public void toString_ReturnsText() {
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.toString());
+    }
+
+    @Test
+    public void clone_ReturnsClone() {
+        TextNode node = new TextNode("test");
+        TextNode clone = node.clone();
+        assertNotNull(clone);
+        assertEquals("test", clone.text());
+    }
+
+    @Test
+    public void createFromEncoded_ReturnsValidText() {
+        String encodedText = "Hello, World!";
+        TextNode node = TextNode.createFromEncoded(encodedText);
+        assertNotNull(node);
+        assertEquals("Hello, World!", node.text());
+    }
+
+    @Test
+    public void normaliseWhitespace_StripsLeadingWhitespace() {
+        String text = "\t hello world";
+        String result = TextNode.normaliseWhitespace(text);
+        assertEquals("hello world", result);
+    }
+
+    @Test
+    public void stripLeadingWhitespace_StripsLeadingWhitespace() {
+        String text = " \t hello world";
+        String result = TextNode.stripLeadingWhitespace(text);
+        assertEquals("   hello world", result);
+    }
+
+    @Test
+    public void lastCharIsWhitespace_ReturnsTrueForWhitespace() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(' ');
+        assertTrue(TextNode.lastCharIsWhitespace(sb));
+    }
+
+}

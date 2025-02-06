@@ -1,0 +1,87 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class GeneratedTest {
+
+    @Test
+    public void next_[
+    zeroPrice]
+
+    Test() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int result = solution.next(0);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void next_[
+    negativePrice]
+
+    Test() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int result = solution.next(-10);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void next_[
+    singleDigitPositivePrice]
+
+    Test() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int result = solution.next(5);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void next_[
+    multiDigitPositivePrice]
+
+    Test() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int result = solution.next(25000);
+        assertEquals(25101, result);
+    }
+
+    @Test
+    public void calculateSpans_[
+    singleElementPrices]
+
+    Test() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {10};
+        int[] result = solution.calculateSpans(prices);
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpans_[
+    twoElementPrices]
+
+    Test() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {1, 2};
+        int[] result = solution.calculateSpans(prices);
+        assertArrayEquals(new int[]{2, 3}, result);
+    }
+
+    @Test
+    public void calculateSpans_[
+    multipleElementPrices]
+
+    Test() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {1, 2, 5, -4, 0};
+        int[] result = solution.calculateSpans(prices);
+        assertArrayEquals(new int[]{2, 3, 6, 7, 8}, result);
+    }
+
+}

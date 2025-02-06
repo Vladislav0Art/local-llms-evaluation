@@ -1,0 +1,126 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Pattern getAppVersionPatternMock();
+
+    @Test
+    public void parseNameValidAmiNameReturnsAppVersion() {
+        String amiName = "ami-abc123";
+        when(getAppVersionPatternMock()).thenReturn(Pattern.compile(".*-([a-zA-Z0-9]+).*"));
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void parseNameInvalidAmiNameReturnsNull() {
+        String amiName = "invalid-ami-name";
+        when(getAppVersionPatternMock()).thenReturn(Pattern.compile(".*-([a-zA-Z0-9]+).*"));
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void compareToDifferentBuildNumbersReturnsNegativeValue() {
+        AppVersion appVersion1 = new AppVersion("1.2.3", "build-name", "commit-hash");
+        AppVersion appVersion2 = new AppVersion("1.2.4", "build-name-2", "commit-hash-2");
+        when(getAppVersionPatternMock()).thenReturn(Pattern.compile(".*-([a-zA-Z0-9]+).*"));
+        assertEquals(-1, appVersion1.compareTo(appVersion2));
+    }
+
+    @Test
+    public void compareToSameBuildNumbersReturnsZero() {
+        AppVersion appVersion1 = new AppVersion("1.2.3", "build-name", "commit-hash");
+        AppVersion appVersion2 = new AppVersion("1.2.3", "build-name-2", "commit-hash-2");
+        when(getAppVersionPatternMock()).thenReturn(Pattern.compile(".*-([a-zA-Z0-9]+).*"));
+        assertEquals(0, appVersion1.compareTo(appVersion2));
+    }
+
+    @Test
+    public void getPackageNameReturnsPackageName() {
+        AppVersion appVersion = new AppVersion("ami-name", "build-number", "commit-hash");
+        String packageName = appVersion.getPackageName();
+        assertTrue(packageName.equals(NameConstants.AMI_NAME));
+    }
+
+    @Test
+    public void getVersionReturnsVersion() {
+        AppVersion appVersion = new AppVersion("ami-name", "1.2.3", "build-number");
+        String version = appVersion.getVersion();
+        assertEquals(version, NameConstants.VERSION);
+    }
+
+    @Test
+    public void getBuildJobNameReturnsBuildJobName() {
+        AppVersion appVersion = new AppVersion("ami-name", "build-number", "commit-hash");
+        String buildJobName = appVersion.getBuildJobName();
+        assertTrue(buildJobName.equals(NameConstants.BUILD_JOB_NAME));
+    }
+
+    @Test
+    public void getBuildNumberReturnsBuildNumber() {
+        AppVersion appVersion = new AppVersion("ami-name", "1.2.3", "build-number");
+        String buildNumber = appVersion.getBuildNumber();
+        assertEquals(buildNumber, NameConstants.BUILD_NUMBER);
+    }
+
+    @Test
+    public void getCommitReturnsCommitHash() {
+        AppVersion appVersion = new AppVersion("ami-name", "build-number", "commit-hash");
+        String commit = appVersion.getCommit();
+        assertTrue(commit.equals(NameConstants.COMMIT_HASH));
+    }
+
+    @Test
+    public void getChangelistReturnsChangelistNumber() {
+        AppVersion appVersion = new AppVersion("ami-name", "build-number", "commit-hash");
+        String changelist = appVersion.getChangelist();
+        assertTrue(changelist.equals(NameConstants.CHANGELIST_NUMBER));
+    }
+
+    @Test
+    public void toStringReturnsPackageNameAndVersion() {
+        AppVersion appVersion = new AppVersion("ami-name", "1.2.3", "build-number");
+        String toString = appVersion.toString();
+        assertEquals(toString, NameConstants.AMI_NAME + NameConstants.VERSION);
+    }
+
+    @Test
+    public void hashCodeReturnsHashFromBuildNumber() {
+        AppVersion appVersion = new AppVersion("ami-name", "1.2.3", "build-number");
+        int hashCode = appVersion.hashCode();
+        assertTrue(hashCode.equals(NameConstants.BUILD_NUMBER));
+    }
+
+    @Test
+    public void equalsReturnsTrueWhenSameAppVersionObject() {
+        AppVersion appVersion1 = new AppVersion("ami-name", "1.2.3", "build-number");
+        AppVersion appVersion2 = new AppVersion("ami-name", "1.2.3", "build-number");
+        assertTrue(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void equalsReturnsFalseWhenDifferentBuildNumbers() {
+        AppVersion appVersion1 = new AppVersion("ami-name", "1.2.3", "build-number");
+        AppVersion appVersion2 = new AppVersion("ami-name", "1.2.4", "build-number");
+        assertNotEquals(appVersion1, appVersion2);
+    }
+
+}

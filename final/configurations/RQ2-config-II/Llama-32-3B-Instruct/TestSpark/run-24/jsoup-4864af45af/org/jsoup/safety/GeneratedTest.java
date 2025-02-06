@@ -1,0 +1,147 @@
+package org.jsoup.safety;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Iterator<String> tagsIterator;
+
+    @Test
+    public void none_SafelistCreatedReturnsNone() {
+        Safelist safelist = Safelist.none();
+        Mockito.verify(safelist).none();
+    }
+
+    @Test
+    public void simpleText_SafelistCreatedReturnsSimpleText() {
+        Safelist safelist = Safelist.simpleText();
+        Mockito.verify(safelist).simpleText();
+    }
+
+    @Test
+    public void basic_SafelistCreatedReturnsBasic() {
+        Safelist safelist = Safelist.basic();
+        Mockito.verify(safelist).basic();
+    }
+
+    @Test
+    public void basicWithImages_SafelistCreatedReturnsBasicWithImages() {
+        Safelist safelist = Safelist.basicWithImages();
+        Mockito.verify(safelist).basicWithImages();
+    }
+
+    @Test
+    public void relaxed_SafelistCreatedReturnsRelaxed() {
+        Safelist safelist = Safelist.relaxed();
+        Mockito.verify(safelist).relaxed();
+    }
+
+    @Test
+    public void addTags_TagAddedToSafelist() {
+        Set<String> expectedTags = new HashSet<>();
+        expectedTags.add("tag1");
+        expectedTags.add("tag2");
+        Safelist safelist = Safelist.addTags(expectedTags.toArray(new String[0]));
+        Mockito.verify(safelist).addTags(Mockito.anyArray());
+    }
+
+    @Test
+    public void removeTags_TagRemovedFromSafelist() {
+        Set<String> expectedTags = new HashSet<>();
+        expectedTags.add("tag1");
+        expectedTags.add("tag2");
+        Safelist safelist = Safelist.removeTags(expectedTags.toArray(new String[0]));
+        Mockito.verify(safelist).removeTags(Mockito.anyArray());
+    }
+
+    @Test
+    public void addAttributes_AttributeAddedToSafelist() {
+        Set<String> expectedAttributes = new HashSet<>();
+        expectedAttributes.add("attr1");
+        expectedAttributes.add("attr2");
+        Safelist safelist = Safelist.addAttributes(expectedTags.toArray(new String[0]), expectedAttributes);
+        Mockito.verify(safelist).addAttributes(Mockito.anyArray(), Mockito.anySet());
+    }
+
+    @Test
+    public void removeAttributes_AttributeRemovedFromSafelist() {
+        Set<String> expectedAttributes = new HashSet<>();
+        expectedAttributes.add("attr1");
+        expectedAttributes.add("attr2");
+        Safelist safelist = Safelist.removeAttributes(expectedTags.toArray(new String[0]), expectedAttributes);
+        Mockito.verify(safelist).removeAttributes(Mockito.anyArray(), Mockito.anySet());
+    }
+
+    @Test
+    public void addEnforcedAttribute_AttributeAddedToSafelist() {
+        Set<String> expectedAttributes = new HashSet<>();
+        expectedAttributes.add("attr1");
+        expectedAttributes.add("attr2");
+        Safelist safelist = Safelist.addEnforcedAttribute("tag", "attr", "value");
+        Mockito.verify(safelist).addEnforcedAttribute(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    public void removeEnforcedAttribute_AttributeRemovedFromSafelist() {
+        Set<String> expectedAttributes = new HashSet<>();
+        expectedAttributes.add("attr1");
+        expectedAttributes.add("attr2");
+        Safelist safelist = Safelist.removeEnforcedAttribute("tag", "attr");
+        Mockito.verify(safelist).removeEnforcedAttribute(Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    public void preserveRelativeLinks_PreserveLink() {
+        boolean preserve = true;
+        Safelist safelist = Safelist.preserveRelativeLinks(preserve);
+        Mockito.verify(safelist).preserveRelativeLinks(preserve);
+    }
+
+    @Test
+    public void addProtocols_ProtoAddedToSafelist() {
+        Set<String> expectedProtocols = new HashSet<>();
+        expectedProtocols.add("proto1");
+        expectedProtocols.add("proto2");
+        Safelist safelist = Safelist.addProtocols("tag", "attribute", expectedProtocols);
+        Mockito.verify(safelist).addProtocols(Mockito.anyString(), Mockito.anyString(), Mockito.anySet());
+    }
+
+    @Test
+    public void removeProtocols_ProtoRemovedFromSafelist() {
+        Set<String> expectedProtocols = new HashSet<>();
+        expectedProtocols.add("proto1");
+        expectedProtocols.add("proto2");
+        Safelist safelist = Safelist.removeProtocols("tag", "attribute", expectedProtocols);
+        Mockito.verify(safelist).removeProtocols(Mockito.anyString(), Mockito.anyString(), Mockito.anySet());
+    }
+
+    @Test
+    public void isSafeTag_SafeTagReturnsTrue() {
+        String tag = "safe-tag";
+        boolean result = Safelist.isSafeTag(tag);
+        Mockito.verify(Safelist.class, Mockito.times(1)).isSafeTag(Mockito.eq(tag));
+    }
+
+    @Test
+    public void isSafeAttribute_SafeAttributeReturnsTrue() {
+        String tagName = "tag-name";
+        Element el = new Element();
+        Attribute attr = new Attribute();
+        boolean result = Safelist.isSafeAttribute(tagName, el, attr);
+        Mockito.verify(Safelist.class, Mockito.times(1)).isSafeAttribute(Mockito.eq(tagName), Mockito.anyObject(), Mockito.anyObject());
+    }
+
+    @Test
+    public void getEnforcedAttributes_EnforcedAttributesReturnsSet() {
+        String tagName = "tag-name";
+        Set<String> result = Safelist.getEnforcedAttributes(tagName);
+        Mockito.verify(Safelist.class, Mockito.times(1)).getEnforcedAttributes(Mockito.eq(tagName));
+    }
+
+}

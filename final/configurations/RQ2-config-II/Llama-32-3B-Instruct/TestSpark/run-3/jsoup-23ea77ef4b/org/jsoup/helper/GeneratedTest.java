@@ -1,0 +1,147 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.W3CDom;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.mockito.Mockito;
+
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructor_isPublic() {
+        Object instance = null;
+        assertDoesNotThrow(() -> new W3CDom());
+    }
+
+    @Test
+    public void namespaceAware_returnsFalseByDefault() {
+        boolean result = W3CDom.namespaceAware();
+        assertTrue(result);
+    }
+
+    @Test
+    public void namespaceAware_withTrue_returnsTrue() {
+        boolean result = W3CDom.namespaceAware(true);
+        assertTrue(result);
+    }
+
+    @Test
+    public void convert_fromJsoup_documentReturnsCorrectDocument() {
+        org.jsoup.nodes.Document soupDoc = Mockito.mock(org.jsoup.nodes.Document.class);
+        Document expected = Mockito.mock(Document.class);
+        Document result = W3CDom.convert(soupDoc);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void asString_documentWithProperties_returnsCorrectString() {
+        Document doc = Mockito.mock(Document.class);
+        Map<String, String> properties = Mockito.mock(Map.class);
+        String expected = "correct string";
+        String result = W3CDom.asString(doc, properties);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void propertiesFromMap_returnsCorrectProperties() {
+        Map<String, String> map = Mockito.mock(Map.class);
+        Properties expected = new Properties();
+        Properties result = W3CDom.propertiesFromMap(map);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void OutputHtml_returnsEmptyHashMap() {
+        HashMap<String, String> expected = new HashMap<>();
+        HashMap<String, String> result = W3CDom.OutputHtml();
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void OutputXml_returnsEmptyHashMap() {
+        HashMap<String, String> expected = new HashMap<>();
+        HashMap<String, String> result = W3CDom.OutputXml();
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void fromJsoup_documentReturnsCorrectDocument() {
+        org.jsoup.nodes.Document soupDoc = Mockito.mock(org.jsoup.nodes.Document.class);
+        Document expected = Mockito.mock(Document.class);
+        Document result = W3CDom.fromJsoup(soupDoc);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void fromJsoup_elementReturnsCorrectElement() {
+        org.jsoup.nodes.Element element = Mockito.mock(org.jsoup.nodes.Element.class);
+        Element expected = Mockito.mock(Element.class);
+        Element result = W3CDom.fromJsoup(element);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void convert_documentDocumentOutReturnsCorrectDocument() {
+        Document inDoc = Mockito.mock(Document.class);
+        Document outDoc = Mockito.mock(Document.class);
+        Document expected = outDoc;
+        W3CDom.convert(inDoc, outDoc);
+        assertEquals(expected, outDoc);
+    }
+
+    @Test
+    public void convert_elementElementOutReturnsCorrectElement() {
+        org.jsoup.nodes.Element inElement = Mockito.mock(org.jsoup.nodes.Element.class);
+        Element outElement = Mockito.mock(Element.class);
+        W3CDom.convert(inElement, outElement);
+        // No direct assertion for this method as it modifies the element
+    }
+
+    @Test
+    public void selectXpath_xpathDocumentReturnsCorrectNodeList() {
+        String xpath = Mockito.mock(String.class);
+        Document doc = Mockito.mock(Document.class);
+        NodeList expected = Mockito.mock(NodeList.class);
+        NodeList result = W3CDom.selectXpath(xpath, doc);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void selectXpath_xpathNodeContextReturnsCorrectNodeList() {
+        String xpath = Mockito.mock(String.class);
+        Node contextNode = Mockito.mock(Node.class);
+        NodeList expected = Mockito.mock(NodeList.class);
+        NodeList result = W3CDom.selectXpath(xpath, contextNode);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void sourceNodes_nodeListNodeTypeReturnsCorrectList() {
+        NodeList nodeList = Mockito.mock(NodeList.class);
+        Class<T> nodeType = Mockito.mock(Class.class);
+        List<?> expected = Mockito.mock(List.class);
+        List<? extends org.jsoup.nodes.Node> result = W3CDom.sourceNodes(nodeList, nodeType);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void contextNode_documentReturnsCorrectContextNode() {
+        Document wDoc = Mockito.mock(Document.class);
+        Node expected = Mockito.mock(Node.class);
+        Node result = W3CDom.contextNode(wDoc);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void asString_documentReturnsCorrectString() {
+        Document doc = Mockito.mock(Document.class);
+        String expected = "correct string";
+        String result = W3CDom.asString(doc);
+        assertEquals(expected, result);
+    }
+
+}

@@ -1,0 +1,196 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShell() {
+        String baseUri = "https://www.example.com";
+        Document document = Document.createShell(baseUri);
+        assertThat(document, is(notNullValue()));
+    }
+
+    @Test
+    public void location() {
+        String baseUri = "https://www.example.com";
+        Document document = new Document(baseUri);
+        String location = document.location();
+        assertThat(location, is(""));
+    }
+
+    @Test
+    public void connection() {
+        Connection connection = Jsoup.connect("https://www.example.com");
+        Document document = Document.createShell(connection.getUri());
+        Connection expectedConnection = mock(Connection.class);
+        document.connection(expectedConnection);
+        assertThat(document.connection(), is(expectedConnection));
+    }
+
+    @Test
+    public void documentType() {
+        Document document = new Document("");
+        Document.Type type = document.documentType();
+        assertThat(type, is(Document.Type.None));
+    }
+
+    @Test
+    public void head() {
+        String baseUri = "https://www.example.com";
+        Document document = new Document(baseUri);
+        Element headElement = document.head();
+        assertThat(headElement, is(notNullValue()));
+    }
+
+    @Test
+    public void body() {
+        String baseUri = "https://www.example.com";
+        Document document = new Document(baseUri);
+        Element bodyElement = document.body();
+        assertThat(bodyElement, is(notNullValue()));
+    }
+
+    @Test
+    public void forms() {
+        List<FormElement> expectedForms = List.of(mock(FormElement.class), mock(FormElement.class));
+        Document document = new Document("");
+        List<FormElement> actualForms = document.forms();
+        assertThat(actualForms, is(expectedForms));
+    }
+
+    @Test
+    public void expectForm() {
+        String cssQuery = "form";
+        FormElement expectedForm = mock(FormElement.class);
+        Document document = new Document("");
+        FormElement actualForm = document.expectForm(cssQuery);
+        assertThat(actualForm, is(expectedForm));
+    }
+
+    @Test
+    public void title() {
+        Document document = new Document("");
+        String title = document.title();
+        assertThat(title, is(""));
+    }
+
+    @Test
+    public void titleSet() {
+        String expectedTitle = "Example Title";
+        Document document = new Document("");
+        document.title(expectedTitle);
+        String actualTitle = document.title();
+        assertThat(actualTitle, is(expectedTitle));
+    }
+
+    @Test
+    public void createElement() {
+        String tagName = "p";
+        Element element = mock(Element.class);
+        Document document = new Document("");
+        Element createdElement = document.createElement(tagName);
+        assertThat(createdElement, is(element));
+    }
+
+    @Test
+    public void outerHtml() {
+        String html = "<html><body>Hello World!</body></html>";
+        Document document = Jsoup.parse(html);
+        String actualOuterHtml = document.outerHtml();
+        assertThat(actualOuterHtml, is(html));
+    }
+
+    @Test
+    public void text() {
+        String expectedText = "Hello World!";
+        Document document = Jsoup.parse("<p>Hello World!</p>");
+        Element element = mock(Element.class);
+        document.text(expectedText, element);
+        String actualText = element.text();
+        assertThat(actualText, is(expectedText));
+    }
+
+    @Test
+    public void nodeName() {
+        Document document = new Document("");
+        String expectedName = "HTML";
+        String actualName = document.nodeName();
+        assertThat(actualName, is(expectedName));
+    }
+
+    @Test
+    public void charset() {
+        Charset expectedCharset = Charset.forName("UTF-8");
+        Document document = new Document("");
+        Charset actualCharset = document.charset();
+        assertThat(actualCharset, is(expectedCharset));
+    }
+
+    @Test
+    public void updateMetaCharsetElement() {
+        boolean expectedUpdate = true;
+        Document document = new Document("");
+        document.updateMetaCharsetElement(expectedUpdate);
+        boolean actualUpdate = document.updateMetaCharsetElement();
+        assertThat(actualUpdate, is(expectedUpdate));
+    }
+
+    @Test
+    public void clone() {
+        Document document = new Document("");
+        Document clonedDocument = document.clone();
+        assertThat(clonedDocument, is(notNullValue()));
+    }
+
+    @Test
+    public void shallowClone() {
+        Document document = new Document("");
+        Document shallowClonedDocument = document.shallowClone();
+        assertThat(shallowClonedDocument, is(notNullValue()));
+    }
+
+    @Test
+    public void outputSettings() {
+        OutputSettings expectedOutputSettings = mock(OutputSettings.class);
+        Document document = new Document("");
+        OutputSettings actualOutputSettings = document.outputSettings(expectedOutputSettings);
+        assertThat(actualOutputSettings, is(expectedOutputSettings));
+    }
+
+    @Test
+    public void parser() {
+        Parser expectedParser = mock(Parser.class);
+        Document document = new Document("");
+        Parser actualParser = document.parser(expectedParser);
+        assertThat(actualParser, is(expectedParser));
+    }
+}
+
+public class MockConnection implements Connection {
+    private String uri;
+
+    public MockConnection(String uri) {
+        this.uri = uri;
+    }
+
+    @Override
+    public String getUri() {
+        return uri;
+    }
+}
+
+class MockFormElement extends Element {
+    @Override
+    public boolean tagName(String name) {
+        return true;
+    }
+}
+
+}

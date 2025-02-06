@@ -1,0 +1,106 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Rule;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+public class GeneratedTest {
+
+    @Mock
+    private SettingsHolder settingsHolder;
+
+    @Rule
+    public MockitoAnnotations rules = MockitoAnnotations.Builder.build();
+
+    private CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+
+    @Test
+    public void [CommentsConfiguration__ConstructorNoParams]
+
+    Test() {
+        // TODO: Write Test
+    }
+
+    @Test
+    public void [CommentsConfiguration__ConstructorWithCommentsParam]
+
+    Test() {
+        Map<String, List<String>> map = Collections.singletonMap("key", Arrays.asList("value1", "value2"));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(map);
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+    }
+
+    @Test
+    public void [CommentsConfiguration__setCommentSingleNewline]
+
+    Test() {
+        String path = "/path";
+        String[] commentLines = {"\n"};
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(Collections.singletonList("\n"), commentsConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void [CommentsConfiguration__setCommentMultipleLines]
+
+    Test() {
+        String path = "/path";
+        String[] commentLines = {"line1", "line2"};
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(Arrays.asList("line1", "line2"), commentsConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void [CommentsConfiguration__setCommentInvalidPath]
+
+    Test() {
+        String path = "invalid/path";
+        String[] commentLines = {"line1", "line2"};
+        try {
+            commentsConfiguration.setComment(path, commentLines);
+            assert false;
+        } catch (Exception e) {
+        }
+    }
+
+    @Test
+    public void [CommentsConfiguration__setCommentMultiplePaths]
+
+    Test() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path1 = "/path1";
+        String[] commentLines1 = {"line1", "line2"};
+        commentsConfiguration.setComment(path1, commentLines1);
+
+        String path2 = "/path2";
+        String[] commentLines2 = {"line3"};
+        commentsConfiguration.setComment(path2, commentLines2);
+
+        assertEquals(Collections.singletonMap("/path1", Arrays.asList("line1", "line2")), commentsConfiguration.getAllComments());
+    }
+
+    @Test
+    public void [CommentsConfiguration__getAllComments]
+
+    Test() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path1 = "/path1";
+        String[] commentLines1 = {"line1", "line2"};
+        commentsConfiguration.setComment(path1, commentLines1);
+
+        assertEquals(Collections.singletonMap("/path1", Arrays.asList("line1", "line2")), commentsConfiguration.getAllComments());
+    }
+
+    @Test
+    public void [CommentsConfiguration__getAllCommentsEmpty]
+
+    Test() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertEquals(Collections.emptyMap(), commentsConfiguration.getAllComments());
+    }
+
+}

@@ -1,0 +1,73 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+public class GeneratedTest {
+
+    @Test
+    public void newCommentsConfiguration_isEmpty() {
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+        assertEquals(0, commentsConfig.getAllComments().size());
+    }
+
+    @Test
+    public void newCommentsConfiguration_fromMap_isNotEmpty() {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("path1", Arrays.asList("line1"));
+        CommentsConfiguration commentsConfig = new CommentsConfiguration(map);
+        assertEquals(1, commentsConfig.getAllComments().size());
+        assertNotNull(commentsConfig.getAllComments().get("path1"));
+    }
+
+    @Test
+    public void setComment_setsCommentForPath() {
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+        String path = "path1";
+        String commentLine = "line1";
+
+        Map<String, List<String>> allCommentsBeforeSet = new HashMap<>();
+        for (Map.Entry<String, List<String>> entry : commentsConfig.getAllComments().entrySet()) {
+            allCommentsBeforeSet.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+
+        CommentsConfiguration commentsConfigAfterSet = new CommentsConfiguration();
+        commentsConfig.setComment(path, commentLine);
+
+        Map<String, @UnmodifiableView List<String>> allCommentsAfterSet = new HashMap<>();
+        for (Map.Entry<String, List<String>> entry : commentsConfig.getAllComments().entrySet()) {
+            allCommentsAfterSet.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+
+        assertNotEquals(allCommentsBeforeSet, allCommentsAfterSet);
+        assertEquals(1, allCommentsAfterSet.size());
+    }
+
+    @Test
+    public void setComment_setsMultipleCommentsForPath() {
+        CommentsConfiguration commentsConfig = new CommentsConfiguration();
+        String path = "path1";
+        String commentLine1 = "line1";
+        String commentLine2 = "line2";
+
+        Map<String, List<String>> allCommentsBeforeSet = new HashMap<>();
+        for (Map.Entry<String, List<String>> entry : commentsConfig.getAllComments().entrySet()) {
+            allCommentsBeforeSet.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+
+        CommentsConfiguration commentsConfigAfterSet = new CommentsConfiguration();
+        commentsConfig.setComment(path, commentLine1, commentLine2);
+
+        Map<String, @UnmodifiableView List<String>> allCommentsAfterSet = new HashMap<>();
+        for (Map.Entry<String, List<String>> entry : commentsConfig.getAllComments().entrySet()) {
+            allCommentsAfterSet.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+
+        assertEquals(2, allCommentsAfterSet.get(path).size());
+    }
+
+}

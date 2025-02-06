@@ -1,0 +1,155 @@
+package org.jsoup.safety;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.Safelist;
+
+public class GeneratedTest {
+
+    @Test
+    public void none_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.none();
+        assertTrue(safelist.isSafeTag("img"));
+        assertFalse(safelist.isSafeTag("script"));
+    }
+
+    @Test
+    public void simpleText_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.simpleText();
+        assertTrue(safelist.isSafeAttribute("a", null, new Attribute("href", "https://www.example.com")));
+        assertFalse(safelist.isSafeAttribute("img", null, new Attribute("src", "")));
+    }
+
+    @Test
+    public void basic_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.basic();
+        assertTrue(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeTag("img"));
+        assertFalse(safelist.isSafeTag("script"));
+    }
+
+    @Test
+    public void basicWithImages_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.basicWithImages();
+        assertTrue(safelist.isSafeAttribute("img", null, new Attribute("src", "")));
+        assertTrue(safelist.isSafeAttribute("a", null, new Attribute("href", "https://www.example.com")));
+    }
+
+    @Test
+    public void relaxed_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.relaxed();
+        assertTrue(safelist.isSafeTag("script"));
+        assertFalse(safelist.isSafeTag("img"));
+    }
+
+    @Test
+    public void addTags_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.addTags("a", "img");
+        assertTrue(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeTag("img"));
+    }
+
+    @Test
+    public void removeTags_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.basicWithImages();
+        safelist = safelist.removeTags("script", "img");
+        assertFalse(safelist.isSafeTag("script"));
+        assertTrue(safelist.isSafeTag("a"));
+        assertFalse(safelist.isSafeTag("img"));
+    }
+
+    @Test
+    public void addAttributes_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.addAttributes("a", "href", "https://www.example.com");
+        assertTrue(safelist.isEnforcedAttribute("a", "href", "https://www.example.com"));
+    }
+
+    @Test
+    public void removeAttributes_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.removeAttributes("a", "href");
+        assertFalse(safelist.isEnforcedAttribute("a", "href", ""));
+    }
+
+    @Test
+    public void addEnforcedAttribute_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.addEnforcedAttribute("script", "type", "text/javascript");
+        assertTrue(safelist.isEnforcedAttribute("script", "type", "text/javascript"));
+    }
+
+    @Test
+    public void removeEnforcedAttribute_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.removeEnforcedAttribute("script", "type");
+        assertFalse(safelist.isEnforcedAttribute("script", "type", ""));
+    }
+
+    @Test
+    public void preserveRelativeLinks_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.preserveRelativeLinks(true);
+        assertTrue(safelist.isSafeTag("a"));
+    }
+
+    @Test
+    public void addProtocols_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.addProtocols("img", "src", "https://www.example.com");
+        assertTrue(safelist.isEnforcedAttribute("img", null, new Attribute("src", "https://www.example.com")));
+    }
+
+    @Test
+    public void removeProtocols_[
+    Scenario]
+
+    Test() {
+        Safelist safelist = Safelist.none();
+        safelist = safelist.removeProtocols("img", "src");
+        assertFalse(safelist.isEnforcedAttribute("img", null, new Attribute("src", "")));
+    }
+
+}

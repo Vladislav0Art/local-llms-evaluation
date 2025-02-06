@@ -1,0 +1,83 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void newNode
+
+    commentNotNull() {
+        Comment comment = new Comment("test");
+        assertNotNull(comment);
+    }
+
+    @Test
+    public void nodeNameReturnsString() {
+        Comment comment = new Comment("test");
+        assertEquals("comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataReturnsString() {
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
+    }
+
+    @Test
+    public void setDataSetsData() {
+        Comment comment = new Comment("oldText");
+        comment.setData("newText");
+        assertEquals("newText", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadThrowsIOException() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("test");
+        assertThrows(IOException.class, () -> comment.outerHtmlHead(accum, 1, out));
+    }
+
+    @Test
+    public void outerHtmlTailDoesNotThrowIOException() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        Document.OutputSettings out = new Document.OutputSettings();
+        Comment comment = new Comment("test");
+        comment.outerHtmlTail(accum, 1, out);
+    }
+
+    @Test
+    public void toStringReturnsString() {
+        Comment comment = new Comment("test");
+        assertEquals("<!-- test -->", comment.toString());
+    }
+
+    @Test
+    public void cloneCreatesNewComment() {
+        Comment comment = new Comment("test");
+        Comment clonedComment = comment.clone();
+        assertNotNull(clonedComment);
+        assertEquals(comment.getData(), clonedComment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationReturnsFalse() {
+        Comment comment = new Comment("test");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationReturnsNull() {
+        Comment comment = new Comment("test");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+}

@@ -1,0 +1,153 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void createShell_NoBaseUri_throwsException() {
+        // Arrange & Act & Assert
+        assertThrows(Exception.class, () -> Document.createShell(null));
+    }
+
+    @Test
+    public void location_ExistingDocument_ReturnsLocation() {
+        // Arrange
+        Document document = new Document("http://example.com");
+        when(document.location()).thenReturn("http://example.com");
+
+        // Act & Assert
+        assertEquals("http://example.com", document.location());
+    }
+
+    @Test
+    public void location_NewDocument_ReturnsNull() {
+        // Arrange
+        Document document = new Document(null);
+
+        // Act & Assert
+        assertNull(document.location());
+    }
+
+    @Test
+    public void connection_ExistingDocument_ReturnsConnection() {
+        // Arrange
+        Document document = new Document("http://example.com");
+        Connection connection = Mockito.mock(Connection.class);
+        when(document.connection()).thenReturn(connection);
+
+        // Act & Assert
+        assertEquals(connection, document.connection());
+    }
+
+    @Test
+    public void createElement_NoTagName_ThrowsException() {
+        // Arrange
+
+        // Act & Assert
+        assertThrows(Exception.class, () -> Document.createElement(null));
+    }
+
+    @Test
+    public void createElement_ValidTagName_ReturnsElement() {
+        // Arrange
+        Document document = new Document("http://example.com");
+        Element element = Mockito.mock(Element.class);
+        when(document.createElement("div")).thenReturn(element);
+
+        // Act & Assert
+        assertEquals(element, document.createElement("div"));
+    }
+
+    @Test
+    public void title_SettingTitle_setsTitle() {
+        // Arrange
+        Document document = new Document(null);
+        String title = "Example Title";
+        when(document.title()).thenReturn(title);
+
+        // Act
+        document.title(title);
+
+        // Assert
+        assertEquals(title, document.title());
+    }
+
+    @Test
+    public void text_SettingText_setsElementText() {
+        // Arrange
+        Document document = new Document(null);
+        String text = "Example Text";
+        when(document.text(text)).thenReturn(document);
+
+        // Act
+        document.text(text);
+
+        // Assert
+        assertEquals(text, document.text());
+    }
+
+    @Test
+    public void charset_SettingCharset_setsCharset() {
+        // Arrange
+        Document document = new Document(null);
+        Charset charset = Mockito.mock(Charset.class);
+        when(document.charset(charset)).thenReturn(document);
+
+        // Act
+        document.charset(charset);
+
+        // Assert
+        assertEquals(charset, document.charset());
+    }
+
+    @Test
+    public void outputSettings_SettingOutputSettings_setsDocumentOutputSettings() {
+        // Arrange
+        Document document = new Document(null);
+        OutputSettings outputSettings = Mockito.mock(OutputSettings.class);
+        when(document.outputSettings(outputSettings)).thenReturn(document);
+
+        // Act
+        document.outputSettings(outputSettings);
+
+        // Assert
+        assertEquals(outputSettings, document.outputSettings());
+    }
+
+    @Test
+    public void updateMetaCharsetElement_SettingUpdateSetsUpdateMetaCharsetElement() {
+        // Arrange
+        Document document = new Document(null);
+        boolean update = false;
+        when(document.updateMetaCharsetElement(update)).thenReturn(document);
+
+        // Act
+        document.updateMetaCharsetElement(true);
+
+        // Assert
+        assertEquals(true, document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void quirksMode_SettingQuirksMode_setsDocumentQuirksMode() {
+        // Arrange
+        Document document = new Document(null);
+        QuirksMode quirksMode = Mockito.mock(QuirksMode.class);
+        when(document.quirksMode(quirksMode)).thenReturn(document);
+
+        // Act
+        document.quirksMode(QuirksMode.CANONICAL);
+
+        // Assert
+        assertEquals(QuirksMode.CANONICAL, document.quirksMode());
+    }
+
+}

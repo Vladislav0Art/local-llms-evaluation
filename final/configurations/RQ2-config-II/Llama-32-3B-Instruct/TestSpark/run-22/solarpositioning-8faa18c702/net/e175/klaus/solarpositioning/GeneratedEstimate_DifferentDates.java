@@ -1,0 +1,25 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.time.LocalDate;
+
+import static java.lang.Math.pow;
+
+public class GeneratedEstimate_DifferentDates {
+
+    @Test
+    public void estimate_DifferentDates() {
+        LocalDate date1 = LocalDate.of(2022, 6, 21);
+        LocalDate date2 = LocalDate.of(2023, 3, 20);
+
+        double result1 = DeltaT.estimate(date1);
+        double result2 = DeltaT.estimate(date2);
+
+        assertEquals(result1, 0.001333, 0.00001); // approximate value
+        assertEquals(result2, 0.011667, 0.00001); // approximate value
+    }
+
+}

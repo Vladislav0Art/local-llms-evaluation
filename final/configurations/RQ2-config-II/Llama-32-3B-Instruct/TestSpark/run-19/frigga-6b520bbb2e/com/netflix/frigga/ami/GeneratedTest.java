@@ -1,0 +1,144 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.Collections;
+
+import com.netflix.frigga.NameConstants;
+import org.mockito.Mockito;
+import org.mockito.MockingDetails;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseName_OkayTest() {
+        String amiName = "1.9.0-EC2-Ubuntu-16.04-amzn2-x86_64-gp2";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void parseName_MissingValueTest() {
+        String amiName = null;
+        try {
+            AppVersion.parseName(amiName);
+            fail("Expected exception not thrown");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void parseName_InvalidFormatTest() {
+        String amiName = "1.9.0-EC2-Ubuntu-16.04-amzn2-x86_64";
+        try {
+            AppVersion.parseName(amiName);
+            fail("Expected exception not thrown");
+        } catch (Exception e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void compareTo_OkayTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        assertTrue(appVersion1.compareTo(appVersion2) < 0);
+    }
+
+    @Test
+    public void compareTo_SameTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        assertEquals(0, appVersion1.compareTo(appVersion2));
+    }
+
+    @Test
+    public void compareTo_DifferentTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        assertTrue(appVersion1.compareTo(appVersion2) > 0);
+    }
+
+    @Test
+    public void getAppVersionPattern_OkayTest() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        assertNotNull(pattern);
+    }
+
+    @Test
+    public void getPackageName_OkayTest() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(NameConstants.PACKAGE_NAME, appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersion_OkayTest() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals("1.9.0", appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobName_OkayTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNotNull(appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumber_OkayTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNotNull(appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommit_OkayTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNotNull(appVersion.getCommit());
+    }
+
+    @Test
+    public void getChangelist_DecommissionedTest() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(NameConstants.CHERALIST, appVersion.getChangelist());
+    }
+
+    @Test
+    public void toString_OkayTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNotNull(appVersion.toString());
+    }
+
+    @Test
+    public void hashCode_OkayTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        assertNotEquals(appVersion1.hashCode(), appVersion2.hashCode());
+    }
+
+    @Test
+    public void equals_SameInstance_OkayTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        assertTrue(appVersion1.equals(appVersion1));
+    }
+
+    @Test
+    public void equals_DifferentInstance_NonequivalentTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        assertFalse(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void equals_MismatchedInstancesNonequalTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        assertTrue(!appVersion1.equals(new AppVersion()));
+    }
+
+}

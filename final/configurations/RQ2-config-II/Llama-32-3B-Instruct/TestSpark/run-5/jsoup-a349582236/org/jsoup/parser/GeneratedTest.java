@@ -1,0 +1,92 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void getName() {
+        Tag tag = new Tag();
+        assertNotNull(tag.getName());
+    }
+
+    @Test
+    public void normalName_tagWithSpaces() {
+        Tag tag = new Tag();
+        assertEquals("", tag.normalName());
+    }
+
+    @Test
+    public void normalName_noSpace() {
+        Tag tag = new Tag("tag");
+        assertEquals("tag", tag.normalName());
+    }
+
+    @Test
+    public void valueOf_tagName() {
+        String tagName = "div";
+        ParseSettings settings = null;
+        Tag result = Tag.valueOf(tagName, settings);
+        assertNotNull(result);
+        assertEquals(tagName, result.getName());
+    }
+
+    @Test
+    public void valueOf_noTagName() {
+        Tag result = Tag.valueOf("");
+        assertNull(result);
+    }
+
+    @Test
+    public void isBlock_tagNameDivOrLi() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.isBlock());
+        assertFalse(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlock() {
+        Tag tag = new Tag();
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isEmpty_emptyTag() {
+        Tag tag = new Tag("");
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosing_selfClosingTag() {
+        Tag tag = new Tag("img");
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTag() {
+        String tagName = "div";
+        assertTrue(Tag.isKnownTag(tagName));
+    }
+
+    @Test
+    public void preserveWhitespace_noPreserveWhitespace() {
+        Tag tag = new Tag();
+        assertFalse(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void setSelfClosing_selfClosingTag() {
+        Tag tag = new Tag();
+        tag.setSelfClosing();
+        assertTrue(tag.isSelfClosing());
+    }
+
+}

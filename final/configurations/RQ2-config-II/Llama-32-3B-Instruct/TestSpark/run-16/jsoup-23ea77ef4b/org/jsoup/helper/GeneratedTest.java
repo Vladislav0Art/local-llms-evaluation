@@ -1,0 +1,122 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.W3CDom;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import java.util.HashMap;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAware_true_ReturnsTrue() {
+        assertTrue(W3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAware_false_ReturnsFalse() {
+        assertFalse(W3CDom.namespaceAware(false));
+    }
+
+    @Test
+    public void convertJsoupDoc_ReturnsDocument() throws Exception {
+        Document in = W3CDom.convert(new org.jsoup.nodes.Document()); // Mock Jsoup Doc
+        Document out = new org.w3c.dom.Document();
+        W3CDom.convert(in, out);
+        assertTrue(out instanceof org.w3c.dom.Document);
+    }
+
+    @Test
+    public void asStringDoc_withProperties_ReturnsString() throws Exception {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("key", "value");
+        Document in = W3CDom.convert(new org.jsoup.nodes.Document());
+        String out = W3CDom.asString(in, properties);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void propertiesFromMap_ReturnsProperties() {
+        Map<String, String> map = new HashMap<>();
+        Properties expected = new Properties();
+        expected.setProperty("key", "value");
+        Properties actual = W3CDom.propertiesFromMap(map);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void OutputHtml_ReturnsHashMap() {
+        HashMap<String, String> actual = W3CDom.OutputHtml();
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void OutputXml_ReturnsHashMap() {
+        HashMap<String, String> actual = W3CDom.OutputXml();
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void fromJsoupDoc_ReturnsDocument() throws Exception {
+        org.jsoup.nodes.Document in = new org.jsoup.nodes.Document(); // Mock Jsoup Doc
+        Document out = W3CDom.fromJsoup(in);
+        assertTrue(out instanceof org.w3c.dom.Document);
+    }
+
+    @Test
+    public void fromJsoupElement_ReturnsDocument() throws Exception {
+        org.jsoup.nodes.Element in = new org.jsoup.nodes.Element(); // Mock Jsoup Element
+        Document out = W3CDom.fromJsoup(in);
+        assertTrue(out instanceof org.w3c.dom.Document);
+    }
+
+    @Test
+    public void convertDoc_outReturnsDocument() throws Exception {
+        Document in = new org.jsoup.nodes.Document();
+        Document out = new org.w3c.dom.Document();
+        W3CDom.convert(in, out);
+        assertTrue(out instanceof org.w3c.dom.Document);
+    }
+
+    @Test
+    public void convertElement_outReturnsDocument() throws Exception {
+        org.jsoup.nodes.Element in = new org.jsoup.nodes.Element(); // Mock Jsoup Element
+        Document out = new org.w3c.dom.Document();
+        W3CDom.convert(in, out);
+        assertTrue(out instanceof org.w3c.dom.Document);
+    }
+
+    @Test
+    public void selectXpathDoc_withContextNode_ReturnsList() throws Exception {
+        Document doc = new org.w3c.dom.Document(); // Mock Doc
+        Node contextNode = new org.w3c.dom.Node();
+        NodeList nodeList = W3CDom.selectXpath("xpath", doc, contextNode);
+        assertNotNull(nodeList);
+    }
+
+    @Test
+    public void sourceNodes_doc_withNodeType_ReturnsList() {
+        NodeList nodeList = new org.w3c.dom.NodeList(); // Mock NodeList
+        Class<?> nodeType = org.jsoup.nodes.Element.class;
+        List<Object> actual = W3CDom.sourceNodes(nodeList, nodeType);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void contextNode_doc_ReturnsContextNode() {
+        Document doc = new org.w3c.dom.Document(); // Mock Doc
+        Node contextNode = W3CDom.contextNode(doc);
+        assertNotNull(contextNode);
+    }
+
+    @Test
+    public void asString_doc_ReturnsString() throws Exception {
+        Document in = W3CDom.convert(new org.jsoup.nodes.Document()); // Mock Jsoup Doc
+        String out = W3CDom.asString(in);
+        assertNotNull(out);
+    }
+
+}

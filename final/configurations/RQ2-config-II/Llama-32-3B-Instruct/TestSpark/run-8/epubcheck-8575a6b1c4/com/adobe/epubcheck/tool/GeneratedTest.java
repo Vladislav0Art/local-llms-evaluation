@@ -1,0 +1,54 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Locale;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocale_EmptyString_ReturnsDefaultLocale() {
+        Locale locale = new EpubChecker().getLocale("");
+        assertEquals(Locale.US, locale);
+    }
+
+    @Test
+    public void getLocale_NonEmptyString_ReturnsCorrectLocale() {
+        Locale locale = new EpubChecker().getLocale("en_US");
+        assertEquals(Locale.US, locale);
+    }
+
+    @Test
+    public void run_EmptyArgsArray_ThrowsException() {
+        String[] args = {};
+        assertThrows(IllegalArgumentException.class, () -> new EpubChecker().run(args));
+    }
+
+    @Test
+    public void run_NonEmptyArgsArray_ReturnsCorrectResult() throws Exception {
+        File epubFile = new File("path/to/epub/file.epub");
+        File tmpDir = File.createTempDirectory("tmp");
+        String[] args = {"--tmpdir", tmpDir.getAbsolutePath(), "--format", "json"};
+        int result = new EpubChecker().run(args);
+        assertTrue(result >= 0);
+    }
+
+    @Test
+    public void validateFile_ValidEpubFile_ReturnsZeroResult() throws Exception {
+        File epubFile = new File("path/to/valid/epub/file.epub");
+        int result = new EpubChecker().validateFile(epubFile.toURI(), EPUBVersion.V30, null, null);
+        assertTrue(result == 0);
+    }
+
+    @Test
+    public void validateFile_InvalidEpubFile_ReturnsNonZeroResult() throws Exception {
+        File invalidEpubFile = new File("path/to/invalid/epub/file.epub");
+        int result = new EpubChecker().validateFile(invalidEpubFile.toURI(), EPUBVersion.V30, null, null);
+        assertTrue(result != 0);
+    }
+
+}

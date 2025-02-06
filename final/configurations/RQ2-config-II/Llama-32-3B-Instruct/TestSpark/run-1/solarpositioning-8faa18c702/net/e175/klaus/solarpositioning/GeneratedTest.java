@@ -1,0 +1,53 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.time.LocalDate;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateDefaultDeltaTReturnsZero() {
+        LocalDate forDate = LocalDate.of(1970, 1, 1);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 0.00001);
+    }
+
+    @Test
+    public void estimateJanuary_1970DayOneDeltaTReturnsCorrectValue() {
+        LocalDate forDate = LocalDate.of(1970, 1, 1);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(-2.3, result, 0.00001);
+    }
+
+    @Test
+    public void estimateJanuary_1970DayThirtyOneDeltaTReturnsCorrectValue() {
+        LocalDate forDate = LocalDate.of(1970, 1, 31);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(-2.3, result, 0.00001);
+    }
+
+    @Test
+    public void estimateDecember_1969DeltaTReturnsCorrectValue() {
+        LocalDate forDate = LocalDate.of(1969, 12, 31);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(-2.3, result, 0.00001);
+    }
+
+    @Test
+    public void estimateDifferentYearAndMonthDeltaTReturnsCorrectValue() {
+        LocalDate forDate = LocalDate.of(1971, 12, 31);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(-2.3, result, 0.00001);
+    }
+
+    @Test
+    public void estimateLeapYearDayThirtyOneDeltaTReturnsCorrectValue() {
+        LocalDate forDate = LocalDate.of(1976, 2, 29);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(-2.3, result, 0.00001);
+    }
+
+}

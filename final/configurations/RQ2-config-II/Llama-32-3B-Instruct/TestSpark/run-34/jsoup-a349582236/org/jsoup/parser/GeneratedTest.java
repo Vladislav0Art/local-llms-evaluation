@@ -1,0 +1,81 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void getName_EmptyTag_ReturnsEmptyString() {
+        // Arrange and Act
+        String tagName = "";
+        String expectedName = "";
+
+        // Assert
+        assertEquals(expectedName, new Tag(tagName).getName());
+    }
+
+    @Test
+    public void normalName_CapsitalizeTagName_ReturnsNormalizedName() {
+        // Arrange and Act
+        String tagName = "testTag";
+        String expectedName = Normalizer.capsitalize(tagName);
+
+        // Assert
+        assertEquals(expectedName, new Tag(tagName).normalName());
+    }
+
+    @Test
+    public void isBlock_SelfClosingTagsReturnTrue() {
+        // Arrange and Act
+        String tagName = "img";
+        assertTrue(new Tag(tagName).isBlock());
+    }
+
+    @Test
+    public void formatAsBlock_SelfClosingTagsReturnTrue() {
+        // Arrange and Act
+        String tagName = "img";
+        assertTrue(new Tag(tagName).formatAsBlock());
+    }
+
+    @Test
+    public void isInline_NonSelfClosingTagsReturnTrue() {
+        // Arrange and Act
+        String tagName = "div";
+        assertTrue(new Tag(tagName).isInline());
+    }
+
+    @Test
+    public void isEmpty_TagsWithoutAnyChildren_ReturnsTrue() {
+        // Arrange and Act
+        String tagName = "";
+        assertTrue(new Tag(tagName).isEmpty());
+    }
+
+    @Test
+    public void isFormListed_FormTagsReturnTrue() {
+        // Arrange and Act
+        String tagName = "input";
+        assertTrue(new Tag(tagName).isFormListed());
+    }
+
+    @Test
+    public void clone_ReturnsNewTag() {
+        // Arrange and Act
+        Tag tag = new Tag("test");
+        Tag clonedTag = (Tag) tag.clone();
+
+        // Assert
+        assertNotNull(clonedTag);
+        assertEquals(tag, clonedTag);
+    }
+
+}

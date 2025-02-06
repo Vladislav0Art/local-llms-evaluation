@@ -1,0 +1,88 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAware_default() {
+        assertTrue(W3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAware_set_true() {
+        W3CDom w3cdDom = new W3CDom();
+        assertTrue(w3cdDom.namespaceAware(true));
+    }
+
+    @Test
+    public void namespaceAware_set_false() {
+        W3CDom w3cdDom = new W3CDom();
+        assertFalse(w3cdDom.namespaceAware(false));
+    }
+
+    @Test
+    public void convert_jsoup_doc() {
+        Document inDoc = new Document();
+        Document outDoc = W3CDom.convert(inDoc);
+        assertNotNull(outDoc);
+    }
+
+    @Test
+    public void asString_doc_properties() {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("attr", "value");
+        String expected = "<div attr=\"value\">Text</div>";
+        assertEquals(expected, W3CDom.asString(new Document(), properties));
+    }
+
+    @Test
+    public void fromJsoup_doc() {
+        Document inDoc = new Document();
+        Document outDoc = W3CDom.fromJsoup(inDoc);
+        assertNotNull(outDoc);
+    }
+
+    @Test
+    public void selectXpath_doc() {
+        NodeList nodeList = new ArrayList<>();
+        nodeList.add(new Element("element"));
+        NodeList expected = new ArrayList<>();
+        expected.add(nodeList.get(0));
+        assertEquals(expected, W3CDom.selectXpath("//element", new Document()));
+    }
+
+    @Test
+    public void sourceNodes_node_list() {
+        NodeList nodeList = new ArrayList<>();
+        nodeList.add(new Element("element1"));
+        nodeList.add(new Element("element2"));
+        List<Node> expected = new ArrayList<>();
+        expected.add((Node) nodeList.get(0));
+        expected.add((Node) nodeList.get(1));
+        assertEquals(expected, W3CDom.sourceNodes(nodeList, Node.class));
+    }
+
+    @Test
+    public void contextNode_doc() {
+        Document wDoc = new Document();
+        Node node = W3CDom.contextNode(wDoc);
+        assertNotNull(node);
+    }
+
+    @Test
+    public void asString_doc() {
+        Document doc = new Document();
+        String expected = "<html><body>Hello World!</body></html>";
+        assertEquals(expected, W3CDom.asString(doc));
+    }
+
+}

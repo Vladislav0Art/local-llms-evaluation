@@ -1,0 +1,67 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.UUID;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCodigoInterno_String_MockitoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String codigoInternoMockito = "mockito";
+        obj.setCodigoInterno(codigoInternoMockito);
+    }
+
+    @Test
+    public void setPlaca_String_MockitoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String placaMockito = "mockito";
+        obj.setPlaca(placaMockito);
+    }
+
+    @Test
+    public void setRenavam_String_MockitoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String renavamMockito = "mockito";
+        obj.setRenavam(renavamMockito);
+    }
+
+    @Test
+    public void setTara_String_MockitoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String taraMockito = "mockito";
+        obj.setTara(taraMockito);
+    }
+
+    @Test
+    public void getCapacidadeKG_String() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String capacidadeKGMockito = "mockito";
+        assertEquals(capacidadeKGMockito, obj.getCapacidadeKG());
+    }
+
+    @Test
+    public void setCapacidadeKG_String_MockitoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String capacidadeKGMockito = "mockito";
+        obj.setCapacidadeKG(capacidadeKGMockito);
+    }
+
+    @Test
+    public void getCapacidadeM3_String() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String capacidadeM3Mockito = "mockito";
+        assertEquals(capacidadeM3Mockito, obj.getCapacidadeM3());
+    }
+
+    @Test
+    public void setCapacidadeM3_String_MockitoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        String capacidadeM3Mockito = "mockito";
+        obj.setCapacidadeM3(capacidadeM3Mockito);
+    }
+
+}

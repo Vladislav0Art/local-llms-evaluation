@@ -1,0 +1,101 @@
+package org.stellar.sdk;
+
+public class GeneratedTest {
+
+    @Test
+    public void canSign_PublicKeyIsSet_true() {
+        EdDSAPublicKey publicKey = new EdDSAPublicKey();
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertTrue(keyPair.canSign());
+    }
+
+    @Test
+    public void canSign_PublicKeyIsNotSet_false() {
+        KeyPair keyPair = new KeyPair(null);
+        assertFalse(keyPair.canSign());
+    }
+
+    @Test
+    public void fromSecretSeed_SecretSeedIsValid_true() throws Exception {
+        char[] seed = "validseed".toCharArray();
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void fromSecretSeed_SecretSeedIsEmpty_false() throws Exception {
+        char[] seed = "".toCharArray();
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void fromAccountId_AccountIdIsSet_true() throws Exception {
+        String accountId = "testaccountid";
+        KeyPair keyPair = KeyPair.fromAccountId(accountId);
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void fromAccountId_AccountIdIsInvalid_false() throws Exception {
+        String accountId = null;
+        KeyPair keyPair = KeyPair.fromAccountId(accountId);
+        assertNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void fromBip39Seed_AcctNumberIsSet_true() throws Exception {
+        byte[] bip39Seed = "bip39seed".getBytes();
+        int accountNumber = 1;
+        KeyPair keyPair = KeyPair.fromBip39Seed(bip39Seed, accountNumber);
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void fromBip39Seed_AcctNumberIsInvalid_false() throws Exception {
+        byte[] bip39Seed = "bip39seed".getBytes();
+        int accountNumber = 0;
+        KeyPair keyPair = KeyPair.fromBip39Seed(bip39Seed, accountNumber);
+        assertNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void random_IsGenerated_true() throws Exception {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void getPublicKey_PublicKeyIsNotNull() {
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void getSecretSeed_SecretSeedIsNotNull() throws Exception {
+        char[] seed = "testseed".toCharArray();
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNotNull(keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void sign_BitArrayDataIsNotNull() throws Exception {
+        byte[] data = new byte[16];
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertNotNull(keyPair.sign(data));
+    }
+
+    @Test
+    public void getSignatureHint_IsNotNull() {
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertNotNull(keyPair.getSignatureHint());
+    }
+
+    @Test
+    public void signPayloadDecorated_DecoratedSignatureIsNotNull() throws Exception {
+        byte[] signerPayload = "testpayload".getBytes();
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertNotNull(keyPair.signPayloadDecorated(signerPayload));
+    }
+
+}

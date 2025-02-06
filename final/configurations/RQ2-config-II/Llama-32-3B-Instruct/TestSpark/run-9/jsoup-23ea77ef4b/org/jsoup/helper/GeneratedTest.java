@@ -1,0 +1,146 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.NodeList;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTrueTest() {
+        boolean result = new W3CDom().namespaceAware();
+        assertTrue(result);
+    }
+
+    @Test
+    public void namespaceAwareFalseTest() {
+        boolean result = new W3CDom().namespaceAware(false);
+        assertFalse(result);
+    }
+
+    @Test
+    public void namespaceAwareMixedTest() {
+        boolean result = new W3CDom().namespaceAware(true, false);
+        assertFalse(result);
+    }
+
+    @Test
+    public void convertDocumentTest() {
+        Document doc = new Document();
+        Document convertedDoc = org.jsoup.helper.W3CDom.convert(doc);
+        assertNotNull(convertedDoc);
+    }
+
+    @Test
+    public void asStringDocumentWithPropertiesTest() {
+        Document doc = new Document();
+        Map<String, String> properties = new HashMap<>();
+        String result = org.jsoup.helper.W3CDom.asString(doc, properties);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void asStringDocumentWithoutPropertiesTest() {
+        Document doc = new Document();
+        String result = org.jsoup.helper.W3CDom.asString(doc);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = new HashMap<>();
+        Properties properties = org.jsoup.helper.W3CDom.propertiesFromMap(map);
+        assertNotNull(properties);
+    }
+
+    @Test
+    public void OutputHtmlTest() {
+        Document doc = new Document();
+        HashMap<String, String> result = org.jsoup.helper.W3CDom.OutputHtml();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void OutputXmlTest() {
+        Document doc = new Document();
+        HashMap<String, String> result = org.jsoup.helper.W3CDom.OutputXml();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void fromJsoupDocumentTest() {
+        Document soupDoc = new Document();
+        Document convertedDoc = org.jsoup.helper.W3CDom.fromJsoup(soupDoc);
+        assertNotNull(convertedDoc);
+    }
+
+    @Test
+    public void fromJsoupElementTest() {
+        Element element = new Element();
+        Document convertedDoc = org.jsoup.helper.W3CDom.fromJsoup(element);
+        assertNotNull(convertedDoc);
+    }
+
+    @Test
+    public void convertDocumentTest1() throws ParserConfigurationException, TransformerException {
+        String xml = "<html><body>Hello</body></html>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new java.io.ByteArrayInputStream(xml.getBytes()));
+        org.jsoup.helper.W3CDom.convert(doc);
+    }
+
+    @Test
+    public void selectXpathEmptyNodeListTest() {
+        NodeList nodeList = new NodeList();
+        NodeList result = org.jsoup.helper.W3CDom.selectXpath("xpath", nodeList);
+        assertTrue(result.size() == 0);
+    }
+
+    @Test
+    public void selectXpathNonEmptyNodeListTest() {
+        NodeList nodeList = new NodeList();
+        nodeList.add(new Node());
+        NodeList result = org.jsoup.helper.W3CDom.selectXpath("xpath", nodeList);
+        assertFalse(result.size() == 0);
+    }
+
+    @Test
+    public void sourceNodesEmptyNodeListTest() {
+        NodeList nodeList = new NodeList();
+        List<Node> result = org.jsoup.helper.W3CDom.sourceNodes(nodeList, Node.class);
+        assertTrue(result.size() == 0);
+    }
+
+    @Test
+    public void sourceNodesNonEmptyNodeListTest() {
+        NodeList nodeList = new NodeList();
+        nodeList.add(new Node());
+        List<Node> result = org.jsoup.helper.W3CDom.sourceNodes(nodeList, Node.class);
+        assertFalse(result.size() == 0);
+    }
+
+    @Test
+    public void contextNodeDocumentTest() throws ParserConfigurationException, TransformerException {
+        String xml = "<html><body>Hello</body></html>";
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(new java.io.ByteArrayInputStream(xml.getBytes()));
+        Node contextNode = org.jsoup.helper.W3CDom.contextNode(doc);
+        assertNotNull(contextNode);
+    }
+
+    @Test
+    public void asStringDocumentTest() {
+        Document doc = new Document();
+        String result = org.jsoup.helper.W3CDom.asString(doc);
+        assertNotNull(result);
+    }
+
+}

@@ -1,0 +1,147 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeName_emptyText_ReturnsEmptyString() {
+        TextNode textNode = new TextNode("");
+        assertEquals("", textNode.nodeName());
+    }
+
+    @Test
+    public void nodeName_nonEmptyText_ReturnsNonEmptyString() {
+        TextNode textNode = new TextNode("Hello");
+        assertEquals("Hello", textNode.nodeName());
+    }
+
+    @Test
+    public void text_emptyText_ReturnsEmptyString() {
+        TextNode textNode = new TextNode("");
+        assertEquals("", textNode.text());
+    }
+
+    @Test
+    public void text_nonEmptyText_ReturnsNonEmptyString() {
+        TextNode textNode = new TextNode("Hello");
+        assertEquals("Hello", textNode.text());
+    }
+
+    @Test
+    public void text_setText_ReturnsUpdatedText() {
+        TextNode textNode = new TextNode("");
+        textNode.text("Hello");
+        assertEquals("Hello", textNode.text());
+    }
+
+    @Test
+    public void splitText_offsetLessThanLength_ReturnsNewTextNodeWithSplitText() throws IOException {
+        TextNode textNode = new TextNode("Hello World");
+        String result = textNode.splitText(6).text();
+        assertEquals("World", result);
+    }
+
+    @Test
+    public void splitText_offsetGreaterThanOrEqualToLength_ReturnsSameTextNode() throws IOException {
+        TextNode textNode = new TextNode("Hello World");
+        String result = textNode.splitText(11).text();
+        assertEquals("Hello World", result);
+    }
+
+    @Test
+    public void splitText_invalidOffset_ThrowsIndexOutOfBoundsException() throws IOException {
+        TextNode textNode = new TextNode("Hello World");
+        textNode.splitText(-1).text();
+    }
+
+    @Test
+    public void getWholeText_emptyTextNode_ReturnsEmptyString() {
+        TextNode textNode = new TextNode("");
+        assertEquals("", textNode.getWholeText());
+    }
+
+    @Test
+    public void getWholeText_nonEmptyTextNode_ReturnsWholeText() {
+        TextNode textNode = new TextNode("Hello World");
+        assertEquals("Hello World", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlank_emptyTextNode_ReturnsTrue() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_nonEmptyTextNode_ReturnsFalse() {
+        TextNode textNode = new TextNode("Hello");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void outerHtmlHead_emptyText_ThrowsIOException() throws IOException {
+        Document document = new Document();
+        Appendable accum = new ByteArrayOutputStream();
+        int depth = 0;
+        Document.OutputSettings out = null;
+        TextNode textNode = new TextNode("");
+        textNode.outerHtmlHead(accum, depth, out);
+        assertTrue(document.getOutputString().contains("<p></p>"));
+    }
+
+    @Test
+    public void outerHtmlHead_nonEmptyText_ThrowsIOException() throws IOException {
+        Document document = new Document();
+        Appendable accum = new ByteArrayOutputStream();
+        int depth = 0;
+        Document.OutputSettings out = null;
+        TextNode textNode = new TextNode("Hello");
+        textNode.outerHtmlHead(accum, depth, out);
+        assertTrue(document.getOutputString().contains("<p>Hello</p>"));
+    }
+
+    @Test
+    public void outerHtmlTail_emptyTextNode_ReturnsEmptyString() {
+        Document document = new Document();
+        Appendable accum = new ByteArrayOutputStream();
+        int depth = 0;
+        Document.OutputSettings out = null;
+        TextNode textNode = new TextNode("");
+        textNode.outerHtmlTail(accum, depth, out);
+    }
+
+    @Test
+    public void outerHtmlTail_nonEmptyTextNode_ReturnsOuterHTML() {
+        Document document = new Document();
+        Appendable accum = new ByteArrayOutputStream();
+        int depth = 0;
+        Document.OutputSettings out = null;
+        TextNode textNode = new TextNode("Hello");
+        textNode.outerHtmlTail(accum, depth, out);
+    }
+
+    @Test
+    public void clone_originalTextNode_ReturnsSameTextNode() {
+        TextNode originalTextNode = new TextNode("Hello World");
+        TextNode clonedTextNode = originalTextNode.clone();
+        assertEquals(originalTextNode, clonedTextNode);
+    }
+
+    @Test
+    public void clone_differentTextNode_ReturnsDifferentTextNode() {
+        TextNode originalTextNode = new TextNode("Hello World");
+        TextNode clonedTextNode = originalTextNode.clone();
+        assertNotSame(originalTextNode, clonedTextNode);
+    }
+
+}

@@ -1,0 +1,117 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void newCommentsConfiguration_isEmptyMap() {
+        // given
+        Map<String, List<String>> comments = new HashMap<>();
+
+        // when
+        CommentsConfiguration config = new CommentsConfiguration(comments);
+
+        // then
+        assertEquals(0, config.getAllComments().size());
+    }
+
+    @Test
+    public void newCommentsConfiguration_hasValidLines() {
+        // given
+        String path = "path";
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put(path, Arrays.asList("line1", "line2"));
+
+        // when
+        CommentsConfiguration config = new CommentsConfiguration(comments);
+
+        // then
+        assertEquals(2, config.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setComment_overwritesExistingComments() {
+        // given
+        Map<String, List<String>> comments = new HashMap<>();
+        String path = "path";
+        List<String> existingLines = Arrays.asList("line1");
+        comments.put(path, existingLines);
+
+        CommentsConfiguration configBefore = new CommentsConfiguration(comments);
+        CommentsConfiguration configAfter = new CommentsConfiguration(new HashMap<>());
+
+        // when
+        configBefore.setComment(path, "new-line", "commented-line");
+
+        // then
+        assertEquals(2, configAfter.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void setComment_addsNewLines() {
+        // given
+        Map<String, List<String>> comments = new HashMap<>();
+        String path = "path";
+        List<String> existingLines = Arrays.asList("line1");
+        comments.put(path, existingLines);
+
+        CommentsConfiguration configBefore = new CommentsConfiguration(comments);
+        CommentsConfiguration configAfter = new CommentsConfiguration(new HashMap<>());
+
+        // when
+        configBefore.setComment(path, "", "commented-line");
+
+        // then
+        assertEquals(3, configAfter.getAllComments().get(path).size());
+    }
+
+    @Test
+    public void getAllComments_isEmptyMap() {
+        // given
+        Map<String, List<String>> comments = new HashMap<>();
+
+        // when
+        CommentsConfiguration config = new CommentsConfiguration(comments);
+
+        // then
+        assertTrue(config.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void getAllComments_hasValidLines() {
+        // given
+        String path = "path";
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put(path, Arrays.asList("line1", "line2"));
+
+        CommentsConfiguration config = new CommentsConfiguration(comments);
+
+        // when
+        Map<String, @UnmodifiableView List<String>> allComments = config.getAllComments();
+
+        // then
+        assertEquals(1, allComments.size());
+        assertTrue(allComments.get(path).containsAll(Arrays.asList("line1", "line2")));
+    }
+
+    @Test
+    public void setComment_mocksSettingsHolder() {
+        // given
+        SettingsHolder settingsHolderMock = mock(SettingsHolder.class);
+
+        when(settingsHolderMock.isInDevelopmentEnvironment()).thenReturn(true);
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Arrays.asList("line1"));
+        CommentsConfiguration config = new CommentsConfiguration(comments);
+        config.setComment("path", "", "commented-line");
+
+        // then
+        verify(settingsHolderMock).logCommentedLine("path", "commented-line");
+    }
+
+}

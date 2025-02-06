@@ -1,0 +1,213 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+
+public class GeneratedTest {
+
+    @Test
+    public void getName_ValidTagName_ReturnsTagName() {
+        String tagName = "div";
+        assertEquals(tagName, Tag.valueOf(tagName).getName());
+    }
+
+    @Test
+    public void getName_InvalidTagName_throwsException() {
+        Validate.unreachable("tagName");
+    }
+
+    @Test
+    public void normalName_ValidTagName_ReturnsNormalizedName() {
+        String tagName = "div";
+        assertEquals("div", Tag.valueOf(tagName).normalName());
+    }
+
+    @Test
+    public void normalName_InvalidTagName_throwsException() {
+        Validate.unreachable("tagName");
+    }
+
+    @Test
+    public void valueOf_ValidTagName_ReturnsTagInstance() {
+        String tagName = "p";
+        Tag tag = Tag.valueOf(tagName);
+        assertNotNull(tag);
+        assertEquals(tagName, tag.getName());
+    }
+
+    @Test
+    public void valueOf_ValidTagName_ReturnsBlockTagIfRequired() {
+        String tagName = "img";
+        Tag tag = Tag.valueOf(tagName);
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void valueOf_InvalidTagName_throwsException() {
+        Validate.unreachable("tagName");
+    }
+
+    @Test
+    public void isBlock_ValidTagIsBlock_ReturnsTrue() {
+        String tagName = "p";
+        Tag tag = Tag.valueOf(tagName);
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void isBlock_ValidTagNameNotBlock
+
+    ReturnsFalse() {
+        String tagName = "img";
+        Tag tag = Tag.valueOf(tagName);
+        assertFalse(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlock_ValidTagIsBlock_ReturnsTrue() {
+        String tagName = "p";
+        Tag tag = Tag.valueOf(tagName);
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void formatAsBlock_ValidTagNameNotBlock
+
+    ReturnsFalse() {
+        String tagName = "img";
+        Tag tag = Tag.valueOf(tagName);
+        assertFalse(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInline_ValidTagIsInline_ReturnsTrue() {
+        String tagName = "a";
+        Tag tag = Tag.valueOf(tagName);
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isInline_ValidTagNameNotInline
+
+    ReturnsFalse() {
+        String tagName = "p";
+        Tag tag = Tag.valueOf(tagName);
+        assertFalse(tag.isInline());
+    }
+
+    @Test
+    public void isEmpty_ValidTagIsEmpty_ReturnsTrue() {
+        String tagName = "";
+        Tag tag = Tag.valueOf(tagName);
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isEmpty_ValidTagNameNotEmpty
+
+    ReturnsFalse() {
+        String tagName = "img";
+        Tag tag = Tag.valueOf(tagName);
+        assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosing_ValidTagIsSelfClosing_ReturnsTrue() {
+        String tagName = "img";
+        Tag tag = Tag.valueOf(tagName);
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isSelfClosing_ValidTagNameNotSelfClosing
+
+    ReturnsFalse() {
+        String tagName = "a";
+        Tag tag = Tag.valueOf(tagName);
+        assertFalse(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTag_ValidTagNameIsKnownReturnTrue() {
+        String tagName = "div";
+        assertTrue(Tag.isKnownTag(tagName));
+    }
+
+    @Test
+    public void isKnownTag_InvalidTagNameNotKnownReturnsFalse() {
+        String tagName = "unknown";
+        assertFalse(Tag.isKnownTag(tagName));
+    }
+
+    @Test
+    public void preserveWhitespace_ValidTagPreservesWhitespace_ReturnsTrue() {
+        String tagName = "img";
+        Tag tag = Tag.valueOf(tagName);
+        assertTrue(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void preserveWhitespace_ValidTagNameNotPreservedWhitespace
+
+    ReturnsFalse() {
+        String tagName = "a";
+        Tag tag = Tag.valueOf(tagName);
+        assertFalse(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void isFormListed_ValidTagIsFormListed_ReturnsTrue() {
+        String tagName = "form";
+        Tag tag = Tag.valueOf(tagName);
+        assertTrue(tag.isFormListed());
+    }
+
+    @Test
+    public void isFormListed_ValidTagNameNotFormListed
+
+    ReturnsFalse() {
+        String tagName = "p";
+        Tag tag = Tag.valueOf(tagName);
+        assertFalse(tag.isFormListed());
+    }
+
+    @Test
+    public void isFormSubmittable_ValidTagIsFormSubmittable_ReturnsTrue() {
+        String tagName = "input[type=submit]";
+        Tag tag = Tag.valueOf(tagName);
+        assertTrue(tag.isFormSubmittable());
+    }
+
+    @Test
+    public void isFormSubmittable_ValidTagNameNotFormSubmittable
+
+    ReturnsFalse() {
+        String tagName = "img";
+        Tag tag = Tag.valueOf(tagName);
+        assertFalse(tag.isFormSubmittable());
+    }
+
+    @Test
+    public void setSelfClosing_ValidTagIsSelfClosing_ReturnsTrue() {
+        String tagName = "img";
+        Tag tag = Tag.valueOf(tagName);
+        assertTrue(tag.setSelfClosing());
+    }
+
+    @Test
+    public void setSelfClosing_ValidTagNameNotSelfClosing
+
+    ReturnsFalse() {
+        String tagName = "a";
+        Tag tag = Tag.valueOf(tagName);
+        assertFalse(tag.setSelfClosing());
+    }
+
+}

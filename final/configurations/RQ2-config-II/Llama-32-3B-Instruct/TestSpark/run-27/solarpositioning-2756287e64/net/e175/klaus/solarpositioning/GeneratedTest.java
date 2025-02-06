@@ -1,0 +1,71 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSolarPosition_NoParameters_ReturnsDefaultValues() {
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(null, 0.0, 0.0, 0.0);
+        assertEquals(Grena3.AZIMUTH_ZENITH_ANGLE_DEFAULT, result.getAzimuth(), 0.001);
+        assertEquals(Grena3.ZENITH_ANGLE_DEFAULT, result.getZenith(), 0.001);
+    }
+
+    @Test
+    public void calculateSolarPosition_ValidDate_ReturnsCorrectValues() {
+        ZonedDateTime date = ZonedDateTime.of(2022, 6, 21, 10, 0, 0, ZoneOffset.UTC);
+        double latitude = 45.0;
+        double longitude = 4.0;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0);
+        assertEquals(100.0, result.getAzimuth(), 0.001);
+        assertEquals(20.0, result.getZenith(), 0.001);
+    }
+
+    @Test
+    public void calculateSolarPosition_ValidDateAndWeatherConditions_ReturnsCorrectValues() {
+        ZonedDateTime date = ZonedDateTime.of(2022, 6, 21, 10, 0, 0, ZoneOffset.UTC);
+        double latitude = 45.0;
+        double longitude = 4.0;
+        double pressure = 1023.0;
+        double temperature = 20.0;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0, pressure, temperature);
+        assertEquals(100.5, result.getAzimuth(), 0.001);
+        assertEquals(22.1, result.getZenith(), 0.001);
+    }
+
+    @Test
+    public void calculateSolarPosition_NullDate_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> Grena3.calculateSolarPosition(null, 45.0, 4.0, 0.0));
+    }
+}
+
+class AzimuthZenithAngle {
+    private double azimuth;
+    private double zenith;
+
+    public AzimuthZenithAngle(double azimuth, double zenith) {
+        this.azimuth = azimuth;
+        this.zenith = zenith;
+    }
+
+    public double getAzimuth() {
+        return azimuth;
+    }
+
+    public double getZenith() {
+        return zenith;
+    }
+}
+
+class Grena3 {
+    public static AzimuthZenithAngle calculateSolarPosition(final ZonedDateTime date, final double latitude,
+                                                            final double longitude, final double deltaT) { /* implementation */ }
+
+    public static AzimuthZenithAngle calculateSolarPosition(final ZonedDateTime date, final double latitude,
+                                                            final double longitude, final double deltaT, final double pressure,
+                                                            final double temperature) { /* implementation */
+    }
+
+}

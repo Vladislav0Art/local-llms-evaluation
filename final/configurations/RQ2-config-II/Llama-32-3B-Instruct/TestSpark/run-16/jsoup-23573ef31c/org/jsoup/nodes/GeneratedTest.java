@@ -1,0 +1,142 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellDocument_DoesNotThrowException() {
+        assertDoesNotThrow(Document::createShell);
+    }
+
+    @Test
+    public void createShellDocumentReturnsInstanceOfDocument() {
+        Document doc = Document.createShell("");
+        assertNotNull(doc);
+        assertTrue(doc instanceof Document);
+    }
+
+    @Test
+    public void locationMethod_ReturnsStringValue() {
+        Document doc = Document.createShell("");
+        String location = doc.location();
+        assertNotNull(location);
+        assertTrue(!location.isEmpty());
+    }
+
+    @Test
+    public void locationMethod_ThrowsNullIfNoLocation() {
+        assertThrows(NullPointerException.class, () -> Document.createShell("").location());
+    }
+
+    @Test
+    public void connectionMethod_ReturnsInstanceOfConnection() {
+        Connection conn = Jsoup.connect("");
+        Document doc = Document.createShell("");
+        Connection result = doc.connection();
+        assertNotNull(result);
+        assertTrue(result instanceof Connection);
+    }
+
+    @Test
+    public void titleMethod_SettingStringTitleValueUpdatesTitle() {
+        Document doc = Document.createShell("");
+        doc.title("New Title");
+        assertEquals("New Title", doc.title());
+    }
+
+    @Test
+    public void titleMethod_SettingNullTitleValueResettingTitle() {
+        Document doc = Document.createShell("");
+        doc.title("Old Title");
+        doc.title(null);
+        assertEquals("Old Title", doc.title());
+    }
+
+    @Test
+    public void createElementMethod_CreatesInstanceOfElementWithCorrectTagName() {
+        Element element = Document.createElement("div");
+        assertNotNull(element);
+        assertTrue(element instanceof Element);
+        assertEquals("div", ((Element) element).tagName());
+    }
+
+    @Test
+    public void outerHtmlMethod_ReturnsStringValue() {
+        String html = "<html><body>Hello World!</body></html>";
+        Document doc = Jsoup.parse(html);
+        String outerHtml = doc.outerHtml();
+        assertNotNull(outerHtml);
+        assertTrue(!outerHtml.isEmpty());
+    }
+
+    @Test
+    public void textMethod_SettingStringTextValueUpdatesElementText() {
+        String html = "<p>Old Text</p>";
+        Document doc = Jsoup.parse(html);
+        Element element = doc.select("p").first();
+        element.text("New Text");
+        assertEquals("New Text", element.text());
+    }
+
+    @Test
+    public void nodeNameMethod_ReturnsStringValue() {
+        String html = "<html><body>Hello World!</body></html>";
+        Document doc = Jsoup.parse(html);
+        String nodeName = doc.nodeName();
+        assertNotNull(nodeName);
+        assertTrue(!nodeName.isEmpty());
+    }
+
+    @Test
+    public void charsetMethod_SettingCharsetUpdatesDocumentCharset() {
+        Charset charset = Charset.forName("UTF-8");
+        Document doc = Document.createShell("");
+        doc.charset(charset);
+        assertEquals(charset, doc.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementMethod_TurnsUpdateFlagToTrue() {
+        boolean flag = false;
+        Document doc = Document.createShell("");
+        doc.updateMetaCharsetElement(true);
+        assertTrue(flag);
+    }
+
+    @Test
+    public void outputSettingsMethod_SettingOutputSettingsUpdatesDocumentSettings() {
+        OutputSettings settings = new OutputSettings();
+        Document doc = Document.createShell("");
+        Document result = doc.outputSettings(settings);
+        assertNotNull(result);
+        assertEquals(settings, result.outputSettings());
+    }
+
+    @Test
+    public void shallowCloneMethod_ReturnsShallowCopiedInstanceOfDocument() {
+        String html = "<html><body>Hello World!</body></html>";
+        Document originalDoc = Jsoup.parse(html);
+        Document clonedDoc = originalDoc.clone();
+        assertNotNull(clonedDoc);
+        assertTrue(clonedDoc instanceof Document);
+        assertEquals(originalDoc, clonedDoc.shallowClone());
+    }
+
+    @Test
+    public void quirksModeMethod_SettingQuirksModeUpdatesDocumentSettings() {
+        QuirksMode mode = QuirksMode.CONSTANT;
+        Document doc = Document.createShell("");
+        Document result = doc.quirksMode(mode);
+        assertNotNull(result);
+        assertEquals(mode, result.quirksMode());
+    }
+
+    @Test
+    public void parserMethod_SettingParserUpdatesDocumentSettings() {
+        Parser parser = new Parser();
+        Document doc = Document.createShell("");
+        Document result = doc.parser(parser);
+        assertNotNull(result);
+        assertEquals(parser, result.parser());
+    }
+
+}

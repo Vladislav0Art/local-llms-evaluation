@@ -1,0 +1,140 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.safety.Safelist;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.HashSet;
+import java.util.Set;
+
+public class SafelistTest {
+
+    @Test
+    public void none_isNone() {
+        Safelist list = Safelist.none();
+        assertEquals(Safelist.none(), list);
+    }
+
+    @Test
+    public void simpleText_onlyContainsTextTags() {
+        Safelist list = Safelist.simpleText();
+        assertTrue(list.isSafeTag("p"));
+        assertTrue(list.isSafeTag("span"));
+        assertFalse(list.isSafeTag("img"));
+    }
+
+    @Test
+    public void basic_containsTextTagsAndBasicImageTags() {
+        Safelist list = Safelist.basic();
+        assertTrue(list.isSafeTag("p"));
+        assertTrue(list.isSafeTag("span"));
+        assertTrue(list.isSafeTag("img"));
+    }
+
+    @Test
+    public void basicWithImages_onlyContainsTextTagsAndBasicImageTags() {
+        Safelist list = Safelist.basicWithImages();
+        assertTrue(list.isSafeTag("p"));
+        assertTrue(list.isSafeTag("span"));
+        assertTrue(list.isSafeTag("img"));
+    }
+
+    @Test
+    public void relaxed_containsTextTagsBasicImageTagsAndOtherTags() {
+        Safelist list = Safelist.relaxed();
+        assertTrue(list.isSafeTag("p"));
+        assertTrue(list.isSafeTag("span"));
+        assertTrue(list.isSafeTag("img"));
+        assertTrue(list.isSafeTag("a"));
+        assertTrue(list.isSafeTag("script"));
+    }
+
+    @Test
+    public void simpleText_addsTags() {
+        Safelist list = Safelist.simpleText();
+        List<String> tags = new ArrayList<>(Arrays.asList("b", "strong"));
+        Safelist newList = list.addTags(tags.toArray(new String[0]));
+        assertTrue(list.isSafeTag("b"));
+        assertTrue(list.isSafeTag("strong"));
+    }
+
+    @Test
+    public void basic_removeTags() {
+        Safelist list = Safelist.basic();
+        List<String> tags = new ArrayList<>(Arrays.asList("img", "script"));
+        Safelist newList = list.removeTags(tags.toArray(new String[0]));
+        assertFalse(list.isSafeTag("img"));
+        assertFalse(list.isSafeTag("script"));
+    }
+
+    @Test
+    public void basic_addAttributes() {
+        Safelist list = Safelist.basic();
+        Safelist newList = list.addAttributes("p", "style", "color: blue;");
+        assertTrue(newList.isSafeAttribute("p", null, new Attribute("style", "color: blue;")));
+    }
+
+    @Test
+    public void basic_removeAttributes() {
+        Safelist list = Safelist.basic();
+        Safelist newList = list.removeAttributes("p", "style");
+        assertFalse(newList.isSafeAttribute("p", null, new Attribute("style", null)));
+    }
+
+    @Test
+    public void none_addEnforcedAttribute() {
+        Safelist list = Safelist.none();
+        Safelist newList = list.addEnforcedAttribute("script", "src", "https://example.com/script.js");
+        assertTrue(newList.isSafeAttribute("script", null, new Attribute("src", "https://example.com/script.js")));
+    }
+
+    @Test
+    public void none_removeEnforcedAttribute() {
+        Safelist list = Safelist.none();
+        Safelist newList = list.removeEnforcedAttribute("script", "src");
+        assertFalse(newList.isSafeAttribute("script", null, new Attribute("src", null)));
+    }
+
+    @Test
+    public void simpleText_preserveRelativeLinks_truePreserves() {
+        Set<String> expectedProtocols = new HashSet<>(Arrays.asList("http://example.com"));
+        Safelist list = Safelist.simpleText();
+        Set<String> actualProtocols = new HashSet<>();
+        list.preserveRelativeLinks(true).addProtocols("a", "href", expectedProtocols.toArray(new String[0]));
+        assertEquals(expectedProtocols, actualProtocols);
+    }
+
+    @Test
+    public void simpleText_preserveRelativeLinks_falseDoesNotAddTags() {
+        Set<String> expectedProtocols = new HashSet<>(Arrays.asList("http://example.com"));
+        Safelist list = Safelist.simpleText();
+        Set<String> actualProtocols = new HashSet<>();
+        list.preserveRelativeLinks(false).addProtocols("a", "href", expectedProtocols.toArray(new String[0]));
+        assertTrue(actualProtocols.isEmpty());
+    }
+
+    @Test
+    public void basic_addProtocols_withMultipleProtocols() {
+        Set<String> expectedProtocols = new HashSet<>(Arrays.asList("http://example.com", "https://example.net"));
+        Safelist list = Safelist.basic();
+        List<String> tags = Arrays.asList("a");
+        Set<String> actualProtocols = new HashSet<>();
+        list.addProtocols(tags.toArray(new String[0]), "a", expectedProtocols.toArray(new String[0]));
+        assertEquals(expectedProtocols, actualProtocols);
+    }
+
+    @Test
+    public void basic_removeProtocols_withMultipleProtocols() {
+        Set<String> expectedProtocols = new HashSet<>(Arrays.asList("http://example.com"));
+        Safelist list = Safelist.basic();
+        List<String> tags = Arrays.asList("a");
+        Set<String> actualProtocols = new HashSet<>();
+        list.removeProtocols(tags.toArray(new String[0]), "a", new String[]{"https://example.net"});
+        assertEquals(expectedProtocols, actualProtocols);
+    }
+
+}
+```
+===================================================
+

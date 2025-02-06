@@ -1,0 +1,33 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedRun_RunMethodThrowsExceptionWhenInvalidArgs {
+
+    @Test
+    public void run_RunMethodThrowsExceptionWhenInvalidArgs() {
+        String[] args = new String[0];
+        try {
+            int result = EpubChecker.class.getDeclaredMethod("run", String[].class).invoke(null, (Object) args);
+            fail("Expected exception was not thrown");
+        } catch (Exception e) {
+            // Expected
+        }
+    }
+}
+
+}

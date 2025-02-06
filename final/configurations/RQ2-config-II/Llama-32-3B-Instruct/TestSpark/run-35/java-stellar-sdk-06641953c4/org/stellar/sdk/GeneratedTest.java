@@ -1,0 +1,81 @@
+package org.stellar.sdk;
+
+public class GeneratedTest {
+
+    @Test
+    public void canSign_isTrue() {
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertTrue(keyPair.canSign());
+    }
+
+    @Test
+    public void fromSecretSeed_charArray_isValid() throws Exception {
+        byte[] publicKey = new byte[]{1, 2, 3};
+        KeyPair keyPair = KeyPair.fromSecretSeed(new char[]{'a', 'b', 'c'}, publicKey);
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void fromSecretSeed_stringIsValid() throws Exception {
+        byte[] publicKey = new byte[]{1, 2, 3};
+        KeyPair keyPair = KeyPair.fromSecretSeed("ab", publicKey);
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void fromAccountID_isNull() {
+        assertNull(KeyPair.fromAccountId(null));
+    }
+
+    @Test
+    public void fromBip39Seed_accountNumberIsNegative_throwsException() throws Exception {
+        byte[] bip39Seed = new byte[]{1, 2, 3};
+        assertThrows(GeneralSecurityException.class, () -> KeyPair.fromBip39Seed(bip39Seed, -1));
+    }
+
+    @Test
+    public void fromRandom_isValid() {
+        KeyPair keyPair = KeyPair.random();
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void getAccountId_isNull() {
+        assertNull(KeyPair.fromAccountId(null).getAccountId());
+    }
+
+    @Test
+    public void getSecretSeed_isEmptyArray() throws Exception {
+        assertThrows(GeneralSecurityException.class, () -> KeyPair.fromSecretSeed(new byte[]{1, 2, 3}));
+    }
+
+    @Test
+    public void sign_isValidSignature() throws Exception {
+        byte[] data = new byte[]{1, 2, 3};
+        byte[] signature = new byte[]{4, 5, 6};
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertTrue(keyPair.sign(data).signature.equals(signature));
+    }
+
+    @Test
+    public void sign_payloadDecorated_isValidSignature() throws Exception {
+        byte[] data = new byte[]{1, 2, 3};
+        byte[] signerPayload = new byte[]{4, 5, 6};
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertTrue(keyPair.signPayloadDecorated(data, signerPayload).signature.equals(new byte[]{4, 5, 6}));
+    }
+
+    @Test
+    public void verify_isValidSignature() throws Exception {
+        byte[] data = new byte[]{1, 2, 3};
+        byte[] signature = new byte[]{4, 5, 6};
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertTrue(keyPair.verify(data, signature));
+    }
+
+    @Test
+    public void equals_nullIsNotEqual() {
+        assert (!new KeyPair(new EdDSAPublicKey()).equals(null));
+    }
+
+}

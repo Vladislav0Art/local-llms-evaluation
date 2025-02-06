@@ -1,0 +1,151 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private ParseSettings settings;
+
+    @Test
+    public void getNameNullTest() {
+        //Arrange
+        Tag tag = new Tag();
+        String tagName = null;
+
+        //Act & Assert
+        org.junit.Assert.assertNull(tag.getName());
+    }
+
+    @Test
+    public void normalNameEmptyTest() {
+        //Arrange
+        Tag tag = new Tag();
+        String tagName = "";
+
+        //Act & Assert
+        org.junit.Assert.assertEquals("", tag.normalName());
+    }
+
+    @Test
+    public void valueOfNullTagNameTest() {
+        //Arrange
+        Tag tag = null;
+        String tagName = null;
+
+        //Act & Assert
+        org.junit.Assert.assertNull(Tag.valueOf(tagName));
+    }
+
+    @Test
+    public void valueOfEmptyTagnameTest() {
+        //Arrange
+        Tag tag = new Tag();
+        String tagName = "";
+
+        //Act & Assert
+        org.junit.Assert.assertEquals(new Tag(), Tag.valueOf(tagName, settings));
+    }
+
+    @Test
+    public void valueOfUnknownTagNameTest() {
+        //Arrange
+        Tag tag = new Tag();
+        String tagName = "unknown";
+
+        //Act & Assert
+        org.junit.Assert.assertFalse(Tag.isKnownTag(tagName));
+    }
+
+    @Test
+    public void isBlockNullTest() {
+        //Arrange
+        Tag tag = null;
+
+        //Act & Assert
+        org.junit.Assert.assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlockFalseTest() {
+        //Arrange
+        Tag tag = new Tag();
+        boolean expected = false;
+
+        //Act & Assert
+        org.junit.Assert.assertFalse(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTrueTest() {
+        //Arrange
+        Tag tag = new Tag();
+
+        //Act & Assert
+        org.junit.Assert.assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyFalseTest() {
+        //Arrange
+        Tag tag = new Tag();
+        boolean expected = false;
+
+        //Act & Assert
+        org.junit.Assert.assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTrueTest() {
+        //Arrange
+        Tag tag = new Tag();
+
+        //Act & Assert
+        org.junit.Assert.assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTagUnknownTagNameTest() {
+        //Arrange
+        String tagName = "unknown";
+
+        //Act & Assert
+        org.junit.Assert.assertFalse(Tag.isKnownTag(tagName));
+    }
+
+    @Test
+    public void isFormListedFalseTest() {
+        //Arrange
+        Tag tag = new Tag();
+        boolean expected = false;
+
+        //Act & Assert
+        org.junit.Assert.assertFalse(tag.isFormListed());
+    }
+
+    @Test
+    public void setSelfClosingUnknownTagNameTest() throws Exception {
+        //Arrange
+        Tag tag = new Tag();
+        String tagName = "unknown";
+        boolean expected = true;
+
+        //Act & Assert
+        tag.setSelfClosing();
+        org.junit.Assert.assertEquals(expected, tag.isSelfClosing());
+    }
+
+    @Test
+    public void preserveWhitespaceFalseTest() {
+        //Arrange
+        Tag tag = new Tag();
+
+        //Act & Assert
+        org.junit.Assert.assertFalse(tag.preserveWhitespace());
+    }
+
+}

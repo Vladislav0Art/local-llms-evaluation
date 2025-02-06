@@ -1,0 +1,153 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private FileResourceProvider fileResourceProviderMock;
+
+    @Mock
+    private Report reportMock;
+
+    @Mock
+    private OPFChecker30 opfChecker30Mock;
+
+    @Mock
+    private OPSChecker opSCheckerMock;
+
+    @Mock
+    private OverlayChecker overlayCheckerMock;
+
+    public void setFileResourceProvider(FileResourceProvider fileResourceProvider) {
+        this.fileResourceProviderMock = fileResourceProvider;
+    }
+
+    public void setOPFChecker30(OPFChecker30 opfChecker30) {
+        this.opfChecker30Mock = opfChecker30;
+    }
+
+    public void setOPSChecker(OPSChecker opSChecker) {
+        this.opSCheckerMock = opSChecker;
+    }
+
+    public void setOverlayChecker(OverlayChecker overlayChecker) {
+        this.overlayCheckerMock = overlayChecker;
+    }
+
+    @Test
+    public void getLocale_Valid
+
+    localeReturnsValid Locale() throws Exception {
+        //Arrange
+        Locale locale = new Locale("en", "US");
+
+        //Act
+        EpubChecker epubChecker = new EpubChecker();
+        Locale result = epubChecker.getLocale();
+
+        //Assert
+        Mockito.when(fileResourceProviderMock.getLocale()).thenReturn(locale);
+        assertSame(result, locale);
+    }
+
+    @Test
+    public void getLocale_NullLocaleReturnsNull() throws Exception {
+        //Arrange
+        fileResourceProviderMock.setFileResourceProvider(new FileResourceProvider());
+
+        //Act
+        EpubChecker epubChecker = new EpubChecker();
+        Locale result = epubChecker.getLocale();
+
+        //Assert
+        Mockito.when(fileResourceProviderMock.getLocale()).thenReturn(null);
+        assertNull(result);
+    }
+
+    @Test
+    public void run_ValidArgsReturnsZero() throws Exception {
+        //Arrange
+        String[] args = {"--locale", "en-US"};
+
+        //Act
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.run(args);
+
+        //Assert
+        Mockito.when(fileResourceProviderMock.getLocale()).thenReturn(new Locale("en", "US"));
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void run_InvalidArgsReturnsNegativeNumber() throws Exception {
+        //Arrange
+        String[] args = {"--locale"};
+
+        //Act
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.run(args);
+
+        //Assert
+        Mockito.when(fileResourceProviderMock.getLocale()).thenReturn(null);
+        assertEquals(-1, result);
+    }
+
+    @Test
+    public void run_NullFileReturnsNegativeNumber() throws Exception {
+        //Arrange
+        String[] args = {"--locale"};
+
+        //Act
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.run(args);
+
+        //Assert
+        assertEquals(-1, result);
+    }
+
+    @Test
+    public void validateFile_ValidFileReturnsZero() throws Exception {
+        //Arrange
+        String path = "path/to/file.epub";
+        EPUBVersion version = new EPUBVersion("1.0");
+
+        //Act
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.validateFile(path, version);
+
+        //Assert
+        Mockito.when(opfChecker30Mock.validate()).thenReturn(0);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void validateFile_InvalidFileReturnsNegativeNumber() throws Exception {
+        //Arrange
+        String path = "path/to/invalid/file.epub";
+        EPUBVersion version = new EPUBVersion("1.0");
+
+        //Act
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.validateFile(path, version);
+
+        //Assert
+        Mockito.when(opfChecker30Mock.validate()).thenReturn(-1);
+        assertEquals(-1, result);
+    }
+
+}

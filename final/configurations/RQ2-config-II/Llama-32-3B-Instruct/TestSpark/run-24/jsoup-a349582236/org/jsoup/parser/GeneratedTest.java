@@ -1,0 +1,130 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void getName_EmptyTag_ReturnsEmptyString() {
+        String name = Tag.valueOf("").getName();
+        assertEquals("", name);
+    }
+
+    @Test
+    public void normalName_UnknownTagName_ReturnsTagName() {
+        String tagName = "unknown";
+        Tag tag = new Tag(tagName);
+        assertTrue(tag.normalName().equals(tagName));
+    }
+
+    @Test
+    public void normalName_KnownTagName_ReturnsNormalizedName() {
+        String tagName = "div";
+        Tag tag = new Tag(tagName);
+        assertTrue(tag.normalName().equals("div"));
+    }
+
+    @Test
+    public void isBlock_EmptyTag_ReturnsFalse() {
+        boolean isBlock = Tag.valueOf("").isBlock();
+        assertFalse(isBlock);
+    }
+
+    @Test
+    public void formatAsBlock_EmptyTag_ReturnsFalse() {
+        boolean formatAsBlock = Tag.valueOf("").formatAsBlock();
+        assertFalse(formatAsBlock);
+    }
+
+    @Test
+    public void setSelfClosing_EmptyTag_ReturnsEmptyTag() {
+        Tag tag = new Tag("");
+        tag.setSelfClosing();
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void clone_CloneOfEmptyTag_ReturnsEmptyTag() {
+        Tag tag = new Tag("");
+        Tag clonedTag = (Tag) tag.clone();
+        assertEquals("", clonedTag.getName());
+    }
+
+    @Test
+    public void equals_EmptyTag_ReturnsFalseForAnyOtherTag() {
+        Tag tag1 = new Tag("");
+        Tag tag2 = new Tag("");
+        assertFalse(tag1.equals(tag2));
+    }
+}
+
+@Test
+public void valueOf_EmptyTag_ReturnsEmptyTag() {
+    String tagName = "";
+    ParseSettings settings = new ParseSettings();
+    Tag tag = Tag.valueOf(tagName, settings);
+    assertNotNull(tag);
+    assertTrue(tag.getName().isEmpty());
+}
+
+@Test
+public void valueOf_KnownTagName_ReturnsKnownTag() {
+    String tagName = "div";
+    ParseSettings settings = new ParseSettings();
+    Tag tag = Tag.valueOf(tagName, settings);
+    assertNotNull(tag);
+    assertEquals("div", tag.getName());
+}
+
+@Test
+public void isKnownTag_EmptyString_ReturnsFalse() {
+    boolean isKnownTag = Tag.isKnownTag("");
+    assertFalse(isKnownTag);
+}
+
+@Test
+public void preserveWhitespace_EmptyTag_ReturnsTrue() {
+    boolean preserveWhitespace = Tag preservesWhitespace();
+    assertTrue(preserveWhitespace);
+}
+	}
+
+@Test
+public void clone_CloneOfEmptyTag_ReturnsEmptyTag() {
+    Tag tag = new Tag("");
+    Tag clonedTag = (Tag) tag.clone();
+    assertEquals("", clonedTag.getName());
+}
+
+@Test
+public void clone_CloneOfKnownTagName_ReturnsSameTag() {
+    String tagName = "div";
+    ParseSettings settings = new ParseSettings();
+    Tag tag1 = Tag.valueOf(tagName, settings);
+    Tag tag2 = (Tag) tag1.clone();
+    assertEquals(tag1, tag2);
+}
+	}
+
+@Test
+public void equals_CloneOfEmptyTag_ReturnsFalseForDifferentTag() {
+    Tag tag1 = new Tag("");
+    Tag tag2 = new Tag("");
+    assertFalse(tag1.equals(tag2));
+}
+
+@Test
+public void equals_CloneOfKnownTagName_ReturnsSameTag() {
+    String tagName = "div";
+    ParseSettings settings = new ParseSettings();
+    Tag tag1 = Tag.valueOf(tagName, settings);
+    Tag tag2 = (Tag) tag1.clone();
+    assertTrue(tag1.equals(tag2));
+}
+
+}

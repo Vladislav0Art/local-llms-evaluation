@@ -1,0 +1,130 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void documentShouldBeCreatedFromShell() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        assertNotNull(document);
+    }
+
+    @Test
+    public void documentLocationShouldReturnCorrectUri() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        assertEquals(baseUri, document.location());
+    }
+
+    @Test
+    public void documentHeadElementShouldBeCreated() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        Element head = document.head();
+        assertTrue(head != null);
+        assertEquals("head", head.nodeName());
+    }
+
+    @Test
+    public void documentBodyElementShouldBeCreated() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        Element body = document.body();
+        assertTrue(body != null);
+        assertEquals("body", body.nodeName());
+    }
+
+    @Test
+    public void formsShouldReturnCorrectElements() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        List<FormElement> forms = document.forms();
+        assertNotNull(forms);
+        assertTrue(!forms.isEmpty());
+        for (FormElement form : forms) {
+            assertEquals("form", form.nodeName());
+        }
+    }
+
+    @Test
+    public void expectFormShouldReturnCorrectElements() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        FormElement expectedForm = document.expectForm("div");
+        assertNotNull(expectedForm);
+        assertEquals("form", expectedForm.nodeName());
+    }
+
+    @Test
+    public void titleShouldReturnCorrectString() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        String title = document.title();
+        assertNotNull(title);
+    }
+
+    @Test
+    public void titleSetterShouldSetCorrectTitle() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        document.title("New Title");
+        assertEquals("New Title", document.title());
+    }
+
+    @Test
+    public void createElementShouldReturnCorrectElement() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        Element createdElement = document.createElement("div");
+        assertNotNull(createdElement);
+        assertEquals("div", createdElement.nodeName());
+    }
+
+    @Test
+    public void outerHtmlShouldReturnCorrectString() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        String outerHtml = document.outerHtml();
+        assertNotNull(outerHtml);
+    }
+
+    @Test
+    public void textShouldReturnCorrectString() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        String text = document.text("Hello World");
+        assertEquals("Hello World", text);
+    }
+
+    @Test
+    public void nodeNameShouldReturnCorrectString() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        String nodeName = document.nodeName();
+        assertNotNull(nodeName);
+    }
+
+    @Test
+    public void charsetSetterShouldSetCorrectCharset() {
+        Charset charset = Charset.forName("UTF-8");
+        Document document = new Document("https://example.com");
+        document.charset(charset);
+        assertEquals(charset, document.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementShouldReturnCorrectBoolean() {
+        Document document = new Document("https://example.com");
+        boolean result = document.updateMetaCharsetElement();
+        assertTrue(result);
+    }
+
+    @Test
+    public void outputSettingsShouldReturnCorrectSettings() {
+        OutputSettings settings = new OutputSettings();
+        Document document = new Document("https://example.com");
+        document.outputSettings(settings);
+        assertNotNull(settings);
+    }
+
+}

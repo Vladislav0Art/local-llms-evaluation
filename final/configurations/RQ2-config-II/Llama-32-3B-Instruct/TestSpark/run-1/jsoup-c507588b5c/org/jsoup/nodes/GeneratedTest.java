@@ -1,0 +1,192 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.select.Elements;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeConstructorTextNotNull() {
+        // Arrange
+        String text = "Hello World";
+
+        // Act
+        TextNode textNode = new TextNode(text);
+
+        // Assert
+        assertNotNull(textNode.text());
+    }
+
+    @Test
+    public void nodeNameTextNodeReturnsTagName() {
+        // Arrange
+        String tag = "text";
+        TextNode textNode = new TextNode(tag);
+
+        // Act
+        String result = textNode.nodeName();
+
+        // Assert
+        assertEquals(tag, result);
+    }
+
+    @Test
+    public void textTextNodeReturnsTextNodeText() {
+        // Arrange
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // Act
+        String result = textNode.text();
+
+        // Assert
+        assertEquals(text, result);
+    }
+
+    @Test
+    public void textTextNodeReturnsTextNodeTextWhenNoOffset() {
+        // Arrange
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // Act
+        String result = textNode.text(0);
+
+        // Assert
+        assertEquals(text, result);
+    }
+
+    @Test
+    public void getWholeTextTextNodeReturnsTextNodeText() {
+        // Arrange
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // Act
+        String result = textNode.getWholeText();
+
+        // Assert
+        assertEquals(text, result);
+    }
+
+    @Test
+    public void isBlankTextNodeReturnsTrueWhenTextNodeIsBlank() {
+        // Arrange
+        String text = "   ";
+        TextNode textNode = new TextNode(text);
+
+        // Act
+        boolean result = textNode.isBlank();
+
+        // Assert
+        assertTrue(result);
+    }
+
+    @Test
+    public void splitTextTextNodeSplitTextReturnsNewTextNodeWhenOffsetIsNonZero() {
+        // Arrange
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // Act
+        TextNode result = textNode.splitText(0);
+
+        // Assert
+        assertNotNull(result);
+    }
+
+    @Test
+    public void outerHtmlHeadTextNodeReturnsOuterHtmlWhenNodeIsText() throws IOException {
+        // Arrange
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // Act
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        Document.OutputSettings outSettings = Document.OutputSettings.DEFAULT;
+        Appendable accum = new StringBuilder();
+        textNode.outerHtmlHead(accum, 0, outSettings);
+        accum.toString();
+
+        // Assert
+        assertTrue(accum.toString().contains("<p>Hello World</p>"));
+    }
+
+    @Test
+    public void outerHtmlTailTextNodeReturnsOuterHtmlWhenNodeIsText() throws IOException {
+        // Arrange
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // Act
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        Document.OutputSettings outSettings = Document.OutputSettings.DEFAULT;
+        Appendable accum = new StringBuilder();
+        textNode.outerHtmlTail(accum, 0, outSettings);
+        accum.toString();
+
+        // Assert
+        assertTrue(accum.toString().contains("</p>"));
+    }
+
+    @Test
+    public void toStringTextNodeReturnsStringRepresentationWhenNodeIsText() {
+        // Arrange
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // Act
+        String result = textNode.toString();
+
+        // Assert
+        assertEquals("text: Hello World", result);
+    }
+
+    @Test
+    public void cloneTextNodeReturnsCloneWhenNodeIsText() {
+        // Arrange
+        String text = "Hello World";
+        TextNode textNode = new TextNode(text);
+
+        // Act
+        TextNode result = textNode.clone();
+
+        // Assert
+        assertNotNull(result.text());
+        assertEquals(text, result.text());
+    }
+
+    @Test
+    public void createFromEncodedTextNodeReturnsTextNodeWhenEncodedTextIsValid() {
+        // Arrange
+        String encodedText = "Hello World";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+
+        // Act
+        assertTrue(Validate.nonNull(textNode));
+
+        // Assert
+        assertNotNull(textNode.text());
+    }
+
+    @Test
+    public void createFromEncodedTextNodeThrowsIOExceptionWhenEncodedTextIsValid() throws IOException {
+        // Arrange
+        String encodedText = "Hello World";
+
+        // Act
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+    }
+
+}

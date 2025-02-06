@@ -1,0 +1,136 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeName_NoName_ReturnsEmptyString() {
+        TextNode textNode = new TextNode("");
+        assertEquals("", textNode.nodeName());
+    }
+
+    @Test
+    public void nodeName_HasName_ReturnsCorrectName() {
+        TextNode textNode = new TextNode("example");
+        assertEquals("example", textNode.nodeName());
+    }
+
+    @Test
+    public void text_NoText_ReturnsEmptyString() {
+        TextNode textNode = new TextNode("");
+        assertEquals("", textNode.text());
+    }
+
+    @Test
+    public void text_HasText_ReturnsCorrectText() {
+        TextNode textNode = new TextNode("example");
+        assertEquals("example", textNode.text());
+    }
+
+    @Test
+    public void text_SettingText_ReturnsNewTextNodeWithGivenText() throws IOException {
+        TextNode textNode = new TextNode("");
+        TextNode newTextNode = textNode.text("example");
+        assertNotNull(newTextNode);
+        assertEquals("example", newTextNode.text());
+    }
+
+    @Test
+    public void getWholeText_NoText_ReturnsEmptyString() throws IOException {
+        TextNode textNode = new TextNode("");
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        textNode.outerHtmlHead(outContent, 0, outputSettings);
+        assertEquals("", textNode.getWholeText());
+    }
+
+    @Test
+    public void getWholeText_HasText_ReturnsCorrectWholeText() throws IOException {
+        TextNode textNode = new TextNode("example");
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        textNode.outerHtmlHead(outContent, 0, outputSettings);
+        assertEquals("example", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlank_NoText_ReturnsTrue() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_HasText_ReturnsFalse() {
+        TextNode textNode = new TextNode("example");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_CallsOuterHtmlHeadWithOffset0OnOriginalTextNode() throws IOException, InterruptedException, ExecutionException {
+        Document mockDocument = mock(Document.class);
+        Appendable mockAccum = mock(Appendable.class);
+
+        TextNode textNode = new TextNode("example");
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+
+        when(mockDocument.outerHtmlHead(any(), eq(0), any())).thenAnswer(invocation -> {
+            textNode.outerHtmlHead(outContent, 0, outputSettings);
+            return null;
+        });
+
+        TextNode newTextNode = textNode.splitText(0);
+
+        assertEquals(textNode, newTextNode);
+    }
+
+    @Test
+    public void clone_ReturnsSameInstance() {
+        TextNode textNode = new TextNode("example");
+        assertNotNull(textNode.clone());
+        assertEquals(textNode, textNode.clone());
+    }
+
+    @Test
+    public void createFromEncoded_CreatesTextNodeWithGivenEncodedText() throws IOException {
+        String encodedText = "example";
+        TextNode newTextNode = TextNode.createFromEncoded(encodedText);
+        assertNotNull(newTextNode);
+        assertEquals(encodedText, newTextNode.text());
+    }
+
+    @Test
+    public void normaliseWhitespace_ReplacesTabsWithSpaces() {
+        String text = "\texample";
+        String expectedOutput = "example";
+        assertEquals(expectedOutput, StringUtil.normaliseWhitespace(text));
+    }
+
+    @Test
+    public void stripLeadingWhitespace_RemovesLeadingWhitespace() {
+        String text = "   example";
+        String expectedOutput = "example";
+        assertEquals(expectedOutput, StringUtil.stripLeadingWhitespace(text));
+    }
+
+    @Test
+    public void lastCharIsWhitespace_ReturnsTrueWhenLastCharacterIsWhitespace() {
+        StringBuilder sb = new StringBuilder(" \t\n\r");
+        assertTrue(StringUtil.lastCharIsWhitespace(sb));
+    }
+
+    @Test
+    public void normaliseWhitespace_CasesSensitive() {
+        String text = "Example";
+        String expectedOutput = "example";
+        assertEquals(expectedOutput, StringUtil.normaliseWhitespace(text));
+    }
+
+}

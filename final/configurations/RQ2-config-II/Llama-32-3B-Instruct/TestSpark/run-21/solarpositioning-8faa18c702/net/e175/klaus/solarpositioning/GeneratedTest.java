@@ -1,0 +1,45 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private LocalDate forDate;
+
+    @Test
+    public void estimate_DatesBeforeEpochReturnsNegative() {
+        when(forDate.atDay(1)).thenReturn(LocalDate.of(1970, 1, 1));
+        assertEquals(-24.000002, DeltaT.estimate(forDate), 0.001);
+    }
+
+    @Test
+    public void estimate_EpochReturnsZero() {
+        when(forDate.atDay(1)).thenReturn(LocalDate.of(1970, 1, 1));
+        assertEquals(0, DeltaT.estimate(forDate), 0.00001);
+    }
+
+    @Test
+    public void estimate_CrossesLeapSecondsReturnsCorrectValue() {
+        when(forDate.atDay(60)).thenReturn(LocalDate.of(1970, 2, 2));
+        assertEquals(-24, DeltaT.estimate(forDate), 0.001);
+    }
+
+    @Test
+    public void estimate_InvalidDatesThrowsException() {
+        when(forDate.atDay(61)).thenThrow(NullPointerException::new);
+        assertThrows(NullPointerException.class, () -> DeltaT.estimate(forDate));
+    }
+
+}

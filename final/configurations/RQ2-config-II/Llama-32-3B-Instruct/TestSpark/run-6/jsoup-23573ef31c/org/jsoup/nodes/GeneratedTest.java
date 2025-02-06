@@ -1,0 +1,235 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testCreateShellValidUri() {
+        String baseUri = "http://example.com";
+        Document document = Document.createShell(baseUri);
+        assertNotNull(document);
+    }
+
+    @Test
+    public void testCreateShellInvalidUri() {
+        String baseUri = "";
+        try {
+            Document.createShell(baseUri);
+            assert false;
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testLocationEmptyDocument() {
+        Document document = new Document("");
+        assertEquals("", document.location());
+    }
+
+    @Test
+    public void testConnectionEmptyDocument() {
+        Document document = new Document("");
+        assertNull(document.connection());
+    }
+
+    @Test
+    public void testDocumentTypeUnknownType() {
+        Document document = new Document("");
+        assertNull(document.documentType());
+    }
+
+    @Test
+    public void testHeadEmptyDocument() {
+        Document document = new Document("");
+        assertNull(document.head());
+    }
+
+    @Test
+    public void testBodyEmptyDocument() {
+        Document document = new Document("");
+        assertNull(document.body());
+    }
+
+    @Test
+    public void testFormsEmptyDocument() {
+        Document document = new Document("");
+        assertEquals(0, document.forms().size());
+    }
+
+    @Test
+    public void testExpectFormValidCssQuery() {
+        Document document = new Document("");
+        FormElement form = document.expectForm("*");
+        assertNotNull(form);
+    }
+
+    @Test
+    public void testTitleEmptyDocument() {
+        Document document = new Document("");
+        assertNull(document.title());
+    }
+
+    @Test
+    public void testTitleNewTitle() {
+        String title = "new Title";
+        Document document = new Document("");
+        document.title(title);
+        assertEquals(title, document.title());
+    }
+
+    @Test
+    public void testCreateElementValidTagName() {
+        String tagName = "div";
+        Element element = document.createElement(tagName);
+        assertNotNull(element);
+    }
+
+    @Test
+    public void testOuterHtmlEmptyDocument() {
+        Document document = new Document("");
+        assertEquals("", document.outerHtml());
+    }
+
+    @Test
+    public void testTextEmptyDocument() {
+        Document document = new Document("");
+        assertNull(document.text(""));
+    }
+
+    @Test
+    public void testNodeNameEmptyDocument() {
+        Document document = new Document("");
+        assertEquals("", document.nodeName());
+    }
+
+    @Test
+    public void testCharsetNullCharset() {
+        Charset charset = null;
+        Document document = new Document("");
+        try {
+            document.charset(charset);
+            assert false;
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testCharsetValidCharset() {
+        Charset charset = "UTF-8";
+        Document document = new Document("");
+        document.charset(charset);
+        assertNotNull(document.charset());
+    }
+
+    @Test
+    public void testUpdateMetaCharsetElementFalse() {
+        boolean update = false;
+        Document document = new Document("");
+        document.updateMetaCharsetElement(update);
+        assertFalse(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void testUpdateMetaCharsetElementTrue() {
+        boolean update = true;
+        Document document = new Document("");
+        document.updateMetaCharsetElement(update);
+        assertTrue(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void testCloneEmptyDocument() {
+        Document document = new Document("");
+        Document clone = document.clone();
+        assertNotNull(clone);
+    }
+
+    @Test
+    public void testShallowCloneEmptyDocument() {
+        Document document = new Document("");
+        Document shallowClone = document.shallowClone();
+        assertNotNull(shallowClone);
+    }
+
+    @Test
+    public void testOutputSettingsNullOutputSettings() {
+        OutputSettings outputSettings = null;
+        Document document = new Document("");
+        try {
+            document.outputSettings(outputSettings);
+            assert false;
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testOutputSettingsValidOutputSettings() {
+        OutputSettings outputSettings = new OutputSettings();
+        Document document = new Document("");
+        document.outputSettings(outputSettings);
+        assertNotNull(document.outputSettings());
+    }
+
+    @Test
+    public void testQuirksModeNullQuirksMode() {
+        QuirksMode quirksMode = null;
+        Document document = new Document("");
+        try {
+            document.quirksMode(quirksMode);
+            assert false;
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testQuirksModeValidQuirksMode() {
+        QuirksMode quirksMode = "IE6";
+        Document document = new Document("");
+        document.quirksMode(quirksMode);
+        assertEquals(quirksMode, document.quirksMode());
+    }
+
+    @Test
+    public void testParserNullParser() {
+        Parser parser = null;
+        Document document = new Document("");
+        try {
+            document.parser(parser);
+            assert false;
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testParserValidParser() {
+        Parser parser = new Parser();
+        Document document = new Document("");
+        document.parser(parser);
+        assertNotNull(document.parser());
+    }
+
+    @Test
+    public void testConnectionNullConnection() {
+        Connection connection = null;
+        Document document = new Document("");
+        try {
+            document.connection(connection);
+            assert false;
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testConnectionValidConnection() {
+        Connection connection = new Connection();
+        Document document = new Document("");
+        document.connection(connection);
+        assertNotNull(document.connection());
+    }
+
+}

@@ -1,0 +1,159 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseName_emptyTest() {
+        String amiName = "";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void parseName_patternTest() {
+        String amiName = "1.0.2-EC2-20210122";
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        Matcher matcher = pattern.matcher(amiName);
+        assertTrue(matcher.matches());
+    }
+
+    @Test
+    public void parseName_invalidPatternTest() {
+        String amiName = "invalid-name";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void getPackageName_nullTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNull(appVersion.getPackageName());
+    }
+
+    @Test
+    public void getPackageName_defaultTest() {
+        String amiName = "1.0.2-EC2-20210122";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersion_nullTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNull(appVersion.getVersion());
+    }
+
+    @Test
+    public void getVersion_defaultTest() {
+        String amiName = "1.0.2-EC2-20210122";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobName_nullTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNull(appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumber_nullTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNull(appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommit_nullTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNull(appVersion.getCommit());
+    }
+
+    @Test
+    public void getChangelist_deprecatedTest() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(NameConstants.CHangelistNotSupported, appVersion.getChangelist());
+    }
+
+    @Test
+    public void toString_defaultTest() {
+        String amiName = "1.0.2-EC2-20210122";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion.toString());
+    }
+
+    @Test
+    public void compareTo_nullTest() {
+        AppVersion other = new AppVersion();
+        int result = new AppVersion().compareTo(other);
+        assertEquals(-1, result);
+    }
+
+    @Test
+    public void compareTo_equalTest() {
+        String amiName = "1.0.2-EC2-20210122";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        AppVersion other = new AppVersion();
+        int result = appVersion.compareTo(other);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void compareTo_greaterThanTest() {
+        String amiName = "1.0.2-EC2-20210122";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        AppVersion other = new AppVersion("2.0.3-EC2-20210122");
+        int result = appVersion.compareTo(other);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void compareTo_lessThanTest() {
+        String amiName = "1.0.2-EC2-20210122";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        AppVersion other = new AppVersion("0.9.1-EC2-20210121");
+        int result = appVersion.compareTo(other);
+        assertEquals(-1, result);
+    }
+
+    @Test
+    public void hashCode_defaultTest() {
+        String amiName = "1.0.2-EC2-20210122";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion.hashCode());
+    }
+
+    @Test
+    public void equals_nullTest() {
+        AppVersion other = new AppVersion();
+        boolean result = new AppVersion().equals(other);
+        assertFalse(result);
+    }
+
+    @Test
+    public void equals_equalTest() {
+        String amiName = "1.0.2-EC2-20210122";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        AppVersion other = new AppVersion();
+        boolean result = appVersion.equals(other);
+        assertTrue(result);
+    }
+
+    @Test
+    public void equals_notEqualTest() {
+        String amiName = "1.0.2-EC2-20210122";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        AppVersion other = new AppVersion("2.0.3-EC2-20210123");
+        boolean result = appVersion.equals(other);
+        assertFalse(result);
+    }
+
+}

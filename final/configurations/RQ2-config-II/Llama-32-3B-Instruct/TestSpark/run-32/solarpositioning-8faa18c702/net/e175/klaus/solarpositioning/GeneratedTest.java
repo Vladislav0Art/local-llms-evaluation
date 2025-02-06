@@ -1,0 +1,69 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.time.LocalDate;
+
+import static java.lang.Math.pow;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimate_EstimateIsZeroForNullDate() {
+        assertThat(DeltaT.estimate(null), is(0.0));
+    }
+
+    @Test
+    public void estimate_InvalidDateThrowsNullPointerException() {
+        LocalDate invalidDate = LocalDate.of(100, 1, 1);
+        try {
+            DeltaT.estimate(invalidDate);
+            assert false;
+        } catch (NullPointerException e) {
+            assertThat(e.getMessage(), is("Input date cannot be null"));
+        }
+    }
+
+    @Test
+    public void estimate_EstimateIsCorrectForToday() {
+        LocalDate today = LocalDate.now();
+        double expectedValue = 0.0; // actual value for today should be zero
+        assertThat(DeltaT.estimate(today), is(expectedValue));
+    }
+
+    @Test
+    public void estimate_InvalidDateThrowsNullPointerException() {
+        LocalDate invalidDate = LocalDate.of(100, 1, 1);
+        try {
+            DeltaT.estimate(invalidDate);
+            assert false;
+        } catch (NullPointerException e) {
+            assertThat(e.getMessage(), is("Input date cannot be null"));
+        }
+    }
+
+    @Test
+    public void estimate_EstimateIsCorrectForYesterday() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        double expectedValue = 1.0; // actual value for yesterday should be one day
+        assertThat(DeltaT.estimate(yesterday), is(expectedValue));
+    }
+
+    @Test
+    public void estimate_EstimateIsCorrectForFutureDate() {
+        LocalDate futureDate = LocalDate.now().plusDays(1);
+        double expectedValue = 1.0; // actual value for future date should be one day
+        assertThat(DeltaT.estimate(futureDate), is(expectedValue));
+    }
+
+    @Test
+    public void estimate_EstimateIsCorrectForLeapDay() {
+        LocalDate leapDay = LocalDate.of(2020, 2, 29);
+        double expectedValue = 1.0; // actual value for leap day should be one day
+        assertThat(DeltaT.estimate(leapDay), is(expectedValue));
+    }
+
+}

@@ -1,0 +1,76 @@
+package org.jsoup.safety;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Element;
+
+public class GeneratedTest {
+
+    @Test
+    public void none_SelfTest() {
+        Safelist safelist = Safelist.none();
+        assertEquals(safelist, Safelist.none());
+    }
+
+    @Test
+    public void simpleText_NoSelfModificationTest() {
+        Safelist safelist = Safelist.simpleText();
+        safelist.addTags("a");
+        assertFalse(Safelist.isSafeTag("a"));
+    }
+
+    @Test
+    public void basic_AddsEmptyTagsToListTest() {
+        Safelist safelist = Safelist.basic();
+        assertTrue(safelist.addTags().isEmpty());
+    }
+
+    @Test
+    public void basic_SelfTest() {
+        Safelist safelist = Safelist.none();
+        assertEquals(safelist, Safelist.none());
+    }
+
+    @Test
+    public void basicWithImages_NoSelfModificationTest() {
+        Safelist safelist = Safelist.basicWithImages();
+        safelist.addTags("img");
+        assertFalse(Safelist.isSafeTag("img"));
+    }
+
+    @Test
+    public void relaxed_AddsImagesToSafeListTest() {
+        Safelist safelist = Safelist.relaxed();
+        assertTrue(safelist.addTags("img").isEmpty());
+    }
+
+    @Test
+    public void relaxed_SelfTest() {
+        Safelist safelist = Safelist.none();
+        assertEquals(safelist, Safelist.none());
+    }
+
+    @Test
+    public void preserveRelativeLinks_PreserveLinkFlagTest() {
+        Safelist safelist = Safelist.preserveRelativeLinks(true);
+        assertTrue(safelist.addTags("a").get(0).equals("href"));
+    }
+
+    @Test
+    public void preserveRelativeLinks_DontPreserveLinkFlagTest() {
+        Safelist safelist = Safelist.preserveRelativeLinks(false);
+        assertFalse(safelist.addTags("a").get(0).equals("href"));
+    }
+
+    @Test
+    public void addProtocols_MultipleProtocolsAddedCorrectlyTest() {
+        Safelist safelist = Safelist.relaxed();
+        assertEquals(Arrays.asList("http", "https"), safelist.addTags("img").get(0).split("\\s+"));
+    }
+
+}

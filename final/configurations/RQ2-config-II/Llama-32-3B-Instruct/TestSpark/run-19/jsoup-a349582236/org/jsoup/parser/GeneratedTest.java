@@ -1,0 +1,84 @@
+package org.jsoup.parser;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private ParseSettings parseSettings;
+
+    @Test
+    public void normalName_isNotNullAndNotWhiteSpace() {
+        when(parseSettings.getName()).thenReturn("div");
+        String tagName = "div";
+        Tag tag = Tag.valueOf(tagName, parseSettings);
+        assertEquals(Normalizer.normalise(tagName), tag.normalName());
+    }
+
+    @Test
+    public void nameIsNotEmpty() {
+        when(parseSettings.getName()).thenReturn("");
+        String tagName = "";
+        Tag tag = Tag.valueOf(tagName, parseSettings);
+        assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void nameIsEmpty() {
+        when(parseSettings.getName()).thenReturn(" ");
+        String tagName = " ";
+        Tag tag = Tag.valueOf(tagName, parseSettings);
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isBlock_isTrueForBlockTags() {
+        when(parseSettings.getName()).thenReturn("div");
+        Tag tag = Tag.valueOf("div", parseSettings);
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInline_isFalseForBlockTags() {
+        when(parseSettings.getName()).thenReturn("div");
+        Tag tag = Tag.valueOf("div", parseSettings);
+        assertFalse(tag.isInline());
+    }
+
+    @Test
+    public void isFormListed_isTrueForFormTags() {
+        when(parseSettings.getName()).thenReturn("input");
+        Tag tag = Tag.valueOf("input", parseSettings);
+        assertTrue(tag.isFormListed());
+    }
+
+    @Test
+    public void isSelfClosing_isFalseForBlockTags() {
+        when(parseSettings.getName()).thenReturn("img");
+        Tag tag = Tag.valueOf("img", parseSettings);
+        assertFalse(tag.isSelfClosing());
+    }
+
+    @Test
+    public void setSelfClosing_changesStateOfTag() {
+        Tag tag = new Tag();
+        tag.setSelfClosing();
+        assertTrue(tag.isSelfClosing());
+    }
+
+}

@@ -1,0 +1,123 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.Document;
+
+import java.util.HashMap;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAware_ReturnsBoolean() {
+        assertTrue(W3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAwareSet_ReturnsW3cdom() {
+        W3CDom w3cdom = new W3CDom();
+        w3cdom.namespaceAware(true);
+        assertNotNull(w3cdom);
+    }
+
+    @Test
+    public void convert_FromJsoup_ReturnsDocument() {
+        Document in = new Document();
+        Document out = W3CDom.convert(in);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void asString_FromDocument_ReturnsString() {
+        Document doc = new Document();
+        String out = W3CDom.asString(doc, null);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void propertiesFromMap_ReturnsProperties() {
+        Map<String, String> map = new HashMap<>();
+        Properties properties = W3CDom.propertiesFromMap(map);
+        assertNotNull(properties);
+    }
+
+    @Test
+    public void OutputHtml_ReturnsHashMap() {
+        HashMap<String, String> out = W3CDom.OutputHtml();
+        assertNotNull(out);
+    }
+
+    @Test
+    public void OutputXml_ReturnsHashMap() {
+        HashMap<String, String> out = W3CDom.OutputXml();
+        assertNotNull(out);
+    }
+
+    @Test
+    public void fromJsoup_FromDocument_ReturnsDocument() {
+        Document in = new Document();
+        Document out = W3CDom.fromJsoup(in).getDocument();
+        assertEquals(in, out);
+    }
+
+    @Test
+    public void fromJsoup_FromElement_ReturnsDocument() {
+        org.jsoup.nodes.Element in = new org.jsoup.nodes.Element();
+        Document out = W3CDom.fromJsoup(in).getDocument();
+        assertNotNull(out);
+    }
+
+    @Test
+    public void convert_FromDoc_FromOut_ReturnsDocument() {
+        Document in = new Document();
+        Document out = new Document();
+        W3CDom.convert(in, out);
+        assertEquals(in, out);
+    }
+
+    @Test
+    public void convert_FromElement_FromOut_ReturnsDocument() {
+        org.jsoup.nodes.Element in = new org.jsoup.nodes.Element();
+        Document out = new Document();
+        W3CDom.convert(in, out);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void selectXpath_FromDoc_ReturnsNodeList() {
+        Document doc = new Document();
+        NodeList out = W3CDom.selectXpath("/body", doc);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void selectXpath_FromContext_ReturnsNodeList() {
+        Document doc = new Document();
+        NodeList out = W3CDom.selectXpath("/body", doc);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void sourceNodes_FromDoc_ReturnsList() {
+        List<org.jsoup.nodes.Node> out = W3CDom.sourceNodes(null, org.jsoup.nodes.Node.class);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void contextNode_ReturnsDocument() {
+        Document wdoc = new Document();
+        Document out = W3CDom.contextNode(wdoc);
+        assertEquals(wdoc, out);
+    }
+
+    @Test
+    public void asString_FromDoc_ReturnsString() {
+        Document doc = new Document();
+        String out = W3CDom.asString(doc, null);
+        assertNotNull(out);
+    }
+
+}

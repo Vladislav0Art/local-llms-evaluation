@@ -1,0 +1,91 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void canSign_Works() {
+        EdDSAPublicKey publicKey = new EdDSAPublicKey();
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertTrue(keyPair.canSign());
+    }
+
+    @Test
+    public void fromSecretSeed_CharacterArray
+
+    Works() {
+        char[] seed = "1234567890".toCharArray();
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void fromSecretSeed_String
+
+    Works() {
+        String seed = "1234567890";
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void fromSecretSeed_ByteArrayWorks() {
+        byte[] seed = "1234567890".getBytes();
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void getAccountId_ReturnsCorrectAccountId() {
+        String accountId = "account123";
+        KeyPair keyPair = new KeyPair(accountId);
+        assertEquals(accountId, keyPair.getAccountId());
+    }
+
+    @Test
+    public void getSecretSeed_ReturnsCorrectSecretSeed() {
+        char[] seed = "1234567890".toCharArray();
+        KeyPair keyPair = new KeyPair(seed);
+        assertArrayEquals(seed, keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void getPublicKey_ReturnsCorrectPublicKey() {
+        byte[] publicKey = {1, 2, 3};
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertArrayEquals(publicKey, keyPair.getPublicKey());
+    }
+
+    @Test
+    public void sign.
+
+    SignsWithSignatureCorrectly() throws GeneralSecurityException {
+        byte[] data = "Hello World".getBytes();
+        KeyPair keyPair = KeyPair.fromSecretSeed("1234567890".toCharArray());
+        byte[] signature = keyPair.sign(data);
+        assertTrue(new Signature(signature).verify(data));
+    }
+
+    @Test
+    public void signDecorated.
+
+    SignsWithSignatureCorrectly() throws GeneralSecurityException {
+        byte[] data = "Hello World".getBytes();
+        KeyPair keyPair = KeyPair.fromSecretSeed("1234567890".toCharArray());
+        DecoratedSignature decoratedSignature = new DecoratedSignature(data, signature(keyPair.sign(data)));
+        assertTrue(decoratedSignature.verify(data));
+    }
+
+    @Test
+    public void fromXdrPublicKey_ReturnsCorrectKeyPair() {
+        PublicKey key = new PublicKey();
+        KeyPair keyPair = KeyPair.fromXdrPublicKey(key);
+        assertNotNull(keyPair.getAccountId());
+    }
+
+}

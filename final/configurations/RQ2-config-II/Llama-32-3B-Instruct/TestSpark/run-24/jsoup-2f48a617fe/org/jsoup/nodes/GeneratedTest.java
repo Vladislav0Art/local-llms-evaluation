@@ -1,0 +1,97 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void commentConstructorTest() {
+        Comment comment = new Comment("Hello World");
+        // assertion code here
+    }
+
+    @Test
+    public void commentNodeNameTest() {
+        Comment comment = new Comment("data");
+        assertEquals("comment", comment.nodeName());
+        // assertion code here
+    }
+
+    @Test
+    public void commentDataTest() {
+        Comment comment = new Comment("Hello World");
+        assertEquals("Hello World", comment.getData());
+        // assertion code here
+    }
+
+    @Test
+    public void commentsetDataTest() {
+        Comment comment = new Comment("");
+        comment.setData("Hello World");
+        assertEquals("Hello World", comment.getData());
+        // assertion code here
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Document document = new Document();
+        Appendable accum = Mockito.mock(Appendable.class);
+        int depth = 0;
+        OutputSettings out = new OutputSettings();
+        Comment comment = new Comment("data");
+        comment.outerHtmlHead(accum, depth, out);
+        // assertion code here
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        Document document = new Document();
+        Appendable accum = Mockito.mock(Appendable.class);
+        int depth = 0;
+        OutputSettings out = new OutputSettings();
+        Comment comment = new Comment("");
+        comment.outerHtmlTail(accum, depth, out);
+        // assertion code here
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("data");
+        String actualOutput = comment.toString();
+        assertEquals("<!-- data -->", actualOutput);
+        // assertion code here
+    }
+
+    @Test
+    public void cloneTest() {
+        Document document = new Document();
+        Element parentElement = Mockito.mock(Element.class);
+        OutputSettings out = new OutputSettings();
+        Comment comment = new Comment("data");
+        Comment clonedComment = comment.clone(parentElement, out);
+        // assertion code here
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("");
+        assertTrue(comment.isXmlDeclaration());
+        // assertion code here
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("data");
+        XmlDeclaration actualDeclaration = comment.asXmlDeclaration();
+        assertNotNull(actualDeclaration);
+        assertEquals("<!-- data -->", actualDeclaration.toString());
+        // assertion code here
+    }
+
+}

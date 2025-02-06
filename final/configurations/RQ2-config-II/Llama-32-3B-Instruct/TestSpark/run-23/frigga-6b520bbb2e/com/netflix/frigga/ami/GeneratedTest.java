@@ -1,0 +1,141 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseName_SimpleTest() {
+        String amiName = "1.0.0";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void parseName_MultiPartTest() {
+        String amiName = "1.0.0-amazon-linux-2.5.0-x86_64-gp2.8.3.1";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void parseName_MissingVersion() {
+        String amiName = "amazon-linux-2.5.0-x86_64-gp2.8.3.1";
+        try {
+            AppVersion.parseName(amiName);
+            fail("Expected ParseException");
+        } catch (ParseException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void parseName_InvalidFormat() {
+        String amiName = "invalid-ami-name";
+        try {
+            AppVersion.parseName(amiName);
+            fail("Expected ParseException");
+        } catch (ParseException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void compareTo_SameVersion() {
+        AppVersion appVersion1 = new AppVersion("1.0.0");
+        AppVersion appVersion2 = new AppVersion("1.0.0");
+        assertEquals(0, appVersion1.compareTo(appVersion2));
+    }
+
+    @Test
+    public void compareTo_LowerBuildNumber() {
+        AppVersion appVersion1 = new AppVersion("1.0.0");
+        AppVersion appVersion2 = new AppVersion("1.0.1");
+        assertTrue(appVersion1.compareTo(appVersion2) < 0);
+    }
+
+    @Test
+    public void compareTo_HigherBuildNumber() {
+        AppVersion appVersion1 = new AppVersion("1.0.0");
+        AppVersion appVersion2 = new AppVersion("1.0.1");
+        assertTrue(appVersion1.compareTo(appVersion2) > 0);
+    }
+
+    @Test
+    public void getAppVersionPattern_ReturnsValidPattern() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        assertNotNull(pattern);
+        assertTrue(pattern.matcher("1.0.0").find());
+    }
+
+    @Test
+    public void getPackageName_SimpleTest() {
+        String packageName = AppVersion.getPackageName();
+        assertNotNull(packageName);
+        assertEquals(NameConstants.PACKAGE_NAME, packageName);
+    }
+
+    @Test
+    public void getVersion_SimpleTest() {
+        String version = AppVersion.getVersion();
+        assertNotNull(version);
+        assertEquals("1.0.0", version);
+    }
+
+    @Test
+    public void getBuildJobName_SimpleTest() {
+        String buildJobName = AppVersion.getBuildJobName();
+        assertNotNull(buildJobName);
+        assertTrue(buildJobName.contains("buildjob"));
+    }
+
+    @Test
+    public void getCommit_SimpleTest() {
+        String commit = AppVersion.getCommit();
+        assertNotNull(commit);
+        assertTrue(commit.contains("commit"));
+    }
+
+    @Test
+    public void getChangelist_DeprecatedTest() {
+        try {
+            AppVersion.getChangelist();
+            fail("Expected ChangelistNotFoundException");
+        } catch (ChangelistNotFoundException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void toString_SimpleTest() {
+        String toString = AppVersion.toString(new AppVersion());
+        assertNotNull(toString);
+        assertTrue(toString.contains("1.0.0"));
+    }
+
+    @Test
+    public void hashCode_SimpleTest() {
+        int hashCode = new AppVersion().hashCode();
+        assertTrue(hashCode > 0);
+    }
+
+    @Test
+    public void equals_SameVersion() {
+        AppVersion appVersion1 = new AppVersion("1.0.0");
+        AppVersion appVersion2 = new AppVersion("1.0.0");
+        assertTrue(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void equals_DifferentVersion() {
+        AppVersion appVersion1 = new AppVersion("1.0.0");
+        AppVersion appVersion2 = new AppVersion("1.0.1");
+        assertFalse(appVersion1.equals(appVersion2));
+    }
+
+}

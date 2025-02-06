@@ -1,0 +1,73 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.NodeList;
+import org.w3c.dom.DocumentType;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareDefault_ReturnsFalse() {
+        assertFalse(W3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAwareSet_ReturnsTrue() {
+        assertTrue(W3CDom.namespaceAware(true));
+    }
+
+    @Test
+    public void convertDocumentFromJsoup_ReturnsNonNullDocument() {
+        Document in = new Document();
+        Document out = W3CDom.convert(in);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void asStringDocumentWithProperties_ReturnsNonEmptyString() {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("property1", "value1");
+        assertEquals("value1", W3CDom.asString(new Document(), properties));
+    }
+
+    @Test
+    public void outputHtmlFromJsoup_ReturnsNonNullDocument() {
+        Document in = new Document();
+        Document out = W3CDom.OutputHtml().put("in", in);
+        assertNotNull(out);
+    }
+
+    @Test
+    public void selectXpathNodeListWithContextNode_ReturnsNonNullList() {
+        NodeList nodeList = new NodeList();
+        Node contextNode = new Element();
+        NodeList selectedNodes = W3CDom.selectXpath("//node", nodeList, contextNode);
+        assertNotNull(selectedNodes);
+    }
+
+    @Test
+    public void sourceNodesNodeListFromJsoupWithNodeType_ReturnsNonNullList() {
+        NodeList nodeList = new NodeList();
+        List<Node> selectedNodes = W3CDom.sourceNodes(nodeList, Node.class);
+        assertNotNull(selectedNodes);
+    }
+
+    @Test
+    public void contextNodeDocumentReturnsNonNullNode() {
+        Document wDoc = new Document();
+        Node contextNode = W3CDom.contextNode(wDoc);
+        assertNotNull(contextNode);
+    }
+
+    @Test
+    public void asStringDocumentFromJsoupElement_ReturnsNonEmptyString() {
+        Element in = new Element();
+        assertEquals("element text", W3CDom.asString(in));
+    }
+
+}

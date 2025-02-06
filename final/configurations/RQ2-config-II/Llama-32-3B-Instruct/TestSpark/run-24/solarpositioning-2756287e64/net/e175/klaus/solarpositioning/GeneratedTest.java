@@ -1,0 +1,93 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSolarPosition_NormalDateTest() {
+        ZonedDateTime date = ZonedDateTime.now();
+        double latitude = 52.5200;
+        double longitude = 13.4050;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPosition_AbsoluteZeroTemperatureTest() {
+        ZonedDateTime date = ZonedDateTime.now();
+        double latitude = 52.5200;
+        double longitude = 13.4050;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, -273.15);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPosition_NullDateTest() {
+        ZonedDateTime date = null;
+        double latitude = 52.5200;
+        double longitude = 13.4050;
+        try {
+            Grena3.calculateSolarPosition(date, latitude, longitude);
+            fail("Expected NullPointerException");
+        } catch (NullPointerException e) {
+        }
+    }
+
+    @Test
+    public void calculateSolarPosition_NullLatitudeTest() {
+        ZonedDateTime date = ZonedDateTime.now();
+        double latitude = null;
+        double longitude = 13.4050;
+        try {
+            Grena3.calculateSolarPosition(date, latitude, longitude);
+            fail("Expected NullPointerException");
+        } catch (NullPointerException e) {
+        }
+    }
+
+    @Test
+    public void calculateSolarPosition_NullLongitudeTest() {
+        ZonedDateTime date = ZonedDateTime.now();
+        double latitude = 52.5200;
+        double longitude = null;
+        try {
+            Grena3.calculateSolarPosition(date, latitude, longitude);
+            fail("Expected NullPointerException");
+        } catch (NullPointerException e) {
+        }
+    }
+
+    @Test
+    public void calculateSolarPosition_NullDeltaTTest() {
+        ZonedDateTime date = ZonedDateTime.now();
+        double latitude = 52.5200;
+        double longitude = 13.4050;
+        try {
+            Grena3.calculateSolarPosition(date, latitude, longitude, null);
+            fail("Expected NullPointerException");
+        } catch (NullPointerException e) {
+        }
+    }
+
+    @Test
+    public void calculateSolarPosition_NullPressureTest() {
+        ZonedDateTime date = ZonedDateTime.now();
+        double latitude = 52.5200;
+        double longitude = 13.4050;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, null);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPosition_NullTemperatureTest() {
+        ZonedDateTime date = ZonedDateTime.now();
+        double latitude = 52.5200;
+        double longitude = 13.4050;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, null);
+        assertNotNull(result);
+    }
+
+}

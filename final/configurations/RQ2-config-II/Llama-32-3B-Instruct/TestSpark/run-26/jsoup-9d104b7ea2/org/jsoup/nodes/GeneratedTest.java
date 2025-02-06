@@ -1,0 +1,111 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeName_ReturnsnodeName() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("text", textNode.nodeName());
+    }
+
+    @Test
+    public void text_ReturnsText() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.text());
+    }
+
+    @Test
+    public void text_SetsText() {
+        TextNode textNode = new TextNode();
+        textNode.text("test");
+        assertEquals("test", textNode.text());
+    }
+
+    @Test
+    public void getWholeText_ReturnsText() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlank_ReturnsFalse() {
+        TextNode textNode = new TextNode("test");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_SplitsTextAtOffset() {
+        TextNode textNode = new TextNode("test");
+        textNode.text("test");
+        assertEquals(0, textNode.splitText(1).text().length());
+        assertEquals(4, textNode.splitText(2).text().length());
+    }
+
+    @Test
+    public void outerHtmlHead_AppendsToHead() {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(outContent));
+        TextNode textNode = new TextNode("test");
+        Document document = textNode.outerHtmlHead(new StringBuilder(), 1, Document.OutputSettings.DEFAULT);
+        assertEquals("test", outContent.toString());
+        System.setOut(originalOut);
+    }
+
+    @Test
+    public void outerHtmlTail_AppendsToTail() {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(outContent));
+        TextNode textNode = new TextNode("test");
+        document = textNode.outerHtmlTail(new StringBuilder(), 1, Document.OutputSettings.DEFAULT);
+        assertEquals("", outContent.toString());
+        System.setOut(originalOut);
+    }
+
+    @Test
+    public void clone_ReturnsClone() {
+        TextNode originalTextNode = new TextNode("test");
+        TextNode clonedTextNode = originalTextNode.clone();
+        assertNotNull(clonedTextNode);
+        assertEquals("test", clonedTextNode.text());
+    }
+
+    @Test
+    public void createFromEncoded_Succeeds() {
+        TextNode textNode = TextNode.createFromEncoded("test");
+        assertNotNull(textNode);
+        assertEquals("test", textNode.text());
+    }
+
+    @Test
+    public void normaliseWhitespace_NonEmptyString_ReturnsNormalisedText() {
+        assertEquals(" test ", StringUtil.normaliseWhitespace(" test "));
+    }
+
+    @Test
+    public void stripLeadingWhitespace_LeadingWhitespaceReturnsEmptyString() {
+        assertEquals("", StringUtil.stripLeadingWhitespace("   "));
+    }
+
+    @Test
+    public void lastCharIsWhitespace_EmptyStringBuilder_ReturnsFalse() {
+        assertFalse(TextNode.lastCharIsWhitespace(new StringBuilder()));
+    }
+
+    @Test
+    public void lastCharIsWhitespace_SingleWhitespaceReturnsTrue() {
+        assertTrue(TextNode.lastCharIsWhitespace(new StringBuilder(" ")));
+    }
+
+}

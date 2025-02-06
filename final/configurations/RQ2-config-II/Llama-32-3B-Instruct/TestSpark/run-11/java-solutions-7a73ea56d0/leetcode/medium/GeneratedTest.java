@@ -1,0 +1,77 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void next_SinglePrice_ReturnsOne() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int result = solution.next(10);
+        assertThat(result, is(1));
+    }
+
+    @Test
+    public void next_DuplicatePrices_ReturnsCumulativeSum() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {10, 7, 5, 8, 11, 9};
+        for (int price : prices) {
+            int result = solution.next(price);
+            assertThat(result, is(prices.length - prices.indexOf(price)));
+        }
+    }
+
+    @Test
+    public void calculateSpans_EmptyArray_ReturnsEmptyArray() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] result = solution.calculateSpans(new int[0]);
+        assertThat(Arrays.asList(result), is(Arrays.asList()));
+    }
+
+    @Test
+    public void calculateSpans_SingleElementArray_ReturnsSingleElementArray() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {10};
+        int[] result = solution.calculateSpans(prices);
+        assertThat(result, is(ints(1)));
+    }
+
+    @Test
+    public void calculateSpans_MultipleElementsArray_ReturnsCorrectResult() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {10, 7, 5, 8, 11, 9};
+        int[] result = solution.calculateSpans(prices);
+        assertThat(result, is(ints(1, 2, 1, 2, 3, 2)));
+    }
+
+    @Test
+    public void calculateSpans_MultipleDuplicateElementsArray_ReturnsCumulativeSum() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {10, 7, 5, 8, 11, 9, 7, 5};
+        int[] result = solution.calculateSpans(prices);
+        assertThat(result, is(ints(1, 2, 1, 2, 3, 2, 1, 1)));
+    }
+}
+
+@Test
+public void next_MocksNext_ReturnsCorrectResult() {
+    OnlineStockSpan solution = mock(OnlineStockSpan.class);
+    when(solution.next(anyInt())).thenReturn(1);
+    int result = solution.next(10);
+    assertThat(result, is(1));
+}
+
+@Test
+public void calculateSpans_MocksCalculateSpans_ReturnsCorrectResult() {
+    OnlineStockSpan solution = mock(OnlineStockSpan.class);
+    when(solution.calculateSpans(anyInt[]())).thenReturn(ints(1, 2, 1, 2, 3, 2));
+    int[] result = solution.calculateSpans(new int[]{10, 7, 5, 8, 11, 9});
+    assertThat(Arrays.asList(result), is(Arrays.asList(1, 2, 1, 2, 3, 2)));
+}
+
+}

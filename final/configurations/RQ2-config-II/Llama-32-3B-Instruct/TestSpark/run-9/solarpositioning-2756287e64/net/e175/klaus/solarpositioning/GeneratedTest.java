@@ -1,0 +1,178 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.lang.Math;
+
+import net.e175.klaus.solarpositioning.AzimuthZenithAngle;
+import net.e175.klaus.solarpositioning.Grena3;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSolarPositionNoArgsReturnsDefault() {
+        Grena3 grena3 = new Grena3();
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 0.0;
+        double longitude = 0.0;
+        double deltaT = 0.0;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionWithDateReturnsAzimuthAndZEnith() {
+        Grena3 grena3 = new G Rena3();
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(10L);
+        double latitude = 0.0;
+        double longitude = 0.0;
+        double deltaT = 0.0;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionWithDateAndPressureReturnsAzimuthAndZEnith() {
+        G Rena3 grena3 = new G Rena3();
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(10L);
+        double latitude = 0.0;
+        double longitude = 0.0;
+        double deltaT = 0.0;
+        double pressure = 101325;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT, pressure);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionWithDateAndTemperatureReturnsAzimuthAndZEnith() {
+        G Rena3 grena3 = new G Rena3();
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(10L);
+        double latitude = 0.0;
+        double longitude = 0.0;
+        double deltaT = 0.0;
+        double temperature = -273.15;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT, temperature);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionInvalidDateReturnsDefault() {
+        G Rena3 grena3 = new G Rena3();
+        ZonedDateTime date = null;
+        double latitude = 0.0;
+        double longitude = 0.0;
+        double deltaT = 0.0;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionInvalidDateAndPressureReturnsDefault() {
+        G Rena3 grena3 = new G Rena3();
+        ZonedDateTime date = null;
+        double latitude = 0.0;
+        double longitude = 0.0;
+        double deltaT = 0.0;
+        double pressure = 101325;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT, pressure);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionInvalidDateAndTemperatureReturnsDefault() {
+        G Rena3 grena3 = new G Rena3();
+        ZonedDateTime date = null;
+        double latitude = 0.0;
+        double longitude = 0.0;
+        double deltaT = 0.0;
+        double temperature = -273.15;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT, temperature);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionZeroLatitudeReturnsDefault() {
+        G Rena3 grena3 = new G Rena3();
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(10L);
+        double latitude = 0.0;
+        double longitude = 0.0;
+        double deltaT = 0.0;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionZeroLongitudeReturnsDefault() {
+        G Rena3 grena3 = new G Rena3();
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(10L);
+        double latitude = 0.0;
+        double longitude = 0.0;
+        double deltaT = 0.0;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionNaNLatitudeReturnsDefault() {
+        G Rena3 grena3 = new G Rena3();
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(10L);
+        double latitude = Double.NaN;
+        double longitude = 0.0;
+        double deltaT = 0.0;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionNaNLongitudeReturnsDefault() {
+        G Rena3 grena3 = new G Rena3();
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(10L);
+        double latitude = 0.0;
+        double longitude = Double.NaN;
+        double deltaT = 0.0;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPositionNaNDeltaTReturnsDefault() {
+        G Rena3 grena3 = new G Rena3();
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(10L);
+        double latitude = 0.0;
+        double longitude = 0.0;
+        double deltaT = Double.NaN;
+
+        AzimuthZenithAngle result = grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        assertNotNull(result);
+    }
+
+}

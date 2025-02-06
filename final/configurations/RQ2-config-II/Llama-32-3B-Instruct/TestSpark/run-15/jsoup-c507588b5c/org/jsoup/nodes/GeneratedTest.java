@@ -1,0 +1,128 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void newNodeText_test() {
+        TextNode node = new TextNode("Hello");
+        assertEquals("Hello", node.text());
+    }
+
+    @Test
+    public void newNodeText_empty_string_test() {
+        TextNode node = new TextNode("");
+        assertTrue(node.isBlank());
+        assertEquals("", node.text());
+    }
+
+    @Test
+    public void text_getWholeText_test() {
+        String expected = "Hello\nWorld";
+        TextNode node = new TextNode(expected);
+        assertEquals(expected, node.getWholeText());
+    }
+
+    @Test
+    public void text_setText_test() {
+        TextNode node = new TextNode("Hello");
+        node.text("New Hello");
+        assertEquals("New Hello", node.text());
+    }
+
+    @Test
+    public void text_setBlank_text_test() {
+        TextNode node = new TextNode("Hello");
+        node.text("");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void splitText_0_test() {
+        TextNode node = new TextNode("Hello\nWorld");
+        TextNode result = node.splitText(0);
+        assertNotNull(result);
+        assertEquals("Hello", result.text());
+    }
+
+    @Test
+    public void splitText_textLengthTest() {
+        String expected = "Hello";
+        TextNode node = new TextNode(expected);
+        TextNode result1 = node.splitText(node.length());
+        TextNode result2 = node.splitText(0);
+        assertEquals("", result2.text());
+    }
+
+    @Test
+    public void splitText_notFound_test() {
+        TextNode node = new TextNode("Hello\nWorld");
+        TextNode result = node.splitText(5);
+        assertNotNull(result);
+        assertEquals("World", result.text());
+    }
+
+    @Test
+    public void outerHtmlHead_headElementTest() {
+        Document document = mock(Document.class);
+        Appendable accum = mock(Appendable.class);
+        int depth = 0;
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        TextNode node = new TextNode("<p>Hello</p>");
+        node.outerHtmlHead(accum, depth, out);
+        verify(document).append(out.getHeadElement().toString());
+    }
+
+    @Test
+    public void outerHtmlHead_headElementNotSupported_test() {
+        Document document = mock(Document.class);
+        Appendable accum = mock(Appendable.class);
+        int depth = 0;
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        TextNode node = new TextNode("Hello");
+        node.outerHtmlHead(accum, depth, out);
+    }
+
+    @Test
+    public void outerHtmlTail_tailElementTest() {
+        Document document = mock(Document.class);
+        Appendable accum = mock(Appendable.class);
+        int depth = 0;
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        TextNode node = new TextNode("<p>Hello</p>");
+        node.outerHtmlTail(accum, depth, out);
+        verify(document).append(out.getTailElement().toString());
+    }
+
+    @Test
+    public void outerHtmlTail_tailElementNotSupported_test() {
+        Document document = mock(Document.class);
+        Appendable accum = mock(Appendable.class);
+        int depth = 0;
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        TextNode node = new TextNode("Hello");
+        node.outerHtmlTail(accum, depth, out);
+    }
+
+    @Test
+    public void toString_test() {
+        TextNode node = new TextNode("<p>Hello</p>");
+        String expected = "<p>Hello</p>";
+        assertEquals(expected, node.toString());
+    }
+
+    @Test
+    public void clone_test() {
+        TextNode node = new TextNode("Hello");
+        TextNode cloned = node.clone();
+        assertNotNull(cloned);
+        assertEquals(node.text(), cloned.text());
+    }
+
+    @Test
+    public void createFromEncoded_test() {
+        String encodedText = "Hello";
+        TextNode node = TextNode.createFromEncoded(encodedText);
+        assertEquals(encodedText, node.text());
+    }
+
+}

@@ -1,0 +1,86 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSolarPosition_WithDefaultParameters_ReturnsAzimuthZenithAngle() {
+        ZonedDateTime date = Mockito.mock(ZonedDateTime.class);
+        double latitude = 45.0;
+        double longitude = 10.0;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithLatitudeZero_ReturnsNaN() {
+        ZonedDateTime date = Mockito.mock(ZonedDateTime.class);
+        double latitude = 0.0;
+        double longitude = 10.0;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude);
+        assertFalse(isEqual(result.getAzimuth(), Double.NaN));
+    }
+
+    @Test
+    public void calculateSolarPosition_WithLongitudeZero_ReturnsNaN() {
+        ZonedDateTime date = Mockito.mock(ZonedDateTime.class);
+        double latitude = 45.0;
+        double longitude = 0.0;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude);
+        assertFalse(isEqual(result.getAzimuth(), Double.NaN));
+    }
+
+    @Test
+    public void calculateSolarPosition_WithNegativeLatitude_ReturnsNaN() {
+        ZonedDateTime date = Mockito.mock(ZonedDateTime.class);
+        double latitude = -45.0;
+        double longitude = 10.0;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude);
+        assertFalse(isEqual(result.getAzimuth(), Double.NaN));
+    }
+
+    @Test
+    public void calculateSolarPosition_WithNegativeLongitude_ReturnsNaN() {
+        ZonedDateTime date = Mockito.mock(ZonedDateTime.class);
+        double latitude = 45.0;
+        double longitude = -10.0;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude);
+        assertFalse(isEqual(result.getAzimuth(), Double.NaN));
+    }
+
+    @Test
+    public void calculateSolarPosition_WithMultipleParameters_ReturnsCorrectResult() {
+        ZonedDateTime date = Mockito.mock(ZonedDateTime.class);
+        double latitude = 45.0;
+        double longitude = 10.0;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 1.0, 20.0, 100.0);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithInvalidTemperature_ReturnsNaN() {
+        ZonedDateTime date = Mockito.mock(ZonedDateTime.class);
+        double latitude = 45.0;
+        double longitude = 10.0;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 1.0, Double.POSITIVE_INFINITY, 100.0);
+        assertFalse(isEqual(result.getAzimuth(), Double.NaN));
+    }
+
+    @Test
+    public void calculateSolarPosition_WithInvalidPressure_ReturnsNaN() {
+        ZonedDateTime date = Mockito.mock(ZonedDateTime.class);
+        double latitude = 45.0;
+        double longitude = 10.0;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 1.0, Double.POSITIVE_INFINITY, 100.0);
+        assertFalse(isEqual(result.getAzimuth(), Double.NaN));
+    }
+
+}

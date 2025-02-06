@@ -1,0 +1,63 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCodigoInterno_EmptyString_ThrowsException() {
+        final String codigoInterno = "";
+        assertThrows(IllegalArgumentException.class, () -> new MDFInfoModalRodoviarioVeiculoReboque().setCodigoInterno(codigoInterno));
+    }
+
+    @Test
+    public void setPlaca_EmptyString_ThrowsException() {
+        final String placa = "";
+        assertThrows(IllegalArgumentException.class, () -> new MDFInfoModalRodoviarioVeiculoReboque().setPlaca(placa));
+    }
+
+    @Test
+    public void setRenavam_EmptyString_ThrowsException() {
+        final String renavam = "";
+        assertThrows(IllegalArgumentException.class, () -> new MDFInfoModalRodoviarioVeiculoReboque().setRenavam(renavam));
+    }
+
+    @Test
+    public void setTara_EmptyString_ThrowsException() {
+        final String tara = "";
+        assertThrows(IllegalArgumentException.class, () -> new MDFInfoModalRodoviarioVeiculoReboque().setTara(tara));
+    }
+
+    @Test
+    public void getCapacidadeKG_RetornaValorValido() {
+        final String capacidadeKg = "100";
+        final MDFInfoModalRodoviarioVeiculoReboque mf = new MDFInfoModalRodoviarioVeiculoReboque();
+        mf.setCapacidadeKG(capacidadeKg);
+        assertEquals(capacidadeKg, mf.getCapacidadeKG());
+    }
+
+    @Test
+    public void getCapacidadeM3_RetornaValorValido() {
+        final String capacidadeM3 = "100";
+        final MDFInfoModalRodoviarioVeiculoReboque mf = new MDFInfoModalRodoviarioVeiculoReboque();
+        mf.setCapacidadeM3(capacidadeM3);
+        assertEquals(capacidadeM3, mf.getCapacidadeM3());
+    }
+
+    @Test
+    public void setCapacidadeKG_TipoInvalido_ThrowsException() {
+        final String capacidadeKg = "abc";
+        assertThrows(IllegalArgumentException.class, () -> new MDFInfoModalRodoviarioVeiculoReboque().setCapacidadeKG(capacidadeKg));
+    }
+
+    @Test
+    public void setCapacidadeM3_TipoInvalido_ThrowsException() {
+        final String capacidadeM3 = "abc";
+        assertThrows(IllegalArgumentException.class, () -> new MDFInfoModalRodoviarioVeiculoReboque().setCapacidadeM3(capacidadeM3));
+    }
+
+}

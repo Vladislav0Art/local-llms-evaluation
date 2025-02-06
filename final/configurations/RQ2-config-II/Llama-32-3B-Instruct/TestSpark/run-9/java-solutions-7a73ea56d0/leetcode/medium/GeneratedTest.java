@@ -1,0 +1,79 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
+
+public class GeneratedTest {
+
+    @Test
+    public void next_[
+    givenPrice]
+
+    ShouldReturn1() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int result = solution.next(100);
+        assertThat(result, is(1));
+    }
+
+    @Test
+    public void next_[
+    givenPrice10AndNextPrice20]
+
+    ShouldReturn2() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        solution.next(10);
+        int result = solution.next(20);
+        assertThat(result, is(2));
+    }
+
+    @Test
+    public void next_[
+    givenPrice10AndNextPrice5]
+
+    ShouldReturn1() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        solution.next(10);
+        int result = solution.next(5);
+        assertThat(result, is(1));
+    }
+
+    @Test
+    public void calculateSpans_[
+    givenPrices1_2_3_4_5]
+
+    ShouldReturnArrayWithCorrectSpans() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {1, 2, 3, 4, 5};
+        int[] result = solution.calculateSpans(prices);
+        assertThat(Arrays.toString(result), is("[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)]"));
+    }
+
+    @Test
+    public void calculateSpans_[
+    givenPrices1_2_1_3_4]
+
+    ShouldReturnArrayWithCorrectSpans() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {1, 2, 1, 3, 4};
+        int[] result = solution.calculateSpans(prices);
+        assertThat(Arrays.toString(result), is("[(1, 1), (2, 2), (1, 1), (3, 3), (4, 4)]"));
+    }
+
+    @Test
+    public void calculateSpans_[
+    givenPrices1_2_1_3_6]
+
+    ShouldReturnArrayWithCorrectSpans() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] prices = {1, 2, 1, 3, 6};
+        int[] result = solution.calculateSpans(prices);
+        assertThat(Arrays.toString(result), is("[(1, 1), (2, 2), (1, 1), (3, 4), (6, 5)]"));
+    }
+
+}

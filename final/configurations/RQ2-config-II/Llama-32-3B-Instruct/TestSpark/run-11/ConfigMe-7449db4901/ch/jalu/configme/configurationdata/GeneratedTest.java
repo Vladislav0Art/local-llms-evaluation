@@ -1,0 +1,111 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void newCommentsConfiguration_isEmpty() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void newCommentsConfiguration_withMap_isInitialized() {
+        Map<String, List<String>> map = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(map);
+        assertNotNull(commentsConfiguration.getAllComments());
+    }
+
+    @Test
+    public void setComment_setsCorrectPath() {
+        Map<String, List<String>> map = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        commentsConfiguration.setComment("path", "comment1");
+        assertTrue(commentsConfiguration.getAllComments().containsKey("path"));
+    }
+
+    @Test
+    public void setComment_setsCorrectLineWithoutMarker() {
+        Map<String, List<String>> map = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String commentLines[] = {"", "comment2"};
+        commentsConfiguration.setComment("path", commentLines);
+        assertTrue(commentsConfiguration.getAllComments().get("path").contains("comment2"));
+    }
+
+    @Test
+    public void setComment_setsMultipleLinesCorrectly() {
+        Map<String, List<String>> map = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String commentLines[] = {"comment1", "comment2"};
+        commentsConfiguration.setComment("path", commentLines);
+        assertTrue(commentsConfiguration.getAllComments().get("path").containsAll(Arrays.asList("comment1", "comment2")));
+    }
+
+    @Test
+    public void setComment_setsCorrectPathWithMultipleLines() {
+        Map<String, List<String>> map = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String commentLines[] = {"comment1\ncomment2"};
+        commentsConfiguration.setComment("path", commentLines);
+        assertTrue(commentsConfiguration.getAllComments().get("path").containsAll(Arrays.asList("comment1", "comment2")));
+    }
+
+    @Test
+    public void setComment_setsCorrectPathWithEmptyLine() {
+        Map<String, List<String>> map = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String commentLines[] = {"", "comment3"};
+        commentsConfiguration.setComment("path", commentLines);
+        assertTrue(commentsConfiguration.getAllComments().get("path").contains("comment3"));
+    }
+
+    @Test
+    public void setComment_setsCorrectPathWithMultipleEmptyLines() {
+        Map<String, List<String>> map = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String commentLines[] = {"", "comment4", ""};
+        commentsConfiguration.setComment("path", commentLines);
+        assertTrue(commentsConfiguration.getAllComments().get("path").containsAll(Arrays.asList("", "comment4")));
+    }
+
+    @Test
+    public void setComment_setsCorrectPathWithMultipleEmptyAndNonEmptyLines() {
+        Map<String, List<String>> map = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String commentLines[] = {"", "comment5", ""};
+        commentsConfiguration.setComment("path", commentLines);
+        assertTrue(commentsConfiguration.getAllComments().get("path").containsAll(Arrays.asList("", "comment5")));
+    }
+
+    @Test
+    public void getAllComments_isUnmodifiable() {
+        Map<String, List<String>> map = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(map);
+        try {
+            ((List<String>) commentsConfiguration.getAllComments().get("path")).add("newComment");
+            fail();
+        } catch (UnsupportedOperationException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void setComment_setsCorrectAllPaths() {
+        Map<String, List<String>> map = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String commentLines[] = {"comment6"};
+        commentsConfiguration.setComment("path1", commentLines);
+        assertTrue(commentsConfiguration.getAllComments().containsKey("path1"));
+    }
+
+}

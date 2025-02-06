@@ -1,0 +1,88 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void newNodetest() {
+        Comment comment = new Comment("");
+        assertNotNull(comment);
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("");
+        assertEquals("", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("data");
+        assertEquals("data", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("");
+        comment.setData("newData");
+        assertEquals("newData", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        int depth = 0;
+        Document.OutputSettings out = null;
+        Comment comment = new Comment("");
+        comment.outerHtmlHead(accum, depth, out);
+        assertEquals("", outContent.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        Comment comment = new Comment("");
+        Appendable accum = "";
+        int depth = 0;
+        Document.OutputSettings out = null;
+        comment.outerHtmlTail(accum, depth, out);
+        assertTrue(true);
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("data");
+        String output = "<!-- data -->";
+        assertEquals(output, comment.toString());
+    }
+
+    @Test
+    public void cloneTest() throws IOException {
+        Comment comment = new Comment("");
+        Comment clonedComment = comment.clone();
+        assertNotNull(clonedComment);
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() throws IOException {
+        Comment comment = new Comment("");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+    }
+
+}

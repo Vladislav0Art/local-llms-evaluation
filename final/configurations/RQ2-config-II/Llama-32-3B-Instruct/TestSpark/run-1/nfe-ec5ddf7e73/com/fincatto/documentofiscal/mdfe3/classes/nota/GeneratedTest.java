@@ -1,0 +1,72 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.when;
+
+@RunWith(org.junit.runners.JUnit4.class)
+public class GeneratedTest {
+
+    @Mock
+    private DFStringValidador validador;
+
+    public MDFInfoModalRodoviarioVeiculoReboque testObj;
+
+    public void setup() {
+        testObj = new MDFInfoModalRodoviarioVeiculoReboque();
+    }
+
+    @Test
+    public void codigoInterno() {
+        setup();
+        when(validador.validate(testObj.getCodigoInterno())).thenReturn(true);
+        testObj.setCodigoInterno("123456");
+        assertEquals("123456", testObj.getCodigoInterno());
+    }
+
+    @Test
+    public void placa() {
+        setup();
+        when(validador.validate(testObj.getPlaca())).thenReturn(true);
+        testObj.setPlaca("ABC123");
+        assertEquals("ABC123", testObj.getPlaca());
+    }
+
+    @Test
+    public void renavam() {
+        setup();
+        when(validador.validate(testObj.getRenavam())).thenReturn(true);
+        testObj.setRenavam("123456");
+        assertEquals("123456", testObj.getRenavam());
+    }
+
+    @Test
+    public void tara() {
+        setup();
+        when(validador.validate(testObj.getTara())).thenReturn(true);
+        testObj.setTara("789012");
+        assertEquals("789012", testObj.getTara());
+    }
+
+    @Test
+    public void capacidadeKG() {
+        setup();
+        when(validador.validate(testObj.getCapacidadeKG())).thenReturn(true);
+        testObj.setCapacidadeKG("456789");
+        assertEquals("456789", testObj.getCapacidadeKG());
+    }
+
+    @Test
+    public void capacidadeM3() {
+        setup();
+        when(validador.validate(testObj.getCapacidadeM3())).thenReturn(true);
+        String result = testObj.getCapacidadeM3();
+        assertNull(result);
+    }
+
+}

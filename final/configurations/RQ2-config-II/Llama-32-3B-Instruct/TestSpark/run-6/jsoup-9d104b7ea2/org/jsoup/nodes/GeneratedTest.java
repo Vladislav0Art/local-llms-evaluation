@@ -1,0 +1,103 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeName_Test() {
+        String text = "test";
+        TextNode node = new TextNode(text);
+        assertEquals("text", node.nodeName());
+    }
+
+    @Test
+    public void text_Test() {
+        String text = "test";
+        TextNode node = new TextNode(text);
+        assertEquals(text, node.text());
+    }
+
+    @Test
+    public void text_SplitText_Test() {
+        String text = "test";
+        TextNode node = new TextNode(text);
+        assertEquals("te", node.text(1));
+    }
+
+    @Test
+    public void getWholeText_Test() {
+        String text = "test";
+        TextNode node = new TextNode(text);
+        assertEquals(text, node.getWholeText());
+    }
+
+    @Test
+    public void isBlank_Test() {
+        String text = "";
+        TextNode node = new TextNode(text);
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void isBlank_NonBlank_Test() {
+        String text = "test";
+        TextNode node = new TextNode(text);
+        assertFalse(node.isBlank());
+    }
+
+    @Test
+    public void splitText_Test() throws IOException {
+        String text = "test";
+        TextNode node = new TextNode(text);
+        TextNode split = node.splitText(1);
+        assertNotNull(split);
+    }
+
+    @Test
+    public void outerHtmlHead_Test_WithAppendableAndDepth0ThrowsIOException() {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        int depth = 0;
+        Document.OutputSettings out = null;
+        try {
+            node.outerHtmlHead(accum, depth, out);
+            fail("Expected IOException");
+        } catch (IOException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void outerHtmlTail_Test_WithAppendableAndDepth0DoesNotThrowIOException() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        Appendable accum = outContent;
+        int depth = 0;
+        Document.OutputSettings out = null;
+        node.outerHtmlTail(accum, depth, out);
+    }
+
+    @Test
+    public void toString_Test() {
+        String text = "test";
+        TextNode node = new TextNode(text);
+        assertEquals("text", node.toString());
+    }
+
+    @Test
+    public void clone_Test() throws IOException {
+        String text = "test";
+        TextNode node = new TextNode(text);
+        TextNode cloned = node.clone();
+        assertNotNull(cloned);
+    }
+
+}

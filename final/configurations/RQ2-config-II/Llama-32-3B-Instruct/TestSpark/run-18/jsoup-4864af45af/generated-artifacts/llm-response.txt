@@ -1,0 +1,103 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import static org.jsoup.internal.Normalizer.lowerCase;
+import static org.mockito.Mockito.when;
+
+public class SafelistTest {
+
+    @Test
+    public void none_AddTags_EmptySet_ReturnsSame() {
+        Safelist safelist = Safelist.none();
+        Set<String> tags = new HashSet<>();
+        safelist = safelist.addTags(tags.toArray(new String[0]));
+        assertTrue(Validate.equals(safelist, Safelist.none()));
+    }
+
+    @Test
+    public void simpleText_AddTags_PreservesOriginalContent() {
+        Element element = new Element("test");
+        Set<String> tags = new HashSet<>();
+        tags.add("script");
+        Safelist safelist = Safelist.simpleText();
+        safelist = safelist.addTags(tags.toArray(new String[0]));
+        assertEquals(Validate.equals(element, element), Validate.equals(safelist.apply(element), element));
+    }
+
+    @Test
+    public void basic_AddTags_PreservesOriginalContent() {
+        Element element = new Element("test");
+        Set<String> tags = new HashSet<>();
+        tags.add("script", "style");
+        Safelist safelist = Safelist.basic();
+        safelist = safelist.addTags(tags.toArray(new String[0]));
+        assertEquals(Validate.equals(element, element), Validate.equals(safelist.apply(element), element));
+    }
+
+    @Test
+    public void basic_WithImages_AddTags_PreservesOriginalContent() {
+        Element element = new Element("test");
+        Set<String> tags = new HashSet<>();
+        tags.add("script", "style");
+        safelist = Safelist.basic();
+        when(safelist.isSafeTag("img")).thenReturn(true);
+        safelist = safelist.addTags(tags.toArray(new String[0]));
+        assertEquals(Validate.equals(element, element), Validate.equals(safelist.apply(element), element));
+    }
+
+    @Test
+    public void relaxed_AddAttributes_PreservesOriginalContent() {
+        Element element = new Element("test");
+        Set<String> tags = new HashSet<>();
+        Safelist safelist = Safelist.relaxed();
+        safelist = safelist.addAttributes("img", "alt", "image1");
+        assertEquals(Validate.equals(element, element), Validate.equals(safelist.apply(element), element));
+    }
+
+    @Test
+    public void addProtocols_PreserveLinks_WhenPreserveTrue() {
+        Element element = new Element("test");
+        Safelist safelist = Safelist.relaxed();
+        Set<String> protocols = new HashSet<>();
+        safelist = safelist.addProtocols("a", "href", "http://example.com");
+        when(safelist.isSafeAttribute("href", element, null)).thenReturn(true);
+        when(element.hasAttr("href")).thenReturn(true);
+        Element result = safelist.apply(element);
+        assertEquals(Validate.equals(element, element), Validate.equals(result, element));
+    }
+
+    @Test
+    public void removeProtocols_PreserveLinks_WhenPreserveTrue() {
+        Element element = new Element("test");
+        Safelist safelist = Safelist.relaxed();
+        Set<String> protocols = new HashSet<>();
+        when(safelist.isSafeAttribute("href", element, null)).thenReturn(true);
+        safelist = safelist.removeProtocols("a", "href", new String[]{"http://example.com"});
+        Element result = safelist.apply(element);
+        assertEquals(Validate.equals(element, element), Validate.equals(result, element));
+    }
+
+    @Test
+    public void preserveRelativeLinks_PreserveLinks_WhenPreserveTrue() {
+        Element element = new Element("test");
+        Safelist safelist = Safelist.relaxed();
+        Set<String> protocols = new HashSet<>();
+        when(safelist.isSafeAttribute("href", element, null)).thenReturn(true);
+        safelist = safelist.preserveRelativeLinks(true);
+        Element result = safelist.apply(element);
+        assertEquals(Validate.equals(element, element), Validate.equals(result, element));
+    }
+}
+```
+===================================================
+

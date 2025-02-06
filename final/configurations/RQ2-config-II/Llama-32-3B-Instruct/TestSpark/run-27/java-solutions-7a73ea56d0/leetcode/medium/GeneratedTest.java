@@ -1,0 +1,67 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSinglePriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        when(stockSpan.next(100)).thenReturn(1);
+        assertEquals(1, stockSpan.next(100));
+    }
+
+    @Test
+    public void nextMultiplePricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        when(stockSpan.next(100)).thenReturn(1);
+        when(stockSpan.next(200)).thenReturn(2);
+        when(stockSpan.next(50)).thenReturn(3);
+        assertEquals(3, stockSpan.next(50));
+    }
+
+    @Test
+    public void nextConsecutivePricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        when(stockSpan.next(100)).thenReturn(1);
+        when(stockSpan.next(110)).thenReturn(2);
+        when(stockSpan.next(120)).thenReturn(3);
+        assertEquals(4, stockSpan.next(120));
+    }
+
+    @Test
+    public void calculateSpansEmptyPricesArrayTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = {};
+        int[] result = stockSpan.calculateSpans(prices);
+        assertEquals(new int[]{}, result);
+    }
+
+    @Test
+    public void calculateSpansSinglePriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = {100};
+        int[] result = stockSpan.calculateSpans(prices);
+        assertEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpansMultiplePricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = {100, 200, 50};
+        int[] result = stockSpan.calculateSpans(prices);
+        assertEquals(new int[]{1, 2, 3}, result);
+    }
+
+    @Test
+    public void calculateSpansConsecutivePricesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = {100, 110, 120};
+        int[] result = stockSpan.calculateSpans(prices);
+        assertEquals(new int[]{1, 2, 4}, result);
+    }
+
+}

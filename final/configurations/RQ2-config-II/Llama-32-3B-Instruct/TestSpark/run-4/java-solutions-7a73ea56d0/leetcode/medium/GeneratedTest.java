@@ -1,0 +1,82 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSpans_EmptyArray_ReturnsEmptyArray() {
+        int[] prices = {};
+        int[] result = new OnlineStockSpan().calculateSpans(prices);
+        assertArrayEquals(result,[]);
+    }
+
+    @Test
+    public void calculateSpans_SinglePrice_ReturnsArrayWithOneElement() {
+        int[] prices = {1};
+        int[] result = new OnlineStockSpan().calculateSpans(prices);
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void next_NoPrecedingPrices_ReturnsOne() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        assertEquals(1, onlineStockSpan.next(0));
+    }
+
+    @Test
+    public void next_PrecedingPricesWithLowerPrice_ReturnsIncreaseFromPreceding() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int result1 = onlineStockSpan.next(10);
+        int result2 = onlineStockSpan.next(7);
+        assertEquals(result1 + 1, result2);
+    }
+
+    @Test
+    public void next_PrecedingPricesWithHigherPrice_ReturnsDecreaseFromPreceding() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int result1 = onlineStockSpan.next(10);
+        int result2 = onlineStockSpan.next(15);
+        assertEquals(result1 - 1, result2);
+    }
+
+    @Test
+    public void next_PrecedingPricesWithSamePrice_ReturnsIncreaseFromPreceding() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int result1 = onlineStockSpan.next(10);
+        int result2 = onlineStockSpan.next(10);
+        assertEquals(result1 + 1, result2);
+    }
+
+    @Test
+    public void calculateSpans_SinglePrice_ReturnsArrayWithOneElement() {
+        int[] prices = {1};
+        int[] result = new OnlineStockSpan().calculateSpans(prices);
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpans_MultiplePrices_ReturnsCorrectSpans() {
+        int[] prices = {10, 7, 5, 8, 11, 9};
+        int[] result = new OnlineStockSpan().calculateSpans(prices);
+        assertEquals(new int[]{1, 2, 3, 4, 5, 6}, result);
+    }
+
+    @Test
+    public void calculateSpans_DuplicatePrices_ReturnsCorrectSpans() {
+        int[] prices = {10, 9, 8, 7, 6, 5};
+        int[] result = new OnlineStockSpan().calculateSpans(prices);
+        assertEquals(new int[]{1, 2, 3, 4, 5, 6}, result);
+    }
+
+    @Test
+    public void next_ThrowsException
+
+    WhenPriceIsNegative() {
+        assertThrows(IllegalArgumentException.class, () -> new OnlineStockSpan().next(-10));
+    }
+
+}

@@ -1,0 +1,76 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedTest {
+
+    private AppVersion appVersion;
+
+    @Test
+    public void parseName_SimpleAppVersion_ReturnsParsedAppVersion() {
+        String amiName = "ami-1234";
+        Matcher matcher = Pattern.compile("[^a-zA-Z0-9]+$").matcher(amiName);
+        assertEquals("ami-1234", appVersion.parseName(amiName));
+    }
+
+    @Test
+    public void parseName_MissingPrefix_ReturnsNull() {
+        String amiName = "region-1234";
+        assertNull(appVersion.parseName(amiName));
+    }
+
+    @Test
+    public void parseName_InvalidPrefix_ReturnsNull() {
+        String amiName = "-1234";
+        assertNull(appVersion.parseName(amiName));
+    }
+
+    @Test
+    public void getPackageName_SimpleAppVersion_ReturnsPackageName() {
+        appVersion = AppVersion.parseName("ami-1234");
+        assertEquals(NameConstants.APP_VERSION, appVersion.getPackageName());
+    }
+
+    @Test
+    public void getPackageName_MissingPrefix_ReturnsEmptyString() {
+        appVersion = AppVersion.parseName("region-1234");
+        assertEquals("", appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersion_SimpleAppVersion_ReturnsVersion() {
+        appVersion = AppVersion.parseName("ami-1234");
+        assertEquals("1234", appVersion.getVersion());
+    }
+
+    @Test
+    public void getVersion_MissingPrefix_ReturnsEmptyString() {
+        appVersion = AppVersion.parseName("region-1234");
+        assertEquals("", appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobName_SimpleAppVersion_ReturnsBuildJobName() {
+        appVersion = AppVersion.parseName("ami-1234");
+        assertEquals("buildjob-1234", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumber_SimpleAppVersion_ReturnsBuildNumber() {
+        appVersion = AppVersion.parseName("ami-1234");
+        assertEquals("1234", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommit_SimpleAppVersion_ReturnsCommit() {
+        appVersion = AppVersion.parseName("ami-1234");
+        assertEquals("1234", appVersion.getCommit());
+    }
+
+}

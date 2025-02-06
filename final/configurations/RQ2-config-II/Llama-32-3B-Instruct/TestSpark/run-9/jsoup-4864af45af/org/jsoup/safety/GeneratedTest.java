@@ -1,0 +1,98 @@
+package org.jsoup.safety;
+
+import org.jsoup.internal.Normalizer;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Element;
+
+public class GeneratedTest {
+
+    @Test
+    public void none() {
+        Safelist safelist = Safelist.nonce();
+        assertTrue(safelist.isSafeTag("none"));
+        assertFalse(safelist.isSafeAttribute("a", null, null));
+    }
+
+    @Test
+    public void simpleText() {
+        Safelist safelist = Safelist.simpleText();
+        assertTrue(safelist.isSafeTag("p"));
+        assertTrue(safelist.isSafeTag("span"));
+        assertFalse(safelist.isSafeTag("script"));
+    }
+
+    @Test
+    public void basic() {
+        Safelist safelist = Safelist.basic();
+        assertTrue(safelist.isSafeTag("div"));
+        assertTrue(safelist.isSafeAttribute("style", null, new Attribute()));
+        assertTrue(safelist.isSafeAttribute("title", null, new Attribute()));
+    }
+
+    @Test
+    public void basicWithImages() {
+        Safelist safelist = Safelist.basicWithImages();
+        assertTrue(safelist.isSafeTag("img"));
+        assertFalse(safelist.isSafeTag("script"));
+    }
+
+    @Test
+    public void relaxed() {
+        Safelist safelist = Safelist.relaxed();
+        assertTrue(safelist.isSafeTag("form"));
+        assertTrue(safelist.isSafeAttribute("style", null, new Attribute()));
+    }
+
+    @Test
+    public void addTags() {
+        Safelist safelist = Safelist.addTags("a");
+        assertTrue(safelist.isSafeTag("a"));
+        assertFalse(safelist.isSafeTag("script"));
+    }
+
+    @Test
+    public void removeTags() {
+        Safelist safelist = Safelist.simpleText();
+        Safelist safelistWithRemovedTags = safelist.removeTags("p", "span");
+        assertFalse(safelistWithRemovedTags.isSafeTag("p"));
+        assertTrue(safelistWithRemovedTags.isSafeTag("script"));
+    }
+
+    @Test
+    public void addAttributes() {
+        Safelist safelist = Safelist.addAttributes("img", "alt", "image", "width", "300");
+        assertEquals("alt image 300", safelist.getEnforcedAttributes("img").get(0).value());
+    }
+
+    @Test
+    public void removeAttributes() {
+        Safelist safelist = Safelist.addAttributes("form", "style", "color: red;");
+        Safelist safelistWithRemovedAttribute = safelist.removeAttributes("form", "style");
+        assertNull(safelistWithRemovedAttribute.getEnforcedAttributes("form").get(0));
+    }
+
+    @Test
+    public void addEnforcedAttribute() {
+        Safelist safelist = Safelist.addEnforcedAttribute("input", "type", "checkbox");
+        assertEquals("checkbox", safelist.getEnforcedAttributes("input").get(0).value());
+    }
+
+    @Test
+    public void removeEnforcedAttribute() {
+        Safelist safelist = Safelist.addEnforcedAttribute("input", "type", "radio");
+        Safelist safelistWithRemovedAttribute = safelist.removeEnforcedAttribute("input", "type");
+        assertNull(safelist.getEnforcedAttributes("input").get(0));
+    }
+
+    @Test
+    public void preserveRelativeLinks() {
+        Safelist safelist = Safelist.preserveRelativeLinks(true);
+        assertTrue(safelist.isSafeTag("a"));
+        assertFalse(safelist.isSafeTag("script"));
+    }
+
+}

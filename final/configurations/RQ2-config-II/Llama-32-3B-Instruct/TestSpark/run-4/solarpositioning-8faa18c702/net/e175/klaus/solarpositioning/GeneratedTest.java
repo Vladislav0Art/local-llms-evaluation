@@ -1,0 +1,61 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimate_EmptyDate
+
+    returnsZero() {
+        assertEquals(0.0, DeltaT.estimate(null), 1e-9);
+    }
+
+    @Test
+    public void estimate_ValidDateReturnsCorrectValue() {
+        LocalDate date = LocalDate.of(2022, 1, 1);
+        double result = DeltaT.estimate(date);
+        // Implementation of the test depends on the actual implementation of estimate()
+        assertTrue("Correct value not returned", result > 0.0 && result < 360.0);
+    }
+
+    @Test
+    public void isLeapYear_ReturnsTrueForCorrectYear() {
+        boolean result = DeltaT.isLeapYear(2022);
+        assertTrue("Leap year not identified correctly", result);
+    }
+
+    @Test
+    public void isLeapYear_ReturnsFalseForIncorrectYear() {
+        boolean result = DeltaT.isLeapYear(2021);
+        assertFalse("Leap year incorrectly identified as true", result);
+    }
+}
+
+@Test
+public void estimate_MockImplementationTestsCorrectResult() {
+    // Given and when
+    DeltaT.estimate = mock(DeltaT.class);
+    when(DeltaT.estimate(date)).thenReturn(100.0);
+
+    // Then
+    assertEquals(100.0, DeltaT.estimate(date), 1e-9);
+}
+
+@Test
+public void isLeapYear_MockImplementationTestsCorrectResult() {
+    // Given and when
+    DeltaT.isLeapYear = mock(DeltaT.class);
+    when(DeltaT.isLeapYear(date.getYear())).thenReturn(true);
+
+    // Then
+    assertTrue(DeltaT.isLeapYear(date.getYear()));
+}
+
+}

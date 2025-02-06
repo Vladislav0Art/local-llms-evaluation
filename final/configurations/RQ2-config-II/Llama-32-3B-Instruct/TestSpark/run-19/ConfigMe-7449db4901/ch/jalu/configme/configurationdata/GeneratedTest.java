@@ -1,0 +1,87 @@
+package ch.jalu.configme.configurationdata;
+
+import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void newInstanceHasEmptyComments() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        Map<String, List<String>> comments = configuration.getAllComments();
+        assertThat(comments.size(), is(0));
+        for (Map.Entry<String, List<String>> entry : comments.entrySet()) {
+            assertThat(entry.getValue().size(), is(0));
+        }
+    }
+
+    @Test
+    public void newInstanceIsUnmodifiableView() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        Map<String, List<String>> comments = configuration.getAllComments();
+        for (Map.Entry<String, List<String>> entry : comments.entrySet()) {
+            try {
+                entriesUnmodified();
+            } catch (Exception e) {
+                assert false;
+            }
+        }
+    }
+
+    @Test
+    public void newInstanceCanBeSet() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Arrays.asList("comment1", "comment2"));
+        configuration.setComment("path", "comment1", "comment2");
+        assertThat(configuration.getAllComments(), is(comments));
+    }
+
+    @Test
+    public void setCommentOverwritesExistingLines() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Arrays.asList("existingComment1", "existingComment2"));
+        configuration.setComment("path", "newComment1", "newComment2");
+        assertThat(configuration.getAllComments(), is(comments));
+    }
+
+    @Test
+    public void setCommentSetsSoleNewLineAsEmptyLine() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Arrays.asList(""));
+        configuration.setComment("path", "", "");
+        assertThat(configuration.getAllComments(), is(comments));
+    }
+
+    @Test
+    public void setCommentCanTakeMultipleLines() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Arrays.asList("comment1", "comment2"));
+        configuration.setComment("path", "comment3", "comment4");
+        assertThat(configuration.getAllComments(), is(comments));
+    }
+
+    @Test
+    public void setCommentThrowsForEmptyPath() {
+        CommentsConfiguration configuration = new CommentsConfiguration();
+        Map<String, List<String>> comments = new HashMap<>();
+        configuration.setComment("", "", "");
+    }
+}
+
+public class EntriesUnmodifiedException extends Exception {
+    public EntriesUnmodifiedException() {
+        super("Cannot modify an unmodifiable list");
+    }
+
+}

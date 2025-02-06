@@ -1,0 +1,67 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCodigoInterno_ValidadorDeCodigoInterno_RetornaFalse() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        boolean retorno = obj.setCodigoInterno("123456");
+        assertFalse(retorno);
+    }
+
+    @Test
+    public void setPlaca_ValidadorDePlaca_RetornaFalse() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        boolean retorno = obj.setPlaca("ABC123");
+        assertFalse(retorno);
+    }
+
+    @Test
+    public void setRenavam_ValidadorDeRenavam_RetornaFalse() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        boolean retorno = obj.setRenavam("123456");
+        assertFalse(retorno);
+    }
+
+    @Test
+    public void setTara_ValidadorDeTara_RetornaFalse() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        boolean retorno = obj.setTara("ABC123");
+        assertFalse(retorno);
+    }
+
+    @Test
+    public void getCapacidadeKG_RetornaValorCorreto() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeKG("100kg");
+        assertEquals(100, Integer.parseInt(obj.getCapacidadeKG()));
+    }
+
+    @Test
+    public void setCapacidadeKG_ValidadorDeCapacidadeKG_RetornaFalse() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        boolean retorno = obj.setCapacidadeKG("ABC123");
+        assertFalse(retorno);
+    }
+
+    @Test
+    public void getCapacidadeM3_RetornaValorCorreto() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeM3("100m3");
+        assertEquals(100, Integer.parseInt(obj.getCapacidadeM3()));
+    }
+
+    @Test
+    public void setCapacidadeM3_ValidadorDeCapacidadeM3_RetornaFalse() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        boolean retorno = obj.setCapacidadeM3("ABC123");
+        assertFalse(retorno);
+    }
+
+}

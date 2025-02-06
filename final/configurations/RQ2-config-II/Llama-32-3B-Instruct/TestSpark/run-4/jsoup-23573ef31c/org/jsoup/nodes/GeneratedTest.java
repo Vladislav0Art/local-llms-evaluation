@@ -1,0 +1,162 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.DataUtil;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+import org.jsoup.select.Evaluator;
+import org.jsoup.select.Selector;
+
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellDocument() {
+        String baseUri = "https://example.com";
+        Document document = Document.createShell(baseUri);
+        // assertions for the created document
+    }
+
+    @Test
+    public void locationMethod() {
+        Document document = new Document("https://example.com");
+        String location = document.location();
+        // assertions for the location string
+    }
+
+    @Test
+    public void connectionMethod() {
+        Connection connection = Jsoup.connect("https://example.com");
+        Document document = new Document(connection.getUri());
+        // assertions for the created document
+    }
+
+    @Test
+    public void headElement() {
+        Document document = new Document("https://example.com");
+        Element head = document.head();
+        // assertions for the head element
+    }
+
+    @Test
+    public void bodyElement() {
+        Document document = new Document("https://example.com");
+        Element body = document.body();
+        // assertions for the body element
+    }
+
+    @Test
+    public void formsMethod() {
+        String cssQuery = "form";
+        Document document = new Document("https://example.com");
+        List<FormElement> forms = document.forms(cssQuery);
+        // assertions for the list of forms
+    }
+
+    @Test
+    public void expectFormMethod() {
+        String cssQuery = "form";
+        Document document = new Document("https://example.com");
+        FormElement form = document.expectForm(cssQuery);
+        // assertions for the expected form element
+    }
+
+    @Test
+    public void titleMethod() {
+        Document document = new Document("https://example.com");
+        String title = document.title();
+        // assertions for the title string
+    }
+
+    @Test
+    public void createElementTag() {
+        String tagName = "div";
+        Element element = document.createElement(tagName);
+        // assertions for the created element
+    }
+
+    @Test
+    public void outerHtmlMethod() {
+        Document document = new Document("https://example.com");
+        String html = document.outerHtml();
+        // assertions for the HTML string
+    }
+
+    @Test
+    public void textMethod() {
+        Document document = new Document("https://example.com");
+        String text = document.text("Hello World");
+        // assertions for the text string
+    }
+
+    @Test
+    public void nodeNameMethod() {
+        Document document = new Document("https://example.com");
+        String name = document.nodeName();
+        // assertions for the node name string
+    }
+
+    @Test
+    public void charsetMethod() {
+        Charset charset = Charset.forName("UTF-8");
+        Document document = new Document("https://example.com");
+        document.charset(charset);
+        // assertions for the updated charset
+    }
+
+    @Test
+    public void updateMetaCharsetElementMethod() {
+        boolean update = true;
+        Document document = new Document("https://example.com");
+        document.updateMetaCharsetElement(update);
+        // assertions for the updated meta charset element
+    }
+
+    @Test
+    public void cloneDocument() {
+        Document document = new Document("https://example.com");
+        Document cloned = document.clone();
+        // assertions for the cloned document
+    }
+
+    @Test
+    public void shallowCloneDocument() {
+        Document document = new Document("https://example.com");
+        Document cloned = document.shallowClone();
+        // assertions for the cloned document
+    }
+
+    @Test
+    public void outputSettingsMethod() {
+        OutputSettings settings = new OutputSettings();
+        Document document = new Document("https://example.com");
+        document.outputSettings(settings);
+        // assertions for the updated output settings
+    }
+
+    @Test
+    public void quirksModeMethod() {
+        QuirksMode mode = QuirksMode.CRITICAL;
+        Document document = new Document("https://example.com");
+        document.quirksMode(mode);
+        // assertions for the updated quirks mode
+    }
+
+    @Test
+    public void parserMethod() {
+        Parser parser = new Parser();
+        Document document = new Document("https://example.com");
+        document.parser(parser);
+        // assertions for the updated parser
+    }
+
+}

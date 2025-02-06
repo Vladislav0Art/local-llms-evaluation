@@ -1,0 +1,69 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void next_SamePrice() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.calculateSpans(new int[]{10, 7, 5, 8, 11, 9});
+        assertEquals(6, onlineStockSpan.next(10));
+    }
+
+    @Test
+    public void next_DifferentPrice() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.calculateSpans(new int[]{10, 7, 5, 8, 11, 9});
+        assertEquals(1, onlineStockSpan.next(20));
+    }
+
+    @Test
+    public void next_DuplicatePrice() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        onlineStockSpan.calculateSpans(new int[]{10, 7, 5, 8, 11, 9});
+        assertEquals(1, onlineStockSpan.next(10));
+    }
+
+    @Test
+    public void calculateSpans_EmptyArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] result = onlineStockSpan.calculateSpans(new int[]{});
+        assertEquals(0, Arrays.stream(result).sum());
+    }
+
+    @Test
+    public void calculateSpans_SingleElementArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] result = onlineStockSpan.calculateSpans(new int[]{10});
+        assertEquals(1, Arrays.stream(result).sum());
+    }
+
+    @Test
+    public void calculateSpans_MultipleElementsArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] result = onlineStockSpan.calculateSpans(new int[]{10, 7, 5, 8, 11, 9});
+        assertEquals(36, Arrays.stream(result).sum());
+    }
+
+    @Test
+    public void calculateSpans_DuplicateElementsArray() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] result = onlineStockSpan.calculateSpans(new int[]{10, 7, 5, 8, 11, 9});
+        assertEquals(36, Arrays.stream(result).sum());
+    }
+
+    @Test
+    public void next_MockNext() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        when(onlineStockSpan.next(anyInt())).thenReturn(1);
+        int[] result = onlineStockSpan.calculateSpans(new int[]{10, 7, 5, 8, 11, 9});
+        assertEquals(6, result[0]);
+    }
+
+}

@@ -1,0 +1,72 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private EpubCheckFactory epubCheckFactory;
+
+    @Mock
+    private Checker checker;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void getLocale_ReturnsDefaultLocale() {
+        when(epubCheckFactory.getLocale()).thenReturn(Locale.US);
+        EpubChecker epubChecker = new EpubChecker();
+        assertEquals(Locale.US, epubChecker.getLocale());
+    }
+
+    @Test
+    public void run_ValidatesEpubFileAndGeneratesReport() throws IOException {
+        when(epubCheckFactory.run(anyString())).thenReturn(0);
+        File epubFile = new File("example.epub");
+        when(checker.validateFile(anyString(), anyString(), anyString(), anyString())).thenReturn(new Report());
+        EpubChecker epubChecker = new EpubChecker();
+        epubChecker.run(new String[]{"--epub", epubFile.getAbsolutePath()});
+    }
+
+    @Test
+    public void processEpubFile_ThrowsDeprecatedException() {
+        when(epubCheckFactory.processEpubFile(anyString())).thenReturn(0);
+        EpubChecker epubChecker = new EpubChecker();
+        try {
+            epubChecker.processEpubFile(new String[]{"--epub", "example.epub"});
+            assert false : "Expected Deprecated exception";
+        } catch (DeprecatedException e) {
+            assertTrue(e.getMessage().contains("Use run() method instead"));
+        }
+    }
+
+    @Test
+    public void validateFile_ValidatesFileAndReturnsReport() throws IOException {
+        when(epubCheckFactory.validateFile(anyString(), anyString(), anyString(), anyString())).thenReturn(new Report());
+        File epubFile = new File("example.epub");
+        EpubChecker epubChecker = new EpubChecker();
+        assertEquals(new Report(), epubChecker.validateFile(epubFile.getAbsolutePath(), EPUBVersion.V20, new Report(), new EPUBProfile()));
+    }
+
+}

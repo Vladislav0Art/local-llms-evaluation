@@ -1,0 +1,34 @@
+package org.jsoup.safety;
+
+import org.jsoup.safety.Safelist;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedBasic {
+
+    @Mock
+    private Element element;
+
+    @Test
+    public void basic() {
+        // Arrange
+        when(element.getTagName()).thenReturn("img");
+
+        // Act
+        Set<String> result = new HashSet<>();
+        Safelist safelist = Safelist.basic();
+        result.addAll(safelist.addTags("img"));
+        assertEquals(1, result.size());
+    }
+
+}

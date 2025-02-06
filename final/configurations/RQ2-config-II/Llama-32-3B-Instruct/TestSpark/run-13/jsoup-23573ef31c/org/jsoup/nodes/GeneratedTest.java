@@ -1,0 +1,244 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShell_[
+    MethodUnderTest](Scenario)
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        assertNotNull(document);
+    }
+
+    @Test
+    public void createShell_nullBaseUri_[
+    MethodUnderTest](Scenario)
+
+    _Test() {
+        assertThrows(NullPointerException.class, () -> Document.createShell(null));
+    }
+
+    @Test
+    public void location_[
+    MethodUnderTest][Scenario]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        assertEquals("https://www.example.com", document.location());
+    }
+
+    @Test
+    public void connection_[
+    MethodUnderTest](Scenario)
+
+    _Test() {
+        Connection connection = new Connection();
+        Document document = Document.createShell("https://www.example.com").connection(connection);
+        assertNotNull(document.connection());
+    }
+
+    @Test
+    public void documentType_[
+    MethodUnderTest]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        assertNull(document.documentType());
+    }
+
+    @Test
+    public void head_[
+    MethodUnderTest]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com").head();
+        assertNotNull(document.head());
+    }
+
+    @Test
+    public void body_[
+    MethodUnderTest]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com").body();
+        assertNotNull(document.body());
+    }
+
+    @Test
+    public void forms_[
+    MethodUnderTest]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        List<FormElement> forms = document.forms();
+        assertTrue(forms.size() > 0);
+    }
+
+    @Test
+    public void expectForm_[
+    MethodUnderTest](Scenario)
+
+    _Test() {
+        FormElement form = new FormElement();
+        Document document = Document.createShell("https://www.example.com").expectForm(".form");
+        assertEquals(form, document.expectForm(".form"));
+    }
+
+    @Test
+    public void title_[
+    MethodUnderTest]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        assertNull(document.title());
+    }
+
+    @Test
+    public void setTitle_[
+    MethodUnderTest](Scenario)
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        document.setTitle("Example Title");
+        assertEquals("Example Title", document.title());
+    }
+
+    @Test
+    public void createElement_[
+    MethodUnderTest](Scenario)
+
+    _Test() {
+        Element element = new Tag();
+        Document document = Document.createShell("https://www.example.com").createElement("div");
+        assertEquals(element, document.createElement("div"));
+    }
+
+    @Test
+    public void outerHtml_[
+    MethodUnderTest]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        String outerHtml = document.outerHtml();
+        assertNotNull(outerHtml);
+    }
+
+    @Test
+    public void text_[
+    MethodUnderTest](Scenario)
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com").text("Hello World");
+        assertEquals("Hello World", document.text());
+    }
+
+    @Test
+    public void nodeName_[
+    MethodUnderTest]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        String nodeName = document.nodeName();
+        assertNotNull(nodeName);
+    }
+
+    @Test
+    public void charset_[
+    MethodUnderTest]
+
+    _Test() {
+        Charset charset = Charset.forName("UTF-8");
+        Document document = Document.createShell("https://www.example.com").charset(charset);
+        assertEquals(charset, document.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElement_[
+    MethodUnderTest](Scenario)
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com").updateMetaCharsetElement(true);
+        assertTrue(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void updateMetaCharsetElement_[
+    MethodUnderTest]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        assertFalse(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void clone_[
+    MethodUnderTest]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com").clone();
+        assertNotNull(document);
+    }
+
+    @Test
+    public void shallowClone_[
+    MethodUnderTest]
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        Document shallowClone = document.shallowClone();
+        assertNotNull(shallowClone);
+    }
+
+    @Test
+    public void outputSettings_[
+    MethodUnderTest]
+
+    _Test() {
+        OutputSettings outputSettings = new OutputSettings();
+        Document document = Document.createShell("https://www.example.com").outputSettings(outputSettings);
+        assertEquals(outputSettings, document.outputSettings());
+    }
+
+    @Test
+    public void outputSettings_[
+    MethodUnderTest](Scenario)
+
+    _Test() {
+        Document document = Document.createShell("https://www.example.com");
+        OutputSettings outputSettings = new OutputSettings();
+        document.outputSettings(outputSettings);
+        assertNotNull(document.outputSettings());
+    }
+
+    @Test
+    public void quirksMode_[
+    MethodUnderTest]
+
+    _Test() {
+        QuirksMode quirksMode = QuirksMode.AUTOSTRICT;
+        Document document = Document.createShell("https://www.example.com").quirksMode(quirksMode);
+        assertEquals(quirksMode, document.quirksMode());
+    }
+
+    @Test
+    public void parser_[
+    MethodUnderTest]
+
+    _Test() {
+        Parser parser = new Parser();
+        Document document = Document.createShell("https://www.example.com").parser(parser);
+        assertNotNull(document.parser());
+    }
+
+    @Test
+    public void connection_[
+    MethodUnderTest](Scenario)
+
+    _Test() {
+        Connection connection = new Connection();
+        Document document = Document.createShell("https://www.example.com").connection(connection);
+        assertEquals(connection, document.connection());
+    }
+
+}

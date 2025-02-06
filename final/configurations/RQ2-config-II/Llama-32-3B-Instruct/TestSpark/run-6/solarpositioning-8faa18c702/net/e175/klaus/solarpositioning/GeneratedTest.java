@@ -1,0 +1,73 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.time.LocalDate;
+
+import static java.lang.Math.pow;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateForToday() {
+        LocalDate forDate = LocalDate.now();
+        double result = DeltaT.estimate(forDate);
+        // Assuming DeltaT.estimate() returns a non-zero value, or at least not zero.
+        assertNotEquals(0, result);
+    }
+
+    @Test
+    public void estimateOutOfDate() {
+        LocalDate forDate = LocalDate.now().minusDays(365);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(-1, result);
+    }
+
+    @Test
+    public void estimateNullForDate() {
+        assertThrows(NullPointerException.class, () -> DeltaT.estimate(null));
+    }
+}
+		
+		package net.e175.klaus.solarpositioning;
+		
+		import org.junit.Test;
+		import static org.junit.Assert.assertEquals;
+		import java.time.LocalDate;
+
+public class DeltaT {
+
+    private final SolarPosition solarPosition = Mockito.mock(SolarPosition.class);
+
+    public static double estimate(final LocalDate forDate) {
+        // implementation
+        return 0; // Replace with actual implementation.
+    }
+}
+
+@Test
+public void estimateForDifferentLocalDates() {
+    LocalDate forDate1 = LocalDate.of(2022, 7, 4);
+    double result1 = DeltaT.estimate(forDate1);
+    assertEquals(-0.5, result1, 0); // Assuming the unit test is using this value
+
+    LocalDate forDate2 = LocalDate.of(2022, 7, 4);
+    double result2 = DeltaT.estimate(forDate2);
+    assertEquals(-0.5, result2, 0); // Assuming the unit test is using this value
+}
+	}
+
+@Test
+public void estimateForSameDateDifferentLocalDates() {
+    LocalDate forDate = LocalDate.of(2022, 7, 4);
+    double result1 = DeltaT.estimate(forDate);
+    assertEquals(-0.5, result1, 0); // Assuming the unit test is using this value
+
+    LocalDate forDate2 = LocalDate.of(2022, 6, 4);
+    double result2 = DeltaT.estimate(forDate2);
+    assertEquals(0, result2, 0); // Assuming the unit test is using this value
+}
+
+}

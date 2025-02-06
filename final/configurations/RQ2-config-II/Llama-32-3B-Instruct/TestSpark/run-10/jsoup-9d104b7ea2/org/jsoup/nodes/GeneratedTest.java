@@ -1,0 +1,120 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(JUnit4.class)
+public class GeneratedTest {
+
+    @Test
+    public void constructor_MustNotBeNull() {
+        assertThrows(NullPointerException.class, () -> new TextNode(null));
+    }
+
+    @Test
+    public void nodeName_ReturnsName() {
+        String text = "TextNode";
+        when("nodeName").thenReturn(text);
+        assertEquals(text, ((TextNode) mock(TextNode)).nodeName());
+    }
+
+    @Test
+    public void text_ReturnsText() {
+        String text = "TextNode";
+        when("text").thenReturn(text);
+        assertEquals(text, ((TextNode) mock(TextNode)).text());
+    }
+
+    @Test
+    public void text_SetsText() {
+        String newText = "newText";
+        TextNode textNode = mock(TextNode.class);
+        when(textNode.text()).thenReturn(newText);
+        ((TextNode) textNode).text(newText);
+        assertEquals(newText, ((TextNode) textNode).text());
+    }
+
+    @Test
+    public void getWholeText_ReturnsText() {
+        String text = "TextNode";
+        when("text").thenReturn(text);
+        assertEquals(text, ((TextNode) mock(TextNode)).getWholeText());
+    }
+
+    @Test
+    public void isBlank_ReturnsFalse() {
+        assertFalse(((TextNode) mock(TextNode)).isBlank());
+    }
+
+    @Test
+    public void splitText_MovesToOffset() {
+        TextNode textNode = mock(TextNode.class);
+        when("text").thenReturn("text");
+        when("splitText(1)").thenReturn(newTextNode(""));
+        ((TextNode) textNode).splitText(1);
+        assertEquals((String) mock(String.class), ((TextNode) textNode).text());
+    }
+
+    @Test
+    public void outerHtmlHead_MatchesToOuterHTML() {
+        String expected = "<p>TextNode</p>";
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        when("toString").thenReturn(expected);
+        when(out.getOutput()).thenReturn(accum);
+        ((TextNode) mock(TextNode)).outerHtmlHead(accum, 1, out);
+        verify(accum).append(expected);
+    }
+
+    @Test
+    public void outerHtmlTail_MatchesToOuterHTML() {
+        String expected = "</p>";
+        Appendable accum = mock(Appendable.class);
+        Document.OutputSettings out = mock(Document.OutputSettings.class);
+        when("toString").thenReturn(expected);
+        when(out.getOutput()).thenReturn(accum);
+        ((TextNode) mock(TextNode)).outerHtmlTail(accum, 1, out);
+        verify(accum).append(expected);
+    }
+
+    @Test
+    public void clone_ReturnsSameInstance() {
+        TextNode textNode = mock(TextNode.class);
+        when("clone").thenReturn(textNode);
+        assertTrue(((TextNode) textNode).clone() == textNode);
+    }
+
+    @Test
+    public void createFromEncoded_ValidTextReturnsTextNode() throws Exception {
+        String encodedText = "TextNode";
+        TextNode result = TextNode.createFromEncoded(encodedText);
+        assertNotNull(result);
+        assertEquals(encodedText, ((TextNode) result).text());
+    }
+
+    @Test
+    public void normaliseWhitespace_SimpleWhitespace() {
+        String text = " ";
+        when("normaliseWhitespace").thenReturn(text);
+        assertEquals(text, StringUtil.normaliseWhitespace(text));
+    }
+
+    @Test
+    public void stripLeadingWhitespace_RemovesWhitespace() {
+        String text = "   Text";
+        when("stripLeadingWhitespace").thenReturn(text);
+        assertEquals(text.substring(1), StringUtil.stripLeadingWhitespace(text));
+    }
+
+    @Test
+    public void lastCharIsWhitespace_WillReturnTrueIfLastCharIsWhitespace() {
+        StringBuilder sb = mock(StringBuilder.class);
+        when("lastIndexOf(\\s)").thenReturn(-1);
+        assertTrue(StringUtil.lastCharIsWhitespace(sb));
+    }
+
+}

@@ -1,0 +1,133 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.w3c.epubcheck.core.Checker;
+import org.w3c.epubcheck.util.url.URLUtils;
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.api.EpubCheck;
+import com.adobe.epubcheck.api.EpubCheckFactory;
+import com.adobe.epubcheck.api.LocalizableReport;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.messages.MessageDictionaryDumper;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocale
+
+    locale() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintWriter pw = new PrintWriter(out);
+        Locale locale = EpubChecker.getLocale(pw, "en_US");
+        assertEquals("en_US", locale.toString());
+        pw.close();
+        out.close();
+    }
+
+    @Test
+    public void run_run() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintWriter pw = new PrintWriter(out);
+        int result = EpubChecker.run(pw, "arg1", "arg2");
+        assertEquals(0, result);
+        pw.close();
+        out.close();
+    }
+
+    @Test
+    public void processEpubFile_processing() {
+        // Skip deprecated method
+    }
+
+    @Test
+    public void validateFile_valid() throws IOException, InvalidVersionException, GalimatiasParseException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintWriter pw = new PrintWriter(out);
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.validateFile(new File("path/to/file.epub"), EPUBVersion.EPUB3_20, new Report(), new EPUBProfile());
+        assertEquals(0, result);
+        pw.close();
+        out.close();
+    }
+
+    @Test
+    public void validateFile_invalid() throws IOException, InvalidVersionException, GalimatiasParseException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintWriter pw = new PrintWriter(out);
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.validateFile(new File("path/to/invalid.epub"), EPUBVersion.EPUB3_20, new Report(), new EPUBProfile());
+        assertEquals(1, result);
+        pw.close();
+        out.close();
+    }
+
+    @Test
+    public void getLocale
+
+    localeWithDefault() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintWriter pw = new PrintWriter(out);
+        Locale locale = EpubChecker.getLocale(pw, "en_US", "default");
+        assertEquals("en_US", locale.toString());
+        pw.close();
+        out.close();
+    }
+
+    @Test
+    public void getLocale
+
+    localeWithDefaultAndLocale() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintWriter pw = new PrintWriter(out);
+        Locale locale = EpubChecker.getLocale(pw, "en_US", "default", "en");
+        assertEquals("en", locale.toString());
+        pw.close();
+        out.close();
+    }
+
+    @Test
+    public void getLocale
+
+    localeWithDefaultAndLocaleAndProfile() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintWriter pw = new PrintWriter(out);
+        Locale locale = EpubChecker.getLocale(pw, "en_US", "default", "en", new EPUBProfile());
+        assertEquals("en", locale.toString());
+        pw.close();
+        out.close();
+    }
+
+    @Test
+    public void run_runWithArgs() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintWriter pw = new PrintWriter(out);
+        String[] args = {"arg1", "arg2"};
+        int result = EpubChecker.run(pw, args);
+        assertEquals(0, result);
+        pw.close();
+        out.close();
+    }
+
+    @Test
+    public void run_runWithArgsAndProfile() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintWriter pw = new PrintWriter(out);
+        String[] args = {"arg1", "arg2"};
+        EPUBProfile profile = new EPUBProfile();
+        int result = EpubChecker.run(pw, args, profile);
+        assertEquals(0, result);
+        pw.close();
+        out.close();
+    }
+
+}

@@ -1,0 +1,111 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.simpleframework.xml.Element;
+
+public class GeneratedTest {
+
+    @Element(name = "codigoInterno")
+    private String codigoInterno;
+
+    @Element(name = "placa")
+    private String placa;
+
+    @Element(name = "renavam")
+    private String renavam;
+
+    @Element(name = "tara")
+    private String tara;
+
+    @Element(name = "capacidadeKG")
+    private String capacidadeKG;
+
+    public void setCodigoInterno(final String codigoInterno) {
+        this.codigoInterno = codigoInterno;
+    }
+
+    public void setPlaca(final String placa) {
+        this.placa = placa;
+    }
+
+    public void setRenavam(final String renavam) {
+        this.renavam = renavam;
+    }
+
+    public void setTara(final String tara) {
+        this.tara = tara;
+    }
+
+    public void setCapacidadeKG(final String capacidadeKG) {
+        this.capacidadeKG = capacidadeKG;
+    }
+
+    @Test
+    public void getCodigoInterno_ReturnsCodigoInterno() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCodigoInterno("teste");
+        assertEquals("teste", obj.getCodigoInterno());
+    }
+
+    @Test
+    public void getCodigoInterno_Null_ReturnsNull() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        assertNull(obj.getCodigoInterno());
+    }
+
+    @Test
+    public void placa_PlaçaDeveSerPlaca() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setPlaca("placa");
+        assertEquals("placa", obj.getPlaca());
+    }
+
+    @Test
+    public void placa_NullPlaca_SeraNull() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        assertNull(obj.getPlaca());
+    }
+
+    @Test
+    public void renavam_RenavamDeveSerRenavam() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setRenavam("renavam");
+        assertEquals("renavam", obj.getRenavam());
+    }
+
+    @Test
+    public void renavam_NullRenavam_SeraNull() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        assertNull(obj.getRenavam());
+    }
+
+    @Test
+    public void tara_TaraDeveSerTara() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setTara("tara");
+        assertEquals("tara", obj.getTara());
+    }
+
+    @Test
+    public void tara_NullTara_SeraNull() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        assertNull(obj.getTara());
+    }
+
+    @Test
+    public void capacidadeKG_CapacidadeKgDeveSerCapacidadeKg() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        obj.setCapacidadeKG("capacidadekg");
+        assertEquals("capacidadekg", obj.getCapacidadeKG());
+    }
+
+    @Test
+    public void capacidadeKG_NullCapacidadeKg_SeraNull() {
+        MDFInfoModalRodoviarioVeiculoReboque obj = new MDFInfoModalRodoviarioVeiculoReboque();
+        assertNull(obj.getCapacidadeKG());
+    }
+
+}

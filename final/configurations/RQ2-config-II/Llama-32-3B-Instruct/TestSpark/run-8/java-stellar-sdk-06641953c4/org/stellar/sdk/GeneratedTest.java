@@ -1,0 +1,89 @@
+package org.stellar.sdk;
+
+import org.stellar.sdk.KeyPair;
+import org.stellar.sdk.EdDSAPrivateKey;
+import org.stellar.sdk.EdDSAPublicKey;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.PublicKeyType;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void canSign_WithValidPrivateKey_ReturnsTrue() {
+        KeyPair keyPair = new KeyPair(new EdDSAPrivateKey(new byte[]{1, 2, 3}));
+        assertTrue(keyPair.canSign());
+    }
+
+    @Test
+    public void cannotSign_WithInvalidPrivateKey_ThrowsException() {
+        when(KeyPair.class, "canSign").thenReturn(false);
+        KeyPair keyPair = new KeyPair(new EdDSAPrivateKey(new byte[]{1, 2, 3}));
+        assertTrue(keyPair.canSign());
+    }
+
+    @Test
+    public void fromSecretSeed_WithValidSeed_ReturnsKeyPair() {
+        char[] seed = {'a', 'b', 'c'};
+        when(KeyPair.class, "fromSecretSeed").thenReturn(new KeyPair(new EdDSAPrivateKey(seed)));
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertEquals(3, seed.length);
+    }
+
+    @Test
+    public void fromSecretSeed_WithInvalidSeed_ReturnsNull() {
+        char[] seed = {};
+        when(KeyPair.class, "fromSecretSeed").thenReturn(null);
+        KeyPair keyPair = KeyPair.fromSecretSeed(seed);
+        assertNull(keyPair);
+    }
+
+    @Test
+    public void getAccountId_WhenPublicKeyIsNotAvailable_ThrowsException() {
+        when(KeyPair.class, "getPublicKey").thenReturn(new byte[]{});
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertThrows(NullPointerException.class, () -> keyPair.getAccountId());
+    }
+
+    @Test
+    public void getAccountId_WhenPublicKeyIsAvailable_ReturnsAccountId() {
+        PublicKey publicKey = new PublicKey(new byte[]{1, 2, 3});
+        when(KeyPair.class, "getPublicKey").thenReturn(publicKey);
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertEquals(1, keyPair.getAccountId());
+    }
+
+    @Test
+    public void getSecretSeed_WhenPublicKeyIsNotAvailable_ThrowsException() {
+        when(KeyPair.class, "getPublicKey").thenReturn(new byte[]{});
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertThrows(NullPointerException.class, () -> keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void getSecretSeed_WhenPublicKeyIsAvailable_ReturnsSecretSeed() {
+        PublicKey publicKey = new PublicKey(new byte[]{1, 2, 3});
+        when(KeyPair.class, "getPublicKey").thenReturn(publicKey);
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertEquals(3, keyPair.getSecretSeed().length);
+    }
+
+    @Test
+    public void getPublicSignatureHint_WhenSigningIsSupported_ReturnsCorrectValue() {
+        when(KeyPair.class, "sign").thenReturn(null);
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertEquals("public", keyPair.getSignatureHint());
+    }
+
+    @Test
+    public void getPublicSignatureHint_WhenSigningIsNotSupported_ReturnsNull() {
+        when(KeyPair.class, "sign").thenReturn(null);
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey());
+        assertNull(keyPair.getSignatureHint());
+    }
+
+}

@@ -1,0 +1,128 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNodeTextIsNotNull() {
+        String text = "Hello World";
+        TextNode node = new TextNode(text);
+        assertNotNull(node.text());
+    }
+
+    @Test
+    public void nodeNameReturnsCorrectString() {
+        String text = "textNode";
+        TextNode node = new TextNode(text);
+        assertEquals("textNode", node.nodeName());
+    }
+
+    @Test
+    public void textReturnsCorrectText() {
+        String text = "Hello World";
+        TextNode node = new TextNode(text);
+        assertEquals(text, node.text());
+    }
+
+    @Test
+    public void textReplacesExistingText() {
+        String text = "Hello World";
+        TextNode node = new TextNode(text);
+        node.text("New Text");
+        assertEquals("New Text", node.text());
+    }
+
+    @Test
+    public void getWholeTextReturnsCorrectString() {
+        String text = "textNode ";
+        TextNode node = new TextNode(text);
+        assertEquals(text, node.getWholeText());
+    }
+
+    @Test
+    public void isBlankReturnsTrueForBlankString() {
+        String text = "";
+        TextNode node = new TextNode(text);
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void isBlankReturnsFalseForNonBlankString() {
+        String text = "Hello World";
+        TextNode node = new TextNode(text);
+        assertFalse(node.isBlank());
+    }
+
+    @Test
+    public void splitTextThrowsUnsupportedOperationExceptionWhenOffsetIsZero() {
+        TextNode node = new TextNode("Hello World");
+        node.splitText(0);
+    }
+
+    @Test
+    public void outerHtmlHeadWorksCorrectly() throws IOException {
+        String text = "Hello World";
+        Appendable accum = new StringBuilder();
+        int depth = 1;
+        Document.OutputSettings out = new Document.OutputSettings();
+        TextNode node = new TextNode(text);
+        node.outerHtmlHead(accum, depth, out);
+    }
+
+    @Test
+    public void outerHtmlTailWorksCorrectly() {
+        String text = "Hello World";
+        Appendable accum = new StringBuilder();
+        int depth = 1;
+        Document.OutputSettings out = new Document.OutputSettings();
+        TextNode node = new TextNode(text);
+        node.outerHtmlTail(accum, depth, out);
+    }
+
+    @Test
+    public void toStringReturnsCorrectString() {
+        String text = "textNode";
+        TextNode node = new TextNode(text);
+        assertEquals("textNode", node.toString());
+    }
+
+    @Test
+    public void cloneCreatesNewTextNode() {
+        String text = "Hello World";
+        TextNode node = new TextNode(text);
+        TextNode clone = node.clone();
+        assertNotNull(clone.text());
+        assertTrue(!clone.equals(node));
+    }
+
+    @Test
+    public void createFromEncodedReturnsCorrectTextNode() throws IOException {
+        String encodedText = "textNode";
+        TextNode node = TextNode.createFromEncoded(encodedText);
+        assertEquals(encodedText, node.text());
+    }
+
+    @Test
+    public void normaliseWhitespaceReplacesWithSpaces() {
+        String text = "\t\n\r";
+        assertTrue(TextNode.normaliseWhitespace(text).equals("   "));
+    }
+
+    @Test
+    public void stripLeadingWhitespaceRemovesLeadingWhitespace() {
+        String text = "   Hello World";
+        assertEquals("Hello World", TextNode.stripLeadingWhitespace(text));
+    }
+
+    @Test
+    public void lastCharIsWhitespaceReturnsFalseForNonWhitespaceCharacter() {
+        StringBuilder sb = new StringBuilder("Hello");
+        assertFalse(TextNode.lastCharIsWhitespace(sb));
+    }
+
+}

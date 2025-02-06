@@ -1,0 +1,147 @@
+package org.jsoup.safety;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void none() {
+        Safelist result = Safelist.none();
+        assertTrue(Safelist NONE.equals(result));
+    }
+
+    @Test
+    public void simpleText() {
+        String text = "Hello World";
+        Safelist result = Safelist.simpleText().addTags("script", "img");
+        assertTrue(Arrays.asList("script", "img").containsAll(result.addTags("script", "img")));
+    }
+
+    @Test
+    public void basic() {
+        Attributes attributes = new Attributes();
+        attributes.put("href", "http://example.com");
+        Safelist result = Safelist.basic().addAttributes("a", "href", "http://example.com");
+        assertTrue(Safelist.BASIC.equals(result));
+        assertEquals(1, result.getEnforcedAttributes("a").size());
+    }
+
+    @Test
+    public void basicWithImages() {
+        Safelist result = Safelist.basic().addTags("img", "script");
+        assertTrue(Safelist.BASIC_WITH_IMAGES.equals(result));
+    }
+
+    @Test
+    public void relaxed() {
+        Safelist result = Safelist.reducedTags(Arrays.asList("b", "i"));
+        assertEquals(Safelist.RELAXED, result);
+    }
+}
+
+public class MethodUnderTestNoneTest extends Safelist {
+
+    private static final Safelist NONE = new Safelist() {
+        @Override
+        public boolean isSafeTag(String tag) {
+            return false;
+        }
+
+        @Override
+        public Safelist addTags(String... tags) {
+            return this;
+        }
+
+        @Override
+        public Safelist removeTags(String... tags) {
+            return this;
+        }
+    };
+}
+
+public class MethodUnderTestSimpleTextTest extends Safelist {
+
+    private static final String TEXT = "Hello World";
+    private static final String[] TAGS = {"script", "img"};
+    private static final Set<String> ENFORCED_TAGS = new HashSet<>(Arrays.asList("script", "img"));
+
+    @Override
+    public boolean isSafeTag(String tag) {
+        return ENFORCED_TAGS.contains(tag);
+    }
+
+    @Override
+    public Safelist addTags(String... tags) {
+        if (Arrays.asList(TAGS).containsAll(Arrays.asList(tags))) {
+            return this;
+        } else {
+            throw new RuntimeException("Invalid tags");
+        }
+    }
+
+}
+
+public class MethodUnderTestBasicTest extends Safelist {
+
+    private static final String HREF = "http://example.com";
+    private static final Set<String> ENFORCED_ATTRIBUTES = new HashSet<>(Arrays.asList("href"));
+
+    @Override
+    public boolean isSafeAttribute(String tagName, Element el, Attribute attr) {
+        return ENFORCED_ATTRIBUTE.contains(tagName + ": " + attr.getName());
+    }
+
+    @Override
+    public Safelist addAttributes(String tag, String... attributes) {
+        if (Arrays.asList(ENFORCED_ATTRIBUTES).containsAll(Arrays.asList(tag + ":" + attribute))) {
+            return this;
+        } else {
+            throw new RuntimeException("Invalid attributes");
+        }
+    }
+}
+
+public class MethodUnderTestBasicWithImagesTest extends Safelist {
+
+    private static final Set<String> ENFORCED_TAGS = new HashSet<>(Arrays.asList("img", "script"));
+
+    @Override
+    public boolean isSafeTag(String tag) {
+        return ENFORCED_TAGS.contains(tag);
+    }
+
+    @Override
+    public Safelist addTags(String... tags) {
+        if (Arrays.asList(ENFORCED_TAGS).containsAll(Arrays.asList(tags))) {
+            return this;
+        } else {
+            throw new RuntimeException("Invalid tags");
+        }
+    }
+}
+
+public class MethodUnderTestRelaxedTest extends Safelist {
+
+    private static final Set<String> RELAXED_TAGS = new HashSet<>(Arrays.asList("b", "i"));
+
+    @Override
+    public boolean isSafeTag(String tag) {
+        return RELAXED_TAGS.contains(tag);
+    }
+
+    @Override
+    public Safelist reduceTags(Set<String> tags) {
+        if (Arrays.asList(RELAXED_TAGS).containsAll(tags)) {
+            return this;
+        } else {
+            throw new RuntimeException("Invalid tags");
+        }
+    }
+
+}

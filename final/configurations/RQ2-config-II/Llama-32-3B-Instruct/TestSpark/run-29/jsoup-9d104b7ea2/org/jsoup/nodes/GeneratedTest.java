@@ -1,0 +1,193 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void getNodeName_TextNodeReturnsExpectedValue() {
+        // Arrange
+        TextNode node = new TextNode("test");
+
+        // Act
+        String actual = node.nodeName();
+
+        // Assert
+        assertEquals("text", actual);
+    }
+
+    @Test
+    public void text_SimpleTextNodeReturnsEncodedText() {
+        // Arrange
+        TextNode node = new TextNode("test");
+        String expected = "test";
+
+        // Act
+        String actual = node.text();
+
+        // Assert
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void text_TextNodeReturnsModifiedValue() {
+        // Arrange
+        TextNode node = new TextNameSpace("test");
+
+        // Act
+        String actual = node.text("modified test");
+
+        // Assert
+        assertEquals("modified test", actual);
+    }
+
+    @Test
+    public void getWholeText_EmptyTextNodeReturnsEmptyString() {
+        // Arrange
+        TextNode node = new TextNode();
+
+        // Act
+        String actual = node.getWholeText();
+
+        // Assert
+        assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    public void isBlank_BlankTextNodeReturnsExpectedValue() {
+        // Arrange
+        TextNode node = new TextNameSpace("");
+
+        // Act
+        boolean actual = node.isBlank();
+
+        // Assert
+        assertTrue(actual);
+    }
+
+    @Test
+    public void isBlank_NonBlankTextNodeReturnsExpectedValue() {
+        // Arrange
+        TextNode node = new TextNode("test");
+
+        // Act
+        boolean actual = node.isBlank();
+
+        // Assert
+        assertFalse(actual);
+    }
+
+    @Test
+    public void splitText_SimpleTextNodeReturnsSplitValue() throws IOException {
+        // Arrange
+        TextNode node = new TextNode("hello world");
+        int offset = 6;
+
+        // Act
+        String actual = node.splitText(offset);
+
+        // Assert
+        assertEquals("world", actual);
+    }
+
+    @Test
+    public void outerHtmlHead_SimpleTextNodeReturnsExpectedValue() throws IOException {
+        // Arrange
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = null;
+        TextNode node = new TextNameSpace("test");
+
+        // Act
+        node.outerHtmlHead(accum, 0, out);
+
+        // Assert
+        assertEquals("<text>test</text>", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTail_SimpleTextNodeReturnsExpectedValue() throws IOException {
+        // Arrange
+        Appendable accum = new StringBuilder();
+        Document.OutputSettings out = null;
+        TextNode node = new TextNameSpace("test");
+
+        // Act
+        node.outerHtmlTail(accum, 0, out);
+
+        // Assert
+        assertEquals("<text>test</text>", accum.toString());
+    }
+
+    @Test
+    public void clone_CloneReturnsNewTextNode() {
+        // Arrange
+        TextNode node = new TextNameSpace("test");
+        TextNode cloned = node.clone();
+
+        // Act
+
+        // Assert
+        assertNotNull(cloned);
+        assertEquals(node.text(), cloned.text());
+    }
+
+    @Test
+    public void createFromEncoded_StringIsConvertedToTextNode() {
+        // Arrange
+        String encodedText = "text";
+        TextNode node = TextNode.createFromEncoded(encodedText);
+
+        // Act
+
+        // Assert
+        assertNotNull(node);
+        assertEquals(encodedText, node.text());
+    }
+
+    @Test
+    public void normaliseWhitespace_SimpleStringReturnsModifiedValue() {
+        // Arrange
+        String text = "   test  ";
+
+        // Act
+        String actual = TextNode.normaliseWhitespace(text);
+
+        // Assert
+        assertEquals("test", actual);
+    }
+
+    @Test
+    public void stripLeadingWhitespace_SimpleStringReturnsModifiedValue() {
+        // Arrange
+        String text = "   test";
+
+        // Act
+        String actual = TextNode.stripLeadingWhitespace(text);
+
+        // Assert
+        assertEquals("test", actual);
+    }
+
+    @Test
+    public void lastCharIsWhitespace_EmptyStringBuilderReturnsFalse() {
+        // Arrange
+        StringBuilder sb = new StringBuilder();
+
+        // Act
+        boolean actual = TextNode.lastCharIsWhitespace(sb);
+
+        // Assert
+        assertFalse(actual);
+    }
+
+    @Test
+    public void lastCharIsWhitespace_SingleCharacterStringReturnsTrue() {
+        // Arrange
+        StringBuilder sb = new StringBuilder("test");
+
+        // Act
+        boolean actual = TextNode.lastCharIsWhitespace(sb);
+
+        // Assert
+        assertTrue(actual);
+    }
+
+}

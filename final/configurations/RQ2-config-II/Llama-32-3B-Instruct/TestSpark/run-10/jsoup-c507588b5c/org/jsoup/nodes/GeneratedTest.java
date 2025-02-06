@@ -1,0 +1,175 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.Node;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.when;
+
+@RunWith(org.junit.runner.JUnit4ClassRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Appendable accum;
+
+    @Mock
+    private Document.OutputSettings out;
+
+    @Mock
+    private LeafNode parent;
+
+    @Mock
+    private Node child;
+
+    private List<Node> nodes = new ArrayList<>();
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void createTextNode_GivenValidText_ReturnsTextNode() throws IOException {
+        String text = "Hello World!";
+        TextNode textNode = new TextNode(text);
+
+        assertEquals(text, textNode.text());
+        assertNotNull(textNode.nodeName());
+    }
+
+    @Test
+    public void createTextNode_GivenBlankText_ReturnsTextNodeWithBlankText() throws IOException {
+        String text = "";
+        TextNode textNode = new TextNode(text);
+
+        assertEquals("", textNode.text());
+        assertNotNull(textNode.nodeName());
+    }
+
+    @Test
+    public void nodeName_GivenTextNode_ReturnsTagName() {
+        TextNode textNode = new TextNode("div");
+        assertEquals("div", textNode.nodeName());
+    }
+
+    @Test
+    public void text_GivenTextNode_ReturnsTextContent() {
+        TextNode textNode = new TextNode("Hello World!");
+        assertEquals("Hello World!", textNode.text());
+    }
+
+    @Test
+    public void text_GivenTextNodeWithBlankText_ReturnsBlankTextContent() {
+        TextNode textNode = new TextNode("");
+        assertEquals("", textNode.text());
+    }
+
+    @Test
+    public void getWholeText_GivenTextNode_ReturnsWholeText() throws IOException {
+        String text = "Hello World!";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlank_GivenTextNodeWithBlankText_ReturnsTrue() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlank_GivenTextNodeWithContent_ReturnsFalse() {
+        TextNode textNode = new TextNode("Hello World!");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitText_GivenTextNodeAndOffset
+
+    ReturnsNewTextNode() throws IOException {
+        String text = "Hello World!";
+        int offset = 7;
+        TextNode textNode = new TextNode(text);
+        TextNode newText = new TextNode("World");
+        TextNode expectedResult = new TextNode(text.substring(offset));
+        when(parent.splitText(offset)).thenReturn(expectedResult);
+
+        assertEquals(newText, textNode.splitText(offset));
+    }
+
+    @Test
+    public void outerHtmlHead_GivenTextNodeAndDepthAndOutputSettings_ThrowsIOException() throws IOException {
+        Document document = new Document();
+        TextNode textNode = new TextNode("Hello World!");
+        when(accum.append(anyString())).thenThrow(IOException.class);
+        when(out.toString()).thenReturn("<div>Hello World!</div>");
+
+        textNode.outerHtmlHead(accum, 0, out);
+
+        verify(accum).append(anyString());
+    }
+
+    @Test
+    public void outerHtmlTail_GivenTextNodeAndDepthAndOutputSettings() {
+        Document document = new Document();
+        TextNode textNode = new TextNode("Hello World!");
+        when(out.toString()).thenReturn("<div>Hello World!</div>");
+
+        textNode.outerHtmlTail(accum, 0, out);
+
+        assertEquals("<div>Hello World!</div>", accum.toString());
+    }
+
+    @Test
+    public void clone_GivenTextNode_ReturnsClone() {
+        TextNode textNode = new TextNode("Hello World!");
+        TextNode expectedResult = new TextNode(textNode.text());
+        when(parent.clone()).thenReturn(expectedResult);
+
+        assertEquals(expectedResult, textNode.clone());
+    }
+
+    @Test
+    public void createFromString_GivenEncodedText_ReturnsTextNode() throws IOException {
+        String encodedText = "Hello%20World!";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertEquals("Hello World!", textNode.text());
+    }
+
+    @Test
+    public void normaliseWhitespace_GivenText_ReturnsNormalisedText() {
+        String text = "   Hello   World!  ";
+        assertEquals(StringUtil.normaliseWhitespace(text), "Hello World!");
+    }
+
+    @Test
+    public void stripLeadingWhitespace_GivenText_ReturnsStripperedText() {
+        String text = "   Hello   World!";
+        assertEquals(StringUtil.stripLeadingWhitespace(text), "Hello World!");
+    }
+
+    @Test
+    public void lastCharIsWhitespace_GivenEmptyStringBuilder_ReturnsFalse() {
+        StringBuilder builder = new StringBuilder();
+        assertFalse(TextNode.lastCharIsWhitespace(builder));
+    }
+
+    @Test
+    public void lastCharIsWhitespace_GivenNonEmptyStringBuilder_ReturnsTrue() {
+        StringBuilder builder = new StringBuilder(" ");
+        assertTrue(TextNode.lastCharIsWhitespace(builder));
+    }
+
+}

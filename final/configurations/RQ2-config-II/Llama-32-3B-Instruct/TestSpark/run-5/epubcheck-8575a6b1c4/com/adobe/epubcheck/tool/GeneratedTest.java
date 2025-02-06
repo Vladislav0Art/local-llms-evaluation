@@ -1,0 +1,79 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocale
+
+    LocaleTest() {
+        EpubChecker check = new EpubChecker();
+        Locale locale = check.getLocale();
+        assertEquals(Locale.getDefault(), locale);
+    }
+
+    @Test
+    public void run
+
+    RunTest() {
+        String[] args = {"test", "file"};
+        EpubChecker check = new EpubChecker();
+        int result = check.run(args);
+        assertEquals(0, result); // assuming return value is 0 for test purposes
+    }
+
+    @Test
+    public void processEpubFile
+
+    DeprecatedTest() {
+        String[] args = {"test", "file"};
+        @Deprecated
+        int result = EpubChecker.class.getDeclaredMethod("processEpubFile", String[].class).invoke(null, args);
+        assertEquals(0, result); // assuming return value is 0 for test purposes
+    }
+
+    @Test
+    public void validateFile
+
+    FileValidationTest() {
+        String path = "path/to/file";
+        EPUBVersion version = EPUBVersion.V2;
+        Report report = new DefaultReportImpl();
+        EpubChecker check = new EpubChecker();
+        int result = check.validateFile(path, version, report, new EPUBProfile());
+        assertEquals(0, result); // assuming return value is 0 for test purposes
+    }
+
+    @Test
+    public void validateFileDifferentVersion
+
+    FileValidationTestWithDifferentVersion() {
+        String path = "path/to/file";
+        EPUBVersion version = EPUBVersion.V3;
+        Report report = new DefaultReportImpl();
+        EpubChecker check = new EpubChecker();
+        int result = check.validateFile(path, version, report, new EPUBProfile());
+        assertEquals(0, result); // assuming return value is 0 for test purposes
+    }
+
+    @Test
+    public void validateFileWithInvalidVersion
+
+    FileValidationTestWithInvalidVersion() {
+        String path = "path/to/file";
+        EPUBVersion version = null;
+        Report report = new DefaultReportImpl();
+        EpubChecker check = new EpubChecker();
+        InvalidVersionException expectedException = new InvalidVersionException();
+        try {
+            int result = check.validateFile(path, version, report, new EPUBProfile());
+            fail("Expected exception not thrown");
+        } catch (InvalidVersionException e) {
+            assertEquals(expectedException.getMessage(), e.getMessage());
+        }
+    }
+
+}

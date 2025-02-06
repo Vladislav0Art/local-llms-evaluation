@@ -1,0 +1,142 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void canSign_DoesNotSupportSigningWithNullKey() {
+        assertNull(KeyPair.of(null));
+    }
+
+    @Test
+    public void fromSecretSeed_InvalidSeed() {
+        byte[] seed = new byte[]{1, 2, 3};
+        assertTrue(KeyPair.fromSecretSeed(seed).canSign());
+        try {
+            KeyPair.of(seed);
+            fail("Expected GeneralSecurityException");
+        } catch (GeneralSecurityException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void fromPubliclyKnownKey_DoesNotSupportSigningWithNullKey() {
+        byte[] publicKey = new byte[]{1, 2, 3};
+        assertTrue(KeyPair.fromPublicKey(publicKey).canSign());
+        try {
+            KeyPair.of(publicKey);
+            fail("Expected GeneralSecurityException");
+        } catch (GeneralSecurityException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void fromXdrPublicKey_DoesNotSupportSigningWithNullKey() {
+        PublicKey key = new PublicKey();
+        assertTrue(KeyPair.fromXdrPublicKey(key).canSign());
+        try {
+            KeyPair.of(key);
+            fail("Expected GeneralSecurityException");
+        } catch (GeneralSecurityException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void sign_DoesNotSupportSigningWithNullKey() {
+        assertTrue(KeyPair.of(null).sign(new byte[]{1, 2, 3}));
+        try {
+            KeyPair.of(null).sign(null);
+            fail("Expected GeneralSecurityException");
+        } catch (GeneralSecurityException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void verify_DoesNotSupportVerificationWithNullSignature() {
+        byte[] data = new byte[]{1, 2, 3};
+        assertTrue(KeyPair.of(data).verify(data, null));
+        try {
+            KeyPair.of(data).verify(data, null);
+            fail("Expected GeneralSecurityException");
+        } catch (GeneralSecurityException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void fromAccountId_DoesNotSupportVerificationWithNullSignature() {
+        String accountId = "account_id";
+        assertTrue(KeyPair.fromAccountId(accountId).verify(new byte[]{1, 2, 3}, null));
+        try {
+            KeyPair.of(accountId).verify(null, null);
+            fail("Expected GeneralSecurityException");
+        } catch (GeneralSecurityException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void random_HasUniquePublicKey() {
+        byte[] publicKey1 = KeyPair.random().getPublicKey();
+        byte[] publicKey2 = KeyPair.random().getPublicKey();
+
+        assertNotEquals(publicKey1, publicKey2);
+    }
+
+    @Test
+    public void fromBip39Seed_HasUniqueAccountId() {
+        byte[] bip39Seed = new byte[]{1, 2, 3};
+        byte[] accountNumber = new byte[]{4, 5, 6};
+
+        String accountId1 = KeyPair.fromBip39Seed(bip39Seed, accountNumber).getAccountId();
+        String accountId2 = KeyPair.fromBip39Seed(bip39Seed, accountNumber).getAccountId();
+
+        assertNotEquals(accountId1, accountId2);
+    }
+
+    @Test
+    public void fromXdrPublicKey_HasUniqueAccountId() {
+        PublicKey key = new PublicKey();
+        String accountId1 = KeyPair.fromXdrPublicKey(key).getAccountId();
+        String accountId2 = KeyPair.fromXdrPublicKey(key).getAccountId();
+
+        assertNotEquals(accountId1, accountId2);
+    }
+
+    @Test
+    public void sign_DoesntVerifySignature() {
+        byte[] data = new byte[]{1, 2, 3};
+        byte[] signature1 = new byte[]{4, 5, 6};
+        byte[] signature2 = new byte[]{7, 8, 9};
+
+        assertTrue(KeyPair.of(data).verify(data, signature1));
+        assertFalse(KeyPair.of(data).verify(data, signature2));
+    }
+
+    @Test
+    public void fromPubliclyKnownKey_DoesNotSupportSigningWithNullKey() {
+        PublicKey key = new PublicKey();
+        KeyPair pair = KeyPair.fromPublicKey(key.getPublicKey());
+
+        assert (pair != null);
+    }
+
+    @Test
+    public void fromSecretSeed_HasUniqueAccountId() {
+        char[] seed = new char[]{1, 2, 3};
+        String accountId = KeyPair.fromSecretSeed(seed).getAccountId();
+
+        assert (!accountId.isEmpty());
+    }
+
+}

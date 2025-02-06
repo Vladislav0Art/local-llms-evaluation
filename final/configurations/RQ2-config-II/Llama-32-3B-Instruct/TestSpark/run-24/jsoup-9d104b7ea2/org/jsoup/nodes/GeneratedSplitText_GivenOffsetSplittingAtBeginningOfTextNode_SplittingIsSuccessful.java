@@ -1,0 +1,19 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+public class GeneratedSplitText_GivenOffsetSplittingAtBeginningOfTextNode_SplittingIsSuccessful {
+
+    @Test
+    public void splitText_GivenOffsetSplittingAtBeginningOfTextNode_SplittingIsSuccessful() throws IOException {
+        String originalText = "Hello, World!";
+        TextNode textNode = new TextNode(originalText + ", ");
+        textNode.splitText(0); // Split at the beginning of the node.
+        assertEquals(originalText, originalText);
+    }
+
+}

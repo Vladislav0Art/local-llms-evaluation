@@ -1,0 +1,104 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.SettingsHolder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.UUID;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNewCommentsConfiguration() {
+        Map<String, List<String>> comments = new HashMap<>();
+        var config = new CommentsConfiguration(comments);
+        assertNotNull(config.getAllComments());
+        assertEquals(0, config.getAllComments().size());
+    }
+
+    @Test
+    public void testEmptyCommentLines() {
+        Map<String, List<String>> comments = new HashMap<>();
+        var config = new CommentsConfiguration(comments);
+        config.setComment("test", "");
+        assertTrue(Arrays.equals(config.getAllComments().get("test"), Collections.emptyList()));
+    }
+
+    @Test
+    public void testNewCommentWithMarker() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("test", Arrays.asList("# comment"));
+        var config = new CommentsConfiguration(comments);
+        config.setComment("test", "# comment");
+        assertTrue(Arrays.equals(config.getAllComments().get("test"), Arrays.asList("# comment")));
+    }
+
+    @Test
+    public void testNewCommentWithoutMarker() {
+        Map<String, List<String>> comments = new HashMap<>();
+        var config = new CommentsConfiguration(comments);
+        config.setComment("test", "");
+        assertTrue(Arrays.equals(config.getAllComments().get("test"), Collections.singletonList("")));
+    }
+
+    @Test
+    public void testSetMultipleCommentsForSamePath() {
+        Map<String, List<String>> comments = new HashMap<>();
+        var config = new CommentsConfiguration(comments);
+        config.setComment("test1", "# comment 1");
+        config.setComment("test2", "# comment 2");
+        assertTrue(Arrays.equals(config.getAllComments().get("test1"), Arrays.asList("# comment 1")));
+    }
+
+    @Test
+    public void testSetSingleLineCommentForPath() {
+        Map<String, List<String>> comments = new HashMap<>();
+        var config = new CommentsConfiguration(comments);
+        config.setComment("test", "# comment");
+        assertTrue(Arrays.equals(config.getAllComments().get("test"), Arrays.asList("# comment")));
+    }
+
+    @Test
+    public void testSetSingleLineCommentWithoutMarkerForPath() {
+        Map<String, List<String>> comments = new HashMap<>();
+        var config = new CommentsConfiguration(comments);
+        config.setComment("test", "");
+        assertTrue(Arrays.equals(config.getAllComments().get("test"), Collections.singletonList("")));
+    }
+
+    @Test
+    public void testMultiplePathsWithSameNameForComments() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("test1", Arrays.asList("# comment 1"));
+        var config = new CommentsConfiguration(comments);
+        config.setComment("test2", "# comment 2");
+        assertTrue(Arrays.equals(config.getAllComments().get("test1"), Arrays.asList("# comment 1")));
+    }
+
+    @Test
+    public void testSamePathWithMultipleCommentLines() {
+        Map<String, List<String>> comments = new HashMap<>();
+        var config = new CommentsConfiguration(comments);
+        config.setComment("test", "# comment1\n# comment2");
+        assertTrue(Arrays.equals(config.getAllComments().get("test"), Arrays.asList("# comment1", "# comment2")));
+    }
+
+    @Test
+    public void testPathWithoutCommentLines() {
+        Map<String, List<String>> comments = new HashMap<>();
+        var config = new CommentsConfiguration(comments);
+        config.setComment("test", null);
+        assertTrue(Arrays.equals(config.getAllComments().get("test"), Collections.emptyList()));
+    }
+
+}

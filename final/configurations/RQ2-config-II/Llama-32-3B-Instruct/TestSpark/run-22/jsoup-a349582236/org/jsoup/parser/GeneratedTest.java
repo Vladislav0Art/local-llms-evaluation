@@ -1,0 +1,124 @@
+package org.jsoup.parser;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void getName_EmptyReturnsEmptyString() {
+        Tag tag = new Tag();
+        assertEquals("", tag.getName());
+    }
+
+    @Test
+    public void getName_NonEmptyReturnsName() {
+        Tag tag = new Tag();
+        tag.setName("tagName");
+        assertEquals("tagName", tag.getName());
+    }
+
+    @Test
+    public void normalName_ThrowsIllegalStateException_NoNameSet() {
+        Tag tag = new Tag();
+        assertThrows(IllegalStateException.class, () -> tag.normalName());
+    }
+
+    @Test
+    public void normalName_NonEmptyReturnsNormalizedName() {
+        Tag tag = new Tag();
+        tag.setName("tagName");
+        assertEquals(Normalizer.normalize(tag.getName()), tag.normalName());
+    }
+
+    @Test
+    public void valueOf_EmptyReturnsNull() {
+        ParseSettings settings = new ParseSettings();
+        Tag tag = Tag.valueOf("", settings);
+        assertNull(tag);
+    }
+
+    @Test
+    public void valueOf_ValidTagNameReturnsTag() {
+        ParseSettings settings = new ParseSettings();
+        Tag tag = Tag.valueOf("tagName", settings);
+        assertNotNull(tag);
+    }
+
+    @Test
+    public void isBlock
+
+    DefaultFalse() {
+        Tag tag = new Tag();
+        assertFalse(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlock_DefaultReturnFalse() {
+        Tag tag = new Tag();
+        assertFalse(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInline_ReturnsTrueIfNotBlockAndNoSelfClosing() {
+        Tag tag = new Tag();
+        tag.setSelfClosing(false);
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmpty_ReturnsFalseIfNotEmpty() {
+        Tag tag = new Tag();
+        tag.setName("tagName");
+        assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosing_DefaultReturnsFalse() {
+        Tag tag = new Tag();
+        assertFalse(tag.isSelfClosing());
+    }
+
+    @Test
+    public void setSelfClosing_ReturnsTagWithSelfClosingSet() {
+        Tag tag = new Tag();
+        Tag result = tag.setSelfClosing();
+        assertTrue(result.isSelfClosing());
+    }
+
+    @Test
+    public void preserveWhitespace_DefaultReturnFalse() {
+        Tag tag = new Tag();
+        assertFalse(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void isFormListed_ReturnsFalseByDefault() {
+        Tag tag = new Tag();
+        assertFalse(tag.isFormListed());
+    }
+
+    @Test
+    public void isFormSubmittable_DefaultReturnFalse() {
+        Tag tag = new Tag();
+        assertFalse(tag.isFormSubmittable());
+    }
+
+    @Test
+    public void clone_ReturnsCloneOfOriginalTag() {
+        Tag originalTag = new Tag();
+        Tag clonedTag = originalTag.clone();
+        assertEquals(originalTag, clonedTag);
+    }
+}
+
+class ParseSettings {
+}
+
+}

@@ -1,0 +1,147 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.lang.reflect.Method;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseName_EmptyString_ReturnsNull() {
+        assertNull(AppVersion.parseName(""));
+    }
+
+    @Test
+    public void parseName_TooLongString_ThrowsIllegalStateException() {
+        try {
+            AppVersion.parseName("a".repeat(10000));
+            fail("Expected IllegalStateException");
+        } catch (IllegalStateException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void parseName_ValidString_ReturnsParsedAppVersion() {
+        AppVersion appVersion = AppVersion.parseName("1.0-ami-1234567890");
+        assertNotNull(appVersion);
+        assertEquals(1, Integer.parseInt(appVersion.getVersion().split("-")[0]));
+    }
+
+    @Test
+    public void compareTo_DifferentBuildNumbers_ComparedToLessThan() {
+        AppVersion appVersion1 = AppVersion.parseName("2.0-ami-1234567890");
+        AppVersion appVersion2 = AppVersion.parseName("1.0-ami-1234567890");
+        assertTrue(appVersion1.compareTo(appVersion2) > 0);
+    }
+
+    @Test
+    public void compareTo_SameBuildNumbers_ComparedToEqual() {
+        AppVersion appVersion1 = AppVersion.parseName("2.0-ami-1234567890");
+        AppVersion appVersion2 = AppVersion.parseName("2.0-ami-1234567890");
+        assertEquals(0, appVersion1.compareTo(appVersion2));
+    }
+
+    @Test
+    public void compareTo_SameBuildNumbers_DifferentPackages_ComparedToLessThan() {
+        AppVersion appVersion1 = AppVersion.parseName("3.0-ami-1234567890");
+        AppVersion appVersion2 = AppVersion.parseName("2.0-ami-1234567890");
+        assertTrue(appVersion1.compareTo(appVersion2) > 0);
+    }
+
+    @Test
+    public void getAppVersionPattern_MatchesValidPattern_ReturnsMatchedPattern() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        Matcher matcher = pattern.matcher("1.0-ami-1234567890");
+        assertTrue(matcher.matches());
+    }
+
+    @Test
+    public void getAppVersionPattern_MatchesInvalidString_DoesNotReturnMatchedPattern() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        Matcher matcher = pattern.matcher("invalid-string");
+        assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void getPackageName_ReturnsPackageName() {
+        AppVersion appVersion = AppVersion.parseName("1.0-ami-1234567890");
+        assertEquals(NameConstants.APP_VERSION_PACKAGE, appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersion_ReturnsVersion() {
+        AppVersion appVersion = AppVersion.parseName("1.0-ami-1234567890");
+        assertEquals("1.0", appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobName_ReturnsBuildJobName() {
+        AppVersion appVersion = AppVersion.parseName("1.0-ami-1234567890");
+        assertEquals(NameConstants.APP_VERSION_BUILDJOB, appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumber_ReturnsBuildNumber() {
+        AppVersion appVersion = AppVersion.parseName("1.0-ami-1234567890");
+        assertEquals("1234567890", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommit_ReturnsCommit() {
+        AppVersion appVersion = AppVersion.parseName("1.0-ami-1234567890");
+        assertEquals(NameConstants.APP_VERSION_COMMIT, appVersion.getCommit());
+    }
+
+    @Test
+    public void getChangelist_ThrowsIllegalStateException() {
+        try {
+            AppVersion.appVersion().getChangelist();
+            fail("Expected IllegalStateException");
+        } catch (IllegalStateException e) {
+            // expected
+        }
+    }
+
+    @Override
+    public void testToStringReturnsToString() {
+        AppVersion appVersion = AppVersion.parseName("1.0-ami-1234567890");
+        assertEquals(appVersion.toString(), appVersion.getVersion());
+    }
+
+    @Test
+    public void testEquals
+
+    ReturnsEqualObjects() {
+        AppVersion appVersion1 = AppVersion.parseName("1.0-ami-1234567890");
+        AppVersion appVersion2 = AppVersion.parseName("1.0-ami-1234567890");
+        assertTrue(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void testEquals_DifferentObjects_ReturnsFalse() {
+        AppVersion appVersion1 = AppVersion.parseName("1.0-ami-1234567890");
+        AppVersion appVersion2 = AppVersion.parseName("2.0-ami-1234567890");
+        assertFalse(appVersion1.equals(appVersion2));
+    }
+
+    @Test
+    public void testHashCodeReturnsSameHashCodeForEqualObjects() {
+        AppVersion appVersion1 = AppVersion.parseName("1.0-ami-1234567890");
+        AppVersion appVersion2 = AppVersion.parseName("1.0-ami-1234567890");
+        assertEquals(appVersion1.hashCode(), appVersion2.hashCode());
+    }
+
+    @Test
+    public void testHashCodeReturnsDifferentHashCodeForUnequalObjects() {
+        AppVersion appVersion1 = AppVersion.parseName("1.0-ami-1234567890");
+        AppVersion appVersion2 = AppVersion.parseName("2.0-ami-1234567890");
+        assertNotEquals(appVersion1.hashCode(), appVersion2.hashCode());
+    }
+
+}

@@ -1,0 +1,112 @@
+package leetcode.medium;
+
+public class GeneratedTest {
+
+    @Test
+    public void next_ReturnsCorrectValueWhenPriceIsZero() {
+        // Arrange
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+
+        // Act
+        int result = onlineStockSpan.next(0);
+
+        // Assert
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void next_ReturnsCorrectValueWhenPriceIsPositive() {
+        // Arrange
+        OnlineStockSpan onlineStockSpan = new OnlineStackSpan();
+        Stack<Integer> stack = new Stack<>();
+        stack.push(10);
+        onlineStockSpan.stack = stack;
+
+        // Act
+        int result = onlineStockSpan.next(15);
+
+        // Assert
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void next_ReturnsCorrectValueWhenPriceIsNegative() {
+        // Arrange
+        OnlineStackSpan onlineStockSpan = new OnlineStackSpan();
+        Stack<Integer> stack = new Stack<>();
+        stack.push(-5);
+        onlineStockSpan.stack = stack;
+
+        // Act
+        int result = onlineStockSpan.next(-2);
+
+        // Assert
+        assertEquals(3, result);
+    }
+
+    @Test
+    public void next_ThrowsExceptionWhenStackIsEmpty() {
+        // Arrange
+        OnlineStackSpan onlineStockSpan = new OnlineStackSpan();
+
+        // Act and Assert
+        assertThrows(IndexOutOfBoundsException.class, () -> onlineStockSpan.next(-5));
+    }
+
+    @Test
+    public void calculateSpans_ReturnsCorrectArrayWhenOnlyOnePrice() {
+        // Arrange
+        int[] prices = {1};
+        OnlineStockSpan onlineStockSpan = new OnlineStackSpan();
+        Stack<Integer> stack = new Stack<>();
+        stack.push(1);
+        onlineStockSpan.stack = stack;
+
+        // Act
+        int[] result = onlineStockSpan.calculateSpans(prices);
+
+        // Assert
+        assertArrayEquals(new int[]{new OnlineStockSpan()[0]}, result);
+    }
+
+    @Test
+    public void calculateSpans_ReturnsCorrectArrayWhenMultiplePrices() {
+        // Arrange
+        int[] prices = {10, 15, -2};
+        OnlineStackSpan onlineStockSpan = new OnlineStackSpan();
+        Stack<Integer> stack = new Stack<>();
+        stack.push(10);
+        stack.push(5);
+        onlineStockSpan.stack = stack;
+
+        // Act
+        int[] result = onlineStockSpan.calculateSpans(prices);
+
+        // Assert
+        assertArrayEquals(new int[]{new OnlineStockSpan()[0], 2, 3}, result);
+    }
+
+    @Test
+    public void calculateSpans_ReturnsCorrectArrayWhenNoPrices() {
+        // Arrange
+        int[] prices = {};
+        OnlineStackSpan onlineStockSpan = new OnlineStackSpan();
+
+        // Act
+        int[] result = onlineStockSpan.calculateSpans(prices);
+
+        // Assert
+        assertArrayEquals(new int[]{new OnlineStockSpan()[0]}, result);
+    }
+
+    private static class OnlineStackSpan extends OnlineStockSpan {
+        Stack<Integer> stack;
+
+        @Override
+        public void init() {
+            super.init();
+            this.stack = new Stack<>();
+        }
+    }
+
+}

@@ -1,0 +1,166 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import com.netflix.frigga.ami.AppVersion;
+import com.netflix.frigga.NameConstants;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameFromEmptyStringReturnsNull() {
+        AppVersion result = AppVersion.parseName("");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void parseNameFromValidPatternReturnsInstance() {
+        String amiName = "myapp/1.2.3-1234";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion);
+        assertEquals("myapp", appVersion.getPackageName());
+        assertEquals("1.2.3", appVersion.getVersion());
+    }
+
+    @Test
+    public void parseNameFromInvalidPatternReturnsNull() {
+        String amiName = "invalid";
+        AppVersion result = AppVersion.parseName(amiName);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void getAppVersionPatternMatchesValidPattern() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        Matcher matcher = pattern.matcher("myapp/1.2.3-1234");
+        assertTrue(matcher.matches());
+    }
+
+    @Test
+    public void getAppVersionPatternDoesNotMatchInvalidPattern() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        Matcher matcher = pattern.matcher("invalid");
+        assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void getPackageNameReturnsCorrectValue() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.setPackage(NameConstants.APP_NAME);
+        assertEquals(NameConstants.APP_NAME, appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersionReturnsCorrectValue() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.setVersion("1.2.3");
+        assertEquals("1.2.3", appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobNameReturnsCorrectValue() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.setBuildJobName("build123");
+        assertEquals("build123", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumberReturnsCorrectValue() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.setBuildNumber("12345");
+        assertEquals("12345", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommitReturnsCorrectValue() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.setCommit("abcdefg");
+        assertEquals("abcdefg", appVersion.getCommit());
+    }
+
+    @Test
+    public void getChangelistReturnsNullAsDefault() {
+        AppVersion result = new AppVersion().getChangelist();
+        assertEquals("", result);
+    }
+
+    @Test
+    public void toStringReturnsCorrectStringRepresentation() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.setPackageName("myapp");
+        appVersion.setVersion("1.2.3");
+        appVersion.setBuildJobName("build123");
+        appVersion.setBuildNumber("12345");
+        appVersion.setCommit("abcdefg");
+        assertEquals("myapp/1.2.3-build123-12345-abcd teg", appVersion.toString());
+    }
+
+    @Test
+    public void compareToReturnsCorrectComparison() {
+        AppVersion appVersion1 = new AppVersion();
+        appVersion1.setPackageName("myapp");
+        appVersion1.setVersion("1.2.3");
+        appVersion1.setBuildJobName("build123");
+        appVersion1.setBuildNumber("12345");
+        appVersion1.setCommit("abcdefg");
+
+        AppVersion appVersion2 = new AppVersion();
+        appVersion2.setPackageName("myapp2");
+        appVersion2.setVersion("1.2.3-4567");
+        appVersion2.setBuildJobName("build789");
+        appVersion2.setBuildNumber("98765");
+        appVersion2.setCommit("ghijklm");
+
+        assertEquals(-1, appVersion1.compareTo(appVersion2));
+    }
+
+    @Test
+    public void compareToReturnsZeroWhenVersionsAreEqual() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.setPackageName("myapp");
+        appVersion.setVersion("1.2.3-1234");
+        appVersion.setBuildJobName("build123");
+        appVersion.setBuildNumber("12345");
+        appVersion.setCommit("abcdefg");
+
+        assertEquals(0, appVersion.compareTo(appVersion));
+    }
+
+    @Test
+    public void hashCodeReturnsCorrectHashcode() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.setPackageName("myapp");
+        appVersion.setVersion("1.2.3-1234");
+        appVersion.setBuildJobName("build123");
+        appVersion.setBuildNumber("12345");
+        appVersion.setCommit("abcdefg");
+
+        assertNotNull(appVersion.hashCode());
+    }
+
+    @Test
+    public void equalsReturnsCorrectComparison() {
+        AppVersion appVersion1 = new AppVersion();
+        appVersion1.setPackageName("myapp");
+        appVersion1.setVersion("1.2.3-1234");
+        appVersion1.setBuildJobName("build123");
+        appVersion1.setBuildNumber("12345");
+        appVersion1.setCommit("abcdefg");
+
+        AppVersion appVersion2 = new AppVersion();
+        appVersion2.setPackageName("myapp");
+        appVersion2.setVersion("1.2.3-1234");
+        appVersion2.setBuildJobName("build123");
+        appVersion2.setBuildNumber("12345");
+        appVersion2.setCommit("abcdefg");
+
+        assertTrue(appVersion1.equals(appVersion2));
+    }
+
+}
