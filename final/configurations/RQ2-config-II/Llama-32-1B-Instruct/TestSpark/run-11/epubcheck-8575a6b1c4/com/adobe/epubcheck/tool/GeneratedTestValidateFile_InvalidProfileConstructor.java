@@ -1,0 +1,32 @@
+package com.adobe.epubcheck.tool;
+
+public class GeneratedTestValidateFile_InvalidProfileConstructor {
+
+    @Test
+    public void testValidateFile_InvalidProfileConstructor() {
+        EpubChecker checker = new EpubChecker();
+        File file = new File("path/to/your/file");
+        try {
+            checker.validateFile(file.getAbsolutePath(), EPUBVersion.V1, null, null);
+            fail("Expected InvalidVersionException to be thrown");
+        } catch (InvalidVersionException e) {
+            // Expected
+        }
+    }
+
+}
+
+class ReportFactory implements Factory<Report> {
+    @Override
+    public Report createReport() {
+        return new DefaultReportImpl();
+    }
+}
+
+class EPUBProfileFactory implements Factory<EPUBProfile> {
+    @Override
+    public EPUBProfile createEPUB() {
+        return new EPUBProfile();
+    }
+
+}

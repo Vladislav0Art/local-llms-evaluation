@@ -1,0 +1,110 @@
+package org.jsoup.safety;
+
+import org.jsoup.Safelist;
+import org.junit.jupiter.api.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void none() {
+        Safelist safelist = Safelist.none();
+        assertTrue(safelist.isSafeTag("a"));
+        assertFalse(safelist.isSafeTag("div"));
+    }
+
+    @Test
+    public void simpleText() {
+        Safelist safelist = Safelist.simpleText();
+        assertTrue(safelist.getEnforcedAttributes("span").size() > 0);
+        assertTrue(!safelist.getEnforcedAttributes("a").isEmpty());
+    }
+
+    @Test
+    public void basic() {
+        Safelist safelist = Safelist.basic();
+        assertTrue(safelist.isSafeTag("img"));
+        assertFalse(safelist.isSafeTag("button"));
+    }
+
+    @Test
+    public void basicWithImages() {
+        Safelist safelist = Safelist.basicWithImages();
+        assertTrue(safelist.getEnforcedAttributes("img").size() > 0);
+        assertTrue(!safelist.getEnforcedAttributes("a").isEmpty());
+    }
+
+    @Test
+    public void relaxed() {
+        Safelist safelist = Safelist.relaxed();
+        assertTrue(safelist.isSafeTag("span"));
+        assertFalse(safelist.isSafeTag("button"));
+    }
+
+    @Test
+    public void removeTags() {
+        Safelist safelist = new Safelist();
+        safelist.removeTags("a");
+        assertTrue(safelist.getEnforcedAttributes("").size() > 0);
+    }
+
+    @Test
+    public void preserveRelativeLinks() {
+        Safelist safelist = new Safelist();
+        safelist.preserveRelativeLinks(true);
+        Element element = new Element("a");
+        ((Safelist) element).addTags("href", "https://example.com");
+        assertTrue(element.getAttribute("href").startsWith("https://example.com"));
+    }
+
+    @Test
+    public void addEnforcedAttribute() {
+        Safelist safelist = new Safelist();
+        safelist.addEnforcedAttribute("a", "href", "https://example.com");
+        Element element = new Element("a");
+        assertTrue(element.getAttribute("href").startsWith("https://example.com"));
+    }
+
+    @Test
+    public void removeEnforcedAttribute() {
+        Safelist safelist = new Safelist();
+        safelist.removeEnforcedAttribute("img", "alt");
+        assertFalse(safelist.getEnforcedAttributes("img").containsKey("alt"));
+    }
+
+    @Test
+    public void addProtocols() {
+        Safelist safelist = new Safelist();
+        safelist.addProtocols("a", "href", "https://example.com");
+        Element element = new Element("a");
+        ((Safelist) element).addTags("href", "https://example.com");
+        assertTrue(element.getAttribute("href").startsWith("https://example.com"));
+    }
+
+    @Test
+    public void removeProtocols() {
+        Safelist safelist = new Safelist();
+        safelist.removeProtocols("a", "href", "https://example.com");
+        Element element = new Element("a");
+        ((Safelist) element).addTags("href", "https://example2.com");
+        assertTrue(element.getAttribute("href").startsWith("https://example2.com"));
+    }
+
+    @Test
+    public void addAttributes() {
+        Safelist safelist = new Safelist();
+        safelist.addAttributes("a", "class", "active");
+        Element element = new Element("a");
+        ((Safelist) element).addTags("href", "https://example.com");
+        assertTrue(element.getAttribute("class").contains("active"));
+    }
+
+    @Test
+    public void removeAttributes() {
+        Safelist safelist = new Safelist();
+        safelist.removeAttributes("img", "style");
+        Element element = new Element("img");
+        ((Safelist) element).addTags("src", "https://example.com");
+        assertTrue(element.getAttribute("src").startsWith("https://example.com"));
+    }
+
+}

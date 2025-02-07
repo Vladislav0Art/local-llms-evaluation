@@ -1,0 +1,144 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    private Attributes attributes;
+
+    @BeforeEach
+    public void setup() {
+        this.attributes = new Attributes();
+    }
+
+    @Test
+    public void testGetStringNotNull() {
+        String key = "test";
+        String value = "hello world";
+        String result = (String) attributes.get(key);
+        assertEquals(value, result);
+    }
+
+    @Test
+    public void testGetIgnoreCaseStringNotSupported() {
+        String key = "test";
+        Object value = "hello world";
+        String result = (String) attributes.getIgnoreCase(key);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetUserDataNotNull() {
+        String key = "test";
+        Object value = "hello world";
+        Attribute attribute = new Attributes.Attribute();
+        attribute.setValue(value);
+        String result = (Object) attributes.getUserData(key);
+        assertEquals(attribute.getValue(), result);
+    }
+
+    @Test
+    public void testAddStringNotSupported() {
+        String key = "test";
+        Object value = "hello world";
+        String result = (Object) attributes.add(key, value);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testPutStringNotNull() {
+        String key = "test";
+        String value = "hello world";
+        Attribute attribute = new Attributes.Attribute();
+        attribute.setValue(value);
+        Object result = (Object) attributes.put(key, attribute.getValue());
+        assertEquals(attribute.getValue(), result);
+    }
+
+    @Test
+    public void testPutStringNotSupported() {
+        String key = "test";
+        Object value = "hello world";
+        Object result = (Object) attributes.put(key, value);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testAddAttributesNullValue() {
+        String key = "test";
+        Attribute attribute1 = new Attributes.Attribute();
+        Attribute attribute2 = new Attributes.Attribute();
+        this.attributes.add(attribute1, attribute2.getValue());
+        assertEquals(0, attributes.size());
+    }
+
+    @Test
+    public void testRemoveStringNotSupported() {
+        String key = "test";
+        Object value = "hello world";
+        String result = (Object) attributes.remove(key);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testRemoveStringNotFound() {
+        String key = "test";
+        assertEquals(0, attributes.size());
+    }
+
+    @Test
+    public void testHasKeyStringNotNull() {
+        String key = "test";
+        Object value = "hello world";
+        Object result = (Object) attributes.hasKey(key);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testHasKeyStringNotNull() {
+        String key = "test";
+        Object value = "hello world";
+        Object result = (Object) attributes.hasKeyIgnoreCase(key);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testHasDeclaredValueForKeyStringNotNull() {
+        String key = "test";
+        Object value = "hello world";
+        Object result = (Object) attributes.hasDeclaredValueForKey(key);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testHasDeclaredValueForKeyStringNotSupported() {
+        String key = "test";
+        Object value = "hello world";
+        Object result = (Object) attributes.hasDeclaredValueForKeyIgnoreCase(key);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testSizeStringNotNull() {
+        String key = "test";
+        Object value = null;
+        Object result = (int) attributes.size();
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void testIsEmptyStringNotNull() {
+        String key = "test";
+        Object value = null;
+        Object result = (boolean) attributes.isEmpty();
+        assertTrue(result);
+    }
+
+    @Test
+    public void testAddAllAttributesNullValue() {
+        String key = "test";
+        Attribute attribute1 = new Attributes.Attribute();
+        Attribute attribute2 = new Attributes.Attribute();
+        this.attributes.addAll(attribute1, attribute2.getValue());
+        assertEquals(0, attributes.size());
+    }
+
+}

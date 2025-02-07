@@ -1,0 +1,120 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Appendable;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void testTextNode() {
+        String text = "Hello, World!";
+        TextNode node = new TextNode(text);
+        Node expectedNode = mock(Node.class);
+        when(expectedNode.toString()).thenReturn("Hello, World!");
+        when(node.text()).thenReturn(expectedNode);
+        when(node.nodeName()).thenReturn("text");
+        when(node.splitText(0)).thenReturn(expectedNode);
+        Document document = new Document();
+        document.add(new TextNode("Hello"));
+        document.add(new TextNode(" , "));
+
+        Node resultNode = node.toString(document);
+        assertEquals("Hello, World!", expectedNode.toString());
+    }
+
+    @Test
+    public void testTextNodeBlank() {
+        String text = "";
+        TextNode node = new TextNode(text);
+        Node expectedNode = mock(Node.class);
+        when(expectedNode.toString()).thenReturn("");
+        when(node.text()).thenReturn(expectedNode);
+        Document document = new Document();
+        document.add(new TextNode("Hello, World!"));
+        document.add(new TextNode());
+
+        Node resultNode = node.toString(document);
+        assertEquals("", expectedNode.toString());
+    }
+
+    @Test
+    public void testTextNodeMultipleSpaces() {
+        String text = "   Hello, World!   ";
+        TextNode node = new TextNode(text);
+        Node expectedNode = mock(Node.class);
+        when(expectedNode.toString()).thenReturn("Hello  , World!");
+        when(node.text()).thenReturn(expectedNode);
+        Document document = new Document();
+        document.add(new TextNode("Hello"));
+        document.add(new TextNode("World!"));
+        document.add(new TextNode());
+
+        Node resultNode = node.toString(document);
+        assertEquals("Hello  , World!", expectedNode.toString());
+    }
+
+    @Test
+    public void testTextNodeSubstring() {
+        String text = "   Hello, World!";
+        TextNode node = new TextNode(text);
+        when(node.text()).thenReturn(new TextNode("Hello"));
+        Document document = new Document();
+        document.add(new TextNode("Hello"));
+
+        Node resultNode = node.toString(document);
+        assertEquals("Hello", resultNode.toString());
+    }
+
+    @Test
+    public void testTextNodeRemoveWhitespace() {
+        String text = "   Hello, World!   ";
+        TextNode node = new TextNode(text);
+        when(node.text()).thenReturn(new TextNode(""));
+        Document document = new Document();
+        document.add(new TextNode("Hello"));
+        document.add(new TextNode("World!"));
+
+        Node resultNode = node.toString(document);
+        assertEquals("", resultNode.toString());
+    }
+
+    @Test
+    public void testTextNodeTrim() {
+        String text = "   Hello, World!";
+        TextNode node = new TextNode(text);
+        when(node.text()).thenReturn(new TextNode("Hello"));
+        Document document = new Document();
+        document.add(new TextNode("Hello"));
+
+        Node resultNode = node.toString(document);
+        assertEquals("Hello", resultNode.toString());
+    }
+
+    @Test
+    public void testTextNodeClone() {
+        String text = "   Hello, World!   ";
+        TextNode node = new TextNode(text);
+        when(node.text()).thenReturn(new TextNode(""));
+        Document document = new Document();
+        document.add(new TextNode("Hello"));
+        Node parent = document.body().addChild(node);
+
+        // Check that two clones have the same text
+        Node clone1 = (TextNode) document.body().FirstChild().getNextSibling();
+        Node clone2 = node.clone();
+
+        assertEquals(text, clone1.toString());
+        assertEquals(text, clone2.toString());
+    }
+
+}

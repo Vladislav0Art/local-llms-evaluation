@@ -1,0 +1,160 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    @Test
+    public void test_connect() {
+        HttpConnection connection = new HttpConnection();
+        String url = "http://example.com";
+        Connection conn = connection.connect(url);
+        assert conn == null; // This should be null, but we need to create a request object first
+
+        Request request = new Request("GET", url);
+        conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+    }
+
+    @Test
+    public void test_connect_url() {
+        HttpConnection connection = new HttpConnection();
+        String url = "http://example.com";
+        Connection conn = connection.connect(url);
+        assert conn == null; // This should be null, but we need to create a request object first
+
+        Request request = new Request("GET", url);
+        conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+    }
+
+    @Test
+    public void test_connect_url_with_proxy() {
+        HttpConnection connection = new HttpConnection();
+        String url = "http://example.com";
+        Proxy proxy = new InetSocketAddress("localhost", 8080);
+        Connection conn = connection.connect(url, proxy);
+        assert conn == null; // This should be null, but we need to create a request object first
+
+        Request request = new Request("GET", url);
+        conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+    }
+
+    @Test
+    public void test_url() {
+        HttpConnection connection = new HttpConnection();
+        String url = "http://example.com";
+        Connection conn = connection.url(url);
+        assert conn == null; // This should be null, but we need to create a request object first
+
+        Request request = new Request("GET", url);
+        conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+    }
+
+    @Test
+    public void test_url_with_cookie() {
+        HttpConnection connection = new HttpConnection();
+        String cookie = "testcookie";
+        CookieStore cookieStore = new CookieStore(new URL("http://example.com"));
+        Connection conn = connection.url(new URL("http://example.com"), cookieStore);
+        assert conn == null; // This should be null, but we need to create a request object first
+
+        Request request = new Request("GET", "http://example.com");
+        conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+    }
+
+    @Test
+    public void test_header() {
+        HttpConnection connection = new HttpConnection();
+        String url = "http://example.com";
+        CookieStore cookieStore = new CookieStore(new URL("http://example.com"));
+        Connection conn = connection.url(new URL("http://example.com"), cookieStore);
+        Request request = new Request("GET", url, cookieStore);
+        conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+    }
+
+    @Test
+    public void test_method() {
+        HttpConnection connection = new HttpConnection();
+        String url = "http://example.com";
+        Method method = Method.GET;
+        Request request = new Request(method, url);
+        Connection conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+    }
+
+    @Test
+    public void test_ignore_http_errors() {
+        HttpConnection connection = new HttpConnection();
+        String url = "http://example.com";
+        boolean ignoreHttpErrors = true;
+        Request request = new Request(Method.GET, url);
+        Connection conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+
+        request = new Request(Method.GET, url);
+        conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(404, conn.execute().getStatusCode());
+    }
+
+    @Test
+    public void test_ignore_content_type() {
+        HttpConnection connection = new HttpConnection();
+        String url = "http://example.com";
+        boolean ignoreContentType = true;
+        Request request = new Request(Method.GET, url);
+        Connection conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+
+        request = new Request(Method.GET, url);
+        conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(405, conn.execute().getStatusCode());
+    }
+
+    @Test
+    public void test_post_data_charsets() {
+        HttpConnection connection = new HttpConnection();
+        String url = "http://example.com";
+        Request request = new Request("POST", "http://example.com");
+        Connection conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+    }
+
+    @Test
+    public void test_request() {
+        HttpConnection connection = new HttpConnection();
+        String url = "http://example.com";
+        Request request = new Request("GET", url, new CookieStore(new URL("http://example.com")));
+        Connection conn = connection.newRequest(request);
+        assert conn != null;
+
+        assertEquals(200, conn.execute().getStatusCode());
+    }
+
+}

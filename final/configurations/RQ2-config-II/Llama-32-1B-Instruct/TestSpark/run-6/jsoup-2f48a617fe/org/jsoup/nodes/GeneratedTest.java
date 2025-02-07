@@ -1,0 +1,73 @@
+package org.jsoup.nodes;
+
+import org.junit.jupiter.api.Test;
+import org.jsoup.nodes.Comment;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.ParseSettings;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeName() {
+        Comment comment = new Comment("Comment text");
+        assertEquals("comment", comment.nodeName());
+    }
+
+    @Test
+    public void getData() {
+        Comment comment = new Comment("Comment text");
+        assertEquals("Comment text", comment.getData());
+    }
+
+    @Test
+    public void setData() {
+        Comment comment = new Comment("Comment text");
+        comment.setData("New data");
+        assertEquals("New data", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHead() throws IOException {
+        Comment comment = new Comment("Comment text");
+        comment.outerHtmlHead(null, 0, ParseSettings.getDefault()); // empty Appendable
+        String expected = "<comment></comment>";
+        assertEquals(expected, comment.outerHtmlHead(null, 0, ParseSettings.getDefault()));
+    }
+
+    @Test
+    public void outerHtmlTail() throws IOException {
+        Comment comment = new Comment("Comment text");
+        comment.outerHtmlTail(null, 0, ParseSettings.getDefault()); // empty Appendable
+        String expected = "<comment></comment>";
+        assertEquals(expected, comment.outerHtmlTail(null, 0, ParseSettings.getDefault()));
+    }
+
+    @Test
+    public void toString() {
+        Comment comment = new Comment("Comment text");
+        String expected = "<Comment>Comment text</Comment>";
+        assertEquals(expected, comment.toString());
+    }
+
+    @Test
+    public void clone() {
+        Comment comment = new Comment("Comment text");
+        Comment clonedComment = comment.clone();
+        assertTrue(comment == clonedComment);
+    }
+
+    @Test
+    public void isXmlDeclaration() {
+        Comment comment = new Comment("<![CDATA[Comment text]]>");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclaration() {
+        Comment comment = new Comment("<![CDATA[Comment text]]>");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+        assertEquals("Comment text", xmlDeclaration.getValue().toString());
+    }
+
+}

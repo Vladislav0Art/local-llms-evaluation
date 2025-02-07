@@ -1,0 +1,92 @@
+package leetcode.medium;
+
+public class GeneratedTest {
+
+    @Test
+    public void test_next_int_price() {
+        OnlineStockSpan sut = new OnlineStockSpan();
+        int result = sut.next(1);
+        assert result == 0;
+    }
+
+    @Test
+    public void test_next_double_price() {
+        OnlineStockSpan sut = new OnlineStockSpan();
+        double result = sut.next(1.01d);
+        assert result == 1;
+    }
+
+    @Test
+    public void test_next_int_price_zero() {
+        OnlineStockSpan sut = new OnlineStockSpan();
+        int result = sut.next(0);
+        assert result == 0;
+    }
+
+    @Test
+    public void test_calculateSpans_int_price() {
+        OnlineStockSpan sut = new OnlineStockSpan();
+        int[] prices = {1, 2, 3};
+        int[] expected = {0, 1, 2};
+        int actual = sut.calculateSpans(prices);
+        for (int i = 0; i < prices.length; i++) {
+            assert actual[i] == expected[i];
+        }
+    }
+
+    @Test
+    public void test_calculateSpans_double_price() {
+        OnlineStockSpan sut = new OnlineStockSpan();
+        int[] prices = {1.01d, 2.02d};
+        int[] expected = {0, 0};
+        int actual = sut.calculateSpans(prices);
+        for (int i = 0; i < prices.length; i++) {
+            assert actual[i] == expected[i];
+        }
+    }
+
+    @Test
+    public void test_calculateSpans_int_price_empty_prices() {
+        OnlineStockSpan sut = new OnlineStockSpan();
+        int[] prices = {};
+        try {
+            sut.calculateSpans(prices);
+            fail("Expected exception not thrown");
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void test_calculateSpans_double_price_empty_prices() {
+        OnlineStockSpan sut = new OnlineStockSpan();
+        int[] prices = {};
+        try {
+            sut.calculateSpans(prices);
+            fail("Expected exception not thrown");
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void test_calculateSpans_int_price_maxPrice() {
+        OnlineStockSpan sut = new OnlineStockSpan();
+        int[] prices = {1, 2};
+        int[] actual = sut.calculateSpans(prices);
+        for (int i : actual) {
+            assert i == 0;
+        }
+    }
+
+    @Test
+    public void test_calculateSpans_double_price_maxPrice() {
+        OnlineStockSpan sut = new OnlineStockSpan();
+        int[] prices = {1.01d, 2.02d};
+        int[] actual = sut.calculateSpans(prices);
+        for (int i : actual) {
+            assert i == 0;
+        }
+    }
+
+}

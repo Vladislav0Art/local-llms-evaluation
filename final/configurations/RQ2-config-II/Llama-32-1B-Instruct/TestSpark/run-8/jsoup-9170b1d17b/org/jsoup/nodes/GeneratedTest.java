@@ -1,0 +1,114 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testGet.
+
+    testNotNull() {
+        Attributes attrs = new Attributes();
+        assertEquals("", attrs.checkNotNull(null));
+    }
+
+    @Test
+    public void testGet.
+
+    testNonInternalAttribute() {
+        Attributes attrs = new Attributes();
+        assertEquals("", attrs.checkNotNull("test"));
+    }
+
+    @Test
+    public void testGetIgnoreCase.
+
+    testNonInternalAttribute() {
+        Attributes attrs = new Attributes();
+        assertEquals("", attrs.checkNotNull("test"));
+    }
+
+    @Test
+    public void testAdd.
+
+    testNotAdded() {
+        Attributes attrs = new Attributes();
+        assertFalse(attrs.add("key", "value"));
+    }
+
+    @Test
+    public void testPut.
+
+    testNotAdded() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        assertTrue(attrs.hasValue("key"));
+    }
+
+    @Test
+    public void testRemove.
+
+    testNotRemoved() {
+        Attributes attrs = new Attributes();
+        assertFalse(attrs.remove("key"));
+    }
+
+    @Test
+    public void testHasKey.
+
+    testNotNullKey() {
+        Attributes attrs = new Attributes();
+        assertTrue(attrs.containsKey("test"));
+    }
+
+    @Test
+    public void testHasKeyIgnoreCase.
+
+    testNotNullKey() {
+        Attributes attrs = new Attributes();
+        assertTrue(attrs.containsKey("Test"));
+    }
+
+    @Test
+    public void testHasDeclaredValueForKey.
+
+    testNotNullKey() {
+        Attributes attrs = new Attributes();
+        assertTrue(attrs.hasDeclaredValueForKey("test"));
+    }
+
+    @Test
+    public void testHasDeclaredValueForKeyIgnoreCase.
+
+    testNotNullKey() {
+        Attributes attrs = new Attributes();
+        assertTrue(attrs.hasDeclaredValueForKeyIgnoreCase("test"));
+    }
+
+    @Test
+    public void testSize() {
+        Attributes attrs = new Attributes();
+        assertEquals(0, attrs.size());
+    }
+
+    @Test
+    public void testIsEmpty() {
+        Attributes attrs = new Attributes();
+        assertFalse(attrs.isEmpty());
+    }
+
+    @Test
+    public void testAddAll() {
+        Attributes attrs = new Attributes();
+        List<Attribute> list = Arrays.asList(new Attributes());
+        attrs.addAll(list);
+        assertEquals(1, attrs.size());
+    }
+
+    @Test
+    public void testIterator() {
+        Attributes attrs = new Attributes();
+        Iterator<Attribute> iterator = attrs.iterator();
+        assertTrue(iterator.hasNext());
+        Assert.assertFalse(iterator.next().equals(attrs));
+    }
+
+}

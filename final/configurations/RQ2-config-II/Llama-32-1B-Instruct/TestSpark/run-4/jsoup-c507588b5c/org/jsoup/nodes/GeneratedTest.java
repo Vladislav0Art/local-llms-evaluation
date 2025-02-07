@@ -1,0 +1,94 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class GeneratedTest {
+
+    @Test
+    public void testText() {
+        assertEquals("Hello World", TextNode.class.getMethod("text").invoke(new TextNode(""));
+    }
+
+    @Test
+    public void testTextWithLeadingWhitespace() {
+        assertEquals("  Hello World ", TextNode.class.getMethod("text").invoke(new TextNode("   Hello World "));
+    }
+
+    @Test
+    public void testTextWithTrailingWhitespace() {
+        assertEquals("Hello World", TextNode.class.getMethod("text").invoke(new TextNode("Hello World "));
+    }
+
+    @Test
+    public void testTextWithMultipleSpaces() {
+        assertEquals("Hello  World ", TextNode.class.getMethod("text").invoke(new TextNode("Hello   World ")));
+    }
+
+    @Test
+    public void testTextEmptyString() {
+        assertEquals("", TextNode.class.getMethod("text").invoke(new TextNode(""));
+    }
+
+    @Test
+    public void testTextNullString() {
+        try {
+            TextNode.class.getMethod("text", String.class).invoke(null);
+            assert false : "Expected exception";
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testBlank() {
+        assertEquals("", TextNode.class.getMethod("isBlank").invoke(new TextNode(""));
+    }
+
+    @Test
+    public void testNotBlank() {
+        assertEquals("Hello World", TextNode.class.getMethod("isBlank").invoke(new TextNode("Hello World ")));
+    }
+
+    @Test
+    public void testTextSplitTextAtOffset0() {
+        assertEquals("", TextNode.class.getMethod("splitText").invoke(new TextNode(""));
+    }
+
+    @Test
+    public void testTextSplitTextAtOffset1() {
+        assertEquals("", TextNode.class.getMethod("splitText").invoke(new TextNode("Hello World")));
+    }
+
+    @Test
+    public void testTextSplitTextAtOffset2() {
+        assertEquals("Hello", TextNode.class.getMethod("splitText").invoke(new TextNode("Hello World  ")));
+    }
+
+    @Test
+    public void testGetWholeText() {
+        assertEquals("Hello World", TextNode.class.getMethod("getWholeText").invoke(new TextNode("Hello World")));
+    }
+
+    @Test
+    public void testIsBlank() {
+        assertTrue(TextNode.class.getMethod("isBlank").invoke(new TextNode("Hello World ")));
+        assertFalse(TextNode.class.getMethod("isBlank").invoke(new TextNode("   Hello World  ")));
+        assertFalse(TextNode.class.getMethod("isBlank").invoke(new TextNode()));
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        assertEquals("", TextNode.class.getMethod("outerHtmlHead").invoke(null, 0, null));
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        assertEquals("", TextNode.class.getMethod("outerHtmlTail").invoke(null, 0, null));
+    }
+
+}

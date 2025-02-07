@@ -1,0 +1,152 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.HttpConnection;
+
+public class GeneratedTest {
+
+    @Test
+    public void test_connect_no_exception() {
+        Connection connection = HttpConnection.connect("http://example.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void test_connect_url() throws Exception {
+        String url = "https://www.example.com";
+        Connection connection = HttpConnection.connect(url);
+        assertSame(url, connection.url());
+    }
+
+    @Test
+    public void test_connect_url_with_cookie() throws Exception {
+        String url = "http://example.com?cookie=abc123";
+        Connection connection = HttpConnection.connect(url);
+        assertNotNull(connection.cookieStore());
+        assertSame("abc123", connection.cookieStore().getCookie("cookie"));
+    }
+
+    @Test
+    public void test_connect_proxy_no_exception() throws Exception {
+        String url = "http://example.com";
+        HttpConnection connection = new HttpConnection();
+        connection.setProxy(null);
+        Connection proxyConnection = HttpConnection.connect(url);
+        assertNotNull(proxyConnection);
+    }
+
+    @Test
+    public void test_connect_proxy_with_proxy() throws Exception {
+        String url = "http://example.com";
+        HttpConnection connection = new HttpConnection();
+        Proxy proxy = new Proxy(Protocol.TCP, AddressFamily.INET);
+        connection.setProxy(proxy);
+        Connection proxyConnection = HttpConnection.connect(url);
+        assertNotNull(proxyConnection);
+    }
+
+    @Test
+    public void test_connect_user_agent_no_exception() throws Exception {
+        String url = "http://example.com";
+        HttpConnection connection = new HttpConnection();
+        connection.userAgent("Example User Agent");
+        assertNotNull(connection.userAgent());
+    }
+
+    @Test
+    public void test_connect_timeout_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = HttpConnection.connect(url);
+        assertEquals(0, connection.timeout());
+    }
+
+    @Test
+    public void test_max_body_size_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = HttpConnection.connect(url);
+        assertEquals(1024, connection.maxBodySize());
+    }
+
+    @Test
+    public void test_follow_redirects_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = HttpConnection.connect(url);
+        connection.followRedirects(true);
+        assertSame("https://www.example.com", connection.url());
+    }
+
+    @Test
+    public void test_referrer_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = HttpConnection.connect(url);
+        assertEquals("", connection - referrer());
+    }
+
+    @Test
+    public void test_method_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = HttpConnection.connect(url);
+        assertSame("GET", connection.method(Method.GET));
+    }
+
+    @Test
+    public void test_ignore_http_errors_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = new HttpConnection();
+        connection.ignoreHttpErrors(true);
+        assertNotNull(connection.request());
+    }
+
+    @Test
+    public void test_ignore_content_type_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = new HttpConnection();
+        connection ignoringContentType (false);
+        assertNotNull(connection.request());
+    }
+
+    @Test
+    public void test_data_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = HttpConnection.connect(url);
+        assertEquals(0, connection.data());
+    }
+
+    @Test
+    public void test_data_with_keyvals_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = new HttpConnection();
+        Map<String, String> data = new LinkedHashMap<>();
+        data.put("key1", "value1");
+        connection.data(data);
+        assertEquals(0, connection.request().data());
+    }
+
+    @Test
+    public void test_data_with_keyvals_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = new HttpConnection();
+        Map<String, String> data = new LinkedHashMap<>();
+        data.put("key1", "value1");
+        connection.data(data);
+        assertEquals(0, connection.request().data());
+    }
+
+    @Test
+    public void test_data_with_keyvals_no_exception() throws Exception {
+        String url = "http://example.com";
+        Connection connection = new HttpConnection();
+        Map<String, String> data = new LinkedHashMap<>();
+        data.put("key1", "value1");
+        connection.request().data(data);
+        assertEquals(0, connection.request().data());
+    }
+
+    @Test
+    public void test_post_data_charsets() throws Exception {
+        String url = "http://example.com";
+        Connection connection = HttpConnection.connect(url);
+        assertNotNull(connection.postDataCharset("utf-8"));
+    }
+
+}

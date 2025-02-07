@@ -1,0 +1,65 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.junit.jupiter.api.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNodeName() {
+        Comment comment = new Comment("This is a comment");
+        assertEquals("Comment", comment.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        Comment comment = new Comment("This is a comment");
+        assertEquals("This is a comment", comment.getData());
+    }
+
+    @Test
+    public void testsetData() {
+        Comment comment = new Comment("This is a comment");
+        comment.setData("new data");
+        assertEquals("new data", comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        String htmlString = "<html><body>This is a comment</body></html>";
+        Document document = parse(htmlString);
+        Appendable accum = new StringBuilder();
+        comment.outerHtmlHead(accum, 0, document.getOutputSettings());
+        assertEquals("<p>This is a comment</p>", accum.toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() throws IOException {
+        String htmlString = "<html><body>This is a comment</body></html>";
+        Document document = parse(htmlString);
+        Appendable accum = new StringBuilder();
+        comment.outerHtmlTail(accum, 0, document.getOutputSettings());
+        assertEquals("<p></p>", accum.toString());
+    }
+
+    @Test
+    public void testToString() {
+        Comment comment = new Comment("This is a comment");
+        assertEquals("Comment", comment.toString());
+    }
+
+    @Test
+    public void testClone() {
+        Comment comment = new Comment("This is a comment");
+        Comment clonedComment = (Comment) comment.clone();
+        assertEquals(comment, clonedComment);
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        String htmlString = "<html><body>This is a comment</body></html>";
+        Document document = parse(htmlString);
+        Assert.assertTrue(comment.isXmlDeclaration(), comment.asXmlDeclaration().isPresent());
+    }
+
+}

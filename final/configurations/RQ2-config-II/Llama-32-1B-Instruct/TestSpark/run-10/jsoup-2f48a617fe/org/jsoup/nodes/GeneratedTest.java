@@ -1,0 +1,100 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.junit.jupiter.api.Test;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.ParserScope;
+import org.jsoup.parser.ParserScopeLevel;
+import org.junit.jupiter.api.BeforeAll;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    private ParseSettings settings = new ParseSettings();
+    private Parser parser = new Parser(settings);
+
+    @BeforeAll
+    public static void setup() {
+        settings.setParser(new StringReader("<!DOCTYPE html><html><body></body></html>"));
+    }
+
+    @Test
+    public void testNodeName() throws IOException {
+        Comment comment = new Comment("<!xml version=\"1.0\" encoding=\"UTF-8\"?><!-- -->");
+        assertEquals("Comment", comment.nodeName());
+    }
+
+    @Test
+    public void testData() throws IOException {
+        Comment comment = new Comment("<p>Hello World!</p>");
+        assertEquals("Hello World!", comment.getData());
+    }
+
+    @Test
+    public void test
+
+    setData() throws IOException {
+        Comment comment = new Comment("");
+        comment.setData("");
+        assertEquals("", comment.getData());
+    }
+
+    @Before
+    public void setupMockParser() {
+        parser.setParseOptions(new ParseOptions().setNamespace(true));
+        mock(parser);
+    }
+
+    private void mock(Parser parser) {
+        ParserScope scope = parser.getScope();
+        Arrays.asList("parser", "mock").forEach((key, value) -> scope.put(key, value));
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        Comment comment = new Comment("<p>Hello World!</p>");
+        comment.outerHtmlHead(parser, 1, settings).subscribe(s -> {
+            assertEquals("Comment", s.nodeName());
+            // Additional assertions for outerHtmlHead
+        });
+    }
+
+    @Test
+    public void testOuterHtmlTail() throws IOException {
+        Comment comment = new Comment("<p>Hello World!</p>");
+        comment.outerHtmlTail(parser, 1, settings).subscribe(s -> {
+            assertEquals("Comment", s.nodeName());
+            // Additional assertions for outerHtmlTail
+        });
+    }
+
+    @Test
+    public void testToString() throws IOException {
+        Comment comment = new Comment("<p>Hello World!</p>");
+        assertEquals("Hello World!", comment.toString());
+    }
+
+    @Test
+    public void testClone() throws IOException {
+        Comment comment = new Comment("<p>Hello World!</p>");
+        Comment clonedComment = comment.clone();
+        // Additional assertions for clone
+    }
+
+    @Test
+    public void testIsXmlDeclaration() throws IOException {
+        Comment comment = new Comment("<!xml version=\"1.0\" encoding=\"UTF-8\"><!-- -->");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclaration() throws IOException {
+        Comment comment = new Comment("<p>Hello World!</p>");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        // Additional assertions for asXmlDeclaration
+    }
+
+}

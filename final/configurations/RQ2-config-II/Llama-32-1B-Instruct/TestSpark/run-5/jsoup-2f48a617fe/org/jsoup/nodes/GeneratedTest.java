@@ -1,0 +1,97 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    private Comment comment;
+
+    @Before
+    public void setup() {
+        comment = new Comment("<!-- This is a comment -->");
+    }
+
+    @Test
+    public void testGetNodeName() {
+        assertEquals("Comment", comment.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        assertEquals("This is a comment ", comment.getData());
+    }
+
+    @Test
+    public void testSetData() {
+        comment.setData("New data");
+        assertEquals("New data", comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        String expected = "<!-- This is a comment -->";
+        Document doc = new Document();
+        // Set up the document with an empty output settings.
+        Appendable accum = doc.getAppendable();
+        int depth = 0;
+        out = ParseSettings.getParser().getOutputSettings();
+        out.setIndentLevel(4);
+        outerHtmlHead(accum, depth, out);
+        assertEquals(expected, ((DocumentOutput) accum).toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() throws IOException {
+        String expected = "<!-- This is a comment -->";
+        Document doc = new Document();
+        // Set up the document with an empty output settings.
+        Appendable accum = doc.getAppendable();
+        int depth = 0;
+        out = ParseSettings.getParser().getOutputSettings();
+        out.setIndentLevel(4);
+        outerHtmlTail(accum, depth, out);
+        assertEquals(expected, ((DocumentOutput) accum).toString());
+    }
+
+    @Test
+    public void testToString() {
+        String expected = "<!-- This is a comment -->";
+        Document doc = new Document();
+        // Set up the document with an empty output settings.
+        Appendable accum = doc.getAppendable();
+        int depth = 0;
+        out = ParseSettings.getParser().getOutputSettings();
+        out.setIndentLevel(4);
+        outerHtmlHead(accum, depth, out);
+        outerHtmlTail(accum, depth, out);
+        assertEquals(expected, ((DocumentOutput) accum).toString());
+    }
+
+    @Test
+    public void testClone() {
+        String expected = "<!-- This is a comment -->";
+        Document doc = new Document();
+        // Set up the document with an empty output settings.
+        Appendable accum = doc.getAppendable();
+        int depth = 0;
+        out = ParseSettings.getParser().getOutputSettings();
+        outerHtmlHead(accum, depth, out);
+        outerHtmlTail(accum, depth, out);
+        Document otherDoc = (Document) comment.clone();
+        assertEquals(expected, otherDoc.toString());
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        boolean expected = false;
+        assertTrue(comment.isXmlDeclaration());
+        assertEquals("Comment", expected);
+    }
+
+    @Test
+    public void testAsXmlDeclaration() {
+        XmlDeclaration xmlDecl = new XmlDeclaration();
+        Comment comment = new Comment("<!-- This is a comment -->");
+        comment.setData("");
+        assertTrue(comment.asXmlDeclaration().equals(xmlDecl));
+    }
+
+}

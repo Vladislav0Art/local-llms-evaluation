@@ -1,0 +1,114 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeName_MockText() throws IOException {
+        String text = "Hello World";
+        String expectedName = "text";
+        when(nodeName()).thenReturn(expectedName);
+        TextNode node = new TextNode(text);
+        assertEquals(expectedName, node.nodeName());
+    }
+
+    @Test
+    public void text_MockText() throws IOException {
+        String text = "Hello World";
+        String expectedValue = "Hello World";
+        when(text()).thenReturn(expectedValue);
+        TextNode node = new TextNode(text);
+        assertEquals(expectedValue, node.text());
+    }
+
+    @Test
+    public void text_MockNonEmptyString() throws IOException {
+        String text = "";
+        String expectedValue = "";
+        when(text()).thenReturn(expectedValue);
+        TextNode node = new TextNode(text);
+        assertEquals(expectedValue, node.text());
+    }
+
+    @Test
+    public void text_MockEmptyString() throws IOException {
+        String text = "";
+        String expectedValue = "";
+        when(text()).thenReturn(expectedValue);
+        TextNode node = new TextNode(text);
+        assertEquals(expectedValue, node.text());
+    }
+
+    @Test
+    public void getWholeText_MockText() throws IOException {
+        String text = "Hello World";
+        String expectedValue = "Hello World";
+        when(getWholeText()).thenReturn(expectedValue);
+        TextNode node = new TextNode(text);
+        assertEquals(expectedValue, node.getWholeText());
+    }
+
+    @Test
+    public void isBlank_MockText() throws IOException {
+        String text = "";
+        String expectedValue = false;
+        when(isBlank()).thenReturn(expectedValue);
+        TextNode node = new TextNode(text);
+        assertEquals(false, node.isBlank());
+    }
+
+    @Test
+    public void splitText_MockOffset() throws IOException {
+        String text = "Hello World";
+        int offset = 5;
+        when(splitText(offset)).thenReturn("Hello", "");
+        TextNode node = new TextNode(text);
+        assertEquals("Hello", node.splitText(offset));
+    }
+
+    @Test
+    public void outerHtmlHead_MockAppendable() throws IOException {
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = Mockito.mock(Document.OutputSettings.class);
+        when(outerHtmlHead(Mockito.any(Appendable.class), 0, Mockito.mock(Document.OutputSettings.class))).thenReturn("Hello World");
+        TextNode node = new TextNode("", "", "");
+        assertThrows(IllegalArgumentException.class, () -> node.outerHtmlHead(accum, 0, out));
+    }
+
+    @Test
+    public void outerHtmlTail_MockAppendable() throws IOException {
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = Mockito.mock(Document.OutputSettings.class);
+        when(outerHtmlTail(Mockito.any(Appendable.class), 0, Mockito.mock(Document.OutputSettings.class))).thenReturn("Hello World");
+        TextNode node = new TextNode("", "", "");
+        assertThrows(IllegalArgumentException.class, () -> node.outerHtmlTail(accum, 0, out));
+    }
+
+    @Test
+    public void toString_MockText() throws IOException {
+        String text = "Hello World";
+        String expectedValue = "text(text(\"Hello World\"))";
+        when(toString()).thenReturn(expectedValue);
+        TextNode node = new TextNode(text);
+        assertEquals(expectedValue, node.toString());
+    }
+
+    @Test
+    public void clone_MockText() throws IOException {
+        String text = "Hello World";
+        TextNode clonedNode = new TextNode(text.clone());
+        assertEquals(text, clonedNode.text());
+    }
+
+    @Test
+    public void createFromEncoded_MockString() throws IOException {
+        String encodedText = "Hello World";
+        when(createFromEncoded(encodedText)).thenReturn(new TextNode(encodedText));
+        TextNode node = new TextNode("Hello World");
+        assertNotNull(node);
+    }
+
+}

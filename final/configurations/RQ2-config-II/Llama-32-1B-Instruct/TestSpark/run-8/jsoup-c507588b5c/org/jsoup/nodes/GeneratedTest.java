@@ -1,0 +1,71 @@
+package org.jsoup.nodes;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class GeneratedTest {
+
+    private TextNode rootNode;
+
+    @Test
+    public void testCreateTextNode() {
+        rootNode = new TextNode("Hello World");
+        assertNotNull(rootNode);
+    }
+
+    @Test
+    public void testGetWholeText() {
+        rootNode = new TextNode("Hello World");
+        assertEquals("Hello World", rootNode.getText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        rootNode = new TextNode("");
+        assertTrue(rootNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        rootNode = new TextNode("Hello World");
+        assertEquals(6, rootNode.splitText(0).length);
+    }
+
+    @Test
+    public void testToString() {
+        rootNode = new TextNode("Hello World");
+        assertEquals("Hello World", rootNode.toString());
+    }
+
+    @Test
+    public void testClone() {
+        rootNode = new TextNode("Hello World");
+        assertNotNull(rootNode.clone());
+    }
+
+    @Test
+    public void testCreateFromEncoded() {
+        rootNode = new TextNode(createFromEncoded("Hello World"));
+        assertNotNull(rootNode);
+    }
+
+    @Test
+    public void testNormaliseWhitespace() {
+        String text = normaliseWhitespace("   Hello   World  ");
+        assertEquals("Hello World", text);
+    }
+
+    @Test
+    public void testStripLeadingWhitespace() {
+        String text = stripLeadingWhitespace("   Hello   World  ");
+        assertEquals("Hello World", text);
+    }
+
+    @Test
+    public void testLastCharIsWhitespace() {
+        StringBuilder sb = new StringBuilder();
+        assertTrue(lastCharIsWhitespace(sb));
+    }
+
+}

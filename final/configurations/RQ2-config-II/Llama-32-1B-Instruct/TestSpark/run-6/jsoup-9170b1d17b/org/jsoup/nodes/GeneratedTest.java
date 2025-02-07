@@ -1,0 +1,89 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    private Attributes attributes;
+
+    @Test
+    public void testGetNonInternalAttribute() {
+        String key = "test";
+        Object expectedValue = null;
+        Object actualValue = attributes.getUserData(key);
+        assertEquals(expectedValue, actualValue);
+    }
+
+    @Test
+    public void testGetInternalAttribute() {
+        String key = "test";
+        Object expectedValue = null;
+        Object actualValue = attributes.get(key);
+        assertTrue(actualValue instanceof String);
+        assertEquals(expectedValue, actualValue.toString());
+    }
+
+    @Test
+    public void testGetStringAttribute() {
+        String key = "test";
+        Attribute attribute = new Attr("test", "value");
+        Object expectedValue = "value";
+        Object actualValue = attributes.get(key);
+        assertTrue(actualValue instanceof Attr);
+        assertEquals(expectedValue, ((Attr) actualValue).getValue());
+    }
+
+    @Test
+    public void testGetIgnoreCaseStringAttribute() {
+        String key = "TEST";
+        Attribute attribute = new Attr("test", "value");
+        Object expectedValue = "value";
+        Object actualValue = attributes.getIgnoreCase(key);
+        assertTrue(actualValue instanceof Attr);
+        assertEquals(expectedValue, ((Attr) actualValue).getValue());
+    }
+
+    @Test
+    public void testGetUserDefinedAttribute() {
+        String key = "test";
+        Object expectedValue = null;
+        Object actualValue = attributes.getUserData(key);
+        assertTrue(actualValue instanceof Object);
+        assertNotNull(actualValue);
+    }
+
+    @Test
+    public void testPutAttribute() {
+        String key = "test";
+        Object value = "value";
+        Attributes attributes2 = new Attributes();
+        attributes.put(key, value);
+        assertEquals(value, attributes2.getUserData(key));
+    }
+
+    @Test
+    public void testAddAttributes() {
+        String key1 = "key1";
+        String key2 = "key2";
+        Attribute attribute1 = new Attr("attr1", "value1");
+        Attribute attribute2 = new Attr("attr2", "value2");
+
+        Attributes attributes3 = new Attributes();
+        attributes3.add(key1, attribute1);
+        attributes3.add(key2, attribute2);
+
+        List<Attribute> list = attributes3.asList();
+
+        assertEquals(2, list.size());
+    }
+
+    @Test
+    public void testRemoveAttribute() {
+        String key = "test";
+        Attribute attribute = new Attr("test", "value");
+        Attributes attributes = new Attributes();
+        attributes.put(key, attribute);
+        attributes.remove(key);
+
+        assertEquals(null, attributes.getUserData(key));
+    }
+
+}

@@ -1,0 +1,124 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    private TextNode textNode;
+    private String[] nodeNames;
+    private String[] expectedTexts;
+
+    @Test
+    public void testNodeName() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", ""};
+        textNode = new TextNode("test");
+        assertEquals(nodeNames[0], textNode.nodeName());
+        assertEquals(expectedTexts[0], textNode.text());
+    }
+
+    @Test
+    public void testText() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"test", ""};
+        textNode = new TextNode("test");
+        assertEquals(nodeNames[1], textNode.text());
+        assertEquals(expectedTexts[1], textNode.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", ""};
+        textNode = new TextNode("test");
+        assertEquals(nodeNames[0], textNode.getWholeText());
+        assertEquals(expectedTexts[0], textNode.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", "", ""};
+        textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", ""};
+        textNode = new TextNode("test");
+        assertEquals(nodeNames[0], textNode.splitText(0));
+        assertEquals(expectedTexts[0], textNode.getWholeText());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", ""};
+        textNode = new TextNode("test");
+        textNode.outerHtmlHead(new java.util.ArrayList<>(), 1, org.jsoup.helpers.OutputSettings.OUTPUT_TYPE_STRING);
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", ""};
+        textNode = new TextNode("test");
+        textNode.outerHtmlTail(new java.util.ArrayList<>(), 1, org.jsoup.helpers.OutputSettings.OUTPUT_TYPE_STRING);
+    }
+
+    @Test
+    public void testToString() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", ""};
+        textNode = new TextNode("test");
+        assertEquals(nodeNames[0], textNode.toString());
+        assertEquals(expectedTexts[0], textNode.toString());
+    }
+
+    @Test
+    public void testClone() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", ""};
+        textNode = new TextNode("test");
+        TextNode cloned = (TextNode) textNode.clone();
+        assertEquals(nodeNames[0], cloned.nodeName());
+        assertEquals(expectedTexts[0], cloned.text());
+    }
+
+    @Test
+    public void testCreateFromEncoded() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", ""};
+        textNode = new TextNode("test");
+        assertEquals(nodeNames[0], textNode.createFromEncoded(""));
+        assertEquals(expectedTexts[0], textNode.getWholeText());
+    }
+
+    @Test
+    public void testNormaliseWhitespace() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", ""};
+        textNode = new TextNode("test");
+        assertEquals(nodeNames[0], textNode.normaliseWhitespace(""));
+        assertEquals(expectedTexts[0], textNode.text());
+    }
+
+    @Test
+    public void testStripLeadingWhitespace() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"test", ""};
+        textNode = new TextNode("  test  ");
+        assertEquals(nodeNames[0], textNode.stripLeadingWhitespace(""));
+        assertEquals(expectedTexts[0], textNode.text());
+    }
+
+    @Test
+    public void testLastCharIsWhitespace() {
+        nodeNames = new String[]{"TextNode", "DocumentTextNode"};
+        expectedTexts = new String[]{"", ""};
+        textNode = new TextNode("test");
+        assertEquals(nodeNames[0], textNode.lastCharIsWhitespace(new StringBuilder()));
+        assertEquals(expectedTexts[0], textNode.text());
+    }
+
+}

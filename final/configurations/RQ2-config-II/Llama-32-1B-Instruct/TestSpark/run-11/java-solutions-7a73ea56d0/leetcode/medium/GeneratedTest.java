@@ -1,0 +1,106 @@
+package leetcode.medium;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    private OnlineStockSpan subject = new OnlineStockSpan();
+
+    @Test
+    public void testNext_1_Series_Returns_1() {
+        int[] prices = {2, 6};
+        when(subject.next(2)).thenReturn(1);
+        when(subject.next(6)).thenReturn(3);
+        int result = subject.next(2);
+        Mockito.verify(subject).next(Mockito.eq(2));
+    }
+
+    @Test
+    public void testNext_2_Series_Returns_2() {
+        int[] prices = {2, 6};
+        when(subject.next(2)).thenReturn(1);
+        when(subject.next(6)).thenReturn(3);
+        when(subject.next(10)).thenReturn(4);
+        result = subject.next(10);
+        Mockito.verify(subject).next(Mockito.eq(10));
+    }
+
+    @Test
+    public void testNext_0_Series_Returns_0() {
+        int[] prices = {2, 6};
+        when(subject.next(2)).thenReturn(1);
+        when(subject.next(6)).thenReturn(3);
+        result = subject.next(0);
+        Mockito.verify(subject).next(Mockito.eq(0));
+    }
+
+    @Test
+    public void testNext_0_Series_Returns_0() {
+        int[] prices = {5, 6};
+        when(subject.next(5)).thenReturn(1);
+        when(subject.next(6)).thenReturn(3);
+        result = subject.next(6);
+        Mockito.verify(subject).next(Mockito.eq(6));
+    }
+
+    @Test
+    public void testNext_0_Series_Returns_0() {
+        int[] prices = {7, 5};
+        when(subject.next(7)).thenReturn(1);
+        when(subject.next(5)).thenReturn(3);
+        result = subject.next(5);
+        Mockito.verify(subject).next(Mockito.eq(5));
+    }
+
+    @Test
+    public void testNext_0_Series_Returns_0() {
+        int[] prices = {2, 4};
+        when(subject.next(2)).thenReturn(1);
+        when(subject.next(4)).thenReturn(3);
+        result = subject.next(4);
+        Mockito.verify(subject).next(Mockito.eq(4));
+    }
+
+    @Test
+    public void testNext_0_Series_Returns_0() {
+        int[] prices = {10, 6};
+        when(subject.next(10)).thenReturn(1);
+        when(subject.next(6)).thenReturn(3);
+        result = subject.next(6);
+        Mockito.verify(subject).next(Mockito.eq(6));
+    }
+
+    @Test
+    public void testCalculateSpans_Series_Returns_0() {
+        int[] prices = {2, 6};
+        int[][] expected = {{1}, {1}};
+
+        int actualResult = subject.calculateSpans(prices);
+        Mockito.verify(subject).calculateSpans(Mockito.eq(prices));
+        for (int i = 0; i < prices.length; i++) {
+            assertArrayEquals(expected[i], actualResult[i]);
+        }
+    }
+
+    @Test
+    public void testCalculateSpans_Empty_0_Series_Returns_0() {
+        int[] prices = {};
+        int[][] expected = {{0}};
+
+        int actualResult = subject.calculateSpans(prices);
+        Mockito.verify(subject).calculateSpans(Mockito.eq(prices));
+        assertArrayEquals(expected[0], actualResult);
+    }
+
+    @Test
+    public void testCalculateSpans_SingleElement_1_Series_Returns_1() {
+        int[] prices = {10};
+        when(subject.next(10)).thenReturn(1);
+
+        int result = subject.calculateSpans(prices);
+        Mockito.verify(subject).calculateSpans(Mockito.eq(prices));
+        assertArrayEquals({1}, actualResult);
+    }
+
+}

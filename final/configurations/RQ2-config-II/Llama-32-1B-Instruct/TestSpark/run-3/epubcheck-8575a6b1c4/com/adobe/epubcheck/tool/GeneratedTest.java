@@ -1,0 +1,89 @@
+package com.adobe.epubcheck.tool;
+
+public class GeneratedTest {
+
+    private EpubChecker checker;
+
+    @BeforeClass
+    public static void setUp() {
+        Locale locale = new Locale("en", "US");
+        checker = new EpubChecker(locale);
+    }
+
+    @Test
+    public void testValidateFile_InvalidVersion() {
+        String path = "path/to/file.xml";
+        EPUBVersion version = null;
+        Report report = new DefaultReportImpl();
+        try {
+            int result = checker.validateFile(path, version, report, checker.getLocale());
+            fail("Expected InvalidVersionException");
+        } catch (InvalidVersionException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testValidateFile
+
+    ValidFile() {
+        String path = "path/to/file.xml";
+        EPUBVersion version = EPUBVersion.VERSION_2;
+        Report report = new DefaultReportImpl();
+        try {
+            int result = checker.validateFile(path, version, report, checker.getLocale());
+            assert result == 0; // expected success
+        } catch (InvalidVersionException e) {
+            fail("Expected InvalidVersionException");
+        }
+    }
+
+    @Test
+    public void testValidateFileValidProfile() {
+        String path = "path/to/file.xml";
+        EPUBVersion version = EPUBVersion.VERSION_2;
+        EpubProfile profile = new EPUBProfile();
+        Report report = new DefaultReportImpl();
+        try {
+            int result = checker.validateFile(path, version, report, profile);
+            assert result == 0; // expected success
+        } catch (InvalidVersionException e) {
+            fail("Expected InvalidVersionException");
+        }
+    }
+
+    @Test
+    public void testProcessEpubFile() {
+        String[] args = {"path/to/file.xml", "--output", "output.txt"};
+        EpubChecker checker = new EpubChecker("en", Locale.ENGLISH);
+        try {
+            int result = checker.processEpubFile(args);
+            assert result == 0; // expected success
+        } catch (Exception e) {
+            fail("Expected no exception");
+        }
+    }
+
+    @Test
+    public void testProcessEpubFile_InvalidArgs() {
+        String[] args = {"path/to/file.xml"};
+        try {
+            int result = checker.processEpubFile(args);
+            assert result == 1; // expected exception
+        } catch (IOException e) {
+            fail("Expected IOException");
+        }
+    }
+
+    @Test
+    public void testProcessEpubFile_InvalidProfile() {
+        String[] args = {"path/to/file.xml", "--profile", "invalid"};
+        try {
+            int result = checker.processEpubFile(args);
+            assert result == 1; // expected exception
+        } catch (IOException e) {
+            fail("Expected IOException");
+        }
+    }
+
+}
