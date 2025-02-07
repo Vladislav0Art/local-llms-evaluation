@@ -1,0 +1,65 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.SettingsHolder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @InjectMocks
+    private CommentsConfiguration commentsConfiguration;
+
+    @Test
+    public void constructor_NoArgs_NoException() {
+        commentsConfiguration = new CommentsConfiguration();
+        assertNotNull(commentsConfiguration);
+    }
+
+    @Test
+    public void constructor_Map_NoException() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Arrays.asList("line1", "line2"));
+        commentsConfiguration = new CommentsConfiguration(comments);
+        assertNotNull(commentsConfiguration);
+    }
+
+    @Test
+    public void setComment_PathNull_IllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> commentsConfiguration.setComment(null, "line1"));
+    }
+
+    @Test
+    public void setComment_CommentLinesNull_IllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> commentsConfiguration.setComment("path", null));
+    }
+
+    @Test
+    public void setComment_CommentLinesEmpty_IllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> commentsConfiguration.setComment("path", new String[0]));
+    }
+
+    @Test
+    public void setComment_PathExisting_CommentsUpdated() {
+        commentsConfiguration.setComment("path", "line1", "line2");
+        commentsConfiguration.setComment("path", "newLine1", "newLine2");
+        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
+        assertEquals(1, comments.size());
+        assertEquals(Arrays.asList("newLine1", "newLine2"), comments.get("path"));
+    }
+
+}

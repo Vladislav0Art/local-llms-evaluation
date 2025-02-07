@@ -1,0 +1,76 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @InjectMocks
+    private PropertyListBuilder propertyListBuilder;
+
+    @Test
+    public void addPropertyTest() {
+        Property<String> property = mock(Property.class);
+        propertyListBuilder.add(property);
+        verify(property, times(1)).setParent(any());
+    }
+
+    @Test
+    public void addPropertyNullTest() {
+        try {
+            propertyListBuilder.add(null);
+            fail("Expected ConfigMeException");
+        } catch (ConfigMeException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void createEmptyListTest() {
+        List<Property<?>> properties = propertyListBuilder.create();
+        assertNotNull(properties);
+        assertTrue(properties.isEmpty());
+    }
+
+    @Test
+    public void createListWithPropertyTest() {
+        Property<String> property = mock(Property.class);
+        propertyListBuilder.add(property);
+        List<Property<?>> properties = propertyListBuilder.create();
+        assertNotNull(properties);
+        assertEquals(1, properties.size());
+        verify(property, times(1)).setParent(any());
+    }
+
+    @Test
+    public void getRootEntriesEmptyTest() {
+        Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
+        assertNotNull(rootEntries);
+        assertTrue(rootEntries.isEmpty());
+    }
+
+    @Test
+    public void getRootEntriesWithPropertyTest() {
+        Property<String> property = mock(Property.class);
+        propertyListBuilder.add(property);
+        Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
+        assertNotNull(rootEntries);
+        assertEquals(1, rootEntries.size());
+        verify(property, times(1)).setParent(any());
+    }
+
+}

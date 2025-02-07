@@ -1,0 +1,69 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.*;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void urlBuilderConstructorTest_NoInputUrl_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new UrlBuilder(null));
+    }
+
+    @Test
+    public void urlBuilderConstructorTest_ValidUrl_ConstructsUrlBuilder() throws MalformedURLException {
+        URL url = new URL("https://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildTest_NoInputUrl_ThrowsUnsupportedEncodingException() {
+        UrlBuilder urlBuilder = new UrlBuilder(null);
+        assertThrows(UnsupportedEncodingException.class, urlBuilder::build);
+    }
+
+    @Test
+    public void buildTest_ValidUrl_ReturnsInputUrl() throws MalformedURLException, UnsupportedEncodingException {
+        URL url = new URL("https://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals(url, urlBuilder.build());
+    }
+
+    @Test
+    public void appendKeyValTest_NullKeyVal_ThrowsNullPointerException() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://www.example.com"));
+        assertThrows(NullPointerException.class, () -> urlBuilder.appendKeyVal(null));
+    }
+
+    @Test
+    public void appendKeyValTest_ValidKeyVal_AppendsKeyValue() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://www.example.com"));
+        Connection.KeyVal keyVal = mock(Connection.KeyVal.class);
+        when(keyVal.getKey()).thenReturn("key");
+        when(keyVal.getValue()).thenReturn("value");
+        urlBuilder.appendKeyVal(keyVal);
+        assertEquals("key=value", urlBuilder.build().getQuery());
+    }
+
+}

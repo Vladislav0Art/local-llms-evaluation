@@ -1,0 +1,79 @@
+package net.revelc.code.formatter.css;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @InjectMocks
+    private CssFormatter formatter;
+
+    @Test
+    public void init_EmptyOptions_ReturnsTrue() {
+        Map<String, String> options = Map.of();
+        ConfigurationSource cfg = new ConfigurationSource();
+        formatter.init(options, cfg);
+        assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void init_NullOptions_ThrowsNullPointerException() {
+        ConfigurationSource cfg = new ConfigurationSource();
+        assertThrows(NullPointerException.class, () -> formatter.init(null, cfg));
+    }
+
+    @Test
+    public void init_NullConfigurationSource_ThrowsNullPointerException() {
+        Map<String, String> options = Map.of();
+        assertThrows(NullPointerException.class, () -> formatter.init(options, null));
+    }
+
+    @Test
+    public void doFormat_NullCode_ThrowsNullPointerException() {
+        LineEnding ending = new LineEnding();
+        assertThrows(NullPointerException.class, () -> formatter.doFormat(null, ending));
+    }
+
+    @Test
+    public void doFormat_EmptyCode_ReturnsEmptyString() throws IOException {
+        LineEnding ending = new LineEnding();
+        String result = formatter.doFormat("", ending);
+        assertEquals("", result);
+    }
+
+    @Test
+    public void doFormat_ValidCode_ReturnsFormattedCode() throws IOException {
+        String code = "body { background-color: #f2f2f2; }";
+        LineEnding ending = new LineEnding();
+        String result = formatter.doFormat(code, ending);
+        // Add assertion for the formatted code
+    }
+
+    @Test
+    public void isInitialized_Uninitialized_ReturnsFalse() {
+        assertFalse(formatter.isInitialized());
+    }
+
+    @Test
+    public void isInitialized_Initialized_ReturnsTrue() {
+        Map<String, String> options = Map.of();
+        ConfigurationSource cfg = new ConfigurationSource();
+        formatter.init(options, cfg);
+        assertTrue(formatter.isInitialized());
+    }
+
+}

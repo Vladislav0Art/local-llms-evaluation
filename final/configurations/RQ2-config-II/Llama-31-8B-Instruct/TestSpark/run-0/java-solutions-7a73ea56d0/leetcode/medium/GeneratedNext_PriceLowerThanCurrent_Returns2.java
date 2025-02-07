@@ -1,0 +1,26 @@
+package leetcode.medium;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedNext_PriceLowerThanCurrent_Returns2 {
+
+    @InjectMocks
+    private OnlineStockSpan onlineStockSpan;
+
+    @Test
+    public void next_PriceLowerThanCurrent_Returns2() {
+        onlineStockSpan.next(10);
+        onlineStockSpan.next(20);
+        int result = onlineStockSpan.next(15);
+        assertEquals(2, result);
+    }
+
+}
