@@ -1,0 +1,141 @@
+package org.jsoup.safety;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Element element;
+
+    @Test
+    public void none_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.none();
+        assertTrue(safelist.isSafeTag("a"));
+        assertFalse(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void simpleText_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.simpleText();
+        assertTrue(safelist.isSafeTag("img"));
+        assertTrue(safelist.isSafeTag("br"));
+        assertFalse(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void basic_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.basic();
+        assertTrue(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeTag("img"));
+        assertTrue(safelist.isSafeTag("br"));
+    }
+
+    @Test
+    public void basicWithImages_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.basicWithImages();
+        assertTrue(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeTag("img"));
+        assertTrue(safelist.isSafeTag("br"));
+        assertFalse(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void relaxed_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.relaxed();
+        assertTrue(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeTag("img"));
+        assertTrue(safelist.isSafeTag("br"));
+        assertTrue(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void addTags_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.addTags();
+        assertFalse(safelist.isSafeTag("a"));
+        assertFalse(safelist.isSafeTag("img"));
+        assertFalse(safelist.isSafeTag("br"));
+        assertTrue(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void removeTags_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.removeTags();
+        assertTrue(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeTag("img"));
+        assertTrue(safelist.isSafeTag("br"));
+        assertFalse(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void addAttributes_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.addAttributes();
+        assertFalse(safelist.isSafeTag("a"));
+        assertFalse(safelist.isSafeTag("img"));
+        assertTrue(safelist.isSafeTag("br"));
+    }
+
+    @Test
+    public void removeAttributes_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.removeAttributes();
+        assertTrue(safelist.isSafeTag("a"));
+        assertTrue(safelist.isSafeTag("img"));
+        assertFalse(safelist.isSafeTag("br"));
+    }
+
+    @Test
+    public void addEnforcedAttribute_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.addEnforcedAttribute();
+        assertTrue(saflist.isSafeTag("a"));
+        assertTrue(saflist.isSafeTag("img"));
+        assertFalse(saflist.isSafeTag("br"));
+    }
+
+    @Test
+    public void removeEnforcedAttribute_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.removeEnforcedAttribute();
+        assertTrue(saflist.isSafeTag("a"));
+        assertTrue(saflist.isSafeTag("img"));
+        assertTrue(saflist.isSafeTag("br"));
+    }
+
+    @Test
+    public void preserveRelativeLinks_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.preserveRelativeLinks();
+        assertTrue(saflist.isSafeTag("a"));
+        assertTrue(saflist.isSafeTag("img"));
+        assertTrue(saflist.isSafeTag("br"));
+        assertFalse(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void addProtocols_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.addProtocols();
+        assertTrue(saflist.isSafeTag("a"));
+        assertTrue(saflist.isSafeTag("img"));
+        assertTrue(saflist.isSafeTag("br"));
+        assertFalse(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void removeProtocols_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.removeProtocols();
+        assertTrue(saflist.isSafeTag("a"));
+        assertTrue(saflist.isSafeTag("img"));
+        assertTrue(saflist.isSafeTag("br"));
+        assertFalse(safelist.isSafeTag("b"));
+    }
+
+    @Test
+    public void getEnforcedAttributes_SafeTags_ReturnsEmptySafelist() {
+        Safelist safelist = Safelist.getEnforcedAttributes();
+        assertEquals(new Attributes(), safelist.getEnforcedAttributes("a"));
+    }
+
+}

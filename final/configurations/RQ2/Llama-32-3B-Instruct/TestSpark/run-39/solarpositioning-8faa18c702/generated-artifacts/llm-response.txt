@@ -1,0 +1,344 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class DeltaTTest {
+
+    @Mock
+    private LocalDate forDate;
+
+    @Test
+    public void estimateEmptyInput_ReturnsZero() {
+        when(forDate.toLocalDate()).thenReturn(LocalDate.MIN);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 1e-6);
+    }
+
+    @Test
+    public void estimateDifferentDates_ReturnsCorrectValue() {
+        LocalDate date1 = LocalDate.of(2022, 12, 15);
+        LocalDate date2 = LocalDate.of(2023, 12, 15);
+        when(forDate.toLocalDate()).thenReturn(date1);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(date2.getYear() - date1.getYear(), result, 1e-6);
+    }
+
+    @Test
+    public void estimateSameDayDifferentYears_ReturnsCorrectValue() {
+        LocalDate date1 = LocalDate.of(2022, 12, 15);
+        LocalDate date2 = LocalDate.of(2023, 12, 15);
+        when(forDate.toLocalDate()).thenReturn(date1);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(date2.getMonthValue() - date1.getMonthValue(), result, 1e-6);
+    }
+
+    @Test
+    public void estimateSameMonthDifferentDays_ReturnsCorrectValue() {
+        LocalDate date1 = LocalDate.of(2022, 12, 15);
+        LocalDate date2 = LocalDate.of(2023, 12, 16);
+        when(forDate.toLocalDate()).thenReturn(date1);
+        double result = DeltaT.estimate(forDate);
+        assertEquals((date2.getDayOfMonth() - date1.getDayOfMonth()) * pow(30, -1), result, 1e-6);
+    }
+
+    @Test
+    public void estimateSameDayDifferentDays_ReturnsCorrectValue() {
+        LocalDate date1 = LocalDate.of(2022, 12, 15);
+        LocalDate date2 = LocalDate.of(2023, 12, 15);
+        when(forDate.toLocalDate()).thenReturn(date1);
+        double result = DeltaT.estimate(forDate);
+        assertEquals((date2.getDayOfMonth() - date1.getDayOfMonth()) * pow(30, -1), result, 1e-6);
+    }
+
+    @Test
+    public void estimateNullInput_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> DeltaT.estimate(null));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class DeltaTTest {
+
+    @Mock
+    private LocalDate forDate;
+
+    public void setup() {
+        when(forDate.atDayOfMonth(1)).thenReturn(LocalDate.of(2022, 12, 15));
+    }
+
+    @Test
+    public void estimateEmptyInput_ReturnsZero() {
+        setup();
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 1e-6);
+    }
+
+    @Test
+    public void estimateDifferentDates_ReturnsCorrectValue() {
+        when(forDate.atDayOfMonth(30)).thenReturn(LocalDate.of(2023, 12, 15));
+        double result = DeltaT.estimate(forDate);
+        assertEquals(1, result, 1e-6);
+    }
+
+    @Test
+    public void estimateSameDayDifferentYears_ReturnsCorrectValue() {
+        setup();
+        double result = DeltaT.estimate(forDate);
+        assertEquals(1, result, 1e-6);
+    }
+
+    @Test
+    public void estimateSameMonthDifferentDays_ReturnsCorrectValue() {
+        when(forDate.atDayOfMonth(31)).thenReturn(LocalDate.of(2023, 12, 16));
+        double result = DeltaT.estimate(forDate);
+        assertEquals(-15d / 30d, result, 1e-6);
+    }
+
+    @Test
+    public void estimateSameDayDifferentDays_ReturnsCorrectValue() {
+        setup();
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 1e-6);
+    }
+
+    @Test
+    public void estimateNullInput_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> DeltaT.estimate(null));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.time.LocalDate;
+import java.time.Month;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class DeltaTTest {
+
+    @Mock
+    private LocalDate forDate;
+
+    public void setup() {
+        when(forDate.atDayOfMonth(1)).thenReturn(LocalDate.of(2022, Month.DECEMBER, 15));
+        when(forDate.atDayOfMonth(30)).thenReturn(LocalDate.of(2023, Month.DECEMBER, 15));
+        when(forDate.atDayOfMonth(31)).thenReturn(LocalDate.of(2024, Month.DECEMBER, 16));
+    }
+
+    @Test
+    public void estimateEmptyInput_ReturnsZero() {
+        setup();
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 1e-6);
+    }
+
+    @Test
+    public void estimateDifferentDates_ReturnsCorrectValue() {
+        when(forDate.atDayOfMonth(30)).thenReturn(LocalDate.of(2023, Month.DECEMBER, 15));
+        double result = DeltaT.estimate(forDate);
+        assertEquals(1, result, 1e-6);
+    }
+
+    @Test
+    public void estimateSameDayDifferentYears_ReturnsCorrectValue() {
+        setup();
+        double result = DeltaT.estimate(forDate);
+        assertEquals(1, result, 1e-6);
+    }
+
+    @Test
+    public void estimateSameMonthDifferentDays_ReturnsCorrectValue() {
+        when(forDate.atDayOfMonth(31)).thenReturn(LocalDate.of(2023, Month.DECEMBER, 16));
+        double result = DeltaT.estimate(forDate);
+        assertEquals(-15d / 30d, result, 1e-6);
+    }
+
+    @Test
+    public void estimateSameDayDifferentDays_ReturnsCorrectValue() {
+        setup();
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 1e-6);
+    }
+
+    @Test
+    public void estimateNullInput_ThrowsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> DeltaT.estimate(null));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import java.time.LocalDate;
+import java.time.Month;
+
+public class DeltaT {
+
+    public static double estimate(LocalDate forDate) {
+        // Implementation of DeltaT estimation method
+    }
+
+    public static void main(String[] args) {
+        @org.junit.Test
+        public void testEstimateEmptyInput_ReturnsZero() {
+            LocalDate forDate = LocalDate.of(2022, Month.DECEMBER, 15);
+            double result = estimate(forDate);
+            org.junit.Assert.assertEquals(0, result, 1e-6);
+        }
+
+        @org.junit.Test
+        public void testEstimateDifferentDates_ReturnsCorrectValue() {
+            LocalDate forDate = LocalDate.of(2023, Month.DECEMBER, 15);
+            double result = estimate(forDate);
+            org.junit.Assert.assertEquals(1, result, 1e-6);
+        }
+
+        @org.junit.Test
+        public void testEstimateSameDayDifferentYears_ReturnsCorrectValue() {
+            LocalDate forDate = LocalDate.of(2022, Month.DECEMBER, 15);
+            double result = estimate(forDate);
+            org.junit.Assert.assertEquals(1, result, 1e-6);
+        }
+
+        @org.junit.Test
+        public void testEstimateSameMonthDifferentDays_ReturnsCorrectValue() {
+            LocalDate forDate = LocalDate.of(2023, Month.DECEMBER, 16);
+            double result = estimate(forDate);
+            org.junit.Assert.assertEquals(-15d / 30d, result, 1e-6);
+        }
+
+        @org.junit.Test
+        public void testEstimateSameDayDifferentDays_ReturnsCorrectValue() {
+            LocalDate forDate = LocalDate.of(2022, Month.DECEMBER, 16);
+            double result = estimate(forDate);
+            org.junit.Assert.assertEquals(0, result, 1e-6);
+        }
+
+        @org.junit.Test
+        public void testEstimateNullInput_ThrowsNullPointerException() {
+            assert org.junit.Assert.fail("Expected NullPointerException");
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class LocalDateUtil {
+
+    public static LocalDate atDayOfMonth(LocalDate date, int dayOfMonth) {
+        return date.withDayOfMonth(dayOfMonth);
+    }
+
+    public void setup() {
+        when(this.atDayOfMonth(this.of(2022, Month.DECEMBER), 1)).thenReturn(of(2022, Month.DECEMBER, 15));
+        when(this.atDayOfMonth(this.of(2023, Month.DECEMBER), 30)).thenReturn(of(2023, Month.DECEMBER, 15));
+        when(this.atDayOfMonth(this.of(2024, Month.DECEMBER), 31)).thenReturn(of(2024, Month.DECEMBER, 16));
+    }
+
+    public LocalDate of(int year, Month month) {
+        return LocalDate.of(year, month.value(), 1);
+    }
+}
+
+public class DeltaT {
+
+    private static final LocalDateUtil localDateUtil = new LocalDateUtil();
+
+    public static double estimate(LocalDate forDate) {
+        // Implementation of DeltaT estimation method
+    }
+
+    @org.junit.Test
+    public void testEstimateEmptyInput_ReturnsZero() {
+        LocalDate forDate = localDateUtil.of(2022, Month.DECEMBER);
+        double result = estimate(forDate);
+        org.junit.Assert.assertEquals(0, result, 1e-6);
+    }
+
+    @org.junit.Test
+    public void testEstimateDifferentDates_ReturnsCorrectValue() {
+        LocalDate forDate = localDateUtil.of(2023, Month.DECEMBER);
+        double result = estimate(forDate);
+        org.junit.Assert.assertEquals(1, result, 1e-6);
+    }
+
+    @org.junit.Test
+    public void testEstimateSameDayDifferentYears_ReturnsCorrectValue() {
+        LocalDate forDate = localDateUtil.of(2022, Month.DECEMBER);
+        double result = estimate(forDate);
+        org.junit.Assert.assertEquals(1, result, 1e-6);
+    }
+
+    @org.junit.Test
+    public void testEstimateSameMonthDifferentDays_ReturnsCorrectValue() {
+        LocalDate forDate = localDateUtil.of(2023, Month.DECEMBER).withDayOfMonth(16);
+        double result = estimate(forDate);
+        org.junit.Assert.assertEquals(-15d / 30d, result, 1e-6);
+    }
+
+    @org.junit.Test
+    public void testEstimateSameDayDifferentDays_ReturnsCorrectValue() {
+        LocalDate forDate = localDateUtil.of(2022, Month.DECEMBER).withDayOfMonth(16);
+        double result = estimate(forDate);
+        org.junit.Assert.assertEquals(0, result, 1e-6);
+    }
+
+    @org.junit.Test
+    public void testEstimateNullInput_ThrowsNullPointerException() {
+        assert org.junit.Assert.fail("Expected NullPointerException");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

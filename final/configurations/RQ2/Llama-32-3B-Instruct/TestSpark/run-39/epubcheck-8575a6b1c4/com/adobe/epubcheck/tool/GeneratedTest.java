@@ -1,0 +1,117 @@
+package com.adobe.epubcheck.tool;
+
+public class GeneratedTest {
+
+    private EpubChecker eps;
+
+    @Before
+    public void setUp() throws Exception {
+        eps = new EpubChecker();
+    }
+
+    @Test
+    public void getLocale_GermanLocaleReturnsCorrectValue() {
+        Locale locale = eps.getLocale();
+        assertEquals(Locale.GERMAN, locale);
+    }
+
+    @Test
+    public void getLocale_InvalidLocaleThrowsException() {
+        try {
+            eps.getLocale();
+            fail("Expected exception not thrown");
+        } catch (UnsupportedOperationException e) {
+            assertEquals(Messages.LOCALE_NOT_SUPPORTED, e.getMessage());
+        }
+    }
+
+    @Test
+    public void run_EmptyArgsReturnsZero() {
+        int result = eps.run(new String[]{});
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void run_MultipleArgsReturnsCorrectValue() {
+        int result = eps.run(new String[]{"arg1", "arg2"});
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void run_InvalidArgsThrowsException() {
+        try {
+            eps.run(new String[]{});
+            fail("Expected exception not thrown");
+        } catch (IllegalArgumentException e) {
+            assertEquals(Messages.INVALID_ARGS, e.getMessage());
+        }
+    }
+
+    @Test
+    public void processEpubFile_GermanProfileReturnsCorrectValue() {
+        int result = eps.processEpubFile(new String[]{"arg1", "arg2"});
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void processEpubFile_InvalidArgsThrowsException() {
+        try {
+            eps.processEpubFile(new String[]{});
+            fail("Expected exception not thrown");
+        } catch (IllegalArgumentException e) {
+            assertEquals(Messages.INVALID_ARGS, e.getMessage());
+        }
+    }
+
+    @Test
+    public void validateFile_ValidFileReturnsZero() throws Exception {
+        File file = createTestFile();
+        int result = eps.validateFile(file.toPath(), EPUBVersion.V3_0_2, new Report(), new EPUBProfile());
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void validateFile_InvalidFileThrowsException() {
+        try {
+            eps.validateFile(new File("non_existent_file"), EPUBVersion.V3_0_2, new Report(), new EPUBProfile());
+            fail("Expected exception not thrown");
+        } catch (FileNotFoundException e) {
+            assertEquals(Messages.FILE_NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @Test
+    public void validateFile_ValidFileWithErrorsReturnsCorrectValue() throws Exception {
+        File file = createTestFile();
+        Map<String, String> errors = new HashMap<>();
+        eps.validateFile(file.toPath(), EPUBVersion.V3_0_2, new Report() {
+        }, new EPUBProfile());
+        assertEquals(1, errors.size());
+    }
+
+    @Test
+    public void validateFile_ValidFileWithWarningsReturnsCorrectValue() throws Exception {
+        File file = createTestFile();
+        Map<String, String> warnings = new HashMap<>();
+        eps.validateFile(file.toPath(), EPUBVersion.V3_0_2, new Report() {
+        }, new EPUBProfile());
+        assertEquals(1, warnings.size());
+    }
+
+    @Test
+    public void validateFile_ValidFileNoErrorsReturnsZero() throws Exception {
+        File file = createTestFile();
+        int result = eps.validateFile(file.toPath(), EPUBVersion.V3_0_2, new Report() {
+        }, new EPUBProfile());
+        assertEquals(0, result);
+    }
+
+    private File createTestFile() throws IOException {
+        File file = File.createTempFile("test_file", ".epub");
+        try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
+            writer.println("This is a test file.");
+        }
+        return file;
+    }
+
+}

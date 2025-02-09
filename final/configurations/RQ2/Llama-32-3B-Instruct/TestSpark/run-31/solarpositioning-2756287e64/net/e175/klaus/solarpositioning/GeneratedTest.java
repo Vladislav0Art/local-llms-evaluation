@@ -1,0 +1,120 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.time.ZonedDateTime;
+import java.time.ZoneOffset;
+import java.lang.Math;
+
+import static java.lang.Math.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSolarPosition_WithValidDateAndLatitude_ReturnsCorrectAzimuthZenithAngle() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 40.7128; // New York
+        double longitude = -74.0060;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithInvalidDate_ReturnsNaN() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC).minusDays(1);
+        double latitude = 40.7128; // New York
+        double longitude = -74.0060;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0);
+        Double expected = Double.NaN;
+        assertEquals(expected, result.getAzimuth(), 1e-9);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithNegativeLatitude_ReturnsNaN() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = -40.7128; // New York
+        double longitude = -74.0060;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0);
+        Double expected = Double.NaN;
+        assertEquals(expected, result.getAzimuth(), 1e-9);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithPositiveLatitude_ReturnsCorrectAzimuthZenithAngle() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 40.7128; // New York
+        double longitude = -74.0060;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0, 101325, 15.0);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithNegativeLongitude_ReturnsNaN() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 40.7128; // New York
+        double longitude = -74.0060;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0, 101325, 15.0);
+        Double expected = Double.NaN;
+        assertEquals(expected, result.getAzimuth(), 1e-9);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithNaNLongitude_ReturnsNaN() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 40.7128; // New York
+        double longitude = Double.NaN;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0, 101325, 15.0);
+        Double expected = Double.NaN;
+        assertEquals(expected, result.getAzimuth(), 1e-9);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithInvalidDeltaT_ReturnsNaN() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 40.7128; // New York
+        double longitude = -74.0060;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, Double.NaN);
+        Double expected = Double.NaN;
+        assertEquals(expected, result.getAzimuth(), 1e-9);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithInvalidPressure_ReturnsNaN() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 40.7128; // New York
+        double longitude = -74.0060;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0, Double.NaN, 15.0);
+        Double expected = Double.NaN;
+        assertEquals(expected, result.getAzimuth(), 1e-9);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithInvalidTemperature_ReturnsNaN() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 40.7128; // New York
+        double longitude = -74.0060;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0, 101325, Double.NaN);
+        Double expected = Double.NaN;
+        assertEquals(expected, result.getAzimuth(), 1e-9);
+    }
+
+    @Test
+    public void calculateSolarPosition_WithMultipleInputs_ReturnsCorrectAzimuthZenithAngle() {
+        ZonedDateTime date = ZonedDateTime.now(ZoneOffset.UTC);
+        double latitude = 40.7128; // New York
+        double longitude = -74.0060;
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, 0.0, 101325, 15.0);
+        assertNotNull(result);
+    }
+
+}
+
+class MockCalculator {
+
+    public static void setMockValue(String value) {
+        // Implement mock value setting
+    }
+
+}

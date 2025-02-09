@@ -1,0 +1,123 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorTextTest() {
+        String text = "Hello, World!";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.text());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("");
+        assertEquals("text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        String text = "Hello, World!";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        String text = "Hello, World!";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest1() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlankTest2() {
+        TextNode textNode = new TextNode("   ");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void isBlankTest3() {
+        TextNode textNode = new TextNode("Hello");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest1() throws IOException {
+        String text = "Hello, World!";
+        StringBuilder sb = new StringBuilder();
+        int offset = 0;
+        TextNode textNode = new TextNode(text);
+        TextNode result = textNode.splitText(offset);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void splitTextTest2() throws IOException {
+        String text = "Hello, World!";
+        StringBuilder sb = new StringBuilder();
+        int offset = 5;
+        TextNode textNode = new TextNode(text);
+        TextNode result = textNode.splitText(offset);
+        assertNotNull(result);
+        assertEquals("World!", result.text());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        String text = "Hello, World!";
+        StringBuilder sb = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        Appendable accum = new StringBuffer();
+        TextNode textNode = new TextNode(text);
+        textNode.outerHtmlHead(accum, 0, out);
+        assertNotNull(accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        String text = "Hello, World!";
+        StringBuilder sb = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        Appendable accum = new StringBuffer();
+        TextNode textNode = new TextNode(text);
+        textNode.outerHtmlTail(accum, 0, out);
+        assertNotNull(accum.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        String text = "Hello, World!";
+        TextNode textNode = new TextNode(text);
+        assertEquals("text='" + text + "'", textNode.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        String text = "Hello, World!";
+        TextNode textNode = new TextNode(text);
+        TextNode cloned = textNode.clone();
+        assertNotNull(cloned);
+        assertEquals(text, cloned.text());
+    }
+
+    @Test
+    public void createFromEncodedTest() throws IOException {
+        String encodedText = "Hello, World!";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        assertNotNull(textNode);
+        assertEquals(encodedText, textNode.text());
+    }
+
+}

@@ -1,0 +1,18 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+public class GeneratedEqualsWithSameKeyPairReturnsTrue {
+
+    @Test
+    public void equalsWithSameKeyPairReturnsTrue() {
+        KeyPair keyPair1 = new KeyPair();
+        KeyPair keyPair2 = new KeyPair();
+        assertTrue(keyPair1.equals(keyPair2));
+    }
+
+}

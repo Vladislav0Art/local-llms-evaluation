@@ -1,0 +1,191 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    private String name;
+    private boolean selfClosing;
+
+    public static Tag clone(String tagName) {
+        return new Tag(tagName);
+    }
+
+    public void setSelfClosing(boolean selfClosing) {
+        this.selfClosing = selfClosing;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Tag(String name) {
+        this.name = name;
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void getName_ValidTagName_ReturnsTagName() throws Exception {
+        String tagName = "div";
+        String expectedName = "div";
+        Method method = Tag.class.getMethod("getName");
+        assertEquals(expectedName, (String) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void normalName_ValidTagName_ReturnsNormalizedTagName() throws Exception {
+        String tagName = "div";
+        String expectedNormalName = "div";
+        Method method = Tag.class.getMethod("normalName", String.class);
+        assertEquals(expectedNormalName, (String) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void valueOf_ValidTagName_ReturnsTag() throws Exception {
+        String tagName = "img";
+        Object expectedTag = new Object();
+        Method method = Tag.class.getMethod("valueOf", String.class);
+        assertSame(expectedTag, (Object) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void isBlock_ValidTagName_ReturnsBlockStatus() throws Exception {
+        String tagName = "p";
+        boolean expectedBlock = false;
+        Method method = Tag.class.getMethod("isBlock", String.class);
+        assertEquals(expectedBlock, (boolean) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void formatAsBlock_ValidTagName_ReturnsBlockFormatStatus() throws Exception {
+        String tagName = "p";
+        boolean expectedBlockFormat = false;
+        Method method = Tag.class.getMethod("formatAsBlock", String.class);
+        assertEquals(expectedBlockFormat, (boolean) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void isInline_ValidTagName_ReturnsInlineStatus() throws Exception {
+        String tagName = "span";
+        boolean expectedInline = true;
+        Method method = Tag.class.getMethod("isInline", String.class);
+        assertEquals(expectedInline, (boolean) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void isEmpty_ValidTagName_ReturnsEmptyStatus() throws Exception {
+        String tagName = "img";
+        boolean expectedEmpty = false;
+        Method method = Tag.class.getMethod("isEmpty", String.class);
+        assertEquals(expectedEmpty, (boolean) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void isSelfClosing_ValidTagName_ReturnsSelfClosingStatus() throws Exception {
+        String tagName = "img";
+        boolean expectedSelfClosing = true;
+        Method method = Tag.class.getMethod("isSelfClosing", String.class);
+        assertEquals(expectedSelfClosing, (boolean) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void isKnownTag_ValidTagName_ReturnsKnownStatus() throws Exception {
+        String tagName = "img";
+        boolean expectedKnown = true;
+        Method method = Tag.class.getMethod("isKnownTag", String.class);
+        assertEquals(expectedKnown, (boolean) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void isFormListed_ValidTagName_ReturnsFormListedStatus() throws Exception {
+        String tagName = "form";
+        boolean expectedFormListed = true;
+        Method method = Tag.class.getMethod("isFormListed", String.class);
+        assertEquals(expectedFormListed, (boolean) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void isFormSubmittable_ValidTagName_ReturnsFormSubmittableStatus() throws Exception {
+        String tagName = "form";
+        boolean expectedFormSubmittable = true;
+        Method method = Tag.class.getMethod("isFormSubmittable", String.class);
+        assertEquals(expectedFormSubmittable, (boolean) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void setSelfClosing_ValidTagName_SetSelfClosingStatus() throws Exception {
+        String tagName = "img";
+        boolean expectedSelfClosing = true;
+        Method method = Tag.class.getMethod("setSelfClosing", String.class);
+        assertTrue((Boolean) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void equals_ValidTags_ReturnsEqualStatus() throws Exception {
+        String tagName1 = "div";
+        String tagName2 = "div";
+        boolean expectedEqual = true;
+        Method method = Tag.class.getMethod("equals", Object.class);
+        assertTrue((boolean) method.invoke(null, tagName1, tagName2));
+    }
+
+    @Test
+    public void equals_ValidTags_DifferentStatus_ReturnsUnequalStatus() throws Exception {
+        String tagName1 = "div";
+        String tagName2 = "span";
+        boolean expectedEqual = false;
+        Method method = Tag.class.getMethod("equals", Object.class);
+        assertFalse((boolean) method.invoke(null, tagName1, tagName2));
+    }
+
+    @Test
+    public void hashCode_ValidTagName_ReturnsSameHashcode() throws Exception {
+        String tagName1 = "div";
+        String tagName2 = "div";
+        int expectedHashcode = 12345;
+        Method method = Tag.class.getMethod("hashCode", String.class);
+        assertEquals(expectedHashcode, (int) method.invoke(null, tagName1));
+    }
+
+    @Test
+    public void toString_ValidTagName_ReturnsValidString() throws Exception {
+        String tagName = "div";
+        String expectedString = "<div></div>";
+        Method method = Tag.class.getMethod("toString", String.class);
+        assertEquals(expectedString, (String) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void getName_ValidTagName_ReturnsTagName() throws Exception {
+        String tagName = "div";
+        String expectedName = "div";
+        Method method = Tag.class.getMethod("getName", String.class);
+        assertEquals(expectedName, (String) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void getName_EmptyTagName_ReturnsEmptyString() throws Exception {
+        String tagName = "";
+        String expectedName = "";
+        Method method = Tag.class.getMethod("getName", String.class);
+        assertEquals(expectedName, (String) method.invoke(null, tagName));
+    }
+
+    @Test
+    public void setSelfClosing_ValidTags_SetSelfClosingStatus() throws Exception {
+        String tagName = "img";
+        boolean expectedSelfClosing = true;
+        Method method = Tag.class.getMethod("setSelfClosing", boolean.class);
+        assertTrue((boolean) method.invoke(null, expectedSelfClosing));
+    }
+
+}

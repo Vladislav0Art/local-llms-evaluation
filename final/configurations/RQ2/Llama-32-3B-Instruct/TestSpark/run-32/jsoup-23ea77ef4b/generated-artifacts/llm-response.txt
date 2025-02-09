@@ -1,0 +1,490 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.select.NodeVisitor;
+import org.jsoup.helper.W3CDom;
+
+public class W3CDomTest {
+
+    @Test
+    public void namespaceAware_ReturnsTrue() {
+        assertTrue(W3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAware_SetsNamespaceAwareFlag() {
+        boolean namespaceAware = false;
+        W3CDom w3cdom = new W3CDom();
+        w3cdom.namespaceAware(namespaceAware);
+        assertTrue(namespaceAware);
+    }
+
+    @Test
+    public void convert_FromJsoup_Document() throws Exception {
+        Document inDoc = new Document();
+        Document outDoc = W3CDom.convert(inDoc);
+        assertNotNull(outDoc);
+    }
+
+    @Test
+    public void asString_FromDocument_WithProperties() throws Exception {
+        Properties properties = new Properties();
+        properties.put("property", "value");
+        String expected = "<div property=\"value\">Hello</div>";
+        Document inDoc = new Document();
+        inDoc.appendChild(new Element("div").appendText("Hello"));
+        assertEquals(expected, W3CDom.asString(inDoc, properties));
+    }
+
+    @Test
+    public void OutputHtml() {
+        HashMap<String, String> expected = new HashMap<>();
+        expected.put("method", "html");
+        assertEquals(expected, W3CDom.OutputHtml());
+    }
+
+    @Test
+    public void OutputXml() {
+        HashMap<String, String> expected = new HashMap<>();
+        expected.put("method", "xml");
+        assertEquals(expected, W3CDom.OutputXml());
+    }
+
+    @Test
+    public void fromJsoup_FromDocument() throws Exception {
+        Document inDoc = new Document();
+        Document outDoc = W3CDom.fromJsoup(inDoc);
+        assertNotNull(outDoc);
+    }
+
+    @Test
+    public void fromJsoup_FromElement() throws Exception {
+        Element inElement = new Element("div").appendText("Hello");
+        Document outDoc = W3CDom.fromJsoup(inElement);
+        assertNotNull(outDoc);
+    }
+
+    @Test
+    public void convert_FromDocument_ToDocument() throws Exception {
+        Document inDoc = new Document();
+        Document outDoc = new Document();
+        W3CDom.convert(inDoc, outDoc);
+        assertEquals(0, outDoc.nodes().size());
+    }
+
+    @Test
+    public void convert_FromElement_ToDocument() throws Exception {
+        Element inElement = new Element("div").appendText("Hello");
+        Document outDoc = new Document();
+        W3CDom.convert(inElement, outDoc);
+        assertEquals(1, outDoc.nodes().size());
+    }
+
+    @Test
+    public void selectXpath_FromContextNode() throws Exception {
+        Node contextNode = new Node();
+        NodeList nodeList = W3CDom.selectXpath("//div", contextNode);
+        assertNotNull(nodeList);
+    }
+
+    @Test
+    public void selectXpath_FromDocument() throws Exception {
+        Document inDoc = new Document();
+        inDoc.appendChild(new Element("div").appendText("Hello"));
+        NodeList nodeList = W3CDom.selectXpath("//div", inDoc);
+        assertEquals(1, nodeList.size());
+    }
+
+    @Test
+    public void sourceNodes_FromNodeList() throws Exception {
+        NodeList nodeList = new NodeList();
+        List<Node> expected = new ArrayList<>();
+        expected.add(new Node());
+        List<Node> result = W3CDom.sourceNodes(nodeList, Node.class);
+        assertEquals(expected, result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Node {
+    private int id;
+
+    public Node(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+}
+
+public class NodeList {
+    private List<Node> elements;
+
+    public NodeList() {
+        this.elements = new ArrayList<>();
+    }
+
+    public void add(Node element) {
+        this.elements.add(element);
+    }
+
+    public List<Node> getElements() {
+        return elements;
+    }
+
+    @FunctionalInterface
+    interface Factory<T> {
+        T create();
+    }
+
+    public static <T> List<T> sourceNodes(NodeList nodeList, Class<T> clazz) {
+        List<T> result = new ArrayList<>();
+        for (Node node : nodeList.getElements()) {
+            if (clazz.isInstance(node)) {
+                result.add(clazz.getConstructor(int.class).newInstance(node.getId()));
+            }
+        }
+        return result;
+    }
+
+    public static NodeList copy(NodeList original) {
+        NodeList copy = new NodeList();
+        for (Node node : original.getElements()) {
+            copy.addElement(new Node(node.getId()));
+        }
+        return copy;
+    }
+}
+
+public class W3CDom {
+    public static NodeList selectXpath(String xpath, String html) {
+        // Implement XPATH parsing logic here
+        // For simplicity, let's assume we have a simple HTML parser
+        return NodeList.copy(new NodeList());
+    }
+
+    public static List<Node> sourceNodes(NodeList nodeList, Class<Node> clazz) {
+        return NodeList.sourceNodes(nodeList, clazz);
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void testSelectXpath() {
+        String html = "<div><p id='para'>Hello</p></div>";
+        NodeList result = W3CDom.selectXpath("//div//p[@id='para']", html);
+        List<Node> nodes = W3CDom.sourceNodes(result, Node.class);
+        for (Node node : nodes) {
+            System.out.println(node.getId());
+        }
+    }
+
+    @Test
+    public void testSourceNodes() {
+        NodeList nodeList = new NodeList();
+        nodeList.addElement(new Node(1));
+        nodeList.addElement(new Node(2));
+        List<Node> result = W3CDom.sourceNodes(nodeList, Node.class);
+        for (Node node : result) {
+            System.out.println(node.getId());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class Node {
+    private int id;
+
+    public Node(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+}
+
+public class NodeList {
+    private List<Node> elements;
+
+    public NodeList() {
+        this.elements = new ArrayList<>();
+    }
+
+    public void add(Node element) {
+        this.elements.add(element);
+    }
+
+    public List<Node> getElements() {
+        return elements;
+    }
+}
+
+public class Element {
+    private String html;
+
+    public Element(String html) {
+        this.html = html;
+    }
+
+    public Document parse() {
+        return Jsoup.parse(this.html);
+    }
+}
+
+public class W3CDom {
+    public static NodeList selectXpath(String xpath, String html) {
+        Element element = new Element(html);
+        Document document = element.parse();
+        Element targetElement = document.selectFirst(xpath);
+        NodeList nodeList = new NodeList();
+        if (targetElement != null) {
+            nodeList.addElement(new Node(targetElement.id()));
+        }
+        return nodeList;
+    }
+}
+
+public class GeneratedTest {
+
+    @org.junit.Test
+    public void testSelectXpath() {
+        String html = "<div><p id='para'>Hello</p></div>";
+        NodeList result = W3CDom.selectXpath("//div//p[@id='para']", html);
+        List<Node> nodes = W3CDom.sourceNodes(result, Node.class);
+        for (Node node : nodes) {
+            System.out.println(node.getId());
+        }
+    }
+
+    @org.junit.Test
+    public void testSourceNodes() {
+        NodeList nodeList = new NodeList();
+        nodeList.addElement(new Node(1));
+        nodeList.addElement(new Node(2));
+        List<Node> result = W3CDom.sourceNodes(nodeList, Node.class);
+        for (Node node : result) {
+            System.out.println(node.getId());
+        }
+    }
+
+    @org.junit.Test
+    public void testSelectXpathWithJsoup() {
+        String html = "<div><p id='para'>Hello</p></div>";
+        NodeList result = W3CDom.selectXpath("//div//p[@id='para']", html);
+        List<Node> nodes = W3CDom.sourceNodes(result, Node.class);
+        for (Node node : nodes) {
+            System.out.println(node.getId());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class GeneratedTest {
+
+    public static void main(String[] args) {
+        @org.junit.Test
+        public void testSelectXpath() {
+            String html = "<div><p id='para'>Hello</p></div>";
+            NodeList result = W3CDom.selectXpath("//div//p[@id='para']", html);
+            List<Node> nodes = W3CDom.sourceNodes(result, Node.class);
+            for (Node node : nodes) {
+                System.out.println(node.getId());
+            }
+        }
+
+        @org.junit.Test
+        public void testSourceNodes() {
+            NodeList nodeList = new NodeList();
+            nodeList.addElement(new org.jsoup.nodes.Element("1"));
+            nodeList.addElement(new org.jsoup.nodes.Element("2"));
+            List<org.jsoup.nodes.Element> result = W3CDom.sourceNodes(nodeList, org.jsoup.nodes.Element.class);
+            for (org.jsoup.nodes.Element node : result) {
+                System.out.println(node.attr("id"));
+            }
+        }
+
+        @org.junit.Test
+        public void testSelectXpathWithJsoup() {
+            String html = "<div><p id='para'>Hello</p></div>";
+            NodeList result = W3CDom.selectXpath("//div//p[@id='para']", html);
+            List<Node> nodes = W3CDom.sourceNodes(result, Node.class);
+            for (Node node : nodes) {
+                System.out.println(node.getId());
+            }
+        }
+
+        @org.junit.Test
+        public void testParseXhtml() {
+            String xhtml = "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns='http://www.w3.org/1999/xhtml'><body><p id='para'>Hello</p></body></html>";
+            Document document = org.jsoup.nodes.Document.parse(xhtml);
+            List<Node> result = W3CDom.sourceNodes(document, Node.class);
+            for (Node node : result) {
+                System.out.println(node.getId());
+            }
+        }
+    }
+
+}
+
+public class NodeList {
+
+    public static <T> List<T> sourceNodes(NodeList nodeList, Class<T> clazz) {
+        List<T> result = new ArrayList<>();
+        for (org.jsoup.nodes.Element element : nodeList.getElements()) {
+            if (clazz.isInstance(element)) {
+                T t = clazz.getConstructor().newInstance();
+                org.jsoup.nodes.Element tempElement = null;
+                for (org.jsoup.nodes.Element child : element.children()) {
+                    if (child.tagName().equals("p")) {
+                        tempElement = child;
+                        break;
+                    }
+                }
+                if (tempElement != null) {
+                    t.getClass().getMethod("setId", int.class).invoke(t, tempElement.attr("id"));
+                }
+                result.add((T)t);
+            }
+        }
+        return result;
+    }
+
+}
+
+public class W3CDom {
+
+    public static NodeList selectXpath(String xpath, String html) {
+        Document document = org.jsoup.nodes.Document.parse(html);
+        NodeList nodeList = new NodeList();
+        for (org.jsoup.nodes.Element element : document.select(xpath)) {
+            nodeList.addElement(new Node(element.attr("id")));
+        }
+        return nodeList;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Node {
+    public int id;
+
+    public Node(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+}
+
+public class NodeList {
+    private java.util.List<Node> elements;
+
+    public NodeList() {
+        this.elements = new java.util.ArrayList<>();
+    }
+
+    public void add(Node element) {
+        this.elements.add(element);
+    }
+
+    public java.util.List<Node> getElements() {
+        return elements;
+    }
+}
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class Element {
+    private String html;
+
+    public Element(String html) {
+        this.html = html;
+    }
+
+    public Document parse() {
+        return Jsoup.parse(this.html);
+    }
+}
+
+public class W3CDom {
+
+    public static NodeList selectXpath(String xpath, String html) {
+        Document document = Jsoup.parse(html);
+        NodeList nodeList = new NodeList();
+        for(Element element : document.select(xpath)) {
+            nodeList.addElement(new Node(element.attr("id")));
+        }
+        return nodeList;
+    }
+
+}
+
+public class GeneratedTest {
+
+    @org.junit.Test
+    public void testSelectXpath() {
+        String html = "<div><p id='para'>Hello</p></div>";
+        NodeList result = W3CDom.selectXpath("//div//p[@id='para']", html);
+        for(Node node : result.getElements()) {
+            System.out.println(node.getId());
+        }
+    }
+
+    @org.junit.Test
+    public void testSourceNodes() {
+        NodeList nodeList = new NodeList();
+        nodeList.addElement(new Element("<p id='1'>"));
+        nodeList.addElement(new Element("<p id='2'>"));
+        NodeList result = W3CDom.sourceNodes(nodeList, Node.class);
+        for(Node node : result.getElements()) {
+            System.out.println(node.getId());
+        }
+    }
+
+    @org.junit.Test
+    public void testSelectXpathWithJsoup() {
+        String html = "<div><p id='para'>Hello</p></div>";
+        NodeList result = W3CDom.selectXpath("//div//p[@id='para']", html);
+        for(Node node : result.getElements()) {
+            System.out.println(node.getId());
+        }
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

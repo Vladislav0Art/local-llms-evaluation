@@ -1,0 +1,436 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CommentsConfigurationTest {
+
+    @Mock
+    private SettingsHolder settingsHolderMock;
+
+    @InjectMocks
+    private CommentsConfiguration commentsConfiguration;
+
+    @Test
+    public void newCommentConfiguration_isEmpty() {
+        assertNotNull(commentsConfiguration);
+    }
+
+    @Test
+    public void setComment_setsCommentLinesForPath() {
+        when(settingsHolderMock.getComments()).thenReturn(new HashMap<>());
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentsConfiguration.setComment(path, commentLines.toArray(new String[0]));
+        assertEquals(commentLines, commentsConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void setComment_setsEmptyLineWithoutMarkerForNewEntry() {
+        when(settingsHolderMock.getComments()).thenReturn(new HashMap<>());
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("");
+        commentsConfiguration.setComment(path, commentLines.toArray(new String[0]));
+        assertEquals(Collections.singletonList(""), commentsConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void setComment_overridesExistingEntry() {
+        when(settingsHolderMock.getComments()).thenReturn(Map.of("path1", List.of("line1")));
+        String path = "path1";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("newLine");
+        commentsConfiguration.setComment(path, commentLines.toArray(new String[0]));
+        assertEquals(Arrays.asList("newLine"), commentsConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void getAllComments_returnsEmptyMap() {
+        assertNotNull(commentsConfiguration.getAllComments());
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void getAllComments_containsCommentLinesForAllPaths() {
+        when(settingsHolderMock.getComments()).thenReturn(Map.of("path1", List.of("line1"), "path2", List.of("line2")));
+        String path = "path3";
+        List<String> commentLines = new ArrayList<>();
+        commentsConfiguration.setComment(path, commentLines.toArray(new String[0]));
+        assertEquals(Map.of("path1", Arrays.asList("line1"), "path2", Arrays.asList("line2"), "path3", Collections.singletonList("")), commentsConfiguration.getAllComments());
+    }
+
+    @Test
+    public void getAllComments_returnsUnmodifiableView() {
+        when(settingsHolderMock.getComments()).thenReturn(Map.of("path1", List.of("line1")));
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        try {
+            commentsConfiguration.setComment(path, commentLines.toArray(new String[0]));
+            assertEquals(UnsupportedOperationException.class, getStackTrace().length);
+        } catch (UnsupportedOperationException e) {
+            assertEquals(Map.of("path1", Arrays.asList("line1")), commentsConfiguration.getAllComments());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CommentsConfigurationTest {
+
+    @Mock
+    private SettingsHolder settingsHolderMock;
+
+    @InjectMocks
+    private CommentsConfiguration commentsConfiguration;
+
+    @Test
+    public void newCommentConfiguration_isEmpty() {
+        assertNotNull(commentsConfiguration);
+    }
+
+    @Test
+    public void setComment_setsCommentLinesForPath() {
+        when(settingsHolderMock.getComments()).thenReturn(new HashMap<>());
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("");
+        commentsConfiguration.getAllComments().put(path, commentLines);
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+    }
+
+    @Test
+    public void setComment_setsCommentLinesForPath_withMultipleLines() {
+        when(settingsHolderMock.getComments()).thenReturn(new HashMap<>());
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentLines.add("line2");
+        commentsConfiguration.getAllComments().put(path, commentLines);
+        assertEquals(2, commentsConfiguration.getAllComments().size());
+    }
+
+    @Test
+    public void getAllComments_returnsEmptyMapWhenNoCommentLinesAreSet() {
+        assertNotNull(commentsConfiguration.getAllComments());
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void setComment_setsCorrectPathAndValueInCommentsMap() {
+        when(settingsHolderMock.getComments()).thenReturn(new HashMap<>());
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsConfiguration.getAllComments().put(path, commentLines);
+        assertEquals("path", commentsConfiguration.getAllComments().keySet().iterator().next());
+    }
+
+    @Test
+    public void setComment_setsCorrectValueInCommentsMap() {
+        when(settingsHolderMock.getComments()).thenReturn(new HashMap<>());
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsConfiguration.getAllComments().put(path, commentLines);
+        assertEquals(commentLines, commentsConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void getAllComments_returnsMapWhenCommentLinesAreSet() {
+        when(settingsHolderMock.getComments()).thenReturn(new HashMap<>());
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsConfiguration.getAllComments().put(path, commentLines);
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+    }
+
+    @Test
+    public void getAllComments_returnsUnsupportedOperationExceptionWhenCommentLinesAreNotSet() {
+        when(settingsHolderMock.getComments()).thenReturn(new HashMap<>());
+        assertThrows(UnsupportedOperationException.class, () -> commentsConfiguration.getAllComments().values().iterator().next());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class CommentsConfiguration {
+
+    private Map<String, List<String>> getAllComments() {
+        return new HashMap<>();
+    }
+
+    public void setComment(String path, List<String> commentLines) {
+        getComments().put(path, commentLines);
+    }
+}
+
+public class GeneratedTest {
+
+    @org.junit.Test
+    public void newCommentConfiguration_isEmpty() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertNotNull(commentsConfiguration);
+    }
+
+    @org.junit.Test
+    public void setComment_setsCommentLinesForPath() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+    }
+
+    @org.junit.Test
+    public void setComment_setsCommentLinesForPath_withMultipleLines() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentLines.add("line2");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(2, commentsConfiguration.getAllComments().size());
+    }
+
+    @org.junit.Test
+    public void getAllComments_returnsEmptyMapWhenNoCommentLinesAreSet() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertNotNull(commentsConfiguration.getAllComments());
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
+    }
+
+    @org.junit.Test
+    public void setComment_setsCorrectPathAndValueInCommentsMap() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals("path", commentsConfiguration.getAllComments().keySet().iterator().next());
+    }
+
+    @org.junit.Test
+    public void setComment_setsCorrectValueInCommentsMap() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(commentLines, commentsConfiguration.getAllComments().get(path));
+    }
+
+    @org.junit.Test
+    public void getAllComments_returnsMapWhenCommentLinesAreSet() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+    }
+
+    @org.junit.Test
+    public void getAllComments_returnsUnsupportedOperationExceptionWhenCommentLinesAreNotSet() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertThrows(UnsupportedOperationException.class, () -> commentsConfiguration.getAllComments().values().iterator().next());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class SettingsHolder {
+    private Map<String, List<String>> getComments() {
+        return new HashMap<>();
+    }
+
+    public Map<String, List<String>> getComments() {
+        return this.getComments();
+    }
+}
+
+public class CommentsConfiguration {
+
+    private Map<String, List<String>> getComments() {
+        return new HashMap<>();
+    }
+
+    public void setComment(String path, List<String> commentLines) {
+        this.getComments().put(path, commentLines);
+    }
+
+    public Map<String, List<String>> getAllComments() {
+        return this.getComments();
+    }
+}
+
+public class GeneratedTest {
+
+    @org.junit.Test
+    public void newCommentConfiguration_isEmpty() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertNotNull(commentsConfiguration.getAllComments());
+    }
+
+    @org.junit.Test
+    public void setComment_setsCommentLinesForPath() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+    }
+
+    @org.junit.Test
+    public void setComment_setsCommentLinesForPath_withMultipleLines() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentLines.add("line2");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(2, commentsConfiguration.getAllComments().size());
+    }
+
+    @org.junit.Test
+    public void getAllComments_returnsEmptyMapWhenNoCommentLinesAreSet() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertNotNull(commentsConfiguration.getAllComments());
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
+    }
+
+    @org.junit.Test
+    public void setComment_setsCorrectPathAndValueInCommentsMap() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals("path", commentsConfiguration.getAllComments().keySet().iterator().next());
+    }
+
+    @org.junit.Test
+    public void setComment_setsCorrectValueInCommentsMap() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(commentLines, commentsConfiguration.getAllComments().get(path));
+    }
+
+    @org.junit.Test
+    public void getAllComments_returnsMapWhenCommentLinesAreSet() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentLines.add("line1");
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+    }
+
+    @org.junit.Test
+    public void getAllComments_returnsUnsupportedOperationExceptionWhenCommentLinesAreNotSet() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertThrows(UnsupportedOperationException.class, () -> commentsConfiguration.getAllComments().values().iterator().next());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private SettingsHolder settingsHolder;
+
+    @Spy
+    private CommentsConfiguration commentsConfiguration;
+
+    @Test
+    public void newSettingsHolder_isNotNull() {
+        assertNotNull(settingsHolder);
+    }
+
+    @Test
+    public void newCommentsConfiguration_isNotNull() {
+        assertNotNull(commentsConfiguration);
+    }
+
+    @Test
+    public void setComment_setsCorrectPathAndValueInCommentsMap() {
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentsConfiguration.setComment(path, commentLines);
+        Mockito.verify(settingsHolder).getComments().put(Mockito.anyString(), Mockito.anyList());
+    }
+
+    @Test
+    public void setComment_setsCorrectValueInCommentsMap() {
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentsConfiguration.setComment(path, commentLines);
+        Mockito.verify(settingsHolder).getComments().put(Mockito.anyString(), Mockito.anyList());
+    }
+
+    @Test
+    public void getAllComments_returnsCorrectCommentsMap() {
+        String path = "path";
+        List<String> commentLines = new ArrayList<>();
+        commentsConfiguration.setComment(path, commentLines);
+        Mockito.verify(settingsHolder).getComments();
+    }
+}
+```
+===================================================
+

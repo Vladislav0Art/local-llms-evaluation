@@ -1,0 +1,485 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class AppVersionTest {
+
+    @Mock
+    private Pattern getAppVersionPatternMock;
+
+    @Test
+    public void parseNameEmptyStringReturnsNull() {
+        when(getAppVersionPatternMock.matcher("")).willReturn(new Matcher());
+        AppVersion appVersion = AppVersion.parseName("");
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void parseNamePatternMatchesWithFullMatch() {
+        when(getAppVersionPatternMock.matcher("^1.9.*$").match()).thenReturn(true);
+        AppVersion appVersion = AppVersion.parseName("1.9.x");
+        assertEquals(1, appVersion.compareTo(null));
+    }
+
+    @Test
+    public void parseNamePatternMatchesWithoutWildcard() {
+        when(getAppVersionPatternMock.matcher("^[1-9][0-9]*$").match()).thenReturn(true);
+        AppVersion appVersion = AppVersion.parseName("10");
+        assertEquals(2, appVersion.compareTo(null));
+    }
+
+    @Test
+    public void parseNamePatternMatchesWithWildcard() {
+        when(getAppVersionPatternMock.matcher("^([1-9][0-9]*)[.].*").match()).thenReturn(true);
+        AppVersion appVersion = AppVersion.parseName("10.x");
+        assertEquals(3, appVersion.compareTo(null));
+    }
+
+    @Test
+    public void parseNamePatternMatchesWithMultipleWildcard() {
+        when(getAppVersionPatternMock.matcher("^([1-9][0-9]*)([.].*)+$").match()).thenReturn(true);
+        AppVersion appVersion = AppVersion.parseName("10.x.y");
+        assertEquals(4, appVersion.compareTo(null));
+    }
+
+    @Test
+    public void parseNameNoMatchReturnsNull() {
+        when(getAppVersionPatternMock.matcher("abc").match()).thenReturn(false);
+        AppVersion appVersion = AppVersion.parseName("abc");
+        assertNull(appVersion);
+    }
+
+    @Test
+    public void getPackageNameAlwaysReturnsNameConstantsAMI_APP_NAME() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(NameConstants.AMI_APP_NAME, appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersionAlwaysReturnsNameConstantsAMI_VERSION() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(NameConstants.AMI_VERSION, appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobNameAlwaysReturnsNameConstantsBUILD_JOB_NAME() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(NameConstants.BUILD_JOB_NAME, appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumberAlwaysReturnsNameConstantsBUILD_NUMBER() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(NameConstants.BUILD_NUMBER, appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void getCommitAlwaysReturnsNameConstantsCOMMIT() {
+        AppVersion appVersion = new AppVersion();
+        assertEquals(NameConstants.COMMIT, appVersion.getCommit());
+    }
+
+    @Test
+    public void getChangelistAlwaysReturnsNull() {
+        AppVersion appVersion = new AppVersion();
+        assertNull(appVersion.getChangelist());
+    }
+
+    @Test
+    public void toStringReturnsAppVersionStringRepresentation() {
+        String expected = "com.netflix.frigga.ami/1.9.x";
+        AppVersion appVersion = new AppVersion();
+        assertEquals(expected, appVersion.toString());
+    }
+
+    @Test
+    public void equalsNullReturnsFalse() {
+        AppVersion appVersion = new AppVersion();
+        assertFalse(appVersion.equals(null));
+    }
+
+    @Test
+    public void equalsSameObjectReturnsTrue() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = appVersion1;
+        assertTrue(appVersion1.equals(appVersion2));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class AppVersion {
+    private String packageName;
+    private int buildNumber;
+    private int commitId;
+    private String changelist;
+
+    public AppVersion(String packageName, int buildNumber, int commitId, String changelist) {
+        this.packageName = packageName;
+        this.buildNumber = buildNumber;
+        this.commitId = commitId;
+        this.changelist = changelist;
+    }
+
+    public static class Matcher extends org.junit.jupiter.api.matchers.Matcher<String> {
+        private String pattern;
+
+        public Matcher(String pattern) {
+            super(pattern);
+            this.pattern = pattern;
+        }
+
+        @Override
+        public boolean matches(String input) {
+            return input.matches(this.pattern);
+        }
+    }
+
+    public static class NameConstants {
+        public static final String AMI_APP_NAME = "ami-app";
+        public static final String AMI_VERSION = "v1.0.0-1234567890";
+        public static final String BUILD_JOB_NAME = "buildJobName";
+        public static final String BUILD_NUMBER = 1;
+        public static final String COMMIT = "abc123";
+    }
+
+    public String getPackageName() {
+        return this.packageName;
+    }
+
+    public int getBuildNumber() {
+        return this.buildNumber;
+    }
+
+    public int getCommitId() {
+        return this.commitId;
+    }
+
+    public String getChangelist() {
+        return this.changelist;
+    }
+}
+
+public class AppVersionTest {
+
+    @Test
+    void testAppVersion() {
+        AppVersion appVersion = new AppVersion(AppVersion.NameConstants.AMI_APP_NAME, 1, 123, "abc123");
+        assertEquals(AppVersion.NameConstants.AMI_APP_NAME, appVersion.getPackageName());
+        assertEquals(1, appVersion.getBuildNumber());
+        assertEquals(123, appVersion.getCommitId());
+        assertNull(appVersion.getChangelist());
+    }
+
+    @Test
+    void testAppVersionWithChangelist() {
+        AppVersion appVersion = new AppVersion(AppVersion.NameConstants.AMI_APP_NAME, 1, 123, "abc123");
+        appVersion.setChangelist("abc456");
+        assertEquals(AppVersion.NameConstants.AMI_APP_NAME, appVersion.getPackageName());
+        assertEquals(1, appVersion.getBuildNumber());
+        assertEquals(123, appVersion.getCommitId());
+        assertEquals("abc456", appVersion.getChangelist());
+    }
+
+    @Test
+    void testMatcher() {
+        AppVersion.Matcher matcher = new AppVersion.Matcher("^ami-app-.*");
+        assertTrue(matcher.matches("ami-app-123"));
+        assertFalse(matcher.matches("other-app-123"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class AppVersion {
+    private String packageName;
+    private int buildNumber;
+    private int commitId;
+    private String changelist;
+
+    public AppVersion(String packageName, int buildNumber, int commitId, String changelist) {
+        this.packageName = packageName;
+        this.buildNumber = buildNumber;
+        this.commitId = commitId;
+        this.changelist = changelist;
+    }
+
+    public static class Matcher extends org.junit.jupiter.api.matchers.Matcher<String> {
+        private String pattern;
+
+        public Matcher(String pattern) {
+            super(pattern);
+            this.pattern = pattern;
+        }
+
+        @Override
+        public boolean matches(String input) {
+            return input.matches(this.pattern);
+        }
+    }
+
+    public static class NameConstants {
+        public static final String AMI_APP_NAME = "ami-app";
+        public static final String AMI_VERSION = "v1.0.0-1234567890";
+        public static final String BUILD_JOB_NAME = "buildJobName";
+        public static final int BUILD_NUMBER = 1;
+        public static final String COMMIT = "abc123";
+    }
+
+    public AppVersion(String packageName, int buildNumber, int commitId, String changelist) {
+        this.packageName = packageName;
+        this.buildNumber = buildNumber;
+        this.commitId = commitId;
+        this.changelist = changelist;
+        return this; // Added return statement
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public int getBuildNumber() {
+        return buildNumber;
+    }
+
+    public int getCommitId() {
+        return commitId;
+    }
+
+    public String getChangelist() {
+        return changelist;
+    }
+
+    public static AppVersion createAppVersion(String packageName, int buildNumber, int commitId) {
+        return new AppVersion(packageName, buildNumber, commitId, null);
+    }
+}
+
+public class AppVersionTest {
+
+    @Test
+    void testAppVersion() {
+        AppVersion appVersion = AppVersion.createAppVersion(AppVersion.NameConstants.AMI_APP_NAME, AppVersion.NameConstants.BUILD_NUMBER, AppVersion.NameConstants.COMMIT);
+        assertEquals(AppVersion.NameConstants.AMI_APP_NAME, appVersion.getPackageName());
+        assertEquals(AppVersion.NameConstants.BUILD_NUMBER, appVersion.getBuildNumber());
+        assertEquals(AppVersion.NameConstants.COMMIT, appVersion.getCommitId());
+        assertNull(appVersion.getChangelist());
+    }
+
+    @Test
+    void testAppVersionWithChangelist() {
+        AppVersion appVersion = AppVersion.createAppVersion(AppVersion.NameConstants.AMI_APP_NAME, AppVersion.NameConstants.BUILD_NUMBER, AppVersion.NameConstants.COMMIT);
+        appVersion.setChangelist(AppVersion.NameConstants.COMMIT);
+        assertEquals(AppVersion.NameConstants.AMI_APP_NAME, appVersion.getPackageName());
+        assertEquals(AppVersion.NameConstants.BUILD_NUMBER, appVersion.getBuildNumber());
+        assertEquals(AppVersion.NameConstants.COMMIT, appVersion.getCommitId());
+        assertEquals(AppVersion.NameConstants.COMMIT, appVersion.getChangelist());
+    }
+
+    @Test
+    void testMatcher() {
+        AppVersion.Matcher matcher = new AppVersion.Matcher("^ami-app-.*");
+        assertTrue(matcher.matches("ami-app-123"));
+        assertFalse(matcher.matches("other-app-123"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class AppVersion {
+    private String packageName;
+    private int buildNumber;
+    private int commitId;
+    private String changelist;
+
+    public static class Matcher extends org.junit.jupiter.api.matchers.Matcher<String> {
+        private String pattern;
+
+        public Matcher(String pattern) {
+            super(pattern);
+            this.pattern = pattern;
+        }
+
+        @Override
+        public boolean matches(String input) {
+            return input.matches(this.pattern);
+        }
+    }
+
+    public AppVersion(String packageName, int buildNumber, int commitId, String changelist) {
+        this.packageName = packageName;
+        this.buildNumber = buildNumber;
+        this.commitId = commitId;
+        this.changelist = changelist;
+    }
+
+    public static class NameConstants {
+        public static final String AMI_APP_NAME = "ami-app";
+        public static final String AMI_VERSION = "v1.0.0-1234567890";
+        public static final String BUILD_JOB_NAME = "buildJobName";
+        public static final int BUILD_NUMBER = 1;
+        public static final String COMMIT = "abc123";
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public int getBuildNumber() {
+        return buildNumber;
+    }
+
+    public int getCommitId() {
+        return commitId;
+    }
+
+    public String getChangelist() {
+        return changelist;
+    }
+
+    public static AppVersion createAppVersion(String packageName, int buildNumber, int commitId) {
+        return new AppVersion(packageName, buildNumber, commitId, null);
+    }
+}
+
+public class AppVersionTest {
+
+    @Test
+    void testAppVersion() {
+        AppVersion appVersion = AppVersion.createAppVersion(AppVersion.NameConstants.AMI_APP_NAME, AppVersion.NameConstants.BUILD_NUMBER, AppVersion.NameConstants.COMMIT);
+        assertEquals(AppVersion.NameConstants.AMI_APP_NAME, appVersion.getPackageName());
+        assertEquals(AppVersion.NameConstants.BUILD_NUMBER, appVersion.getBuildNumber());
+        assertEquals(AppVersion.NameConstants.COMMIT, appVersion.getCommitId());
+        assertNull(appVersion.getChangelist());
+    }
+
+    @Test
+    void testAppVersionWithChangelist() {
+        AppVersion appVersion = AppVersion.createAppVersion(AppVersion.NameConstants.AMI_APP_NAME, AppVersion.NameConstants.BUILD_NUMBER, AppVersion.NameConstants.COMMIT);
+        appVersion.setChangelist(AppVersion.NameConstants.COMMIT);
+        assertEquals(AppVersion.NameConstants.AMI_APP_NAME, appVersion.getPackageName());
+        assertEquals(AppVersion.NameConstants.BUILD_NUMBER, appVersion.getBuildNumber());
+        assertEquals(AppVersion.NameConstants.COMMIT, appVersion.getCommitId());
+        assertEquals(AppVersion.NameConstants.COMMIT, appVersion.getChangelist());
+    }
+
+    @Test
+    void testMatcher() {
+        AppVersion.Matcher matcher = new AppVersion.Matcher("^ami-app-.*");
+        assertTrue(matcher.matches("ami-app-123"));
+        assertFalse(matcher.matches("other-app-123"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class AppVersion {
+    private String packageName;
+    private int buildNumber;
+    private int commitId;
+    private String changelist;
+
+    public static class Matcher extends org.junit.jupiter.api.matchers.Matcher<String> {
+        private String pattern;
+
+        public Matcher(String pattern) {
+            super(pattern);
+            this.pattern = pattern;
+        }
+
+        @Override
+        public boolean matches(String input) {
+            return input.matches(this.pattern);
+        }
+    }
+
+    public AppVersion(String packageName, int buildNumber, int commitId, String changelist) {
+        this.packageName = packageName;
+        this.buildNumber = buildNumber;
+        this.commitId = commitId;
+        this.changelist = changelist;
+    }
+
+    public static class NameConstants {
+        public static final String AMI_APP_NAME = "ami-app";
+        public static final int BUILD_NUMBER = 1;
+        public static final String COMMIT = "abc123";
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public int getBuildNumber() {
+        return buildNumber;
+    }
+
+    public int getCommitId() {
+        return commitId;
+    }
+
+    public String getChangelist() {
+        return changelist;
+    }
+
+    public static AppVersion createAppVersion(String packageName, int buildNumber, int commitId) {
+        return new AppVersion(packageName, buildNumber, commitId, null);
+    }
+}
+
+public class AppVersionTest {
+
+    @Test
+    void testAppVersion() {
+        AppVersion appVersion = AppVersion.createAppVersion("testPackageName", 1, 2, null);
+        assertEquals("testPackageName", appVersion.getPackageName());
+        assertEquals(1, appVersion.getBuildNumber());
+        assertEquals(2, appVersion.getCommitId());
+        assertNull(appVersion.getChangelist());
+    }
+
+    @Test
+    void testAppVersionWithChangelist() {
+        AppVersion appVersion = AppVersion.createAppVersion("testPackageName", 1, 2, "testChangelist");
+        assertEquals("testPackageName", appVersion.getPackageName());
+        assertEquals(1, appVersion.getBuildNumber());
+        assertEquals(2, appVersion.getCommitId());
+        assertEquals("testChangelist", appVersion.getChangelist());
+    }
+
+    @Test
+    void testMatcher() {
+        AppVersion.Matcher matcher = new AppVersion.Matcher("^ami-app-.*");
+        assertTrue(matcher.matches("ami-app-123"));
+        assertFalse(matcher.matches("other-app-123"));
+    }
+}
+```
+===================================================
+

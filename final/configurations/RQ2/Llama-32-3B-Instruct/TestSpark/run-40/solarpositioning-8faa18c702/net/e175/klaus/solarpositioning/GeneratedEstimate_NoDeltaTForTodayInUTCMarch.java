@@ -1,0 +1,32 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+
+public class GeneratedEstimate_NoDeltaTForTodayInUTCMarch {
+
+    public static final double SOLSTA_SYST = 0;
+    public static final double DELTA_T_WAS_ZERO_ON_PREVIOUS_DAY = -1;
+    public static final double SOLSTA_SYST_MINUS_THREE = -3;
+
+    public static double estimate(final LocalDate forDate) {
+        // implementation
+        return 0;
+    }
+}
+
+public class DeltaT_test {
+
+    @Test
+    public void estimate_NoDeltaTForTodayInUTCMarch() {
+        LocalDateTime today = LocalDateTime.of(1970, 3, 1, 0, 0);
+        LocalDate date = today.toLocalDate();
+        assertEquals(DeltaT.DELTA_T_WAS_ZERO_ON_PREVIOUS_DAY, -1);
+        assertEquals(DeltaT.estimate(date), -1);
+    }
+
+}

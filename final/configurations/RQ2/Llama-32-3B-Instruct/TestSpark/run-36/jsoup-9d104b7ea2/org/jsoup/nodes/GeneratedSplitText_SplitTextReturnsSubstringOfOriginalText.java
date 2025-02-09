@@ -1,0 +1,27 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedSplitText_SplitTextReturnsSubstringOfOriginalText {
+
+    @Mock
+    private LeafNode mockLeafNode;
+
+    @Test
+    public void splitText_SplitTextReturnsSubstringOfOriginalText() {
+        String originalText = "hello world";
+        int offset = 5;
+        TextNode textNode = new TextNode(originalText);
+        String result = textNode.splitText(offset);
+        assertEquals("world", result);
+    }
+
+}

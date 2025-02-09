@@ -1,0 +1,77 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    private OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+
+    @Test
+    public void next_0Test() {
+        assertEquals(1, onlineStockSpan.next(0));
+    }
+
+    @Test
+    public void next_NegativeNumberTest() {
+        assertEquals(2, onlineStockSpan.next(-10));
+    }
+
+    @Test
+    public void next_PositiveNumberTest() {
+        assertEquals(2, onlineStockSpan.next(3));
+    }
+
+    @Test
+    public void next_SamePriceTwiceTest() {
+        int result1 = onlineStockSpan.next(5);
+        int result2 = onlineStockSpan.next(6);
+        assertNotEquals(result1, result2);
+    }
+
+    @Test
+    public void calculateSpans_EmptyArrayTest() {
+        int[] prices = {};
+        int[] expected = new int[0];
+        assertArrayEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_SingleElementTest() {
+        int[] prices = {3};
+        int[] expected = {1};
+        assertArrayEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_DiverseElementsTest() {
+        int[] prices = {3, 2, 6, 5, 0, 2};
+        int[] expected = {2, 1, 4, 2, 1, 1};
+        assertArrayEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_DuplicateElementsTest() {
+        int[] prices = {3, 2, 6, 5, 0, 2, 6, 4, 1};
+        int[] expected = {2, 1, 4, 2, 1, 1, 2, 1, 1};
+        assertArrayEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_IncreasingOrderTest() {
+        int[] prices = {1, 3, 6, 7, 8, 9};
+        int[] expected = {1, 2, 4, 5, 6, 7};
+        assertArrayEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+    @Test
+    public void calculateSpans_DecreasingOrderTest() {
+        int[] prices = {9, 8, 7, 6, 5, 3, 2, 1};
+        int[] expected = {1, 1, 1, 2, 2, 3, 4, 5};
+        assertArrayEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+}

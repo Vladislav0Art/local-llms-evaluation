@@ -1,0 +1,166 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.time.LocalDate;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class DeltaTTest {
+
+    @Mock
+    private LocalDate forDate;
+
+    @Test
+    public void estimate_WhenForDateIsBeforeFirstDayOfYear_ReturnsZero() {
+        when(forDate.atDay(1)).thenReturn(LocalDate.of(2022, 1, 1));
+        when(forDate.atDay(-1)).thenReturn(LocalDate.of(2022, 12, 31));
+
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 0.01);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsFirstDayOfYear_ReturnsNegativeInfinity() {
+        when(forDate.atDay(1)).thenReturn(LocalDate.of(2022, 1, 1));
+
+        double result = DeltaT.estimate(forDate);
+        assertNotEquals(Double.POSITIVE_INFINITY, result);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsAfterLastDayOfYear_ReturnsZero() {
+        when(forDate.atDay((int) LocalDate.of(2022, 12, 31).plusDays(1))).thenReturn(LocalDate.of(2023, 1, 1));
+
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 0.01);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsAfterLastDayOfYear_ReturnsPositiveInfinity() {
+        when(forDate.atDay((int) LocalDate.of(2022, 12, 31).plusDays(1))).thenReturn(LocalDate.of(2023, 1, 1));
+
+        double result = DeltaT.estimate(forDate);
+        assertNotEquals(Double.NEGATIVE_INFINITY, result);
+    }
+
+    @Test
+    public void estimate_WithNegativeDelta_ReturnsZero() {
+        when(forDate.atDay(-1)).thenReturn(LocalDate.of(2022, 12, 31));
+        when(DeltaT.delta).thenReturn(-5);
+
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 0.01);
+    }
+
+    @Test
+    public void estimate_WithPositiveDelta_ReturnsNonNegativeInfinity() {
+        when(forDate.atDay(1)).thenReturn(LocalDate.of(2022, 1, 1));
+        when(DeltaT.delta).thenReturn(5);
+
+        double result = DeltaT.estimate(forDate);
+        assertNotEquals(Double.NEGATIVE_INFINITY, result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class DeltaTTest {
+
+    @Mock
+    private LocalDate forDate;
+
+    @Test
+    public void estimate_WhenForDateIsBeforeFirstDayOfYear_ReturnsZero() {
+        when(forDate.isAfter(LocalDate.of(2022, 1, 1))).thenReturn(true);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 0.01);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsFirstDayOfYear_ReturnsNegativeInfinity() {
+        when(forDate.isAfter(LocalDate.of(2022, 1, 1))).thenReturn(true);
+        double result = DeltaT.estimate(forDate);
+        assertNotEquals(Double.POSITIVE_INFINITY, result);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsAfterLastDayOfYear_ReturnsZero() {
+        when(forDate.isBefore(LocalDate.of(2023, 1, 1))).thenReturn(true);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(0, result, 0.01);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsAfterLastDayOfYear_ReturnsNegativeInfinity() {
+        when(forDate.isBefore(LocalDate.of(2023, 1, 1))).thenReturn(true);
+        double result = DeltaT.estimate(forDate);
+        assertNotEquals(Double.POSITIVE_INFINITY, result);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsOnFirstDayOfYear_ReturnsPositiveInfinity() {
+        when(forDate.isAfter(LocalDate.of(2022, 1, 1))).thenReturn(false);
+        when(forDate.isBefore(LocalDate.of(2023, 1, 1))).thenReturn(true);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(Double.POSITIVE_INFINITY, result);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsOnLastDayOfYear_ReturnsPositiveInfinity() {
+        when(forDate.isAfter(LocalDate.of(2022, 1, 1))).thenReturn(true);
+        when(forDate.isBefore(LocalDate.of(2023, 1, 1))).thenReturn(false);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(Double.POSITIVE_INFINITY, result);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsInBetweenFirstAndLastDaysOfYear_ReturnsPositiveInfinity() {
+        when(forDate.isAfter(LocalDate.of(2022, 1, 1))).thenReturn(true);
+        when(forDate.isBefore(LocalDate.of(2023, 1, 1))).thenReturn(false);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(Double.POSITIVE_INFINITY, result);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsInBetweenFirstAndLastDaysOfYear_ReturnsPositiveInfinity() {
+        when(forDate.isAfter(LocalDate.of(2022, 1, 1))).thenReturn(true);
+        when(forDate.isBefore(LocalDate.of(2023, 1, 1))).thenReturn(false);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(Double.POSITIVE_INFINITY, result);
+    }
+
+    @Test
+    public void estimate_WhenForDateIsInBetweenDaysOfYear_ReturnsPositiveInfinity() {
+        long daysSinceFirstDayOfYear = ChronoUnit.DAYS.between(LocalDate.of(2022, 1, 1), forDate);
+        double result = DeltaT.estimate(forDate);
+        assertEquals(Double.POSITIVE_INFINITY, result);
+    }
+}
+```
+===================================================
+

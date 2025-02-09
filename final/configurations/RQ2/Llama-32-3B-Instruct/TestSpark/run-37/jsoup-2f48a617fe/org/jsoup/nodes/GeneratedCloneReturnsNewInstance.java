@@ -1,0 +1,25 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.XmlDeclaration;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+public class GeneratedCloneReturnsNewInstance {
+
+    @Test
+    public void cloneReturnsNewInstance() throws Exception {
+        Comment comment = new Comment("data");
+        Comment clonedComment = comment.clone();
+        assertNotNull(clonedComment);
+        assertEquals(comment, clonedComment);
+    }
+
+}

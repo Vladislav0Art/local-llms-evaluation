@@ -1,0 +1,131 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+
+import java.time.LocalDate;
+
+import net.e175.klaus.solarpositioning.DeltaT;
+import net.e175.klaus.solarpositioning.DeltaTStub;
+import net.e175.klaus.solarpositioning.SunLocation;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void estimateSameDaySameMonthSameYearForGivenDateReturnsCorrectDeltaT() {
+        // Given
+        LocalDate forDate = LocalDate.of(2000, 1, 15);
+        Mockito.when(DeltaTStub.estimate(any(LocalDate.class))).thenReturn(10.0);
+
+        // When
+        double result = DeltaT.estimate(forDate);
+
+        // Then
+        assertEquals(10.0, result, 1e-9);
+    }
+
+    @Test
+    public void estimateDifferentDayForSameMonthAndYearReturnsCorrectDeltaT() {
+        // Given
+        LocalDate forDate = LocalDate.of(2000, 1, 15).plusDays(1);
+        Mockito.when(DeltaTStub.estimate(any(LocalDate.class))).thenReturn(11.0);
+
+        // When
+        double result = DeltaT.estimate(forDate);
+
+        // Then
+        assertEquals(11.0, result, 1e-9);
+    }
+
+    @Test
+    public void estimateSameDayDifferentMonthForGivenDateReturnsCorrectDeltaT() {
+        // Given
+        LocalDate forDate = LocalDate.of(2000, 12, 15);
+        Mockito.when(DeltaTStub.estimate(any(LocalDate.class))).thenReturn(2.0);
+
+        // When
+        double result = DeltaT.estimate(forDate);
+
+        // Then
+        assertEquals(2.0, result, 1e-9);
+    }
+
+    @Test
+    public void estimateSameDaySameMonthDifferentYearForGivenDateReturnsCorrectDeltaT() {
+        // Given
+        LocalDate forDate = LocalDate.of(2001, 12, 15);
+        Mockito.when(DeltaTStub.estimate(any(LocalDate.class))).thenReturn(3.0);
+
+        // When
+        double result = DeltaT.estimate(forDate);
+
+        // Then
+        assertEquals(3.0, result, 1e-9);
+    }
+
+    @Test
+    public void estimateNullForGivenDateThrowsNullPointerException() {
+        // Given
+        LocalDate forDate = null;
+
+        // When and Then
+        assertThrows(NullPointerException.class, () -> DeltaT.estimate(forDate));
+    }
+
+    @Test
+    public void isDeltaTValidForGivenDeltaTSince1JanuaryReturnsTrue() {
+        // Given
+        double deltaT = 10.0;
+        Mockito.when(SunLocation.getSince1Jan(any(Double.class))).thenReturn(deltaT);
+
+        // When and Then
+        assertTrue(DeltaT.isValid(deltaT));
+    }
+
+    @Test
+    public void isDeltaTValidForGivenDeltaTSince1JanuaryReturnsFalse() {
+        // Given
+        double deltaT = -10.0;
+        Mockito.when(SunLocation.getSince1Jan(any(Double.class))).thenReturn(deltaT);
+
+        // When and Then
+        assertFalse(DeltaT.isValid(deltaT));
+    }
+
+    @Test
+    public void isDeltaTValidForGivenDeltaTSince12DecemberReturnsFalse() {
+        // Given
+        double deltaT = 10.0;
+        Mockito.when(SunLocation.getSince1Jan(any(Double.class))).thenReturn(deltaT);
+
+        // When and Then
+        assertFalse(DeltaT.isValid(deltaT));
+    }
+
+    @Test
+    public void isDeltaTSince1JanuaryForGivenDateReturnsCorrectDeltaT() {
+        // Given
+        LocalDate forDate = LocalDate.of(2000, 12, 15);
+        Mockito.when(SunLocation.getSince1Jan(any(Double.class))).thenReturn(10.0);
+
+        // When and Then
+        assertEquals(10.0, DeltaT.isSince1Jan(forDate), 1e-9);
+    }
+
+    @Test
+    public void isDeltaTSince12DecemberForGivenDateReturnsCorrectDeltaT() {
+        // Given
+        LocalDate forDate = LocalDate.of(2000, 1, 15);
+        Mockito.when(SunLocation.getSince1Jan(any(Double.class))).thenReturn(10.0);
+
+        // When and Then
+        assertEquals(10.0, DeltaT.isSince12Dec(forDate), 1e-9);
+    }
+
+}

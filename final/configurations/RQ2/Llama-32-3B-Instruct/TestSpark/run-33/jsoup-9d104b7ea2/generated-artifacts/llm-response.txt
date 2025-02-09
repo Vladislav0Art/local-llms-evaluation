@@ -1,0 +1,401 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class TextNodeTest {
+    @Test
+    public void constructorText_EmptyString() {
+        assertThrows(NullPointerException.class, () -> new TextNode(""));
+    }
+
+    @Test
+    public void constructorText_NotEmptyString() {
+        String text = "Hello, World!";
+        assertNotNull(new TextNode(text));
+    }
+
+    @Test
+    public void nodeName_TextNodeValue() {
+        TextNode node = new TextNode("Hello");
+        assertEquals("text", node.nodeName());
+    }
+
+    @Test
+    public void text_TextNodeValue() {
+        String text = "Hello, World!";
+        TextNode node = new TextNode(text);
+        assertEquals(text, node.text());
+    }
+
+    @Test
+    public void text_EmptyString() {
+        TextNode node = new TextNode("");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void text_NoWhitespaceString() {
+        String text = "Hello";
+        TextNode node = new TextNode(text);
+        assertFalse(node.isBlank());
+    }
+
+    @Test
+    public void splitText_ZeroOffset_MatchesWholeText() throws IOException {
+        String text = "Hello, World!";
+        TextNode node = new TextNode(text);
+        assertEquals(text, node.splitText(0).text());
+    }
+
+    @Test
+    public void splitText_NonZeroOffset_SplitsProperly() throws IOException {
+        String text = "Hello, World!";
+        TextNode node = new TextNode(text);
+        assertEquals("Hello", node.splitText(7).text());
+    }
+
+    @Test
+    public void outerHtmlHead_WithAccumAndDepthAndOut_UsesTextValue() throws IOException {
+        StringBuilder sb = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        Appendable accum = new StringBuilder();
+        TextNode node = new TextNode("Hello");
+        node.outerHtmlHead(accum, 1, out);
+        assertEquals("<p>Hello</p>", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTail_WithAccumAndDepthAndOut_HasEmptyValue() throws IOException {
+        StringBuilder sb = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        Appendable accum = new StringBuilder();
+        TextNode node = new TextNode("");
+        node.outerHtmlTail(accum, 1, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toString_TextValue() {
+        String text = "Hello, World!";
+        TextNode node = new TextNode(text);
+        assertEquals("<p>Hello, World!</p>", node.toString());
+    }
+
+    @Test
+    public void clone_CloneTextNodeCreatesProperClone() {
+        String text = "Hello, World!";
+        TextNode node = new TextNode(text);
+        TextNode cloned = node.clone();
+        assertNotNull(cloned);
+        assertEquals(text, cloned.text());
+    }
+}
+
+public class LeafNodeTest {
+    @Test
+    public void outerHtmlHead_WithAccumAndDepthAndOut_ThrowsIOException() throws IOException {
+        Document.OutputSettings out = new Document.OutputSettings();
+        Appendable accum = new StringBuilder();
+        TextNode node = new TextNode("Hello");
+        assertThrows(IOException.class, () -> node.outerHtmlHead(accum, 1, out));
+    }
+
+    @Test
+    public void outerHtmlTail_WithAccumAndDepthAndOut_ThrowsIOException() throws IOException {
+        Document.OutputSettings out = new Document.OutputSettings();
+        Appendable accum = new StringBuilder();
+        TextNode node = new TextNode("");
+        assertThrows(IOException.class, () -> node.outerHtmlTail(accum, 1, out));
+    }
+
+    @Test
+    public void createFromEncoded_InvalidEncodedText_ReturnsNull() {
+        String encodedText = "Invalid";
+        assertNull(TextNode.createFromEncoded(encodedText));
+    }
+}
+
+public class StringUtilTest {
+    @Test
+    public void normaliseWhitespace_StripsProperly() {
+        String text = "\tHello, World!";
+        assertEquals(" Hello, World!", StringUtil.normaliseWhitespace(text));
+    }
+
+    @Test
+    public void stripLeadingWhitespace_StripsLeadingWhitespaceProperly() {
+        String text = "  Hello, World!";
+        assertEquals("Hello, World!", StringUtil.stripLeadingWhitespace(text));
+    }
+
+    @Test
+    public void lastCharIsWhitespace_LastCharIsWhitespaceProperly() {
+        StringBuilder sb = new StringBuilder("   ");
+        assertTrue(StringUtil.lastCharIsWhitespace(sb));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class NodeTest {
+
+    @Test
+    public void outerHtmlHead_WithAccumAndDepthAndOut_ThrowsIOException() throws IOException {
+        Appendable accum = new StringBuilder();
+        TextNode node = new TextNode("Hello");
+        StringWriter out = new StringWriter();
+
+        assertThrows(IOException.class, () -> node.outerHtmlHead(accum, 1, out));
+    }
+
+    @Test
+    public void outerHtmlTail_WithAccumAndDepthAndOut_ThrowsIOException() throws IOException {
+        Appendable accum = new StringBuilder();
+        TextNode node = new TextNode("");
+        StringWriter out = new StringWriter();
+
+        assertThrows(IOException.class, () -> node.outerHtmlTail(accum, 1, out));
+    }
+
+    @Test
+    public void createFromEncoded_InvalidEncodedText_ReturnsNull() {
+        String encodedText = "invalid";
+        assertNull(TextNode.createFromEncoded(encodedText));
+    }
+
+    @Test
+    public void normaliseWhitespace_StripsProperly() {
+        String text = " Hello, World!";
+        String expectedOutput = "Hello, World!";
+        assertEquals(expectedOutput, StringUtil.normaliseWhitespace(text));
+    }
+
+    @Test
+    public void stripLeadingWhitespace_StripsLeadingWhitespaceProperly() {
+        String text = "  Hello, World!";
+        String expectedOutput = "Hello, World!";
+        assertEquals(expectedOutput, StringUtil.stripLeadingWhitespace(text));
+    }
+
+    @Test
+    public void lastCharIsWhitespace_LastCharIsWhitespaceProperly() {
+        StringBuilder sb = new StringBuilder("Hello, World!");
+        boolean expectedOutput = true;
+        assertTrue(StringUtil.lastCharIsWhitespace(sb.toString()));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.IOException;
+
+public class NodeTest {
+    public class TextNode {
+        private String value;
+
+        public TextNode(String value) {
+            this.value = value;
+        }
+
+        public String outerHtmlHead(Appendable accum, int depth, StringWriter out) throws IOException {
+            // implement your logic here
+            return "";
+        }
+
+        public String outerHtmlTail(Appendable accum, int depth, StringWriter out) throws IOException {
+            // implement your logic here
+            return "";
+        }
+
+        public static TextNode createFromEncoded(String encodedText) {
+            // implement your logic here
+            return null;
+        }
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        Node node = new Node();
+        Appendable accum = java.lang.StringBuilder.toString();
+        StringWriter out = new StringWriter();
+        try {
+            String result = node.outerHtmlHead(accum, 1, out);
+            // implement assertions here
+        } catch (IOException e) {
+            fail("Expected no exception");
+        }
+    }
+
+    @Test
+    public void testOuterHtmlTail() throws IOException {
+        Node node = new Node();
+        Appendable accum = java.lang.StringBuilder.toString();
+        StringWriter out = new StringWriter();
+        try {
+            String result = node.outerHtmlHead(accum, 1, out);
+            // implement assertions here
+        } catch (IOException e) {
+            fail("Expected no exception");
+        }
+    }
+
+    @Test
+    public void testcreateFromEncoded() {
+        Node node = new Node();
+        String encodedText = "some text";
+        TextNode result = node.createFromEncoded(encodedText);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testNormaliseWhitespace() {
+        Node node = new Node();
+        String text = "   some text  ";
+        String expectedOutput = "some text";
+        String actualOutput = node.normaliseWhitespace(text);
+        assertEquals(expectedOutput, actualOutput);
+    }
+
+    @Test
+    public void testStripLeadingWhitespace() {
+        Node node = new Node();
+        String text = "   some text  ";
+        String expectedOutput = "some text";
+        String actualOutput = node.stripLeadingWhitespace(text);
+        assertEquals(expectedOutput, actualOutput);
+    }
+
+    @Test
+    public void testLastCharIsWhitespace() {
+        Node node = new Node();
+        String text = "   some text  ";
+        assertTrue(node.lastCharIsWhitespace(text));
+    }
+}
+
+public class Node {
+    private String value;
+
+    public Node() {}
+
+    public String outerHtmlHead(Appendable accum, int depth, StringWriter out) throws IOException {
+        // implement your logic here
+        return "";
+    }
+
+    public String outerHtmlTail(Appendable accum, int depth, StringWriter out) throws IOException {
+        // implement your logic here
+        return "";
+    }
+
+    public static TextNode createFromEncoded(String encodedText) {
+        // implement your logic here
+        return null;
+    }
+
+    private String normaliseWhitespace(String text) {
+        // implement your logic here
+        return "";
+    }
+
+    private String stripLeadingWhitespace(String text) {
+        // implement your logic here
+        return "";
+    }
+
+    public boolean lastCharIsWhitespace(String text) {
+        // implement your logic here
+        return false;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Node {
+    private String outerHtmlHead(Appendable accum, int depth, StringWriter out) throws IOException;
+    public String outerHtmlHead() throws IOException {
+        return outerHtmlHead(new StringBuilder(), 0, new StringWriter());
+    }
+
+    private String outerHtmlTail(Appendable accum, int depth, StringWriter out) throws IOException;
+    public String outerHtmlTail() throws IOException {
+        return outerHtmlTail(new StringBuilder(), 0, new StringWriter());
+    }
+
+    private static TextNode createFromEncoded(String encodedText);
+    public static TextNode createFromEncoded(String encodedText) {
+        return createFromEncoded(encodedText, new StringBuilder(), 0);
+    }
+
+    private String toString() throws IOException;
+    public String toString() throws IOException {
+        return outerHtmlHead(new StringBuilder(10), 1, new StringWriter()).toString();
+    }
+}
+
+public class GeneratedTest {
+    public static TextNode TextNode(String text) {
+        StringTokenizer st = new StringTokenizer(text);
+        Node node = new Node();
+        while (st.hasMoreTokens()) {
+            String token = st.nextToken();
+            if (token.charAt(0) == '<') {
+                Appendable accum = new StringBuilder();
+                int depth = 0;
+                StringWriter out = new StringWriter();
+                if (node.outerHtmlHead(accum, depth, out).indexOf(token) > -1) {
+                    return node.createFromEncoded(token);
+                }
+            } else {
+                if (!node.toString().contains(token)) {
+                    return new TextNode(token);
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void main(String[] args) throws IOException {
+        System.out.println(new GeneratedTest().TextNode("<b>Hello</b>"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Node {
+    public String outerHtmlHead(Appendable accum, int depth, StringWriter out) throws IOException;
+
+    public static TextNode createFromEncoded(String encodedText);
+
+    public String toString() throws IOException;
+}
+
+public class GeneratedTest {
+    public static TextNode createFromEncoded(String encodedText) {
+        // implementation
+        return new TextNode(encodedText);
+    }
+
+    public static void main(String[] args) throws IOException {
+        System.out.println(new GeneratedTest().createFromEncoded("<b>Hello</b>"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

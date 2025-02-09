@@ -1,0 +1,449 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class EpubCheckerTest {
+
+    @Test
+    public void getLocale_DifferentLocales_ReturnsExpectedValue() {
+        Locale locale = EpubChecker.getInstance().getLocale();
+        assertEquals(Locale.ENGLISH, locale);
+        assertEquals(Locale.FRENCH, locale);
+        assertEquals(Locale.SPANISH, locale);
+    }
+
+    @Test
+    public void run_NonEmptyArgs_ThrowsException() {
+        assertThrows(InvalidArgumentException.class, () -> EpubChecker.getInstance().run(new String[0]));
+    }
+
+    @Test
+    public void run_EmptyArgs_RunsDefaultConfig() {
+        // No assertions here. We just want to make sure the method runs.
+    }
+
+    @Test
+    public void run_MultipleFiles_CreatesReport() throws Exception {
+        File file1 = new File("file1.epub");
+        File file2 = new File("file2.epub");
+
+        EpubChecker epubChecker = EpubChecker.getInstance();
+        outWriter writer = new outWriter();
+
+        int result1 = epubChecker.run(new String[]{file1.getAbsolutePath(), "-o", "/tmp/file1.html"});
+        int result2 = epubChecker.run(new String[]{file2.getAbsolutePath(), "-o", "/tmp/file2.html"});
+
+        assertTrue(result1 > 0);
+        assertTrue(result2 > 0);
+
+        CheckingReport report = epubChecker.getReport();
+        assertNotNull(report);
+    }
+
+    @Test
+    public void validateFile_InvalidVersion_ReturnsError() {
+        File file = new File("file.epub");
+        EPUBVersion version = null;
+
+        assertThrows(InvalidArgumentException.class, () -> EpubChecker.getInstance().validateFile(file.getAbsolutePath(), version));
+    }
+
+    @Test
+    public void validateFile_ValidFile_ReturnsSuccess() throws Exception {
+        File file = new File("valid_file.epub");
+        EPUBVersion version = "3.0";
+
+        int result = EpubChecker.getInstance().validateFile(file.getAbsolutePath(), version);
+        assertTrue(result > 0);
+    }
+
+    @Test
+    public void validateFile_InvalidFilepath_ReturnsError() {
+        assertThrows(InvalidArgumentException.class, () -> EpubChecker.getInstance().validateFile("/invalid/file.epub", null));
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class EPUBVersion {
+    private final String version;
+
+    public EPUBVersion(String version) {
+        this.version = version;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+}
+
+public class EpubChecker {
+    public int validateFile(File file, EPUBVersion version) throws InvalidArgumentException {
+        if (version == null || !version.getVersion().equals("3.0")) {
+            throw new InvalidArgumentException("Invalid EPUB version");
+        }
+        // validation logic
+        return 1;
+    }
+
+    public static class InvalidArgumentException extends RuntimeException {}
+
+    public static EpubChecker getInstance() {
+        return new EpubChecker();
+    }
+}
+
+public class TestEpubChecker {
+
+    @Test
+    public void testValidFile() throws Exception {
+        File file = new File("valid_file.epub");
+        EPUBVersion version = new EPUBVersion("3.0");
+        try {
+            int result = EpubChecker.getInstance().validateFile(file, version);
+            Assert.assertEquals(1, result);
+        } catch (InvalidArgumentException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidFile() throws Exception {
+        File file = new File("invalid_file.epub");
+        EPUBVersion version = new EPUBVersion("3.0");
+        try {
+            int result = EpubChecker.getInstance().validateFile(file, version);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testInvalidEPUBversion() throws Exception {
+        File file = new File("valid_file.epub");
+        EPUBVersion version = null;
+        try {
+            int result = EpubChecker.getInstance().validateFile(file, version);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testInvalidFilePath() throws Exception {
+        File file = new File("/invalid/file.epub");
+        EPUBVersion version = null;
+        try {
+            int result = EpubChecker.getInstance().validateFile(file, version);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testNullEPUBversion() throws Exception {
+        File file = new File("valid_file.epub");
+        EPUBVersion version = null;
+        try {
+            int result = EpubChecker.getInstance().validateFile(file, version);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class EpubChecker {
+    private final String version;
+
+    public EpubChecker(String version) {
+        if (version == null || !version.equals("3.0")) {
+            throw new InvalidArgumentException("Invalid EPUB version");
+        }
+        this.version = version;
+    }
+
+    public int validateFile(File file) throws InvalidArgumentException {
+        // validation logic
+        return 1;
+    }
+
+    public static class InvalidArgumentException extends RuntimeException {}
+
+    public static EpubChecker getInstance() {
+        return new EpubChecker("3.0");
+    }
+}
+
+public class TestEpubChecker {
+
+    @Test
+    public void testValidFile() throws Exception {
+        File file = new File("valid_file.epub");
+        try {
+            int result = EpubChecker.getInstance().validateFile(file);
+            Assert.assertEquals(1, result);
+        } catch (InvalidArgumentException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidFile() throws Exception {
+        File file = new File("invalid_file.epub");
+        try {
+            int result = EpubChecker.getInstance().validateFile(file);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testValidEPUBversion() throws Exception {
+        File file = new File("valid_file.epub");
+        EPUBVersion version = new EPUBVersion("3.0");
+        try {
+            int result = EpubChecker.getInstance().validateFile(file, version);
+            Assert.assertEquals(1, result);
+        } catch (InvalidArgumentException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidEPUBversion() throws Exception {
+        File file = new File("valid_file.epub");
+        EPUBVersion version = null;
+        try {
+            int result = EpubChecker.getInstance().validateFile(file, version);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testInvalidFilePath() throws Exception {
+        File file = new File("/invalid/file.epub");
+        EPUBVersion version = null;
+        try {
+            int result = EpubChecker.getInstance().validateFile(file, version);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testNullEPUBversion() throws Exception {
+        File file = new File("valid_file.epub");
+        EPUBVersion version = null;
+        try {
+            int result = EpubChecker.getInstance().validateFile(file, version);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class EpubVersion {
+    private String version;
+
+    public EpubVersion(String version) {
+        if (version == null || !version.equals("3.0")) {
+            throw new InvalidArgumentException("Invalid EPUB version");
+        }
+        this.version = version;
+    }
+
+    public int validateFile(File file) throws InvalidArgumentException {
+        // validation logic
+        return 1;
+    }
+
+    public static class InvalidArgumentException extends RuntimeException {}
+
+    public static EpubVersion getInstance() {
+        return new EpubVersion("3.0");
+    }
+}
+
+public class TestEpubVersion {
+
+    @Test
+    public void testValidFile() throws Exception {
+        File file = new File("valid_file.epub");
+        try {
+            int result = EpubVersion.getInstance().validateFile(file);
+            Assert.assertEquals(1, result);
+        } catch (InvalidArgumentException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidFile() throws Exception {
+        File file = new File("invalid_file.epub");
+        try {
+            int result = EpubVersion.getInstance().validateFile(file);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testValidEPUBversion() throws Exception {
+        File file = new File("valid_file.epub");
+        EpubVersion version = new EpubVersion("3.0");
+        try {
+            int result = version.validateFile(file);
+            Assert.assertEquals(1, result);
+        } catch (InvalidArgumentException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidEPUBversion() throws Exception {
+        File file = new File("valid_file.epub");
+        EpubVersion version = null;
+        try {
+            int result = version.validateFile(file);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testInvalidFilePath() throws Exception {
+        File file = new File("/invalid/file.epub");
+        EpubVersion version = null;
+        try {
+            int result = version.validateFile(file);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testNullEPUBversion() throws Exception {
+        File file = new File("valid_file.epub");
+        EpubVersion version = null;
+        try {
+            int result = version.validateFile(file);
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class EpubChecker {
+    private String version;
+
+    public static EpubVersion getInstance() {
+        return new EpubVersion("3.0");
+    }
+
+    public int validateFile(File file) throws InvalidArgumentException {
+        // validation logic
+        return 1;
+    }
+}
+
+public class EpubVersion {
+    private String version;
+
+    public EpubVersion(String version) {
+        if (version == null || !version.equals("3.0")) {
+            throw new InvalidArgumentException();
+        }
+        this.version = version;
+    }
+
+    public static class InvalidArgumentException extends RuntimeException {}
+
+    public int validateFile(File file) throws InvalidArgumentException {
+        // validation logic
+        return 1;
+    }
+
+    public File getInvalidVersion() throws InvalidArgumentException {
+        if (version == null || !version.equals("3.0")) {
+            throw new InvalidArgumentException();
+        }
+        return new File("/invalid/file.epub");
+    }
+}
+
+public class TestEpubChecker {
+
+    @Test
+    public void testValidFile() throws Exception {
+        EpubVersion version = EpubChecker.getInstance();
+        try {
+            int result = version.validateFile(new File("valid_file.epub"));
+            Assert.assertEquals(1, result);
+        } catch (InvalidArgumentException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidFile() throws Exception {
+        EpubVersion version = EpubChecker.getInstance();
+        try {
+            int result = version.validateFile(new File("invalid_file.epub"));
+            fail();
+        } catch (InvalidArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testGetInvalidVersion() throws Exception {
+        EpubVersion version = EpubChecker.getInstance();
+        try {
+            File invalidFile = version.getInvalidVersion();
+            Assert.assertEquals("/invalid/file.epub", invalidFile.getAbsolutePath());
+        } catch (InvalidArgumentException e) {
+            fail(e.getMessage());
+        }
+    }
+
+}
+
+```
+===================================================
+

@@ -1,0 +1,53 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextZeroPriceTest() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        assertEquals(1, solution.next(0));
+    }
+
+    @Test
+    public void nextPositivePriceTest() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        assertEquals(2, solution.next(10));
+    }
+
+    @Test
+    public void nextNegativePriceTest() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        assertEquals(1, solution.next(-5));
+    }
+
+    @Test
+    public void calculateSpansEmptyArrayTest() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] result = solution.calculateSpans(new int[0]);
+        assert result.length == 0;
+    }
+
+    @Test
+    public void calculateSpansSinglePriceTest() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] result = solution.calculateSpans(new int[]{1});
+        assertEquals(1, result[0]);
+    }
+
+    @Test
+    public void calculateSpansMultiplePricesTest() {
+        OnlineStockSpan solution = new OnlineStockSpan();
+        int[] result = solution.calculateSpans(new int[]{100, 80, 75, 70, 60, 65});
+        assertEquals(1, result[0]);
+        assertEquals(2, result[1]);
+        assertEquals(1, result[2]);
+        assertEquals(2, result[3]);
+        assertEquals(1, result[4]);
+        assertEquals(1, result[5]);
+    }
+
+}

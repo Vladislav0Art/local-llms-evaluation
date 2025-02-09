@@ -1,0 +1,28 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(org.junit.runners.JUnit4.class)
+public class GeneratedIsBlank_TextIsBlank_ReturnsTrue {
+
+    @Mock
+    private Appendable accum;
+
+    @Test
+    public void isBlank_TextIsBlank_ReturnsTrue() {
+        TextNode newNode = new TextNode("   ");
+        assertTrue(newNode.isBlank());
+    }
+
+}
