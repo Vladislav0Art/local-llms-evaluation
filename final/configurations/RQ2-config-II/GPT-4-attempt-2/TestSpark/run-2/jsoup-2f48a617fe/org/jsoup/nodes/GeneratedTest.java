@@ -1,0 +1,93 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void commentConstructorTest() {
+        Comment comment = new Comment("Data");
+        assertNotNull(comment);
+        assertEquals("Data", comment.getData());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("Data");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("Data");
+        assertEquals("Data", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("Data");
+        comment.setData("NewData");
+        assertEquals("NewData", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("Data");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document("").outputSettings();
+
+        comment.outerHtmlHead(accum, 0, out);
+
+        assertEquals("<!--Data-->", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        Comment comment = new Comment("Data");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document("").outputSettings();
+
+        comment.outerHtmlTail(accum, 0, out);
+
+        assertEquals("", accum.toString()); // Comment has no tail
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("Data");
+        assertEquals("<!--Data-->", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("Data");
+        Comment clone = comment.clone();
+
+        assertNotSame(comment, clone);
+        assertEquals("Data", clone.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("!DOCTYPE Data");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("!DOCTYPE Data");
+        assertNotNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationFailTest() {
+        Comment comment = new Comment("Data");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+}

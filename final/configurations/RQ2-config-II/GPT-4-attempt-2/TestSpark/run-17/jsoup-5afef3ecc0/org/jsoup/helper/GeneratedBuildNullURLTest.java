@@ -1,0 +1,22 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
+
+import static org.junit.Assert.*;
+
+public class GeneratedBuildNullURLTest {
+
+    @Test
+    public void buildNullURLTest() throws UnknownHostException, MalformedURLException {
+        UrlBuilder urlBuilder = new UrlBuilder(null);
+        assertNull(urlBuilder.build());
+    }
+
+}

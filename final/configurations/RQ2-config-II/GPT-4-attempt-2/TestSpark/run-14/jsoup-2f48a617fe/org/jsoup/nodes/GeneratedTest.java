@@ -1,0 +1,79 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.parser.Tag;
+import org.jsoup.nodes.Document;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void CommentConstructorTest() {
+        Comment comment = new Comment("TestComment");
+        Assert.assertEquals("TestComment", comment.getData());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("TestNode");
+        Assert.assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("Comments");
+        Assert.assertEquals("Comments", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("TestComment");
+        comment.setData("UpdatedData");
+        Assert.assertEquals("UpdatedData", comment.getData());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("TestToString");
+        Assert.assertTrue(comment.toString().contains("TestToString"));
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment1 = new Comment("TestClone");
+        Comment comment2 = comment1.clone();
+        Assert.assertEquals(comment1.getData(), comment2.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("TestXmlDeclaration");
+        Assert.assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("TestXmlDeclaration");
+        Assert.assertNull(comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("TestHead");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document("").outputSettings();
+        comment.outerHtmlHead(accum, 0, out);
+        Assert.assertTrue(accum.toString().contains("TestHead"));
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        Comment comment = new Comment("TestTail");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document("").outputSettings();
+        comment.outerHtmlTail(accum, 0, out);
+        Assert.assertEquals("", accum.toString());
+    }
+
+}

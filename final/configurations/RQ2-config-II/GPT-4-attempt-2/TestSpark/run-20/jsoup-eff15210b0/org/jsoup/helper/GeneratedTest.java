@@ -1,0 +1,77 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.jsoup.Connection;
+import org.jsoup.helper.HttpConnection;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringTest() {
+        Connection connection = HttpConnection.connect("https://www.google.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void connectInvalidStringTest() {
+        Connection connection = HttpConnection.connect("random string");
+    }
+
+    @Test
+    public void connectURLTest() throws MalformedURLException {
+        URL googleUrl = new URL("https://www.google.com");
+        Connection connection = HttpConnection.connect(googleUrl);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void urlStringTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.url("https://www.google.com");
+        assertEquals("https://www.google.com", connection.request().url().toString());
+    }
+
+    @Test
+    public void proxyTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.proxy("localhost", 8080);
+        assertEquals("localhost", connection.request().proxy().getHostName());
+        assertEquals(8080, connection.request().proxy().getPort());
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.userAgent("UserAgentTest");
+        assertEquals("UserAgentTest", connection.request().userAgent());
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.timeout(3000);
+        assertEquals(3000, connection.request().timeout());
+    }
+
+    @Test
+    public void getTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.timeout(3000);
+        connection.url("https://www.google.com");
+        assertNotNull(connection.get());
+    }
+
+    @Test
+    public void requestBodyTest() {
+        HttpConnection connection = new HttpConnection();
+        connection.requestBody("Request Body Test");
+        assertEquals("Request Body Test", connection.request().requestBody());
+    }
+
+}

@@ -1,0 +1,62 @@
+package net.e175.klaus.solarpositioning;
+
+import net.e175.klaus.solarpositioning.AzimuthZenithAngle;
+import net.e175.klaus.solarpositioning.Grena3;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+public class GeneratedTest {
+
+    @Test
+    public void calculateSolarPositionWithFourParametersTest() {
+        ZonedDateTime date = LocalDateTime.of(2020, 6, 20, 0, 0).atZone(ZoneId.of("UTC"));
+        double latitude = 50.1109;
+        double longitude = 8.6821;
+        double deltaT = 68.8033;
+
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+
+        Assert.assertNotNull(result);
+        // Please include proper assertions based on your method's business logic and expected results.
+    }
+
+    @Test
+    public void calculateSolarPositionWithSixParametersTest() {
+        ZonedDateTime date = LocalDateTime.of(2020, 6, 20, 0, 0).atZone(ZoneId.of("UTC"));
+        double latitude = 50.1109;
+        double longitude = 8.6821;
+        double deltaT = 68.8033;
+        double pressure = 1013.25;
+        double temperature = 273;
+
+        AzimuthZenithAngle result = Grena3.calculateSolarPosition(date, latitude, longitude, deltaT, pressure, temperature);
+
+        Assert.assertNotNull(result);
+        // Please include proper assertions based on your method's business logic and expected results.
+    }
+
+    @Test
+    public void calculateSolarPositionWithNullDateTest() {
+        ZonedDateTime date = null;
+        double latitude = 50.1109;
+        double longitude = 8.6821;
+        double deltaT = 68.8033;
+
+        Grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+    }
+
+    @Test
+    public void calculateSolarPositionWithInvalidLatitudeTest() {
+        ZonedDateTime date = LocalDateTime.of(2020, 6, 20, 0, 0).atZone(ZoneId.of("UTC"));
+        double latitude = 500.1109;  // Invalid value
+        double longitude = 8.6821;
+        double deltaT = 68.8033;
+
+        Grena3.calculateSolarPosition(date, latitude, longitude, deltaT);
+    }
+
+}

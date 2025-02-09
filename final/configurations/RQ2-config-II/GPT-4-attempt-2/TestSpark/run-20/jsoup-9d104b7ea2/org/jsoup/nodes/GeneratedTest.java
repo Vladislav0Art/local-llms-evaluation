@@ -1,0 +1,91 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeConstructorTest() {
+        TextNode tn = new TextNode("Hello");
+        assertNotNull(tn);
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode tn = new TextNode("Hello");
+        assertEquals("#text", tn.nodeName());
+    }
+
+    @Test
+    public void textGetterTest() {
+        TextNode tn = new TextNode("Hello");
+        assertEquals("Hello", tn.text());
+    }
+
+    @Test
+    public void textSetterTest() {
+        TextNode tn = new TextNode("Hello");
+        tn.text("World");
+        assertEquals("World", tn.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode tn = new TextNode("Hello");
+        assertEquals("Hello", tn.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode tn = new TextNode("");
+        assertTrue(tn.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode tn = new TextNode("Hello");
+        TextNode split = tn.splitText(2);
+        assertEquals("llo", split.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        TextNode tn = new TextNode("Hello");
+        StringBuilder accum = new StringBuilder();
+        tn.outerHtmlHead(accum, 0, new Document.OutputSettings());
+        assertEquals("Hello", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        TextNode tn = new TextNode("Hello");
+        StringBuilder accum = new StringBuilder();
+        tn.outerHtmlTail(accum, 0, new Document.OutputSettings());
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        TextNode tn = new TextNode("Hello");
+        assertEquals("Hello", tn.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode tn = new TextNode("Hello");
+        TextNode clone = tn.clone();
+        assertEquals(clone.getWholeText(), tn.getWholeText());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode tn = TextNode.createFromEncoded("Hello");
+        assertNotNull(tn);
+        assertEquals("Hello", tn.getWholeText());
+    }
+
+}

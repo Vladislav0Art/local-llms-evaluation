@@ -1,0 +1,106 @@
+package com.adobe.epubcheck.opf;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import com.adobe.epubcheck.opf.OPFChecker30;
+
+public class GeneratedTest {
+
+    @Test
+    public void isAudioTypeValidTest() {
+        assertTrue(OPFChecker30.isAudioType("audio/mpeg"));
+    }
+
+    @Test
+    public void isAudioTypeInvalidTest() {
+        assertFalse(OPFChecker30.isAudioType("audio/abc"));
+    }
+
+    @Test
+    public void isBlessedAudioTypeValidTest() {
+        assertTrue(OPFChecker30.isBlessedAudioType("audio/mpeg"));
+    }
+
+    @Test
+    public void isBlessedAudioTypeInvalidTest() {
+        assertFalse(OPFChecker30.isBlessedAudioType("audio/abc"));
+    }
+
+    @Test
+    public void isVideoTypeValidTest() {
+        assertTrue(OPFChecker30.isVideoType("video/mp4"));
+    }
+
+    @Test
+    public void isVideoTypeInvalidTest() {
+        assertFalse(OPFChecker30.isVideoType("video/mp7"));
+    }
+
+    @Test
+    public void isBlessedVideoTypeValidTest() {
+        assertTrue(OPFChecker30.isBlessedVideoType("video/mp4"));
+    }
+
+    @Test
+    public void isBlessedVideoTypeInvalidTest() {
+        assertFalse(OPFChecker30.isBlessedVideoType("video/xyz"));
+    }
+
+    @Test
+    public void isCommonVideoTypeValidTest() {
+        assertTrue(OPFChecker30.isCommonVideoType("video/mp4"));
+    }
+
+    @Test
+    public void isCommonVideoTypeInvalidTest() {
+        assertFalse(OPFChecker30.isCommonVideoType("video/xyz"));
+    }
+
+    @Test
+    public void isFontTypeValidTest() {
+        assertTrue(OPFChecker30.isFontType("application/x-font-ttf"));
+    }
+
+    @Test
+    public void isFontTypeInvalidTest() {
+        assertFalse(OPFChecker30.isFontType("font/abc"));
+    }
+
+    @Test
+    public void isBlessedFontTypeValidTest() {
+        assertTrue(OPFChecker30.isBlessedFontType("application/x-font-ttf"));
+    }
+
+    @Test
+    public void isBlessedFontTypeInvalidTest() {
+        assertFalse(OPFChecker30.isBlessedFontType("font/abc"));
+    }
+
+    @Test
+    public void isBlessedScriptTypeValidTest() {
+        assertTrue(OPFChecker30.isBlessedScriptType("text/javascript"));
+    }
+
+    @Test
+    public void isBlessedScriptTypeInvalidTest() {
+        assertFalse(OPFChecker30.isBlessedScriptType("text/jsscript"));
+    }
+
+    @Test
+    public void isCoreMediaTypeValidTest() {
+        assertTrue(OPFChecker30.isCoreMediaType("text/javascript"));
+    }
+
+    @Test
+    public void isCoreMediaTypeInvalidTest() {
+        assertFalse(OPFChecker30.isCoreMediaType("text/jsscript"));
+    }
+
+    @Test
+    public void getPreferredMediaTypeTest() {
+        assertEquals("image/jpeg", OPFChecker30.getPreferredMediaType("image/jpg", "path/to/file.jpg"));
+    }
+
+}

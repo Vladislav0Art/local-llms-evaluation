@@ -1,0 +1,101 @@
+package com.adobe.epubcheck.opf;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
+
+import com.adobe.epubcheck.api.ValidationContext;
+import com.adobe.epubcheck.opf.OPFItem;
+import com.adobe.epubcheck.opf.OPFHandler;
+
+public class GeneratedTest {
+
+    @Test
+    public void OPFChecker30ConstructionTest() {
+        ValidationContext validationContext = Mockito.mock(ValidationContext.class);
+        OPFChecker30 checker = new OPFChecker30(validationContext);
+        assertNotNull(checker);
+    }
+
+    @Test
+    public void IsAudioTypeTest() {
+        String type = "audio/mpeg";
+        assertTrue(OPFChecker30.isAudioType(type));
+    }
+
+    @Test
+    public void IsBlessedAudioTypeTest() {
+        String type = "audio/mpeg";
+        assertTrue(OPFChecker30.isBlessedAudioType(type));
+    }
+
+    @Test
+    public void IsNotBlessedAudioTypeTest() {
+        String type = "audio/random";
+        assertFalse(OPFChecker30.isBlessedAudioType(type));
+    }
+
+    @Test
+    public void IsVideoTypeTest() {
+        String type = "video/mp4";
+        assertTrue(OPFChecker30.isVideoType(type));
+    }
+
+    @Test
+    public void IsBlessedVideoTypeTest() {
+        String type = "video/mp4";
+        assertTrue(OPFChecker30.isBlessedVideoType(type));
+    }
+
+    @Test
+    public void IsNotBlessedVideoTypeTest() {
+        String type = "video/random";
+        assertFalse(OPFChecker30.isBlessedVideoType(type));
+    }
+
+    @Test
+    public void IsFontTypeTest() {
+        String type = "application/x-font-ttf";
+        assertTrue(OPFChecker30.isFontType(type));
+    }
+
+    @Test
+    public void IsBlessedFontType() {
+        String type = "application/x-font-ttf";
+        assertTrue(OPFChecker30.isBlessedFontType(type));
+    }
+
+    @Test
+    public void IsNotBlessedFontType() {
+        String type = "application/random-font";
+        assertFalse(OPFChecker30.isBlessedFontType(type));
+    }
+
+    @Test
+    public void IsCoreMediaTypeTest() {
+        String type = "application/xhtml+xml";
+        assertTrue(OPFChecker30.isCoreMediaType(type));
+    }
+
+    @Test
+    public void CheckItemTest() {
+        ValidationContext validationContext = Mockito.mock(ValidationContext.class);
+        OPFItem item = Mockito.mock(OPFItem.class);
+        OPFHandler opfHandler = Mockito.mock(OPFHandler.class);
+        OPFChecker30 checker = new OPFChecker30(validationContext);
+        checker.checkItem(item, opfHandler);
+        Mockito.verify(opfHandler, Mockito.times(1)).checkItem(item);
+    }
+
+    @Test
+    public void CheckSpineItemTest() {
+        ValidationContext validationContext = Mockito.mock(ValidationContext.class);
+        OPFItem item = Mockito.mock(OPFItem.class);
+        OPFHandler opfHandler = Mockito.mock(OPFHandler.class);
+        OPFChecker30 checker = new OPFChecker30(validationContext);
+        checker.checkSpineItem(item, opfHandler);
+        Mockito.verify(opfHandler, Mockito.times(1)).checkSpineItem(item);
+    }
+
+}

@@ -1,0 +1,80 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.*;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.StringReader;
+
+public class GeneratedTest {
+
+    @Test
+    public void extractAttributesStartTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.StartTag startTag = new Token.StartTag();
+        startTag.attr("key", "value");
+        xmlTreeBuilder.insert(startTag);
+        Assert.assertEquals("value", xmlTreeBuilder.getStack().get(1).attr("key"));
+    }
+
+    @Test
+    public void extractAttributesCommentTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Comment commentToken = new Token.Comment();
+        commentToken.data("Test Comment");
+        xmlTreeBuilder.insert(commentToken);
+        Assert.assertEquals("Test Comment", ((Comment) xmlTreeBuilder.getStack().get(1)).getData());
+    }
+
+    @Test
+    public void extractAttributesCharacterTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Character characterToken = new Token.Character();
+        characterToken.data("Test Character");
+        xmlTreeBuilder.insert(characterToken);
+        Assert.assertEquals("Test Character", ((TextNode) xmlTreeBuilder.getStack().get(1)).getWholeText());
+    }
+
+    @Test
+    public void extractAttributesDoctypeTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Doctype doctypeToken = new Token.Doctype();
+        doctypeToken.init("html", "publicId", "systemId", true);
+        xmlTreeBuilder.insert(doctypeToken);
+        Assert.assertEquals("html", ((DocumentType) xmlTreeBuilder.getStack().get(1)).name());
+    }
+
+    @Test
+    public void processTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Character characterToken = new Token.Character();
+        characterToken.data("Test Character");
+        Assert.assertTrue(xmlTreeBuilder.process(characterToken));
+    }
+
+    @Test
+    public void parseValidDocumentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Assert.assertNotNull(xmlTreeBuilder.parse(new StringReader("<test>value</test>"), ""));
+    }
+
+    @Test
+    public void parseInvalidDocumentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Assert.assertNotNull(xmlTreeBuilder.parse(new StringReader("<test>value</test"), ""));
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Assert.assertNotNull(xmlTreeBuilder.newInstance());
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Parser parser = Parser.xmlParser();
+        Assert.assertEquals(1, xmlTreeBuilder.parseFragment("<test>Test Fragment</test>", "", parser).size());
+    }
+
+}

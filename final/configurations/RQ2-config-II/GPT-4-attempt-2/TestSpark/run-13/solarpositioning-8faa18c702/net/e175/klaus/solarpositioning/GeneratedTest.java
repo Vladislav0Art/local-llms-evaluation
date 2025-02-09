@@ -1,0 +1,59 @@
+package net.e175.klaus.solarpositioning;
+
+import net.e175.klaus.solarpositioning.DeltaT;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.time.LocalDate;
+import java.time.Month;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateJanuaryTest() {
+        LocalDate date = LocalDate.of(2021, Month.JANUARY, 1);
+        double result = DeltaT.estimate(date);
+
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void estimateLeapYearTest() {
+        LocalDate date = LocalDate.of(2020, Month.FEBRUARY, 29);
+        double result = DeltaT.estimate(date);
+
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void estimateEndOfYearTest() {
+        LocalDate date = LocalDate.of(2021, Month.DECEMBER, 31);
+        double result = DeltaT.estimate(date);
+
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void estimateStartDateDTTest() {
+        // This date is assumed to be the start of Delta T calculations
+        LocalDate date = LocalDate.of(1620, Month.JANUARY, 1);
+        double result = DeltaT.estimate(date);
+
+        // Expected result is based on historical DeltaT value for the year 1620
+        double expected = -20;
+        double delta = 0.1;
+
+        assertEquals(expected, result, delta);
+    }
+
+    @Test
+    public void estimateInvalidDateTest() {
+        // This date is beyond the valid range of Delta T calculations
+        LocalDate date = LocalDate.of(1500, Month.JANUARY, 1);
+
+        DeltaT.estimate(date);
+    }
+
+}

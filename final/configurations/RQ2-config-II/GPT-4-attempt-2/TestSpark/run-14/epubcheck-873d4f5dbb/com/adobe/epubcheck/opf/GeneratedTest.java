@@ -1,0 +1,98 @@
+package com.adobe.epubcheck.opf;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void initHandlerTest() {
+        ValidationContext context = new ValidationContext(EPUBVersion.VERSION_3, "path", "mimetype");
+        OPFChecker30 checker = new OPFChecker30(context);
+
+        checker.initHandler();
+        // Add assertions if needed
+    }
+
+    @Test
+    public void checkPackageTest() {
+        ValidationContext context = new ValidationContext(EPUBVersion.VERSION_3, "path", "mimetype");
+        OPFChecker30 checker = new OPFChecker30(context);
+
+        boolean result = checker.checkPackage();
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void checkContentTest() {
+        ValidationContext context = new ValidationContext(EPUBVersion.VERSION_3, "path", "mimetype");
+        OPFChecker30 checker = new OPFChecker30(context);
+
+        boolean result = checker.checkContent();
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void isAudioTypeTest() {
+        boolean result = OPFChecker30.isAudioType("audio/mp3");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isBlessedAudioTypeTest() {
+        boolean result = OPFChecker30.isBlessedAudioType("audio/mp3");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isVideoTypeTest() {
+        boolean result = OPFChecker30.isVideoType("video/mp4");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isBlessedVideoTypeTest() {
+        boolean result = OPFChecker30.isBlessedVideoType("video/mp4");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isCommonVideoTypeTest() {
+        boolean result = OPFChecker30.isCommonVideoType("video/mp4");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isFontTypeTest() {
+        boolean result = OPFChecker30.isFontType("font/woff");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isBlessedFontTypeTest() {
+        boolean result = OPFChecker30.isBlessedFontType("font/woff");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isBlessedScriptTypeTest() {
+        boolean result = OPFChecker30.isBlessedScriptType("text/javascript");
+        assertTrue(result);
+    }
+
+    @Test
+    public void isCoreMediaTypeTest() {
+        boolean result = OPFChecker30.isCoreMediaType("application/epub+zip");
+        assertTrue(result);
+    }
+
+    @Test
+    public void getPreferredMediaTypeTest() {
+        String result = OPFChecker30.getPreferredMediaType("font/woff2", "/fonts/MyFont.woff2");
+        assertEquals("font/woff2", result);
+    }
+
+}

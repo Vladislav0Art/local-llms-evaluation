@@ -1,0 +1,44 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class GeneratedTest {
+
+    @Test
+    public void UrlBuilderCreationTest() {
+        URL inputUrl = new URL("https://www.google.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        Assert.assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildUrlTest() throws MalformedURLException {
+        URL inputUrl = new URL("https://www.google.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL resultUrl = urlBuilder.build();
+        Assert.assertEquals(inputUrl, resultUrl);
+    }
+
+    @Test
+    public void appendKeyValUnsupportedEncodingTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("https://www.google.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        urlBuilder.appendKeyVal(new Connection.KeyVal("test_key", "unsupported_encoding_key_value_string"));
+    }
+
+    @Test
+    public void appendKeyValValidEncodingTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("https://www.google.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        urlBuilder.appendKeyVal(new Connection.KeyVal("test_key", "valid_encoding_key_value_string"));
+        URL resultUrl = urlBuilder.build();
+        Assert.assertTrue(resultUrl.toExternalForm().contains("test_key=valid_encoding_key_value_string"));
+    }
+
+}

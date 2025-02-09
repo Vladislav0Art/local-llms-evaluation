@@ -1,0 +1,109 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeConstructorTest() {
+        TextNode textNode = new TextNode("Test text");
+        Assert.assertNotNull(textNode);
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("Test text");
+        Assert.assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        TextNode textNode = new TextNode("Test text");
+        Assert.assertEquals("Test text", textNode.getWholeText());
+    }
+
+    @Test
+    public void setTextTest() {
+        TextNode textNode = new TextNode("Test text");
+        textNode.text("Modified text");
+        Assert.assertEquals("Modified text", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("");
+        Assert.assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("Test text");
+        TextNode splitNode = textNode.splitText(4);
+        Assert.assertEquals("Test", textNode.getWholeText());
+        Assert.assertEquals(" text", splitNode.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        TextNode textNode = new TextNode("Test text");
+        Appendable accum = new StringBuffer();
+        Document.OutputSettings out = new Document.OutputSettings();
+        textNode.outerHtmlHead(accum, 0, out);
+        Assert.assertEquals("Test text", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        TextNode textNode = new TextNode("Test text");
+        Appendable accum = new StringBuffer();
+        Document.OutputSettings out = new Document.OutputSettings();
+        textNode.outerHtmlTail(accum, 0, out);
+        Assert.assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        TextNode textNode = new TextNode("Test text");
+        Assert.assertEquals("Test text", textNode.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode textNode = new TextNode("Test text");
+        TextNode clonedNode = textNode.clone();
+        Assert.assertNotSame(textNode, clonedNode);
+        Assert.assertEquals(textNode.getWholeText(), clonedNode.getWholeText());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        String encodedText = "&amp;";
+        TextNode textNode = TextNode.createFromEncoded(encodedText);
+        Assert.assertEquals("&", textNode.getWholeText());
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String text = " Multiple   white     spaces ";
+        String normalised = TextNode.normaliseWhitespace(text);
+        Assert.assertEquals(" Multiple white spaces ", normalised);
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String text = "    Leading spaces";
+        String stripped = TextNode.stripLeadingWhitespace(text);
+        Assert.assertEquals("Leading spaces", stripped);
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        StringBuilder sb = new StringBuilder("Final space ");
+        boolean hasWhitespace = TextNode.lastCharIsWhitespace(sb);
+        Assert.assertTrue(hasWhitespace);
+    }
+
+}

@@ -1,0 +1,71 @@
+package com.adobe.epubcheck.tool;
+
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.tool.EpubChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.when;
+
+import java.util.Locale;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Locale expectedLocale = Locale.getDefault();
+        Locale actualLocale = epubChecker.getLocale();
+        Assert.assertEquals("Locale is incorrect", expectedLocale, actualLocale);
+    }
+
+    @Test
+    public void runValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"test.epub"};
+        int expectedResult = 0;  // Assuming the test.epub is valid
+        int actualResult = epubChecker.run(args);
+        Assert.assertEquals("Epub run return value is incorrect", expectedResult, actualResult);
+    }
+
+    @Test
+    public void runEmptyArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {};
+        epubChecker.run(args);
+    }
+
+    @Test
+    public void processEpubFileValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {"test.epub"};
+        int expectedResult = 0;
+        int actualResult = epubChecker.processEpubFile(args);
+        Assert.assertEquals("Process Epub File return value is incorrect", expectedResult, actualResult);
+    }
+
+    @Test
+    public void processEpubFileEmptyArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = {};
+        epubChecker.processEpubFile(args);
+    }
+
+    @Test
+    public void validateFileTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String path = "test.epub";
+        EPUBVersion version = EPUBVersion.VERSION_2;
+        Report report = Mockito.mock(Report.class);
+        EPUBProfile profile = EPUBProfile.OPF_2_0;
+
+        when(report.getCheckingReport()).thenReturn(new CheckingReport("", ""));
+        int expectedResult = 0;
+        int actualResult = epubChecker.validateFile(path, version, report, profile);
+        Assert.assertEquals("Validate file return value is incorrect", expectedResult, actualResult);
+    }
+
+}

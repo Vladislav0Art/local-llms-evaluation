@@ -1,0 +1,107 @@
+package org.jsoup.helper;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTest() {
+        W3CDom dom = new W3CDom();
+        boolean namespaceAware = dom.namespaceAware();
+        Assert.assertFalse(namespaceAware);
+    }
+
+    @Test
+    public void namespaceAwareBooleanTest() {
+        W3CDom dom = new W3CDom();
+        W3CDom domWithNamespace = dom.namespaceAware(true);
+        Assert.assertNotNull(domWithNamespace);
+        Assert.assertTrue(domWithNamespace.namespaceAware());
+    }
+
+    @Test
+    public void fromJsoupDocumentTest() {
+        W3CDom dom = new W3CDom();
+        Document jsoupDoc = new Document("");
+        org.w3c.dom.Document doc = dom.fromJsoup(jsoupDoc);
+        Assert.assertNotNull(doc);
+    }
+
+    @Test
+    public void fromJsoupElementTest() {
+        W3CDom dom = new W3CDom();
+        Element jsoupEl = new Element("tag");
+        org.w3c.dom.Document doc = dom.fromJsoup(jsoupEl);
+        Assert.assertNotNull(doc);
+    }
+
+    @Test
+    public void selectXpathDocumentTest() {
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = dom.fromJsoup(new Document(""));
+        NodeList nodeList = dom.selectXpath("//p", w3cDoc);
+        Assert.assertNotNull(nodeList);
+    }
+
+    @Test
+    public void selectXpathNodeTest() {
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = dom.fromJsoup(new Document(""));
+        Node node = w3cDoc.createElement("node");
+        NodeList nodeList = dom.selectXpath("//p", node);
+        Assert.assertNotNull(nodeList);
+    }
+
+    @Test
+    public void contextNodeTest() {
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = dom.fromJsoup(new Document(""));
+        Node contextNode = dom.contextNode(w3cDoc);
+        Assert.assertNotNull(contextNode);
+    }
+
+    @Test
+    public void asStringDocumentTest() {
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = dom.fromJsoup(new Document(""));
+        String result = dom.asString(w3cDoc);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void asStringDocumentPropertiesTest() {
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = dom.fromJsoup(new Document(""));
+        Map<String, String> properties = new HashMap<>();
+        String result = W3CDom.asString(w3cDoc, properties);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = new HashMap<>();
+        java.util.Properties properties = W3CDom.propertiesFromMap(map);
+        Assert.assertNotNull(properties);
+    }
+
+    @Test
+    public void OutputHtmlTest() {
+        HashMap<String, String> outputHtml = W3CDom.OutputHtml();
+        Assert.assertNotNull(outputHtml);
+    }
+
+    @Test
+    public void OutputXmlTest() {
+        HashMap<String, String> outputXml = W3CDom.OutputXml();
+        Assert.assertNotNull(outputXml);
+    }
+
+}

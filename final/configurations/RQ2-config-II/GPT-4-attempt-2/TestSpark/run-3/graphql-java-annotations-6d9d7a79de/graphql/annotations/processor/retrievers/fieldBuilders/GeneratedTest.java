@@ -1,0 +1,62 @@
+package graphql.annotations.processor.retrievers.fieldBuilders;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLType;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildWithNoDirectivesTest() {
+        Field field = Mockito.mock(Field.class);
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        DirectivesBuilder builder = new DirectivesBuilder(field, container);
+        GraphQLDirective[] result = builder.build();
+        Assert.assertEquals(0, result.length);
+    }
+
+    @Test
+    public void buildWithSingleDirectiveTest() {
+        Field field = Mockito.mock(Field.class);
+        Annotation mockAnnotation = Mockito.mock(Annotation.class);
+        Mockito.when(field.getAnnotations()).thenReturn(new Annotation[]{mockAnnotation});
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        DirectivesBuilder builder = new DirectivesBuilder(field, container);
+        GraphQLDirective[] result = builder.build();
+        Assert.assertEquals(1, result.length);
+    }
+
+    @Test
+    public void buildWithInvalidDirectiveTest() {
+        Field field = Mockito.mock(Field.class);
+        annotationWithInvalidDirective fieldAnnotations = Mockito.mock(annotationWithInvalidDirective.class);
+        Mockito.when(field.getAnnotations()).thenReturn(new Annotation[]{fieldAnnotations});
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        DirectivesBuilder builder = new DirectivesBuilder(field, container);
+        builder.build();
+    }
+
+    @Test
+    public void buildWithMultipleDirectivesTest() {
+        Field field = Mockito.mock(Field.class);
+        Annotation mockAnnotation1 = Mockito.mock(Annotation.class);
+        Annotation mockAnnotation2 = Mockito.mock(Annotation.class);
+        Mockito.when(field.getAnnotations()).thenReturn(new Annotation[]{mockAnnotation1, mockAnnotation2});
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        DirectivesBuilder builder = new DirectivesBuilder(field, container);
+        GraphQLDirective[] result = builder.build();
+        Assert.assertEquals(2, result.length);
+    }
+
+    // This class will simulate an annotation with an invalid directive
+    @interface annotationWithInvalidDirective {
+    }
+
+}

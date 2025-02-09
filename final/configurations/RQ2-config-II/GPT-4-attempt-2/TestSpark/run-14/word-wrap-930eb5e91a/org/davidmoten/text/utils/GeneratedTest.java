@@ -1,0 +1,65 @@
+package org.davidmoten.text.utils;
+
+import org.davidmoten.text.utils.WordWrap;
+import org.junit.Test;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        StringReader reader = new StringReader("TestString");
+        WordWrap.Builder result = WordWrap.from(reader);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        String resource = "someResource";
+        WordWrap.Builder result = WordWrap.fromClasspathUtf8(resource);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void fromFileCharsetNullFileTest() throws FileNotFoundException {
+        File file = null;
+        Charset charset = StandardCharsets.UTF_8;
+        WordWrap.Builder builder = WordWrap.from(file, charset);
+    }
+
+    @Test
+    public void closeNullReaderTest() {
+        WordWrap.close(null);
+    }
+
+    @Test
+    public void closeReaderTest() {
+        Reader reader = new StringReader("TestString");
+        WordWrap.close(reader);
+    }
+
+    @Test
+    public void rightTrimTest() {
+        assertEquals("", WordWrap.rightTrim(""));
+        assertEquals("Test", WordWrap.rightTrim("Test   "));
+        assertEquals("  Test", WordWrap.rightTrim("  Test   "));
+    }
+
+    @Test
+    public void isWhitespaceWhitespaceTest() {
+        assertTrue(WordWrap.isWhitespace("   "));
+    }
+
+    @Test
+    public void isWhitespaceWithoutWhitespaceTest() {
+        assertFalse(WordWrap.isWhitespace("\n   a"));
+    }
+
+}

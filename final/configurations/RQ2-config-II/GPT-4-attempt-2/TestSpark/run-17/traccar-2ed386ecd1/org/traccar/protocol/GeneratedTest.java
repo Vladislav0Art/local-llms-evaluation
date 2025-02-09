@@ -1,0 +1,79 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.junit.Assert;
+
+import static org.mockito.Mockito.*;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.TimeZone;
+
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+public class GeneratedTest {
+
+    @Test
+    public void decodeGpsPositionNoLengthTest() {
+        ByteBuf buf = Unpooled.copiedBuffer("123456", StandardCharsets.UTF_8);
+        Position position = new Position();
+        TimeZone timeZone = TimeZone.getTimeZone("GMT");
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, false, timeZone);
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsPositionWithLengthTest() {
+        ByteBuf buf = Unpooled.copiedBuffer("[1,2,3,4,5,6]", StandardCharsets.UTF_8);
+        Position position = new Position();
+        TimeZone timeZone = TimeZone.getTimeZone("GMT");
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, timeZone);
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsPositionNoSatellitesTest() {
+        ByteBuf buf = Unpooled.copiedBuffer("[12, 34, 56]", StandardCharsets.UTF_8);
+        Position position = new Position();
+        TimeZone timeZone = TimeZone.getTimeZone("GMT");
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, false, true, timeZone);
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeGpsPositionWithSatellitesTest() {
+        ByteBuf buf = Unpooled.copiedBuffer("123456", StandardCharsets.UTF_8);
+        Position position = new Position();
+        TimeZone timeZone = TimeZone.getTimeZone("GMT");
+
+        boolean result = Gt06ProtocolDecoder.decodeGps(position, buf, true, true, true, timeZone);
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void decodeInProtocolDecoderTest() throws Exception {
+        ByteBuf buf = Unpooled.copiedBuffer("0101010101", StandardCharsets.UTF_8);
+
+        Protocol protocol = mock(Protocol.class);
+        Channel channel = mock(Channel.class);
+        InetSocketAddress remoteAddress = new InetSocketAddress("localhost", 12345);
+
+        Gt06ProtocolDecoder decoder = new Gt06ProtocolDecoder(protocol);
+        decoder.decode(channel, remoteAddress, buf);
+
+        Assert.assertTrue(true);
+    }
+
+}

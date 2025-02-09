@@ -1,0 +1,32 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedAppendKeyVal_ThrowsException_Test {
+
+    @Mock
+    private Connection.KeyVal mockKeyVal;
+
+    @Test
+    public void appendKeyVal_ThrowsException_Test() throws Exception {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        when(mockKeyVal.key()).thenReturn("key with spaces");
+        when(mockKeyVal.value()).thenReturn("invalid encoding");
+
+        builder.appendKeyVal(mockKeyVal);
+    }
+
+}

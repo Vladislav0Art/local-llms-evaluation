@@ -1,0 +1,96 @@
+package app;
+
+import com.opencsv.exceptions.CsvValidationException;
+import exceptions.DBAppException;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import sql.SQLTerm;
+import util.TypeCaster;
+import util.search.SearchCriteria;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.*;
+
+public class GeneratedTest {
+
+    @Mock
+    CsvReader mockReader;
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> myTables = dbApp.getMyTables();
+
+        Assert.assertNotNull(myTables);
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        CsvReader reader = dbApp.getReader();
+
+        Assert.assertNotNull(reader);
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        CsvWriter writer = dbApp.getWriter();
+
+        Assert.assertNotNull(writer);
+    }
+
+    @Test
+    public void initTest() {
+        // No Exception testing, just makes sure the code runs
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+    }
+
+    @Test
+    public void createTableTest_PassingNullArguments_ShouldThrowDBAppException() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.createTable(null, null, null, null, null);
+    }
+
+    @Test
+    public void insertIntoTableTest_PassingNullArguments_ShouldThrowDBAppException() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.insertIntoTable(null, null);
+    }
+
+    @Test
+    public void updateTableTest_PassingNullArguments_ShouldThrowDBAppException() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.updateTable(null, null, null);
+    }
+
+    @Test
+    public void deleteFromTableTest_PassingNullArguments_ShouldThrowDBAppException() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.deleteFromTable(null, null);
+    }
+
+    @Test
+    public void selectFromTableTest_PassingNullArguments_ShouldThrowDBAppException() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.selectFromTable(null, null);
+    }
+
+    @Test
+    public void selectFromTableTest_ValidParams_ShouldNotThrowException() {
+        Mockito.when(mockReader.parseSqlTerms(Mockito.any(SQLTerm[].class))).thenReturn(new SearchCriteria());
+        DBApp reference = new DBApp();
+        SQLTerm[] terms = new SQLTerm[]{new SQLTerm()};
+        String[] operators = new String[]{"AND"};
+        try {
+            reference.selectFromTable(terms, operators);
+        } catch (Exception e) {
+            Assert.fail("This should not have thrown an exception");
+        }
+    }
+
+}

@@ -1,0 +1,130 @@
+package org.jsoup.helper;
+
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareSetTrueTest() {
+        W3CDom w3CDom = new W3CDom();
+        w3CDom.namespaceAware(true);
+        assertTrue(w3CDom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAwareSetFalseTest() {
+        W3CDom w3CDom = new W3CDom();
+        w3CDom.namespaceAware(false);
+        assertFalse(w3CDom.namespaceAware());
+    }
+
+    @Test
+    public void convertDocumentTest() {
+        Document documentMock = Mockito.mock(Document.class);
+        assertNotNull(W3CDom.convert(documentMock));
+    }
+
+    @Test
+    public void asStringWithPropertiesTest() {
+        org.w3c.dom.Document documentMock = Mockito.mock(org.w3c.dom.Document.class);
+        Map<String, String> properties = new HashMap<>();
+        properties.put("method", "xml");
+        String result = W3CDom.asString(documentMock, properties);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = new HashMap<>();
+        map.put("test_key", "test_value");
+        assertNotNull(W3CDom.propertiesFromMap(map));
+    }
+
+    @Test
+    public void OutputHtmlTest() {
+        assertNotNull(W3CDom.OutputHtml());
+    }
+
+    @Test
+    public void OutputXmlTest() {
+        assertNotNull(W3CDom.OutputXml());
+    }
+
+    @Test
+    public void fromJsoupDocumentTest() {
+        W3CDom w3CDom = new W3CDom();
+        Document documentMock = Mockito.mock(Document.class);
+        assertNotNull(w3CDom.fromJsoup(documentMock));
+    }
+
+    @Test
+    public void fromJsoupElementTest() {
+        org.jsoup.nodes.Element elementMock = Mockito.mock(org.jsoup.nodes.Element.class);
+        W3CDom w3CDom = new W3CDom();
+        assertNotNull(w3CDom.fromJsoup(elementMock));
+    }
+
+    @Test
+    public void convertDocumentToDocumentThrowsExceptionTest() {
+        W3CDom testInstance = new W3CDom();
+        org.jsoup.nodes.Document docIn = null;
+        org.w3c.dom.Document docOut = null;
+        testInstance.convert(docIn, docOut);
+    }
+
+    @Test
+    public void convertElementToDocumentThrowsExceptionTest() {
+        W3CDom testInstance = new W3CDom();
+        org.jsoup.nodes.Element elementIn = null;
+        org.w3c.dom.Document docOut = null;
+        testInstance.convert(elementIn, docOut);
+    }
+
+    @Test
+    public void selectXpathWithDocumentTest() {
+        W3CDom w3CDom = new W3CDom();
+        org.w3c.dom.Document documentMock = Mockito.mock(org.w3c.dom.Document.class);
+        NodeList resultingNodeList = w3CDom.selectXpath("//p", documentMock);
+        assertNotNull(resultingNodeList);
+    }
+
+    @Test
+    public void selectXpathWithNodeTest() {
+        W3CDom w3CDom = new W3CDom();
+        Node nodeMock = Mockito.mock(Node.class);
+        NodeList resultingNodeList = w3CDom.selectXpath("//p", nodeMock);
+        assertNotNull(resultingNodeList);
+    }
+
+    @Test
+    public void sourceNodesTest() {
+        NodeList nodeListMock = Mockito.mock(NodeList.class);
+        W3CDom w3CDom = new W3CDom();
+        List<org.jsoup.nodes.Node> nodes = w3CDom.sourceNodes(nodeListMock, org.jsoup.nodes.Node.class);
+        assertNotNull(nodes);
+    }
+
+    @Test
+    public void contextNodeTest() {
+        W3CDom testInstance = new W3CDom();
+        org.w3c.dom.Document wDoc = Mockito.mock(org.w3c.dom.Document.class);
+        assertNotNull(testInstance.contextNode(wDoc));
+    }
+
+    @Test
+    public void asStringNullPropertiesTest() {
+        org.w3c.dom.Document doc = Mockito.mock(org.w3c.dom.Document.class);
+        W3CDom testInstance = new W3CDom();
+        assertNotNull(testInstance.asString(doc));
+    }
+
+}

@@ -1,0 +1,113 @@
+package org.jsoup.parser;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Token.Comment;
+import org.jsoup.parser.Token.StartTag;
+import org.jsoup.parser.Token.Character;
+import org.jsoup.parser.Token.Doctype;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.StringReader;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Assert.assertNotNull(builder.defaultSettings());
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder builder = Mockito.spy(new XmlTreeBuilder());
+        StringReader reader = new StringReader("");
+        builder.initialiseParse(reader, "baseUriTester", new Parser(builder));
+        Mockito.verify(builder).initialiseParse(reader, "baseUriTester", new Parser(builder));
+    }
+
+    @Test
+    public void parseTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Document doc = builder.parse(new StringReader("<HTML></HTML>"), "baseUriTester");
+        Assert.assertNotNull(doc);
+    }
+
+    @Test
+    public void parseFromInputStringTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Document doc = builder.parse("<HTML></HTML>", "baseUriTester");
+        Assert.assertNotNull(doc);
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Assert.assertNotNull(builder.newInstance());
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder builder = Mockito.spy(new XmlTreeBuilder());
+        builder.insertNode(Mockito.mock(Node.class));
+        Mockito.verify(builder).insertNode(Mockito.any(Node.class));
+    }
+
+    @Test
+    public void insertNodeWithTokenTest() {
+        XmlTreeBuilder builder = Mockito.spy(new XmlTreeBuilder());
+        builder.insertNode(Mockito.mock(Node.class), Mockito.mock(Token.class));
+        Mockito.verify(builder).insertNode(Mockito.any(Node.class), Mockito.any(Token.class));
+    }
+
+    @Test
+    public void insertStartTagTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Assert.assertNotNull(builder.insert(new StartTag()));
+    }
+
+    @Test
+    public void insertCommentTest() {
+        XmlTreeBuilder builder = Mockito.spy(new XmlTreeBuilder());
+        builder.insert(new Comment());
+        Mockito.verify(builder).insert(Mockito.any(Comment.class));
+    }
+
+    @Test
+    public void insertCharacterTest() {
+        XmlTreeBuilder builder = Mockito.spy(new XmlTreeBuilder());
+        builder.insert(new Character());
+        Mockito.verify(builder).insert(Mockito.any(Character.class));
+    }
+
+    @Test
+    public void insertDoctypeTest() {
+        XmlTreeBuilder builder = Mockito.spy(new XmlTreeBuilder());
+        builder.insert(new Doctype());
+        Mockito.verify(builder).insert(Mockito.any(Doctype.class));
+    }
+
+    @Test
+    public void popStackToCloseTest() {
+        XmlTreeBuilder builder = Mockito.spy(new XmlTreeBuilder());
+        builder.popStackToClose(Mockito.mock(Token.EndTag.class));
+        Mockito.verify(builder).popStackToClose(Mockito.any(Token.EndTag.class));
+    }
+
+    @Test
+    public void parseFragmentTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        List<Node> nodes = builder.parseFragment("<HTML></HTML>", "baseUriTester", new Parser(builder));
+        Assert.assertNotNull(nodes);
+    }
+
+    @Test
+    public void parseFragmentWithContextTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        List<Node> nodes = builder.parseFragment("<HTML></HTML>", Mockito.mock(Element.class), "baseUriTester", new Parser(builder));
+        Assert.assertNotNull(nodes);
+    }
+
+}

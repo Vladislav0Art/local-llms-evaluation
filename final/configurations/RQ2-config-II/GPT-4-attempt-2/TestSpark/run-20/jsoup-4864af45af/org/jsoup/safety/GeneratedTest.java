@@ -1,0 +1,137 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneInitTest() {
+        Safelist safelist = Safelist.none();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void simpleTextInitTest() {
+        Safelist safelist = Safelist.simpleText();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicInitTest() {
+        Safelist safelist = Safelist.basic();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicWithImagesInitTest() {
+        Safelist safelist = Safelist.basicWithImages();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void relaxedInitTest() {
+        Safelist safelist = Safelist.relaxed();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("tag");
+        assertTrue(safelist.isSafeTag("tag"));
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = Safelist.basic();
+        safelist.removeTags("body");
+        assertFalse(safelist.isSafeTag("body"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = new Safelist();
+        safelist.addTags("tag").addAttributes("tag", "attr");
+
+        Attribute attr = new Attribute("attr", "value");
+        Element el = new Element("tag");
+        el.attributes().put(attr);
+
+        assertTrue(safelist.isSafeAttribute("tag", el, attr));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = Safelist.basic();
+        safelist.removeAttributes("body", "charset");
+
+        Attribute attr = new Attribute("charset", "utf-8");
+        Element el = new Element("body");
+        el.attributes().put(attr);
+
+        assertFalse(safelist.isSafeAttribute("body", el, attr));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = new Safelist();
+        safelist.addTags("tag").addEnforcedAttribute("tag", "attr", "value");
+
+        assertEquals("value", safelist.getEnforcedAttributes("tag").get("attr"));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.basic();
+        safelist.removeEnforcedAttribute("a", "rel");
+
+        assertTrue(safelist.getEnforcedAttributes("a").isEmpty());
+    }
+
+    @Test
+    public void preserveRelativeLinksTest() {
+        Safelist safelist = new Safelist();
+        safelist.preserveRelativeLinks(true);
+
+        Attribute attr = new Attribute("href", "./relative");
+        Element el = new Element("a");
+        el.attributes().put(attr);
+
+        assertTrue(safelist.isSafeAttribute("a", el, attr));
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = new Safelist();
+        safelist.addTags("tag").addProtocols("tag", "attr", "protocol");
+
+        Attribute attr = new Attribute("attr", "protocol:");
+        Element el = new Element("tag");
+        el.attributes().put(attr);
+
+        assertTrue(safelist.isSafeAttribute("tag", el, attr));
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = Safelist.basic();
+        safelist.removeProtocols("a", "href", "http");
+
+        Attribute attr = new Attribute("href", "http://");
+        Element el = new Element("a");
+        el.attributes().put(attr);
+
+        assertFalse(safelist.isSafeAttribute("a", el, attr));
+    }
+
+    @Test
+    public void getEnforcedAttributesTest() {
+        Safelist safelist = Safelist.basic();
+        assertNotNull(safelist.getEnforcedAttributes("a"));
+    }
+
+}

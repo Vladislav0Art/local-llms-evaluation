@@ -1,0 +1,100 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.*;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("http://google.com");
+        assertEquals("http://google.com", doc.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Document doc = new Document("http://google.com");
+        Connection conn = doc.connection();
+        assertNotNull(conn);
+    }
+
+    @Test
+    public void formsTest() {
+        Document doc = new Document("http://google.com");
+        assertTrue(doc.forms().isEmpty());
+    }
+
+    @Test
+    public void titleTest() {
+        Document doc = new Document("http://google.com");
+        doc.title("test");
+        assertEquals("test", doc.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document doc = new Document("http://google.com");
+        Element el = doc.createElement("p");
+        assertEquals("p", el.nodeName());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document doc = new Document("http://google.com");
+        doc.charset(StandardCharsets.UTF_8);
+        assertEquals(StandardCharsets.UTF_8, doc.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementTest() {
+        Document doc = new Document("http://google.com");
+        doc.updateMetaCharsetElement(true);
+        assertTrue(doc.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document doc = new Document("http://google.com");
+        Document clone = doc.clone();
+        assertNotEquals(doc, clone);
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document doc = new Document("http://google.com");
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        doc.outputSettings(outputSettings);
+        assertEquals(outputSettings, doc.outputSettings());
+    }
+
+    @Test
+    public void quirksModeTest() {
+        Document doc = new Document("http://google.com");
+        doc.quirksMode(Document.QuirksMode.quirks);
+        assertEquals(Document.QuirksMode.quirks, doc.quirksMode());
+    }
+
+    @Test
+    public void parserTest() {
+        Document doc = new Document("http://google.com");
+        Parser parser = Parser.htmlParser();
+        doc.parser(parser);
+        assertEquals(parser, doc.parser());
+    }
+
+    @Test
+    public void connectionMethodWithParameterTest() {
+        Document doc = new Document("http://google.com");
+        Connection conn = doc.connection();
+        doc.connection(conn);
+        assertEquals(conn, doc.connection());
+    }
+
+}

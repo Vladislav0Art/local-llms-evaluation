@@ -1,0 +1,89 @@
+package org.davidmoten.text.utils;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        Reader reader = new StringReader("test reader");
+        assertNotNull(WordWrap.from(reader));
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() throws FileNotFoundException {
+        assertNotNull(WordWrap.fromClasspathUtf8("testFile.txt"));
+    }
+
+    @Test
+    public void fromClasspathCharsetTest() throws FileNotFoundException {
+        assertNotNull(WordWrap.fromClasspath("testFile.txt", StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        assertNotNull(WordWrap.from("test string"));
+    }
+
+    @Test
+    public void fromUtf8Test() throws FileNotFoundException {
+        File file = new File("testFile.txt");
+        assertNotNull(WordWrap.fromUtf8(file.toURI().toURL().openStream()));
+    }
+
+    @Test
+    public void fromInputStreamTest() throws FileNotFoundException {
+        File file = new File("testFile.txt");
+        assertNotNull(WordWrap.from(file.toURI().toURL().openStream(), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void fromFileTest() throws FileNotFoundException {
+        File file = new File("testFile.txt");
+        assertNotNull(WordWrap.from(file, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void fromReaderCloseTest() {
+        Reader reader = new StringReader("test reader");
+        assertNotNull(WordWrap.from(reader, true));
+    }
+
+    @Test
+    public void closeReaderTest() {
+        Reader reader = new StringReader("test reader");
+        WordWrap.close(reader);
+    }
+
+    @Test
+    public void rightTrimTest() {
+        assertEquals("test", WordWrap.rightTrim("test   "));
+    }
+
+    @Test
+    public void isWhitespaceTestTrue() {
+        assertEquals(true, WordWrap.isWhitespace("  "));
+    }
+
+    @Test
+    public void isWhitespaceTestFalse() {
+        assertEquals(false, WordWrap.isWhitespace("test"));
+    }
+
+    @Test
+    public void leftTrimTest() {
+        StringBuilder2 stringBuilder = new StringBuilder2("   test");
+        WordWrap.leftTrim(stringBuilder);
+        assertEquals("test", stringBuilder.toString());
+    }
+
+}

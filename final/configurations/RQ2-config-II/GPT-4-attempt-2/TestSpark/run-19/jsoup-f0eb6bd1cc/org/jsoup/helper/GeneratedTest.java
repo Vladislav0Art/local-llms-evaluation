@@ -1,0 +1,84 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection.KeyVal;
+import org.junit.Test;
+import org.junit.Assert;
+import org.jsoup.helper.UrlBuilder;
+
+import java.net.URL;
+import java.io.UnsupportedEncodingException;
+
+public class GeneratedTest {
+
+    @Test
+    public void urlBuilderConstructorValidUrlTest() throws Exception {
+        // given
+        URL inputUrl = new URL("http://www.example.com");
+
+        // when
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+
+        // then
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void urlBuilderConstructorNullUrlTest() {
+        // given
+        URL inputUrl = null;
+
+        // when
+        new UrlBuilder(inputUrl);
+
+        // then
+        // should throw NullPointerException
+    }
+
+    @Test
+    public void buildValidUrlTest() throws Exception {
+        // given
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+
+        // when
+        URL builtUrl = builder.build();
+
+        // then
+        Assert.assertNotNull(builtUrl);
+        Assert.assertEquals(inputUrl, builtUrl);
+    }
+
+    @Test
+    public void appendKeyValNullKeyValTest() {
+        // given
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        KeyVal kv = null;
+
+        // when
+        try {
+            builder.appendKeyVal(kv);
+        } catch (UnsupportedEncodingException e) {
+            // then
+            // should throw UnsupportedEncodingException
+            Assert.assertTrue(e instanceof UnsupportedEncodingException);
+        }
+    }
+
+    @Test
+    public void appendKeyValValidKeyValTest() throws Exception {
+        // given
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        KeyVal kv = KeyVal.create("key", "value");
+
+        // when
+        builder.appendKeyVal(kv);
+        URL builtUrl = builder.build();
+
+        // then
+        Assert.assertNotNull(builtUrl);
+        Assert.assertTrue(builtUrl.toString().contains("key=value"));
+    }
+
+}

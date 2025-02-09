@@ -1,0 +1,122 @@
+package org.jsoup.helper;
+
+import org.hamcrest.Matchers;
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.CookieStore;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringTest() {
+        Connection connection = HttpConnection.connect("http://www.google.com");
+        Assert.assertThat(connection, Matchers.instanceOf(HttpConnection.class));
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void connectURLTest() throws IOException {
+        URL url = new URL("http://www.google.com");
+        Connection connection = HttpConnection.connect(url);
+        Assert.assertThat(connection, Matchers.instanceOf(HttpConnection.class));
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void newRequestTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.newRequest();
+        Assert.assertThat(connection, Matchers.instanceOf(HttpConnection.class));
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void urlTest() throws IOException {
+        URL url = new URL("http://www.google.com");
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.url(url);
+        Assert.assertEquals(url, httpConnection.request().url());
+    }
+
+    @Test
+    public void proxyTest() {
+        Proxy proxy = Mockito.mock(Proxy.class);
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.proxy(proxy);
+        Assert.assertEquals(proxy, httpConnection.request().proxy());
+    }
+
+    @Test
+    public void userAgentTest() {
+        String userAgent = "Test User Agent";
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.userAgent(userAgent);
+        Assert.assertEquals(userAgent, httpConnection.request().userAgent());
+    }
+
+    @Test
+    public void timeoutTest() {
+        int timeout = 5000;
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.timeout(timeout);
+        Assert.assertEquals(timeout, httpConnection.request().timeout());
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        int maxBodySize = 2048;
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.maxBodySize(maxBodySize);
+        Assert.assertEquals(maxBodySize, httpConnection.request().maxBodySize());
+    }
+
+    @Test
+    public void followRedirectsTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.followRedirects(false);
+        Assert.assertFalse(httpConnection.request().followRedirects());
+    }
+
+    @Test
+    public void methodTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.method(Connection.Method.POST);
+        Assert.assertEquals(Connection.Method.POST, httpConnection.request().method());
+    }
+
+    @Test
+    public void requestBodyTest() {
+        String requestBody = "Test Request Body";
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.requestBody(requestBody);
+        Assert.assertEquals(requestBody, httpConnection.request().requestBody());
+    }
+
+    @Test
+    public void headerTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.header("testKey", "testValue");
+        Assert.assertEquals("testValue", httpConnection.request().header("testKey"));
+    }
+
+    @Test
+    public void getTest() throws IOException {
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.url("http://www.google.com");
+        Document document = httpConnection.get();
+        Assert.assertNotNull(document);
+    }
+
+}

@@ -1,0 +1,122 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
+import org.junit.Assert;
+import org.junit.Test;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.CookieStore;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    // testing connect(String)
+
+    @Test
+    public void connectStringValidUrlTest() {
+        String url = "http://www.google.com";
+        HttpConnection httpConnection = (HttpConnection) HttpConnection.connect(url);
+        Assert.assertNotNull(httpConnection);
+    }
+
+    @Test
+    public void connectStringInvalidUrlTest() {
+        String url = "notavalidurl";
+        HttpConnection httpConnection = (HttpConnection) HttpConnection.connect(url);
+    }
+
+    @Test
+    public void connectURLTest() throws Exception {
+        URL url = new URL("http://www.google.com");
+        HttpConnection httpConnection = (HttpConnection) HttpConnection.connect(url);
+        Assert.assertNotNull(httpConnection);
+    }
+
+    @Test
+    public void urlStringTest() {
+        String url = "http://www.google.com";
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.url(url);
+        Assert.assertNotNull(httpConnection);
+    }
+
+    @Test
+    public void urlInvalidStringTest() {
+        String url = "notaValidUrl";
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.url(url);
+    }
+
+    @Test
+    public void urlURLTest() throws Exception {
+        URL url = new URL("http://www.google.com");
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.url(url);
+        Assert.assertNotNull(httpConnection);
+    }
+
+    @Test
+    public void userAgentTest() {
+        String agent = "Mozilla/5.0";
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.userAgent(agent);
+        Assert.assertNotNull(httpConnection);
+    }
+
+    @Test
+    public void dataTest() {
+        String key = "key";
+        String value = "value";
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.data(key, value);
+        Assert.assertNotNull(httpConnection);
+    }
+
+    @Test
+    public void getTest() {
+        String url = "http://www.google.com";
+        Connection connection = HttpConnection.connect(url);
+        try {
+            connection.get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void executeTest() {
+        String url = "http://www.google.com";
+        Connection connection = HttpConnection.connect(url);
+        try {
+            connection.execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(connection);
+    }
+
+    @Test
+    public void requestBodyTest() {
+        String body = "body";
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.requestBody(body);
+        Assert.assertNotNull(httpConnection);
+    }
+
+    @Test
+    public void cookieStoreTest() {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.cookieStore(cookieStore);
+        Assert.assertEquals(cookieStore, httpConnection.cookieStore());
+    }
+
+}

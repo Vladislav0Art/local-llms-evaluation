@@ -1,0 +1,132 @@
+package com.netflix.frigga.ami;
+
+import com.netflix.frigga.ami.AppVersion;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNameTestNullInput() {
+        AppVersion version = AppVersion.parseName(null);
+        Assert.assertNull(version);
+    }
+
+    @Test
+    public void parseNameTestEmptyString() {
+        AppVersion version = AppVersion.parseName("");
+        Assert.assertNull(version);
+    }
+
+    @Test
+    public void parseNameTest() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        Assert.assertNotNull(version);
+    }
+
+    @Test
+    public void compareToEqualTest() {
+        AppVersion version1 = AppVersion.parseName("appversion-test");
+        AppVersion version2 = AppVersion.parseName("appversion-test");
+        int result = version1.compareTo(version2);
+        Assert.assertEquals(0, result);
+    }
+
+    @Test
+    public void compareToLessThanTest() {
+        AppVersion version1 = AppVersion.parseName("appversion-test");
+        AppVersion version2 = AppVersion.parseName("appversion-test2");
+        int result = version1.compareTo(version2);
+        Assert.assertTrue(result < 0);
+    }
+
+    @Test
+    public void compareToGreaterThanTest() {
+        AppVersion version1 = AppVersion.parseName("appversion-test2");
+        AppVersion version2 = AppVersion.parseName("appversion-test");
+        int result = version1.compareTo(version2);
+        Assert.assertTrue(result > 0);
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        Assert.assertNotNull(AppVersion.getAppVersionPattern());
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        Assert.assertNotNull(version.getPackageName());
+    }
+
+    @Test
+    public void getVersionTest() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        Assert.assertNotNull(version.getVersion());
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        Assert.assertNotNull(version.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        Assert.assertNotNull(version.getBuildNumber());
+    }
+
+    @Test
+    public void getCommitTest() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        Assert.assertNotNull(version.getCommit());
+    }
+
+    @Test
+    public void getChangelistTest() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        Assert.assertNotNull(version.getChangelist());
+    }
+
+    @Test
+    public void equalsTestSameObject() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        Assert.assertTrue(version.equals(version));
+    }
+
+    @Test
+    public void equalsTestAnotherObjectEqualToVersion() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        AppVersion anotherVersion = AppVersion.parseName("appversion-test");
+        Assert.assertTrue(version.equals(anotherVersion));
+    }
+
+    @Test
+    public void equalsTestDifferentObject() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        AppVersion anotherVersion = AppVersion.parseName("appversion-test1");
+        Assert.assertFalse(version.equals(anotherVersion));
+    }
+
+    @Test
+    public void toStringTest() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        Assert.assertNotNull(version.toString());
+    }
+
+    @Test
+    public void hashCodeTestDifferentObjects() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        AppVersion anotherVersion = AppVersion.parseName("appversion-test1");
+        Assert.assertNotEquals(version.hashCode(), anotherVersion.hashCode());
+    }
+
+    @Test
+    public void hashCodeTestEqualObjects() {
+        AppVersion version = AppVersion.parseName("appversion-test");
+        AppVersion anotherVersion = AppVersion.parseName("appversion-test");
+        Assert.assertEquals(version.hashCode(), anotherVersion.hashCode());
+    }
+
+}

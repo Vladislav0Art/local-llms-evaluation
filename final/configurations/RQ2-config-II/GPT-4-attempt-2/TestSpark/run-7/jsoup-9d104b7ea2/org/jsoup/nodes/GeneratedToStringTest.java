@@ -1,0 +1,16 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedToStringTest {
+
+    @Test
+    public void toStringTest() {
+        TextNode textNode = new TextNode("toString");
+        Assert.assertTrue(textNode.toString().contains("toString"));
+    }
+
+}

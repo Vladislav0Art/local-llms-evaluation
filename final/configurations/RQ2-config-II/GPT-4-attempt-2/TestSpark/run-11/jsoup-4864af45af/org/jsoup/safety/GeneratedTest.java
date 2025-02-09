@@ -1,0 +1,140 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Attributes;
+import org.junit.Test;
+
+import java.util.Map;
+import java.util.Iterator;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist safelist = Safelist.none();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist safelist = Safelist.simpleText();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist safelist = Safelist.basic();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist safelist = Safelist.basicWithImages();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist safelist = Safelist.relaxed();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = Safelist.none();
+        String[] tags = {"p", "br"};
+        safelist.addTags(tags);
+        safelist.isSafeTag("p");
+        safelist.isSafeTag("br");
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = new Safelist();
+        String[] tags = {"p", "br"};
+        safelist.addTags(tags);
+        safelist.removeTags("p");
+        assertFalse(safelist.isSafeTag("p"));
+        assertTrue(safelist.isSafeTag("br"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = new Safelist();
+        String[] attributes = {"style", "class"};
+        safelist.addAttributes("p", attributes);
+        Element element = new Element("p");
+        element.attr("style", "bold");
+        element.attr("class", "testClass");
+        assertTrue(safelist.isSafeAttribute("p", element, new Attribute("style", "bold")));
+        assertTrue(safelist.isSafeAttribute("p", element, new Attribute("class", "testClass")));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = new Safelist();
+        String[] attributes = {"style"};
+        safelist.addAttributes("p", attributes);
+        safelist.removeAttributes("p", "style");
+        Element element = new Element("p");
+        element.attr("style", "bold");
+        assertFalse(safelist.isSafeAttribute("p", element, new Attribute("style", "bold")));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = new Safelist();
+        String attribute = "lang";
+        String value = "en";
+        safelist.addEnforcedAttribute("p", attribute, value);
+        Attributes attributes = safelist.getEnforcedAttributes("p");
+        assertTrue(attributes.hasKey(attribute));
+        assertEquals(value, attributes.get(attribute));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = new Safelist();
+        String attribute = "lang";
+        String value = "en";
+        safelist.addEnforcedAttribute("p", attribute, value);
+        safelist.removeEnforcedAttribute("p", attribute);
+        Attributes attributes = safelist.getEnforcedAttributes("p");
+        assertFalse(attributes.hasKey(attribute));
+    }
+
+    @Test
+    public void preserveRelativeLinksTest() {
+        Safelist safelist = new Safelist();
+        assertFalse(safelist.preserveRelativeLinks(false));
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = new Safelist();
+        String[] protocols = {"http", "https"};
+        safelist.addProtocols("a", "href", protocols);
+        Element element = new Element("a");
+        element.attr("href", "https://test.com");
+        assertTrue(safelist.isSafeAttribute("a", element, new Attribute("href", "https://test.com")));
+        element.attr("href", "http://test.com");
+        assertTrue(safelist.isSafeAttribute("a", element, new Attribute("href", "http://test.com")));
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = new Safelist();
+        String[] protocols = {"http", "https"};
+        safelist.addProtocols("a", "href", protocols);
+        safelist.removeProtocols("a", "href", "https");
+        Element element = new Element("a");
+        element.attr("href", "https://test.com");
+        assertFalse(safelist.isSafeAttribute("a", element, new Attribute("href", "https://test.com")));
+        element.attr("href", "http://test.com");
+        assertTrue(safelist.isSafeAttribute("a", element, new Attribute("href", "http://test.com")));
+    }
+
+}

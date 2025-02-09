@@ -1,0 +1,129 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void addTest() {
+        Attributes attributes = new Attributes();
+        Attributes result = attributes.add("key", "value");
+        assertEquals("value", result.get("key"));
+    }
+
+    @Test
+    public void putTest() {
+        Attributes attributes = new Attributes();
+        Attributes result = attributes.put("key", "value");
+        assertEquals("value", result.get("key"));
+    }
+
+    @Test
+    public void putBooleanTest() {
+        Attributes attributes = new Attributes();
+        Attributes result = attributes.put("key", true);
+        assertEquals("", result.get("key"));
+    }
+
+    @Test
+    public void putAttributeTest() {
+        Attributes attributes = new Attributes();
+        Attribute attribute = new Attribute("key", "value");
+        Attributes result = attributes.put(attribute);
+        assertEquals("value", result.get("key"));
+    }
+
+    @Test
+    public void removeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        attributes.remove("key");
+        assertFalse(attributes.hasKey("key"));
+    }
+
+    @Test
+    public void hasKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertTrue(attributes.hasKey("key"));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals(1, attributes.size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.add("key1", "value1");
+
+        Attributes attributes2 = new Attributes();
+        attributes2.add("key2", "value2");
+
+        attributes1.addAll(attributes2);
+        assertTrue(attributes1.hasKey("key2"));
+    }
+
+    @Test
+    public void iteratorTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        Iterator<Attribute> iterator = attributes.iterator();
+        assertNotNull(iterator.next());
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals(1, attributes.asList().size());
+    }
+
+    @Test
+    public void datasetTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertNotNull(attributes.dataset());
+    }
+
+    @Test
+    public void htmlTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals("key=\"value\" ", attributes.html());
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        Attributes cloned = attributes.clone();
+        assertNotSame(attributes, cloned);
+    }
+
+    @Test
+    public void equalsTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.add("key", "value");
+
+        Attributes attributes2 = new Attributes();
+        attributes2.add("key", "value");
+
+        assertTrue(attributes1.equals(attributes2));
+    }
+
+}

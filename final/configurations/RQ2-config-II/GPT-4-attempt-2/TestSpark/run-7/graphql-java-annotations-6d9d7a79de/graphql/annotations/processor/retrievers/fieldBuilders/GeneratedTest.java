@@ -1,0 +1,48 @@
+package graphql.annotations.processor.retrievers.fieldBuilders;
+
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLType;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.lang.reflect.Field;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildNoDirectivesTest() {
+        Field field = Mockito.mock(Field.class);
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        DirectivesBuilder builder = new DirectivesBuilder(field, container);
+
+        GraphQLDirective[] directives = builder.build();
+        assertEquals(0, directives.length);
+    }
+
+    @Test
+    public void buildWithDirectivesTest() {
+        Field field = Mockito.mock(Field.class);
+        when(field.getAnnotations()).thenReturn(new Annotation[]{ @GraphQLDirectives(values = TEST_DIRECTIVE.class)});
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        DirectivesBuilder builder = new DirectivesBuilder(field, container);
+
+        GraphQLDirective[] directives = builder.build();
+        assertEquals(1, directives.length);
+        assertEquals("TEST_DIRECTIVE", directives[0].getName());
+    }
+
+    @Test
+    public void buildExceptionsThrownTest() throws NoSuchMethodException {
+        Method method = DirectivesBuilder.class.getDeclaredMethod("build");
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        DirectivesBuilder builder = new DirectivesBuilder(method, container);
+
+        builder.build();
+    }
+
+}

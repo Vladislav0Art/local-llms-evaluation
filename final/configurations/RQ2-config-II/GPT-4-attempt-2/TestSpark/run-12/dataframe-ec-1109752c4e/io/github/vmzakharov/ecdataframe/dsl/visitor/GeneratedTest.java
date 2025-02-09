@@ -1,0 +1,66 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.value.StringValue;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void exprToStringTest() {
+        Expression e = new AliasExpr(new VarExpr("var1"), "alias1");
+        String result = PrettyPrintVisitor.exprToString(e);
+        // Assumed expected string
+        assertEquals("var1 as alias1", result);
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        AssingExpr assignExpr = new AssingExpr(new VarExpr("var1"), new StringValue("testValue"));
+        visitor.visitAssignExpr(assignExpr);
+
+        assertEquals("var1 = 'testValue'", visitor.toString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        BinaryExpr binaryExpr = new BinaryExpr(new VarExpr("var1"), BinaryOp.ADD, new DecimalExpr(10));
+        visitor.visitBinaryExpr(binaryExpr);
+
+        assertEquals("var1 + 10", visitor.toString());
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        UnaryExpr unaryExpr = new UnaryExpr(new VarExpr("var1"), UnaryOp.NOT);
+        visitor.visitUnaryExpr(unaryExpr);
+
+        assertEquals("!var1", visitor.toString());
+    }
+
+    @Test
+    public void visitConstExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        Value constExpr = new StringValue("constant");
+        visitor.visitConstExpr(constExpr);
+
+        assertEquals("'constant'", visitor.toString());
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        FunctionCallExpr functionCallExpr = new FunctionCallExpr("functionName");
+        visitor.visitFunctionCallExpr(functionCallExpr);
+
+        assertEquals("functionName()", visitor.toString());
+    }
+
+}

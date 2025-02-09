@@ -1,0 +1,102 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.XmlDeclaration;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    Document.OutputSettings outputSettings;
+
+    @Test
+    public void CommentConstructorTest() {
+        Comment comment = new Comment("Test comment");
+        assertNotNull(comment);
+        assertEquals("Test comment", comment.getData());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("Test comment", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("Test comment", comment.getData());
+
+        comment.setData("New data");
+        assertEquals("New data", comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("Test comment");
+        StringBuilder accum = new StringBuilder();
+        comment.outerHtmlHead(accum, 0, outputSettings);
+
+        assertTrue(accum.length() > 0);
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("Test comment");
+        StringBuilder accum = new StringBuilder();
+        comment.outerHtmlTail(accum, 0, outputSettings);
+
+        assertTrue(accum.length() > 0);
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("<!--Test comment-->", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("Test comment");
+        Comment comment2 = comment.clone();
+
+        assertNotEquals(comment.hashCode(), comment2.hashCode());
+        assertEquals(comment.toString(), comment2.toString());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("Test comment");
+
+        assertFalse(comment.isXmlDeclaration());
+
+        Comment declarationComment = new Comment("!DOCTYPE html");
+        assertTrue(declarationComment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("Test comment");
+
+        assertNull(comment.asXmlDeclaration());
+
+        Comment declarationComment = new Comment("!DOCTYPE html");
+        assertNotNull(declarationComment.asXmlDeclaration());
+        assertTrue(declarationComment.asXmlDeclaration() instanceof XmlDeclaration);
+    }
+
+}

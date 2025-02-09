@@ -1,0 +1,50 @@
+package com.adobe.epubcheck.tool;
+
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.util.EPUBVersion;
+import org.junit.Test;
+
+import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleDefaultTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        assertEquals("Should return system locale by default", Locale.getDefault(), epubChecker.getLocale());
+    }
+
+    @Test
+    public void runInvalidArgumentsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] invalidArgs = {"", ""};
+        assertEquals("Should return 1 for invalid arguments", 1, epubChecker.run(invalidArgs));
+    }
+
+    @Test
+    public void processEpubFileInvalidArgumentsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] invalidArgs = {"", ""};
+        assertEquals("Should return 1 for invalid arguments", 1, epubChecker.processEpubFile(invalidArgs));
+    }
+
+    @Test
+    public void validateFileNonExistingPathTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Report report = new DefaultReportImpl("/non-existing-path", EPUBVersion.VERSION_3);
+        int result = epubChecker.validateFile("/non-existing-path", EPUBVersion.VERSION_3, report, EPUBProfile.DEFAULT);
+        assertEquals("Should return 1 for non-existing file", 1, result);
+    }
+
+    @Test
+    public void validateFileExistingPathInvalidProfileTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Report report = new DefaultReportImpl(getClass().getResource("/valid.epub").getPath(), EPUBVersion.VERSION_3);
+        int result = epubChecker.validateFile(getClass().getResource("/valid.epub").getPath(), EPUBVersion.VERSION_3, report, null);
+        assertEquals("Should return 1 for a null profile", 1, result);
+    }
+
+}

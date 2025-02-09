@@ -1,0 +1,130 @@
+package org.jsoup.safety;
+
+import org.junit.Test;
+import org.jsoup.nodes.Attributes;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist safelist = Safelist.none();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist safelist = Safelist.simpleText();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist safelist = Safelist.basic();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist safelist = Safelist.basicWithImages();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist safelist = Safelist.relaxed();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = new Safelist();
+        safelist.addTags("tag1", "tag2");
+        assertTrue(safelist.isSafeTag("tag1"));
+        assertTrue(safelist.isSafeTag("tag2"));
+    }
+
+    @Test
+    public void removeTagTest() {
+        Safelist safelist = Safelist.basic();
+        assertFalse(safelist.isSafeTag("script"));
+        safelist.removeTags("script");
+        assertFalse(safelist.isSafeTag("script"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("tag").addAttributes("tag", "attribute");
+        Attribute attribute = new Attribute("attribute", "value");
+        Element el = new Element("tag");
+        el.attr("attribute", "value");
+
+        assertTrue(safelist.isSafeAttribute("tag", el, attribute));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = Safelist.relaxed();
+        Attribute attribute = new Attribute("attribute", "value");
+        Element el = new Element("tag");
+        el.attr("attribute", "value");
+
+        assertTrue(safelist.isSafeAttribute("tag", el, attribute));
+        safelist.removeAttributes("tag", "attribute");
+        assertFalse(safelist.isSafeAttribute("tag", el, attribute));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addTags("tag").addEnforcedAttribute("tag", "attribute", "value");
+        Attributes atttributes = safelist.getEnforcedAttributes("tag");
+        assertNotNull(atttributes.get("attribute"));
+        assertEquals("value", atttributes.get("attribute"));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.basic();
+        safelist.addEnforcedAttribute("tag", "attribute", "value");
+        Attributes atttributes = safelist.getEnforcedAttributes("tag");
+        assertNotNull(atttributes.get("attribute"));
+
+        safelist.removeEnforcedAttribute("tag", "attribute");
+        atttributes = safelist.getEnforcedAttributes("tag");
+        assertNull(atttributes.get("attribute"));
+    }
+
+    @Test
+    public void preserveRelativeLinksTest() {
+        Safelist safelist = Safelist.none();
+        safelist.preserveRelativeLinks(true);
+        assertTrue(safelist.isSafeTag("a"));
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = Safelist.none();
+        safelist.addProtocols("a", "href", "http");
+        safelist.addTags("a");
+        Element el = new Element("a");
+        el.attr("href", "http://example.com");
+
+        assertTrue(safelist.isSafeAttribute("a", el, el.attributes().asList().get(0)));
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.addProtocols("a", "href", "ftp");
+        Element el = new Element("a");
+        el.attr("href", "ftp://example.com");
+
+        assertTrue(safelist.isSafeAttribute("a", el, el.attributes().asList().get(0)));
+        safelist.removeProtocols("a", "href", "ftp");
+        assertFalse(safelist.isSafeAttribute("a", el, el.attributes().asList().get(0)));
+    }
+
+}

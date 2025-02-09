@@ -1,0 +1,79 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.configurationdata.PropertyListBuilder;
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Test;
+
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
+
+public class GeneratedTest {
+
+    @Test
+    public void addValidPropertyTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> property = Property.newStringProperty("test_property");
+        builder.add(property);
+
+        try {
+            List<Property<?>> properties = builder.create();
+            assertThat(properties, hasItem(property));
+        } catch (ConfigMeException e) {
+            fail("Unexpected exception thrown during creation of properties list: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void addNullPropertyTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(null);
+    }
+
+    @Test
+    public void createNonEmptyPropertiesTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<Integer> property1 = Property.newIntegerProperty("test_property_1");
+        Property<Double> property2 = Property.newDoubleProperty("test_property_2");
+        builder.add(property1);
+        builder.add(property2);
+
+        List<Property<?>> properties = builder.create();
+
+        assertThat(properties, hasSize(2));
+        assertThat(properties, containsInAnyOrder(property1, property2));
+    }
+
+    @Test
+    public void createEmptyPropertiesTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        List<Property<?>> properties = builder.create();
+        assertThat(properties, is(empty()));
+    }
+
+    @Test
+    public void getRootEntriesTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> property = Property.newStringProperty("root_property");
+        builder.add(property);
+
+        Object rootEntry = builder.getRootEntries().get("root_property");
+
+        assertThat("Root entries map should contain provided property", rootEntry, is(notNullValue()));
+    }
+
+    @Test
+    public void getRootEntriesNonExistingPropertyTest() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> property = Property.newStringProperty("root_property");
+        builder.add(property);
+
+        Object rootEntry = builder.getRootEntries().get("non_existing_property");
+
+        assertThat("Root entries map should not contain non-existing property", rootEntry, is(nullValue()));
+    }
+
+}

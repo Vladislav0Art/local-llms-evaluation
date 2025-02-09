@@ -1,0 +1,113 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.SignerKey;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void canSignTest() {
+        EdDSAPublicKey mockKey = mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(mockKey);
+        assertEquals(false, keyPair.canSign());
+    }
+
+    @Test
+    public void fromSecretSeedCharArrayTest() {
+        char[] seed = {'s', 'e', 'e', 'd'};
+        assertNotNull(KeyPair.fromSecretSeed(seed));
+    }
+
+    @Test
+    public void fromSecretSeedStringTest() {
+        String seed = "seed";
+        assertNotNull(KeyPair.fromSecretSeed(seed));
+    }
+
+    @Test
+    public void fromSecretSeedByteArrayTest() {
+        byte[] seed = "seed".getBytes();
+        assertNotNull(KeyPair.fromSecretSeed(seed));
+    }
+
+    @Test
+    public void fromAccountIdTest() {
+        String accountId = "accountID";
+        assertNotNull(KeyPair.fromAccountId(accountId));
+    }
+
+    @Test
+    public void fromPublicKeyTest() {
+        byte[] publicKey = "publicKey".getBytes();
+        assertNotNull(KeyPair.fromPublicKey(publicKey));
+    }
+
+    @Test
+    public void fromBip39SeedTest() {
+        byte[] bip39Seed = "bip39seed".getBytes();
+        assertNotNull(KeyPair.fromBip39Seed(bip39Seed, 1));
+    }
+
+    @Test
+    public void randomTest() {
+        assertNotNull(KeyPair.random());
+    }
+
+    @Test
+    public void fromXdrPublicKeyTest() {
+        PublicKey mockKey = mock(PublicKey.class);
+        assertNotNull(KeyPair.fromXdrPublicKey(mockKey));
+    }
+
+    @Test
+    public void fromXdrSignerKeyTest() {
+        SignerKey mockSignerKey = mock(SignerKey.class);
+        assertNotNull(KeyPair.fromXdrSignerKey(mockSignerKey));
+    }
+
+    @Test
+    public void signTest() {
+        EdDSAPublicKey mockKey = mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(mockKey);
+        byte[] data = "data".getBytes();
+        assertNull(keyPair.sign(data));
+    }
+
+    @Test
+    public void signDecoratedTest() {
+        EdDSAPublicKey mockKey = mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(mockKey);
+        byte[] data = "data".getBytes();
+        assertNull(keyPair.signDecorated(data));
+    }
+
+    @Test
+    public void signPayloadDecoratedTest() {
+        EdDSAPublicKey mockKey = mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(mockKey);
+        byte[] data = "data".getBytes();
+        assertNull(keyPair.signPayloadDecorated(data));
+    }
+
+    @Test
+    public void verifyTest() {
+        EdDSAPublicKey mockKey = mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(mockKey);
+        byte[] data = "data".getBytes();
+        byte[] signature = "signature".getBytes();
+        assertEquals(false, keyPair.verify(data, signature));
+    }
+
+    @Test
+    public void equalsTest() {
+        EdDSAPublicKey mockKey = mock(EdDSAPublicKey.class);
+        KeyPair keyPair = new KeyPair(mockKey);
+        KeyPair keyPair2 = new KeyPair(mockKey);
+        assertTrue(keyPair.equals(keyPair2));
+    }
+
+}

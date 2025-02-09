@@ -1,0 +1,124 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    @Test
+    public void addTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals(1, attributes.size());
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void putTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertEquals(1, attributes.size());
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void putAttributeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put(new Attribute("key", "value"));
+        assertEquals(1, attributes.size());
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void putIgnoreCaseTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertNotNull(attributes.getIgnoreCase("KEY"));
+        assertEquals("value", attributes.getIgnoreCase("KEY"));
+    }
+
+    @Test
+    public void getTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void hasKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertTrue(attributes.hasKey("key"));
+        assertFalse(attributes.hasKey("nonexistentkey"));
+    }
+
+    @Test
+    public void hasKeyIgnoreCaseTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertTrue(attributes.hasKeyIgnoreCase("KEY"));
+        assertFalse(attributes.hasKeyIgnoreCase("NONEXISTENTKEY"));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertEquals(1, attributes.size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void removeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        attributes.remove("key");
+        assertFalse(attributes.hasKey("key"));
+    }
+
+    @Test
+    public void removeIgnoreCaseTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        attributes.removeIgnoreCase("KEY");
+        assertFalse(attributes.hasKeyIgnoreCase("KEY"));
+    }
+
+    @Test
+    public void toStringTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        String expected = "{\"key\":\"value\"}";
+        assertEquals(expected, attributes.toString());
+    }
+
+    @Test
+    public void cloneTest() throws CloneNotSupportedException {
+        Attributes original = new Attributes();
+        original.put("key", "value");
+
+        Attributes clone = original.clone();
+
+        assertEquals(original, clone);
+        assertNotSame(original, clone);
+    }
+
+    @Test
+    public void htmlTest() throws IOException {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        String html = "key=\"value\"";
+        assertEquals(html, attributes.html());
+    }
+
+}

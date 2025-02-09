@@ -1,0 +1,58 @@
+package net.revelc.code.formatter.css;
+
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void initTest() {
+        Map<String, String> options = new HashMap<>();
+        options.put("optionOne", "valueOne");
+        options.put("optionTwo", "valueTwo");
+
+        ConfigurationSource cfg = new ConfigurationSource();
+
+        CssFormatter cssFormatter = new CssFormatter();
+        cssFormatter.init(options, cfg);
+        assertTrue(cssFormatter.isInitialized());
+    }
+
+    @Test
+    public void doFormatBasicTest() throws IOException {
+        String code = "body {background-color: lightblue;}";
+        LineEnding ending = LineEnding.CRLF;
+
+        CssFormatter cssFormatter = new CssFormatter();
+        assertNotNull(cssFormatter.doFormat(code, ending));
+    }
+
+    @Test
+    public void doFormatWithIOExceptionTest() throws IOException {
+        String code = null; // This should cause IOException when trying to format
+        LineEnding ending = LineEnding.CRLF;
+
+        CssFormatter cssFormatter = new CssFormatter();
+        cssFormatter.doFormat(code, ending);
+    }
+
+    @Test
+    public void isInitializedTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        assertFalse(cssFormatter.isInitialized());
+
+        Map<String, String> options = new HashMap<>();
+        options.put("optionOne", "valueOne");
+        options.put("optionTwo", "valueTwo");
+        ConfigurationSource cfg = new ConfigurationSource();
+
+        cssFormatter.init(options, cfg);
+        assertTrue(cssFormatter.isInitialized());
+    }
+
+}

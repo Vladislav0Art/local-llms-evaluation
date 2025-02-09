@@ -1,0 +1,105 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Attributes;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        assertNotNull(Safelist.none());
+    }
+
+    @Test
+    public void simpleTextTest() {
+        assertNotNull(Safelist.simpleText());
+    }
+
+    @Test
+    public void basicTest() {
+        assertNotNull(Safelist.basic());
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        assertNotNull(Safelist.basicWithImages());
+    }
+
+    @Test
+    public void relaxedTest() {
+        assertNotNull(Safelist.relaxed());
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = new Safelist();
+        safelist.addTags("p", "div");
+        assertTrue(safelist.isSafeTag("p"));
+        assertTrue(safelist.isSafeTag("div"));
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = Safelist.relaxed();
+        assertTrue(safelist.isSafeTag("p"));
+        safelist.removeTags("p");
+        assertFalse(safelist.isSafeTag("p"));
+    }
+
+    @Test
+    public void addAttributesTest() {
+        Safelist safelist = new Safelist();
+        safelist.addAttributes("p", "style");
+        Attributes attributes = safelist.getEnforcedAttributes("p");
+        assertTrue(attributes.hasKey("style"));
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.addAttributes("p", "style");
+        Attributes attributes = safelist.getEnforcedAttributes("p");
+        assertTrue(attributes.hasKey("style"));
+        safelist.removeAttributes("p", "style");
+        attributes = safelist.getEnforcedAttributes("p");
+        assertFalse(attributes.hasKey("style"));
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist safelist = new Safelist();
+        safelist.addEnforcedAttribute("p", "style", "color: red;");
+        Attributes attributes = safelist.getEnforcedAttributes("p");
+        assertEquals("color: red;", attributes.get("style"));
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist safelist = Safelist.relaxed();
+        safelist.addEnforcedAttribute("p", "style", "color: red;");
+        Attributes attributes = safelist.getEnforcedAttributes("p");
+        assertEquals("color: red;", attributes.get("style"));
+        safelist.removeEnforcedAttribute("p", "style");
+        attributes = safelist.getEnforcedAttributes("p");
+        assertFalse(attributes.hasKey("style"));
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        Safelist safelist = new Safelist();
+        safelist.addProtocols("a", "href", "https");
+        assertTrue(safelist.isSafeAttribute("a", null, new Attribute("href", "https://example.com")));
+        assertFalse(safelist.isSafeAttribute("a", null, new Attribute("href", "http://example.com")));
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        Safelist safelist = Safelist.relaxed();
+        assertTrue(safelist.isSafeAttribute("a", null, new Attribute("href", "http://example.com")));
+        safelist.removeProtocols("a", "href", "http");
+        assertFalse(safelist.isSafeAttribute("a", null, new Attribute("href", "http://example.com")));
+    }
+
+}

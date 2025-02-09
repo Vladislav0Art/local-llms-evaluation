@@ -1,0 +1,139 @@
+package org.jsoup.helper;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.w3c.dom.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void W3CDomConstructorTest() {
+        W3CDom dom = new W3CDom();
+        assertNotNull(dom);
+    }
+
+    @Test
+    public void namespaceAwareShouldReturnInitialValueTest() {
+        W3CDom dom = new W3CDom();
+        boolean namespaceAware = dom.namespaceAware();
+        assertFalse(namespaceAware);
+    }
+
+    @Test
+    public void namespaceAwareShouldReturnUpdatedValueTest() {
+        W3CDom dom = new W3CDom().namespaceAware(true);
+        boolean namespaceAware = dom.namespaceAware();
+        assertTrue(namespaceAware);
+    }
+
+    @Test
+    public void convertFromDocumentToDocumentTest() {
+        Document jsoupDoc = new Document("/path");
+        org.w3c.dom.Document w3cDoc = W3CDom.convert(jsoupDoc);
+        assertNotNull(w3cDoc);
+    }
+
+    @Test
+    public void asStringFromDocWithPropertiesTest() {
+        org.w3c.dom.Document doc = Mockito.mock(org.w3c.dom.Document.class);
+        Map<String, String> properties = new HashMap<>();
+        properties.put("propertyKey", "propertyValue");
+        String result = W3CDom.asString(doc, properties);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = new HashMap<>();
+        map.put("mapKey", "mapValue");
+        Properties result = W3CDom.propertiesFromMap(map);
+        assertEquals("mapValue", result.getProperty("mapKey"));
+    }
+
+    @Test
+    public void OutputHtmlTest() {
+        HashMap<String, String> result = W3CDom.OutputHtml();
+        assertEquals("html", result.get(METHOD));
+    }
+
+    @Test
+    public void OutputXmlTest() {
+        HashMap<String, String> result = W3CDom.OutputXml();
+        assertEquals("xml", result.get(METHOD));
+    }
+
+    @Test
+    public void fromJsoupDocumentTest() {
+        Document jsoupDoc = new Document("/path");
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = dom.fromJsoup(jsoupDoc);
+        assertNotNull(w3cDoc);
+    }
+
+    @Test
+    public void fromJsoupElementTest() {
+        Element jsoupElement = new Element("tagName");
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = dom.fromJsoup(jsoupElement);
+        assertNotNull(w3cDoc);
+    }
+
+    @Test
+    public void convertFromElementToDocumentTest() {
+        W3CDom dom = new W3CDom();
+        Element jsoupElement = new Element("tagName");
+        org.w3c.dom.Document w3cDoc = Mockito.mock(org.w3c.dom.Document.class);
+        dom.convert(jsoupElement, w3cDoc);
+    }
+
+    @Test
+    public void selectXpathFromDocumentTest() throws Exception {
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = Mockito.mock(org.w3c.dom.Document.class);
+        NodeList nodeList = dom.selectXpath("/path", w3cDoc);
+        assertNotNull(nodeList);
+    }
+
+    @Test
+    public void selectXpathFromNodeTest() throws Exception {
+        W3CDom dom = new W3CDom();
+        Node node = Mockito.mock(Node.class);
+        NodeList nodeList = dom.selectXpath("/path", node);
+        assertNotNull(nodeList);
+    }
+
+    @Test
+    public void sourceNodesTest() {
+        W3CDom dom = new W3CDom();
+        NodeList nodeList = Mockito.mock(NodeList.class);
+        Mockito.when(nodeList.getLength()).thenReturn(2);
+        List<Node> nodes = dom.sourceNodes(nodeList, Node.class);
+        assertEquals(2, nodes.size());
+    }
+
+    @Test
+    public void contextNodeTest() {
+        W3CDom dom = new W3CDom();
+        org.w3c.dom.Document w3cDoc = Mockito.mock(org.w3c.dom.Document.class);
+        Node contextNode = dom.contextNode(w3cDoc);
+        assertNotNull(contextNode);
+    }
+
+    @Test
+    public void asStringFromDocTest() {
+        org.w3c.dom.Document doc = Mockito.mock(org.w3c.dom.Document.class);
+        W3CDom dom = new W3CDom();
+        String result = dom.asString(doc);
+        assertNotNull(result);
+    }
+
+}

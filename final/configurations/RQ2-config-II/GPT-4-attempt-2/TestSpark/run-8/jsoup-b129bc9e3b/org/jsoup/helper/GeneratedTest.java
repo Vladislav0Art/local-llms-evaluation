@@ -1,0 +1,138 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.CookieStore;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void connectUrlTest() throws MalformedURLException {
+        Connection connection = HttpConnection.connect(new URL("http://www.google.com"));
+        assertNotNull(connection);
+        assertEquals(connection.request().url().getHost(), "www.google.com");
+    }
+
+    @Test
+    public void connectStringUrlTest() {
+        Connection connection = HttpConnection.connect("http://www.google.com");
+        assertNotNull(connection);
+        assertEquals(connection.request().url().getHost(), "www.google.com");
+    }
+
+    @Test
+    public void urlTest() throws MalformedURLException {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.url(new URL("http://www.google.com"));
+        assertNotNull(connection.request().url());
+    }
+
+    @Test
+    public void urlWithStringTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.url("http://www.google.com");
+        assertNotNull(connection.request().url());
+    }
+
+    @Test
+    public void proxyTest() {
+        Proxy proxyMock = Mockito.mock(Proxy.class);
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.proxy(proxyMock);
+        assertNotNull(connection.request().proxy());
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        String testAgent = "Test Agent";
+        Connection connection = httpConnection.userAgent(testAgent);
+        assertEquals(connection.request().userAgent(), testAgent);
+    }
+
+    @Test
+    public void requestBodyTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        String testBody = "requestBody";
+        Connection connection = httpConnection.requestBody(testBody);
+        assertEquals(connection.request().requestBody(), testBody);
+    }
+
+    @Test
+    public void postDataCharsetTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        String testCharset = "UTF-8";
+        Connection connection = httpConnection.postDataCharset(testCharset);
+        assertEquals(connection.request().postDataCharset(), testCharset);
+    }
+
+    @Test
+    public void headersTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Header1", "Value1");
+        Connection connection = httpConnection.headers(headers);
+        assertEquals(connection.request().headers(), headers);
+    }
+
+    @Test
+    public void cookiesTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Map<String, String> cookies = new HashMap<>();
+        cookies.put("Cookie1", "Value1");
+        Connection connection = httpConnection.cookies(cookies);
+        assertEquals(connection.request().cookies(), cookies);
+    }
+
+    @Test
+    public void cookieStoreTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        CookieStore cookieStore = Mockito.mock(CookieStore.class);
+        Connection connection = httpConnection.cookieStore(cookieStore);
+        assertEquals(connection.request().cookieStore(), cookieStore);
+    }
+
+    @Test
+    public void sslSocketFactoryTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        SSLSocketFactory sslSocketFactory = Mockito.mock(SSLSocketFactory.class);
+        Connection connection = httpConnection.sslSocketFactory(sslSocketFactory);
+        assertEquals(connection.request().sslSocketFactory(), sslSocketFactory);
+    }
+
+    @Test
+    public void parserTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Parser parser = Mockito.mock(Parser.class);
+        Connection connection = httpConnection.parser(parser);
+        assertEquals(connection.request().parser(), parser);
+    }
+
+    @Test
+    public void dataWithInputStreamTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
+        Connection connection = httpConnection.data("key1", "filename1", inputStream);
+        Connection.KeyVal keyVal = connection.request().data().get(0);
+        assertEquals(keyVal.key(), "key1");
+        assertEquals(keyVal.value(), "test data");
+    }
+
+}

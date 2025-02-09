@@ -1,0 +1,25 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.projectsgroups.model.Project;
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedConvertValidObjectTest {
+
+    @Test
+    public void convertValidObjectTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = new Project();
+        project.setId(1);
+        project.setName("Test Project");
+
+        String json = transformer.convert(project);
+
+        assertNotNull(json);
+        assertTrue(json.contains("\"id\":1"));
+        assertTrue(json.contains("\"name\":\"Test Project\""));
+    }
+
+}

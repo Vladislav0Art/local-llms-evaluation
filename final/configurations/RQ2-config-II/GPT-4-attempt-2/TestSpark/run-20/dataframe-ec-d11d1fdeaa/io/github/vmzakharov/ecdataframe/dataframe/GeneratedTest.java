@@ -1,0 +1,95 @@
+package io.github.vmzakharov.ecdataframe.dataframe;
+
+import io.github.vmzakharov.ecdataframe.dataframe.ByteStringColumn;
+import io.github.vmzakharov.ecdataframe.dataframe.DfColumnSortOrder;
+import io.github.vmzakharov.ecdataframe.dataframe.DataFrame;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void addRowValueAndObjectTest() {
+        DataFrame df = new DataFrame("DataFrame1");
+        df.addStringColumn("Column1");
+        df.addRow("John Doe");
+        Assert.assertEquals("John Doe", df.getObject("Column1", 0));
+    }
+
+    @Test
+    public void addRowObjectTest() {
+        DataFrame df = new DataFrame("DataFrame2");
+        df.addStringColumn("Column1");
+        df.addRow((Object) "John Doe");
+        Assert.assertEquals("John Doe", df.getObject("Column1", 0));
+    }
+
+    @Test
+    public void columnCountTest() {
+        DataFrame df = new DataFrame("DataFrame3");
+        df.addStringColumn("Column1");
+        df.addStringColumn("Column2");
+        Assert.assertEquals(2, df.columnCount());
+    }
+
+    @Test
+    public void getNameTest() {
+        DataFrame df = new DataFrame("DataFrame4");
+        Assert.assertEquals("DataFrame4", df.getName());
+    }
+
+    @Test
+    public void addColumnTest() {
+        DataFrame df = new DataFrame("DataFrame5");
+        df.addColumn("Column1", "John Doe");
+        Assert.assertEquals("John Doe", df.getString("Column1", 0));
+    }
+
+    @Test
+    public void columnNameTest() {
+        DataFrame df = new DataFrame("DataFrame6");
+        df.addColumn("Column1", "John Doe");
+        Assert.assertTrue(df.hasColumn("Column1"));
+    }
+
+    @Test
+    public void sortUnsortTest() {
+        DataFrame df = new DataFrame("DataFrame7");
+        df.addStringColumn("Column1");
+        df.addRow("John Doe");
+        df.addRow("Jane Doe");
+        df.sortBy(Lists.immutable.of("Column1"));
+        Assert.assertEquals("Jane Doe", valueAt(0));
+        df.unsort();
+        Assert.assertEquals("John Doe", valueAt(0));
+    }
+
+    @Test
+    public void isNullTest() {
+        DataFrame df = new DataFrame("DataFrame8");
+        df.addStringColumn("Column1");
+        df.addRow((Object) null);
+        Assert.assertTrue(df.isNull("Column1", 0));
+    }
+
+    @Test
+    public void isEmptyNotEmptyTest() {
+        DataFrame df = new DataFrame("DataFrame9");
+        Assert.assertTrue(df.isEmpty());
+        Assert.assertFalse(df.isNotEmpty());
+        df.addStringColumn("Column1");
+        df.addRow("John Doe");
+        Assert.assertFalse(df.isEmpty());
+        Assert.assertTrue(df.isNotEmpty());
+    }
+
+    @Test
+    public void sealsAndCloneTest() {
+        DataFrame df = new DataFrame("DataFrame10");
+        df.addStringColumn("Column1");
+        df.addRow("John Doe");
+        DataFrame copy = df.copy("Copy of DataFrame");
+        copy.isSealed();
+    }
+
+}

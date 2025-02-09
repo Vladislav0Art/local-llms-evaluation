@@ -1,0 +1,130 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.Tag;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getNameTest() {
+        Tag tag = Tag.valueOf("p");
+        assertEquals("p", tag.getName());
+    }
+
+    @Test
+    public void normalNameTest() {
+        Tag tag = Tag.valueOf("P");
+        assertEquals("p", tag.normalName());
+    }
+
+    @Test
+    public void valueOfTestWithSettings() {
+        Tag tag = Tag.valueOf("P", ParseSettings.htmlDefault);
+        assertNotNull(tag);
+        assertTrue(tag.isKnownTag());
+    }
+
+    @Test
+    public void valueOfTest() {
+        Tag tag = Tag.valueOf("p");
+        assertNotNull(tag);
+        assertTrue(tag.isKnownTag());
+    }
+
+    @Test
+    public void isBlockTest() {
+        Tag tag = Tag.valueOf("div");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlockTest() {
+        Tag tag = Tag.valueOf("div");
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag tag = Tag.valueOf("a");
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Tag tag = Tag.valueOf("img");
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        Tag tag = Tag.valueOf("br");
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTagForObjectTest() {
+        Tag tag = Tag.valueOf("p");
+        assertTrue(tag.isKnownTag());
+    }
+
+    @Test
+    public void isKnownTagForStringTest() {
+        assertTrue(Tag.isKnownTag("div"));
+    }
+
+    @Test
+    public void preserveWhitespaceTest() {
+        Tag tag = Tag.valueOf("pre");
+        assertTrue(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void isFormListedTest() {
+        Tag tag = Tag.valueOf("input");
+        assertTrue(tag.isFormListed());
+    }
+
+    @Test
+    public void isFormSubmittableTest() {
+        Tag tag = Tag.valueOf("input");
+        assertTrue(tag.isFormSubmittable());
+    }
+
+    @Test
+    public void setSelfClosingTest() {
+        Tag tag = Tag.valueOf("p");
+        tag.setSelfClosing();
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void equalsTest() {
+        Tag tag1 = Tag.valueOf("p");
+        Tag tag2 = Tag.valueOf("p");
+        assertTrue(tag1.equals(tag2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        Tag tag1 = Tag.valueOf("p");
+        Tag tag2 = Tag.valueOf("p");
+        assertEquals(tag1.hashCode(), tag2.hashCode());
+    }
+
+    @Test
+    public void toStringTest() {
+        Tag tag = Tag.valueOf("p");
+        assertEquals("p", tag.toString());
+    }
+
+    @Test
+    public void cloneTest() throws CloneNotSupportedException {
+        Tag tag1 = Tag.valueOf("p");
+        Tag tag2 = (Tag) tag1.clone();
+        assertEquals(tag1, tag2);
+    }
+
+}

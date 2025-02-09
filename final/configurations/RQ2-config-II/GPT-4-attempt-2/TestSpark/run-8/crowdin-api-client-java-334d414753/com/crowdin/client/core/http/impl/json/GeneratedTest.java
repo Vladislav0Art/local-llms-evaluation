@@ -1,0 +1,68 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.exceptions.CrowdinApiException;
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException;
+import com.crowdin.client.core.http.exceptions.HttpException;
+import com.crowdin.client.projectsgroups.model.Project;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseNullJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        try {
+            Project project = transformer.parse(null, Project.class);
+            Assert.fail("Should fail for null json input but it did not");
+        } catch (HttpException e) {
+            Assert.assertTrue(e instanceof CrowdinApiException);
+        }
+    }
+
+    @Test
+    public void parseEmptyJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        try {
+            Project project = transformer.parse("", Project.class);
+            Assert.fail("Should fail for empty json input but it did not");
+        } catch (HttpException e) {
+            Assert.assertTrue(e instanceof CrowdinApiException);
+        }
+    }
+
+    @Test
+    public void parseInvalidJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        try {
+            Project project = transformer.parse("{\"invalid key\":\"1234\"}", Project.class);
+            Assert.fail("Should fail for invalid json input but it did not");
+        } catch (HttpException e) {
+            Assert.assertTrue(e instanceof CrowdinApiException);
+        }
+    }
+
+    @Test
+    public void parseValidJsonTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = transformer.parse("{\"data\":{\"id\":\"1234\"}}", Project.class);
+        Assert.assertNotNull(project);
+    }
+
+    @Test
+    public void convertNullObjectTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = transformer.convert((Project) null);
+        Assert.assertEquals("null", json);
+    }
+
+    @Test
+    public void convertValidObjectTest() {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = new Project();
+        project.setId("1234");
+        String json = transformer.convert(project);
+        Assert.assertEquals("{\"data\":{\"id\":\"1234\"}}", json);
+    }
+
+}

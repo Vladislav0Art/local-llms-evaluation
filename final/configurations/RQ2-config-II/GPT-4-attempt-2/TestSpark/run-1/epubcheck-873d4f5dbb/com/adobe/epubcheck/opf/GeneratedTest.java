@@ -1,0 +1,130 @@
+package com.adobe.epubcheck.opf;
+
+import com.adobe.epubcheck.opf.OPFChecker30;
+import com.adobe.epubcheck.opf.OPFHandler;
+import com.adobe.epubcheck.opf.OPFItem;
+import com.adobe.epubcheck.opf.ValidationContext;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void isAudioTypeValidTest() {
+        Assert.assertTrue(OPFChecker30.isAudioType("audio/mpeg"));
+    }
+
+    @Test
+    public void isAudioTypeInvalidTest() {
+        Assert.assertFalse(OPFChecker30.isAudioType("image/jpeg"));
+    }
+
+    @Test
+    public void isBlessedAudioTypeValidTest() {
+        Assert.assertTrue(OPFChecker30.isBlessedAudioType("audio/mp4"));
+    }
+
+    @Test
+    public void isBlessedAudioTypeInvalidTest() {
+        Assert.assertFalse(OPFChecker30.isBlessedAudioType("audio/wave"));
+    }
+
+    @Test
+    public void isVideoTypeValidTest() {
+        Assert.assertTrue(OPFChecker30.isVideoType("video/mp4"));
+    }
+
+    @Test
+    public void isVideoTypeInvalidTest() {
+        Assert.assertFalse(OPFChecker30.isVideoType("image/png"));
+    }
+
+    @Test
+    public void isBlessedVideoTypeValidTest() {
+        Assert.assertTrue(OPFChecker30.isBlessedVideoType("video/mp4"));
+    }
+
+    @Test
+    public void isBlessedVideoTypeInvalidTest() {
+        Assert.assertFalse(OPFChecker30.isBlessedVideoType("video/wmv"));
+    }
+
+    @Test
+    public void isCommonVideoTypeValidTest() {
+        Assert.assertTrue(OPFChecker30.isCommonVideoType("video/mp4"));
+    }
+
+    @Test
+    public void isCommonVideoTypeInvalidTest() {
+        Assert.assertFalse(OPFChecker30.isCommonVideoType("audio/wav"));
+    }
+
+    @Test
+    public void isFontTypeValidTest() {
+        Assert.assertTrue(OPFChecker30.isFontType("application/font-woff"));
+    }
+
+    @Test
+    public void isFontTypeInvalidTest() {
+        Assert.assertFalse(OPFChecker30.isFontType("text/plain"));
+    }
+
+    @Test
+    public void isBlessedFontTypeValidTest() {
+        Assert.assertTrue(OPFChecker30.isBlessedFontType("application/font-woff"));
+    }
+
+    @Test
+    public void isBlessedFontTypeInvalidTest() {
+        Assert.assertFalse(OPFChecker30.isBlessedFontType("text/plain"));
+    }
+
+    @Test
+    public void isBlessedScriptTypeValidTest() {
+        Assert.assertTrue(OPFChecker30.isBlessedScriptType("text/javascript"));
+    }
+
+    @Test
+    public void isBlessedScriptTypeInvalidTest() {
+        Assert.assertFalse(OPFChecker30.isBlessedScriptType("text/css"));
+    }
+
+    @Test
+    public void isCoreMediaTypeValidTypeTest() {
+        Assert.assertTrue(OPFChecker30.isCoreMediaType("application/xhtml+xml"));
+    }
+
+    @Test
+    public void isCoreMediaTypeInvalidTypeTest() {
+        Assert.assertFalse(OPFChecker30.isCoreMediaType("text/css"));
+    }
+
+    @Test
+    public void getPreferredMediaTypeValidTest() {
+        String type = "audio/mpeg";
+        Assert.assertEquals(type, OPFChecker30.getPreferredMediaType(type, "/audio.mp3"));
+    }
+
+    @Test
+    public void initHandlerInvocationTest() {
+        ValidationContext context = new ValidationContext() {
+            @Override
+            public String getPath() {
+                return "/path/to/file";
+            }
+
+            @Override
+            public URL getRootUrl() {
+                return null;
+            }
+
+            @Override
+            public String getMimeType() {
+                return "audio/mpeg";
+            }
+        };
+        OPFChecker30 checker = new OPFChecker30(context);
+        checker.initHandler();
+    }
+
+}

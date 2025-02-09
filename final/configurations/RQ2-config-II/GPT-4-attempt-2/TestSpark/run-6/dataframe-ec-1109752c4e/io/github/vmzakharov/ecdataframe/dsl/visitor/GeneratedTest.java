@@ -1,0 +1,84 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.value.Value;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.Printer;
+import io.github.vmzakharov.ecdataframe.util.PrinterFactory;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void exprToStringValidTest() {
+        BinaryExpr expr = Mockito.mock(BinaryExpr.class);
+        var expected = "2 + 3";
+        Mockito.when(expr.toString()).thenReturn(expected);
+
+        var actual = PrettyPrintVisitor.exprToString(expr);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        Printer printer = PrinterFactory.systemOutPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        AssingExpr expr = Mockito.mock(AssingExpr.class);
+        visitor.visitAssignExpr(expr);
+
+        Mockito.verify(expr, Mockito.times(1)).accept(visitor);
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        Printer printer = PrinterFactory.systemOutPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        BinaryExpr expr = Mockito.mock(BinaryExpr.class);
+        visitor.visitBinaryExpr(expr);
+
+        Mockito.verify(expr, Mockito.times(1)).accept(visitor);
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        Printer printer = PrinterFactory.systemOutPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        UnaryExpr expr = Mockito.mock(UnaryExpr.class);
+        visitor.visitUnaryExpr(expr);
+
+        Mockito.verify(expr, Mockito.times(1)).accept(visitor);
+    }
+
+    @Test
+    public void visitConstExprTest() {
+        Printer printer = PrinterFactory.systemOutPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        Value expr = Mockito.mock(Value.class);
+        visitor.visitConstExpr(expr);
+
+        Mockito.verify(expr, Mockito.times(1)).accept(visitor);
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        Printer printer = PrinterFactory.systemOutPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        FunctionCallExpr expr = Mockito.mock(FunctionCallExpr.class);
+        visitor.visitFunctionCallExpr(expr);
+
+        Mockito.verify(expr, Mockito.times(1)).accept(visitor);
+    }
+
+    @Test
+    public void visitPropertyPathExprTest() {
+        Printer printer = PrinterFactory.systemOutPrinter();
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(printer);
+        PropertyPathExpr expr = Mockito.mock(PropertyPathExpr.class);
+        visitor.visitPropertyPathExpr(expr);
+
+        Mockito.verify(expr, Mockito.times(1)).accept(visitor);
+    }
+
+}

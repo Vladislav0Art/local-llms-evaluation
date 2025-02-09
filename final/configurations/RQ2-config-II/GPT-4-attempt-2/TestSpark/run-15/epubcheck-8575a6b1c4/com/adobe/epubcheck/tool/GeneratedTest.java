@@ -1,0 +1,79 @@
+package com.adobe.epubcheck.tool;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+
+import java.io.File;
+import java.util.Locale;
+
+import org.junit.Test;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.util.EPUBVersion;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Locale expectedLocale = Locale.getDefault();
+        assertEquals(expectedLocale, epubChecker.getLocale());
+    }
+
+    @Test
+    public void runTest() {
+        String[] arguments = {"arg1", "arg2"};
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.run(arguments);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void processEpubFileTest() {
+        String[] arguments = {"arg1", "arg2"};
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.processEpubFile(arguments);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void validateFileTest() {
+        String fileType = "pdf";
+        EPUBVersion version = EPUBVersion.VERSION_2;
+
+        Report mockReport = mock(Report.class);
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.validateFile(fileType, version, mockReport, null);
+        assertEquals(-1, result);
+    }
+
+    @Test
+    public void validateFileNullPathTest() {
+        String fileType = null;
+        EPUBVersion version = EPUBVersion.VERSION_2;
+        Report mockReport = mock(Report.class);
+        EpubChecker epubChecker = new EpubChecker();
+        epubChecker.validateFile(fileType, version, mockReport, null);
+    }
+
+    @Test
+    public void validateFileNullVersionTest() {
+        String fileType = "pdf";
+        EPUBVersion version = null;
+        Report mockReport = mock(Report.class);
+        EpubChecker epubChecker = new EpubChecker();
+        epubChecker.validateFile(fileType, version, mockReport, null);
+    }
+
+    @Test
+    public void validateFileWithInvalidVersionTest() {
+        String fileType = "pdf";
+        EPUBVersion version = EPUBVersion.VERSION_2;
+        Report mockReport = mock(Report.class);
+        String invalidVersion = "INVALID_VERSION";
+        when(mockReport.getValidationVersion()).thenReturn(invalidVersion);
+        EpubChecker epubChecker = new EpubChecker();
+        int result = epubChecker.validateFile(fileType, version, mockReport, null);
+        assertEquals(-1, result);
+    }
+
+}

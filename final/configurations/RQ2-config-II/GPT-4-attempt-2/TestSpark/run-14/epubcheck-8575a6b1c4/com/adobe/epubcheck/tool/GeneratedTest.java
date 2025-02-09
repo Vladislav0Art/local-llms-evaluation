@@ -1,0 +1,65 @@
+package com.adobe.epubcheck.tool;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.util.DefaultReportImpl;
+import com.adobe.epubcheck.util.EPUBVersion;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleDefaultLocaleTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        assertNotNull("Locale should not be null.", epubChecker.getLocale());
+    }
+
+    @Test
+    public void runInvalidArgsEmptyArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = new String[]{};
+        int result = epubChecker.run(args);
+        assertEquals("Result mismatched.", 1, result);
+    }
+
+    @Test
+    public void runValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = new String[]{"valid.epub"};
+        int result = epubChecker.run(args);
+        assertEquals("Result mismatched.", 0, result);
+    }
+
+    @Test
+    public void processEpubFileValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = new String[]{"valid.epub"};
+        int result = epubChecker.processEpubFile(args);
+        assertEquals("Result mismatched.", 0, result);
+    }
+
+    @Test
+    public void validateFileValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String path = "valid.epub";
+        EPUBVersion version = EPUBVersion.VERSION_2;
+        Report report = new DefaultReportImpl(path);
+        EPUBProfile profile = EPUBProfile.OPF_2_0;
+        int result = epubChecker.validateFile(path, version, report, profile);
+        assertEquals("Result mismatched.", 0, result);
+    }
+
+    @Test
+    public void validateFileInvalidPathTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String path = "invalid.epub";
+        EPUBVersion version = EPUBVersion.VERSION_2;
+        Report report = new DefaultReportImpl(path);
+        EPUBProfile profile = EPUBProfile.OPF_2_0;
+        int result = epubChecker.validateFile(path, version, report, profile);
+        assertEquals("Result mismatched.", 1, result);
+    }
+
+}

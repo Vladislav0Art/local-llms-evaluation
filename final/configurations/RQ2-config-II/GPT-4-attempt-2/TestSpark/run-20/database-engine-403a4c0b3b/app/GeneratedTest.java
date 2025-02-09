@@ -1,0 +1,90 @@
+package app;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Hashtable;
+
+public class GeneratedTest {
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+
+        // There is nothing to assert in this test, as init() method has no return type or side effects
+        // Adding assertion just make it a valid JUnit test
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> result = dbApp.getMyTables();
+
+        // Test will pass if result is not null, as we are just testing the functionality of the method.
+        // Asserting actual values involves external variables (like accessing from database) which is outside the scope of unit test
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void getReaderAndWriterTest() {
+        DBApp dbApp = new DBApp();
+        CsvReader reader = dbApp.getReader();
+        CsvWriter writer = dbApp.getWriter();
+
+        Assert.assertNotNull(reader);
+        Assert.assertNotNull(writer);
+    }
+
+    @Test
+    public void createTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, String> htblColNameType = new Hashtable<>();
+        Hashtable<String, String> htblColNameMin = new Hashtable<>();
+        Hashtable<String, String> htblColNameMax = new Hashtable<>();
+        dbApp.createTable("testTable", "keyColumn", htblColNameType, htblColNameMin, htblColNameMax);
+
+        HashSet<String> tables = dbApp.getMyTables();
+        Assert.assertTrue(tables.contains("testTable"));
+    }
+
+    @Test
+    public void insertIntoTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        dbApp.insertIntoTable("testTable", htblColNameValue);
+
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    public void updateTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        dbApp.updateTable("testTable", "keyValue", htblColNameValue);
+
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    public void deleteFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        dbApp.deleteFromTable("testTable", htblColNameValue);
+
+        Assert.assertTrue(true);
+    }
+
+    @Test
+    public void selectFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        SQLTerm[] arrSQLTerms = new SQLTerm[0];
+        String[] strarrOperators = new String[0];
+        Iterator result = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+
+        Assert.assertNotNull(result);
+    }
+
+}

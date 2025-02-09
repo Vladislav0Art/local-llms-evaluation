@@ -1,0 +1,73 @@
+package leetcode.medium;
+
+import static org.junit.Assert.*;
+
+import leetcode.medium.OnlineStockSpan;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSinglePriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int result = onlineStockSpan.next(100);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextMultipleSamePriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int result1 = onlineStockSpan.next(100);
+        int result2 = onlineStockSpan.next(100);
+        int result3 = onlineStockSpan.next(100);
+        assertEquals(1, result1);
+        assertEquals(2, result2);
+        assertEquals(3, result3);
+    }
+
+    @Test
+    public void nextMultipleDifferentPriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int result1 = onlineStockSpan.next(100);
+        int result2 = onlineStockSpan.next(80);
+        int result3 = onlineStockSpan.next(120);
+        int result4 = onlineStockSpan.next(90);
+        assertEquals(1, result1);
+        assertEquals(1, result2);
+        assertEquals(3, result3);
+        assertEquals(1, result4);
+    }
+
+    @Test
+    public void calculateSpansEmptyTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{}, result);
+    }
+
+    @Test
+    public void calculateSpansSinglePriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpansMultipleSamePriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 100, 100};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 2, 3}, result);
+    }
+
+    @Test
+    public void calculateSpansMultipleDifferentPriceTest() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 80, 120, 90};
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 1, 3, 1}, result);
+    }
+
+}

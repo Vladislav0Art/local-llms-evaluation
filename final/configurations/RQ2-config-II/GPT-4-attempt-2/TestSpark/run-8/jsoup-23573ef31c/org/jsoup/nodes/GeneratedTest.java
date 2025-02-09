@@ -1,0 +1,90 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.FormElement;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellTest() {
+        Document doc = Document.createShell("https://www.example.com");
+        Assert.assertNotNull(doc);
+    }
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("https://www.example.com");
+        Assert.assertEquals("https://www.example.com", doc.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Connection conn = Jsoup.connect("https://www.example.com");
+        Document doc = new Document("https://www.example.com").connection(conn);
+        Assert.assertEquals(conn, doc.connection());
+    }
+
+    @Test
+    public void documentTypeTest() {
+        Document doc = new Document("https://www.example.com");
+        DocumentType docType = doc.documentType();
+        Assert.assertNull(docType);
+    }
+
+    @Test
+    public void titleTest() {
+        Document doc = new Document("https://www.example.com");
+        doc.title("Test Title");
+        Assert.assertEquals("Test Title", doc.title());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document doc = new Document("https://www.example.com");
+        Charset charset = Charset.forName("UTF-8");
+        doc.charset(charset);
+        Assert.assertEquals(charset, doc.charset());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document doc = new Document("https://www.example.com");
+        Document clonedDoc = doc.clone();
+        Assert.assertNotSame(doc, clonedDoc);
+    }
+
+    @Test
+    public void parserTest() {
+        Document doc = new Document("https://www.example.com");
+        Parser parser = Parser.htmlParser();
+        doc.parser(parser);
+        Assert.assertEquals(parser, doc.parser());
+    }
+
+    @Test
+    public void formsTest() {
+        Document doc = Jsoup.parse("<form id=\"form1\"><input name=\"msg\" value=\"Hello World\"></form>");
+        List<FormElement> formElements = doc.forms();
+        Assert.assertEquals(1, formElements.size());
+        Assert.assertEquals("form1", formElements.get(0).id());
+    }
+
+    @Test
+    public void expectFormTest() {
+        Document doc = Jsoup.parse("<form id=\"form1\"><input name=\"msg\" value=\"Hello World\"></form>");
+        FormElement formElement = doc.expectForm("form");
+        Assert.assertNotNull(formElement);
+        Assert.assertEquals("form1", formElement.id());
+    }
+
+}

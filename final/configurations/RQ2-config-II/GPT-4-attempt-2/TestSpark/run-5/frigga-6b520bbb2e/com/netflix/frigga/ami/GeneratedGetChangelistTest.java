@@ -1,0 +1,15 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedGetChangelistTest {
+
+    @Test
+    public void getChangelistTest() {
+        AppVersion appVersion = AppVersion.parseName("app-2.5.0-h82.8af1b42");
+        assertEquals("8af1b42", appVersion.getChangelist());
+    }
+
+}

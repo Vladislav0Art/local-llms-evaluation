@@ -1,0 +1,147 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.parser.Tag;
+import org.jsoup.select.Elements;
+import org.jsoup.select.Evaluator;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void tagNameTest() {
+        Element element = new Element("div");
+        assertEquals("div", element.tagName());
+    }
+
+    @Test
+    public void tagNameChangeTest() {
+        Element element = new Element("div");
+        element.tagName("p");
+        assertEquals("p", element.tagName());
+    }
+
+    @Test
+    public void attrTest() {
+        Element element = new Element("div");
+        element.attr("class", "test");
+        assertEquals("test", element.attr("class"));
+    }
+
+    @Test
+    public void attrBooleanTest() {
+        Element element = new Element("div");
+        element.attr("checked", true);
+        assertEquals("true", element.attr("checked"));
+    }
+
+    @Test
+    public void attrEmptyValueTest() {
+        Element element = new Element("div");
+        element.attr("class", "");
+        assertEquals("", element.attr("class"));
+    }
+
+    @Test
+    public void datasetEmptyTest() {
+        Element element = new Element("div");
+        Map<String, String> expected = new HashMap<>();
+        assertEquals(expected, element.dataset());
+    }
+
+    @Test
+    public void classNameTest() {
+        Element element = new Element("div").attr("class", "test");
+        assertEquals("test", element.className());
+    }
+
+    @Test
+    public void hasClassTrueTest() {
+        Element element = new Element("div").attr("class", "test");
+        assertTrue(element.hasClass("test"));
+    }
+
+    @Test
+    public void addClassTest() {
+        Element element = new Element("div").addClass("test");
+        assertTrue(element.hasClass("test"));
+    }
+
+    @Test
+    public void toggleClassTest() {
+        Element element = new Element("div").toggleClass("test");
+        assertTrue(element.hasClass("test"));
+        element.toggleClass("test");
+        assertFalse(element.hasClass("test"));
+    }
+
+    @Test
+    public void removeClassTest() {
+        Element element = new Element("div").addClass("test").removeClass("test");
+        assertFalse(element.hasClass("test"));
+    }
+
+    @Test
+    public void emptyTest() {
+        Element element = new Element("div");
+        Element child = new Element("p");
+        element.appendChild(child);
+        assertTrue(element.hasChildNodes());
+        element.empty();
+        assertFalse(element.hasChildNodes());
+    }
+
+    @Test
+    public void cloneTest() {
+        Element element = new Element("div");
+        Element clonedElement = element.clone();
+        assertNotSame(element, clonedElement);
+        assertEquals(element, clonedElement);
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        Element element = new Element("div");
+        Element childElement = new Element("p");
+        element.appendChild(childElement);
+
+        Element clonedElement = element.shallowClone();
+
+        assertNotSame(element, clonedElement);
+        assertEquals(0, clonedElement.childrenSize());
+    }
+
+    @Test
+    public void removeAttrTest() {
+        Element element = new Element("div").attr("class", "test").removeAttr("class");
+        assertFalse(element.hasAttr("class"));
+    }
+
+    @Test
+    public void doSetBaseUriTest() {
+        Element element = new Element("div");
+        String baseUri = "http://example.com";
+        element.doSetBaseUri(baseUri);
+        assertEquals(baseUri, element.baseUri());
+    }
+
+    @Test
+    public void prependTest() throws IOException {
+        Element element = new Element("div");
+        Element child = new Element("p");
+        element.prependChild(child);
+        assertEquals(child, element.child(0));
+    }
+
+}

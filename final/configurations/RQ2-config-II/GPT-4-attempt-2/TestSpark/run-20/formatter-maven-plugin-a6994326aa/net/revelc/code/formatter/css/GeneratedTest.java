@@ -1,0 +1,82 @@
+package net.revelc.code.formatter.css;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+
+import net.revelc.code.formatter.LineEnding;
+
+public class GeneratedTest {
+
+    @Test
+    public void initEmptyOptionsTest() {
+        CssFormatter formatter = new CssFormatter();
+        formatter.init(Collections.emptyMap(), Mockito.mock(ConfigurationSource.class));
+
+        Assert.assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void initWithOptionsTest() {
+        CssFormatter formatter = new CssFormatter();
+        HashMap<String, String> options = new HashMap<>();
+        options.put("key", "value");
+
+        formatter.init(options, Mockito.mock(ConfigurationSource.class));
+
+        Assert.assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void doFormatEmptyCodeTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        String result = formatter.doFormat("", LineEnding.AUTO);
+
+        Assert.assertEquals("", result);
+    }
+
+    @Test
+    public void doFormatNonEmptyCodeWithAutoLineEndingTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        String code = ".class { color: #000; }";
+
+        String result = formatter.doFormat(code, LineEnding.AUTO);
+
+        Assert.assertEquals(code, result);
+    }
+
+    @Test
+    public void doFormatNonEmptyCodeWithUnixLineEndingTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        String code = ".class { color: #000; }";
+
+        String result = formatter.doFormat(code, LineEnding.UNIX);
+
+        Assert.assertEquals(code, result);
+    }
+
+    @Test
+    public void doFormatNonEmptyCodeWithWindowsLineEndingTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        String code = ".class { color: #000; }";
+
+        String result = formatter.doFormat(code, LineEnding.WINDOWS);
+
+        Assert.assertEquals(code, result);
+    }
+
+    @Test
+    public void doFormatNonEmptyCodeWithLegacyMacLineEndingTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        String code = ".class { color: #000; }";
+
+        String result = formatter.doFormat(code, LineEnding.OLDMAC);
+
+        Assert.assertEquals(code, result);
+    }
+
+}

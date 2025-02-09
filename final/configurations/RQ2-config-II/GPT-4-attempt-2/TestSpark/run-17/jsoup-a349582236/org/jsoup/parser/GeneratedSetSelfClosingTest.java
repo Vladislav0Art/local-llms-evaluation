@@ -1,0 +1,17 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Tag;
+
+import static org.junit.Assert.*;
+
+public class GeneratedSetSelfClosingTest {
+
+    @Test
+    public void setSelfClosingTest() {
+        Tag tag = Tag.valueOf("div").setSelfClosing();
+        assertTrue(tag.isSelfClosing());
+    }
+
+}

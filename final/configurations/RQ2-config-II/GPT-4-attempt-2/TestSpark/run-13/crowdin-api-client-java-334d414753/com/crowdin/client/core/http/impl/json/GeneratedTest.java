@@ -1,0 +1,48 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.sourcefiles.model.FileInfo;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    private JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+
+    @Test
+    public void parseValidJsonTest() {
+        String json = "{\"id\":1, \"name\":\"foo.txt\"}";
+        FileInfo result = transformer.parse(json, FileInfo.class);
+
+        Assert.assertNotNull(result);
+        Assert.assertEquals(1, result.getId().intValue());
+        Assert.assertEquals("foo.txt", result.getName());
+    }
+
+    @Test
+    public void parseInvalidJsonTest() {
+        String json = "Invalid json";
+        transformer.parse(json, FileInfo.class);
+    }
+
+    @Test
+    public void parseJsonWithUnexpectedFieldTest() {
+        String json = "{\"unexpected_field\": \"unexpected_value\"}";
+        transformer.parse(json, FileInfo.class);
+    }
+
+    @Test
+    public void convertValidObjectTest() {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setId(1);
+        fileInfo.setName("foo.txt");
+
+        String json = transformer.convert(fileInfo);
+        Assert.assertEquals("{\"id\":1,\"name\":\"foo.txt\"}", json);
+    }
+
+    @Test
+    public void convertNullTest() {
+        transformer.convert(null);
+    }
+
+}

@@ -1,0 +1,91 @@
+package org.jsoup.parser;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.*;
+
+import java.io.StringReader;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void initialiseParseInputBaseUriTest() {
+        StringReader input = new StringReader("<xml>Test content</xml>");
+        String baseUri = "http://example.com";
+        Parser parser = Parser.xmlParser();
+
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.initialiseParse(input, baseUri, parser);
+
+        Assert.assertEquals("http://example.com", xmlTreeBuilder.getBaseUri());
+    }
+
+    @Test
+    public void parseInputBaseUriTest() {
+        StringReader input = new StringReader("<xml>Test content</xml>");
+        String baseUri = "http://example.com";
+
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document document = xmlTreeBuilder.parse(input, baseUri);
+
+        Assert.assertEquals("http://example.com", document.baseUri());
+    }
+
+    @Test
+    public void parseStringInputBaseUriTest() {
+        String input = "<xml>Test content</xml>";
+        String baseUri = "http://example.com";
+
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document document = xmlTreeBuilder.parse(input, baseUri);
+
+        Assert.assertEquals("http://example.com", document.baseUri());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+
+        Assert.assertTrue(xmlTreeBuilder.newInstance() instanceof XmlTreeBuilder);
+    }
+
+    @Test
+    public void processTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Token.Comment commentToken = new Token.Comment();
+
+        boolean processResult = xmlTreeBuilder.process(commentToken);
+        Assert.assertTrue(processResult);
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Node node = new Node("http://example.com") {
+        };
+
+        xmlTreeBuilder.insertNode(node);
+    }
+
+    @Test
+    public void popStackToCloseEndTagTest() {
+        Token.EndTag endTag = new Token.EndTag();
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.popStackToClose(endTag);
+    }
+
+    @Test
+    public void parseFragmentInputBaseUriParserTest() {
+        String inputFragment = "<xml>Test content</xml>";
+        String baseUri = "http://example.com";
+        Parser parser = Parser.xmlParser();
+
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = xmlTreeBuilder.parseFragment(inputFragment, baseUri, parser);
+
+        Assert.assertFalse(nodes.isEmpty());
+    }
+
+}

@@ -1,0 +1,166 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.HttpConnection;
+import org.junit.Test;
+
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectWithStringUrlTest() {
+        Connection connection = HttpConnection.connect("https://www.example.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void connectWithUrlTest() throws Exception {
+        Connection connection = HttpConnection.connect(new URL("https://www.example.com"));
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void newRequestTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.newRequest();
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void urlWithStringTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.url("https://www.example.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void urlWithUrlTest() throws Exception {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.url(new URL("https://www.example.com"));
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void proxyTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.proxy("127.0.0.1", 8080);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void userAgentTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.userAgent("Mozilla/5.0");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void timeoutTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.timeout(1000);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.maxBodySize(10000);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void followRedirectsTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.followRedirects(true);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void referrerTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.referrer("https://www.example.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void methodTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.method(Connection.Method.GET);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void ignoreHttpErrorsTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.ignoreHttpErrors(true);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void ignoreContentTypeTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.ignoreContentType(true);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void dataWithKeyValueTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.data("key", "value");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void dataWithMapTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Map<String, String> data = new HashMap<>();
+        data.put("key", "value");
+        Connection connection = httpConnection.data(data);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void requestBodyTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.requestBody("body");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void headerTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.header("name", "value");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void headersTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("name", "value");
+        Connection connection = httpConnection.headers(headers);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void cookieTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Connection connection = httpConnection.cookie("name", "value");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void cookiesTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Map<String, String> cookies = new HashMap<>();
+        cookies.put("name", "value");
+        Connection connection = httpConnection.cookies(cookies);
+        assertNotNull(connection);
+    }
+
+}

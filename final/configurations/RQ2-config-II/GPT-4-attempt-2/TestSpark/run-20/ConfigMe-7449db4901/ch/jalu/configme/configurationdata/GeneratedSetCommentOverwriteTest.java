@@ -1,0 +1,32 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
+public class GeneratedSetCommentOverwriteTest {
+
+    @Test
+    public void setCommentOverwriteTest() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path", Arrays.asList("comment1", "comment2"));
+
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+
+        commentsConfiguration.setComment("path", "comment3", "comment4");
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+        assertEquals(1, allComments.size());
+        assertEquals(Arrays.asList("comment3", "comment4"), allComments.get("path"));
+    }
+
+}

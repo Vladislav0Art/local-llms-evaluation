@@ -1,0 +1,76 @@
+package net.revelc.code.formatter.css;
+
+import org.junit.Test;
+import org.junit.Assert;
+import org.mockito.Mockito;
+import net.revelc.code.formatter.ConfigurationSource;
+import net.revelc.code.formatter.LineEnding;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void initValidOptionsTest() {
+        CssFormatter formatter = new CssFormatter();
+        ConfigurationSource source = Mockito.mock(ConfigurationSource.class);
+        Map<String, String> options = new HashMap<>();
+        options.put("key", "value");
+        formatter.init(options, source);
+        Assert.assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void initNullOptionsTest() {
+        CssFormatter formatter = new CssFormatter();
+        ConfigurationSource source = Mockito.mock(ConfigurationSource.class);
+        formatter.init(null, source);
+        Assert.assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void initNullConfigurationSourceTest() {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        options.put("key", "value");
+        formatter.init(options, null);
+        Assert.assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void doFormatValidCodeTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        ConfigurationSource source = Mockito.mock(ConfigurationSource.class);
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, source);
+        String formattedCode = formatter.doFormat(".classname { margin: 5px; }", LineEnding.DEFAULT);
+        Assert.assertNotNull(formattedCode);
+    }
+
+    @Test
+    public void doFormatInvalidCodeTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        ConfigurationSource source = Mockito.mock(ConfigurationSource.class);
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, source);
+        formatter.doFormat(".classname { margin: 5px;", LineEnding.DEFAULT);
+    }
+
+    @Test
+    public void isInitializedAfterInitTest() {
+        CssFormatter formatter = new CssFormatter();
+        ConfigurationSource source = Mockito.mock(ConfigurationSource.class);
+        Map<String, String> options = new HashMap<>();
+        formatter.init(options, source);
+        Assert.assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void isInitializedBeforeInitTest() {
+        CssFormatter formatter = new CssFormatter();
+        Assert.assertFalse(formatter.isInitialized());
+    }
+
+}

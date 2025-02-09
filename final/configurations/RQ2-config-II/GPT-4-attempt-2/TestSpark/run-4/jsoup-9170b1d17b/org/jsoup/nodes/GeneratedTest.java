@@ -1,0 +1,136 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.helper.Validate;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Iterator;
+
+public class GeneratedTest {
+
+    @Test
+    public void addTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        Assert.assertEquals("value", attrs.get("key"));
+    }
+
+    @Test
+    public void putWithBoolTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", true);
+        Assert.assertEquals("", attrs.get("key"));
+    }
+
+    @Test
+    public void putWithStringTest() {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        Assert.assertEquals("value", attrs.get("key"));
+    }
+
+    @Test
+    public void putWithAttributeTest() {
+        Attributes attrs = new Attributes();
+        attrs.put(new Attribute("key", "value"));
+        Assert.assertEquals("value", attrs.get("key"));
+    }
+
+    @Test
+    public void removeTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        attrs.remove("key");
+        Assert.assertFalse(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void hasKeyTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        Assert.assertTrue(attrs.hasKey("key"));
+    }
+
+    @Test
+    public void hasDeclaredValueForKeyTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        Assert.assertTrue(attrs.hasDeclaredValueForKey("key"));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key1", "value1");
+        attrs.add("key2", "value2");
+        Assert.assertEquals(2, attrs.size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attrs = new Attributes();
+        Assert.assertTrue(attrs.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attrs1 = new Attributes();
+        attrs1.add("key1", "value1");
+
+        Attributes attrs2 = new Attributes();
+        attrs2.add("key2", "value2");
+
+        attrs1.addAll(attrs2);
+
+        Assert.assertEquals(2, attrs1.size());
+        Assert.assertEquals("value1", attrs1.get("key1"));
+        Assert.assertEquals("value2", attrs1.get("key2"));
+    }
+
+    @Test
+    public void iteratorTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        Iterator<Attribute> iterator = attrs.iterator();
+        Assert.assertTrue(iterator.hasNext());
+        Assert.assertEquals("key", iterator.next().getKey());
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        Assert.assertEquals(1, attrs.asList().size());
+        Assert.assertEquals("key", attrs.asList().get(0).getKey());
+    }
+
+    @Test
+    public void toStringTest() {
+        Attributes attrs = new Attributes();
+        attrs.add("key", "value");
+        Assert.assertEquals("key=\"value\"", attrs.toString());
+    }
+
+    @Test
+    public void equalsTest() {
+        Attributes attrs1 = new Attributes();
+        attrs1.put("key", "value");
+
+        Attributes attrs2 = new Attributes();
+        attrs2.put("key", "value");
+
+        Assert.assertTrue(attrs1.equals(attrs2));
+    }
+
+    @Test
+    public void cloneTest() throws CloneNotSupportedException {
+        Attributes attrs = new Attributes();
+        attrs.put("key", "value");
+        Attributes clone = attrs.clone();
+        Assert.assertEquals(attrs, clone);
+        Assert.assertNotSame(attrs, clone);
+    }
+
+}

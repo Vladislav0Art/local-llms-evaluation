@@ -1,0 +1,31 @@
+package org.traccar.protocol;
+
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.model.Position;
+
+import java.net.InetSocketAddress;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedDecodePositionObjectTest {
+
+    @Test
+    public void decodePositionObjectTest() throws Exception {
+        Protocol protocol = new Protocol("testProtocol");
+        GalileoProtocolDecoder decoder = new GalileoProtocolDecoder(protocol);
+        Channel channel = Mockito.mock(Channel.class);
+        when(channel.remoteAddress()).thenReturn(new InetSocketAddress(8080));
+
+        Position position = new Position();
+        Object result = null;
+
+        result = decoder.decode(channel, channel.remoteAddress(), position);
+
+        assertEquals(position, result);
+    }
+
+}

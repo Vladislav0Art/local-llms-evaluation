@@ -1,0 +1,56 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.util.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getAllCommentsFromEmptyConfigurationTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
+
+        Assert.assertTrue("The comments map should be empty", comments.isEmpty());
+    }
+
+    @Test
+    public void getAllCommentsFromNonEmptyConfigurationTest() {
+        Map<String, List<String>> initialComments = new HashMap<>();
+        initialComments.put("test.path", Arrays.asList("Comment1", "Comment2"));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(initialComments);
+
+        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
+
+        Assert.assertEquals("The comments map size should be equal to initial map size",
+                initialComments.size(), comments.size());
+    }
+
+    @Test
+    public void setCommentChangingExistingCommentsTest() {
+        Map<String, List<String>> initialComments = new HashMap<>();
+        initialComments.put("test.path", Arrays.asList("Comment1", "Comment2"));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(initialComments);
+
+        commentsConfiguration.setComment("test.path", "Changed comment");
+
+        Map<String, List<String>> updatedComments = commentsConfiguration.getAllComments();
+
+        Assert.assertEquals("The comment should be changed",
+                Collections.singletonList("Changed comment"), updatedComments.get("test.path"));
+    }
+
+    @Test
+    public void setCommentAddingNewCommentsTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        commentsConfiguration.setComment("test.path", "New comment");
+
+        Map<String, List<String>> updatedComments = commentsConfiguration.getAllComments();
+
+        Assert.assertEquals("The comment should be added",
+                Collections.singletonList("New comment"), updatedComments.get("test.path"));
+    }
+
+}

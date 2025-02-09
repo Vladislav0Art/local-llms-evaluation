@@ -1,0 +1,66 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+
+public class GeneratedTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws Exception {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        Assert.assertNotNull(builder);
+    }
+
+    @Test
+    public void buildMethodTest() throws Exception {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        URL buildUrl = builder.build();
+
+        Assert.assertEquals(url, buildUrl);
+    }
+
+    @Test
+    public void appendKeyValMethodWithUnsupportedEncodingTest() throws Exception {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        Connection.KeyVal kv = new Connection.KeyVal("key", "val");
+        builder.appendKeyVal(kv);
+    }
+
+    @Test
+    public void appendKeyValMethodWithCriticalDataTest() throws Exception {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        Connection.KeyVal kv = new Connection.KeyVal("critical", "data");
+        builder.appendKeyVal(kv);
+
+        Assert.assertTrue(builder.build().toString().contains("critical=data"));
+    }
+
+    @Test
+    public void appendKeyValMethodWithMockDataTest() throws Exception {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+
+        // Mock object
+        Connection.KeyVal kv = Mockito.mock(Connection.KeyVal.class);
+        Mockito.when(kv.key()).thenReturn("key");
+        Mockito.when(kv.value()).thenReturn("value");
+
+        builder.appendKeyVal(kv);
+
+        Assert.assertTrue(builder.build().toString().contains("key=value"));
+    }
+
+}

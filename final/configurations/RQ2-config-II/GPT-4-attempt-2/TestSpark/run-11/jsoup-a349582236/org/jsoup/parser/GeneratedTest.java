@@ -1,0 +1,126 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.jsoup.parser.Tag;
+import org.jsoup.parser.ParseSettings;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getNameTest() {
+        Tag tag = new Tag("test");
+        assertEquals("test", tag.getName());
+    }
+
+    @Test
+    public void normalNameTest() {
+        Tag tag = new Tag("TEST");
+        assertEquals("test", tag.normalName());
+    }
+
+    @Test
+    public void valueOfDefaultTest() {
+        Tag tag = Tag.valueOf("test");
+        assertEquals("test", tag.getName());
+    }
+
+    @Test
+    public void valueOfWithSettingsTest() {
+        ParseSettings settings = Mockito.mock(ParseSettings.class);
+        Mockito.when(settings.normalizeTag("test")).thenReturn("normalized");
+        Tag tag = Tag.valueOf("test", settings);
+        assertEquals("normalized", tag.getName());
+        Mockito.verify(settings).normalizeTag("test");
+    }
+
+    @Test
+    public void isBlockTest() {
+        Tag tag = new Tag("p");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag tag = new Tag("span");
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Tag tag = new Tag("img");
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        Tag tag = new Tag("img");
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTagTest() {
+        Tag tag = new Tag("p");
+        assertTrue(tag.isKnownTag());
+    }
+
+    @Test
+    public void isKnownTagWithNameTest() {
+        assertTrue(Tag.isKnownTag("p"));
+    }
+
+    @Test
+    public void preserveWhitespaceTest() {
+        Tag tag = new Tag("pre");
+        assertTrue(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void isFormListedTest() {
+        Tag tag = new Tag("button");
+        assertTrue(tag.isFormListed());
+    }
+
+    @Test
+    public void isFormSubmittableTest() {
+        Tag tag = new Tag("input");
+        assertTrue(tag.isFormSubmittable());
+    }
+
+    @Test
+    public void setSelfClosingTest() {
+        Tag tag = new Tag("div");
+        tag.setSelfClosing();
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void equalsTest() {
+        Tag tag1 = new Tag("text");
+        Tag tag2 = new Tag("text");
+        assertTrue(tag1.equals(tag2));
+    }
+
+    @Test
+    public void hashCodeTest() {
+        Tag tag = new Tag("text");
+        assertEquals(tag.hashCode(), "text".hashCode());
+    }
+
+    @Test
+    public void cloneTest() {
+        Tag original = new Tag("text");
+        Tag clone = original.clone();
+        assertNotSame(original, clone);
+        assertEquals(original, clone);
+    }
+
+    @Test
+    public void toStringTest() {
+        Tag tag = new Tag("text");
+        assertEquals("text", tag.toString());
+    }
+
+}

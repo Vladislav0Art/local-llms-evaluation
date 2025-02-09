@@ -1,0 +1,130 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Document;
+import org.junit.Assert;
+import org.junit.Test;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.HashMap;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTest() {
+        W3CDom w3cdom = new W3CDom();
+        Assert.assertEquals(false, w3cdom.namespaceAware());
+    }
+
+    @Test
+    public void namespaceAwareWithParamTest() {
+        W3CDom w3cdom = new W3CDom().namespaceAware(true);
+        Assert.assertEquals(true, w3cdom.namespaceAware());
+    }
+
+    @Test
+    public void convertDocumentTest() {
+        Document in = new Document("Test");
+        org.w3c.dom.Document result = W3CDom.convert(in);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void asStringWithPropertiesTest() {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        org.w3c.dom.Document doc = builder.newDocument();
+        Map<String, String> properties = new HashMap<>();
+        properties.put("method", "xml");
+        results.put("indent", "yes");
+        String result = W3CDom.asString(doc, properties);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> map = new HashMap<>();
+        map.put("method", "xml");
+        results.put("indent", "yes");
+        Properties result = W3CDom.propertiesFromMap(map);
+        Assert.assertEquals("xml", result.getProperty("method"));
+        Assert.assertEquals("yes", result.getProperty("indent"));
+    }
+
+    @Test
+    public void outputHtmlTest() {
+        HashMap<String, String> outputHtml = W3CDom.OutputHtml();
+        Assert.assertFalse(outputHtml.isEmpty());
+    }
+
+    @Test
+    public void outputXmlTest() {
+        HashMap<String, String> outputXml = W3CDom.OutputXml();
+        Assert.assertFalse(outputXml.isEmpty());
+    }
+
+    @Test
+    public void fromJsoupDocumentTest() {
+        Document in = new Document("Test");
+        org.w3c.dom.Document result = new W3CDom().fromJsoup(in);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void fromJsoupElementTest() {
+        Element in = new Element("div");
+        org.w3c.dom.Document result = new W3CDom().fromJsoup(in);
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void convertInToOutDocumentTest() {
+        Document in = new Document("Test");
+        org.w3c.dom.Document out = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        new W3CDom().convert(in, out);
+        Assert.assertNotNull(out);
+    }
+
+    @Test
+    public void selectXpathDocumentTest() {
+        org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        NodeList nodeList = new W3CDom().selectXpath("/html/body/div", doc);
+        Assert.assertNotNull(nodeList);
+    }
+
+    @Test
+    public void selectXpathNodeTest() {
+        org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Node node = doc.createElement("body");
+        doc.appendChild(node);
+        NodeList nodeList = new W3CDom().selectXpath("/body", node);
+        Assert.assertNotNull(nodeList);
+    }
+
+    @Test
+    public void sourceNodesTest() {
+        org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        NodeList nodeList = doc.getElementsByTagName("div");
+        List<org.jsoup.nodes.Node> nodes = new W3CDom().sourceNodes(nodeList, org.jsoup.nodes.Node.class);
+        Assert.assertNotNull(nodes);
+    }
+
+    @Test
+    public void contextNodeTest() {
+        org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Node contextNode = new W3CDom().contextNode(doc);
+        Assert.assertNotNull(contextNode);
+    }
+
+    @Test
+    public void asStringTest() {
+        org.w3c.dom.Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        String result = new W3CDom().asString(doc);
+        Assert.assertNotNull(result);
+    }
+
+}

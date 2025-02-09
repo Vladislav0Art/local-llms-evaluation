@@ -1,0 +1,120 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.nodes.*;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+import static org.mockito.Mockito.mock;
+
+public class GeneratedTest {
+
+    @Test
+    public void DocumentConstructorTest() {
+        Document document = new Document("https://example.com");
+        Assert.assertEquals("https://example.com", document.location());
+    }
+
+    @Test
+    public void createShellTest() {
+        Document document = Document.createShell("https://example.com");
+        Assert.assertEquals("", document.title());
+    }
+
+    @Test
+    public void locationTest() {
+        Document document = new Document("https://example.com");
+        Assert.assertEquals("https://example.com", document.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Document document = new Document("");
+        Connection connection = mock(Connection.class);
+        document.connection(connection);
+        Assert.assertEquals(connection, document.connection());
+    }
+
+    @Test
+    public void headTest() {
+        Document document = new Document("");
+        Element element = document.head();
+        Assert.assertEquals("head", element.nodeName());
+    }
+
+    @Test
+    public void bodyTest() {
+        Document document = new Document("");
+        Element element = document.body();
+        Assert.assertEquals("body", element.nodeName());
+    }
+
+    @Test
+    public void formsTest() {
+        Document document = new Document("");
+        List<FormElement> formElementList = document.forms();
+        Assert.assertTrue(formElementList instanceof ArrayList);
+    }
+
+    @Test
+    public void titleTest() {
+        Document document = new Document("");
+        document.title("test title");
+        Assert.assertEquals("test title", document.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document document = new Document("");
+        Element element = document.createElement("div");
+        Assert.assertEquals("div", element.nodeName());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document document = new Document("");
+        document.charset(Charset.forName("UTF-8"));
+        Assert.assertEquals(Charset.forName("UTF-8"), document.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementTest() {
+        Document document = new Document("");
+        document.updateMetaCharsetElement(true);
+        Assert.assertTrue(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document document = new Document("");
+        Document clone = document.clone();
+        Assert.assertNotSame(document, clone);
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document document = new Document("");
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
+        document.outputSettings(outputSettings);
+        Assert.assertEquals(outputSettings, document.outputSettings());
+    }
+
+    @Test
+    public void quirksModeTest() {
+        Document document = new Document("");
+        Document.QuirksMode quirksMode = Document.QuirksMode.quirks;
+        document.quirksMode(quirksMode);
+        Assert.assertEquals(quirksMode, document.quirksMode());
+    }
+
+    @Test
+    public void parserTest() {
+        Document document = new Document("");
+        document.parser(Parser.htmlParser());
+        Assert.assertEquals(Parser.htmlParser().getClass(), document.parser().getClass());
+    }
+
+}

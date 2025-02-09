@@ -1,0 +1,20 @@
+package com.force.i18n.grammar.impl;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class GeneratedEqualsSameObjectTest {
+
+    @Test
+    public void EqualsSameObjectTest() {
+        GrammaticalTermMapImpl<GrammaticalTerm> termMap = new GrammaticalTermMapImpl<>();
+        assertTrue(termMap.equals(termMap));
+    }
+
+}

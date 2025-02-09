@@ -1,0 +1,85 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.HttpConnection;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringUrlTest() {
+        Connection connection = HttpConnection.connect("http://example.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void connectWithEmptyUrlTest() {
+        HttpConnection.connect("");
+    }
+
+    @Test
+    public void connectURLTest() throws Exception {
+        Connection connection = HttpConnection.connect(new URL("http://example.com"));
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void connectWithURLNullTest() throws Exception {
+        HttpConnection.connect((URL) null);
+    }
+
+    @Test
+    public void newRequestTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        assertNotNull(httpConnection.newRequest());
+    }
+
+    @Test
+    public void urlWithStringTest() {
+        Connection connection = new HttpConnection().url("http://example.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void urlWithURLTest() throws Exception {
+        Connection connection = new HttpConnection().url(new URL("http://example.com"));
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void proxyTest() {
+        Connection connection = new HttpConnection().proxy("127.0.0.1", 8080);
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void getTest() throws Exception {
+        HttpConnection connection = (HttpConnection) new HttpConnection().url(new URL("http://example.com"));
+        Document document = connection.get();
+        assertNotNull(document);
+    }
+
+    @Test
+    public void postTest() throws Exception {
+        HttpConnection connection = (HttpConnection) new HttpConnection().url(new URL("http://example.com"));
+        Document document = connection.post();
+        assertNotNull(document);
+    }
+
+    @Test
+    public void executeTest() throws Exception {
+        HttpConnection connection = (HttpConnection) new HttpConnection().url(new URL("http://example.com"));
+        Connection.Response response = connection.execute();
+        assertNotNull(response);
+    }
+
+    @Test
+    public void requestTest() {
+        HttpConnection httpConnection = new HttpConnection();
+        assertNotNull(httpConnection.request());
+    }
+
+}

@@ -1,0 +1,69 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.io.UnsupportedEncodingException;
+
+public class GeneratedTest {
+
+    @Test
+    public void UrlBuilderUrlConstructorTest() throws MalformedURLException {
+        URL url = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Assert.assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void UrlBuilderNullUrlConstructorTest() {
+        URL url = null;
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+    }
+
+    @Test
+    public void buildValidUrlTest() throws MalformedURLException {
+        URL url = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL builtUrl = urlBuilder.build();
+
+        Assert.assertEquals("http://example.com", builtUrl.toString());
+    }
+
+    @Test
+    public void buildInvalidUrlTest() {
+        URL url = null;
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL builtUrl = urlBuilder.build();
+    }
+
+    @Test
+    public void appendKeyValValidTest() throws MalformedURLException, UnsupportedEncodingException {
+        URL url = new URL("http://example.com");
+        Connection.KeyVal kv = Connection.KeyVal.create("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.appendKeyVal(kv);
+        URL builtUrl = urlBuilder.build();
+
+        Assert.assertEquals("http://example.com?key=value", builtUrl.toString());
+    }
+
+    @Test
+    public void appendKeyValNullTest() throws MalformedURLException, UnsupportedEncodingException {
+        URL url = new URL("http://example.com");
+        Connection.KeyVal kv = null;
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.appendKeyVal(kv);
+    }
+
+    @Test
+    public void appendKeyValUnsupportedEncodingTest() throws MalformedURLException, UnsupportedEncodingException {
+        URL url = new URL("http://example.com");
+        Connection.KeyVal kv = Connection.KeyVal.create("key", "\ud800\udc00");  // invalid Unicode surrogate pair
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.appendKeyVal(kv);
+    }
+
+}

@@ -1,0 +1,110 @@
+package app;
+
+import app.DBApp;
+import exceptions.DBAppException;
+import org.junit.Test;
+import org.mockito.Mockito;
+import sql.SQLTerm;
+
+import java.util.Hashtable;
+import java.util.Iterator;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        assertNotNull(dbApp.getMyTables());
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        assertNotNull(dbApp.getReader());
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        assertNotNull(dbApp.getWriter());
+    }
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = new DBApp();
+        dbApp.init(); //No output or return, just testing that no exception is thrown.
+    }
+
+    @Test
+    public void createTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, String> nameType = new Hashtable<>();
+        Hashtable<String, String> nameMin = new Hashtable<>();
+        Hashtable<String, String> nameMax = new Hashtable<>();
+        dbApp.createTable("table1", "Key1", nameType, nameMin, nameMax); //No output or return, just testing that no exception is thrown.
+    }
+
+    @Test
+    public void createTableExceptionTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.createTable(null, null, null, null, null);
+    }
+
+    @Test
+    public void insertIntoTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> nameValue = new Hashtable<>();
+        dbApp.insertIntoTable("table1", nameValue); //No output or return, just testing that no exception is thrown.
+    }
+
+    @Test
+    public void insertIntoTableExceptionTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.insertIntoTable(null, null);
+    }
+
+    @Test
+    public void updateTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> nameValue = new Hashtable<>();
+        dbApp.updateTable("table1", "Key1", nameValue); //No output or return, just testing that no exception is thrown.
+    }
+
+    @Test
+    public void updateTableExceptionTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.updateTable(null, null, null);
+    }
+
+    @Test
+    public void deleteFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> nameValue = new Hashtable<>();
+        dbApp.deleteFromTable("table1", nameValue); //No output or return, just testing that no exception is thrown.
+    }
+
+    @Test
+    public void deleteFromTableExceptionTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.deleteFromTable(null, null);
+    }
+
+    @Test
+    public void selectFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        SQLTerm[] sqlTerms = new SQLTerm[1];
+        String[] operators = new String[1];
+        Iterator result = dbApp.selectFromTable(sqlTerms, operators);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void selectFromTableExceptionTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.selectFromTable(null, null);
+    }
+
+}

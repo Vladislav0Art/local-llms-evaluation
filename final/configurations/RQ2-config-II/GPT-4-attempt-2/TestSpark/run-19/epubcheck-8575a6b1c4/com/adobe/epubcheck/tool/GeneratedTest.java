@@ -1,0 +1,79 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.File;
+import java.util.Locale;
+
+import static org.mockito.Mockito.spy;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private EpubChecker epubChecker = new EpubChecker();
+
+    @Test
+    public void getLocaleDefaultTest() {
+        Locale expected = Locale.getDefault();
+        Locale actual = epubChecker.getLocale();
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void processEpubFileEnglishTest() {
+        int expected = 0;
+        String[] args = {"file.epub", "en"};
+        int actual = epubChecker.processEpubFile(args);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void processEpubFileNonExistTest() {
+        int expected = 1;
+        String[] args = {"non_exist.epub", "en"};
+        int actual = epubChecker.processEpubFile(args);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void runWithInvalidArgsTest() {
+        int expected = 1;
+        String[] args = {"file.epub", "invalid_arg"};
+        int actual = epubChecker.run(args);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void runWithValidArgsTest() {
+        int expected = 0;
+        String[] args = {"file.epub", "valid_arg"};
+        int actual = epubChecker.run(args);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void validateFileNonExistTest() {
+        EpubChecker spyChecker = spy(epubChecker);
+        String path = "non_exist.epub";
+        int expected = 1;
+        File file = new File(path);
+        int actual = spyChecker.validateFile(path, EPUBVersion.VERSION_3, new DefaultReportImpl(file), EPUBProfile.DEFAULT);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void validateFileValidTest() {
+        EpubChecker spyChecker = spy(epubChecker);
+        String path = "valid.epub";
+        int expected = 0;
+        File file = new File(path);
+        int actual = spyChecker.validateFile(path, EPUBVersion.VERSION_3, new DefaultReportImpl(file), EPUBProfile.DEFAULT);
+        Assert.assertEquals(expected, actual);
+    }
+
+}

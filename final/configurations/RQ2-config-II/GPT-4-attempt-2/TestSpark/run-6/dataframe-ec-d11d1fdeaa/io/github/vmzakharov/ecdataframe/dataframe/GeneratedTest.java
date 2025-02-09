@@ -1,0 +1,233 @@
+package io.github.vmzakharov.ecdataframe.dataframe;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void DataFrameNewNameTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        assertEquals("NewFrame", dataFrame.getName());
+    }
+
+    @Test
+    public void addStringColumnTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addStringColumn("Column1");
+        assertTrue(dataFrame.hasColumn("Column1"));
+    }
+
+    @Test
+    public void addStringColumnWithExpressionTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addStringColumn("Column1", "Expression");
+        assertTrue(dataFrame.hasColumn("Column1"));
+    }
+
+    @Test
+    public void addStringColumnWithValuesTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addStringColumn("Column1", Arrays.asList("Value1", "Value2"));
+    }
+
+    @Test
+    public void addLongColumnTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addLongColumn("Column1");
+        assertTrue(dataFrame.hasColumn("Column1"));
+    }
+
+    @Test
+    public void enablePoolingTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.enablePooling();
+        assertTrue(dataFrame.isPoolingEnabled());
+    }
+
+    @Test
+    public void getColumnNamedTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addStringColumn("Column1", "Expression");
+        assertNotNull(dataFrame.getColumnNamed("Column1"));
+    }
+
+    @Test
+    public void getColumnsTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.getColumns();
+    }
+
+    @Test
+    public void addRowTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addRow();
+        assertEquals(1, dataFrame.rowCount());
+    }
+
+    @Test
+    public void addRowValuesTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addRow("Value1", "Value2");
+        assertEquals(1, dataFrame.rowCount());
+    }
+
+    @Test
+    public void columnCountTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addStringColumn("Column1", "Value1");
+        dataFrame.addStringColumn("Column2", "Value2");
+        assertEquals(2, dataFrame.columnCount());
+    }
+
+    @Test
+    public void getObjectTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addStringColumn("Column1", "Value1");
+        dataFrame.addRow();
+        assertNotNull(dataFrame.getObject(0, 0));
+    }
+
+    @Test
+    public void isNullTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addStringColumn("Column1", "Value1");
+        assertFalse(dataFrame.isNull("Column1", 0));
+    }
+
+    @Test
+    public void getLongTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addLongColumn("Column1", Arrays.asList(1L, 2L));
+        assertEquals(BigInteger.valueOf(1L), dataFrame.getLong("Column1", 0));
+    }
+
+    @Test
+    public void getDoubleTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addDoubleColumn("Column1", Arrays.asList(1.1, 2.2));
+        assertEquals(1.1, dataFrame.getDouble("Column1", 0), 0.1);
+    }
+
+    @Test
+    public void getDateTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addDateColumn("Column1", Arrays.asList(LocalDate.now()));
+        assertEquals(LocalDate.now(), dataFrame.getDate("Column1", 0));
+    }
+
+    @Test
+    public void getDateTimeTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addDateTimeColumn("Column1", Arrays.asList(LocalDateTime.now()));
+        assertEquals(LocalDateTime.now(), dataFrame.getDateTime("Column1", 0));
+    }
+
+    @Test
+    public void getDecimalTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addDecimalColumn("Column1", Arrays.asList(BigDecimal.ONE));
+        assertEquals(BigDecimal.ONE, dataFrame.getDecimal("Column1", 0));
+    }
+
+    @Test
+    public void getLongColumnTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addLongColumn("Column1", Arrays.asList(1L, 2L));
+        assertNotNull(dataFrame.getLongColumn("Column1"));
+    }
+
+    @Test
+    public void hasColumnTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addStringColumn("Column1", "Value1");
+        assertTrue(dataFrame.hasColumn("Column1"));
+    }
+
+    @Test
+    public void getEvalContextTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        assertNotNull(dataFrame.getEvalContext());
+    }
+
+    @Test
+    public void sealTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        assertNotNull(dataFrame.seal());
+    }
+
+    @Test
+    public void sumTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        assertNotNull(dataFrame.sum(Arrays.asList("Column1", "Column2")));
+    }
+
+    @Test
+    public void copyTest() {
+        DataFrame dataFrame1 = new DataFrame("Frame1");
+        DataFrame dataFrame2 = dataFrame1.copy("Frame2");
+        assertEquals("Frame2", dataFrame2.getName());
+    }
+
+    @Test
+    public void unsortTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        assertFalse(dataFrame.unsort());
+    }
+
+    @Test
+    public void unionTest() {
+        DataFrame dataFrame1 = new DataFrame("DataFrame1");
+        DataFrame dataFrame2 = new DataFrame("DataFrame2");
+        assertNotNull(dataFrame1.union(dataFrame2));
+    }
+
+    @Test
+    public void setFlagTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.setFlag(0);
+        assertTrue(dataFrame.isFlagged(0));
+    }
+
+    @Test
+    public void dropColumnTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.addStringColumn("Column1", "Expression");
+        assertNotNull(dataFrame.dropColumn("Column1"));
+    }
+
+    @Test
+    public void isEmptyTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        assertTrue(dataFrame.isEmpty());
+    }
+
+    @Test
+    public void isNotEmptyTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        assertFalse(dataFrame.isNotEmpty());
+    }
+
+    @Test
+    public void createIndexTest() {
+        DataFrame dataFrame = new DataFrame("NewFrame");
+        dataFrame.createIndex("Index1", Arrays.asList("Column1", "Column2"));
+        assertNotNull(dataFrame.index("Index1"));
+    }
+
+    @Test
+    public void forEachTest() {
+        DataFrame dataFrame = Mockito.mock(DataFrame.class);
+        dataFrame.forEach(System.out::println);
+        Mockito.verify(dataFrame, Mockito.times(1)).forEach(System.out::println);
+    }
+
+}

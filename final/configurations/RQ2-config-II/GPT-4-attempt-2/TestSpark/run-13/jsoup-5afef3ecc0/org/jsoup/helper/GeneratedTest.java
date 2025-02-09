@@ -1,0 +1,50 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void UrlBuilderConstructorTest() throws MalformedURLException {
+        URL url = new URL("http://www.example.com");
+
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildTest() throws MalformedURLException {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+
+        URL result = urlBuilder.build();
+
+        assertNotNull(result);
+        assertEquals("http://www.example.com", result.toString());
+    }
+
+    @Test
+    public void appendKeyValTest() throws UnsupportedEncodingException, MalformedURLException {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        Connection.KeyVal keyVal = mock(Connection.KeyVal.class);
+        when(keyVal.key()).thenReturn("key");
+        when(keyVal.value()).thenReturn("value");
+
+        urlBuilder.appendKeyVal(keyVal);
+        URL result = urlBuilder.build();
+
+        assertNotNull(result);
+        assertTrue(result.toString().contains("key=value"));
+    }
+
+}

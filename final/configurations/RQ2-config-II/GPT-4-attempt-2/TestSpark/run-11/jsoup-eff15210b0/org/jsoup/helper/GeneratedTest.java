@@ -1,0 +1,105 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
+import org.jsoup.UnsupportedMimeTypeException;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringNotNullTest() throws MalformedURLException {
+        Connection connection = HttpConnection.connect("http://example.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void connectStringNullTest() {
+        HttpConnection.connect((String) null);
+    }
+
+    @Test
+    public void connectUrlNotNullTest() throws MalformedURLException {
+        Connection connection = HttpConnection.connect(new URL("http://example.com"));
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void connectUrlNullTest() {
+        HttpConnection.connect((URL) null);
+    }
+
+    @Test
+    public void urlStringVerifyTest() throws MalformedURLException {
+        HttpConnection connection = new HttpConnection();
+        Connection.Response response = connection.url("http://example.com").execute();
+        assertEquals("http://example.com", response.url().toString());
+    }
+
+    @Test
+    public void urlURLVerifyTest() throws MalformedURLException {
+        HttpConnection connection = new HttpConnection();
+        Connection.Response response = connection.url(new URL("http://example.com")).execute();
+        assertEquals("http://example.com", response.url().toString());
+    }
+
+    @Test
+    public void timeoutVerifyTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.timeout(5000);
+        Connection.Response response = connection.execute();
+        assertEquals(5000, response.timeout());
+    }
+
+    @Test
+    public void getUnsupportedMimeTypeTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.url("http://example.com");
+        connection.get();
+    }
+
+    @Test
+    public void getHttpStatusExceptionTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.url("http://not-existing-website.example.com");
+        connection.get();
+    }
+
+    @Test
+    public void postIOExceptionTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        connection.url("http://not-existing-website.example.com");
+        connection.post();
+    }
+
+    @Test
+    public void dataMapTest() {
+        HttpConnection connection = new HttpConnection();
+        HashMap<String, String> aMap = new HashMap<>();
+        aMap.put("one", "valueOne");
+        aMap.put("two", "valueTwo");
+        connection.data(aMap);
+        assertEquals("valueOne", connection.data("one"));
+        assertEquals("valueTwo", connection.data("two"));
+    }
+
+    @Test
+    public void parserTest() throws IOException {
+        HttpConnection connection = new HttpConnection();
+        Parser parser = Parser.htmlParser();
+        connection.parser(parser);
+        Connection.Response response = connection.execute();
+        assertEquals(parser, response.parser());
+    }
+
+}

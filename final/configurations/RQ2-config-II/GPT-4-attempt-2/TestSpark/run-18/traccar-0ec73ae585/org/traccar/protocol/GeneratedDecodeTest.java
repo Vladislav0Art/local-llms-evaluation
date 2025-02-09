@@ -1,0 +1,47 @@
+package org.traccar.protocol;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import org.traccar.Protocol;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.nio.charset.StandardCharsets;
+
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+@RunWith(PowerMockRunner.class)
+public class GeneratedDecodeTest {
+
+    WatchProtocolDecoder .class,ByteBuf .class,Channel .class,Protocol .class
+})
+
+public class WatchProtocolDecoderTest {
+
+    @Mock
+    private WatchProtocolDecoder watchProtocolDecoder;
+
+    @Test
+    public void decodeTest() throws Exception {
+        Channel channel = mock(Channel.class);
+        SocketAddress remoteAddress = mock(SocketAddress.class);
+        Object msg = mock(Object.class);
+
+        PowerMockito.whenNew(WatchProtocolDecoder.class).withAnyArguments().thenReturn(watchProtocolDecoder);
+
+        ByteBuf byteBuf = PowerMockito.mock(ByteBuf.class);
+        PowerMockito.when(byteBuf.readCharSequence(PowerMockito.anyInt(), StandardCharsets.US_ASCII)).thenReturn("TestData");
+
+        when(watchProtocolDecoder.decode(channel, remoteAddress, msg)).thenReturn(byteBuf);
+
+        assertEquals("TestData", ((ByteBuf) watchProtocolDecoder.decode(channel, remoteAddress, msg)).toString(StandardCharsets.US_ASCII));
+    }
+
+}

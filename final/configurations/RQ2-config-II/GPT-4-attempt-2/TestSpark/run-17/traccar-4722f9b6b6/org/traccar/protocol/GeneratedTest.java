@@ -1,0 +1,60 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.Unpooled;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+import org.traccar.session.DeviceSession;
+
+import java.net.SocketAddress;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void getHasIndexDefaultTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("watch"));
+        assertFalse(decoder.getHasIndex());
+    }
+
+    @Test
+    public void getManufacturerDefaultTest() {
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(new Protocol("watch"));
+        assertEquals("", decoder.getManufacturer());
+    }
+
+    @Test
+    public void decodeValidMessageTest() throws Exception {
+        Protocol mockProtocol = Mockito.mock(Protocol.class);
+        DeviceSession mockDeviceSession = Mockito.mock(DeviceSession.class);
+        Mockito.when(mockProtocol.getDeviceSession(Mockito.any(), Mockito.anyString())).thenReturn(mockDeviceSession);
+
+        Channel mockChannel = Mockito.mock(Channel.class);
+        SocketAddress mockAddress = Mockito.mock(SocketAddress.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(mockProtocol);
+
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeBytes("testdata".getBytes());
+
+        Object result = decoder.decode(mockChannel, mockAddress, buf);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void decodeInvalidMessageTest() throws Exception {
+        Protocol mockProtocol = Mockito.mock(Protocol.class);
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(mockProtocol);
+
+        Channel mockChannel = Mockito.mock(Channel.class);
+        SocketAddress mockAddress = Mockito.mock(SocketAddress.class);
+
+        Object result = decoder.decode(mockChannel, mockAddress, "bad data");
+    }
+
+}

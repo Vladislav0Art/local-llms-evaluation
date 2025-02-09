@@ -1,0 +1,83 @@
+package leetcode.medium;
+
+import leetcode.medium.OnlineStockSpan;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSinglePriceTest() {
+        OnlineStockSpan onSpan = new OnlineStockSpan();
+        int result = onSpan.next(100);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextMultiplePriceTest() {
+        OnlineStockSpan onSpan = new OnlineStockSpan();
+        onSpan.next(100);
+        int result = onSpan.next(80);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextIncreasingPriceTest() {
+        OnlineStockSpan onSpan = new OnlineStockSpan();
+        onSpan.next(100);
+        onSpan.next(105);
+        int result = onSpan.next(110);
+        assertEquals(3, result);
+    }
+
+    @Test
+    public void nextDecreasingPriceTest() {
+        OnlineStockSpan onSpan = new OnlineStockSpan();
+        onSpan.next(110);
+        onSpan.next(105);
+        int result = onSpan.next(100);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void calculateSpansEmptyArrayTest() {
+        OnlineStockSpan onSpan = new OnlineStockSpan();
+        int[] prices = new int[]{};
+        int[] result = onSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{}, result);
+    }
+
+    @Test
+    public void calculateSpansSingleElementTest() {
+        OnlineStockSpan onSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100};
+        int[] result = onSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpansTwoElementsIncreasingTest() {
+        OnlineStockSpan onSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 105};
+        int[] result = onSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 2}, result);
+    }
+
+    @Test
+    public void calculateSpansTwoElementsDecreasingTest() {
+        OnlineStockSpan onSpan = new OnlineStockSpan();
+        int[] prices = new int[]{105, 100};
+        int[] result = onSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 1}, result);
+    }
+
+    @Test
+    public void calculateSpansMultipleElementsTest() {
+        OnlineStockSpan onSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 80, 60, 70, 60, 75, 85};
+        int[] result = onSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 1, 1, 2, 1, 4, 6}, result);
+    }
+
+}

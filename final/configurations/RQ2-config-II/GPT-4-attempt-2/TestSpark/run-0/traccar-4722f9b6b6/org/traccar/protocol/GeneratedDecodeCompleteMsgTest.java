@@ -1,0 +1,31 @@
+package org.traccar.protocol;
+
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.Timeout;
+import org.mockito.Mockito;
+import org.traccar.Protocol;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.net.InetSocketAddress;
+
+public class GeneratedDecodeCompleteMsgTest {
+
+    @Rule
+    public Timeout globalTimeout = Timeout.seconds(10); // each test must finish within 10 seconds
+
+    @Test
+    public void decodeCompleteMsgTest() throws Exception {
+        Protocol protocol = new Protocol("test");
+        WatchProtocolDecoder decoder = new WatchProtocolDecoder(protocol);
+        Channel channel = mock(Channel.class);
+        Object msg = "AN_ACTUAL_COMPLETE_MESSAGE";
+        assertNotNull(decoder.decode(channel, new InetSocketAddress("localhost", 5000), msg));
+    }
+
+}

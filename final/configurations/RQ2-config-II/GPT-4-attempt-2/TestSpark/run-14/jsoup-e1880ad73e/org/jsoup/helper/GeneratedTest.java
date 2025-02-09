@@ -1,0 +1,54 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.io.UnsupportedEncodingException;
+
+public class GeneratedTest {
+
+    @Test
+    public void urlBuilderConstructorTest() throws MalformedURLException {
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        Assert.assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildTest() throws MalformedURLException {
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        URL outputUrl = urlBuilder.build();
+
+        Assert.assertEquals(inputUrl, outputUrl);
+    }
+
+    @Test
+    public void appendKeyValUnsupportedEncodingExceptionTest() throws UnsupportedEncodingException, MalformedURLException {
+        Connection.KeyVal kv = Connection.KeyVal.create("key", "val", false);
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        urlBuilder.appendKeyVal(kv);
+    }
+
+    @Test
+    public void appendKeyValValidEncodingTest() throws MalformedURLException, UnsupportedEncodingException {
+        Connection.KeyVal kv = Connection.KeyVal.create("key", "value", true);
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        urlBuilder.appendKeyVal(kv);
+
+        URL expectedUrl = new URL("http://example.com?key=value");
+        URL actualUrl = urlBuilder.build();
+
+        Assert.assertEquals(expectedUrl, actualUrl);
+    }
+
+}

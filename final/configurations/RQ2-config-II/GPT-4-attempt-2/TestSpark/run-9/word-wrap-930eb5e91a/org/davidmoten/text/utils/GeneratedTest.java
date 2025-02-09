@@ -1,0 +1,73 @@
+package org.davidmoten.text.utils;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+
+import org.davidmoten.text.utils.WordWrap;
+import org.davidmoten.text.utils.WordWrap.Builder;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() throws IOException {
+        FileReader reader = new FileReader(new File("test.txt"));
+        Builder builder = WordWrap.from(reader);
+        assertTrue(builder instanceof WordWrap.Builder);
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        Builder builder = WordWrap.fromClasspathUtf8("test.txt");
+        assertTrue(builder instanceof WordWrap.Builder);
+    }
+
+    @Test
+    public void fromClasspathTest() {
+        Builder builder = WordWrap.fromClasspath("test.txt", StandardCharsets.UTF_8);
+        assertTrue(builder instanceof WordWrap.Builder);
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        Builder builder = WordWrap.from("Hello World");
+        assertTrue(builder instanceof WordWrap.Builder);
+    }
+
+    @Test
+    public void fromUtf8Test() throws IOException {
+        Builder builder = WordWrap.fromUtf8(getClass().getResourceAsStream("/test.txt"));
+        assertTrue(builder instanceof WordWrap.Builder);
+    }
+
+    @Test
+    public void fromInputStreamTest() throws IOException {
+        Builder builder = WordWrap.from(getClass().getResourceAsStream("/test.txt"), StandardCharsets.UTF_8);
+        assertTrue(builder instanceof WordWrap.Builder);
+    }
+
+    @Test
+    public void fromFileTest() {
+        Builder builder = WordWrap.from(new File("test.txt"), StandardCharsets.UTF_8);
+        assertTrue(builder instanceof WordWrap.Builder);
+    }
+
+    @Test
+    public void rightTrimTest() {
+        CharSequence result = WordWrap.rightTrim(" Hello World  ");
+        assertEquals(" Hello World", result.toString());
+    }
+
+    @Test
+    public void isWhitespaceTest() {
+        boolean result = WordWrap.isWhitespace("   ");
+        assertTrue(result);
+    }
+
+}

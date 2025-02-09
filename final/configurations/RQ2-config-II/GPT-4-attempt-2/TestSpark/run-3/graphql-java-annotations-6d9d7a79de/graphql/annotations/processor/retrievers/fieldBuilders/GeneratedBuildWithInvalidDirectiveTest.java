@@ -1,0 +1,26 @@
+package graphql.annotations.processor.retrievers.fieldBuilders;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLType;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+
+public class GeneratedBuildWithInvalidDirectiveTest {
+
+    @Test
+    public void buildWithInvalidDirectiveTest() {
+        Field field = Mockito.mock(Field.class);
+        annotationWithInvalidDirective fieldAnnotations = Mockito.mock(annotationWithInvalidDirective.class);
+        Mockito.when(field.getAnnotations()).thenReturn(new Annotation[]{fieldAnnotations});
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
+        DirectivesBuilder builder = new DirectivesBuilder(field, container);
+        builder.build();
+    }
+
+}

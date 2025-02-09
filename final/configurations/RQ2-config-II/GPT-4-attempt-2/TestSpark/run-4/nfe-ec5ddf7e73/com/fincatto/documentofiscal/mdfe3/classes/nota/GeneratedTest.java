@@ -1,0 +1,52 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCodigoInternoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setCodigoInterno("TEST");
+        assertEquals("TEST", veiculoReboque.getCodigoInterno());
+    }
+
+    @Test
+    public void setPlacaTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setPlaca("AAA0001");
+        assertEquals("AAA0001", veiculoReboque.getPlaca());
+    }
+
+    @Test
+    public void setRenavamTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setRenavam("12345678910");
+        assertEquals("12345678910", veiculoReboque.getRenavam());
+    }
+
+    @Test
+    public void setTaraTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setTara("600");
+        assertEquals("600", veiculoReboque.getTara());
+    }
+
+    @Test
+    public void setAndGetCapacidadeKGTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setCapacidadeKG("550");
+        assertEquals("550", veiculoReboque.getCapacidadeKG());
+    }
+
+    @Test
+    public void setAndGetCapacidadeM3Test() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setCapacidadeM3("22.5");
+        assertEquals("22.5", veiculoReboque.getCapacidadeM3());
+    }
+
+}

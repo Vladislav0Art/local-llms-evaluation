@@ -1,0 +1,76 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+import org.junit.Assert;
+import org.jsoup.nodes.*;
+
+import java.io.StringReader;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseReaderBaseUriTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document docOutput = xmlTreeBuilder.parse(new StringReader("<root>text</root>"), "http://example.com");
+        Assert.assertEquals("html", docOutput.nodeName());
+    }
+
+    @Test
+    public void parseStringBaseUriTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document docOutput = xmlTreeBuilder.parse("<root>Hello, World!</root>", "http://example.com");
+        Assert.assertEquals("html", docOutput.nodeName());
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        TreeBuilder newInstance = xmlTreeBuilder.newInstance();
+        Assert.assertNotNull(newInstance);
+    }
+
+    @Test
+    public void parseFragmentInputFragmentBaseUriParserTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<message>hi</message>", "http://example.com", Parser.xmlParser());
+        Assert.assertEquals(1, nodes.size());
+    }
+
+    @Test
+    public void parseFragmentInputFragmentContextBaseUriParserTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Element divElement = new Element("div");
+        List<Node> nodes = xmlTreeBuilder.parseFragment("<message>hi</message>", divElement, "http://example.com", Parser.xmlParser());
+        Assert.assertEquals(1, nodes.size());
+    }
+
+    @Test
+    public void insertStartTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Element element = xmlTreeBuilder.insert(new Token.StartTag("message"));
+        Assert.assertEquals("message", element.tagName());
+    }
+
+    @Test
+    public void insertCommentTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Comment("hello"));
+        Assert.assertTrue(xmlTreeBuilder.stack.isEmpty());
+    }
+
+    @Test
+    public void insertCharacterTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Character("hello"));
+        Assert.assertTrue(xmlTreeBuilder.stack.isEmpty());
+    }
+
+    @Test
+    public void insertDoctypeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Doctype("html"));
+        Assert.assertTrue(xmlTreeBuilder.stack.isEmpty());
+    }
+
+}

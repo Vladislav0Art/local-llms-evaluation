@@ -1,0 +1,78 @@
+package leetcode.medium;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSinglePriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int price = 100;
+        int expected = 1;
+
+        int actual = stockSpan.next(price);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void nextMultiplePricesAscendingTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 200, 300, 400, 500};
+        int[] expected = new int[]{1, 2, 3, 4, 5};
+
+        for (int i = 0; i < prices.length; i++) {
+            int actual = stockSpan.next(prices[i]);
+            Assert.assertEquals(expected[i], actual);
+        }
+    }
+
+    @Test
+    public void nextMultiplePricesDeccendingTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{500, 400, 300, 200, 100};
+        int[] expected = new int[]{1, 1, 1, 1, 1};
+
+        for (int i = 0; i < prices.length; i++) {
+            int actual = stockSpan.next(prices[i]);
+            Assert.assertEquals(expected[i], actual);
+        }
+    }
+
+    @Test
+    public void calculateSpansSinglePriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100};
+        int[] expected = new int[]{1};
+
+        int[] actual = stockSpan.calculateSpans(prices);
+
+        Assert.assertTrue(Arrays.equals(expected, actual));
+    }
+
+    @Test
+    public void calculateSpansMultiplePricesAscendingTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 200, 300, 400, 500};
+        int[] expected = new int[]{1, 2, 3, 4, 5};
+
+        int[] actual = stockSpan.calculateSpans(prices);
+
+        Assert.assertTrue(Arrays.equals(expected, actual));
+    }
+
+    @Test
+    public void calculateSpansMultiplePricesDescendingTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{500, 400, 300, 200, 100};
+        int[] expected = new int[]{1, 1, 1, 1, 1};
+
+        int[] actual = stockSpan.calculateSpans(prices);
+
+        Assert.assertTrue(Arrays.equals(expected, actual));
+    }
+
+}

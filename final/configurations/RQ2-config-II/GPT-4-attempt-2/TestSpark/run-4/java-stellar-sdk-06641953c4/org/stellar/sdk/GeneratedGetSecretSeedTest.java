@@ -1,0 +1,19 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+import org.junit.Assert;
+import org.mockito.Mockito;
+import org.stellar.sdk.xdr.DecoratedSignature;
+import org.stellar.sdk.xdr.PublicKey;
+import org.stellar.sdk.xdr.SignerKey;
+
+public class GeneratedGetSecretSeedTest {
+
+    @Test
+    public void getSecretSeedTest() {
+        KeyPair keyPair = KeyPair.random();
+        char[] seed = keyPair.getSecretSeed();
+        Assert.assertNotNull(seed);
+    }
+
+}

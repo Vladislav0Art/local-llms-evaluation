@@ -1,0 +1,130 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static junit.framework.TestCase.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void addKeyAndValueTest() {
+        Attributes attributes = new Attributes();
+        Attributes result = attributes.add("key", "value");
+        assertTrue(result.hasKey("key"));
+    }
+
+    @Test
+    public void putKeyAndValueTest() {
+        Attributes attributes = new Attributes();
+        Attributes result = attributes.put("key", "value");
+        assertTrue(result.hasKey("key"));
+    }
+
+    @Test
+    public void putKeyAndBooleanTest() {
+        Attributes attributes = new Attributes();
+        Attributes result = attributes.put("key", true);
+        assertTrue(result.hasKey("key"));
+    }
+
+    @Test
+    public void putAttributeTest() {
+        Attributes attributes = new Attributes();
+        Attribute attribute = new Attribute("key", "value");
+        Attributes result = attributes.put(attribute);
+        assertTrue(result.hasKey("key"));
+    }
+
+    @Test
+    public void removeKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        attributes.remove("key");
+        assertFalse(attributes.hasKey("key"));
+    }
+
+    @Test
+    public void hasKeyDeclareValueForKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertTrue(attributes.hasDeclaredValueForKey("key"));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals(1, attributes.size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attributes = new Attributes();
+        Attributes incoming = new Attributes();
+        incoming.add("key", "value");
+        attributes.addAll(incoming);
+        assertTrue(attributes.hasKey("key"));
+    }
+
+    @Test
+    public void iteratorTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        Iterator<Attribute> iterator = attributes.iterator();
+        assertTrue(iterator.hasNext());
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        List<Attribute> attributeList = attributes.asList();
+        assertEquals(1, attributeList.size());
+    }
+
+    @Test
+    public void datasetTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("data-test", "value");
+        Map<String, String> dataset = attributes.dataset();
+        assertEquals(1, dataset.size());
+    }
+
+    @Test
+    public void htmlTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        String html = attributes.html();
+        assertTrue(html.contains("key=\"value\""));
+    }
+
+    @Test
+    public void normalizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        attributes.normalize();
+        assertNotNull(attributes.get("key"));
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        Attributes cloneAttributes = attributes.clone();
+        assertEquals(attributes, cloneAttributes);
+    }
+
+}

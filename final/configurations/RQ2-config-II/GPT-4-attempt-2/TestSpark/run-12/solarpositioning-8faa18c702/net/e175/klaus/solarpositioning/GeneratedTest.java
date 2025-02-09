@@ -1,0 +1,43 @@
+package net.e175.klaus.solarpositioning;
+
+import org.junit.Test;
+
+import java.time.LocalDate;
+
+import net.e175.klaus.solarpositioning.DeltaT;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    private static final double DELTA = 0.001;
+
+    @Test
+    public void estimateDateOfSolarEclipseTest() {
+        LocalDate date = LocalDate.of(2017, 8, 21);  // Date of solar eclipse
+        double expected = 68.8033; // Estimated delta T for this date
+        assertEquals(expected, DeltaT.estimate(date), DELTA);
+    }
+
+    @Test
+    public void estimateLeapYearTest() {
+        LocalDate date = LocalDate.of(2020, 2, 29);
+        double expected = 72.9583;
+        assertEquals(expected, DeltaT.estimate(date), DELTA);
+    }
+
+    @Test
+    public void estimateStartOfCenturyTest() {
+        LocalDate date = LocalDate.of(2000, 1, 1);
+        double expected = 63.8285;
+        assertEquals(expected, DeltaT.estimate(date), DELTA);
+    }
+
+    @Test
+    public void estimateEndOfCenturyTest() {
+        LocalDate date = LocalDate.of(2100, 12, 31);
+        double expected = 120.3765;
+        assertEquals(expected, DeltaT.estimate(date), DELTA);
+    }
+
+}

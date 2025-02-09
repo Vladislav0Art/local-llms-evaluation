@@ -1,0 +1,56 @@
+package leetcode.medium;
+
+import leetcode.medium.OnlineStockSpan;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextSingleValueTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int result = stockSpan.next(100);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void nextMultipleValuesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(100);
+        int result = stockSpan.next(200);
+        Assert.assertEquals(2, result);
+    }
+
+    @Test
+    public void nextLowerValueTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(200);
+        int result = stockSpan.next(100);
+        Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void calculateSpansEmptyTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[0];
+        int[] result = stockSpan.calculateSpans(prices);
+        Assert.assertArrayEquals(new int[0], result);
+    }
+
+    @Test
+    public void calculateSpansSingleValueTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100};
+        int[] result = stockSpan.calculateSpans(prices);
+        Assert.assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpansMultipleValuesTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = new int[]{100, 200, 150};
+        int[] result = stockSpan.calculateSpans(prices);
+        Assert.assertArrayEquals(new int[]{1, 2, 1}, result);
+    }
+
+}

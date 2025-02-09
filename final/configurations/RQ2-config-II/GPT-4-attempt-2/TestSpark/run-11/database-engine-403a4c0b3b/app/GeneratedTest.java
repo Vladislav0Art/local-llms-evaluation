@@ -1,0 +1,83 @@
+package app;
+
+import com.opencsv.exceptions.CsvValidationException;
+import exceptions.DBAppException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import sql.SQLTerm;
+
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Iterator;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        assertEquals(dbApp.getMyTables().size(), 0);
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        assertEquals(dbApp.getReader().getClass().getSimpleName(), "CsvReader");
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        assertEquals(dbApp.getWriter().getClass().getSimpleName(), "CsvWriter");
+    }
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+    }
+
+    @Test
+    public void createTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.createTable("Users", "id", new Hashtable<>(), new Hashtable<>(), new Hashtable<>());
+    }
+
+    @Test
+    public void insertIntoTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.insertIntoTable("Users", new Hashtable<>());
+    }
+
+    @Test
+    public void updateTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.updateTable("Users", "1", new Hashtable<>());
+    }
+
+    @Test
+    public void deleteFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.deleteFromTable("Users", new Hashtable<>());
+    }
+
+    @Test
+    public void selectFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        dbApp.selectFromTable(new SQLTerm[]{}, new String[]{});
+    }
+
+    @Test
+    public void selectFromTableMockTest() throws DBAppException {
+        DBApp dbAppMock = Mockito.mock(DBApp.class);
+        Mockito.when(dbAppMock.selectFromTable(new SQLTerm[]{}, new String[]{})).thenReturn(Mockito.mock(Iterator.class));
+        dbAppMock.selectFromTable(new SQLTerm[]{}, new String[]{});
+        Mockito.verify(dbAppMock, times(1)).selectFromTable(new SQLTerm[]{}, new String[]{});
+    }
+
+}

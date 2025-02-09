@@ -1,0 +1,117 @@
+package app;
+
+import app.DBApp;
+import exceptions.DBAppException;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import sql.SQLTerm;
+
+import java.util.Hashtable;
+import java.util.HashSet;
+
+public class GeneratedTest {
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> result = dbApp.getMyTables();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        Object result = dbApp.getReader();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        Object result = dbApp.getWriter();
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void createTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, String> columnNameType = new Hashtable<>();
+        columnNameType.put("EmployeeID", "Integer");
+        Hashtable<String, String> columnNameMin = new Hashtable<>();
+        columnNameMin.put("EmployeeID", "1");
+        Hashtable<String, String> columnNameMax = new Hashtable<>();
+        columnNameMax.put("EmployeeID", "999999");
+        dbApp.createTable("Employee", "EmployeeID", columnNameType, columnNameMin, columnNameMax);
+    }
+
+    @Test
+    public void createTableMissingKeyTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, String> columnNameType = new Hashtable<>();
+        columnNameType.put("EmployeeID", "Integer");
+        Hashtable<String, String> columnNameMin = new Hashtable<>();
+        columnNameMin.put("EmployeeID", "1");
+        Hashtable<String, String> columnNameMax = new Hashtable<>();
+        columnNameMax.put("EmployeeID", "999999");
+        dbApp.createTable("Employee", "", columnNameType, columnNameMin, columnNameMax);
+    }
+
+    @Test
+    public void insertIntoTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> columnNameValues = new Hashtable<>();
+        columnNameValues.put("EmployeeID", 1);
+        dbApp.insertIntoTable("Employee", columnNameValues);
+    }
+
+    @Test
+    public void insertIntoTableMissingTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> columnNameValues = new Hashtable<>();
+        columnNameValues.put("EmployeeID", 1);
+        dbApp.insertIntoTable("", columnNameValues);
+    }
+
+    @Test
+    public void updateTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> columnNameValues = new Hashtable<>();
+        columnNameValues.put("EmployeeID", 1);
+        dbApp.updateTable("Employee", "1", columnNameValues);
+    }
+
+    @Test
+    public void updateTableNotFoundTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> columnNameValues = new Hashtable<>();
+        columnNameValues.put("EmployeeID", 1);
+        dbApp.updateTable("NonExistingTable", "1", columnNameValues);
+    }
+
+    @Test
+    public void deleteFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> columnNameValues = new Hashtable<>();
+        columnNameValues.put("EmployeeID", 1);
+        dbApp.deleteFromTable("Employee", columnNameValues);
+    }
+
+    @Test
+    public void deleteFromTableNotFoundTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        Hashtable<String, Object> columnNameValues = new Hashtable<>();
+        columnNameValues.put("EmployeeID", 1);
+        dbApp.deleteFromTable("NonExistingTable", columnNameValues);
+    }
+
+    @Test
+    public void selectFromTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        SQLTerm[] arrSQLTerms = new SQLTerm[1];
+        String[] strarrOperators = new String[1];
+        Object result = dbApp.selectFromTable(arrSQLTerms, strarrOperators);
+        Assert.assertNotNull(result);
+    }
+
+}

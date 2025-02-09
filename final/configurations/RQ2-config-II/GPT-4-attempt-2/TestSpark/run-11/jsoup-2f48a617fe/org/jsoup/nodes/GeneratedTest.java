@@ -1,0 +1,83 @@
+package org.jsoup.nodes;
+
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void CommentConstructorTest() {
+        String data = "testData";
+        Comment comment = new Comment(data);
+        Assert.assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("testData");
+        Assert.assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        String data = "testData";
+        Comment comment = new Comment(data);
+        Assert.assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        String data = "testData";
+        Comment comment = new Comment("");
+        comment = comment.setData(data);
+        Assert.assertEquals(data, comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() {
+        Comment comment = new Comment("testData");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+
+        comment.outerHtmlHead(accum, 0, out);
+        Assert.assertTrue(accum.toString().contains("<!--testData-->"));
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        Comment comment = new Comment("testData");
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+
+        comment.outerHtmlTail(accum, 0, out);
+        Assert.assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("testData");
+        Assert.assertEquals("<!--testData-->", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("testData");
+        Comment clonedComment = comment.clone();
+        Assert.assertEquals(comment.getData(), clonedComment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("testData");
+        Assert.assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("testData");
+        Assert.assertNull(comment.asXmlDeclaration());
+    }
+
+}

@@ -1,0 +1,59 @@
+package com.sun.tools.xjc.addon.xew;
+
+import com.sun.codemodel.JClassContainer;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JMod;
+import com.sun.tools.xjc.outline.ClassOutline;
+import com.sun.tools.xjc.outline.Outline;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+
+public class GeneratedTest {
+
+    @Test
+    public void runInternalThrowsClassNotFoundExceptionTest() throws ClassNotFoundException, IOException {
+        Outline outline = Mockito.mock(Outline.class);
+        ClassOutline classOutline = Mockito.mock(ClassOutline.class);
+        JDefinedClass jDefinedClass = Mockito.mock(JDefinedClass.class);
+        JClassContainer jClassContainer = Mockito.mock(JClassContainer.class);
+        Mockito.when(outline.getClasses()).thenReturn(new ClassOutline[]{classOutline});
+        Mockito.when(classOutline.implClass).thenReturn(jDefinedClass);
+        Mockito.when(jDefinedClass.parentContainer()).thenReturn(jClassContainer);
+        Mockito.when(jClassContainer.owner()).thenThrow(ClassNotFoundException.class);
+        XmlElementWrapperPlugin plugin = new XmlElementWrapperPlugin();
+        plugin.runInternal(outline);
+    }
+
+    @Test
+    public void runInternalThrowsIOExceptionTest() throws ClassNotFoundException, IOException {
+        Outline outline = Mockito.mock(Outline.class);
+        ClassOutline classOutline = Mockito.mock(ClassOutline.class);
+        JDefinedClass jDefinedClass = Mockito.mock(JDefinedClass.class);
+        JClassContainer jClassContainer = Mockito.mock(JClassContainer.class);
+        Mockito.when(outline.getClasses()).thenReturn(new ClassOutline[]{classOutline});
+        Mockito.when(classOutline.implClass).thenReturn(jDefinedClass);
+        Mockito.when(jDefinedClass.parentContainer()).thenReturn(jClassContainer);
+        Mockito.when(jClassContainer.owner()).thenThrow(IOException.class);
+        XmlElementWrapperPlugin plugin = new XmlElementWrapperPlugin();
+        plugin.runInternal(outline);
+    }
+
+    @Test
+    public void runInternalSuccessTest() throws ClassNotFoundException, IOException {
+        Outline outline = Mockito.mock(Outline.class);
+        ClassOutline classOutline = Mockito.mock(ClassOutline.class);
+        JDefinedClass jDefinedClass = Mockito.mock(JDefinedClass.class);
+        JClassContainer jClassContainer = Mockito.mock(JClassContainer.class);
+        Mockito.when(outline.getClasses()).thenReturn(new ClassOutline[]{classOutline});
+        Mockito.when(classOutline.implClass).thenReturn(jDefinedClass);
+        Mockito.when(jDefinedClass.parentContainer()).thenReturn(jClassContainer);
+        XmlElementWrapperPlugin plugin = new XmlElementWrapperPlugin();
+        plugin.runInternal(outline);
+    }
+
+}

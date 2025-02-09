@@ -1,0 +1,95 @@
+package org.davidmoten.text.utils;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.HashSet;
+
+import org.davidmoten.text.utils.WordWrap;
+import org.davidmoten.text.utils.WordWrap.Builder;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        StringReader reader = new StringReader("Hello");
+        Builder builder = WordWrap.from(reader);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        Builder builder = WordWrap.fromClasspathUtf8("test/resource/path");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromClasspathCharsetTest() {
+        Builder builder = WordWrap.fromClasspath("test/resource/path", StandardCharsets.UTF_8);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        Builder builder = WordWrap.from("Hello World");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromInputStreamTest() {
+        Builder builder = WordWrap.fromUtf8(System.in);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromInputStreamWithCharsetTest() {
+        Builder builder = WordWrap.from(System.in, StandardCharsets.UTF_8);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromFileCharsetTest() {
+        Builder builder = WordWrap.from(new File("test.file"), StandardCharsets.UTF_8);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void rightTrimTest() {
+        CharSequence result = WordWrap.rightTrim(" Hello  ");
+        assertEquals(" Hello", result.toString());
+    }
+
+    @Test
+    public void isWhitespaceTest() {
+        assertTrue(WordWrap.isWhitespace("    "));
+        assertFalse(WordWrap.isWhitespace("Hello"));
+    }
+
+    @Test
+    public void wordWrapTest() throws IOException {
+        StringReader in = new StringReader("Hello");
+        StringWriter out = new StringWriter();
+        WordWrap.wordWrap(in, out, "\n", 80, String::length, new HashSet<>(), false, false);
+        assertEquals("Hello", out.toString());
+    }
+
+    @Test
+    public void wordWrapWithBreakWordsTest() throws IOException {
+        StringReader in = new StringReader("HelloWorld");
+        StringWriter out = new StringWriter();
+        WordWrap.wordWrap(in, out, "\n", 5, String::length, new HashSet<>(), false, true);
+        assertEquals("Hello\nWorld", out.toString());
+    }
+
+    @Test
+    public void wordWrapIOExceptionTest() throws IOException {
+        StringReader in = new StringReader("Hello");
+        StringWriter out = new StringWriter();
+        out.close();
+        WordWrap.wordWrap(in, out, "\n", 80, String::length, new HashSet<>(), false, false);
+    }
+
+}

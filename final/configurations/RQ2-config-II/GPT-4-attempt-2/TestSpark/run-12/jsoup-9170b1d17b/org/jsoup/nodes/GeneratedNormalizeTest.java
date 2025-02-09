@@ -1,0 +1,21 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
+
+public class GeneratedNormalizeTest {
+
+    @Test
+    public void normalizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("KEY", "value");
+        attributes.normalize();
+        Assert.assertTrue(attributes.hasKey("key"));
+    }
+
+}

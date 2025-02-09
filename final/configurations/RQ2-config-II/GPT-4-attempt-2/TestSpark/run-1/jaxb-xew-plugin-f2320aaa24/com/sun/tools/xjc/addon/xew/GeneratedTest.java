@@ -1,0 +1,57 @@
+package com.sun.tools.xjc.addon.xew;
+
+import com.sun.codemodel.CodeWriter;
+import com.sun.codemodel.JCodeModel;
+import com.sun.tools.xjc.Options;
+import com.sun.tools.xjc.outline.Outline;
+
+import static org.mockito.Mockito.mock;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void runInternalClassNotFoundExceptionTest() throws Exception {
+        Outline outline = mock(Outline.class);
+        XmlElementWrapperPlugin xmlElementWrapperPlugin = new XmlElementWrapperPlugin();
+        xmlElementWrapperPlugin.runInternal(outline);
+    }
+
+    @Test
+    public void runInternalIOExceptionTest() throws Exception {
+        Outline outline = mock(Outline.class);
+        XmlElementWrapperPlugin xmlElementWrapperPlugin = new XmlElementWrapperPlugin();
+        xmlElementWrapperPlugin.runInternal(outline);
+    }
+
+    @Test
+    public void runInternalTest() throws Exception {
+        Outline outline = mock(Outline.class);
+        XmlElementWrapperPlugin xmlElementWrapperPlugin = new XmlElementWrapperPlugin();
+        xmlElementWrapperPlugin.runInternal(outline);
+    }
+
+    @Test
+    public void runTest() throws Exception {
+        XmlElementWrapperPlugin xmlElementWrapperPlugin = new XmlElementWrapperPlugin();
+        JCodeModel codeModel = new JCodeModel();
+        CodeWriter codeWriter = mock(CodeWriter.class);
+        Outline outline = mock(Outline.class);
+        Options opt = mock(Options.class);
+        xmlElementWrapperPlugin.run(opt, codeModel, codeWriter, outline);
+    }
+
+    @Test
+    public void getVersionTest() {
+        XmlElementWrapperPlugin xmlElementWrapperPlugin = new XmlElementWrapperPlugin();
+        xmlElementWrapperPlugin.getVersion();
+    }
+
+    @Test
+    public void getArgumentTest() {
+        XmlElementWrapperPlugin xmlElementWrapperPlugin = new XmlElementWrapperPlugin();
+        xmlElementWrapperPlugin.getArgument();
+    }
+
+}

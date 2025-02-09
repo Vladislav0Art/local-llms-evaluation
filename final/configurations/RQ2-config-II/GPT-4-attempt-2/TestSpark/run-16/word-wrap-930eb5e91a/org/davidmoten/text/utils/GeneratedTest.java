@@ -1,0 +1,102 @@
+package org.davidmoten.text.utils;
+
+import org.junit.Test;
+
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        Builder builder = WordWrap.from(new StringReader(""));
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromReaderCloseTest() {
+        Builder builder = WordWrap.from(new StringReader(""), true);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        Builder builder = WordWrap.fromClasspathUtf8("");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromClasspathTest() {
+        Builder builder = WordWrap.fromClasspath("", StandardCharsets.UTF_8);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        Builder builder = WordWrap.from("");
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromUtf8Test() {
+        Builder builder = WordWrap.fromUtf8(null);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void fromInputStreamTest() {
+        Builder builder = WordWrap.from(null, StandardCharsets.UTF_8);
+        assertNotNull(builder);
+    }
+
+    @Test
+    public void closeReaderTest() {
+        StringReader reader = new StringReader("");
+        WordWrap.close(reader);
+        assertFalse(reader.ready());
+    }
+
+    @Test
+    public void isWhitespaceTest() {
+        boolean result = WordWrap.isWhitespace("    ");
+        assertTrue(result);
+    }
+
+    @Test
+    public void rightTrimTest() {
+        CharSequence result = WordWrap.rightTrim("  text  ");
+        assertEquals("  text", result.toString());
+    }
+
+    @Test
+    public void leftTrimTest() {
+        StringBuilder2 word = new StringBuilder2("  text  ");
+        WordWrap.leftTrim(word);
+        assertEquals("text  ", word.toString());
+    }
+
+    @Test
+    public void wordWrapToWriterTest() throws IOException {
+        StringWriter out = new StringWriter();
+        WordWrap.wordWrap(new StringReader("some text"), out, "\n", 80, String::length, null, true, false);
+        assertEquals("some text", out.toString());
+    }
+
+    @Test
+    public void wordWrapToLineConsumerTest() throws IOException {
+        LineConsumer out = new LineConsumer() {
+            @Override
+            public void accept(String line) {
+            }
+
+            @Override
+            public void close() {
+            }
+        };
+        WordWrap.wordWrap(new StringReader("some text"), out, 80, String::length, null, true, false);
+    }
+
+}

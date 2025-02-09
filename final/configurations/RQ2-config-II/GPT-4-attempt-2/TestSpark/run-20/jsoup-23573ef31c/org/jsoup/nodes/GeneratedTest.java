@@ -1,0 +1,102 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.*;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorTest() {
+        Document document = new Document("http://example.com");
+        Assert.assertEquals("http://example.com", document.location());
+    }
+
+    @Test
+    public void createShellTest() {
+        Document document = Document.createShell("http://example.com");
+        Assert.assertEquals("<html>\n <head></head>\n <body></body>\n</html>", document.toString());
+    }
+
+    @Test
+    public void locationTest() {
+        Document document = new Document("http://example.com");
+        Assert.assertEquals("http://example.com", document.location());
+    }
+
+    @Test
+    public void titleTest() {
+        Document document = new Document("http://example.com");
+        Assert.assertEquals("", document.title());
+    }
+
+    @Test
+    public void setAndGetTitleTest() {
+        Document document = new Document("http://example.com");
+        document.title("Example Test");
+        Assert.assertEquals("Example Test", document.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document document = new Document("http://example.com");
+        Element element = document.createElement("p");
+        Assert.assertEquals("<p></p>", element.toString());
+    }
+
+    @Test
+    public void outerHtmlTest() {
+        Document document = new Document("http://example.com");
+        Assert.assertEquals("<#root></#root>", document.outerHtml());
+    }
+
+    @Test
+    public void charsetTest() {
+        Document document = new Document("http://example.com");
+        document.charset(StandardCharsets.UTF_8);
+        Assert.assertEquals(StandardCharsets.UTF_8, document.charset());
+    }
+
+    @Test
+    public void cloneAndShallowCloneTest() {
+        Document document = new Document("http://example.com");
+        Document clone = document.clone();
+        Document shallowClone = document.shallowClone();
+
+        Assert.assertNotSame(document, clone);
+        Assert.assertEquals(document, clone);
+        Assert.assertNotSame(document, shallowClone);
+        Assert.assertEquals(document, shallowClone);
+    }
+
+    @Test
+    public void quirksModeTest() {
+        Document document = new Document("http://example.com");
+        document.quirksMode(QuirksMode.quirks);
+        Assert.assertEquals(QuirksMode.quirks, document.quirksMode());
+    }
+
+    @Test
+    public void outputSettingsTest() {
+        Document document = new Document("http://example.com");
+        OutputSettings settings = new OutputSettings();
+        document.outputSettings(settings);
+        Assert.assertEquals(settings, document.outputSettings());
+    }
+
+    @Test
+    public void parserTest() {
+        Document document = new Document("http://example.com");
+        Parser parser = new Parser(new TreeBuilder());
+        document.parser(parser);
+        Assert.assertEquals(parser, document.parser());
+    }
+
+}

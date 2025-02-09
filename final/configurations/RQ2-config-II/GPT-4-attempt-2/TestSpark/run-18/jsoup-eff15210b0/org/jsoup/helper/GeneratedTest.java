@@ -1,0 +1,140 @@
+package org.jsoup.helper;
+
+import org.jsoup.Connection.Method;
+import org.jsoup.HttpStatusException;
+import org.jsoup.UnsupportedMimeTypeException;
+import org.jsoup.helper.HttpConnection;
+import org.junit.Test;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.CookieStore;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+
+public class GeneratedTest {
+
+    @Test
+    public void connectStringTest() throws MalformedURLException {
+        assertNotNull(HttpConnection.connect("http://example.com"));
+    }
+
+    @Test
+    public void connectURLTest() throws MalformedURLException {
+        assertNotNull(HttpConnection.connect(new URL("http://example.com")));
+    }
+
+    @Test
+    public void urlTest() throws MalformedURLException {
+        assertNotNull(new HttpConnection().url(new URL("http://example.com")));
+    }
+
+    @Test
+    public void userAgentTest() throws MalformedURLException {
+        assertNotNull(new HttpConnection().userAgent("Mozilla/5.0"));
+    }
+
+    @Test
+    public void timeoutTest() {
+        assertNotNull(new HttpConnection().timeout(5000));
+    }
+
+    @Test
+    public void dataTest() {
+        Map<String, String> data = new HashMap<>();
+        assertNotNull(new HttpConnection().data(data));
+    }
+
+    @Test
+    public void requestBodyTest() {
+        assertNotNull(new HttpConnection().requestBody("Hello World"));
+    }
+
+    @Test
+    public void getTest() throws IOException {
+        assertThrows(HttpStatusException.class, () -> new HttpConnection().url("http://example.com").get());
+    }
+
+    @Test
+    public void postTest() throws IOException {
+        assertThrows(HttpStatusException.class, () -> new HttpConnection().url("http://example.com").post());
+    }
+
+    @Test
+    public void executeTest() throws IOException {
+        assertThrows(HttpStatusException.class, () -> new HttpConnection().url("http://example.com").execute());
+    }
+
+    @Test
+    public void requestTest() {
+        assertNotNull(new HttpConnection().request());
+    }
+
+    @Test
+    public void dataInputStreamContentTypeTest() throws IOException {
+        InputStream stream = this.getClass().getResourceAsStream("/test.txt");
+        assertNotNull(new HttpConnection().data("key", "test.txt", stream, "text/plain"));
+    }
+
+    @Test
+    public void sslSocketFactoryTest() {
+        SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        assertNotNull(new HttpConnection().sslSocketFactory(socketFactory));
+    }
+
+    @Test
+    public void proxyHostPortTest() {
+        assertNotNull(new HttpConnection().proxy("localhost", 8080));
+    }
+
+    @Test
+    public void proxyTest() {
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8080));
+        assertNotNull(new HttpConnection().proxy(proxy));
+    }
+
+    @Test
+    public void cookieStoreTest() {
+        CookieStore cookieStore = new CookieManager().getCookieStore();
+        assertNotNull(new HttpConnection().cookieStore(cookieStore));
+    }
+
+    @Test
+    public void followRedirectsTest() {
+        assertNotNull(new HttpConnection().followRedirects(true));
+    }
+
+    @Test
+    public void maxBodySizeTest() {
+        assertNotNull(new HttpConnection().maxBodySize(1024));
+    }
+
+    @Test
+    public void referrerTest() {
+        assertNotNull(new HttpConnection().referrer("http://example.com"));
+    }
+
+    @Test
+    public void methodTest() {
+        assertNotNull(new HttpConnection().method(Method.GET));
+    }
+
+    @Test
+    public void ignoreHttpErrorsTest() {
+        assertNotNull(new HttpConnection().ignoreHttpErrors(true));
+    }
+
+    @Test
+    public void ignoreContentTypeTest() {
+        assertNotNull(new HttpConnection().ignoreContentType(true));
+    }
+
+}

@@ -1,0 +1,90 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+
+import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellInitializationTest() {
+        Document doc = Document.createShell("http://example.com");
+        assertEquals("http://example.com", doc.location());
+    }
+
+    @Test
+    public void locationRetrievalTest() {
+        Document doc = new Document("http://example.com");
+        assertEquals("http://example.com", doc.location());
+    }
+
+    @Test
+    public void connectionInitializationTest() throws UnknownHostException {
+        Document doc = new Document("http://example.com");
+        assertNotNull(doc.connection());
+    }
+
+    @Test
+    public void titleManipulationTest() {
+        Document doc = new Document("http://example.com");
+        doc.title("Test title");
+        assertEquals("Test title", doc.title());
+    }
+
+    @Test
+    public void createElementTest() {
+        Document doc = new Document("http://example.com");
+        Element el = doc.createElement("p");
+        assertNotNull(el);
+    }
+
+    @Test
+    public void outerHtmlTest() {
+        Document doc = new Document("http://example.com");
+        assertTrue(doc.outerHtml().contains("<html>"));
+    }
+
+    @Test
+    public void charsetManipulationTest() {
+        Document doc = new Document("http://example.com");
+        doc.charset(StandardCharsets.UTF_8);
+        assertEquals(Charset.forName("UTF-8"), doc.charset());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document doc = new Document("http://example.com");
+        Document cloned = doc.clone();
+        assertNotNull(cloned);
+    }
+
+    @Test
+    public void shallowCloneTest() {
+        Document doc = new Document("http://example.com");
+        Document shallowCloned = doc.shallowClone();
+        assertNotNull(shallowCloned);
+    }
+
+    @Test
+    public void parserManipulationTest() {
+        Document doc = new Document("http://example.com");
+        Parser parser = Parser.htmlParser();
+        doc.parser(parser);
+        assertEquals(parser, doc.parser());
+    }
+
+    @Test
+    public void connectionManipulationTest() throws UnknownHostException {
+        Document doc = new Document("http://example.com");
+        Connection conn = doc.connection();
+        doc.connection(conn);
+        assertEquals(conn, doc.connection());
+    }
+
+}

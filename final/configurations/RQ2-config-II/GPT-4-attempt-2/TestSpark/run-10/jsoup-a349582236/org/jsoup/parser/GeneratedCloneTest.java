@@ -1,0 +1,18 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.Tag;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedCloneTest {
+
+    @Test
+    public void cloneTest() throws CloneNotSupportedException {
+        Tag tag1 = Tag.valueOf("div");
+        Tag tag2 = (Tag) tag1.clone();
+        assertEquals(tag1, tag2);
+    }
+
+}

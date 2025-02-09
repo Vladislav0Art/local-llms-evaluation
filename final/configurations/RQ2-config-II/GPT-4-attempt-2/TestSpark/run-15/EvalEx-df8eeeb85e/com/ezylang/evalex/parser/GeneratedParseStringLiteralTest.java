@@ -1,0 +1,23 @@
+package com.ezylang.evalex.parser;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import org.junit.Test;
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.operators.OperatorIfc;
+import com.ezylang.evalex.functions.FunctionIfc;
+
+import java.util.List;
+
+public class GeneratedParseStringLiteralTest {
+
+    @Test
+    public void parseStringLiteralTest() throws ParseException {
+        ExpressionConfiguration configuration = mock(ExpressionConfiguration.class);
+        Tokenizer tokenizer = new Tokenizer("'test'", configuration);
+        Token token = tokenizer.parseStringLiteral();
+        assertNotNull(token);
+    }
+
+}

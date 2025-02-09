@@ -1,0 +1,80 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.TextNode;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void TextNodeConstructorTest() {
+        TextNode textNode = new TextNode("Test");
+        Assert.assertEquals("Test", textNode.text());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("Test");
+        Assert.assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        TextNode textNode = new TextNode("Test");
+        textNode.text("Updated");
+        Assert.assertEquals("Updated", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("Test");
+        Assert.assertEquals("Test", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("");
+        Assert.assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("Test");
+        TextNode newTextNode = textNode.splitText(2);
+        Assert.assertEquals("Te", textNode.text());
+        Assert.assertEquals("st", newTextNode.text());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode textNode = new TextNode("Test");
+        TextNode cloneNode = textNode.clone();
+        Assert.assertNotSame(textNode, cloneNode);
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode textNode = TextNode.createFromEncoded("Test");
+        Assert.assertEquals("Test", textNode.text());
+    }
+
+    @Test
+    public void outerHtmlHeadNullAppendableTest() throws IOException {
+        TextNode textNode = new TextNode("test");
+        textNode.outerHtmlHead(null, 1, new Document("").outputSettings());
+    }
+
+    @Test
+    public void outerHtmlTailNullAppendableTest() throws IOException {
+        TextNode textNode = new TextNode("test");
+        textNode.outerHtmlTail(null, 1, new Document("").outputSettings());
+    }
+
+    @Test
+    public void toStringTest() {
+        TextNode textNode = new TextNode("Test");
+        Assert.assertEquals("Text[\"Test\"]", textNode.toString());
+    }
+
+}

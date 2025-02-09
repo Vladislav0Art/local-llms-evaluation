@@ -1,0 +1,80 @@
+package org.jsoup.nodes;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.jsoup.Connection;
+import org.jsoup.nodes.*;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellValidBaseUriTest() {
+        String uri = "http://example.com";
+        Document document = Document.createShell(uri);
+        assertNotNull(document);
+        assertEquals(uri, document.location());
+    }
+
+    @Test
+    public void connectionNullTest() {
+        Document document = new Document("http://example.com");
+        Connection connection = document.connection();
+        assertNull(connection);
+    }
+
+    @Test
+    public void titleSetterGetterTest() {
+        String uri = "http://example.com";
+        Document document = new Document(uri);
+        String title = "Test Title";
+        document.title(title);
+        assertEquals(title, document.title());
+    }
+
+    @Test
+    public void charsetSetterGetterTest() {
+        Document document = new Document("http://example.com");
+        Charset charset = StandardCharsets.UTF_8;
+        document.charset(charset);
+        assertEquals(charset, document.charset());
+    }
+
+    @Test
+    public void updateMetaCharsetElementSetterGetterTest() {
+        Document document = new Document("http://example.com");
+        document.updateMetaCharsetElement(true);
+        assertTrue(document.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void cloneTest() {
+        Document document = new Document("http://example.com");
+        Document clonedDocument = document.clone();
+        clonedDocument.updateMetaCharsetElement(true);
+        assertNotEquals(document.updateMetaCharsetElement(), clonedDocument.updateMetaCharsetElement());
+    }
+
+    @Test
+    public void parserSetterGetterTest() {
+        Document document = new Document("http://example.com");
+        Parser parser = Mockito.mock(Parser.class);
+        document.parser(parser);
+        assertEquals(parser, document.parser());
+    }
+
+    @Test
+    public void connectionSetterGetterTest() {
+        Document document = new Document("http://example.com");
+        Connection connection = Mockito.mock(Connection.class);
+        document.connection(connection);
+        assertEquals(connection, document.connection());
+    }
+
+}

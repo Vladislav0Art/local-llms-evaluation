@@ -1,0 +1,73 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Assert;
+import org.junit.Test;
+import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCodigoInternoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehicle = new MDFInfoModalRodoviarioVeiculoReboque();
+        String codigoInterno = "1234";
+        vehicle.setCodigoInterno(codigoInterno);
+        Assert.assertEquals(codigoInterno, vehicle.getCodigoInterno());
+    }
+
+    @Test
+    public void setPlacaTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehicle = new MDFInfoModalRodoviarioVeiculoReboque();
+        String placa = "ABC1234";
+        vehicle.setPlaca(placa);
+        Assert.assertEquals(placa, vehicle.getPlaca());
+    }
+
+    @Test
+    public void setRenavamTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehicle = new MDFInfoModalRodoviarioVeiculoReboque();
+        String renavam = "12345678910";
+        vehicle.setRenavam(renavam);
+        Assert.assertEquals(renavam, vehicle.getRenavam());
+    }
+
+    @Test
+    public void setTaraTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehicle = new MDFInfoModalRodoviarioVeiculoReboque();
+        String tara = "4000";
+        vehicle.setTara(tara);
+        Assert.assertEquals(tara, vehicle.getTara());
+    }
+
+    @Test
+    public void getCapacidadeKGTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehicle = new MDFInfoModalRodoviarioVeiculoReboque();
+        String capacidadeKG = "3000";
+        vehicle.setCapacidadeKG(capacidadeKG);
+        Assert.assertEquals(capacidadeKG, vehicle.getCapacidadeKG());
+    }
+
+    @Test
+    public void setCapacidadeKGTest() {
+        MDFInfoModalRodoviarioVeiculoReboque vehicle = new MDFInfoModalRodoviarioVeiculoReboque();
+        String capacidadeKG = "3000";
+        vehicle.setCapacidadeKG(capacidadeKG);
+        Assert.assertEquals(capacidadeKG, vehicle.getCapacidadeKG());
+    }
+
+    @Test
+    public void getCapacidadeM3Test() {
+        MDFInfoModalRodoviarioVeiculoReboque vehicle = new MDFInfoModalRodoviarioVeiculoReboque();
+        String capacidadeM3 = "200";
+        vehicle.setCapacidadeM3(capacidadeM3);
+        Assert.assertEquals(capacidadeM3, vehicle.getCapacidadeM3());
+    }
+
+    @Test
+    public void setCapacidadeM3Test() {
+        MDFInfoModalRodoviarioVeiculoReboque vehicle = new MDFInfoModalRodoviarioVeiculoReboque();
+        String capacidadeM3 = "200";
+        vehicle.setCapacidadeM3(capacidadeM3);
+        Assert.assertEquals(capacidadeM3, vehicle.getCapacidadeM3());
+    }
+
+}

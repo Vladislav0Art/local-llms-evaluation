@@ -1,0 +1,90 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.AliasExpr;
+import io.github.vmzakharov.ecdataframe.dsl.AnonymousScript;
+import io.github.vmzakharov.ecdataframe.dsl.AssingExpr;
+import io.github.vmzakharov.ecdataframe.dsl.BinaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.DecimalExpr;
+import io.github.vmzakharov.ecdataframe.dsl.Expression;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionCallExpr;
+import io.github.vmzakharov.ecdataframe.dsl.FunctionScript;
+import io.github.vmzakharov.ecdataframe.dsl.IfElseExpr;
+import io.github.vmzakharov.ecdataframe.dsl.IndexExpr;
+import io.github.vmzakharov.ecdataframe.dsl.ProjectionExpr;
+import io.github.vmzakharov.ecdataframe.dsl.PropertyPathExpr;
+import io.github.vmzakharov.ecdataframe.dsl.StatementSequenceScript;
+import io.github.vmzakharov.ecdataframe.dsl.UnaryExpr;
+import io.github.vmzakharov.ecdataframe.dsl.VarExpr;
+import io.github.vmzakharov.ecdataframe.dsl.VectorExpr;
+import io.github.vmzakharov.ecdataframe.dsl.value.IntegerValue;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import io.github.vmzakharov.ecdataframe.util.PrinterFactory;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void exprToStringWhenCalledTest() {
+        Expression expr = new VarExpr("x");
+        Assert.assertEquals("x", PrettyPrintVisitor.exprToString(expr));
+    }
+
+    @Test
+    public void visitAssignExprWhenCalledTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        AssingExpr expr = new AssingExpr(new VarExpr("x"), new IntegerValue(1));
+        visitor.visitAssignExpr(expr);
+    }
+
+    @Test
+    public void visitBinaryExprWhenCalledTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        BinaryExpr expr = new BinaryExpr(new VarExpr("x"), new IntegerValue(2), "+");
+        visitor.visitBinaryExpr(expr);
+    }
+
+    @Test
+    public void visitFunctionCallExprWhenCalledTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        FunctionCallExpr expr = new FunctionCallExpr("sqrt", new IntegerValue(2));
+        visitor.visitFunctionCallExpr(expr);
+    }
+
+    @Test
+    public void visitFunctionScriptExprWhenCalledTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        FunctionScript functionScript = new FunctionScript("isEven", new VarExpr("n"), new IntegerValue(2));
+        visitor.visitFunctionScriptExpr(functionScript);
+    }
+
+    @Test
+    public void visitStatementSequenceScriptWhenCalledTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        StatementSequenceScript expr = new StatementSequenceScript();
+        visitor.visitStatementSequenceScript(expr);
+    }
+
+    @Test
+    public void visitVarExprWhenCalledTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        VarExpr expr = new VarExpr("x");
+        visitor.visitVarExpr(expr);
+    }
+
+    @Test
+    public void visitProjectionExprWhenCalledTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        ProjectionExpr expr = new ProjectionExpr(new VarExpr("employees"), "name");
+        visitor.visitProjectionExpr(expr);
+    }
+
+    @Test
+    public void visitAliasExprWhenCalledTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor();
+        AliasExpr expr = new AliasExpr(new VarExpr("x"), "aliasX");
+        visitor.visitAliasExpr(expr);
+    }
+
+}

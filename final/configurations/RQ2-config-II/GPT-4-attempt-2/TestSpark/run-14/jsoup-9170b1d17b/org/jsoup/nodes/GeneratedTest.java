@@ -1,0 +1,123 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Iterator;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void getPresentKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("Key", "Value");
+        Assert.assertEquals("Value", attributes.get("Key"));
+    }
+
+    @Test
+    public void getAbsentKeyTest() {
+        Attributes attributes = new Attributes();
+        Assert.assertEquals("", attributes.get("Key"));
+    }
+
+    @Test
+    public void getUserDataPresentKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.putUserData("Key", "Value");
+        Assert.assertEquals("Value", attributes.getUserData("Key"));
+    }
+
+    @Test
+    public void getUserDataAbsentKeyTest() {
+        Attributes attributes = new Attributes();
+        Assert.assertNull(attributes.getUserData("Key"));
+    }
+
+    @Test
+    public void addTest() {
+        Attributes attributes = new Attributes();
+        Assert.assertEquals(attributes, attributes.add("Key", "Value"));
+    }
+
+    @Test
+    public void putAttributeTest() {
+        Attribute attribute = mock(Attribute.class);
+        when(attribute.getKey()).thenReturn("Key");
+        when(attribute.getValue()).thenReturn("Value");
+        Attributes attributes = new Attributes();
+        Assert.assertEquals(attributes, attributes.put(attribute));
+    }
+
+    @Test
+    public void removePresentKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("Key", "Value");
+        attributes.remove("Key");
+        Assert.assertFalse(attributes.hasKey("Key"));
+    }
+
+    @Test
+    public void removeAbsentKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.remove("Key");
+        Assert.assertFalse(attributes.hasKey("Key"));
+    }
+
+    @Test
+    public void hasDeclaredValueForKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("Key", "Value");
+        Assert.assertTrue(attributes.hasDeclaredValueForKey("Key"));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("Key", "Value");
+        Assert.assertEquals(1, attributes.size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        Assert.assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void iteratorTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("Key", "Value");
+        Iterator<Attribute> iterator = attributes.iterator();
+        Assert.assertEquals("Key", iterator.next().getKey());
+    }
+
+    @Test
+    public void asListTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("Key", "Value");
+        Assert.assertEquals("Key", attributes.asList().get(0).getKey());
+    }
+
+    @Test
+    public void datasetTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("data-Key", "Value");
+        Assert.assertEquals("Value", attributes.dataset().get("Key"));
+    }
+
+    @Test
+    public void deduplicateTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("Key", "Value");
+        attributes.put("Key", "Value");
+        ParseSettings parseSettings = new ParseSettings(true, false);
+        Assert.assertEquals(1, attributes.deduplicate(parseSettings));
+    }
+
+}

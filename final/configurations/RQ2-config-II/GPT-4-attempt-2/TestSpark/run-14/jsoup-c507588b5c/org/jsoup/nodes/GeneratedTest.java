@@ -1,0 +1,93 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.jsoup.nodes.Document.OutputSettings;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeConstructorTest() {
+        TextNode textNode = new TextNode("hello");
+        assertEquals("hello", textNode.text());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("hello");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textGetterTest() {
+        TextNode textNode = new TextNode("hello");
+        assertEquals("hello", textNode.text());
+    }
+
+    @Test
+    public void textSetterTest() {
+        TextNode textNode = new TextNode("hello");
+        textNode.text("goodbye");
+        assertEquals("goodbye", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("hello world");
+        assertEquals("hello world", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("     ");
+        assertEquals(true, textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("hello world");
+        TextNode newText = textNode.splitText(6);
+        assertEquals("world", newText.text());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        TextNode textNode = new TextNode("hello");
+        StringBuilder sb = new StringBuilder();
+        textNode.outerHtmlHead(sb, 0, new OutputSettings());
+        assertEquals("hello", sb.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode original = new TextNode("hello");
+        TextNode cloned = original.clone();
+        assertNotSame(original, cloned);
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode textNode = TextNode.createFromEncoded("hello&amp;", false);
+        assertEquals("hello&", textNode.getWholeText());
+    }
+
+    @Test
+    public void normaliseWhitespaceTest() {
+        String result = TextNode.normaliseWhitespace(" Hello    World ");
+        assertEquals(" Hello World ", result);
+    }
+
+    @Test
+    public void stripLeadingWhitespaceTest() {
+        String result = TextNode.stripLeadingWhitespace("     Hello");
+        assertEquals("Hello", result);
+    }
+
+    @Test
+    public void lastCharIsWhitespaceTest() {
+        boolean result = TextNode.lastCharIsWhitespace(new StringBuilder("Hello "));
+        assertTrue(result);
+    }
+
+}

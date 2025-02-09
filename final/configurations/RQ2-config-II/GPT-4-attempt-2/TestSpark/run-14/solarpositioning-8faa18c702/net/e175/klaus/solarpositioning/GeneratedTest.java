@@ -1,0 +1,49 @@
+package net.e175.klaus.solarpositioning;
+
+import net.e175.klaus.solarpositioning.DeltaT;
+import org.junit.Test;
+import org.junit.Assert;
+
+import java.time.LocalDate;
+
+public class GeneratedTest {
+
+    @Test
+    public void estimateNullDateTest() {
+        try {
+            DeltaT.estimate(null);
+            Assert.fail("IllegalArgumentException is expected");
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("forDate cannot be null", e.getMessage());
+        }
+    }
+
+    @Test
+    public void estimatePastCenturyTest() {
+        LocalDate date = LocalDate.of(1920, 1, 1);
+        double result = DeltaT.estimate(date);
+        Assert.assertEquals(21.20, result, 0.01);
+    }
+
+    @Test
+    public void estimateFutureCenturyTest() {
+        LocalDate date = LocalDate.of(2130, 12, 31);
+        double result = DeltaT.estimate(date);
+        Assert.assertEquals(440.05, result, 0.01);
+    }
+
+    @Test
+    public void estimateLeapYearTest() {
+        LocalDate date = LocalDate.of(2024, 2, 29);
+        double result = DeltaT.estimate(date);
+        Assert.assertEquals(72.15, result, 0.01);
+    }
+
+    @Test
+    public void estimateNonLeapYearTest() {
+        LocalDate date = LocalDate.of(2023, 2, 28);
+        double result = DeltaT.estimate(date);
+        Assert.assertEquals(71.30, result, 0.01);
+    }
+
+}

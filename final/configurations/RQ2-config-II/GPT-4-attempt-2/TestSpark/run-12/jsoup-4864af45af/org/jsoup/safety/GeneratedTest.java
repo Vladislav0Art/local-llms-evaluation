@@ -1,0 +1,136 @@
+package org.jsoup.safety;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist result = Safelist.none();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist result = Safelist.simpleText();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist result = Safelist.basic();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist result = Safelist.basicWithImages();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist result = Safelist.relaxed();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void constructorTest() {
+        Safelist safelist = new Safelist();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void addTagsTest() {
+        String tags = "tag";
+        Safelist result = new Safelist().addTags(tags);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void removeTagsTest() {
+        String tags = "tag";
+        Safelist result = new Safelist().removeTags(tags);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void addAttributesTest() {
+        String tag = "div";
+        String attributes = "class";
+        Safelist result = new Safelist().addAttributes(tag, attributes);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void removeAttributesTest() {
+        String tag = "div";
+        String attributes = "class";
+        Safelist result = new Safelist().removeAttributes(tag, attributes);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void addEnforcedAttributeTest() {
+        Safelist result = new Safelist().addEnforcedAttribute("a", "href", "https://www.example.com");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void removeEnforcedAttributeTest() {
+        Safelist result = new Safelist().removeEnforcedAttribute("a", "href");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void preserveRelativeLinksTest() {
+        Safelist result = new Safelist().preserveRelativeLinks(true);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void addProtocolsTest() {
+        String tag = "a";
+        String attribute = "href";
+        String protocols = "http";
+        Safelist result = new Safelist().addProtocols(tag, attribute, protocols);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void removeProtocolsTest() {
+        String tag = "a";
+        String attribute = "href";
+        String protocols = "http";
+        Safelist result = new Safelist().removeProtocols(tag, attribute, protocols);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void isSafeTagTest() {
+        String tag = "p";
+        boolean result = new Safelist().isSafeTag(tag);
+        assertTrue(result);
+    }
+
+    @Test
+    public void isSafeAttributeTest() {
+        String tagName = "p";
+        Element el = new Element("p");
+        Attribute attr = new Attribute("class", "example");
+        boolean result = new Safelist().isSafeAttribute(tagName, el, attr);
+        assertTrue(result);
+    }
+
+    @Test
+    public void getEnforcedAttributesTest() {
+        String tagName = "a";
+        Attributes result = new Safelist().getEnforcedAttributes(tagName);
+        assertNotNull(result);
+    }
+
+}

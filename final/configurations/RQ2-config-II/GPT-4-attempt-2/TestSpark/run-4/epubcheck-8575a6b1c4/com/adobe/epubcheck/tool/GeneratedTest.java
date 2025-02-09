@@ -1,0 +1,67 @@
+package com.adobe.epubcheck.tool;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+
+import org.junit.Test;
+
+import java.util.Locale;
+
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.util.DefaultReportImpl;
+import com.adobe.epubcheck.util.EPUBVersion;
+
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleDefaultTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Locale result = epubChecker.getLocale();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void runNoArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = new String[0];
+        int result = epubChecker.run(args);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void runArgsGivenTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = new String[]{"-v", "3.0", "test.epub"};
+        int result = epubChecker.run(args);
+        // the result may vary based on the existance of "test.epub", so adjust this testcase accordingly
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void processEpubFileNoArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = new String[0];
+        int result = epubChecker.processEpubFile(args);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void validateFileNotExistTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Report report = new DefaultReportImpl("test.epub");
+        int result = epubChecker.validateFile("testNotExist.epub", EPUBVersion.VERSION_3, report, EPUBProfile.DEFAULT);
+        assertEquals(5, result);
+    }
+
+    @Test
+    public void validateFileValidTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        Report report = mock(DefaultReportImpl.class);
+        int result = epubChecker.validateFile("validTest.epub", EPUBVersion.VERSION_3, report, EPUBProfile.DEFAULT);
+        // the result may vary based on the properties of "validTest.epub", so adjust this testcase accordingly
+        assertEquals(0, result);
+    }
+
+}

@@ -1,0 +1,38 @@
+package com.ezylang.evalex.parser;
+
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.config.FunctionDictionaryIfc;
+import com.ezylang.evalex.config.OperatorDictionaryIfc;
+import com.ezylang.evalex.parser.Token;
+import com.ezylang.evalex.parser.Tokenizer;
+import com.ezylang.evalex.functions.FunctionIfc;
+import com.ezylang.evalex.operators.OperatorIfc;
+import com.ezylang.evalex.parser.ParseException;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.mockito.Mockito;
+
+import java.util.List;
+
+public class GeneratedParseExpressionWithOperatorTest {
+
+    @Test
+    public void parseExpressionWithOperatorTest() throws ParseException {
+        OperatorIfc operator = Mockito.mock(OperatorIfc.class);
+        FunctionIfc function = Mockito.mock(FunctionIfc.class);
+        OperatorDictionaryIfc operatorDictionary = Mockito.mock(OperatorDictionaryIfc.class);
+        FunctionDictionaryIfc functionDictionary = Mockito.mock(FunctionDictionaryIfc.class);
+        Mockito.when(operatorDictionary.getOperator(Mockito.eq("+"))).thenReturn(operator);
+        Mockito.when(functionDictionary.getFunctions()).thenReturn(new ArrayList<>());
+        Mockito.when(operator.getPrecedence()).thenReturn(1);
+        Mockito.when(operator.isLeftAssociativity()).thenReturn(true);
+
+        ExpressionConfiguration config = new ExpressionConfiguration(operatorDictionary, functionDictionary);
+        Tokenizer tokenizer = new Tokenizer("1+1", config);
+        List<Token> result = tokenizer.parse();
+        assertEquals(3, result.size());
+    }
+
+}

@@ -1,0 +1,117 @@
+package org.jsoup.parser;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.parser.Token;
+import org.jsoup.parser.Token.Comment;
+import org.jsoup.parser.Token.Doctype;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Assert.assertNotNull(xmlTreeBuilder.defaultSettings());
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Reader reader = new StringReader("");
+        xmlTreeBuilder.initialiseParse(reader, "", new Parser(xmlTreeBuilder));
+    }
+
+    @Test
+    public void parseReaderVersionTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Reader reader = new StringReader("");
+        Document document = xmlTreeBuilder.parse(reader, "");
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void parseStringVersionTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Document document = xmlTreeBuilder.parse("", "");
+        Assert.assertNotNull(document);
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        XmlTreeBuilder newTreeBuilder = xmlTreeBuilder.newInstance();
+        Assert.assertNotNull(newTreeBuilder);
+    }
+
+    @Test
+    public void processTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        boolean result = xmlTreeBuilder.process(new Token.StartTag());
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void insertNodeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insertNode(new Element("test"));
+    }
+
+    @Test
+    public void insertNodeWithTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insertNode(new Element("test"), new Token.StartTag());
+    }
+
+    @Test
+    public void insertStartTagTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        Element element = xmlTreeBuilder.insert(new Token.StartTag());
+        Assert.assertNotNull(element);
+    }
+
+    @Test
+    public void insertCommentTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Comment());
+    }
+
+    @Test
+    public void insertCharacterTokenTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Character());
+    }
+
+    @Test
+    public void insertDoctypeTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.insert(new Token.Doctype());
+    }
+
+    @Test
+    public void popStackToCloseTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        xmlTreeBuilder.popStackToClose(new Token.EndTag());
+    }
+
+    @Test
+    public void parseFragmentWithoutContextTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = xmlTreeBuilder.parseFragment("", "", new Parser(xmlTreeBuilder));
+        Assert.assertNotNull(nodes);
+    }
+
+    @Test
+    public void parseFragmentWithContextTest() {
+        XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder();
+        List<Node> nodes = xmlTreeBuilder.parseFragment("", new Element("context"), "", new Parser(xmlTreeBuilder));
+        Assert.assertNotNull(nodes);
+    }
+
+}

@@ -1,0 +1,80 @@
+package org.davidmoten.text.utils;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.StringReader;
+import java.util.HashSet;
+import java.nio.charset.StandardCharsets;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderTest() {
+        StringReader reader = new StringReader("This is a unit test");
+        assertNotNull(WordWrap.from(reader));
+    }
+
+    @Test
+    public void fromClasspathUtf8Test() {
+        assertNotNull(WordWrap.fromClasspathUtf8("test.txt"));
+    }
+
+    @Test
+    public void fromClasspathTest() {
+        assertNotNull(WordWrap.fromClasspath("test.txt", StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void fromCharSequenceTest() {
+        assertNotNull(WordWrap.from("This is a unit test"));
+    }
+
+    @Test
+    public void fromUtf8Test() {
+        assertNotNull(WordWrap.fromUtf8(System.in));
+    }
+
+    @Test
+    public void fromInputStreamTest() {
+        assertNotNull(WordWrap.from(System.in, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void rightTrimTest() {
+        CharSequence result = WordWrap.rightTrim(" This is a unit test   ");
+        assertEquals(" This is a unit test", result.toString());
+    }
+
+    @Test
+    public void isWhitespaceTest() {
+        assertTrue(WordWrap.isWhitespace("     "));
+        assertFalse(WordWrap.isWhitespace("This is a unit test"));
+    }
+
+    @Test
+    public void leftTrimTest() {
+        StringBuilder2 word = new StringBuilder2("   This is a unit test");
+        WordWrap.leftTrim(word);
+        assertEquals("This is a unit test", word.toString());
+    }
+
+    @Test
+    public void wordWrapTest() throws IOException {
+        StringReader reader = new StringReader("This is a very long line of text that should be wrapped at some point.");
+        StringWriter writer = new StringWriter();
+        WordWrap.wordWrap(
+                reader,
+                writer,
+                "\n",
+                50,
+                s -> s.length(),
+                new HashSet<Character>(),
+                false,
+                true
+        );
+        assertNotNull(writer.toString());
+    }
+
+}

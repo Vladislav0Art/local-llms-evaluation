@@ -1,0 +1,50 @@
+package com.crowdin.client.core.http.impl.json;
+
+import com.crowdin.client.core.http.impl.json.JacksonJsonTransformer;
+import com.crowdin.client.projectsgroups.model.Project;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class GeneratedTest {
+
+    @Test
+    public void parseValidJsonTest() throws JsonProcessingException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"name\":\"Test Project\",\"identifier\":\"test\",\"id\":1,\"createdDate\":\"2020-09-15T09:30:00Z\"}";
+        Project project = transformer.parse(json, Project.class);
+
+        assertNotNull(project);
+        assertEquals("Test Project", project.getName());
+        assertEquals("test", project.getIdentifier());
+        assertEquals(1, project.getId().intValue());
+    }
+
+    @Test
+    public void parseInvalidJsonTest() throws JsonProcessingException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        String json = "{\"name:test";
+        transformer.parse(json, Project.class);
+    }
+
+    @Test
+    public void convertObjectToJsonTest() throws JsonProcessingException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        Project project = new Project();
+        project.setName("Test Project");
+        project.setIdentifier("test");
+        project.setId(1L);
+
+        String json = transformer.convert(project);
+        assertEquals("{\"name\":\"Test Project\",\"identifier\":\"test\",\"id\":1}", json);
+    }
+
+    @Test
+    public void convertNullToJsonTest() throws JsonProcessingException {
+        JacksonJsonTransformer transformer = new JacksonJsonTransformer();
+        transformer.convert(null);
+    }
+
+}

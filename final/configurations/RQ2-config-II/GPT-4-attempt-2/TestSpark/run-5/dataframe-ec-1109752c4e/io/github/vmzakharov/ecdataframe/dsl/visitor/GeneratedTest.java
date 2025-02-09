@@ -1,0 +1,68 @@
+package io.github.vmzakharov.ecdataframe.dsl.visitor;
+
+import io.github.vmzakharov.ecdataframe.dsl.*;
+import io.github.vmzakharov.ecdataframe.dsl.value.SimpleValue;
+import io.github.vmzakharov.ecdataframe.dsl.visitor.PrettyPrintVisitor;
+import io.github.vmzakharov.ecdataframe.util.CollectingPrinter;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void exprToStringValueTest() {
+        SimpleValue simpleValue = new SimpleValue("testValue");
+        String result = PrettyPrintVisitor.exprToString(simpleValue);
+        assertEquals("testValue", result);
+    }
+
+    @Test
+    public void visitAssignExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        AssignExpr expr = new AssignExpr(new VarExpr("x"), new SimpleValue("testValue"));
+        visitor.visitAssignExpr(expr);
+        assertEquals("\"x\" = \"testValue\"", visitor.toString());
+    }
+
+    @Test
+    public void visitBinaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        BinaryExpr expr = new BinaryExpr(BinaryOp.ADD, new SimpleValue("5"), new SimpleValue("10"));
+        visitor.visitBinaryExpr(expr);
+        assertEquals("\"5\" + \"10\"", visitor.toString());
+    }
+
+    @Test
+    public void visitUnaryExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        UnaryExpr expr = new UnaryExpr(UnaryOp.MINUS, new SimpleValue("5"));
+        visitor.visitUnaryExpr(expr);
+        assertEquals("- \"5\"", visitor.toString());
+    }
+
+    @Test
+    public void visitFunctionCallExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        FunctionCallExpr expr = new FunctionCallExpr("testFunc", new SimpleValue("5"));
+        visitor.visitFunctionCallExpr(expr);
+        assertEquals("testFunc(\"5\")", visitor.toString());
+    }
+
+    @Test
+    public void visitAnonymousScriptExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        AnonymousScript expr = new AnonymousScript(new SimpleValue("5"));
+        visitor.visitAnonymousScriptExpr(expr);
+        assertEquals("\"5\"", visitor.toString());
+    }
+
+    @Test
+    public void visitVarExprTest() {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(new CollectingPrinter());
+        VarExpr expr = new VarExpr("x");
+        visitor.visitVarExpr(expr);
+        assertEquals("\"x\"", visitor.toString());
+    }
+
+}

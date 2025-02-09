@@ -1,0 +1,71 @@
+package com.adobe.epubcheck.tool;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+
+import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.util.DefaultReportImpl;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void getLocaleTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        assertNotNull("Locale should not be null", epubChecker.getLocale());
+    }
+
+    @Test
+    public void runValidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = new String[]{"--profile", "default"};
+        int result = epubChecker.run(args);
+        assertEquals("Expected exit code 0 for valid args", 0, result);
+    }
+
+    @Test
+    public void runInvalidArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = new String[]{"--invalid", "args"};
+        int result = epubChecker.run(args);
+        assertEquals("Expected exit code 1 for invalid args", 1, result);
+    }
+
+    @Test
+    public void processEpubFileTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = new String[]{"file.epub"};
+        int result = epubChecker.processEpubFile(args);
+        assertEquals("Expected success processing epub file", 0, result);
+    }
+
+    @Test
+    public void processEpubFileEmptyArgsTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String[] args = new String[0];
+        int result = epubChecker.processEpubFile(args);
+        assertEquals("Expected error processing epub file with empty args", 1, result);
+    }
+
+    @Test
+    public void validateFileValidTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String path = "test.epub";
+        Report report = new DefaultReportImpl(path);
+        int result = epubChecker.validateFile(path, EPUBVersion.VERSION_3_0, report, EPUBProfile.DEFAULT);
+        assertEquals("Expected success validation of epub file", 0, result);
+    }
+
+    @Test
+    public void validateFileInvalidTest() {
+        EpubChecker epubChecker = new EpubChecker();
+        String path = "non_existing_file.epub";
+        Report report = new DefaultReportImpl(path);
+        int result = epubChecker.validateFile(path, EPUBVersion.VERSION_3_0, report, EPUBProfile.DEFAULT);
+        assertEquals("Expected error validation of non-existing epub file", 1, result);
+    }
+
+}

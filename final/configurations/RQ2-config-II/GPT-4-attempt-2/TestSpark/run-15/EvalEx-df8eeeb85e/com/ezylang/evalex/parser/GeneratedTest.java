@@ -1,0 +1,63 @@
+package com.ezylang.evalex.parser;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import org.junit.Test;
+import com.ezylang.evalex.config.ExpressionConfiguration;
+import com.ezylang.evalex.operators.OperatorIfc;
+import com.ezylang.evalex.functions.FunctionIfc;
+
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void TokenizerInitTest() {
+        ExpressionConfiguration configuration = mock(ExpressionConfiguration.class);
+        Tokenizer tokenizer = new Tokenizer("1 + 1", configuration);
+        assertNotNull(tokenizer);
+    }
+
+    @Test
+    public void TokenizerNullExpressionTest() {
+        ExpressionConfiguration configuration = mock(ExpressionConfiguration.class);
+        Tokenizer tokenizer = new Tokenizer(null, configuration);
+    }
+
+    @Test
+    public void TokenizerNullConfigurationTest() {
+        Tokenizer tokenizer = new Tokenizer("1 + 1", null);
+    }
+
+    @Test
+    public void parseBasicExpressionTest() throws ParseException {
+        ExpressionConfiguration configuration = mock(ExpressionConfiguration.class);
+        Tokenizer tokenizer = new Tokenizer("1 + 1", configuration);
+        List<Token> tokenList = tokenizer.parse();
+        assertNotNull(tokenList);
+    }
+
+    @Test
+    public void parseMalformedExpressionTest() throws ParseException {
+        ExpressionConfiguration configuration = mock(ExpressionConfiguration.class);
+        Tokenizer tokenizer = new Tokenizer("1 + ", configuration);
+        List<Token> tokenList = tokenizer.parse();
+    }
+
+    @Test
+    public void parseStringLiteralTest() throws ParseException {
+        ExpressionConfiguration configuration = mock(ExpressionConfiguration.class);
+        Tokenizer tokenizer = new Tokenizer("'test'", configuration);
+        Token token = tokenizer.parseStringLiteral();
+        assertNotNull(token);
+    }
+
+    @Test
+    public void parseStringLiteralWithoutClosingQuoteTest() throws ParseException {
+        ExpressionConfiguration configuration = mock(ExpressionConfiguration.class);
+        Tokenizer tokenizer = new Tokenizer("'test", configuration);
+        Token token = tokenizer.parseStringLiteral();
+    }
+
+}

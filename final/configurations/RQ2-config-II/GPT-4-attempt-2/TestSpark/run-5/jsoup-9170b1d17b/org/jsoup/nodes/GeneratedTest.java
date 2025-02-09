@@ -1,0 +1,102 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Attribute;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getValidKeyTest() {
+        Attributes attr = new Attributes();
+        attr.put("testKey", "testValue");
+        assertEquals("testValue", attr.get("testKey"));
+    }
+
+    @Test
+    public void getInvalidKeyTest() {
+        Attributes attr = new Attributes();
+        attr.put("testKey", "testValue");
+        assertEquals("", attr.get("invalidKey"));
+    }
+
+    @Test
+    public void getIgnoreCaseValidKeyTest() {
+        Attributes attr = new Attributes();
+        attr.put("testKey", "testValue");
+        assertEquals("testValue", attr.getIgnoreCase("TESTKEY"));
+    }
+
+    @Test
+    public void hasKeyTrueTest() {
+        Attributes attr = new Attributes();
+        attr.put("testKey", "testValue");
+        assertTrue(attr.hasKey("testKey"));
+    }
+
+    @Test
+    public void hasKeyFalseTest() {
+        Attributes attr = new Attributes();
+        attr.put("testKey", "testValue");
+        assertFalse(attr.hasKey("InvalidKey"));
+    }
+
+    @Test
+    public void addAttributeTest() {
+        Attributes attr = new Attributes();
+        attr.add("testKey", "testValue");
+        assertEquals("testValue", attr.get("testKey"));
+    }
+
+    @Test
+    public void removeExistAttributeTest() {
+        Attributes attr = new Attributes();
+        attr.put("testKey", "testValue");
+        attr.remove("testKey");
+        assertFalse(attr.hasKey("testKey"));
+    }
+
+    @Test
+    public void removeNonExistAttributeTest() {
+        Attributes attr = new Attributes();
+        attr.remove("nonExistKey");
+        assertFalse(attr.hasKey("nonExistKey"));
+    }
+
+    @Test
+    public void isEmptyTrueTest() {
+        Attributes attr = new Attributes();
+        assertTrue(attr.isEmpty());
+    }
+
+    @Test
+    public void isEmptyFalseTest() {
+        Attributes attr = new Attributes();
+        attr.put("testKey", "testValue");
+        assertFalse(attr.isEmpty());
+    }
+
+    @Test
+    public void sizeZeroTest() {
+        Attributes attr = new Attributes();
+        assertEquals(0, attr.size());
+    }
+
+    @Test
+    public void sizeOneTest() {
+        Attributes attr = new Attributes();
+        attr.put("testKey", "testValue");
+        assertEquals(1, attr.size());
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes attr = new Attributes();
+        attr.put("testKey", "testValue");
+        Attributes cloneAttr = attr.clone();
+        assertEquals(cloneAttr.get("testKey"), attr.get("testKey"));
+    }
+
+}

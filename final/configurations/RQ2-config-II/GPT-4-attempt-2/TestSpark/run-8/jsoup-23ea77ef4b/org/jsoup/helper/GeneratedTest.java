@@ -1,0 +1,112 @@
+package org.jsoup.helper;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Test;
+import org.w3c.dom.Node;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void namespaceAwareTest() {
+        W3CDom w3cDom = new W3CDom();
+        assertEquals(false, w3cDom.namespaceAware());
+
+        w3cDom.namespaceAware(true);
+        assertEquals(true, w3cDom.namespaceAware());
+    }
+
+    @Test
+    public void convertDocumentTest() {
+        Document jsoupDocument = new Document("http://example.com");
+        org.w3c.dom.Document convertedDocument = W3CDom.convert(jsoupDocument);
+        assertNotNull(convertedDocument);
+    }
+
+    @Test
+    public void asStringWithPropertiesTest() {
+        org.w3c.dom.Document w3cDocument = getEmptyW3cDocument();
+        Map<String, String> properties = new HashMap<>();
+        properties.put("format", "prettyprint");
+        String result = W3CDom.asString(w3cDocument, properties);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void asStringTest() {
+        org.w3c.dom.Document w3cDocument = getEmptyW3cDocument();
+        String result = W3CDom.asString(w3cDocument);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void fromJsoupDocumentTest() {
+        Document jsoupDocument = new Document("http://example.com");
+        W3CDom w3cDom = new W3CDom();
+        org.w3c.dom.Document convertedDocument = w3cDom.fromJsoup(jsoupDocument);
+        assertNotNull(convertedDocument);
+    }
+
+    @Test
+    public void fromJsoupElementTest() {
+        Element jsoupElement = new Element("p");
+        W3CDom w3cDom = new W3CDom();
+        org.w3c.dom.Document convertedDocument = w3cDom.fromJsoup(jsoupElement);
+        assertNotNull(convertedDocument);
+    }
+
+    @Test
+    public void propertiesFromMapTest() {
+        Map<String, String> propertiesMap = new HashMap<>();
+        propertiesMap.put("indent", "yes");
+        propertiesMap.put("standalone", "no");
+        Properties properties = W3CDom.propertiesFromMap(propertiesMap);
+        assertEquals("yes", properties.getProperty("indent"));
+        assertEquals("no", properties.getProperty("standalone"));
+    }
+
+    @Test
+    public void OutputHtmlTest() {
+        HashMap<String, String> map = W3CDom.OutputHtml();
+        assertNotNull(map);
+    }
+
+    @Test
+    public void OutputXmlTest() {
+        HashMap<String, String> map = W3CDom.OutputXml();
+        assertNotNull(map);
+    }
+
+    @Test
+    public void selectXpathWithNullDocumentTest() {
+        W3CDom w3cDom = new W3CDom();
+        w3cDom.selectXpath("//p", (org.w3c.dom.Document) null);
+    }
+
+    @Test
+    public void selectXpathWithNullNodeTest() {
+        W3CDom w3cDom = new W3CDom();
+        w3cDom.selectXpath("//p", (Node) null);
+    }
+
+    @Test
+    public void sourceNodesTest() {
+        W3CDom w3cDom = new W3CDom();
+        w3cDom.sourceNodes(null, Element.class);
+    }
+
+    private org.w3c.dom.Document getEmptyW3cDocument() {
+        try {
+            return javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+}
