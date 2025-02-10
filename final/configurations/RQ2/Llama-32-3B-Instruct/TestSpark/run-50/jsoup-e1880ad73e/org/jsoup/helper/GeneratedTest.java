@@ -1,0 +1,77 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorWithUrlTest() {
+        // Arrange
+        URL url = Mockito.mock(URL.class);
+        UrlBuilder builder = new UrlBuilder(url);
+
+        // Assert
+        assert builder != null;
+    }
+
+    @Test
+    public void buildMethodReturnsUrlTest() throws MalformedURLException, URISyntaxException {
+        // Arrange
+        URL url = new URL("http://example.com");
+
+        // Act
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("http://example.com", result.getProtocol());
+        assertEquals("example.com", result.getHost());
+    }
+
+    @Test
+    public void appendKeyValMethodThrowsUnsupportedEncodingExceptionTest() throws UnsupportedEncodingException, URISyntaxException {
+        // Arrange
+        Connection.KeyVal kv = Mockito.mock(Connection.KeyVal.class);
+
+        // Act and Assert
+        assertThrows(UnsupportedEncodingException.class, () -> new UrlBuilder(null).appendKeyVal(kv));
+    }
+
+    @Test
+    public void appendKeyValMethodAppendsKeyValueToUrlTest() throws MalformedURLException, URISyntaxException {
+        // Arrange
+        URL url = new URL("http://example.com");
+        Connection.KeyVal kv = Mockito.mock(Connection.KeyVal.class);
+        String value = "hello";
+
+        // Act
+        UrlBuilder builder = new UrlBuilder(url);
+        builder.appendKeyVal(kv);
+
+        // Assert
+        assertEquals("http://example.com?key=value", url.toString());
+    }
+
+    @Test
+    public void appendKeyValMethodAppendsMultipleKeyValueToUrlTest() throws MalformedURLException, URISyntaxException {
+        // Arrange
+        URL url = new URL("http://example.com");
+        Connection.KeyVal[] kv = {Mockito.mock(Connection.KeyVal.class), Mockito.mock(Connection.KeyVal.class)};
+        String value1 = "hello";
+        String value2 = "world";
+
+        // Act
+        UrlBuilder builder = new UrlBuilder(url);
+        for (Connection.KeyVal keyVal : kv) {
+            builder.appendKeyVal(keyVal);
+        }
+
+        // Assert
+        assertEquals("http://example.com?key1=value1&key2=value2", url.toString());
+    }
+
+}

@@ -1,0 +1,113 @@
+package org.davidmoten.text.utils;
+
+import org.davidmoten.text.utils.WordWrap;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void fromReaderReturnsBuilder() {
+        Reader reader = Mockito.mock(Reader.class);
+        when(reader.read()).thenReturn(-1);
+        assertEquals(WordWrap.Builder.class, WordWrap.from(reader).getClass());
+    }
+
+    @Test
+    public void fromClasspathUtf8ReturnsBuilder() {
+        String resource = "resource";
+        assertEquals(WordWrap.Builder.class, WordWrap.fromClasspathUtf8(resource).getClass());
+    }
+
+    @Test
+    public void fromClasspathReturnsBuilder() {
+        String resource = "resource";
+        Charset charset = StandardCharsets.UTF_8;
+        assertEquals(WordWrap.Builder.class, WordWrap.fromClasspath(resource, charset).getClass());
+    }
+
+    @Test
+    public void fromCharacterSequenceReturnsBuilder() {
+        CharSequence text = "text";
+        assertEquals(WordWrap.Builder.class, WordWrap.from(text).getClass());
+    }
+
+    @Test
+    public void fromUtf8InputStreamReturnsBuilder() {
+        InputStream in = Mockito.mock(InputStream.class);
+        when(in.read()).thenReturn(-1);
+        assertEquals(WordWrap.Builder.class, WordWrap.fromUtf8(in).getClass());
+    }
+
+    @Test
+    public void fromInputStreamReturnsBuilder() {
+        InputStream in = Mockito.mock(InputStream.class);
+        Charset charset = StandardCharsets.UTF_8;
+        assertEquals(WordWrap.Builder.class, WordWrap.from(in, charset).getClass());
+    }
+
+    @Test
+    public void fromFileReturnsBuilder() {
+        File file = new File("file");
+        Charset charset = StandardCharsets.UTF_8;
+        assertEquals(WordWrap.Builder.class, WordWrap.from(file, charset).getClass());
+    }
+
+    @Test
+    public void wordWrapWithReaderAndWriterThrowsIOException() throws IOException {
+        Reader in = Mockito.mock(Reader.class);
+        Writer out = Mockito.mock(Writer.class);
+        String newLine = "\n";
+        Number maxWidth = 10;
+        Function<? super CharSequence, ? extends Number> stringWidth = Mockito.mock(Function.class);
+        Set<Character> extraWordChars = new HashSet<>();
+        boolean insertHyphens = true;
+        boolean breakWords = false;
+        try {
+            WordWrap.wordWrap(in, out, newLine, maxWidth, stringWidth, extraWordChars, insertHyphens, breakWords);
+            assert false : "Expected an IOException";
+        } catch (IOException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void wordWrapWithReaderAndLineConsumerThrowsIOException() throws IOException {
+        Reader in = Mockito.mock(Reader.class);
+        LineConsumer out = Mockito.mock(LineConsumer.class);
+        Number maxWidth = 10;
+        Function<? super CharSequence, ? extends Number> stringWidth = Mockito.mock(Function.class);
+        Set<Character> extraWordChars = new HashSet<>();
+        boolean insertHyphens = true;
+        boolean breakWords = false;
+        try {
+            WordWrap.wordWrap(in, out, maxWidth, stringWidth, extraWordChars, insertHyphens, breakWords);
+            assert false : "Expected an IOException";
+        } catch (IOException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void rightTrimWorksCorrectly() {
+        CharSequence s = "   ";
+        assertEquals("   ", WordWrap.rightTrim(s));
+    }
+
+    @Test
+    public void isWhitespaceWorksCorrectly() {
+        CharSequence s = " ";
+        assertTrue(WordWrap.isWhitespace(s));
+    }
+
+    @Test
+    public void leftTrimWorksCorrectly() {
+        StringBuilder2 word = new StringBuilder2();
+        word.append("   ");
+        WordWrap.leftTrim(word);
+        assertEquals("", word.toString());
+    }
+
+}

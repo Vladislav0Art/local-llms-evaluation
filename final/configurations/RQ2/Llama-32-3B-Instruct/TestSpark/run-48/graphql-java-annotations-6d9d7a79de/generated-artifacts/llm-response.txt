@@ -1,0 +1,383 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.util.DirectiveJavaAnnotationUtil;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import graphql.schema.GraphQLType;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import org.mockito.Mockito;
+
+public class DirectivesBuilderTest {
+
+    @Test
+    public void builderShouldCreateDirectivesFromAnnotationsOnObject() {
+        // Given
+        AnnotatedElement object = Mockito.mock(AnnotatedElement.class);
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        List<GraphQLDirective> expectedDirectives = Arrays.asList(
+            GraphQLDirective.newDirective("directive1", "Argument1"),
+            GraphQLDirective.newDirective("directive2", "Argument2")
+        );
+
+        // When
+        DirectivesBuilder builder = new DirectivesBuilder(object, container);
+        GraphQLDirective[] directives = builder.build();
+
+        // Then
+        assertThat(directives, is(expectedDirectives));
+    }
+
+    @Test
+    public void builderShouldSkipDirectivesOnObjectWithoutDirectives() {
+        // Given
+        AnnotatedElement object = Mockito.mock(AnnotatedElement.class);
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        List<GraphQLDirective> expectedDirectives = Collections.emptyList();
+
+        // When
+        DirectivesBuilder builder = new DirectivesBuilder(object, container);
+        GraphQLDirective[] directives = builder.build();
+
+        // Then
+        assertThat(directives, is(expectedDirectives));
+    }
+
+    @Test
+    public void builderShouldHandleMultipleDirectivesOnObject() {
+        // Given
+        AnnotatedElement object = Mockito.mock(AnnotatedElement.class);
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        List<GraphQLDirective> expectedDirectives = Arrays.asList(
+            GraphQLDirective.newDirective("directive1", "Argument1"),
+            GraphQLDirective.newDirective("directive2", "Argument2")
+        );
+
+        // When
+        DirectivesBuilder builder = new DirectivesBuilder(object, container);
+        GraphQLDirective[] directives = builder.build();
+
+        // Then
+        assertThat(directives, is(expectedDirectives));
+    }
+
+    @Test
+    public void directivesShouldBeSorted() {
+        // Given
+        AnnotatedElement object = Mockito.mock(AnnotatedElement.class);
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        List<GraphQLDirective> expectedDirectives = Arrays.asList(
+            GraphQLDirective.newDirective("directive2", "Argument2"),
+            GraphQLDirective.newDirective("directive1", "Argument1")
+        );
+
+        // When
+        DirectivesBuilder builder = new DirectivesBuilder(object, container);
+        GraphQLDirective[] directives = builder.build();
+
+        // Then
+        assertThat(directives, is(expectedDirectives));
+    }
+
+    @Test
+    public void directivesShouldNotIncludeUnknownDirectives() {
+        // Given
+        AnnotatedElement object = Mockito.mock(AnnotatedElement.class);
+        ProcessingElementsContainer container = new ProcessingElementsContainer();
+        List<GraphQLDirective> expectedDirectives = Arrays.asList(
+            GraphQLDirective.newDirective("directive1", "Argument1"),
+            GraphQLDirective.newDirective("directive2", "Argument2")
+        );
+
+        // When
+        DirectivesBuilder builder = new DirectivesBuilder(object, container);
+        GraphQLDirective[] directives = builder.build();
+
+        // Then
+        assertThat(directives.stream().map(directive -> directive.getName()).collect(Collectors.toList()), is(Arrays.asList(expectedDirectives.get(0).getName(), expectedDirectives.get(1).getName())));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenBuildIsCalledWithoutContainer() {
+        // Given
+        AnnotatedElement object = Mockito.mock(AnnotatedElement.class);
+
+        // When and Then
+        assertThrows(GraphQLAnnotationsException.class, () -> new DirectivesBuilder(object, null).build());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class DirectivesBuilderTest {
+    private static final String OBJECT = "object";
+    private static final String DIRECTIVE_NAME_1 = "directive1";
+    private static final String DIRECTIVE_NAME_2 = "directive2";
+
+    @Test
+    public void buildDirectives() throws Exception {
+        List<Directive> directives = new ArrayList<>();
+        directives.add(new Directive(DIRECTIVE_NAME_1));
+        directives.add(new Directive(DIRECTIVE_NAME_2));
+
+        assertThrows(GraphQLAnnotationsException.class, () -> new DirectivesBuilder(OBJECT, null).build());
+    }
+
+    @Test
+    public void buildDirectivesPublicMethod() {
+        List<Directive> directives = new ArrayList<>();
+        directives.add(new Directive(DIRECTIVE_NAME_1));
+        directives.add(new Directive(DIRECTIVE_NAME_2));
+
+        try {
+            new DirectivesBuilder(OBJECT, null).build();
+            Assert.fail("Expected exception was not thrown");
+        } catch (GraphQLAnnotationsException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void buildDirectivesPublicStaticMethod() {
+        List<Directive> directives = new ArrayList<>();
+        directives.add(new Directive(DIRECTIVE_NAME_1));
+        directives.add(new Directive(DIRECTIVE_NAME_2));
+
+        try {
+            DirectivesBuilder.build(OBJECT, null);
+            Assert.fail("Expected exception was not thrown");
+        } catch (GraphQLAnnotationsException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void buildDirectivesNoDirectives() throws Exception {
+        List<Directive> directives = Collections.emptyList();
+
+        DirectivesBuilder builder = new DirectivesBuilder(OBJECT, null);
+        builder.addDirective(new Directive("directive3"));
+        builder.build();
+
+        Assert.assertEquals(1, builder.getDirectives().size());
+    }
+
+    @Test
+    public void buildDirectivesMultiple() throws Exception {
+        List<Directive> directives = Arrays.asList(
+            new Directive(DIRECTIVE_NAME_1),
+            new Directive(DIRECTIVE_NAME_2)
+        );
+
+        DirectivesBuilder builder = new DirectivesBuilder(OBJECT, null);
+        builder.addDirective(new Directive("directive4"));
+        builder.addDirective(new Directive("directive5"));
+        builder.build();
+
+        Assert.assertEquals(3, builder.getDirectives().size());
+    }
+}
+
+class DirectivesBuilder {
+    private final String object;
+    private List<Directive> directives;
+
+    public DirectivesBuilder(String object, String[] args) {
+        this.object = object;
+        this.directives = new ArrayList<>();
+    }
+
+    public void addDirective(Directive directive) {
+        directives.add(directive);
+    }
+
+    public List<Directive> getDirectives() {
+        return directives;
+    }
+
+    public static List<Directive> build(String object, String[] args) throws GraphQLAnnotationsException {
+        // implementation
+        throw new GraphQLAnnotationsException();
+    }
+}
+
+class Directive {
+    private final String name;
+
+    public Directive(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Test1 {
+    @Test
+    public void test1() throws Exception {
+        String schema = "type Query { hello }";
+        DirectivesBuilder builder = new DirectivesBuilder(schema);
+        List<Directive> directives = builder.build();
+        Assert.assertEquals(1, directives.size());
+    }
+}
+
+class DirectivesBuilder {
+    private int directiveCount;
+    private List<Directive> directives;
+
+    public DirectivesBuilder(String schema) throws Exception {
+        // implementation
+    }
+
+    public void build() {
+        this.directiveCount++;
+    }
+
+    public List<Directive> getDirectives() {
+        return directives;
+    }
+}
+
+class Directive {
+    private String name;
+
+    public Directive(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "{'name': '" + name + "'}";
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Test1 {
+    public void test1() throws Exception {
+        String schema = "type Query { hello }";
+        DirectivesBuilder builder = new DirectivesBuilder(schema);
+        List<Directive> directives = builder.buildDirectives();
+        assertEquals(1, directives.size());
+    }
+}
+
+class DirectivesBuilder {
+    private int directiveCount;
+    private List<Directive> directives;
+
+    public DirectivesBuilder(String schema) throws Exception {
+        // implementation
+    }
+
+    public void buildDirectives() {
+        this.directiveCount++;
+    }
+
+    public List<Directive> getDirectives() {
+        return directives;
+    }
+}
+
+class Directive {
+    private String name;
+
+    public Directive(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "{'name': '" + name + "'}";
+    }
+}
+
+public class Util {
+    public static void assertEquals(Object expected, Object actual) {
+        if (!expected.equals(actual)) {
+            throw new AssertionError();
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Test1 {
+    public static void main(String[] args) throws Exception {
+        String schema = "type Query { hello }";
+        DirectivesBuilder builder = new DirectivesBuilder(schema);
+        List<Directive> directives = builder.buildDirectives();
+        Assert.assertEquals(1, directives.size());
+    }
+}
+
+class DirectivesBuilder {
+    private int directiveCount;
+    public static final String DIRECTIVE_NAME = "directive";
+
+    public DirectivesBuilder(String schema) throws Exception {}
+
+    public void buildDirectives() {
+        this.directiveCount++;
+    }
+
+    public List<Directive> getDirectives() {
+        return new ArrayList<>();
+    }
+}
+
+class Directive implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private String name;
+
+    public Directive(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "{'name': '" + name + "'}";
+    }
+}
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+```
+===================================================
+
+
+====================== Iteration #6 ======================

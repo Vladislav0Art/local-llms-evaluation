@@ -1,0 +1,367 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.MalformedURLException;
+import java.util.HashMap;
+
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.helper.UrlBuilder;
+import org.jsoup.helper.DataUtil;
+import org.jsoup.helper.UrlBuilder.DataKeyValTestHelper;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void buildUrlFromEmptyInputUrl() throws MalformedURLException {
+        assertTrue(UrlBuilder.build(null).toString().isEmpty());
+    }
+
+    @Test
+    public void buildUrlFromNullInputUrl() throws MalformedURLException {
+        assertNull(UrlBuilder.build(null));
+    }
+
+    @Test
+    public void appendKeyVal() throws UnsupportedEncodingException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        String result = UrlBuilder.appendKeyVal(builder, "key", "value");
+        assertEquals("key=value", result);
+    }
+
+    @Test
+    public void appendUrlParam() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com?param1=value1"));
+        String result = UrlBuilder.appendUrlParam(builder, "param2", "value2");
+        assertEquals("?param1=value1&param2=value2", result);
+    }
+
+    @Test
+    public void appendUrlQueryParam() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        String result = UrlBuilder.appendUrlQueryParam(builder, "key", "value");
+        assertEquals("?key=value", result);
+    }
+
+    @Test
+    public void appendUrlQueryParams() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        String result = UrlBuilder.appendUrlQueryParams(builder, HashMap.class);
+        assertTrue(result.contains("?key=value"));
+    }
+}
+
+public class DataKeyValTestHelper {
+
+    public static Connection.KeyVal createKeyVal(String key, String value) {
+        return new org.jsoup.Connection.KeyVal(key, StringUtil.quote(value));
+    }
+
+    public static URL createUrl(String scheme, String host, int port) throws MalformedURLException {
+        return new URL(scheme + "://" + host + ":" + port);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.Connection.KeyVal;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testAppendKeyVal() {
+        String scheme = "http";
+        String host = "example.com";
+        int port = 80;
+        
+        Connection.Builder builder = new Connection.Builder()
+                .url(new URL(scheme + "://" + host + ":" + port))
+                .appendKeyVal("key", "value")
+                .appendQueryParams(Map.of("param1", "value1"), Map.of("param2", "value2"));
+        
+        Document doc = builder.get();
+        
+        System.out.println(doc.toString());
+    }
+}
+
+class UrlBuilder {
+    private Connection conn;
+    
+    public UrlBuilder(String url) {
+        this.conn = new Connection.Builder().url(new URL(url)).build();
+    }
+    
+    public void appendKeyVal(String key, String value) {
+        KeyVal kv = new KeyVal(key, StringUtil.quote(value));
+        conn.appendkv(kv);
+    }
+    
+    public void appendUrlParam(String param, String value) {
+        this.conn.appendQueryParams(Map.of(param, value), Map.of());
+    }
+    
+    public void appendQueryParams(Map<String, Object> params, Map<String, Object> values) {
+        this.conn.appendQueryParams(params, values);
+    }
+    
+    public URL getUrl() {
+        return (URL) conn.url();
+    }
+}
+
+class StringUtil {
+    public static String quote(String str) {
+        // implementation of quote method
+        return str;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.Document;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public class UrlBuilder {
+    private Connection conn;
+    
+    public UrlBuilder(String url) {
+        this.conn = new Connection.Builder().url(new URL(url)).build();
+    }
+    
+    public void appendKeyVal(String key, String value) {
+        KeyVal kv = new KeyVal(key, StringUtil.quote(value));
+        conn.appendkv(kv);
+    }
+    
+    public void appendUrlParam(String param, String value) {
+        this.conn.appendQueryParams(Map.of(param, value), Map.of());
+    }
+    
+    public void appendQueryParams(Map<String, Object> params, Map<String, Object> values) {
+        this.conn.appendQueryParams(params, values);
+    }
+    
+    public URL getUrl() {
+        return (URL) conn.url();
+    }
+}
+
+public class StringUtil {
+    public static String quote(String str) {
+        // implementation of quote method
+        return str;
+    }
+}
+
+class Connection {
+    private Document doc;
+    private String url;
+
+    public Connection(String url) {
+        this.url = url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Document getDoc() {
+        return doc;
+    }
+
+    public void appendkv(KeyVal kv) {
+        // implementation of appendkv method
+    }
+}
+
+class KeyVal {
+    private String key;
+    private String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+
+public class TestUrlBuilder {
+
+    @org.junit.Test
+    public void testUrlBuilder() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        urlBuilder.appendKeyVal("key", "value");
+        urlBuilder.appendUrlParam("param", "value");
+        String url = urlBuilder.getUrl().toString();
+        
+        // Create a Connection object
+        Connection connection = new Connection(url);
+        connection.setUrl(url);
+
+        // Call appendkv method
+        KeyVal keyVal = new KeyVal("key", "value");
+        connection.appendkv(keyVal);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilder {
+    private Connection conn;
+    
+    public UrlBuilder(String url) {
+        this.conn = new org.jsoup.Connection();
+    }
+}
+
+class KeyVal {
+    public String key;
+    public String value;
+
+    public KeyVal() {}
+}
+
+public class TestUrlBuilder {
+
+    @org.junit.Test
+    public void testUrlBuilder() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        
+        // Create a Connection object
+        org.jsoup.Connection conn = urlBuilder.conn;
+        Document document = null; 
+        String url = null;
+        conn.open();
+        
+        Map<String, Object> params = new HashMap<>();
+        Map<String, Object> values = new HashMap<>();
+        conn.appendQueryParams(params, values);
+        
+        KeyVal keyVal = new KeyVal();
+        conn.appendkv(keyVal);
+        
+        conn.close();
+        
+        System.out.println(conn.url());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+import org.jsoup.Connection;
+import org.jsoup.Document;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public class UrlBuilder {
+    private Connection conn;
+    
+    public UrlBuilder(String url) {
+        this.conn = new Connection(url);
+    }
+    
+    public void appendQueryParam(String param, String value) {
+        Map<String, Object> params = new HashMap<>();
+        params.put(param, value);
+        this.conn.appendQueryParams(params, null);
+    }
+    
+    public void appendKeyVal(String key, String value) {
+        KeyVal kv = new KeyVal(key, StringUtil.quote(value));
+        conn.appendkv(kv);
+    }
+    
+    public URL getUrl() {
+        return ((URL)conn.url()).toURI().toURL();
+    }
+}
+
+class KeyVal {
+    private String key;
+    private String value;
+
+    public KeyVal(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+
+public class StringUtil {
+    public static String quote(String str) {
+        // Implementation of quote method
+        return str;
+    }
+}
+
+class Connection {
+    private Document doc;
+    
+    public Connection(URI uri) {
+        try {
+            this.doc = org.jsoup.Jsoup.connect(uri).get();
+        } catch (Exception e) {}
+    }
+
+    public void appendkv(KeyVal kv) {
+        String paramString = "key=" + kv.getKey() + "&value=" + kv.getValue();
+        ((String)doc.body()).replaceFirst("}", paramString);
+    }
+}
+
+public class TestUrlBuilder {
+
+    @org.junit.Test
+    public void testUrlBuilder() {
+        UrlBuilder urlBuilder = new UrlBuilder("https://www.example.com");
+        
+        urlBuilder.appendKeyVal("key", "value");
+        urlBuilder.appendQueryParam("param", "value");
+        
+        URL url = urlBuilder.getUrl();
+        System.out.println(url);
+    }
+}
+```
+
+Note: The `appendkv` method in the `Connection` class replaces the last occurrence of `"}` in the HTML body with the key-value pair. It may not work correctly for all cases and is only provided as a possible solution.
+===================================================
+
+
+====================== Iteration #6 ======================

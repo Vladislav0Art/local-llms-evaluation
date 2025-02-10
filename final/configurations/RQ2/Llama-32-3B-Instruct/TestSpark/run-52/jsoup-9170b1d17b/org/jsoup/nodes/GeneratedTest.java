@@ -1,0 +1,117 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.nodes.Attributes;
+
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void getNullTest() {
+        Attributes attributes = new Attributes();
+        assertTrue(attributes.get(null) == null);
+    }
+
+    @Test
+    public void getEmptyTest() {
+        Attributes attributes = new Attributes();
+        assertEquals("", attributes.get(""));
+    }
+
+    @Test
+    public void getLowerCaseTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("test", "value");
+        assertEquals("value", attributes.getIgnoreCase("test"));
+    }
+
+    @Test
+    public void getUpperCaseTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("TEST", "VALUE");
+        assertEquals("VALUE", attributes.getIgnoreCase("TEST"));
+    }
+
+    @Test
+    public void putNullValueTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("test", null);
+        assertNotNull(attributes.getUserData("test"));
+    }
+
+    @Test
+    public void putValueTest() {
+        Attributes attributes = new Attributes();
+        attributes.put("test", "value");
+        assertEquals("value", attributes.get("test"));
+    }
+
+    @Test
+    public void removeTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("test", "value");
+        attributes.remove("test");
+        assertNull(attributes.getUserData("test"));
+    }
+
+    @Test
+    public void hasKeyTrueTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("test", "value");
+        assertTrue(attributes.hasKey("test"));
+    }
+
+    @Test
+    public void hasKeyFalseTest() {
+        Attributes attributes = new Attributes();
+        assertFalse(attributes.hasKey(""));
+    }
+
+    @Test
+    public void hasKeyIgnoreCaseTrueTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("test", "value");
+        assertTrue(attributes.hasKeyIgnoreCase("test"));
+    }
+
+    @Test
+    public void hasKeyIgnoreCaseFalseTest() {
+        Attributes attributes = new Attributes();
+        assertFalse(attributes.hasKeyIgnoreCase(""));
+    }
+
+    @Test
+    public void sizeTest() {
+        Attributes attributes = new Attributes();
+        assertEquals(0, attributes.size());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Attributes attributes = new Attributes();
+        assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void addAllTest() {
+        Attributes attributes1 = new Attributes();
+        attributes1.add("test", "value");
+        Attributes attributes2 = new Attributes();
+        attributes2.add("anotherTest", "anotherValue");
+        attributes1.addAll(attributes2);
+        assertEquals(2, attributes1.size());
+    }
+
+    @Test
+    public void cloneTest() {
+        Attributes original = new Attributes();
+        original.add("test", "value");
+        Attributes clone = original.clone();
+        assertTrue(clone.equals(original));
+    }
+
+}

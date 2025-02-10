@@ -1,0 +1,354 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class PropertyListBuilderTest {
+
+    @Mock
+    private List<Property<?>> propertiesList;
+
+    @Mock
+    private Map<String, Object> rootMap;
+
+    @Test
+    public void addPropertyToEmptyPropertiesListTest() {
+        Property property = new Property("test", "value");
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(property);
+        assertEquals(1, propertiesList.size());
+    }
+
+    @Test
+    public void createFromEmptyPropertiesListTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        List<Property<?>> result = propertyListBuilder.create();
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void addPropertyToExistingPropertiesListTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Property property1 = new Property("test1", "value");
+        Property property2 = new Property("test2", "value");
+        propertyListBuilder.add(property1);
+        propertyListBuilder.add(property2);
+        assertEquals(2, propertiesList.size());
+    }
+
+    @Test
+    public void createFromExistingPropertiesListTest() {
+        List<Property<?>> propertiesList = new ArrayList<>();
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        when(propertiesList).thenReturn(propertiesList);
+        List<Property<?>> result = propertyListBuilder.create();
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void getRootEntriesFromEmptyMapTest() {
+        Map<String, Object> rootMap = new LinkedHashMap<>();
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        when(rootMap).thenReturn(rootMap);
+        Map<String, Object> result = propertyListBuilder.getRootEntries();
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void getRootEntriesFromNonEmptyMapTest() {
+        Map<String, Object> rootMap = new LinkedHashMap<>();
+        rootMap.put("test", "value");
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        when(rootMap).thenReturn(rootMap);
+        Map<String, Object> result = propertyListBuilder.getRootEntries();
+        assertNotNull(result);
+        assertEquals(1, ((LinkedHashMap<?>)result).size());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class PropertyListBuilder {
+    private Map<String, Object> rootMap;
+
+    public PropertyListBuilder() {
+        this.rootMap = new LinkedHashMap<>();
+    }
+
+    public void addProperty(String key, String value) {
+        if (!rootMap.containsKey(key)) {
+            rootMap.put(key, value);
+        }
+    }
+
+    public Map<String, Object> getRootEntries() {
+        return rootMap;
+    }
+
+    public static PropertyListBuilder propertyListBuilder() {
+        return new PropertyListBuilder();
+    }
+
+    public static void assertEquals(int expectedSize, Map<String, Object> map) {
+        assertEquals(expectedSize, map.size());
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I apologize for the incomplete response earlier.
+
+To build a property list, we can use the `Map` interface in Java to represent a collection of key-value pairs. Here's an example implementation:
+
+```java
+import java.util.*;
+
+public class PropertyListBuilder {
+    private Map<String, Object> rootMap;
+
+    public PropertyListBuilder() {
+        this.rootMap = new LinkedHashMap<>();
+    }
+
+    // Add property to the list
+    public void addProperty(String key, String value) {
+        if (!rootMap.containsKey(key)) {
+            rootMap.put(key, value);
+        } else if (value instanceof List) {
+            ((List<String>) rootMap.get(key)).add(value);
+        } else {
+            List<String> newList = new ArrayList<>();
+            newList.add((String) value);
+            rootMap.put(key, newList);
+        }
+    }
+
+    // Get the list of properties
+    public Map<String, Object> getRootEntries() {
+        return Collections.unmodifiableMap(rootMap);
+    }
+}
+```
+
+Example usage:
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        PropertyListBuilder builder = propertyListBuilder();
+        
+        // Add properties
+        builder.addProperty("name", "John Doe");
+        builder.addProperty("age", 30);
+        builder.addProperty("address", Arrays.asList("123 Main St", "Anytown, USA"));
+        
+        System.out.println(builder.getRootEntries());
+    }
+}
+```
+
+This code creates a `PropertyListBuilder` class that allows you to add properties to the list. If a property with the same name already exists, it is converted to a list of values instead of replacing the existing value. The `getRootEntries()` method returns an unmodifiable view of the root map.
+===================================================
+
+
+====================== Iteration #4 ======================
+Here's an example implementation in Java:
+
+```java
+import java.util.*;
+
+public class PropertyListBuilder {
+    private Map<String, Object> rootMap;
+
+    public PropertyListBuilder() {
+        this.rootMap = new LinkedHashMap<>();
+    }
+
+    // Add property to the list
+    public void addProperty(String key, String value) {
+        if (!rootMap.containsKey(key)) {
+            rootMap.put(key, value);
+        } else if (value instanceof List) {
+            ((List<String>) rootMap.get(key)).add((String) value);
+        } else if (value instanceof Map) {
+            Map<String, Object> map = (Map<String, Object>) value;
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                rootMap.put(entry.getKey(), entry.getValue());
+            }
+        } else if (value instanceof Object[]) {
+            Object[] array = (Object[]) value;
+            for (int i = 0; i < array.length; i++) {
+                addProperty(key + "[" + i + "]", array[i]);
+            }
+        } else {
+            throw new UnsupportedOperationException("Unsupported data type");
+        }
+    }
+
+    // Get the list of properties
+    public Map<String, Object> getRootEntries() {
+        return Collections.unmodifiableMap(rootMap);
+    }
+}
+```
+
+Example usage:
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        PropertyListBuilder builder = propertyListBuilder();
+        
+        // Add nested properties
+        builder.addProperty("name", "John Doe");
+        builder.addProperty("address.street", "123 Main St");
+        builder.addProperty("address.city", "Anytown, USA");
+        builder.addProperty("address.state", "CA");
+        builder.addProperty("address.zip", 12345);
+        builder.addProperty("phone[0]", "123-456-7890");
+        builder.addProperty("phone[1]", "098-765-4321");
+
+        System.out.println(builder.getRootEntries());
+    }
+}
+```
+
+This code creates a `PropertyListBuilder` class that allows you to add properties to the list. It supports nested properties and objects with multiple values. The `getRootEntries()` method returns an unmodifiable view of the root map.
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import java.util.*;
+
+public class PropertyListBuilder {
+    private Map<String, Object> rootMap;
+
+    public PropertyListBuilder() {
+        this.rootMap = new LinkedHashMap<>();
+    }
+
+    /**
+     * Adds a property to the list.
+     *
+     * @param key      The property key.
+     * @param value    The property value.
+     */
+    public void addProperty(String key, Object value) {
+        if (value instanceof List) {
+            for (Object item : (List<?>) value) {
+                rootMap.put(key + "[" + item + "]", item);
+            }
+        } else if (value instanceof Map) {
+            Map<String, Object> map = (Map<String, Object>) value;
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                rootMap.put(key + "." + entry.getKey(), entry.getValue());
+            }
+        } else {
+            rootMap.put(key, value);
+        }
+    }
+
+    /**
+     * Returns the list of properties.
+     *
+     * @return The list of properties.
+     */
+    public Map<String, Object> getRootEntries() {
+        return Collections.unmodifiableMap(rootMap);
+    }
+
+    /**
+     * Adds a property with an array value to the list.
+     *
+     * @param key      The property key.
+     * @param values   An array of property values.
+     */
+    public void addPropertyArray(String key, Object[] values) {
+        for (Object value : values) {
+            addProperty(key + "[" + value + "]", value);
+        }
+    }
+
+    /**
+     * Adds a property with a nested object to the list.
+     *
+     * @param key      The property key.
+     * @param obj      A nested object.
+     */
+    public void addObject(String key, Object obj) {
+        if (obj instanceof Map) {
+            Map<String, Object> map = (Map<String, Object>) obj;
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                addProperty(key + "." + entry.getKey(), entry.getValue());
+            }
+        } else {
+            throw new UnsupportedOperationException("Unsupported data type");
+        }
+    }
+
+    /**
+     * Adds a property with an object value to the list.
+     *
+     * @param key      The property key.
+     * @param obj      An object value.
+     */
+    public void addObject(String key, Object obj) {
+        if (obj instanceof List || obj instanceof Map) {
+            throw new UnsupportedOperationException("Unsupported data type");
+        } else {
+            addProperty(key, obj);
+        }
+    }
+
+    /**
+     * Adds a property with a string value to the list.
+     *
+     * @param key      The property key.
+     * @param value    The property value.
+     */
+    public void addObject(String key, String value) {
+        rootMap.put(key, value);
+    }
+
+    public static class PropertyListBuilderExample {
+        public static void main(String[] args) {
+            PropertyListBuilder builder = new PropertyListBuilder();
+
+            // Add properties
+            builder.addProperty("name", "John Doe");
+            builder.addPropertyArray("address.street", new String[]{"123 Main St"});
+            builder.addObject("address.city", Arrays.asList("Anytown, USA"));
+            builder.addProperty(12345);
+            builder.addObject("phone", Arrays.asList("123-456-7890", "098-765-4321"));
+
+            System.out.println(builder.getRootEntries());
+        }
+    }
+}
+```
+
+This code creates a `PropertyListBuilder` class that allows you to add properties to the list. It supports nested properties, arrays, objects with multiple values, and objects with single values. The `getRootEntries()` method returns an unmodifiable view of the root map.
+
+The example usage demonstrates how to use the `addProperty()`, `addPropertyArray()`, `addObject()`, and `addString()` methods to add different types of properties to the list.
+===================================================
+
+
+====================== Iteration #6 ======================

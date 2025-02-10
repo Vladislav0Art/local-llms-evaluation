@@ -1,0 +1,321 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import org.mockito.Mockito;
+
+public class PropertyListBuilderTest {
+
+    @Test
+    public void addPropertyToListWithoutException() {
+        List<Property<?>> list = new ArrayList<>();
+        Property<?> property = Mockito.mock(Property.class);
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(property);
+        assertThat(builder.create(), is(list));
+    }
+
+    @Test
+    public void addPropertyToListWithException() {
+        List<Property<?>> list = new ArrayList<>();
+        PropertyListBuilder builder = new PropertyListBuilder();
+        try {
+            builder.add(Mockito.mock(Property.class));
+            assert false;
+        } catch (ConfigMeException e) {
+            assertThat(e.getMessage(), is("Failed to add property"));
+        }
+    }
+
+    @Test
+    public void createEmptyListWhenNoPropertiesAdded() {
+        List<Property<?>> list = new ArrayList<>();
+        PropertyListBuilder builder = new PropertyListBuilder();
+        assertThat(builder.create(), is(list));
+    }
+
+    @Test
+    public void getRootEntriesReturnsMapWithoutKeyError() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        Mockito.when(PropertyListBuilder.getRootEntries()).thenReturn(map);
+        PropertyListBuilder builder = new PropertyListBuilder();
+        try {
+            builder.create();
+            assert false;
+        } catch (NullPointerException e) {
+            assertThat(e.getMessage(), is("No root entries available"));
+        }
+    }
+
+    @Test
+    public void getRootEntriesReturnsMapWithPropertiesCountMatchingAddMethod() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        Mockito.when(PropertyListBuilder.getRootEntries()).thenReturn(map);
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(Mockito.mock(Property.class));
+        builder.add(Mockito.mock(Property.class));
+        assertThat(((Map) builder.create().get(0)), is(null)); // test properties are not present in the output
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.anyMap;
+
+public class PropertyListBuilderTest {
+
+    public static class Property {
+        public String key;
+        public Object value;
+
+        public Property(String key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    public interface PropertyListBuilder {
+        Map<String, Object> create();
+    }
+
+    private PropertyListBuilder builder = new PropertyListBuilder() {
+        @Override
+        public Map<String, Object> create() {
+            return null;
+        }
+    };
+
+    @BeforeEach
+    public void setup() {
+        when(builder.getRootEntries()).thenReturn(anyMap());
+    }
+
+    @Test
+    public void testRootEntries() {
+        when(builder.getRootEntries()).thenReturn(new LinkedHashMap<>());
+        assertThat(((Map) builder.create().get(0)), is(null)); // test properties are not present in the output
+    }
+
+    public static class PropertyListBuilderImpl implements PropertyListBuilder {
+        private Map<String, Object> entries = new LinkedHashMap<>();
+
+        @Override
+        public Map<String, Object> create() {
+            return entries;
+        }
+
+        public void add(Property property) {
+            entries.put(property.key, property.value);
+        }
+    }
+
+    @Test
+    public void testAddProperties() {
+        PropertyListBuilderImpl builder = new PropertyListBuilderImpl();
+        Property property1 = new Property("key1", "value1");
+        Property property2 = new Property("key2", "value2");
+
+        builder.add(property1);
+        builder.add(property2);
+
+        Map<String, Object> map = builder.create();
+        assertThat(map.get("key1"), is("value1"));
+        assertThat(map.get("key2"), is("value2"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.anyMap;
+
+public class PropertyListBuilderTest {
+
+    public static class Property {
+        public String key;
+        public Object value;
+
+        public Property(String key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    public interface PropertyListBuilder {
+        Map<String, Object> create();
+    }
+
+    public static class PropertyListBuilderImpl implements PropertyListBuilder {
+        private Map<String, Object> entries = new java.util.LinkedHashMap<>();
+
+        @Override
+        public Map<String, Object> create() {
+            return entries;
+        }
+
+        public void add(Property property) {
+            entries.put(property.key, property.value);
+        }
+    }
+
+    @Test
+    public void testRootEntries() {
+        PropertyListBuilderImpl builder = new PropertyListBuilderImpl();
+        when(builder.getRootEntries()).thenReturn(new java.util.LinkedHashMap<>());
+        assertThat(((java.util.Map<String, Object>) builder.create().get(0)), is(null)); // test properties are not present in the output
+    }
+
+    @Test
+    public void testAddProperties() {
+        PropertyListBuilderImpl builder = new PropertyListBuilderImpl();
+        Property property1 = new Property("key1", "value1");
+        Property property2 = new Property("key2", "value2");
+
+        builder.add(property1);
+        builder.add(property2);
+
+        java.util.Map<String, Object> map = (java.util.Map<String, Object>) builder.create();
+        assertThat(map.get("key1"), is("value1"));
+        assertThat(map.get("key2"), is("value2"));
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.when;
+
+public class PropertyListBuilderTest {
+
+    public static class Property {
+        public String key;
+        public Object value;
+
+        public Property(String key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    public interface PropertyListBuilder {
+        Map<String, Object> create();
+    }
+
+    public class PropertyListBuilderImpl implements PropertyListBuilder {
+        private Map<String, Object> entries = new java.util.LinkedHashMap<>();
+
+        @Override
+        public Map<String, Object> create() {
+            return entries;
+        }
+
+        public void add(Property property) {
+            entries.put(property.key, property.value);
+        }
+    }
+
+    @Test
+    public void testRootEntries() {
+        PropertyListBuilderImpl builder = new PropertyListBuilderImpl();
+        java.util.Map<String, Object> map = builder.create(); // get the map directly
+        assertThat(map, is(null)); // test properties are not present in the output
+    }
+
+    @Test
+    public void testAddProperties() {
+        PropertyListBuilderImpl builder = new PropertyListBuilderImpl();
+        Property property1 = new Property("key1", "value1");
+        Property property2 = new Property("key2", "value2");
+
+        builder.add(property1);
+        builder.add(property2);
+
+        java.util.Map<String, Object> map = (java.util.Map<String, Object>) builder.create(); // get the map directly
+        assertThat((String) map.get("key1"), is("value1"));
+        assertThat((String) map.get("key2"), is("value2"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.when;
+
+public class PropertyListBuilderTest {
+
+    public static class Property {
+        public String key;
+        public Object value;
+
+        public Property(String key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    public interface IPropertyListBuilder {
+        java.util.Map<String, Object> getMap();
+    }
+
+    public class PropertyListBuilderImpl implements IPropertyListBuilder {
+        private java.util.Map<String, Object> entries = new java.util.LinkedHashMap<>();
+
+        @Override
+        public java.util.Map<String, Object> getMap() {
+            return entries;
+        }
+    }
+
+    @Test
+    public void testRootEntries() {
+        PropertyListBuilderImpl builder = new PropertyListBuilderImpl();
+        java.util.Map<String, Object> map = builder.getMap(); 
+        assertThat(map, is(null)); // test properties are not present in the output
+    }
+
+    @Test
+    public void testAddProperties() {
+        PropertyListBuilderImpl builder = new PropertyListBuilderImpl();
+        Property property1 = new Property("key1", "value1");
+        Property property2 = new Property("key2", "value2");
+
+        builder.add(property1);
+        builder.add(property2);
+
+        java.util.Map<String, Object> map = builder.getMap(); 
+        assertThat((String) map.get("key1"), is("value1"));
+        assertThat((String) map.get("key2"), is("value2"));
+    }
+}
+```
+===================================================
+

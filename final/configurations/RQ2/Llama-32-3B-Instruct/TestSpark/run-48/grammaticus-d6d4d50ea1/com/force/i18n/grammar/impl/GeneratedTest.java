@@ -1,0 +1,173 @@
+package com.force.i18n.grammar.impl;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+
+public class GeneratedTest {
+
+    private GrammaticalTermMapImpl<String> testMap;
+    private MapSerializer mapSerializer = new MapSerializer();
+
+    @Test
+    public void createInstance() {
+        testMap = new GrammaticalTermMapImpl<>();
+        assertNotNull(testMap);
+    }
+
+    @Test
+    public void createInstanceWithMapAndSkinny() {
+        testMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        assertNotNull(testMap);
+    }
+
+    @Test
+    public void equals_sameObject() {
+        testMap = new GrammaticalTermMapImpl<>();
+        assertTrue(testMap.equals(testMap));
+    }
+
+    @Test
+    public void equals_differentObjects() {
+        testMap = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<String> otherMap = new GrammaticalTermMapImpl<>();
+        assertFalse(testMap.equals(otherMap));
+    }
+
+    @Test
+    public void equals_sameObjectWithDifferentContent() {
+        testMap = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<String> otherMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        assertFalse(testMap.equals(otherMap));
+    }
+
+    @Test
+    public void hashCode_differentObjects() {
+        testMap = new GrammaticalTermMapImpl<>();
+        GrammaticalTermMapImpl<String> otherMap = new GrammaticalTermMapImpl<>();
+        assertNotEquals(testMap.hashCode(), otherMap.hashCode());
+    }
+
+    @Test
+    public void isSkinny_default() {
+        testMap = new GrammaticalTermMapImpl<>();
+        assertTrue(testMap.isSkinny());
+    }
+
+    @Test
+    public void makeSkinny_returnNewInstance() {
+        GrammaticalTermMapImpl<String> skinnyMap = testMap.makeSkinny();
+        assertNotNull(skinnyMap);
+    }
+
+    @Test
+    public void writeJson_emptyCollection() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        RenamingProvider renamingProvider = mock(RenamingProvider.class);
+        LanguageDictionary dictionary = mock(LanguageDictionary.class);
+        Collection<String> termsToInclude = new HashSet<>();
+        testMap.writeJson(outContent, renamingProvider, dictionary, termsToInclude);
+        assertNotEquals(0, outContent.size());
+    }
+
+    @Test
+    public void writeJson_nonEmptyCollection() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        RenamingProvider renamingProvider = mock(RenamingProvider.class);
+        LanguageDictionary dictionary = mock(LanguageDictionary.class);
+        Collection<String> termsToInclude = Arrays.asList("term1", "term2");
+        testMap.writeJson(outContent, renamingProvider, dictionary, termsToInclude);
+        assertNotEquals(0, outContent.size());
+    }
+
+    @Test
+    public void keySet_emptyMap() {
+        GrammaticalTermMapImpl<String> map = new GrammaticalTermMapImpl<>();
+        assertEquals(new HashSet<>(), map.keySet());
+    }
+
+    @Test
+    public void keySet_nonEmptyMap() {
+        testMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        Set<String> keys = testMap.keySet();
+        assertTrue(keys.isEmpty());
+    }
+
+    @Test
+    public void get_invalidKey() {
+        String invalidKey = "invalid";
+        GrammaticalTermMapImpl<String> map = new GrammaticalTermMapImpl<>();
+        assertNull(map.get(invalidKey));
+    }
+
+    @Test
+    public void containsKey_validKey() {
+        testMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        assertTrue(testMap.containsKey("key"));
+    }
+
+    @Test
+    public void containsKey_invalidKey() {
+        String invalidKey = "invalid";
+        GrammaticalTermMapImpl<String> map = new GrammaticalTermMapImpl<>();
+        assertFalse(map.containsKey(invalidKey));
+    }
+
+    @Test
+    public void entrySet_emptyMap() {
+        GrammaticalTermMapImpl<String> map = new GrammaticalTermMapImpl<>();
+        assertEquals(new HashSet<>(), map.entrySet());
+    }
+
+    @Test
+    public void entrySet_nonEmptyMap() {
+        testMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        Set<Map.Entry<String, String>> entries = testMap.entrySet();
+        assertTrue(entries.isEmpty());
+    }
+
+    @Test
+    public void values_emptyMap() {
+        GrammaticalTermMapImpl<String> map = new GrammaticalTermMapImpl<>();
+        assertEquals(new HashSet<>(), map.values());
+    }
+
+    @Test
+    public void put_invalidKey_andValue() {
+        String invalidKey = "invalid";
+        String invalidValue = "invalidValue";
+        testMap.put(invalidKey, invalidValue);
+        assertNull(testMap.get(invalidKey));
+    }
+
+    @Test
+    public void put_validKey_andValue() {
+        testMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        testMap.put("key", "value");
+        assertEquals("value", testMap.get("key"));
+    }
+
+    @Test
+    public void putAll_newValues() {
+        GrammaticalTermMapImpl<String> map = new GrammaticalTermMapImpl<>();
+        map.put("newKey", "newValue");
+        assertTrue(map.containsKey("newKey"));
+    }
+
+    @Test
+    public void putAll_emptyMap() {
+        testMap = new GrammaticalTermMapImpl<>(new HashMap<>(), true);
+        testMap.putAll(new GrammaticalTermMapImpl<>());
+        assertEquals(0, testMap.size());
+    }
+
+    @Test
+    public void isEmpty_default() {
+        testMap = new GrammaticalTermMapImpl<>();
+        assertTrue(testMap.isEmpty());
+    }
+
+}

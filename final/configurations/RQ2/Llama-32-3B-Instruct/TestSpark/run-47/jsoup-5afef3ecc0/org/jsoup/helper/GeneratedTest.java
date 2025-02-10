@@ -1,0 +1,78 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    @Test
+    public void constructorWithUrlWorks() {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        assertNotNull(builder.build());
+    }
+
+    @Test
+    public void buildUrlWorksCorrectly() throws MalformedURLException, URISyntaxException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        String expectedUrl = "http://example.com";
+        assertEquals(expectedUrl, builder.build().toString());
+    }
+
+    @Test
+    public void appendKeyValWithEmptyKeyValuesWorks() {
+        Connection.KeyVal kv = new Connection.KeyVal();
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertEquals(0, StringUtil.length(kv.getKey()));
+        assertEquals(0, StringUtil.length(kv.getValue()));
+    }
+
+    @Test
+    public void appendKeyValWithNonEmptyKeyValuesWorks() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertEquals(4, StringUtil.length(kv.getKey()));
+        assertEquals(5, StringUtil.length(kv.getValue()));
+    }
+
+    @Test
+    public void appendKeyValWithInvalidCharWorks() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key with !", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertEquals(4, StringUtil.length(kv.getKey()));
+    }
+
+    @Test
+    public void appendQueryAndFragmentWorks() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal(null, null);
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertEquals(0, StringUtil.length(builder.build().getQuery()));
+        assertEquals("", StringUtil.length(builder.build().getFragment()));
+    }
+
+    @Test
+    public void appendQueryWithInvalidCharWorks() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal(null, "value with !");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertEquals(0, StringUtil.length(builder.build().getQuery()));
+    }
+
+    @Test
+    public void appendFragmentWorks() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal(null, null);
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertEquals("", StringUtil.length(builder.build().getFragment()));
+    }
+
+    @Test
+    public void appendQueryAndFragmentWithInvalidCharWorks() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal(null, "value with !");
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        builder.appendKeyVal(kv);
+        assertEquals(0, StringUtil.length(builder.build().getQuery()));
+    }
+
+}

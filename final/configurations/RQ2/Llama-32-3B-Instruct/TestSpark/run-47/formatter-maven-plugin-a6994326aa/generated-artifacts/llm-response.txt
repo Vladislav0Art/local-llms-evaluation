@@ -1,0 +1,377 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+package net.revelc.code.formatter.css;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.IOException;
+import java.util.Map;
+import org.w3c.css.sac.InputSource;
+import com.steadystate.css.dom.CSSStyleSheetImpl;
+import com.steadystate.css.format.CSSFormat;
+import com.steadystate.css.parser.CSSOMParser;
+import com.steadystate.css.parser.SACParserCSS3;
+
+public class CssFormatterTest {
+
+    @Test
+    public void init_FailsWhenOptionsAreEmpty() {
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        CssFormatter formatter = new CssFormatter();
+        assertFalse(formatter.init(options, cfg));
+    }
+
+    @Test
+    public void init_SucceedsWhenOptionsExist() {
+        Map<String, String> options = new HashMap<>();
+        options.put("option", "value");
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        CssFormatter formatter = new CssFormatter();
+        assertTrue(formatter.init(options, cfg));
+    }
+
+    @Test
+    public void doFormat_NullCode() throws IOException {
+        assertThrows(IOException.class, () -> new CssFormatter().doFormat(null, LineEnding.LF));
+    }
+
+    @Test
+    public void doFormat_EmptyString() throws IOException {
+        String code = "";
+        assertThrows(IOException.class, () -> new CssFormatter().doFormat(code, LineEnding.LF));
+    }
+
+    @Test
+    public void doFormat_SimpleCode_LF() throws IOException {
+        String code = ".class { }";
+        String expected = " .class { }\n";
+        String actual = new CssFormatter().doFormat(code, LineEnding.LF);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void doFormat_MultiLineCode_LF() throws IOException {
+        String code = ".class {\n  color: red;\n}\n";
+        String expected = " .class {\n  color: red;\n} \n";
+        String actual = new CssFormatter().doFormat(code, LineEnding.LF);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void doFormat_SimpleCode_CRLF() throws IOException {
+        String code = ".class { }";
+        String expected = " .class { }\r\n";
+        String actual = new CssFormatter().doFormat(code, LineEnding.CRLF);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void doFormat_MultiLineCode_CRLF() throws IOException {
+        String code = ".class {\n  color: red;\n}\n";
+        String expected = " .class {\n  color: red;\n} \r\n";
+        String actual = new CssFormatter().doFormat(code, LineEnding.CRLF);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void isInitialized_IsFalse() {
+        boolean result = new CssFormatter().isInitialized();
+        assertFalse(result);
+    }
+
+    @Test
+    public void isInitialized_IsTrue() {
+        new CssFormatter().init(new HashMap<>(), mock(ConfigurationSource.class));
+        boolean result = new CssFormatter().isInitialized();
+        assertTrue(result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.HashMap;
+import java.util.Map;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+public class CssFormatterTest {
+
+    @Mock
+    private ConfigurationSource configurationSource;
+
+    public void setup() {
+        Mockito.when(configurationSource.getCss()).thenReturn("");
+    }
+
+    @Test
+    public void testFormat() {
+        String code = "body { background-color: blue; }";
+        new CssFormatter().init(new HashMap<>(), configurationSource);
+        String actual = new CssFormatter().doFormat(code, LineEnding.LF);
+        assertEquals("body { background-color: blue; }\n", actual);
+    }
+
+    @Test
+    public void testFormatCRLF() {
+        String code = "body { background-color: blue; }";
+        new CssFormatter().init(new HashMap<>(), configurationSource);
+        String actual = new CssFormatter().doFormat(code, LineEnding.CRLF);
+        assertEquals("body {\nbackground-color: blue;\n}", actual);
+    }
+
+    @Test
+    public void testInit() {
+        Map<String, String> options = new HashMap<>();
+        new CssFormatter().init(options, configurationSource);
+    }
+}
+
+class LineEnding {
+    public static final String LF = "\n";
+    public static final String CRLF = "\n\r";
+
+    public enum Value { LF, CRLF };
+
+    public String getValue() {
+        switch (this) {
+            case LF:
+                return LF;
+            case CRLF:
+                return CRLF;
+            default:
+                throw new RuntimeException();
+        }
+    }
+}
+
+class CssFormatter {
+
+    private LineEnding lineEnding;
+
+    public void init(Map<String, String> options, ConfigurationSource configurationSource) {
+        this.lineEnding = LineEnding.Value.LF;
+    }
+
+    public String doFormat(String code, String lineEnding) {
+        return code.replace("\r\n", lineEnding);
+    }
+}
+
+class ConfigurationSource {
+
+    private String css;
+
+    public String getCss() {
+        return css;
+    }
+
+    public void setCss(String css) {
+        this.css = css;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.HashMap;
+import java.util.Map;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+public class CssFormatterTest {
+
+    @Mock
+    private ConfigurationSource configurationSource;
+
+    public void setup() {
+        Mockito.when(configurationSource.getCss()).thenReturn("");
+    }
+
+    public enum LineEnding {
+        LF, CRLF
+
+        public String getValue() {
+            switch (this) {
+                case LF:
+                    return "\n";
+                case CRLF:
+                    return "\n\r";
+                default:
+                    throw new RuntimeException();
+            }
+        }
+    }
+
+    @Test
+    public void testFormat() {
+        String code = "body { background-color: blue; }";
+        new CssFormatter().init(new HashMap<>(), configurationSource);
+        String actual = new CssFormatter().doFormat(code, LineEnding.LF.getValue());
+        assertEquals("body { background-color: blue; }\n", actual);
+    }
+
+    @Test
+    public void testFormatCRLF() {
+        String code = "body { background-color: blue; }";
+        new CssFormatter().init(new HashMap<>(), configurationSource);
+        String actual = new CssFormatter().doFormat(code, LineEnding.CRLF.getValue());
+        assertEquals("body {\nbackground-color: blue;\n}", actual);
+    }
+
+    @Test
+    public void testInit() {
+        Map<String, String> options = new HashMap<>();
+        new CssFormatter().init(options, configurationSource);
+    }
+}
+
+class CssFormatter {
+
+    private LineEnding lineEnding;
+
+    public void init(Map<String, String> options, ConfigurationSource configurationSource) {
+        this.lineEnding = LineEnding.LF;
+    }
+
+    public String doFormat(String code, LineEnding lineEnding) {
+        return code.replace("\r\n", lineEnding.getValue());
+    }
+}
+
+class ConfigurationSource {
+
+    private String css;
+
+    public String getCss() {
+        return css;
+    }
+
+    public void setCss(String css) {
+        this.css = css;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class CssFormatter {
+
+    private LineEnding lineEnding;
+
+    public void init(Map<String, String> options, ConfigurationSource configurationSource) {
+        this.lineEnding = LineEnding.LF;
+    }
+
+    public String doFormat(String code, LineEnding lineEnding) {
+        return code.replace("\r\n", lineEnding.getValue());
+    }
+}
+
+public class GeneratedTest {
+
+    private CssFormatter cssFormatter;
+
+    @Before
+    public void setup() {
+        cssFormatter = new CssFormatter();
+    }
+
+    public void testFormat() {
+        String code = "body { background-color: blue; }";
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource configurationSource = Mockito.mock(ConfigurationSource.class);
+        cssFormatter.init(options, configurationSource);
+        String actual = cssFormatter.doFormat(code, LineEnding.LF.getValue());
+        assertEquals("body { background-color: blue; }\n", actual);
+    }
+
+    public void testFormatCRLF() {
+        String code = "body { background-color: blue; }";
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource configurationSource = Mockito.mock(ConfigurationSource.class);
+        cssFormatter.init(options, configurationSource);
+        String actual = cssFormatter.doFormat(code, LineEnding.CRLF.getValue());
+        assertEquals("body {\nbackground-color: blue;\n}", actual);
+    }
+
+    public void testInit() {
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource configurationSource = Mockito.mock(ConfigurationSource.class);
+        cssFormatter.init(options, configurationSource);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class CssFormatter {
+
+    private LineEnding lineEnding;
+
+    public void init(Map<String, String> options, ConfigurationSource configurationSource) {
+        this.lineEnding = LineEnding.LF;
+    }
+
+    public String doFormat(String code, LineEnding lineEnding) {
+        return code.replace("\r\n", lineEnding.getValue());
+    }
+}
+
+public class GeneratedTest {
+
+    private CssFormatter cssFormatter;
+
+    @Before
+    public void setup() {
+        cssFormatter = new CssFormatter();
+    }
+
+    @Test
+    public void testFormat() {
+        String code = "body { background-color: blue; }";
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource configurationSource = mock(ConfigurationSource.class);
+        when(configurationSource.getValue()).thenReturn("");
+        cssFormatter.init(options, configurationSource);
+        String actual = cssFormatter.doFormat(code, LineEnding.LF);
+        assertEquals("body { background-color: blue; }\n", actual);
+    }
+
+    @Test
+    public void testFormatCRLF() {
+        String code = "body { background-color: blue; }";
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource configurationSource = mock(ConfigurationSource.class);
+        when(configurationSource.getValue()).thenReturn("");
+        cssFormatter.init(options, configurationSource);
+        String actual = cssFormatter.doFormat(code, LineEnding.CRLF);
+        assertEquals("body {\nbackground-color: blue;\n}", actual);
+    }
+
+    @Test
+    public void testInit() {
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource configurationSource = mock(ConfigurationSource.class);
+        when(configurationSource.getValue()).thenReturn("");
+        cssFormatter.init(options, configurationSource);
+    }
+}
+```
+===================================================
+

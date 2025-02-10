@@ -1,0 +1,261 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.URL;
+import java.net.MalformedURLException;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void urlBuilderConstructorsTest() {
+        assertTrue(UrlBuilder.class.isInstance(new UrlBuilder(null)));
+    }
+
+    @Test
+    public void buildUrlReturnsNullWhenInputIsNull() {
+        assertNull(new UrlBuilder(null).build());
+    }
+
+    @Test
+    public void buildUrlReturnsSameUrlWhenNoParams() throws MalformedURLException {
+        URL url = new UrlBuilder("http://example.com").build();
+        assertEquals("http://example.com", url.toString());
+    }
+
+    @Test
+    public void buildUrlAppendsQueryParameterWithKeyVal() throws MalformedURLException, UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        URL url = new UrlBuilder("http://example.com").appendKeyVal(kv).build();
+        assertEquals("http://example.com?key=value", url.toString());
+    }
+
+    @Test
+    public void buildUrlAppendsQueryParameterWithMultiValue() throws MalformedURLException, UnsupportedEncodingException {
+        Connection.KeyVal[] kv = {new Connection.KeyVal("key1", "value1"), new Connection.KeyVal("key2", "value2")};
+        URL url = new UrlBuilder("http://example.com").appendKeyVal(kv).build();
+        assertEquals("http://example.com?key1=value1&key2=value2", url.toString());
+    }
+
+    @Test
+    public void buildUrlAppendsQueryParameterWithEmptyValue() throws MalformedURLException, UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "");
+        URL url = new UrlBuilder("http://example.com").appendKeyVal(kv).build();
+        assertEquals("http://example.com?key=", url.toString());
+    }
+
+    @Test
+    public void buildUrlAppendsQueryParameterWithNullValue() throws MalformedURLException, UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", null);
+        URL url = new UrlBuilder("http://example.com").appendKeyVal(kv).build();
+        assertEquals("http://example.com?key=", url.toString());
+    }
+
+    @Test
+    public void buildUrlDecodesQueryParameters() throws MalformedURLException, UnsupportedEncodingException {
+        String decodedQuery = "key=value";
+        Connection.KeyVal kv = new Connection.KeyVal("key", decodedQuery);
+        URL url = new UrlBuilder("http://example.com").appendKeyVal(kv).build();
+        assertEquals("http://example.com?key=" + URLDecoder.decode(decodedQuery, DataUtil.UTF_8), url.toString());
+    }
+
+    @Test
+    public void buildUrlReEncodesQueryParameters() throws MalformedURLException {
+        String reEncodedQuery = "key=value";
+        Connection.KeyVal kv = new Connection.KeyVal("key", reEncodedQuery);
+        URL url = new UrlBuilder("http://example.com").appendKeyVal(kv).build();
+        assertEquals("http://example.com?key=" + URLEncoder.encode(reEncodedQuery, DataUtil.UTF_8), url.toString());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testUrlBuilder() throws Exception {
+        String url = "http://example.com";
+        
+        // Test with query parameters
+        url += "?key=value&anotherParam=anotherValue";
+        assertEquals("http://example.com?key=value&anotherParam=anotherValue", url);
+        
+        // Test with URL decoding
+        String decodedQuery = "key%3Dvalue";
+        assertEquals("http://example.com?key=" + URLEncoder.encode(decodedQuery, StandardCharsets.UTF_8.toString()), 
+                     new UrlBuilder(url).appendKeyDecoded(decodedQuery).toString());
+        
+        // Test with URL encoding
+        String reEncodedQuery = "key=value&anotherParam=another%20Value";
+        assertEquals("http://example.com?key=" + URLEncoder.encode(reEncodedQuery, StandardCharsets.UTF_8.toString()), 
+                     new UrlBuilder(url).appendKeyEncoded(reEncodedQuery).toString());
+    }
+}
+
+public class UrlBuilder {
+    
+    private String url;
+    
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+    
+    public String appendKeyDecoded(String query) {
+        return url + "?key=" + URLEncoder.encode(query, StandardCharsets.UTF_8.toString());
+    }
+    
+    public String appendKeyEncoded(String query) {
+        return url + "?key=" + URLEncoder.encode(query, StandardCharsets.UTF_8.toString());
+    }
+    
+    @Override
+    public String toString() {
+        return url;
+    }
+}
+
+public class DataUtil {
+    public static final String UTF_8 = "UTF-8";
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class UrlBuilder {
+    private String url;
+    
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+    
+    public String appendKeyDecoded(String query) {
+        return url + "?key=" + URLEncoder.encode(query, DataUtil.UTF_8);
+    }
+    
+    public String appendKeyEncoded(String query) {
+        return url + "?key=" + URLEncoder.encode(query, DataUtil.UTF_8);
+    }
+}
+
+public class TestUrlBuilder {
+    @Test
+    public void testUrlBuilder() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder("http://example.com");
+        
+        // Test with query parameters
+        assertEquals("http://example.com", urlBuilder.toString());
+        
+        // Test with query parameters
+        String decodedQuery = "key=value&anotherParam=anotherValue";
+        assertEquals("http://example.com?key=value&anotherParam=anotherValue", urlBuilder.appendKeyDecoded(decodedQuery).toString());
+        
+        // Test with URL encoding
+        String reEncodedQuery = "key=value&anotherParam=another%20Value";
+        assertEquals("http://example.com?key=value&anotherParam=another%20Value", urlBuilder.appendKeyEncoded(reEncodedQuery).toString());
+    }
+}
+
+public class DataUtil {
+    public static final String UTF_8 = "UTF-8";
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilder {
+    private String url;
+    
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+    
+    public String getAppendKeyDecodedString(String query) {
+        return this.url + "?key=" + URLEncoder.encode(query, DataUtil.UTF_8);
+    }
+    
+    public String getAppendKeyEncodedString(String query) {
+        return this.url + "?key=" + URLEncoder.encode(query, DataUtil.UTF_8);
+    }
+}
+
+public class TestUrlBuilder {
+    @Test
+    public void testUrlBuilder() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder("http://example.com");
+        
+        // Test with query parameters
+        assertEquals("http://example.com", urlBuilder.getAppendKeyDecodedString("key=value&anotherParam=anotherValue").toString());
+        
+        // Test with URL encoding
+        String reEncodedQuery = "key=value&anotherParam=another%20Value";
+        assertEquals("http://example.com?key=" + URLEncoder.encode(reEncodedQuery, DataUtil.UTF_8), urlBuilder.getAppendKeyEncodedString(reEncodedQuery).toString());
+    }
+}
+
+public class DataUtil {
+    public static final String UTF_8 = "UTF-8";
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class UrlBuilder {
+    private String url;
+    
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+}
+
+public class DataUtil {
+    public static final String UTF_8 = "UTF-8";
+}
+
+public class TestUrlBuilder {
+
+    @Test
+    public void testUrlBuilder() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder("http://example.com");
+        
+        // Test with query parameters
+        assertEquals("http://example.com", urlBuilder.toString());
+        
+        String decodedQuery = "key=value&anotherParam=anotherValue";
+        assertEquals("http://example.com?key=value&anotherParam=anotherValue", urlBuilder.getAppendKeyDecoded(decodedQuery));
+        
+        // Test with URL encoding
+        String reEncodedQuery = "key=value&anotherParam=another%20Value";
+        assertEquals("http://example.com?key=" + DataUtil.UTF_8, urlBuilder.getAppendKeyEncoded(reEncodedQuery));
+    }
+
+    public static String toString(UrlBuilder urlBuilder) {
+        return urlBuilder.url;
+    }
+    
+    public static String getAppendKeyDecoded(UrlBuilder urlBuilder, String query) {
+        return urlBuilder.url + "?key=" + URLEncoder.encode(query, DataUtil.UTF_8);
+    }
+    
+    public static String getAppendKeyEncoded(UrlBuilder urlBuilder, String query) {
+        return urlBuilder.url + "?key=" + URLEncoder.encode(query, DataUtil.UTF_8);
+    }
+}
+```
+===================================================
+

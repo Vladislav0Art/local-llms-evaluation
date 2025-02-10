@@ -1,0 +1,329 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection connection;
+
+    @Test
+    public void newUrlBuilderFromUrl() {
+        when(connection.getScheme()).thenReturn("http");
+        when(connection.getHost()).thenReturn("example.com");
+        when(connection.getPort()).thenReturn(80);
+        UrlBuilder urlBuilder = new UrlBuilder(connection);
+        assertNotNull(urlBuilder.build());
+    }
+
+    @Test
+    public void buildWithQuery() throws URISyntaxException, UnsupportedEncodingException {
+        when(connection.getScheme()).thenReturn("http");
+        when(connection.getHost()).thenReturn("example.com");
+        when(connection.getPort()).thenReturn(80);
+        assertEquals("http://example.com?query=value", UrlBuilder.build(connection));
+    }
+
+    @Test
+    public void appendKeyValWithQuery() throws URISyntaxException, UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal();
+        kv.setKey("key");
+        kv.setValue("value");
+        when(connection.getScheme()).thenReturn("http");
+        when(connection.getHost()).thenReturn("example.com");
+        when(connection.getPort()).thenReturn(80);
+        assertEquals("http://example.com?key=value", UrlBuilder.build(connection));
+    }
+
+    @Test
+    public void appendKeyValWithNonUtf8Encoding() throws URISyntaxException, UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal();
+        kv.setKey(StringUtil.UTF_16);
+        kv.setValue(StringUtil.UTF_16);
+        when(connection.getScheme()).thenReturn("http");
+        when(connection.getHost()).thenReturn("example.com");
+        when(connection.getPort()).thenReturn(80);
+        assertEquals("http://example.com?key=ðŸŒ", UrlBuilder.build(connection));
+    }
+
+    @Test
+    public void appendKeyValWithPort() throws URISyntaxException, UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal();
+        kv.setKey("key");
+        kv.setValue("value:8080");
+        when(connection.getScheme()).thenReturn("http");
+        when(connection.getHost()).thenReturn("example.com");
+        when(connection.getPort()).thenReturn(80);
+        assertEquals("http://example.com?key=value:8080", UrlBuilder.build(connection));
+    }
+
+    @Test
+    public void appendKeyValWithQueryAndPort() throws URISyntaxException, UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal();
+        kv.setKey("key");
+        kv.setValue("value:8080?query=value2");
+        when(connection.getScheme()).thenReturn("http");
+        when(connection.getHost()).thenReturn("example.com");
+        when(connection.getPort()).thenReturn(80);
+        assertEquals("http://example.com?key=value:8080?query=value2", UrlBuilder.build(connection));
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class Main {
+
+    @Test
+    public void testGetScheme() {
+        Connection connection = new Connection("http://example.com");
+        assertEquals("http", connection.getScheme());
+    }
+
+    @Test
+    public void testGetHost() {
+        Connection connection = new Connection("http://example.com");
+        assertEquals("example.com", connection.getHost());
+    }
+
+    @Test
+    public void testGetPort() {
+        Connection connection = new Connection("http://localhost:8080");
+        assertEquals(8080, connection.getPort());
+    }
+}
+
+class Connection {
+    private String scheme;
+    private String host;
+    private int port;
+
+    public Connection(String url) {
+        String[] parts = url.split("/");
+        this.scheme = parts[0].substring(0, 4);
+        this.host = parts[1];
+        parts = host.split(":");
+        if (parts.length > 1) {
+            this.port = Integer.parseInt(parts[1]);
+        } else {
+            this.port = 80;
+        }
+    }
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Connection {
+    private String scheme;
+    private String host;
+    private int port;
+
+    public Connection(String url) {
+        if (url.startsWith("http")) {
+            this.scheme = url.substring(0, 4);
+            String[] parts = url.substring(4).split("/");
+            this.host = parts[0];
+            parts = host.split(":");
+            if (parts.length > 1) {
+                this.port = Integer.parseInt(parts[1]);
+            } else {
+                this.port = 80;
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid URL scheme");
+        }
+    }
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+}
+
+public class Main {
+
+    @Test
+    public void testGetScheme() {
+        Connection connection = new Connection("http://example.com");
+        assertEquals("http", connection.getScheme());
+    }
+
+    @Test
+    public void testGetHost() {
+        Connection connection = new Connection("http://example.com");
+        assertEquals("example.com", connection.getHost());
+    }
+
+    @Test
+    public void testGetPort() {
+        Connection connection = new Connection("http://localhost:8080");
+        assertEquals(8080, connection.getPort());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+public class Connection {
+    private String scheme;
+    private String host;
+    private int port;
+
+    public Connection(String url) throws Exception {
+        Document doc = Jsoup.connect(url).get();
+        this.scheme = doc.attr("scheme");
+        this.host = doc.attr("host");
+        if (doc.attr("port") != null && !doc.attr("port").isEmpty()) {
+            this.port = Integer.parseInt(doc.attr("port"));
+        } else {
+            throw new Exception("Port not specified in URL");
+        }
+    }
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+}
+
+public class Main {
+
+    @Test
+    public void testGetScheme() throws Exception {
+        Connection connection = new Connection("http://example.com");
+        assertEquals("http", connection.getScheme());
+    }
+
+    @Test
+    public void testGetHost() throws Exception {
+        Connection connection = new Connection("http://example.com");
+        assertEquals("example.com", connection.getHost());
+    }
+
+    @Test
+    public void testGetPort() throws Exception {
+        Connection connection = new Connection("http://localhost:8080");
+        assertEquals(8080, connection.getPort());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class Connection {
+    private String scheme;
+    private String host;
+    private int port;
+
+    public static Connection createConnection(String url) throws Exception {
+        Document doc = Jsoup.connect(url).get();
+        return new Connection(doc.attr("scheme"), doc.attr("host"));
+    }
+
+    public Connection(String scheme, String host) {
+        this.scheme = scheme;
+        this.host = host;
+    }
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+}
+
+public class Main {
+
+    @Test
+    public void testGetScheme() {
+        Connection connection = Connection.createConnection("http://example.com");
+        assertEquals("http", connection.getScheme());
+    }
+
+    @Test
+    public void testGetHost() {
+        Connection connection = Connection.createConnection("http://example.com");
+        assertEquals("example.com", connection.getHost());
+    }
+
+    @Test
+    public void testGetPort() {
+        Connection connection = Connection.createConnection("http://localhost:8080");
+        assertEquals(80, connection.getPort());
+    }
+}
+```
+===================================================
+

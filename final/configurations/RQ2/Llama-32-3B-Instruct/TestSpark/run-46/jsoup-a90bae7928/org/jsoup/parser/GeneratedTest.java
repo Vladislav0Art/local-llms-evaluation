@@ -1,0 +1,111 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.CDataNode;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.XmlDeclaration;
+
+import java.io.Reader;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void defaultSettingsTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Document document = builder.defaultSettings();
+        assertNotNull(document);
+    }
+
+    @Test
+    public void initialiseParseTest() {
+        Reader input = new StringReader("<root><node>Text</node></root>");
+        String baseUri = "http://example.com";
+        Parser parser = new Parser();
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        builder.initialiseParse(input, baseUri, parser);
+        assertNotNull(builder.parse(input, baseUri));
+    }
+
+    @Test
+    public void parseReaderInputTest() {
+        Reader input = new StringReader("<root><node>Text</node></root>");
+        String baseUri = "http://example.com";
+        Document document = XmlTreeBuilderTest().initialiseParse(input, baseUri).parse(input, baseUri);
+        assertNotNull(document);
+    }
+
+    @Test
+    public void parseStringInputTest() {
+        String input = "<root><node>Text</node></root>";
+        String baseUri = "http://example.com";
+        Document document = XmlTreeBuilderTest().initialiseParse(new StringReader(input), baseUri).parse(input, baseUri);
+        assertNotNull(document);
+    }
+
+    @Test
+    public void newInstanceTest() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        XmlTreeBuilder newInstance = builder.newInstance();
+        assertNotNull(newInstance);
+    }
+
+    @Test
+    public void processTokenTest() {
+        Token token = new Token();
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        boolean result = builder.process(token);
+        assertTrue(result);
+    }
+
+    @Test
+    public void insertNodeTest() {
+        Node node = new Node();
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        builder.insertNode(node);
+        assertNotNull(builder.getInsertionStack());
+    }
+
+    @Test
+    public void insertTokenCharacterTest() {
+        Token token = new Token(new Character('a'));
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        builder.insert(token);
+        assertEquals(1, builder.getInsertedTokens().size());
+    }
+
+    @Test
+    public void popStackToCloseEndTagTest() {
+        Token endTag = new Token(Token.EndTag.TAG);
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        builder.popStackToClose(endTag);
+        assertTrue(builder.isEmptyStack());
+    }
+
+    @Test
+    public void parseFragmentInputFragmentOnlyTest() {
+        String inputFragment = "<node>Text</node>";
+        String baseUri = "http://example.com";
+        Parser parser = new Parser();
+        List<Node> nodes = XmlTreeBuilderTest().initialiseParse(new StringReader(inputFragment), baseUri, parser).parseFragment(inputFragment, baseUri, parser);
+        assertEquals(1, nodes.size());
+    }
+
+    @Test
+    public void parseFragmentInputFragmentAndContextOnlyTest() {
+        String inputFragment = "<node>Text</node>";
+        Element context = new Element();
+        String baseUri = "http://example.com";
+        Parser parser = new Parser();
+        List<Node> nodes = XmlTreeBuilderTest().initialiseParse(new StringReader(inputFragment), baseUri, parser).parseFragment(inputFragment, context, baseUri, parser);
+        assertEquals(1, nodes.size());
+    }
+
+}
