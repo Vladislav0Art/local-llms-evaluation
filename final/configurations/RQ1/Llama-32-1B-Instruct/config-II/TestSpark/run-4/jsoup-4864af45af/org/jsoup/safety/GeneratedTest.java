@@ -1,0 +1,63 @@
+package org.jsoup.safety;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testValidProtocol() {
+        // Given
+        Element el = new Element("a", "href", "#");
+        Attribute attr = new Attribute("value", "#anchor");
+
+        // When
+        boolean result1 = ProtocolType.testValidProtocol(el, attr);
+        boolean result2 = ProtocolType.testValidProtocol(new Element("b", "href", "#"), attr);
+
+        // Then
+        System.out.println(result1);  // true
+        System.out.println(result2);  // false
+    }
+
+    @Test
+    public void testNotValidProtocol() {
+        // Given
+        Element el = new Element("a", "href", "#");
+
+        // When
+        boolean result1 = ProtocolType.testValidProtocol(el, null);
+        boolean result2 = ProtocolType.testValidProtocol(new Element("b", "href", "#"), null);
+
+        // Then
+        System.out.println(result1);  // false
+        System.out.println(result2);  // true
+    }
+
+    @Test
+    public void testInvalidProtocol() {
+        // Given
+        Element el = new Element("a", "href", "#");
+        Attribute attr = new Attribute("value", "");
+
+        // When
+        boolean result1 = ProtocolType.testValidProtocol(el, attr);
+        boolean result2 = ProtocolType.testValidProtocol(new Element("b", "href", "#"), attr);
+
+        // Then
+        System.out.println(result1);  // false
+        System.out.println(result2);  // true
+    }
+
+    @Test
+    public void testNoAttribute() {
+        // Given
+        Element el = new Element("a");
+
+        // When
+        boolean result = ProtocolType.testValidProtocol(el, null);
+
+        // Then
+        System.out.println(result);  // false
+    }
+
+}

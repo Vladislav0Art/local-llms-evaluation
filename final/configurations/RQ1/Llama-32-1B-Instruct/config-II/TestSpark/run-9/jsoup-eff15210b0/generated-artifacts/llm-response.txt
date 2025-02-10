@@ -1,0 +1,228 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+public class MyService {
+
+    /**
+     * Sends an HTTP request to the given URL.
+     *
+     * @param url      The URL to send the request to
+     * @param method   The HTTP method to use (e.g. GET, POST, PUT, DELETE)
+     * @param headers  An array of HTTP headers to include in the request
+     * @return A Response object containing the response status code and headers
+     */
+    public Response sendRequest(String url, String method, Object[] headers) {
+        return new MyServiceMethod(url, method, headers);
+    }
+
+    /**
+     * Sends an HTTP GET request to the given URL.
+     *
+     * @param url  The URL to send the request to
+     * @return A Response object containing the response status code and body
+     */
+    public Response get(String url) {
+        return new MyServiceMethod(url, "GET", null);
+    }
+
+    /**
+     * Sends an HTTP POST request to the given URL.
+     *
+     * @param url      The URL to send the request to
+     * @param method   The HTTP method to use (e.g. GET, POST)
+     * @param body     The data to include in the request body
+     * @return A Response object containing the response status code and headers
+     */
+    public Response post(String url, String method, Object body) {
+        return new MyServiceMethod(url, method, new ArrayList<>());
+    }
+
+    /**
+     * Sends an HTTP PUT request to the given URL.
+     *
+     * @param url      The URL to send the request to
+     * @param method   The HTTP method to use (e.g. GET, POST)
+     * @param body     The data to include in the request body
+     * @return A Response object containing the response status code and headers
+     */
+    public Response put(String url, String method, Object body) {
+        return new MyServiceMethod(url, method, new ArrayList<>());
+    }
+
+    /**
+     * Sends an HTTP DELETE request to the given URL.
+     *
+     * @param url      The URL to send the request to
+     * @param method   The HTTP method to use (e.g. GET, POST)
+     * @return A Response object containing the response status code and headers
+     */
+    public Response delete(String url, String method) {
+        return new MyServiceMethod(url, method, null);
+    }
+
+    private class MyServiceMethod implements Runnable {
+
+        private final String url;
+        private final String method;
+        private final Object[] headers;
+
+        /**
+         * Constructs a new instance of MyServiceMethod with the given URL and HTTP method.
+         *
+         * @param url      The URL to send the request to
+         * @param method   The HTTP method to use (e.g. GET, POST)
+         * @param headers  An array of HTTP headers to include in the request
+         */
+        public MyServiceMethod(String url, String method, Object[] headers) {
+            this.url = url;
+            this.method = method;
+            this.headers = headers;
+        }
+
+        /**
+         * Sends an HTTP request and returns a Response object containing the response status code and body.
+         *
+         * @return A Response object containing the response status code and body
+         */
+        public Response execute() {
+            return new MyServiceResponse(url, getMethodToUse(method), getHeaders(headers));
+        }
+
+        private String getMethodToUse(String method) {
+            switch (method) {
+                case "GET":
+                    return "GET";
+                case "POST":
+                    return "POST";
+                default:
+                    throw new UnsupportedOperationException("Unsupported HTTP method: " + method);
+            }
+        }
+
+        private Object[] getHeaders(Object[] headers) {
+            int i = 0;
+            while (i < headers.length && !(headers[i] instanceof String)) {
+                i++;
+            }
+            if (i >= headers.length) {
+                return new Object[0];
+            } else {
+                return headers.subArray(i, headers.length);
+            }
+        }
+
+        private Response execute() throws Exception {
+            OutputStream outputStream = null;
+            URL urlObject = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
+            if (!headers.isEmpty()) {
+                for (String header : headers) {
+                    connection.setRequestProperty(header, (String) headers[i]);
+                    i++;
+                }
+            }
+
+            int responseCode = connection.getResponseCode();
+            outputStream = urlObject.openStreamForReading();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(outputStream));
+            StringBuilder responseContent = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                responseContent.append(line);
+            }
+            reader.close();
+
+            return new MyServiceResponse(url, methodToUse(method), getHeaders(headers), responseCode, responseContent.toString());
+        }
+
+        private String methodToUse(String method) {
+            switch (method) {
+                case "GET":
+                    return "GET";
+                case "POST":
+                    return "POST";
+                default:
+                    throw new UnsupportedOperationException("Unsupported HTTP method: " + method);
+            }
+        }
+    }
+
+    /**
+     * Prints the given response to the console.
+     *
+     * @param response A Response object containing the response status code and body
+     */
+    public void printResponse(MyServiceResponse response) {
+        System.out.println("Status Code: " + responsegetStatusCode());
+        System.out.println(response.getContent());
+    }
+
+    public static class MyServiceResponse implements Response {
+
+        private final String url;
+        private final String method;
+        private final Object[] headers;
+        private final int statusCode;
+        private final String body;
+
+        /**
+         * Constructs a new instance of MyServiceResponse with the given URL, HTTP method, headers, and response status code.
+         *
+         * @param url      The URL to send the request to
+         * @param method   The HTTP method to use (e.g. GET, POST)
+         * @param headers  An array of HTTP headers to include in the request
+         * @param statusCode The response status code
+         * @param body     The response body as a string
+         */
+        public MyServiceResponse(String url, String method, Object[] headers, int statusCode, String body) {
+            this.url = url;
+            this.method = method;
+            this.headers = headers;
+            this.statusCode = statusCode;
+            this.body = body;
+        }
+
+        @Override
+        public Response execute() {
+            return new MyServiceMethod(url, method, headers);
+        }
+    }
+
+}
+```
+
+```java
+public class Main {
+
+    /**
+     * Sends an HTTP GET request to the given URL.
+     *
+     * @param url The URL to send the request to
+     * @return A Response object containing the response status code and body
+     */
+    public static MyServiceResponse get(String url) {
+        return new MyServiceResponse(url, "GET", null);
+    }
+
+}
+```
+
+```java
+public class Main {
+
+    /**
+     * Prints an error message with the given response.
+     *
+     * @param response A Response object containing the response status code and body
+     */
+    public static void printError(MyServiceResponse response) {
+        System.out.println("Error: " + response.getBody());
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

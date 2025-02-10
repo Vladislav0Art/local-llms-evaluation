@@ -1,0 +1,81 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testIsBlank_returnsTrue() {
+        TextNode textNode = new TextNode("");
+        assertEquals(true, textNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText
+
+    splitsString_atZero() {
+        TextNode textNode = new TextNode("abc");
+        TextNode result = textNode.splitText(0);
+        assertNotNull(result);
+        assertNull(textNode.getWholeText());
+    }
+
+    @Test
+    public void testSplitText_splitsString_atPositiveLength() {
+        TextNode textNode = new TextNode("abc");
+        TextNode result = textNode.splitText(5);
+        assertNotNull(result);
+        assertEquals("abc", result.getText());
+        assertNotNull(textNode.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank_returnsFalse_ifEmptyString() {
+        TextNode textNode = new TextNode("");
+        assertEquals(false, textNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText_splitsString_atZero_but_not_atPositiveLength() {
+        TextNode textNode = new TextNode("abc");
+        TextNode result = textNode.splitText(1);
+        assertNotNull(result);
+        assertEquals("abc", result.getText());
+        assertNotNull(textNode.getWholeText());
+    }
+
+    @Test
+    public void testOuterHtmlHead_setsIndent() {
+        Document document = new Document();
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        document.outputSettings().indent(accum, depth);
+        TextNode textNode = new TextNode("abc");
+        textNode.outerHtmlHead(accum, depth, document.outputSettings());
+        assertEquals(true, textNode.isBlank());
+    }
+
+    @Test
+    public void testOuterHtmlTail_setsIndent() {
+        Document document = new Document();
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        document.outputSettings().indent(accum, depth);
+        TextNode textNode = new TextNode("abc");
+        textNode.outerHtmlTail(accum, depth, document.outputSettings());
+        assertEquals(true, textNode.isBlank());
+    }
+
+    @Test
+    public void testToString_returnsText() {
+        TextNode textNode = new TextNode("abc");
+        assertEquals("abc", textNode.toString());
+    }
+
+    @Test
+    public void testCloneCreatesClonedTextNode() {
+        TextNode textNode = new TextNode("abc");
+        TextNode cloned = (TextNode) textNode.clone();
+        assertNotNull(cloned);
+        assertEquals(textNode, cloned);
+    }
+
+}

@@ -1,0 +1,60 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testIsXmlDeclaration() {
+        Comment comment = new Comment("<!-- This is an XML declaration -->");
+        boolean result = comment.isXmlDeclaration();
+        assertTrue(result);
+    }
+
+    @Test
+    public void testAsXmlDeclaration() {
+        Comment comment = new Comment("<!-- This is a comment -->");
+        XmlDeclaration asXmlDecl = comment.asXmlDeclaration();
+        assertNotNull(asXmlDecl);
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Document document = new Document();
+        Addable accum = document.add(Comment.class);
+        int depth = 0;
+        appendTo(document, accum, depth);
+        assertEquals("<!-- This is a comment -->", accumulate.toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Document document = new Document();
+        Addable accum = document.add(Comment.class);
+        int depth = 0;
+        appendTo(document, accum, depth);
+
+        // Adding another Comment at the end of the doc
+        addComment(document, "This is a comment");
+
+        assertEquals("<!-- This is an XML declaration -->", accumulate.toString());
+    }
+
+    @Test
+    public void testClone() {
+        Comment original = new Comment("<!-- This is a comment -->");
+        Comment cloned = original.clone();
+        assertNotNull(cloned);
+        assertEquals(original, cloned);
+    }
+
+    private void addComment(Document document, String data) {
+        Addable accum = document.add(Comment.class);
+        int depth = 0;
+        appendTo(document, accum, depth);
+        accumulate = accum.toString();
+    }
+
+}

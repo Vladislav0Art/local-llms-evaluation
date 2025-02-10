@@ -1,0 +1,61 @@
+package leetcode.medium;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNext_1() {
+        OnlineStockSpan test = new OnlineStockSpan();
+        assert test.next(1) == 1;
+    }
+
+    @Test
+    public void testNext_2() {
+        OnlineStockSpan test = new OnlineStockSpan();
+        assert test.next(2) == 3;
+    }
+
+    @Test
+    public void testNext_3() {
+        OnlineStockSpan test = new OnlineStockSpan();
+        assert test.next(10, 20, 50, 30, 5);
+        assert test.next(15, 25, 40, 35, 5) == 2;
+    }
+
+    @Test
+    public void testNext_4() {
+        OnlineStockSpan test = new OnlineStockSpan();
+        assert test.next(1, 2, 3, 4);
+        assert test.next(1, 2, 3, 4) == 1;
+    }
+
+    @Test
+    public void testCalculateSpans() {
+        OnlineStockSpan test = new OnlineStockSpan();
+        int[] prices = {1, 2, 3};
+        int[] expected = {0, 1, 1, 2, 3};
+        int[] actual = test.calculateSpans(prices);
+        assert java.util.Arrays.equals(actual, expected);
+    }
+
+    @Test
+    public void testCalculateSpans_DifferentPrices() {
+        OnlineStockSpan test = new OnlineStockSpan();
+        int[] prices = {1.5, 2, 3};
+        int[] expected = {0, 1, 1, 2, 3};
+        int[] actual = test.calculateSpans(prices);
+        assert java.util.Arrays.equals(actual, expected);
+    }
+
+    @Test
+    public void testCalculateSpans_EmptyList() {
+        OnlineStockSpan test = new OnlineStockSpan();
+        int[] prices = {};
+        try {
+            test.calculateSpans(prices);
+            fail("Expected an exception to be thrown");
+        } catch (Exception e) {
+            // expected
+        }
+    }
+
+}

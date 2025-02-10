@@ -1,0 +1,199 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+public class HtmlParser {
+
+    private final Config config;
+
+    public HtmlParser(Config config) {
+        this.config = config;
+    }
+
+    public void parse(String html, String baseUrl, Element element) {
+        // Parse the HTML string into an abstract syntax tree (AST)
+        AST ast = parseHtml(html);
+
+        // Extract attributes from the AST
+        Map<AttributeKey, AttributeValue> attributes = extractAttributes(ast);
+
+        // Check if any enforced attributes should be updated with new values
+        updateEnforcedAttributes(attributes);
+
+        // Render the HTML string to an HTML document
+        renderHtmlDocument(element, attributes);
+    }
+
+    private AST parseHtml(String html) {
+        // Implement parsing logic here (e.g. using a library like Jsoup)
+        // For example:
+        return parseString("<html><body>Hello World!</body></html>", baseUrl);
+    }
+
+    private Map<AttributeKey, AttributeValue> extractAttributes(AST ast) {
+        Map<AttributeKey, AttributeValue> attributes = new HashMap<>();
+
+        for (Node node : ast.getNodes()) {
+            if (node instanceof Attribute) {
+                Attribute attribute = (Attribute) node;
+                String key = attribute.getKey();
+                String value = attribute.getValue();
+
+                if (!attribute.hasProperty("abs")) {
+                    attributes.put(new AttributeKey(key), new AttributeValue(value));
+                } else {
+                    attributes.put(new AttributeKey(key), new AttributeValue(attribute.getAbs()));
+                }
+            } else if (node instanceof Element) {
+                Element element = (Element) node;
+                for (Node child : element.getChildren()) {
+                    if (child instanceof Attribute) {
+                        Attribute attribute = (Attribute) child;
+
+                        String key = attribute.getKey();
+                        String value = attribute.getValue();
+
+                        if (!attribute.hasProperty("abs")) {
+                            attributes.put(new AttributeKey(key), new AttributeValue(value));
+                        } else {
+                            attributes.put(new AttributeKey(key), new AttributeValue(attribute.getAbs()));
+                        }
+                    } else if (child instanceof Element) {
+                        // Recursively parse child elements
+                        ast = parseChildElements(child, attributes);
+                    }
+                }
+            }
+        }
+
+        return attributes;
+    }
+
+    private void updateEnforcedAttributes(Map<AttributeKey, AttributeValue> attributes) {
+        Map<AttributeKey, AttributeValue> enforcedSet = config.getEnforcedAttributes();
+
+        for (Map.Entry<AttributeKey, AttributeValue> entry : attributes.entrySet()) {
+            String key = entry.getKey().toString();
+            boolean found = false;
+
+            for (Map.Entry<AttributeKey, AttributeValue> enforcedEntry : enforcedSet.entrySet()) {
+                if (enforcedEntry.getKey().equals(key)) {
+                    enforcedSet.put(enforcedEntry);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                attributes.remove(entry.getKey());
+            }
+        }
+    }
+
+    private AST parseChildElements(Element element, Map<AttributeKey, AttributeValue> attributes) {
+        AST ast = new AST();
+
+        for (Node child : element.getChildren()) {
+            if (child instanceof Attribute) {
+                Attribute attribute = (Attribute) child;
+
+                String key = attribute.getKey();
+                String value = attribute.getValue();
+
+                if (!attribute.hasProperty("abs")) {
+                    attributes.put(new AttributeKey(key), new AttributeValue(value));
+                } else {
+                    attributes.put(new AttributeKey(key), new AttributeValue(attribute.getAbs()));
+                }
+            } else if (child instanceof Element) {
+                // Recursively parse child elements
+                ast = parseChildElements(child, attributes);
+            }
+        }
+
+        return ast;
+    }
+
+    private void renderHtmlDocument(Element element, Map<AttributeKey, AttributeValue> attributes) {
+        Document document = new Document();
+        for (Node node : element.getNodes()) {
+            if (node instanceof Attribute) {
+                Attribute attribute = (Attribute) node;
+
+                String key = attribute.getKey();
+                String value = attribute.getValue();
+
+                // Render the attribute value in the HTML
+                if (!attribute.hasProperty("abs")) {
+                    document.appendText("<" + key + "=\"" + value + "\"");
+                } else {
+                    document.appendText("<" + key + "=\"" + value + "\">");
+                }
+            } else if (node instanceof Element) {
+                // Recursively render child elements
+                element.render(document);
+            }
+        }
+
+        // Write the rendered HTML to a file or send it over the network
+    }
+}
+```
+
+```java
+public class Config {
+
+    private final Map<AttributeKey, AttributeValue> enforcedAttributes;
+
+    public Config(Map<AttributeKey, AttributeValue> enforcedAttributes) {
+        this.enforcedAttributes = enforcedAttributes;
+    }
+
+    public void setEnforcedAttributes(Map<AttributeKey, AttributeValue> enforcedAttributes) {
+        this.enforcedAttributes = enforcedAttributes;
+    }
+}
+
+public class Element extends TypedValue {
+    private final Map<String, String> attributes;
+
+    public Element() {
+        attributes = new HashMap<>();
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
+    public void render(Document document) {
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            if (!value.equals("abs")) {
+                document.appendText("<" + key + "=\"" + value + "\"");
+            } else {
+                document.appendText("<" + key + "\""));
+            }
+        }
+
+        // Close the element
+        document.appendText("</" + key + ">");
+    }
+}
+
+public class Document extends AST {
+    public void appendText(String text) {
+        children.add(new Text(text));
+    }
+
+    @Override
+    public List<Node> getNodes() {
+        return null;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

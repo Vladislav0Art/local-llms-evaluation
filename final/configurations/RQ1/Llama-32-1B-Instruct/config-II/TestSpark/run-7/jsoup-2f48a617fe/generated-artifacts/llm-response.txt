@@ -1,0 +1,143 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+public class CommentNode {
+    private String nodeName = "#comment";
+    private java.util.Set<String> nodeNames = new java.util.HashSet<>();
+    private int nodeIndex = 0;
+
+    public CommentNode(String data) {
+        this.nodeName = "#comment";
+        for (String name : getTagNames()) {
+            if (!name.equals(nodeName)) {
+                throw new IllegalArgumentException("Unrecognized tag: " + name);
+            }
+            nodeNames.add(name);
+        }
+        for (int i = 0; i < data.length(); i++) {
+            if (data.charAt(i) == ' ' && i != 0 && !isXmlDeclarationData(data.substring(0, i))) {
+                nodeIndex++;
+                nodeNames.add(nodeName + i);
+            }
+        }
+
+        this.nodeIndex = nodeIndex;
+    }
+
+    private String getTagNames() {
+        // implement logic to get the tag names of the comment
+        // for now, let's assume it returns an empty set
+        return new java.util.HashSet<>();
+    }
+
+    public String nodeName() {
+        if (nodeIndex >= nodeNames.size()) {
+            throw new IllegalStateException("Unexpected end of data");
+        }
+        return nodeNames.get(nodeIndex);
+    }
+
+    @Override
+    public void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        // implement logic to generate the HTML head for this comment node
+        // for now, let's assume it does nothing
+    }
+
+    @Override
+    public void outerHtmlTail(Appendable accum, int depth, Document.OutputSettings out) {}
+
+    @Override
+    public String toString() {
+        if (nodeNames.size() > 1) {
+            return "<" + nodeName + "> " + getData() + "</" + nodeName + ">";
+        } else {
+            return getData();
+        }
+    }
+
+    @Override
+    public Comment clone() {
+        return new CommentNode(getData());
+    }
+
+    /**
+     * Check if this comment looks like an XML Declaration.
+     * @return true if it looks like, maybe, it's an XML Declaration.
+     */
+    public boolean isXmlDeclaration() {
+        String data = getData();
+        return isXmlDeclarationData(data);
+    }
+
+    private static boolean isXmlDeclarationData(String data) {
+        // implement logic to check if the given data contains a valid XML declaration
+        // for now, let's assume it returns false for any data with a length less than 2 characters
+        return (data.length() < 2 || !data.startsWith("!") && !data.startsWith("?"));
+    }
+
+    /**
+     * Attempt to cast this comment to an XML Declaration node.
+     * @return an XML declaration if it could be parsed as one, null otherwise.
+     */
+    public @Nullable XmlDeclaration asXmlDeclaration() {
+        String data = getData();
+
+        XmlDeclaration decl = null;
+        String declContent = data.substring(1, data.length() - 1);
+        // make sure this bogus comment is not immediately followed by another, treat as comment if so
+        for (int i = 0; i < declContent.length(); i++) {
+            if (i > 0 && !declContent.startsWith("!") && !declContent.startsWith("?")) {
+                break;
+            }
+        }
+
+        String fragment = "<" + declContent + ">";
+        // use the HTML parser not XML, so we don't get into a recursive XML Declaration on contrived data
+        Document doc = Parser.htmlParser().settings(ParseSettings.preserveCase).parseInput(fragment, baseUri());
+        if (doc.body().children().size() > 0) {
+            Element el = doc.body().child(0);
+            decl = new XmlDeclaration(NodeUtils.parser(doc).settings().normalizeTag(el.tagName()), data.startsWith("!"));
+            decl.attributes().addAll(el.attributes());
+        }
+        return decl;
+    }
+
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    public java.util.Set<String> getNodeNames() {
+        return nodeNames;
+    }
+
+    @Override
+    public String toStringWithIndent(int indentLevel) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indentLevel; i++) {
+            sb.append("  ");
+        }
+        sb.append(nodeName);
+        if (!nodeIndex == nodeNames.size() - 1 && !isXmlDeclarationData(getData())) {
+            sb.append(" <!--");
+        } else {
+            sb.append("-->");
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        CommentNode comment = new Comment("#comment");
+        System.out.println(comment.nodeName());
+        System.out.println(comment.outerHtmlHead(Appendable.create(), 0, null));
+        for (String name : comment.getNodeNames()) {
+            System.out.println(name);
+        }
+        System.out.println(comment.toStringWithIndent(0));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

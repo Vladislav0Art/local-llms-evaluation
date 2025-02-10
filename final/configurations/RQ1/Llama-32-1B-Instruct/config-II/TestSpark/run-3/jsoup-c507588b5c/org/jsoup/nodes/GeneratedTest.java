@@ -1,0 +1,46 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testIsBlank() {
+        TextNode node = new TextNode("   \n\t  \n");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void testTextValue() {
+        TextNode node = new TextNode("Hello, World!");
+        assertEquals("Hello, World!", node.getText());
+    }
+
+    @Test
+    public void testSplitText() {
+        String text = "   \n\t  \n";
+        TextNode node1 = new TextNode(text);
+        TextNode node2 = node1.splitText(5);
+        assertTrue(node2.getText().contains("World!"));
+        assertNotNull(node2.getWholeText());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Appendable accum = new StringWriter();
+        int depth = 0;
+        Document.OutputSettings out = null;
+        node.outerHtmlHead(accum, depth, out);
+        assertEquals("Hello, World!", accum.toString());
+        assertNotNull(out);
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Appendable accum = new StringWriter();
+        int depth = 0;
+        Document.OutputSettings out = null;
+        node.outerHtmlTail(accum, depth, out);
+        assertEquals("Hello, World!", accum.toString());
+        assertNotNull(out);
+    }
+
+}

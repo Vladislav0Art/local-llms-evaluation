@@ -1,0 +1,68 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Appendable;
+import org.jsoup.nodes.Document;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
+
+public class GeneratedTest {
+
+    private static Document document;
+
+    @BeforeClass
+    public static void init() throws IOException {
+        document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new java.io.File("path_to_your_file.html"));
+    }
+
+    @Test
+    public void testIsBlank() {
+        // Test if this text node is blank -- that is, empty or only whitespace (including newlines).
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        String text = "Hello World";
+        TextNode result = textNode.splitText(6);
+        assertEquals("Hello", result.text("Hello"));
+        assertNotNull(result.siblingIndex());
+        assertEquals(1, result.siblingIndex() + 1);
+    }
+
+    @Test
+    public void testIsBlank() {
+        // Test if this text node is blank -- that is, empty or only whitespace (including newlines).
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void testToString() {
+        // Test if toString() returns the correct string.
+        String expected = "<text></text>";
+        assertEquals(expected, textNode.toString());
+    }
+
+    @Test
+    public void testClone() {
+        // Test if clone() creates a new TextNode with the same values as the original node.
+        TextNode original = new TextNode("");
+        TextNode cloned = (TextNode) textNode.clone();
+        assertNotNull(cloned);
+        assertEquals(original, cloned);
+    }
+
+    @Test
+    public void testCreateFromEncoded() {
+        // Test if createFromEncoded() creates a new TextNode from HTML encoded data.
+        String encodedText = "&amp;lt;&amp;gt;";
+        TextNode result = TextNode.createFromEncoded(encodedText);
+        assertNotNull(result);
+    }
+
+}

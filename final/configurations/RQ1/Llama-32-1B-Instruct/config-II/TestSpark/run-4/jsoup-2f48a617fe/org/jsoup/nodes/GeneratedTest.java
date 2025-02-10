@@ -1,0 +1,70 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNodeName() {
+        Comment comment = new Comment("#comment");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        String data = "This is a comment";
+        Comment comment = new Comment(data);
+        assertEquals("This is a comment", comment.getData());
+    }
+
+    @Test
+    public void testSetData() {
+        String data = "This is a comment";
+        Comment comment = new Comment(data);
+        comment.setData(data);
+        assertEquals("This is a comment", comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Appendable accum = new StringBuilder();
+        Document outputSettings = new Document.OutputSettings().prettyPrint(true).outline(false);
+        Comment comment = new Comment("#comment");
+        comment.outerHtmlHead(accum, 0, outputSettings);
+        assertEquals("<!-- This is a comment -->", accum.toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Appendable accum = new StringBuilder();
+        Document outputSettings = new Document.OutputSettings().prettyPrint(true).outline(false);
+        Comment comment = new Comment("#comment");
+        comment.outerHtmlHead(accum, 0, outputSettings);
+        comment.outerHtmlTail(accum, 0, outputSettings);
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        String data = "This is a comment";
+        boolean result = Comment.isXmlDeclaration(data);
+        assertEquals(true, result);
+    }
+
+    @Test
+    public void testAsXmlDeclaration() {
+        String data = "This is a comment";
+        XmlDeclaration decl = null;
+        Comment comment = new Comment("#comment");
+        Object result = comment.asXmlDeclaration();
+        if (result instanceof XmlDeclaration) {
+            assertEquals(decl, ((XmlDeclaration) result).getData());
+        }
+    }
+
+    @Test
+    public void testClone() {
+        String data = "This is a comment";
+        Comment originalComment = new Comment(data);
+        Comment clonedComment = originalComment.clone();
+        assertEquals(originalComment, clonedComment);
+    }
+
+}

@@ -1,0 +1,104 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void isBlank_WhenTextIsEmpty() {
+        TextNode node = new TextNode("");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void isBlank_WhenTextOnlyWhitespace() {
+        TextNode node = new TextNode("   ");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void splitText_WhenOffsetIsNegative() {
+        TextNode node = new TextNode("Hello");
+        assertEquals(0, node.splitText(-1).getWholeText().length());
+    }
+
+    @Test
+    public void splitText_WhenOffsetIsZero() {
+        TextNode node = new TextNode("   ");
+        assertEquals("", node.splitText(0).getWholeText());
+    }
+
+    @Test
+    public void splitText_WhenOffsetIsPositive() {
+        TextNode node = new TextNode("Hello");
+        assertEquals(" Hello", node.splitText(1).getWholeText());
+    }
+
+    @Test
+    public void splitText_WhenSplitAtBlankLine() {
+        TextNode node = new TextNode("Hello\nWorld");
+        TextNode firstChild = node.splitText(0);
+        TextNode secondChild = firstChild.splitText(1);
+        assertEquals(firstChild.getWholeText(), "Hello");
+        assertEquals(secondChild.getWholeText(), " World");
+    }
+
+    @Test
+    public void splitText_WhenSplitAtWhitespace() {
+        TextNode node = new TextNode("   Hello  World");
+        TextNode firstChild = node.splitText(0);
+        TextNode secondChild = firstChild.splitText(1);
+        assertEquals(firstChild.getWholeText(), "   ");
+        assertEquals(secondChild.getWholeText(), "Hello World");
+    }
+
+    @Test
+    public void splitText_WhenSplitAtNewline() {
+        TextNode node = new TextNode("Hello\nWorld");
+        TextNode firstChild = node.splitText(0);
+        TextNode secondChild = firstChild.splitText(1);
+        assertEquals(firstChild.getWholeText(), "Hello");
+        assertEquals(secondChild.getWholeText(), "World\n");
+    }
+
+    @Test
+    public void text_WhenEmpty() {
+        TextNode node = new TextNode("");
+        assertEquals("", node.text("   "));
+    }
+
+    @Test
+    public void text_WhenNotBlank() {
+        TextNode node = new TextNode("Hello");
+        assertEquals(" Hello", node.text("   "));
+    }
+
+    @Test
+    public void text_WhenBlank() {
+        TextNode node = new TextNode("");
+        assertEquals("", node.text(""));
+    }
+
+    @Test
+    public void text_WhenNonText() {
+        TextNode node = new TextNode(123);
+        assertEquals("", node.text("   "));
+    }
+
+    @Test
+    public void getWholeText_WhenEmpty() {
+        TextNode node = new TextNode("");
+        assertEquals("", node.getWholeText());
+    }
+
+    @Test
+    public void getWholeText_WhenNotBlank() {
+        TextNode node = new TextNode("Hello");
+        assertEquals(" Hello", node.getWholeText());
+    }
+
+    @Test
+    public void getWholeText_WhenBlank() {
+        TextNode node = new TextNode("");
+        assertEquals("", node.getWholeText());
+    }
+
+}

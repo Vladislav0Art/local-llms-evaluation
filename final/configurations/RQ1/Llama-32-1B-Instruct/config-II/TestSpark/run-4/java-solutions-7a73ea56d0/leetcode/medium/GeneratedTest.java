@@ -1,0 +1,140 @@
+package leetcode.medium;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNext() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 1;
+        int expected = 0;
+
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+        int result = onlineStockSpan.next(price);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testNext_2() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 3;
+        List<Integer> list = new ArrayList<>();
+        list.add(1);
+        onlineStockSpan.list = list;
+
+        expected = 1;
+        result = onlineStockSpan.next(price);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testNext_3() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 5;
+        List<Integer> list = new ArrayList<>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        onlineStockSpan.list = list;
+
+        expected = 9;
+        result = onlineStockSpan.next(price);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testNext_4() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 1;
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        expected = 0;
+        result = onlineStockSpan.next(price);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testNext_5() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 4;
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        expected = 2;
+        result = onlineStockSpan.next(price);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testNext_6() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 4;
+        List<Integer> list = new ArrayList<>();
+        list.add(1);
+        onlineStockSpan.list = list;
+
+        expected = 0;
+        result = onlineStockSpan.next(price);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testNext_7() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 4;
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        expected = 0;
+        result = onlineStockSpan.next(price);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testNext_8() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 4;
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        expected = 0;
+        result = onlineStockSpan.next(price);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testNext_9() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 4;
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        expected = 1;
+        result = onlineStockSpan.next(price);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testNext_10() {
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int price = 4;
+        List<Integer> list = new ArrayList<>();
+        onlineStockSpan.list = list;
+
+        expected = 0;
+        result = onlineStockSpan.next(price);
+
+        assertEquals(expected, result);
+    }
+
+}

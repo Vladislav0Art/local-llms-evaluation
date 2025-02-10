@@ -1,0 +1,143 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testEquals() {
+        // Test the equals method
+        Attributes attributes = new Attributes(Arrays.asList(
+                "key1", "value1",
+                "key2", null,
+                "key3", "value3"
+        ));
+        String expectedValue = Arrays.asList(
+                "key1", "value1",
+                "key2", "value3"
+        );
+        assertEquals(expectedValue, attributes.equals(null));
+    }
+
+    @Test
+    public void testGetHashCode() {
+        // Test the hashCode method
+        Attributes attributes = new Attributes(Arrays.asList(
+                "key1", "value1",
+                "key2", null,
+                "key3", "value3"
+        ));
+        String expectedValue = 0;
+        assertEquals(expectedValue, attributes.hashCode());
+    }
+
+    @Test
+    public void testGetKeys() {
+        // Test the getKeys method
+        Attributes attributes = new Attributes(Arrays.asList(
+                "key1", "value1",
+                "key2", null,
+                "key3", "value3"
+        ));
+        String expectedValue = Arrays.asList(
+                "key1", "key2", "key3"
+        );
+        assertEquals(expectedValue, attributes.getKeys());
+    }
+
+    @Test
+    public void testGetValues() {
+        // Test the getValues method
+        Attributes attributes = new Attributes(Arrays.asList(
+                "key1", "value1",
+                "key2", null,
+                "key3", "value3"
+        ));
+        String expectedValue = Arrays.asList(
+                "value1",
+                "null",
+                "value3"
+        );
+        assertEquals(expectedValue, attributes.getValues());
+    }
+
+    @Test
+    public void testGetMapValues() {
+        // Test the getMapValues method
+        Attributes attributes = new Attributes(Arrays.asList(
+                "key1", "value1",
+                "key2", null,
+                "key3", "value3"
+        ));
+        String expectedValue = Arrays.asList(
+                "value1",
+                ""
+        );
+        assertEquals(expectedValue, attributes.getMapValues());
+    }
+
+    @Test
+    public void testRemoveDuplicateAttribute() {
+        // Test the removeDuplicate method
+        Attributes attributes = new Attributes(Arrays.asList(
+                "key1", "value1",
+                "key2", null,
+                "key3", "value3"
+        ));
+        int expectedValue = 0;
+        assertEquals(expectedValue, attributes.removeDuplicate("key1"));
+    }
+
+    @Test
+    public void testRemoveEmptyAttribute() {
+        // Test the remove method with an empty key
+        Attributes attributes = new Attributes(Arrays.asList(
+                "", null,
+                "key3", "value3"
+        ));
+        int expectedValue = 0;
+        assertEquals(expectedValue, attributes.remove("key3"));
+    }
+
+    @Test
+    public void testRemoveNonStringKey() {
+        // Test the remove method with a non-string key
+        Attributes attributes = new Attributes(Arrays.asList(
+                "key1", null,
+                "key2", "value"
+        ));
+        int expectedValue = 0;
+        assertEquals(expectedValue, attributes.remove("non_string_key"));
+    }
+
+    @Test
+    public void testSetKey() {
+        // Test the set method with a non-empty key
+        Attributes attributes = new Attributes(Arrays.asList(
+                "", null,
+                "key3", "value"
+        ));
+        String value = "new_value";
+        String expectedValue = Arrays.asList(
+                "", "null",
+                "key3", value
+        );
+        assertEquals(expectedValue, attributes.set("key1", value));
+    }
+
+    @Test
+    public void testSetValues() {
+        // Test the set method with new values for all keys
+        Attributes attributes = new Attributes(Arrays.asList(
+                "key1", "value1",
+                "key2", null,
+                "key3", "value3"
+        ));
+        String value = "new_value";
+        String expectedValue = Arrays.asList(
+                value, "",
+                value,
+                ""
+        );
+        assertEquals(expectedValue, attributes.set("key1", value));
+    }
+
+}

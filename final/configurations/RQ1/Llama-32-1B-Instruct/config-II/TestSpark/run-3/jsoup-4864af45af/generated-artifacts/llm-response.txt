@@ -1,0 +1,163 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+public class HtmlParser {
+    private static final Map<String, AttributeValue> enforcedAttributes = new HashMap<>();
+
+    public static void defineAttribute(String tagName, String attrKey, String attrValue) {
+        enforceAttributes.put(tagName, new AttributeValue(attrKey, attrValue));
+    }
+
+    public static boolean isSafeAttribute(String tagName, Element el, Attribute attribute) {
+        return isSafeAttribute(tagName, el, attribute, true);
+    }
+
+    private static boolean isSafeAttribute(String tagName, Element el, Attribute attribute, boolean useEnforcedAttributes) {
+        if (useEnforcedAttributes || !tagName.equals(All)) {
+            // only run as-is to allow custom unknown protocols
+            return true;
+        }
+        
+        return enforceAttributes.get(tagName).equals(attribute);
+    }
+
+    public static void defineAttribute(String tagName, String attrKey, String attrValue) {
+        defineAttribute(tagName, attrKey, attrValue);
+    }
+
+    private enum All {
+        // all attributes defined for an element
+    }
+    
+    public static boolean testValidProtocol(Element el, Attribute attribute, Set<Protocol> protocols) {
+        // try to resolve relative urls to abs, and optionally update the attribute so output html has abs.
+        // rels without a baseuri get removed
+        String value = el.absUrl(attribute.getKey());
+        if (value.length() == 0)
+            value = attribute.getValue(); // if it could not be made abs, run as-is to allow custom unknown protocols
+        
+        for (Protocol protocol : protocols) {
+            String prot = protocol.toString();
+
+            if (prot.equals("#")) { // allows anchor links
+                if (isValidAnchor(value)) {
+                    return true;
+                } else {
+                    continue;
+                }
+            }
+
+            prot += ":";
+
+            if (lowerCase(value).startsWith(prot)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isValidAnchor(String value) {
+        return value.startsWith("#") && !value.matches(".*\\s.*");
+    }
+}
+
+public class Element {
+    public abstract String absUrl(AttributeKey attribute);
+}
+
+class AttributeValue extends TypedValue {
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        AttributeValue other = (AttributeValue) obj;
+        if (value == null) {
+            return other.value == null;
+        } else return value.equals(other.value);
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+}
+
+class AttributeKey extends TypedValue {
+    private final String key;
+
+    AttributeKey(String key) {
+        super(key);
+    }
+
+    static AttributeKey valueOf(String value) {
+        return new AttributeKey(value);
+    }
+}
+
+class Attribute extends TypedValue {
+    private final String key;
+    private final String value;
+
+    public Attribute(String key, String value) {
+        super(null);
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((key == null) ? 0 : key.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        Attribute other = (Attribute) obj;
+        if (key == null) {
+            if (other.key != null)
+                return false;
+        } else if (!key.equals(other.key)) return false;
+        if (value == null) {
+            return other.value == null;
+        } else
+            return value.equals(other.value);
+    }
+
+    @Override
+    public String toString() {
+        return key + ": " + value;
+    }
+}
+
+class Protocol extends TypedValue {
+    private final String name;
+
+    Protocol(String name) {
+        super(name);
+    }
+
+    static Protocol valueOf(String name) {
+        return new Protocol(name);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

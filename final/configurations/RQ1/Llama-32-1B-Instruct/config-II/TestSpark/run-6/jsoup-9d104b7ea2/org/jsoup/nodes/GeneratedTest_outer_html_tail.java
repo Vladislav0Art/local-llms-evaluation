@@ -1,0 +1,101 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest_outer_html_tail {
+
+    private String value;
+
+    @Override
+    public String nodeName() {
+        return "#text";
+    }
+
+    @Override
+    public String text() {
+        return StringUtil.normaliseWhitespace(getWholeText());
+    }
+
+    @Override
+    public boolean isBlank() {
+        return StringUtil.isBlank(coreValue());
+    }
+
+    @Override
+    public TextNode splitText(int offset) {
+        final String text = coreValue();
+        Validate.isTrue(offset >= 0, "Split offset must be not be negative");
+        Validate.isTrue(offset < text.length(), "Split offset must not be greater than current text length");
+
+        String head = text.substring(0, offset);
+        String tail = text.substring(offset);
+        text(head);
+        TextNode tailNode = new TextNode(tail);
+        if (parentNode != null)
+            parentNode.addChildren(siblingIndex() + 1, tailNode);
+
+        return tailNode;
+    }
+
+    @Override
+    public void outerHtmlHead(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+        final boolean prettyPrint = out.prettyPrint();
+        final Element parent = parentNode instanceof Element ? ((Element) parentNode) : null;
+        final boolean normaliseWhite = prettyPrint && !Element.preserveWhitespace(parentNode);
+        final boolean trimLikeBlock = parent != null && (parent.tag().isBlock() || parent.tag().formatAsBlock());
+        boolean trimLeading = false, trimTrailing = false;
+
+        if (normaliseWhite) {
+            trimLeading = (trimLikeBlock && siblingIndex == 0) || parentNode instanceof Document;
+            trimTrailing = trimLikeBlock && nextSibling() == null;
+
+            // if this text is just whitespace, and the next node will cause an indent, skip this text:
+            Node next = nextSibling();
+            Node prev = previousSibling();
+            boolean isBlank = isBlank();
+            boolean couldSkip = (next instanceof Element && ((Element) next).shouldIndent(out)) // next will indent
+                    || (next instanceof TextNode && (((TextNode) next).isBlank())) // next is blank text, from re-parenting
+                    || (prev instanceof Element && ((Element) prev).isBlock());
+            if (couldSkip && isBlank) return;
+
+            if (
+                    (siblingIndex == 0 && parent != null && parent.tag().formatAsBlock() && !isBlank) ||
+                            (out.outline() && siblingNodes().size() > 0 && !isBlank) ||
+                            (siblingIndex > 0 && isNode(prev, "br")) // special case wrap on inline <br> - doesn't make sense as a block tag
+            )
+                indent(accum, depth, out);
+        }
+
+        Entities.escape(accum, coreValue(), out, false, normaliseWhite, trimLeading, trimTrailing);
+    }
+
+    @Override
+    public void outerHtmlTail(Appendable accum, int depth, Document.OutputSettings out) throws IOException {
+    }
+
+    @Override
+    public String toString() {
+        return outerHtml();
+    }
+
+    @Override
+    public TextNode clone() {
+        return (TextNode) super.clone();
+    }
+}
+
+public class TextNodeTest {
+
+    private static TextNode node;
+
+    @Before
+    public void init() {
+        node = new TextNodeImpl();
+    }
+
+    @Test
+    public void test_outer_html_tail() {
+        Appendable accum = new StringBuilder();
+        node.outerHtmlTail(accum, 0, Document.OutputSettings.getDefaultOutputFormat(), true);
+        assertTrue(accum.length() == 6); // including the newline at the end of the output string
+    }
+
+}

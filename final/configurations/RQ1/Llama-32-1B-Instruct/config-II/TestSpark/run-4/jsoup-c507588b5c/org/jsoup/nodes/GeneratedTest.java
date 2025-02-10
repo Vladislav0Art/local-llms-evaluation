@@ -1,0 +1,46 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    private static TextNode document;
+
+    @BeforeClass
+    public static void setup() {
+        document = new TextNode("<script>alert('Test')</script>");
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        // No need to clean up here, since we're not using test fixtures
+    }
+
+    @Test
+    public void testBlankNode() {
+        assertFalse(document.isBlank());
+    }
+
+    @Test
+    public void testSplitTextNoOffset() {
+        assertEquals(0, document.splitText(5).siblingIndex());
+    }
+
+    @Test
+    public void testSplitTextOffSet() {
+        TextNode result = document.splitText(10);
+        String expected = "Test";
+        assertEquals(expected, result.text("Test"));
+    }
+
+    @Test
+    public void testSplitTextMultipleOffsets() {
+        TextNode result = document.splitText(5);
+        String expected = "<p>Result</p>";
+        assertEquals(expected, result.text("Result"));
+    }
+
+}

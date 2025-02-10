@@ -1,0 +1,148 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+public class TestResponse {
+    public static void main(String[] args) throws IOException {
+        // Create a new response object
+        Response response = new Response();
+
+        // Send the request to the server and get the response data
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        response.writePost(new Connection.Request(), outputStream, null);
+
+        // Get the response text from the output stream
+        String responseBody = outputStream.toString();
+
+        // Print the response body
+        System.out.println(responseBody);
+    }
+
+    static class KeyVal implements Connection.KeyVal {
+        private String key;
+        private String value;
+
+        public static KeyVal create(String key, String value) {
+            return new KeyVal(key, value);
+        }
+
+        public static KeyVal create(String key, String filename, InputStream stream) {
+            return new KeyVal(key, filename)
+                    .inputStream(stream);
+        }
+
+        @Override
+        public KeyVal key(String key) {
+            Validate.notEmptyParam(key, "key");
+            this.key = key;
+            return this;
+        }
+
+        @Override
+        public String key() {
+            return key;
+        }
+
+        @Override
+        public KeyVal value(String value) {
+            Validate.notNullParam(value, "value");
+            this.value = value;
+            return this;
+        }
+
+        @Override
+        public String value() {
+            return value;
+        }
+
+        public KeyVal inputStream(InputStream inputStream) {
+            Validate.notNullParam(value, "inputStream");
+            this.stream = inputStream;
+            return this;
+        }
+    }
+
+    static class Response extends ResponseBase {
+        private ByteArrayOutputStream outputStream;
+
+        public void writePost(Connection.Request request, OutputStream outputStream, String boundary) throws IOException {
+            // Write the request data to the output stream
+            for (KeyVal keyVal : getData()) {
+                if (!keyVal.hasInputStream())
+                    writeText(keyVal.key(), keyVal.value());
+            }
+        }
+
+        private void writeText(String key, String value) throws IOException {
+            // Append a line to the output stream with the text
+            outputStream.write("--" + boundary);
+            outputStream.write("\r\nContent-Type: ");
+            appendMimeName(key);
+            outputStream.write(" " + value + "\r\n\r\n");
+            outputStream.flush();
+        }
+
+        private void appendMimeName(String key) {
+            // Append the MIME name to the output stream
+            outputStream.write("--" + boundary);
+            outputStream.write("\r\nContent-Disposition: form-data; name=\"" + key + "\"\r\n");
+        }
+    }
+
+    static class ResponseBase extends BaseResponse implements Connection.KeyVal {
+        private ByteArrayOutputStream outputStream;
+
+        public void writePost(Connection.Request request, OutputStream outputStream, String boundary) throws IOException {
+            // Write the request data to the output stream
+            for (KeyVal keyVal : getKeys())
+                writeText(keyVal);
+        }
+
+        @Override
+        public ByteArrayOutputStream outputStream() {
+            return outputStream;
+        }
+
+        private void writeText(String key, String value) throws IOException {
+            // Write a line to the output stream with the text
+            appendMimeName(key);
+            outputStream.write(" " + value + "\r\n\r\n");
+            outputStream.flush();
+        }
+    }
+
+    static class UrlBuilder {
+        private Connection.Request request;
+
+        public void setRequest(Connection.Request request) {
+            this.request = request;
+        }
+
+        public String build() throws IOException {
+            // Build the URL by serializing the data map into a URL query string
+            List<Connection.KeyVal> keys = getKeys();
+            StringBuilder urlBuilder = new StringBuilder();
+            for (KeyVal keyVal : keys) {
+                if (!keyVal.hasInputStream())
+                    urlBuilder.append(keyVal.key()).append("=").append(keyVal.value());
+            }
+            return request.url(urlBuilder.toString());
+        }
+
+        private List<Connection.KeyVal> getKeys() {
+            // Get the keys from the current request
+            Connection.Request req = new Connection.Request();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            response.writePost(req, outputStream, null);
+            return DataUtil.readData(outputStream);
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

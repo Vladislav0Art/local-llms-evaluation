@@ -1,0 +1,135 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testEquals() {
+        Attributes attributes = new Attributes();
+        attributes.set("key1", "value1");
+        attributes.set("key2", "value2");
+
+        Assertions.assertTrue(attributes.equals(attributes));
+        Assertions.assertFalse(attributes.equals(new Attributes()));
+    }
+
+    @Test
+    public void testHashCode() {
+        Attributes attributes = new Attributes();
+        attributes.set("key1", "value1");
+        attributes.set("key2", "value2");
+
+        int hashCode1 = attributes.hashCode();
+        int hashCode2 = attributes.hashCode();
+
+        Assertions.assertTrue(hashCode1 == hashCode2);
+    }
+
+    @Test
+    public void testDeduplicate() {
+        Attributes attributes = new Attributes();
+        attributes.set("key1", "value1");
+        attributes.set("key2", "value2");
+
+        int dedupes = attributes.deduplicate(ParseSettings.PRESERVE_ATTRIBUTE_CASE);
+
+        Assertions.assertEquals(1, dedupes);
+    }
+
+    @Test
+    public void testGet() {
+        Attributes attributes = new Attributes();
+        attributes.set("key1", "value1");
+        attributes.set("key2", "value2");
+
+        String value1 = attributes.get("key1");
+        String value2 = attributes.get("key2");
+
+        Assertions.assertNotNull(value1);
+        Assertions.assertNotNull(value2);
+
+        Assertions.assertFalse(value1.equals(value2));
+    }
+
+    @Test
+    public void testRemove() {
+        Attributes attributes = new Attributes();
+        attributes.set("key1", "value1");
+        attributes.set("key2", "value2");
+
+        String key1 = "key1";
+        String key2 = "key2";
+
+        attributes.remove(key1);
+        attributes.remove(key2);
+
+        Assertions.assertFalse(attributes.hasKey(key1));
+        Assertions.assertFalse(attributes.hasKey(key2));
+
+        Assertions.assertTrue(attributes.isEmpty());
+    }
+
+    @Test
+    public void testClear() {
+        Attributes attributes = new Attributes();
+        attributes.set("key1", "value1");
+        attributes.set("key2", "value2");
+
+        String value1 = attributes.get("key1");
+        String value2 = attributes.get("key2");
+
+        attributes.clear();
+
+        Assertions.assertFalse(attributes.hasKey(value1));
+        Assertions.assertFalse(attributes.hasKey(value2));
+
+        Assertions.isEmpty();
+    }
+
+    @Test
+    public void testGetValues() {
+        Attributes attributes = new Attributes();
+        attributes.set("key1", "value1");
+        attributes.set("key2", "value2");
+
+        String value1 = attributes.get("key1");
+        String value2 = attributes.get("key2");
+
+        Assertions.assertNotNull(value1);
+        Assertions.assertNotNull(value2);
+
+        Assertions.assertTrue(!value1.equals(value2));
+    }
+
+    @Test
+    public void testSetValues() {
+        Attributes attributes = new Attributes();
+        attributes.set("key1", "value1");
+        attributes.set("key2", "value2");
+
+        String value1 = attributes.get("key1");
+        String value2 = attributes.get("key2");
+
+        Assertions.assertNotNull(value1);
+        Assertions.assertNotNull(value2);
+
+        Assertions.assertFalse(value1.equals(value2));
+    }
+
+    @Test
+    public void testSet() {
+        Attributes attributes = new Attributes();
+        attributes.set("key1", "value1");
+        attributes.set("key2", "value2");
+
+        String value1 = attributes.get("key1");
+        String value2 = attributes.get("key2");
+
+        Assertions.assertNotNull(value1);
+        Assertions.assertNotNull(value2);
+
+        Assertions.assertTrue(!value1.equals(value2));
+    }
+
+}

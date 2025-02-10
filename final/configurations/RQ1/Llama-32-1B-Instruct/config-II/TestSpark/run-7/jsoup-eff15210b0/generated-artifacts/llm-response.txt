@@ -1,0 +1,207 @@
+[IMPORTANT]: Max feedback cycle iterations: 1
+
+====================== Iteration #1 ======================
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+
+public class ResponseGenerator {
+
+    public static void writeResponse(Connection.Request req, OutputStream outputStream, String body) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+        writePost(req, writer, null);
+        writer.write(body);
+        writer.flush();
+    }
+
+    private static void writePost(Connection.Request req, BufferedWriter writer, String boundary) throws IOException {
+        if (boundary != null) {
+            for (Connection.KeyVal keyVal : req.data()) {
+                writer.write("--");
+                writer.write(boundary);
+                writer.write("\r\n");
+                writer.write("Content-Disposition: form-data; name=\"");
+                writer.write(encodeMimeName(keyVal.key()));
+                writer.write("\"");
+                writer.flush(); // flush
+                DataUtil.crossStreams(req.requestBody(), outputStream);
+                writer.flush();
+            }
+        } else {
+            String body = req.requestBody();
+            if (body != null) {
+                writer.write(body);
+            } else {
+                for (Connection.KeyVal keyVal : req.data()) {
+                    if (!keyVal.hasInputStream()) {
+                        writer.write(URLEncoder.encode(keyVal.key(), req.postDataCharset()));
+                        writer.write('=');
+                        writer.write(URLEncoder.encode(keyVal.value(), req.postDataCharset()));
+                        writer.flush();
+                    }
+                }
+            }
+        }
+    }
+
+    private static void serialiseRequestUrl(Connection.Request req) throws IOException {
+        UrlBuilder in = new UrlBuilder(req.url());
+        for (Connection.KeyVal keyVal : req.data()) {
+            Validate.isFalse(keyVal.hasInputStream(), "InputStream data not supported in URL query string.");
+            in.appendKeyVal(keyVal);
+        }
+        in.build();
+        req.url(in.build());
+        req.data().clear(); // moved into url as get params
+    }
+
+    private static void writePostRequest(Connection.Request req) throws IOException {
+        if (req.method() != Connection.Method.GET) return;
+        serialiseRequestUrl(req);
+        Response response = new Response(req, null, null);
+        ResponseBuilder builder = new ResponseBuilder(response);
+        builder.write();
+    }
+}
+
+class Response implements Serializable {
+
+    private final Connection.ResponseType type;
+    private final String body;
+
+    public Response(Connection.Request req, InputStream inputStream, OutputStream outputStream) {
+        if (req.method() != Connection.Method.GET) throw new IllegalStateException("Method not GET");
+        type = Response.ResponseType.POST;
+        serialiseRequestUrl(req);
+        writeResponse(req, outputStream, null);
+    }
+
+    @Override
+    public String toString() {
+        return "response (" + type + ", body=" + body + ")";
+    }
+}
+
+class ResponseBuilder {
+
+    private final Response response;
+
+    public ResponseBuilder(Response response) {
+        this.response = response;
+    }
+
+    public ResponseBuilder write(String body) throws IOException {
+        if (body != null) {
+            response.body(body);
+        } else {
+            for (Connection.KeyVal keyVal : response.data()) {
+                if (!keyVal.hasInputStream()) {
+                    response.value(URLEncoder.encode(keyVal.key(), response.postDataCharset()));
+                    response.content.ContentType(encodeMimeName(keyVal.key()));
+                    response.value(keyVal.value());
+                }
+            }
+        }
+        return this;
+    }
+
+    public ResponseBuilder close() throws IOException {
+        return new ResponseBuilder(response);
+    }
+
+    public String body() {
+        return response.body();
+    }
+
+    public Response body(String body) throws IOException {
+        response.body(body);
+        return response;
+    }
+
+    public void setBody(InputStream inputStream, OutputStream outputStream) throws IOException {
+        if (inputStream != null) {
+            response.inputStream(inputStream);
+        }
+        if (outputStream != null) {
+            response.outputStream(outputStream);
+        }
+    }
+
+    public void setError(Exception e) {
+        throw new IllegalStateException("Error", e);
+    }
+
+    @Override
+    public String toString() {
+        return "Response{type=" + type + ", body=" + body + "}";
+    }
+
+    private ResponseResponseType getType() {
+        return response.type;
+    }
+
+    private ResponseContent getContentType() {
+        return response.content;
+    }
+}
+
+class ResponseType {
+
+    public static final ResponseType GET = ResponseType.class;
+}
+
+class ResponseContent {
+
+    private final String contentType;
+
+    public ResponseContent(String content) {
+        this.contentType = content;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ResponseContent that = (ResponseContent) o;
+        return contentType.equals(that.contentType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(contentType);
+    }
+}
+
+class UrlBuilder {
+
+    private final String url;
+
+    public UrlBuilder(String url) {
+        this.url = url;
+    }
+
+    @Override
+    public void appendKeyVal(Connection.KeyVal keyVal) {
+        if (keyVal.hasInputStream()) {
+            throw new IllegalStateException("InputStream not supported in URL query string");
+        }
+        System.out.println(encodeMimeName(keyVal.key()));
+        System.out.println(encodeMimeName(keyVal.value()));
+    }
+
+    @Override
+    public String build() {
+        return url;
+    }
+
+    private String encodeMimeName(String key) {
+        return "application/" + key.substring(0, 1).toUpperCase() + key.substring(1);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

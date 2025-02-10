@@ -1,0 +1,53 @@
+package leetcode.medium;
+
+public class GeneratedTest {
+
+    @Test
+    public void test_maxLineCoverage() {
+        OnlineStockSpan instance = new OnlineStockSpan();
+        int[] prices = {1, 2, 3, 4, 5};
+        int[] result = instance.calculateSpans(prices);
+        assertEquals(5, result[0]);
+        for (int i = 1; i < prices.length; i++) {
+            assertEquals(i + 1, result[i], "Span of price at index " + i + " should be " + i + ", but is " + result[i] + " instead");
+        }
+    }
+
+    @Test
+    public void test_maxLineCoverageZero() {
+        OnlineStockSpan instance = new OnlineStockSpan();
+        int[] prices = {0, 1};
+        int[] result = instance.calculateSpans(prices);
+        assertEquals(2, result[0]);
+        for (int i = 1; i < prices.length; i++) {
+            assertEquals(i + 1, result[i], "Span of price at index " + i + " should be " + i + ", but is " + result[i] + " instead");
+        }
+    }
+
+    @Test
+    public void test_maxLineCoverageSmallArray() {
+        OnlineStockSpan instance = new OnlineStockSpan();
+        int[] prices = {1, 2, 3};
+        int[] result = instance.calculateSpans(prices);
+        assertEquals(4, result[0]);
+        for (int i = 1; i < prices.length; i++) {
+            assertEquals(i + 1, result[i], "Span of price at index " + i + " should be " + i + ", but is " + result[i] + " instead");
+        }
+    }
+
+    @Test
+    public void test_maxLineCoverageEmptyArray() {
+        OnlineStockSpan instance = new OnlineStockSpan();
+        int[] prices = {};
+        assertThrows(EmptyArrayException.class, () -> instance.calculateSpans(prices));
+    }
+
+    @Test
+    public void test_maxLineCoverageNullPrice() {
+        OnlineStockSpan instance = new OnlineStockSpan();
+        null;
+        assertThrows NullPointerException.class,() -> instance.next(null);
+        assertThrows NullPointerException.class,() -> instance.next(123);
+    }
+
+}
