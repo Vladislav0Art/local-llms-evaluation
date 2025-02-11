@@ -1,0 +1,300 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.URL;
+import java.net.URISyntaxException;
+import java.io.UnsupportedEncodingException;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void buildNormalUrlTest() throws URISyntaxException, UnsupportedEncodingException {
+        URL u = new URL("https://example.com/path?query#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        URL result = builder.build();
+        assertEquals("https%3A//example.com/utf-8%3Fpath%3Fquery%23fragment", result.toString());
+    }
+
+    @Test
+    public void buildUrlWithNonAsciiPathTest() throws URISyntaxException, UnsupportedEncodingException {
+        URL u = new URL("https://example.com/path?query#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        URL result = builder.build();
+        assertEquals("https%3A//example.com/utf-8%3Fpath%3Fquery%23fragment", result.toString());
+    }
+
+    @Test
+    public void buildUrlWithQueryTest() throws URISyntaxException, UnsupportedEncodingException {
+        URL u = new URL("https://example.com/path?query=abc&def=e");
+        UrlBuilder builder = new UrlBuilder(u);
+        URL result = builder.build();
+        assertEquals("https%3A//example.com/utf-8%3Fpath%3Fquery=abc%26def=e", result.toString());
+    }
+
+    @Test
+    public void buildUrlWithFragmentTest() throws URISyntaxException, UnsupportedEncodingException {
+        URL u = new URL("https://example.com/path?query#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        URL result = builder.build();
+        assertEquals("https%3A//example.com/utf-8%3Fpath%3Fquery%23fragment", result.toString());
+    }
+
+    @Test
+    public void appendKeyValNormalisationTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("abc", "def");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        builder.appendKeyVal(kv);
+        assertEquals("?abc=def", ((StringBuilder)builder.q).toString());
+    }
+
+    @Test
+    public void appendKeyValQueryNormalizationTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("abc?", "def");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        builder.appendKeyVal(kv);
+        assertEquals("?%3Aabc%3Fdef", ((StringBuilder)builder.q).toString());
+    }
+
+    @Test
+    public void appendKeyValNonAsciiNormalizationTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("äbc", "de\u00e4f");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com/path"));
+        builder.appendKeyVal(kv);
+        assertEquals("?%C3%A4bc%3De%C3%B6f", ((StringBuilder)builder.q).toString());
+    }
+
+    @Test(expected = UnsupportedEncodingException.class)
+    public void decodePartEncodingException() throws URISyntaxException, UnsupportedEncodingException {
+        String encoded = "äbc";
+        UrlBuilder.decodePart(encoded);
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String val;
+
+        public KeyVal(String key, String val) {
+            this.key = key;
+            this.val = val;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s=%s", key, val);
+        }
+    }
+
+    public static class UrlBuilder {
+        private StringBuilder q;
+        private URL url;
+
+        public UrlBuilder(URL url) {
+            this.url = url;
+            this.q = new StringBuilder();
+        }
+
+        public void appendKeyVal(KeyVal kv) {
+            if (q.length() > 0) {
+                q.append("&");
+            }
+            q.append(kv.key).append("=").append(UrlBuilder.decodePart(kv.val));
+        }
+
+        public static String decodePart(String part) {
+            // implement your decoding logic here
+            return part;
+        }
+
+        public URL build() throws URISyntaxException, UnsupportedEncodingException {
+            if (q.length() > 0 && !q.toString().startsWith("?")) {
+                q.insert(0, "?");
+            }
+            return new URL(url.getProtocol(), url.getHost(), url.getPort(), q.toString(), null);
+        }
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String val;
+
+        public KeyVal(String key, String val) {
+            this.key = key;
+            this.val = val;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s=%s", key, val);
+        }
+    }
+
+    public static class UrlBuilder {
+        private StringBuilder q;
+        private URL url;
+
+        public UrlBuilder(URL url) {
+            this.url = url;
+            this.q = new StringBuilder();
+        }
+
+        public void appendKeyVal(KeyVal kv) {
+            if (q.length() > 0) {
+                q.append("&");
+            }
+            q.append(kv.key).append("=").append(UrlBuilder.decodePart(kv.val));
+        }
+
+        public static String decodePart(String part) throws UnsupportedEncodingException {
+            return java.net.URLEncoder.encode(part);
+        }
+
+        public URL build() throws URISyntaxException, UnsupportedEncodingException {
+            if (q.length() > 0 && !q.toString().startsWith("?")) {
+                q.insert(0, "?");
+            }
+            return new URL(url.getProtocol(), url.getHost(), url.getPort(), q.toString(), null);
+        }
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String val;
+
+        public KeyVal(String key, String val) {
+            this.key = key;
+            this.val = val;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s=%s", key, val);
+        }
+    }
+
+    public static class UrlBuilder {
+        private StringBuilder q;
+        private URL url;
+
+        public UrlBuilder(URL url) {
+            this.url = url;
+            this.q = new StringBuilder();
+        }
+
+        public void appendKeyVal(KeyVal kv) {
+            if (q.length() > 0) {
+                q.append("&");
+            }
+            q.append(kv.key).append("=").append(UrlBuilder.decodePart(kv.val));
+        }
+
+        public static String decodePart(String part) throws UnsupportedEncodingException {
+            return java.net.URLEncoder.encode(part);
+        }
+
+        public URL build() throws URISyntaxException, UnsupportedEncodingException {
+            if (q.length() > 0 && !q.toString().startsWith("?")) {
+                q.insert(0, "?");
+            }
+            return new URL(url.getProtocol(), url.getHost(), url.getPort(), q.toString(), null);
+        }
+    }
+
+}
+
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Connection {
+    public interface KeyVal {
+        String getKey();
+        String getVal();
+
+        @Override
+        String toString();
+    }
+
+    public static class KeyValImpl implements KeyVal {
+        private String key;
+        private String val;
+
+        public KeyValImpl(String key, String val) {
+            this.key = key;
+            this.val = val;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getVal() {
+            return val;
+        }
+    }
+
+    public static class UrlBuilder {
+        private StringBuilder q;
+        private URL url;
+
+        public UrlBuilder(URL url) {
+            this.url = url;
+            this.q = new StringBuilder();
+        }
+
+        public void appendKeyVal(KeyVal kv) {
+            if (q.length() > 0) {
+                q.append("&");
+            }
+            q.append(kv.getKey()).append("=").append(UrlBuilder.decodePart(kv.getVal()));
+        }
+
+        public static String decodePart(String part) throws UnsupportedEncodingException {
+            return java.net.URLEncoder.encode(part);
+        }
+
+        public URL build() throws URISyntaxException, UnsupportedEncodingException {
+            if (q.length() > 0 && !q.toString().startsWith("?")) {
+                q.insert(0, "?");
+            }
+            return new URL(url.getProtocol(), url.getHost(), url.getPort(), q.toString(), null);
+        }
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #6 ======================

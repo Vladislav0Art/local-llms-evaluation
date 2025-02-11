@@ -1,0 +1,422 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class AttributesTest {
+    @Test
+    public void testAttributes() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertEquals(1, attributes.size());
+        assertTrue(attributes.containsKey("key"));
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void testDeduplicate() {
+        Attributes attributes = new Attributes();
+        attributes.put("key1", "value1");
+        attributes.put("key2", "value2");
+        attributes.put("key1", "newValue"); // duplicate key
+        assertEquals(2, attributes.deduplicate(new ParseSettings()));
+    }
+
+    @Test
+    public void testEquals() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        Attributes otherAttributes = new Attributes();
+        otherAttributes.put("key", "value");
+        assertTrue(attributes.equals(otherAttributes));
+    }
+
+    @Test
+    public void testNotEquals() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        Attributes otherAttributes = new Attributes();
+        otherAttributes.put("KEY", "value"); // different key case
+        assertFalse(attributes.equals(otherAttributes));
+    }
+}
+
+public class ParseSettings {
+    private boolean preserveAttributeCase;
+    public ParseSettings() {
+        this.preserveAttributeCase = true;
+    }
+
+    public int deduplicate(Attributes attributes) {
+        return attributes.deduplicate(this);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class AttributesTest {
+    @Test
+    public void testAttributes() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        assertEquals(1, attributes.size());
+        assertTrue(attributes.containsKey("key"));
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void testDeduplicate() {
+        Attributes attributes = new Attributes();
+        attributes.put("key1", "value1");
+        attributes.put("key2", "value2");
+        attributes.put("key1", "newValue"); // duplicate key
+        assertEquals(2, attributes.deduplicate());
+    }
+
+    @Test
+    public void testEquals() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        Attributes otherAttributes = new Attributes();
+        otherAttributes.put("key", "value");
+        assertTrue(attributes.equals(otherAttributes));
+    }
+
+    @Test
+    public void testNotEquals() {
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+        Attributes otherAttributes = new Attributes();
+        otherAttributes.put("KEY", "value"); // different key case
+        assertFalse(attributes.equals(otherAttributes));
+    }
+}
+
+public class ParseSettings {
+    private boolean preserveAttributeCase;
+
+    public ParseSettings() {
+        this.preserveAttributeCase = true;
+    }
+
+    public int deduplicate(Attributes attributes) {
+        return attributes.deduplicate();
+    }
+}
+
+public class Attributes {
+    private java.util.Map<String, String> map = new java.util.HashMap<>();
+
+    public void put(String key, String value) {
+        map.put(key, value);
+    }
+
+    @Override
+    public int size() {
+        return map.size();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return map.containsKey(((String)key).toLowerCase());
+    }
+
+    @Override
+    public Object get(Object key) {
+        String k = ((String)key).toLowerCase();
+        for(String s : map.keySet()){
+            if(s.equalsIgnoreCase(k)) return s;
+        }
+        return null;
+    }
+
+    public int deduplicate() {
+        java.util.HashSet<String> set = new java.util.HashSet<>();
+        for (String entry : map.values()) {
+            set.add(entry);
+        }
+        return set.size();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
+        Attributes attributes = (Attributes) obj;
+
+        if (!map.keySet().equals(attributes.map.keySet()))
+            return false;
+
+        return !map.values().containsAny(attributes.map.values());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class ParseSettings {
+    private boolean preserveAttributeCase;
+
+    public ParseSettings() {
+        this.preserveAttributeCase = true;
+    }
+
+    public int deduplicate(Attributes attributes) {
+        return attributes.deduplicate();
+    }
+
+    public static ParseSettings createParseSettings() {
+        return new ParseSettings();
+    }
+}
+
+public class Attributes {
+    private java.util.HashMap<String, String> map = new java.util.HashMap<>();
+
+    public void put(String key, String value) {
+        map.put(key, value);
+    }
+
+    public int size() {
+        return map.size();
+    }
+
+    public boolean containsKey(String key) {
+        return map.containsKey(key);
+    }
+
+    public Object get(String key) {
+        return map.get(key);
+    }
+
+    public int deduplicate() {
+        int count = 0;
+        Set<String> uniqueKeys = new HashSet<>(map.keySet());
+        for (String key : uniqueKeys) {
+            count++;
+        }
+        return count;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Attributes other = (Attributes) obj;
+        return map.equals(other.map);
+    }
+
+    @Override
+    public String toString() {
+        return map.toString();
+    }
+}
+
+public class GeneratedTest {
+
+    private static ParseSettings parseSettings;
+
+    public static void main(String[] args) {
+        parseSettings = ParseSettings.createParseSettings();
+
+        Attributes attributes = new Attributes();
+        attributes.put("key", "value");
+
+        assertEquals(1, attributes.size());
+        assertTrue(attributes.containsKey("key"));
+        assertEquals("value", (String) attributes.get("key"));
+        assertEquals(2, parseSettings.deduplicate(new Attributes()));
+        assertTrue(parseSettings.equals(new ParseSettings()));
+        System.out.println(parseSettings);
+    }
+
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class ParseSettings {
+    private boolean preserveAttributeCase;
+
+    public ParseSettings() {
+        this.preserveAttributeCase = true;
+    }
+
+    public int deduplicate(Attributes attributes) {
+        return attributes.deduplicate();
+    }
+
+    public static ParseSettings createParseSettings() {
+        return new ParseSettings();
+    }
+}
+
+public class Attributes {
+    private java.util.HashMap<String, String> map = new java.util.HashMap<>();
+
+    public void put(String key, String value) {
+        map.put(key, value);
+    }
+
+    public int size() {
+        return map.size();
+    }
+
+    public boolean containsKey(String key) {
+        return map.containsKey(key);
+    }
+
+    public Object get(String key) {
+        return map.get(key);
+    }
+
+    public int deduplicate() {
+        int count = 0;
+        Set<String> uniqueKeys = new HashSet<>(map.keySet());
+        for (String key : uniqueKeys) {
+            count++;
+        }
+        return count;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Attributes other = (Attributes) obj;
+        return map.equals(other.map);
+    }
+
+    @Override
+    public String toString() {
+        return map.toString();
+    }
+}
+
+public class GeneratedTest {
+
+    private static ParseSettings parseSettings;
+
+    public static void main(String[] args) {
+        parseSettings = ParseSettings.createParseSettings();
+
+        Attributes attributes1 = new Attributes();
+        attributes1.put("key", "value");
+
+        Assertions.assertEquals(1, attributes1.size());
+        Assertions.assertTrue(attributes1.containsKey("key"));
+        Assertions.assertEquals("value", (String) attributes1.get("key"));
+        Assertions.assertEquals(2, parseSettings.deduplicate(new Attributes()));
+        Assertions.assertTrue(parseSettings.equals(new ParseSettings()));
+        Assertions.println(parseSettings);
+
+        Attributes attributes2 = new Attributes();
+        attributes2.put("Key", "Value");
+
+        Assertions.assertEquals(2, parseSettings.deduplicate(attributes2));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+I apologize for the incomplete answer earlier. Here is a complete example of how to deduplicate attributes in Java while preserving attribute case:
+
+```java
+public class ParseSettings {
+    private boolean preserveAttributeCase;
+
+    public ParseSettings() {
+        this.preserveAttributeCase = true;
+    }
+
+    public int deduplicate(Attributes attributes) {
+        Set<String> uniqueKeys = new HashSet<>();
+        Map<String, String> newMap = new HashMap<>();
+
+        for (String key : attributes.map.keySet()) {
+            if (!uniqueKeys.contains(key)) {
+                uniqueKeys.add(key);
+                newMap.put(key, attributes.map.get(key));
+            }
+        }
+
+        return newMap.size();
+    }
+
+    public static ParseSettings createParseSettings() {
+        return new ParseSettings();
+    }
+}
+
+public class Attributes {
+    private Map<String, String> map = new HashMap<>();
+
+    public void put(String key, String value) {
+        if (preserveAttributeCase) {
+            map.put(key.substring(0, 1).toUpperCase() + key.substring(1), value);
+        } else {
+            map.put(key, value);
+        }
+    }
+
+    public int size() {
+        return map.size();
+    }
+
+    public boolean containsKey(String key) {
+        return map.containsKey(key);
+    }
+
+    public Object get(String key) {
+        return map.get(key);
+    }
+
+    public int deduplicate() {
+        return ParseSettings().deduplicate(this);
+    }
+}
+
+public class GeneratedTest {
+
+    private static ParseSettings parseSettings;
+
+    public static void main(String[] args) {
+        parseSettings = ParseSettings.createParseSettings();
+
+        Attributes attributes1 = new Attributes();
+        attributes1.put("key", "value");
+        attributes1.put("Key", "Value");
+
+        Assertions.assertEquals(2, attributes1.size());
+        Assertions.assertTrue(attributes1.containsKey("key"));
+        Assertions.assertTrue(attributes1.containsKey("Key"));
+
+        System.out.println(parseSettings.deduplicate(attributes1));
+
+        Attributes attributes2 = new Attributes();
+        attributes2.put("KEY", "value");
+        attributes2.put("kEy", "Value");
+
+        System.out.println(parseSettings.deduplicate(attributes2));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

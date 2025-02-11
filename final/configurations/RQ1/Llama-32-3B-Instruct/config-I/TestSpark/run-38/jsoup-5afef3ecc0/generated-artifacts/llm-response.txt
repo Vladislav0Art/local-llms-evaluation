@@ -1,0 +1,201 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.URL;
+import java.util.HashMap;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void buildUrlWithAbsolutePathTest() {
+        URL url = new URL("https://example.com/path?query=foo&bar=1");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+        assertEquals("https://example.com/path", result.getProtocol() + "://" + IDN.toASCII(result.getHost()));
+    }
+
+    @Test
+    public void buildUrlWithRelativePathTest() {
+        URL url = new URL("https://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+        assertEquals("https://example.com", result.getProtocol() + "://" + IDN.toASCII(result.getHost()));
+    }
+
+    @Test
+    public void buildUrlWithQueryStringTest() {
+        URL url = new URL("https://example.com/path?query=foo&bar=1");
+        UrlBuilder builder = new UrlBuilder(url);
+        URL result = builder.build();
+        assertEquals("?query=foo%26bar=1", result.getQuery());
+    }
+
+    @Test
+    public void appendKeyValTest() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        try {
+            builder.appendKeyVal(kv);
+            assertTrue(builder.q.toString().contains("key=value"));
+        } catch (UnsupportedEncodingException e) {}
+    }
+
+    @Test
+    public void appendKeyValMultipleTimesTest() {
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        try {
+            builder.appendKeyVal(kv1);
+            builder.appendKeyVal(kv2);
+            assertTrue(builder.q.toString().contains("key1=value1%26key2=value2"));
+        } catch (UnsupportedEncodingException e) {}
+    }
+
+    @Test
+    public void normalizeQueryTest() {
+        String query = "foo bar";
+        String result = UrlBuilder.normalizeQuery(query);
+        assertEquals("foo+bar", result);
+    }
+
+    @Test
+    public void normalizeRefTest() {
+        String ref = " foo ";
+        String result = UrlBuilder.normalizeRef(ref);
+        assertEquals("%20%20", result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.URL;
+import java.util.HashMap;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void buildUrlWithAbsolutePathTest() {
+        URL url = new URL("https://example.com/path?query=foo&bar=1");
+        UrlBuilder builder = new UrlBuilder(url);
+        String result = builder.build().toString();
+        assertEquals("https://example.com/path", result.split("=")[result.split("=").length-2].split("&")[0]);
+    }
+
+    @Test
+    public void buildUrlWithRelativePathTest() {
+        URL url = new URL("https://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        String result = builder.build().toString();
+        assertEquals("https://example.com", result.split("=")[result.split("=").length-2].split("&")[0]);
+    }
+
+    @Test
+    public void buildUrlWithQueryStringTest() {
+        URL url = new URL("https://example.com/path?query=foo&bar=1");
+        UrlBuilder builder = new UrlBuilder(url);
+        String result = builder.build().toString();
+        assertEquals("?query=foo%26bar=1", result.split("=")[result.split("=").length-2].split("&")[0]);
+    }
+
+    public static class Connection {
+        public static class KeyVal {
+            private String key;
+            private String value;
+
+            public KeyVal(String key, String value) {
+                this.key = key;
+                this.value = value;
+            }
+        }
+    }
+
+    @Test
+    public void appendKeyValTest() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        try {
+            builder.appendKeyVal(kv);
+            assertEquals("key=value", builder.q.toString());
+        } catch (java.io.UnsupportedEncodingException e) {}
+    }
+
+    @Test
+    public void appendKeyValMultipleTimesTest() {
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        try {
+            builder.appendKeyVal(kv1);
+            builder.appendKeyVal(kv2);
+            assertEquals("key1=value1&key2=value2", builder.q.toString());
+        } catch (java.io.UnsupportedEncodingException e) {}
+    }
+
+    @Test
+    public void normalizeQuery(String query) {
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        String result = builder.normalizeQuery(query);
+        assertEquals("query=foo%26bar=1", result);
+    }
+
+    @Test
+    public void normalizeRef() {
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        String result = builder.normalizeRef("ref");
+        assertEquals("ref", result);
+    }
+}
+
+public class UrlBuilder {
+
+    private URL url;
+    private HashMap<String, String> query;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+        this.query = new HashMap<>();
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) throws java.io.UnsupportedEncodingException {
+        query.put(kv.key, kv.value);
+    }
+
+    public URL build() {
+        return url;
+    }
+
+    public String q() {
+        StringBuilder sb = new StringBuilder();
+        for (String key : query.keySet()) {
+            if (sb.length() > 0) sb.append("&");
+            sb.append(key).append("=").append(query.get(key));
+        }
+        return sb.toString();
+    }
+
+    private String normalizeQuery(String query) {
+        // implementation
+        return "";
+    }
+
+    private String normalizeRef(String ref) {
+        // implementation
+        return "";
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================

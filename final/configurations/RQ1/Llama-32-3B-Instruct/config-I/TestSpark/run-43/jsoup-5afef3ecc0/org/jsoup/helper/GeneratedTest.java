@@ -1,0 +1,76 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedTest {
+
+    @Test
+    public void newUrlBuilderWithValidUrl_BuildsNewUrl() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("https://example.com/path?query=value#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertNotNull(urlBuilder.u);
+    }
+
+    @Test
+    public void newUrlBuilderWithoutQueryBuildsNewUrlWithEmptyQuery() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("https://example.com/path?query=value#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertNotNull(urlBuilder.u);
+        assertEquals("", ((URL) urlBuilder.u).getQuery());
+    }
+
+    @Test
+    public void newUrlBuilderWithNullProtocolBuildsNewUrlWithDefaultProtocol() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL(null, "user", "pass", null, "path");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertNotNull(urlBuilder.u);
+        assertEquals("http://user:pass@example.com/path", ((URL) urlBuilder.u).toString());
+    }
+
+    @Test
+    public void appendKeyValWithValidConnectionAddsKeyValuePairToQuery() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com"));
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        urlBuilder.appendKeyVal(kv);
+        assertNotNull(urlBuilder.q);
+        assertEquals("key=value", ((String) urlBuilder.q).toString());
+    }
+
+    @Test
+    public void appendKeyValWithNullConnectionDoesNotThrowAnyException() {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com"));
+        Connection.KeyVal kv = null;
+        urlBuilder.appendKeyVal(kv);
+        assertNotNull(urlBuilder.q);
+    }
+
+    @Test
+    public void decodePartEncodesAndDecodesCorrectly() throws UnsupportedEncodingException, URISyntaxException {
+        String input = "äöü";
+        String expectedOutput = "a%e4f6c5f2d";
+        assertEquals(expectedOutput, UrlBuilder.decodePart(input));
+    }
+
+    @Test
+    public void normalizeQueryReplacesSpacesWithPercentSigns() {
+        String input = "? query = value ";
+        String expectedOutput = "%3F+query=%3Dvalue%20";
+        assertEquals(expectedOutput, UrlBuilder.normalizeQuery(input));
+    }
+
+    @Test
+    public void normalizeRefReplacesSpacesWithPercent20s() {
+        String input = "# ref = value with spaces";
+        String expectedOutput = "#ref=%20value%20with%20spaces";
+        assertEquals(expectedOutput, UrlBuilder.normalizeRef(input));
+    }
+
+}

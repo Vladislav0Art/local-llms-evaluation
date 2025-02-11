@@ -1,0 +1,302 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.helper.DataUtil;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void urlBuilderConstructionTest() {
+        URL u = new URL("http://example.com/path?a=1&b=2#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        assert builder.u == u : "Url not copied correctly";
+        assert builder.q != null : "Query string should be initialized";
+    }
+
+    @Test
+    public void urlBuilderNormalizationTest() {
+        URL u = new URL("http://example.com/path?a=1&b=2#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        builder.build();
+        URI uri = u.getURI();
+        assertEquals("http", uri.getScheme());
+        assert uri.getHost().equals(IDN.toASCII(DataUtil.decodePart(uri.getHost())));
+    }
+
+    @Test
+    public void urlBuilderNormalizationWithNonAsciiPathTest() {
+        URL u = new URL("http://example.com/äöü/path?a=1&b=2#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        builder.build();
+        URI uri = u.getURI();
+        assertEquals("http", uri.getScheme());
+        assert uri.getHost().equals(IDN.toASCII(DataUtil.decodePart(uri.getHost())));
+    }
+
+    @Test
+    public void urlBuilderNormalizationWithQueryAndFragmentTest() {
+        URL u = new URL("http://example.com/path?a=1&b=2#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        builder.build();
+        String query = u.getQuery();
+        assertEquals("?a=1&b=2", query);
+        String fragment = u.getRef();
+        assertEquals("#fragment", fragment);
+    }
+
+    @Test
+    public void urlBuilderNormalizationWithNonAsciiQueryAndFragmentTest() {
+        URL u = new URL("http://example.com/äöü/path?a=1&b=2#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+        builder.build();
+        String query = u.getQuery();
+        assertEquals("?a=1%26b=2", query); // UTF-8 normalization
+    }
+
+    @Test(expected = MalformedURLException.class)
+    public void urlBuilderNormalizationWithInvalidUrlTest() {
+        URL u = new URL("http://example.com/invalid-path");
+        UrlBuilder builder = new UrlBuilder(u);
+        builder.build();
+    }
+
+    @Test
+    public void urlBuilderAppendKeyValTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        String query = builder.q.toString();
+        assertEquals("?key=value", query);
+    }
+
+    @Test
+    public void urlBuilderAppendKeyValWithNonAsciiValueTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "\u00f6");
+        UrlBuilder builder = new UrlBuilder(null);
+        builder.appendKeyVal(kv);
+        String query = builder.q.toString();
+        assertEquals("?key=%3Co", query); // UTF-8 normalization
+    }
+
+    @Test
+    public void urlBuilderDecodePartTest() throws UnsupportedEncodingException {
+        String encoded = "äöü";
+        String decoded = UrlBuilder.decodePart(encoded);
+        assertEquals("äöü", decoded);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class PublicClass {
+
+    @Test
+    public void testPublicMethod() {
+        String query = "key=value";
+        assertEquals("?key=value", query);
+    }
+
+    @Test
+    public void testUtf8Normalization() {
+        String query = "?a=1&b=2%26o=%C3%B6";
+        String decodedQuery = "key=value";
+
+        // Use a utility method to handle URL encoding and decoding
+        // Note: This is simplified and may not cover all edge cases
+        public String decodeUrl(String encoded) {
+            return encoded.replace("%26", "&").replace("%C3%B6", "ö");
+        }
+
+        assertEquals(decodedQuery, decodeUrl(query));
+    }
+
+    @Test
+    public void testInvalidPath() {
+        Connection connection = new Connection();
+        try {
+            connection.connect("http://example.com/invalid-path");
+            assert false;
+        } catch (Exception e) {
+            // Expected exception
+        }
+    }
+
+    public static class UrlBuilder {
+
+        private String encoded;
+
+        public UrlBuilder(String encoded) {
+            this.encoded = encoded;
+        }
+
+        public static String decodePart(String part) {
+            return part.replace("%26", "&").replace("%C3%B6", "ö");
+        }
+    }
+
+    public static class Connection {
+
+        public void connect(String url) throws Exception {
+            // Connect implementation
+        }
+
+        public static class KeyVal {
+
+            private String key;
+            private String value;
+
+            public KeyVal(String key, String value) {
+                this.key = key;
+                this.value = value;
+            }
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class TestSpark {
+    public static String decodeUrl(String encoded) {
+        return encoded.replace("%26", "&").replace("%C3%B6", "ö");
+    }
+
+    @Test
+    public void testPublicMethod() {
+        String query = "key=value";
+        assertEquals("?key=value", query);
+    }
+
+    @Test
+    public void testUtf8Normalization() {
+        String query = "?a=1&b=2%26o=%C3%B6";
+        String decodedQuery = "key=value";
+
+        assertEquals(decodedQuery, decodeUrl(query));
+    }
+
+    public static class InvalidPathTest {
+
+        @Test
+        public void testInvalidPath() {
+            try {
+                new Connection().connect("http://example.com/invalid-path");
+                assert false;
+            } catch (Exception e) {
+                // Expected exception
+            }
+        }
+    }
+
+    public class Connection {
+        public void connect(String url) throws Exception {
+            // Connect implementation
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class TestSpark {
+    public static String decodeUrl(String encoded) {
+        return encoded.replace("%26", "&").replace("%C3%B6", "ö");
+    }
+
+    @Test
+    public void testPublicMethod() {
+        String query = "key=value";
+        assertEquals("?key=value", query);
+    }
+
+    @Test
+    public void testUtf8Normalization() {
+        String query = "?a=1&b=2%26o=%C3%B6";
+        String decodedQuery = decodeUrl(query);
+        assertEquals(decodedQuery, "key=value");
+    }
+
+    public class Connection {
+        public void connect(String url) throws Exception {
+            // Connect implementation
+        }
+    }
+
+    public static class InvalidPathTest {
+        @Test
+        public void testInvalidPath() {
+            try {
+                new Connection().connect("http://example.com/invalid-path");
+                assert false;
+            } catch (Exception e) {
+                // Expected exception
+            }
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class TestSpark {
+    public static String decodeUrl(String encoded) {
+        return encoded.replace("%26", "&").replace("%C3%B6", "ö");
+    }
+
+    @Test
+    public void testPublicMethod() {
+        String query = "key=value";
+        assertEquals("?key=value", query);
+    }
+
+    @Test
+    public void testUtf8Normalization() {
+        String query = "?a=1&b=2%26o=%C3%B6";
+        assertEquals(decodeUrl(query), "key=value");
+    }
+
+    public static class Connection {
+        public void connect(String url) throws Exception {
+            // Connect implementation
+        }
+    }
+
+    public static class InvalidPathTest {
+        @Test
+        public void testInvalidPath() {
+            try {
+                new org.junit.jupiter.api.TestConnection().connect("http://example.com/invalid-path");
+                assert false;
+            } catch (Exception e) {
+                // Expected exception
+            }
+        }
+    }
+
+    private static class TestConnection extends Connection {
+        @Override
+        public void connect(String url) throws Exception {
+            // Connect implementation
+        }
+    }
+}
+```
+===================================================
+

@@ -1,0 +1,423 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.URL;
+import java.util Connection.KeyVal;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void [UrlBuilderConstructor][] constructor() {
+        URL u = new URL("http://example.com/path?query#fragment");
+        UrlBuilder builder = new UrlBuilder(u);
+
+        assertSame(builder.u, u);
+        assertNull(builder.q);
+
+        UrlBuilder builder2 = new UrlBuilder(u);
+        assertNull(builder2.u);
+        assertNotNull(builder2.q);
+
+        UrlBuilder builder3 = new UrlBuilder(new URL("http://example.com/path?query#fragment"));
+        assertEquals(builder3.u, u);
+    }
+
+    @Test
+    public void [UrlBuilderBuild]build() throws MalformedURLException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path"));
+        URL url = builder.build();
+        assertNotNull(url);
+        assertEquals(URI.create("http://example.com/").toString(), url.getProtocol());
+        assertEquals(URI.create("path").toString(), url.getPath());
+    }
+
+    @Test
+    public void [UrlBuilderBuild]buildWithQuery() throws MalformedURLException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path?query"));
+        URL url = builder.build();
+        assertNotNull(url);
+        assertEquals(URI.create("http://example.com/").toString(), url.getProtocol());
+        assertEquals(URI.create("path?query").toString(), url.getPath());
+    }
+
+    @Test
+    public void [UrlBuilderBuild]buildWithFragment() throws MalformedURLException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path#fragment"));
+        URL url = builder.build();
+        assertNotNull(url);
+        assertEquals(URI.create("http://example.com/").toString(), url.getProtocol());
+        assertEquals(URI.create("path").toString(), url.getPath());
+    }
+
+    @Test
+    public void [UrlBuilderBuild]buildWithMultipleParts() throws MalformedURLException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path?query#fragment"));
+        URL url = builder.build();
+        assertNotNull(url);
+        assertEquals(URI.create("http://example.com/").toString(), url.getProtocol());
+        assertEquals(URI.create("path?query#fragment").toString(), url.getPath());
+    }
+
+    @Test
+    public void [UrlBuilderAppendKeyVal]append() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path"));
+        Connection.KeyVal kv1 = new Connection.KeyVal();
+        Connection.KeyVal kv2 = new Connection.KeyVal();
+
+        builder.appendKeyVal(kv1);
+        builder.appendKeyVal(kv2);
+
+        assertEquals('?k1=v1&k2=v2', builder.q.toString());
+    }
+
+    @Test
+    public void [UrlBuilderAppendKeyVal]appendWithSpace() throws UnsupportedEncodingException {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com/path"));
+        Connection.KeyVal kv1 = new Connection.KeyVal();
+
+        builder.appendKeyVal(kv1);
+        assertEquals('?k1=v1+k2=v2', builder.q.toString());
+    }
+
+    @Test
+    public void [UrlBuilderDecodePart]decode() throws UnsupportedEncodingException {
+        String encoded = "http%3A//example.com/path";
+        String decoded = UrlBuilder.decodePart(encoded);
+
+        assertTrue(decoded.equals("http://example.com/path"));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class UrlBuilderTest {
+
+    @Test
+    public void testAppendKeyVal() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.append("k1", "v1");
+        builder.append("k2", "v2");
+
+        assertEquals("?k1=v1&k2=v2", builder.q.toString());
+    }
+
+    @Test
+    public void testAppendKeyValWithSpace() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.append("k1", "v1");
+        builder.append("k2", "v2");
+
+        assertEquals("?k1=v1+k2=v2", builder.q.toString());
+    }
+
+    @Test
+    public void testDecodePart() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.decode("a%20b");
+        assertEquals("ab", builder.result);
+    }
+
+    @Test
+    public void testAppendKeyValDecoded() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.append("k1", "v1");
+        builder.append("k2", "v2%20x3");
+
+        assertEquals("?k1=v1&k2=v2+x3", builder.q.toString());
+    }
+
+    @Test
+    public void testDecodePartWithSpace() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.decode("a%20b");
+        assertEquals("ab", builder.result);
+    }
+}
+
+public class UrlBuilder {
+
+    private StringBuilder q;
+
+    public UrlBuilder() {
+        this.q = new StringBuilder();
+    }
+
+    public void append(String key, String val) {
+        if (q.length() > 0) {
+            q.append("&");
+        }
+        q.append(key).append("=").append(val);
+    }
+
+    public void appendWithSpace(String key, String val) {
+        if (q.length() > 0) {
+            q.append("+");
+        }
+        q.append(key).append("=").append(val);
+    }
+
+    public void decode(String str) {
+        result = unquote(str);
+    }
+
+    private String unquote(String s) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == '%') {
+                int codePoint = Integer.parseInt(s.substring(i + 1, i + 3), 16);
+                sb.append((char) codePoint);
+                i += 2;
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    private String result;
+
+    public String toString() {
+        return q.toString();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class UrlBuilder {
+    private StringBuilder q;
+
+    public UrlBuilder() {
+        this.q = new StringBuilder();
+    }
+
+    public void append(String key, String val) {
+        if (q.length() > 0) {
+            q.append("&");
+        }
+        q.append(key).append("=").append(val);
+    }
+
+    public void appendWithSpace(String key, String val) {
+        if (q.length() > 0) {
+            q.append("+");
+        }
+        q.append(key).append("=").append(val);
+    }
+
+    public void decode(String str) {
+        this.q = new StringBuilder(str);
+    }
+
+    public String getQ() {
+        return q.toString();
+    }
+
+    private String result;
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public String getResult() {
+        return result;
+    }
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testAppend() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.append("k1", "v1");
+        assertEquals("?k1=v1", builder.getQ());
+    }
+
+    @Test
+    public void testAppendWithSpace() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.appendWithSpace("k2", "v2");
+        assertEquals("?k2=v2", builder.getQ());
+    }
+
+    @Test
+    public void testDecodeAndAppend() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.decode("?k1=v1&k2=v2");
+        builder.append("k3", "v3");
+        assertEquals("?k1=v1&k2=v2&k3=v3", builder.getQ());
+    }
+
+    @Test
+    public void testGetResult() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.decode("?k1=v1&k2=v2");
+        builder.setResult("ab");
+        assertEquals("ab", builder.getResult());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class UrlBuilder {
+    private StringBuilder q;
+    private String result;
+
+    public UrlBuilder() {
+        this.q = new StringBuilder();
+        this.result = "";
+    }
+
+    public void append(String key, String val) {
+        if (q.length() > 0) {
+            q.append("&");
+        }
+        q.append(key).append("=").append(val);
+    }
+
+    public void appendWithSpace(String key, String val) {
+        if (q.length() > 0) {
+            q.append("+");
+        }
+        q.append(key).append("=").append(val);
+    }
+
+    public void decode(String str) {
+        this.q = new StringBuilder(str);
+    }
+
+    public String getQ() {
+        return q.toString();
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testAppend() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.append("k1", "v1");
+        assertEquals("?k1=v1", builder.getQ());
+    }
+
+    @Test
+    public void testAppendWithSpace() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.appendWithSpace("k2", "v2");
+        assertEquals("?k2=v2", builder.getQ());
+    }
+
+    @Test
+    public void testDecodeAndAppend() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.decode("?k1=v1&k2=v2");
+        builder.append("k3", "v3");
+        assertEquals("?k1=v1&k2=v2&k3=v3", builder.getQ());
+    }
+
+    @Test
+    public void testGetResult() {
+        UrlBuilder builder = new UrlBuilder();
+        builder.decode("?k1=v1&k2=v2");
+        builder.setResult("ab");
+        assertEquals("ab", builder.getResult());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class UrlBuilder {
+    private StringBuilder q;
+    private String result;
+
+    public UrlBuilder() {}
+
+    public void append(String key, String val) {
+        if (q.length() > 0) {
+            q.append("&");
+        }
+        q.append(key).append("=").append(val);
+    }
+
+    public void appendWithSpace(String key, String val) {
+        if (q.length() > 0) {
+            q.append("+");
+        }
+        q.append(key).append("=").append(val);
+    }
+
+    public void decode(String str) {
+        this.q = new StringBuilder(str);
+    }
+
+    public String getQ() {
+        return q.toString();
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testAppend() throws Exception {
+        UrlBuilder builder = new UrlBuilder();
+        builder.append("k1", "v1");
+        assertEquals("?k1=v1", builder.getQ());
+    }
+
+    @Test
+    public void testAppendWithSpace() throws Exception {
+        UrlBuilder builder = new UrlBuilder();
+        builder.appendWithSpace("k2", "v2");
+        assertEquals("?k2=v2", builder.getQ());
+    }
+
+    @Test
+    public void testDecodeAndAppend() throws Exception {
+        UrlBuilder builder = new UrlBuilder();
+        builder.decode("?k1=v1&k2=v2");
+        builder.append("k3", "v3");
+        assertEquals("?k1=v1&k2=v2&k3=v3", builder.getQ());
+    }
+
+    @Test
+    public void testGetResult() throws Exception {
+        UrlBuilder builder = new UrlBuilder();
+        builder.decode("?k1=v1&k2=v2");
+        builder.setResult("ab");
+        assertEquals("ab", builder.getResult());
+    }
+}
+```
+===================================================
+

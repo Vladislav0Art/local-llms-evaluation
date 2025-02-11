@@ -1,0 +1,457 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.List;
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.CDataNode;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.XmlDeclaration;
+import org.jsoup.helper.Validate;
+import org.jsoup.parser.Parser;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.nodes.Node;
+
+public class XmlTreeBuilderTest {
+
+    @Test
+    public void parseStartTagTests() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String input = "<tag>content</tag>";
+        List<Node> result = builder.parse(input, null);
+        assertEquals(1, result.size());
+        Element element = (Element)result.get(0);
+        assertNotNull(element);
+        assertEquals("tag", element.tagName());
+    }
+
+    @Test
+    public void parseStartTagWithAttributesTests() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String input = "<tag attr='value'>content</tag>";
+        List<Node> result = builder.parse(input, null);
+        Element element = (Element)result.get(0);
+        assertNotNull(element);
+        assertEquals("tag", element.tagName());
+        assertEquals("value", element.getAttribute("attr"));
+    }
+
+    @Test
+    public void parseEndTagTests() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String input = "</tag>";
+        List<Node> result = builder.parse(input, null);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void processStartTagTests() {
+        Token token = new Token.StartTag("tag", null, null, 10, null);
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        assertTrue(builder.process(token));
+    }
+
+    @Test
+    public void processEndTagTests() {
+        Token token = new Token.EndTag("tag");
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        assertTrue(builder.process(token));
+    }
+
+    @Test
+    public void insertCommentTests() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String input = "<!-- comment -->";
+        List<Node> result = builder.parse(input, null);
+        Comment comment = (Comment)result.get(0);
+        assertNotNull(comment);
+    }
+
+    @Test
+    public void insertCharacterTests() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        Token token = new Token.Character("data", true, 10, null);
+        assertTrue(builder.process(token));
+    }
+
+    @Test
+    public void insertDoctypeTests() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String input = "<!DOCTYPE doc>";
+        List<Node> result = builder.parse(input, null);
+        DocumentType doctype = (DocumentType)result.get(0);
+        assertNotNull(doctype);
+    }
+
+    @Test
+    public void runParserTests() {
+        Parser parser = new Parser();
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String input = "<tag>content</tag>";
+        List<Node> result = builder.parse(input, null);
+        builder.initialiseParse(new StringReader(input), null, parser);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void parseFragmentTests() {
+        XmlTreeBuilder builder = new XmlTreeBuilder();
+        String input = "<tag>content</tag>";
+        List<Node> result = builder.parseFragment(input, null, new Parser());
+        assertEquals(1, result.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class TestToken {
+    public static void main(String[] args) {
+        //Test Token.StartTag
+        String tag = "tag";
+        int startLine = 10;
+        Token token = new Token.StartTag(tag, null, startLine);
+        System.out.println(token);
+
+        //Test Token.EndTag
+        tag = "tag";
+        Token tokenEndTag = new Token.EndTag(tag);
+        System.out.println(tokenEndTag);
+
+        //Test Token.Character
+        String characterData = "data";
+        boolean isCdata = true;
+        int startLine = 10;
+        Token tokenCharacter = new Token.Character(characterData, isCdata, startLine);
+        System.out.println(tokenCharacter);
+
+        //Test Token.StartElement
+        String tag = "tag";
+        String textContent = "content";
+        int startLine = 10;
+        Element startElement = new Element(tag, textContent, startLine);
+        System.out.println(startElement);
+    }
+}
+
+class Token {
+    public enum Type { START_TAG, END_TAG, CHARACTER }
+
+    private final Type type;
+    private final String data;
+    private final int startLine;
+
+    public Token(Type type) {
+        this.type = type;
+        this.data = null;
+        this.startLine = 0;
+    }
+
+    public Token(String data) {
+        if (data == null || data.isEmpty()) {
+            throw new IllegalArgumentException("Character data cannot be empty or null");
+        }
+        this.type = Type.CHARACTER;
+        this.data = data;
+        this.startLine = 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "type=" + type +
+                ", data='" + data + '\'' +
+                ", startLine=" + startLine +
+                '}';
+    }
+}
+
+class Element {
+    private final String tag;
+    private final String textContent;
+    private final int startLine;
+
+    public Element(String tag, String textContent, int startLine) {
+        this.tag = tag;
+        this.textContent = textContent;
+        this.startLine = startLine;
+    }
+
+    @Override
+    public String toString() {
+        return "Element{" +
+                "tag='" + tag + '\'' +
+                ", textContent='" + textContent + '\'' +
+                ", startLine=" + startLine +
+                '}';
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class GeneratedTest {
+    public static void main(String[] args) throws Exception {
+        // Test parse() method
+        String input = "<html><body>Hello World!</body></html>";
+        Document doc = new Document(input);
+        Elements elements = doc.select("body");
+        assertEquals(1, elements.size());
+
+        // Test parse() method with no input
+        input = "";
+        try {
+            org.jsoup.parser.Parser builder = new org.jsoup.parser.Parser();
+            List<Node> result = builder.parse(null, null);
+            fail("Expected an error");
+        } catch (Exception e) {}
+
+        // Test parseFragment()
+        input = "<html><body>Hello World!</body></html>";
+        Document doc2 = new Document(input);
+        Elements elements2 = doc2.select("body");
+        assertEquals(1, elements2.size());
+
+        // Test parseFragment() with no input
+        input = "";
+        try {
+            org.jsoup.parser.Parser builder = new org.jsoup.parser.Parser();
+            List<Node> result = builder.parseFragment(null, null, null);
+            fail("Expected an error");
+        } catch (Exception e) {}
+    }
+
+    public static class Node {
+        private final Element element;
+
+        public Node(Element element) {
+            this.element = element;
+        }
+
+        @Override
+        public String toString() {
+            return "Node{" +
+                    "element=" + element +
+                    '}';
+        }
+    }
+
+    public static class ParseResult {
+        private final Document document;
+        private final Elements elements;
+
+        public ParseResult(Document document, Elements elements) {
+            this.document = document;
+            this.elements = elements;
+        }
+
+        @Override
+        public String toString() {
+            return "ParseResult{" +
+                    "document=" + document +
+                    ", elements=" + elements +
+                    '}';
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class TestToken {
+    public static void main(String[] args) {
+        //Test Token.StartTag
+        String tag = "tag";
+        int startLine = 10;
+        Token token = new Token.StartTag(tag, null, startLine);
+        System.out.println(token);
+
+        //Test Token.EndTag
+        tag = "tag";
+        Token tokenEndTag = new Token.EndTag(tag);
+        System.out.println(tokenEndTag);
+
+        //Test Token.Character
+        String characterData = "data";
+        boolean isCdata = true;
+        int startLine = 10;
+        Token tokenCharacter = new Token.Character(characterData, isCdata, startLine);
+        System.out.println(tokenCharacter);
+
+        //Test Token.StartElement
+        tag = "tag";
+        String textContent = "content";
+        int startLine = 10;
+        Element startElement = new Element(tag, textContent, startLine);
+        System.out.println(startElement);
+    }
+}
+
+class Token {
+    public enum Type { START_TAG, END_TAG, CHARACTER }
+
+    private final Type type;
+    private final String data;
+    private final int startLine;
+
+    public Token(Type type) {
+        this.type = type;
+        this.data = null;
+        this.startLine = 0;
+    }
+
+    public Token(String data) {
+        if (data == null || data.isEmpty()) {
+            throw new IllegalArgumentException("Character data cannot be empty or null");
+        }
+        this.type = Type.CHARACTER;
+        this.data = data;
+        this.startLine = 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "type=" + type +
+                ", data='" + data + '\'' +
+                ", startLine=" + startLine +
+                '}';
+    }
+}
+
+class Element {
+    private final String tag;
+    private final String textContent;
+    private final int startLine;
+
+    public Element(String tag, String textContent, int startLine) {
+        this.tag = tag;
+        this.textContent = textContent;
+        this.startLine = startLine;
+    }
+
+    @Override
+    public String toString() {
+        return "Element{" +
+                "tag='" + tag + '\'' +
+                ", textContent='" + textContent + '\'' +
+                ", startLine=" + startLine +
+                '}';
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class TestToken {
+    public static void main(String[] args) {
+        //Test Token.StartTag
+        String tag = "tag";
+        int startLine = 10;
+        Token token = new Token.StartTag(tag, null, startLine);
+        System.out.println(token);
+
+        //Test Token.EndTag
+        tag = "tag";
+        Token tokenEndTag = new Token.EndTag(tag);
+        System.out.println(tokenEndTag);
+
+        //Test Token.Character
+        String characterData = "data";
+        boolean isCdata = true;
+        int startLine = 10;
+        Token tokenCharacter = new Token.Character(characterData, isCdata, startLine);
+        System.out.println(tokenCharacter);
+
+        //Test Token.StartElement
+        tag = "tag";
+        String textContent = "content";
+        int startLine = 10;
+        Element startElement = new Element(tag, textContent, startLine);
+        System.out.println(startElement);
+    }
+}
+
+class Token {
+    public enum Type { START_TAG, END_TAG, CHARACTER }
+
+    private final Type type;
+    private final String data;
+    private final int startLine;
+
+    public Token(Type type) {
+        this.type = type;
+        this.data = null;
+        this.startLine = 0;
+    }
+
+    public Token(String data) {
+        if (data == null || data.isEmpty()) {
+            throw new IllegalArgumentException("Character data cannot be empty or null");
+        }
+        this.type = Type.CHARACTER;
+        this.data = data;
+        this.startLine = 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "type=" + type +
+                ", data='" + data + '\'' +
+                ", startLine=" + startLine +
+                '}';
+    }
+}
+
+class Element {
+    private final String tag;
+    private final String textContent;
+    private final int startLine;
+
+    public Element(String tag, String textContent, int startLine) {
+        this.tag = tag;
+        this.textContent = textContent;
+        this.startLine = startLine;
+    }
+
+    @Override
+    public String toString() {
+        return "Element{" +
+                "tag='" + tag + '\'' +
+                ", textContent='" + textContent + '\'' +
+                ", startLine=" + startLine +
+                '}';
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

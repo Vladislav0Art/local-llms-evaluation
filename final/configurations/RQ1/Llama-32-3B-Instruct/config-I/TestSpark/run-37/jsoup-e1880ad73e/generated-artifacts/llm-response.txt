@@ -1,0 +1,155 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.jsoup.Connection;
+import org.jsoup.helper.DataUtil;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import static org.jsoup.helper.DataUtil.UTF_8;
+
+public class UrlBuilderTest {
+
+    @Mock
+    private Connection connection;
+
+    @Test
+    public void buildUrlFromEmptyUrl() throws Exception {
+        // given
+        UrlBuilder urlBuilder = new UrlBuilder(null);
+
+        // when
+        URL url = urlBuilder.build();
+
+        // then
+        Mockito.assertThrows(MalformedURLException.class, () -> url.toExternalForm());
+    }
+
+    @Test
+    public void buildUrlFromEmptyProtocol() throws Exception {
+        // given
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+
+        // when
+        URL url = urlBuilder.build();
+
+        // then
+        Mockito.assertThrows(MalformedURLException.class, () -> url.toExternalForm());
+    }
+
+    @Test
+    public void buildUrlWithQueryAndFragment() throws Exception {
+        // given
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com?query#fragment"));
+
+        // when
+        URL url = urlBuilder.build();
+
+        // then
+        Mockito.assertThrows(MalformedURLException.class, () -> url.toExternalForm());
+    }
+
+    @Test
+    public void appendKeyValToQueryBuilder() throws Exception {
+        // given
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+        Connection.KeyVal keyVal = new Connection.KeyVal("key", "value");
+
+        // when
+        urlBuilder.appendKeyVal(keyVal);
+
+        // then
+        Mockito.verify(urlBuilder.q).append(URLEncoder.encode("key", UTF_8.name()));
+    }
+
+    @Test
+    public void appendKeyValToQueryBuilderWithQuery() throws Exception {
+        // given
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com?query"));
+        Connection.KeyVal keyVal = new Connection.KeyVal("key", "value");
+
+        // when
+        urlBuilder.appendKeyVal(keyVal);
+
+        // then
+        Mockito.verify(urlBuilder.q).append(URLEncoder.encode("key", UTF_8.name())).andThen(Mockito.verify(urlBuilder.q, Mockito.times(1)).append('&'));
+    }
+
+    @Test
+    public void buildUrlWithDecodedHost() throws Exception {
+        // given
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com"));
+
+        // when
+        URL url = urlBuilder.build();
+
+        // then
+        Mockito.verify(url).getHost().withValue(IDN.toASCII("example.com"));
+    }
+
+    @Test
+    public void buildUrlWithEncodedPath() throws Exception {
+        // given
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/path?query"));
+
+        // when
+        URL url = urlBuilder.build();
+
+        // then
+        Mockito.verify(url).getPath().withValue("%2Fpath");
+    }
+
+    @Test
+    public void buildUrlWithQueryEncoded() throws Exception {
+        // given
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com?query=value"));
+
+        // when
+        URL url = urlBuilder.build();
+
+        // then
+        Mockito.verify(url).getQuery().withValue("query=value");
+    }
+
+    @Test
+    public void buildUrlWithFragmentEncoded() throws Exception {
+        // given
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com#fragment"));
+
+        // when
+        URL url = urlBuilder.build();
+
+        // then
+        Mockito.verify(url).getRef().withValue("%23fragment");
+    }
+
+    @Test
+    public void decodePartUrl() throws Exception {
+        // given
+        String encodedHost = "http://example.com";
+
+        // when
+        String decodedHost = UrlBuilder.decodePart(encodedHost);
+
+        // then
+        Mockito.verify(decodedHost).withValue("http://example.com");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================

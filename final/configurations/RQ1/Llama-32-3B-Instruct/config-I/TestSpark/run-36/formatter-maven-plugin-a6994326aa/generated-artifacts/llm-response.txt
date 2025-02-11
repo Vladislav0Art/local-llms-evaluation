@@ -1,0 +1,242 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CssFormatterTest {
+
+    @Mock
+    private ConfigurationSource cfg;
+
+    @InjectMocks
+    private CssFormatter formatter;
+
+    @Test
+    public void initWithValidOptionsDoesNotThrowException() {
+        // Given:
+        final Map<String, String> options = new java.util.HashMap<>();
+        options.put("indent", "4");
+        options.put("rgbAsHex", Boolean.TRUE.toString());
+        options.put("useSourceStringValues", Boolean.FALSE.toString());
+
+        // When:
+        formatter.init(options, cfg);
+
+        // Then:
+        assertNotNull(formatter.formatter);
+    }
+
+    @Test
+    public void initWithInvalidIndentValueDoesThrowException() {
+        // Given:
+        final Map<String, String> options = new java.util.HashMap<>();
+        options.put("indent", "-1");
+        options.put("rgbAsHex", Boolean.TRUE.toString());
+        options.put("useSourceStringValues", Boolean.FALSE.toString());
+
+        // When and Then:
+        assertThrows(NumberFormatException.class, () -> formatter.init(options, cfg));
+    }
+
+    @Test
+    public void doFormatWithoutCSSCodeReturnsNull() {
+        // Given:
+        final String code = "";
+
+        // When and Then:
+        assertEquals(null, formatter.doFormat(code, LineEnding.LF));
+    }
+
+    @Test
+    public void doFormatWithEmptyStringReturnsNull() {
+        // Given:
+        final String code = "   ";
+
+        // When and Then:
+        assertEquals(null, formatter.doFormat(code, LineEnding.LF));
+    }
+
+    @Test
+    public void doFormatDoesNotReturnOriginalCodeForSmallChanges() {
+        // Given:
+        final String originalCode = "body { color: red; }";
+        final String modifiedCode = "body { color: blue; }";
+
+        when(formatter.formatter.getCssText(any(CSSStyleSheetImpl.class)))
+                .thenReturn(modifiedCode);
+
+        // When:
+        final String formattedCode = formatter.doFormat(originalCode, LineEnding.LF);
+
+        // Then:
+        assertNotEquals(originalCode, formattedCode);
+    }
+
+    @Test
+    public void doFormatDoesNotReturnOriginalCodeForLargeChanges() {
+        // Given:
+        final String originalCode = "body { color: red; }";
+        final String modifiedCode = "body { color: blue; background-color: green; }";
+
+        when(formatter.formatter.getCssText(any(CSSStyleSheetImpl.class)))
+                .thenReturn(modifiedCode);
+
+        // When:
+        final String formattedCode = formatter.doFormat(originalCode, LineEnding.LF);
+
+        // Then:
+        assertNotEquals(originalCode, formattedCode);
+    }
+
+    @Test
+    public void doFormatUsesCorrectIndentation() {
+        // Given:
+        final String code = "body { color: red; }";
+        when(formatter.formatter.getIndent()).thenReturn(4);
+
+        // When:
+        final String formattedCode = formatter.doFormat(code, LineEnding.LF);
+
+        // Then:
+        assertTrue(formattedCode.startsWith("\t\tbody "));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+public class CssFormatterTest {
+
+    @Mock
+    private ConfigurationSource cfg;
+
+    public void setConfig(ConfigurationSource config) {
+        this.cfg = config;
+    }
+
+    @InjectMocks
+    private CssFormatter formatter;
+
+    @Test
+    public void initWithValidOptionsDoesNotThrowException() {
+        // Given:
+        final Map<String, String> options = new java.util.HashMap<>();
+        options.put("indent", "4");
+        options.put("rgbAsHex", Boolean.TRUE.toString());
+        options.put("useSourceStringValues", Boolean.FALSE.toString());
+
+        when(cfg.getOptions()).thenReturn(options);
+
+        formatter.setConfig(cfg);
+
+        // When:
+        formatter.init(null, null);
+
+        // Then:
+        assertNotNull(formatter.formatter);
+    }
+
+    @Test
+    public void initWithInvalidIndentValueDoesThrowException() {
+        // Given:
+        final Map<String, String> options = new java.util.HashMap<>();
+        options.put("indent", "-1");
+        options.put("rgbAsHex", Boolean.TRUE.toString());
+        options.put("useSourceStringValues", Boolean.FALSE.toString());
+
+        when(cfg.getOptions()).thenReturn(options);
+
+        formatter.setConfig(cfg);
+
+        // When and Then:
+        assertThrows(NumberFormatException.class, () -> formatter.init(null, null));
+    }
+
+    @Test
+    public void doFormatWithoutCSSCodeReturnsNull() {
+        // Given:
+        final String code = "";
+
+        // When and Then:
+        assertEquals(null, formatter.doFormat(code, LineEnding.LF));
+    }
+
+    @Test
+    public void doFormatWithEmptyStringReturnsNull() {
+        // Given:
+        final String code = "   ";
+
+        // When and Then:
+        assertEquals(null, formatter.doFormat(code, LineEnding.LF));
+    }
+
+    @Test
+    public void doFormatDoesNotReturnOriginalCodeForSmallChanges() {
+        // Given:
+        final String originalCode = "body { color: red; }";
+        final String modifiedCode = "body { color: blue; }";
+
+        when(formatter.formatter.getCssText(any(CSSStyleSheetImpl.class)))
+                .thenReturn(modifiedCode);
+
+        // When:
+        final String formattedCode = formatter.doFormat(originalCode, LineEnding.LF);
+
+        // Then:
+        assertNotEquals(originalCode, formattedCode);
+    }
+
+    @Test
+    public void doFormatDoesNotReturnOriginalCodeForLargeChanges() {
+        // Given:
+        final String originalCode = "body { color: red; }";
+        final String modifiedCode = "body { color: blue; background-color: green; }";
+
+        when(formatter.formatter.getCssText(any(CSSStyleSheetImpl.class)))
+                .thenReturn(modifiedCode);
+
+        // When:
+        final String formattedCode = formatter.doFormat(originalCode, LineEnding.LF);
+
+        // Then:
+        assertNotEquals(originalCode, formattedCode);
+    }
+
+    @Test
+    public void doFormatUsesCorrectIndentation() {
+        // Given:
+        final String code = "body { color: red; }";
+        when(formatter.formatter.getIndent()).thenReturn(4);
+
+        // When:
+        final String formattedCode = formatter.doFormat(code, LineEnding.LF);
+
+        // Then:
+        assertTrue(formattedCode.startsWith("\t\tbody "));
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================

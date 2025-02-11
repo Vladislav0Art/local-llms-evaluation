@@ -1,0 +1,416 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.ByteArrayInputStream;
+import java.util.Map;
+
+public class CssFormatterTest {
+
+    @Test
+    public void init_SetsFormatterProperties() {
+        // given
+        Map<String, String> options = Map.of("indent", "2");
+        ConfigurationSource cfg = null;
+        cssFormatter.init(options, cfg);
+
+        // when
+        String formatter = cssFormatter.getFormatter();
+
+        // then
+        assertEquals(2, Integer.parseInt(formatter.getProperties().getPropertiesInSeparateLines()));
+    }
+
+    @Test
+    public void init_ThrowsExceptionWhenRgbAsHexIsSetToFalse() {
+        // given
+        Map<String, String> options = Map.of("indent", "4");
+        ConfigurationSource cfg = null;
+        cssFormatter.init(options, cfg);
+        cssFormatter.setRgbAsHex(false);
+
+        // when
+        boolean rgbAsHex = cssFormatter.getRgbAsHex();
+
+        // then
+        assertFalse(rgbAsHex);
+    }
+
+    @Test
+    public void doFormat_PassesWhenNoChangesAreMade() {
+        // given
+        String code = "body { color: red; }";
+        LineEnding ending = null;
+        String expectedOutput = "body { color: red; }";
+
+        // when
+        String formattedCode = cssFormatter.doFormat(code, ending);
+
+        // then
+        assertEquals(expectedOutput, formattedCode);
+    }
+
+    @Test
+    public void doFormat_PassesWhenSourceStringValuesAreSetToFalse() {
+        // given
+        String code = "body { color: red; }";
+        LineEnding ending = null;
+        cssFormatter.setUseSourceStringValues(false);
+
+        // when
+        String formattedCode = cssFormatter.doFormat(code, ending);
+
+        // then
+        assertNotNull(formattedCode);
+    }
+
+    @Test
+    public void doFormat_ReturnsNullWhenNoChangesAreMade() {
+        // given
+        String code = "body { color: red; }";
+        LineEnding ending = null;
+        String expectedOutput = "body { color: red; }";
+
+        // when
+        String formattedCode = cssFormatter.doFormat(code, ending);
+
+        // then
+        assertNull(formattedCode);
+    }
+
+    @Test
+    public void doFormat_PassesWhenRgbAsHexIsSetToTrue() {
+        // given
+        String code = "body { color: red; }";
+        LineEnding ending = null;
+        cssFormatter.setRgbAsHex(true);
+
+        // when
+        String formattedCode = cssFormatter.doFormat(code, ending);
+
+        // then
+        assertNotNull(formattedCode);
+    }
+
+    @Test
+    public void doFormat_ReturnsFormattedCssText() {
+        // given
+        String code = "body { color: red; }";
+        LineEnding ending = null;
+
+        // when
+        String formattedCode = cssFormatter.doFormat(code, ending);
+
+        // then
+        assertTrue(formattedCode.contains("color: red;"));
+    }
+
+    @Test
+    public void doFormat_UsesSACParserCSS3() {
+        // given
+        String code = "body { color: red; }";
+        LineEnding ending = null;
+        cssFormatter.setUseSourceStringValues(false);
+
+        // when
+        String formattedCode = cssFormatter.doFormat(code, ending);
+
+        // then
+        assertTrue(formattedCode.contains("color: red;"));
+    }
+
+    @Test
+    public void doFormat_PatchesConvertedTabToBackslashNine() {
+        // given
+        String code = "body { color: red;\t }";
+        LineEnding ending = null;
+
+        // when
+        String formattedCode = cssFormatter.doFormat(code, ending);
+
+        // then
+        assertEquals("body { color: red;\\9 }", formattedCode);
+    }
+
+    @Test
+    public void isInitialized_ReturnsTrueWhenFormatterIsSet() {
+        // given
+        cssFormatter.setFormatter(new CSSFormat());
+
+        // when
+        boolean initialized = cssFormatter.isInitialized();
+
+        // then
+        assertTrue(initialized);
+    }
+
+    @Test
+    public void isInitialized_ReturnsFalseWhenFormatterIsNotSet() {
+        // given
+
+        // when
+        boolean initialized = cssFormatter.isInitialized();
+
+        // then
+        assertFalse(initialized);
+    }
+}
+
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class CSSFormat {
+    private boolean initialized = false;
+    private boolean useSourceStringValues = true;
+
+    public void setFormatter(CSSFormat formatter) {
+        this.formatter = formatter;
+        initialized = true;
+    }
+
+    public void setUseSourceStringValues(boolean useSourceStringValues) {
+        this.useSourceStringValues = useSourceStringValues;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+}
+
+public class CSSFormatInitTest {
+    @Test
+    public void testCSSFormatInitialization() {
+        CSSFormat cssFormat = new CSSFormat();
+        assert !cssFormat.isInitialized();
+
+        cssFormat.setFormatter(null);
+        assert !cssFormat.isInitialized();
+
+        cssFormat.setUseSourceStringValues(false);
+        assert !cssFormat.isInitialized();
+
+        CSSFormat formatter = new CSSFormat();
+        cssFormat.setFormatter(formatter);
+        assert cssFormat.isInitialized();
+
+        assert !formatter.isInitialized();
+    }
+
+    @Test
+    public void testCSSFormatInitializationWithCustomFormatter() {
+        CSSFormat cssFormat = new CSSFormat();
+        cssFormat.setFormatter(new CSSFormat());
+        assert cssFormat.isInitialized();
+    }
+}
+
+public class CSSFormatUsageTest {
+    @Test
+    public void testCSSFormatUsage() {
+        CSSFormat cssFormat = new CSSFormat();
+        assert !cssFormat.isInitialized();
+
+        cssFormat.setUseSourceStringValues(false);
+        assert !cssFormat.isInitialized();
+
+        String formattedCss = cssFormat.formatCode("/* comment */");
+        assert !formattedCss.contains("/* comment */");
+
+        cssFormat.setFormatter(new CSSFormat());
+        assert cssFormat.isInitialized();
+    }
+
+    @Test
+    public void testCSSFormatUsageWithCustomFormatter() {
+        CSSFormat formatter = new CSSFormat();
+        CSSFormat cssFormat = new CSSFormat();
+        cssFormat.setFormatter(formatter);
+        assert cssFormat.isInitialized();
+
+        String formattedCss = cssFormat.formatCode("/* comment */");
+        assert !formattedCss.contains("/* comment */");
+
+        // No effect from custom formatter
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class CSSFormatter {
+    private boolean initialized = false;
+    private boolean useSourceStringValues = true;
+
+    public void setFormatter(CSSFormatter formatter) {
+        this.formatter = formatter;
+        initialized = true;
+    }
+
+    public void setUseSourceStringValues(boolean useSourceStringValues) {
+        this.useSourceStringValues = useSourceStringValues;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public String formatCode(String cssCode) {
+        if (useSourceStringValues) {
+            return "/* " + cssCode + " */";
+        } else {
+            return cssCode;
+        }
+    }
+}
+
+public class CSSFormatterTest {
+    @Test
+    public void testCSSFormatterInitialization() {
+        CSSFormatter cssFormatter = new CSSFormatter();
+        assert !cssFormatter.isInitialized();
+
+        cssFormatter.setFormatter(null);
+        assert !cssFormatter.isInitialized();
+
+        cssFormatter.setFormatter(new CSSFormatter());
+        assert cssFormatter.isInitialized();
+    }
+
+    @Test
+    public void testCSSFormatterFormatCode() {
+        CSSFormatter cssFormatter = new CSSFormatter();
+        String cssCode = "test code";
+        String formattedCssCode = cssFormatter.formatCode(cssCode);
+        assert formattedCssCode.equals("/* " + cssCode + " */");
+    }
+
+    @Test
+    public void testCSSFormatterFormatCodeUseSourceStringValues() {
+        CSSFormatter cssFormatter = new CSSFormatter();
+        cssFormatter.setUseSourceStringValues(false);
+        String cssCode = "test code";
+        String formattedCssCode = cssFormatter.formatCode(cssCode);
+        assert formattedCssCode.equals(cssCode);
+    }
+
+    @Test
+    public void testCSSFormatterFormatMultipleCodes() {
+        CSSFormatter cssFormatter = new CSSFormatter();
+        String cssCode1 = "test code 1";
+        String cssCode2 = "test code 2";
+        String formattedCssCode1 = cssFormatter.formatCode(cssCode1);
+        String formattedCssCode2 = cssFormatter.formatCode(cssCode2);
+        assert formattedCssCode1.equals("/* " + cssCode1 + " */");
+        assert formattedCssCode2.equals("/* " + cssCode2 + " */");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class CSSFormatter {
+    private boolean initialized = false;
+    private boolean useSourceStringValues = true;
+
+    public void setFormatter(CSSFormatter formatter) {
+        this.formatter = formatter;
+        initialized = true;
+    }
+
+    public void setUseSourceStringValues(boolean useSourceStringValues) {
+        this.useSourceStringValues = useSourceStringValues;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public CSSFormatter getFormatter() {
+        return formatter;
+    }
+}
+
+public class TestCSSFormatter {
+
+    private CSSFormatter formatter;
+
+    public void setFormatter(CSSFormatter formatter) {
+        this.formatter = formatter;
+    }
+
+    public void testInitialized() {
+        CSSFormatter cssFormatter = new CSSFormatter();
+        cssFormatter.setFormatter(this.formatter);
+        System.out.println(cssFormatter.isInitialized());
+    }
+
+    public void testUseSourceStringValues() {
+        CSSFormatter cssFormatter = new CSSFormatter();
+        cssFormatter.setUseSourceStringValues(true);
+        System.out.println(cssFormatter.useSourceStringValues());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```
+public class CSSFormatterTest {
+
+    @Test
+    public void testConstructor() {
+        CSSFormatter cssFormatter = new CSSFormatter();
+        assert cssFormatter != null;
+    }
+
+    @Test
+    public void testSetUseSourceStringValues() {
+        CSSFormatter cssFormatter = new CSSFormatter();
+        cssFormatter.setUseSourceStringValues(true);
+        assertTrue(cssFormatter.useSourceStringValues());
+    }
+
+    @Test
+    public void testSetFormatter() {
+        CSSFormatter cssFormatter = new CSSFormatter();
+        CSSFormatter formatter = new CSSFormatter();
+        cssFormatter.setFormatter(formatter);
+        assert cssFormatter.getFormatter().equals(formatter);
+    }
+}
+
+public class TestCSSFormatter {
+
+    private CSSFormatter formatter;
+
+    @Before
+    public void setup() {
+        formatter = new CSSFormatter();
+    }
+
+    @Test
+    public void testInitialized() {
+        boolean result = formatter.isInitialized();
+        assertTrue(result);
+    }
+
+    @Test
+    public void testUseSourceStringValues() {
+        formatter.setUseSourceStringValues(true);
+        boolean result = formatter.useSourceStringValues();
+        assertTrue(result);
+    }
+}
+```
+===================================================
+

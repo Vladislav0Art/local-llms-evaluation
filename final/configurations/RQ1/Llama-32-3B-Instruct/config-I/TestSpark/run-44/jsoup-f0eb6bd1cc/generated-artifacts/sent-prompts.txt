@@ -1,0 +1,353 @@
+
+====================== Iteration #1 ======================
+Generate unit tests in Java for `org.jsoup.helper.UrlBuilder` maximizing line coverage for this class.
+
+REQUIREMENTS:
+1. DO NOT use @Before and @After test methods.
+2. Make test cases as atomic as possible.
+3. All tests should be written using JUnit 4.
+4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+The source code of class under test is as follows:
+```
+package org.jsoup.helper;
+
+import org.jsoup.Connection;
+import org.jsoup.internal.StringUtil;
+import javax.annotation.Nullable;
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import static org.jsoup.helper.DataUtil.UTF_8;
+/**
+ A utility class to normalize input URLs. jsoup internal; API subject to change.
+ <p>Normalization includes puny-coding the host, and encoding non-ascii path components. Any non-ascii characters in
+ the query string (or the fragment/anchor) are escaped, but any existing escapes in those components are preserved.</p>
+ */
+final class UrlBuilder {
+    URL u;
+    @Nullable StringBuilder q;
+
+    UrlBuilder(URL inputUrl) {
+        this.u = inputUrl;
+        if (u.getQuery() != null)
+            q = StringUtil.borrowBuilder().append(u.getQuery());
+    }
+
+    URL build() {
+        try {
+            // use the URI class to encode non-ascii in path
+            URI uri = new URI(
+                u.getProtocol(),
+                u.getUserInfo(),
+                IDN.toASCII(decodePart(u.getHost())), // puny-code
+                u.getPort(),
+                null, null, null // path, query and fragment appended later so as not to encode
+            );
+
+            StringBuilder normUrl = StringUtil.borrowBuilder().append(uri.toASCIIString());
+            appendToAscii(u.getPath(), false, normUrl);
+            if (q != null) {
+                normUrl.append('?');
+                appendToAscii(StringUtil.releaseBuilder(q), true, normUrl);
+            }
+            if (u.getRef() != null) {
+                normUrl.append('#');
+                appendToAscii(u.getRef(), false, normUrl);
+            }
+            u = new URL(StringUtil.releaseBuilder(normUrl));
+            return u;
+        } catch (MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {
+            // we assert here so that any incomplete normalization issues can be caught in devel. but in practise,
+            // the remote end will be able to handle it, so in prod we just pass the original URL.
+            // The UnsupportedEncodingException would never happen as always UTF8
+            assert Validate.assertFail(e.toString());
+            return u;
+        }
+    }
+
+    void appendKeyVal(Connection.KeyVal kv) throws UnsupportedEncodingException {
+        if (q == null)
+            q = StringUtil.borrowBuilder();
+        else
+            q.append('&');
+        q
+            .append(URLEncoder.encode(kv.key(), UTF_8.name()))
+            .append('=')
+            .append(URLEncoder.encode(kv.value(), UTF_8.name()));
+    }
+
+    private static String decodePart(String encoded) {
+        try {
+            return URLDecoder.decode(encoded, UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e); // wtf!
+        }
+    }
+
+    private static void appendToAscii(String s, boolean spaceAsPlus, StringBuilder sb) throws UnsupportedEncodingException {
+        // minimal normalization of Unicode -> Ascii, and space normal. Existing escapes are left as-is.
+        for (int i = 0; i < s.length(); i++) {
+            int c = s.codePointAt(i);
+            if (c == ' ') {
+                sb.append(spaceAsPlus ? '+' : "%20");
+            } else if (c > 127) { // out of ascii range
+                sb.append(URLEncoder.encode(new String(Character.toChars(c)), UTF_8.name()));
+                // ^^ is a bit heavy-handed - if perf critical, we could optimize
+            } else {
+                sb.append((char) c);
+            }
+        }
+    }
+
+
+}
+```
+
+Generate public classes and public methods. Response only a code with tests between ```, do not provide any other text.
+===================================================
+
+
+====================== Iteration #2 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:65: error: KeyVal is abstract; cannot be instantiated
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+                               ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:74: error: KeyVal is abstract; cannot be instantiated
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+                                ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:75: error: KeyVal is abstract; cannot be instantiated
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+                                ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:86: error: decodePart(String) has private access in UrlBuilder
+        String decoded = UrlBuilder.decodePart(encoded);
+                                   ^
+4 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #3 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:78: error: incompatible types: org.jsoup.helper.GeneratedTest.KeyVal cannot be converted to org.jsoup.Connection.KeyVal
+        builder.appendKeyVal(kv);
+                             ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:88: error: incompatible types: org.jsoup.helper.GeneratedTest.KeyVal cannot be converted to org.jsoup.Connection.KeyVal
+        builder.appendKeyVal(kv1);
+                             ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:89: error: incompatible types: org.jsoup.helper.GeneratedTest.KeyVal cannot be converted to org.jsoup.Connection.KeyVal
+        builder.appendKeyVal(kv2);
+                             ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:97: error: decodePart(String) has private access in UrlBuilder
+        String decoded = UrlBuilder.decodePart(encoded);
+                                   ^
+Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+4 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #4 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:30: error: class GeneratedTest is already defined in package org.jsoup.helper
+    public static class GeneratedTest {
+                  ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:9: error: cannot find symbol
+    @Mock
+     ^
+  symbol:   class Mock
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:39: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:48: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:57: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:66: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:75: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:84: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:94: error: cannot find symbol
+    @Test
+     ^
+  symbol:   class Test
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:31: error: constructor KeyVal in class KeyVal cannot be applied to given types;
+        public static class KeyVal extends org.jsoup.helper.GeneratedTest.KeyVal {
+                      ^
+  required: String,String
+  found: no arguments
+  reason: actual and formal argument lists differ in length
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:41: error: cannot find symbol
+        URL inputUrl = new URL("http://example.com/path?query=hello#fragment");
+        ^
+  symbol:   class URL
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:41: error: cannot find symbol
+        URL inputUrl = new URL("http://example.com/path?query=hello#fragment");
+                           ^
+  symbol:   class URL
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:44: error: cannot find symbol
+        URI uri = new URI(normalizedUrl);
+        ^
+  symbol:   class URI
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:44: error: cannot find symbol
+        URI uri = new URI(normalizedUrl);
+                      ^
+  symbol:   class URI
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:45: error: cannot find symbol
+        assert uri.getHost().equals(IDN.toASCII("example.com"));
+                                    ^
+  symbol:   variable IDN
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:50: error: cannot find symbol
+        URL inputUrl = new URL("http://example.com/path?query=hello#fragment");
+        ^
+  symbol:   class URL
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:50: error: cannot find symbol
+        URL inputUrl = new URL("http://example.com/path?query=hello#fragment");
+                           ^
+  symbol:   class URL
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:53: error: cannot find symbol
+        URI uri = new URI(normalizedUrl);
+        ^
+  symbol:   class URI
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:53: error: cannot find symbol
+        URI uri = new URI(normalizedUrl);
+                      ^
+  symbol:   class URI
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:59: error: cannot find symbol
+        URL inputUrl = new URL("http://example.com/path?query=hello+world#fragment");
+        ^
+  symbol:   class URL
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:59: error: cannot find symbol
+        URL inputUrl = new URL("http://example.com/path?query=hello+world#fragment");
+                           ^
+  symbol:   class URL
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:62: error: cannot find symbol
+        URI uri = new URI(normalizedUrl);
+        ^
+  symbol:   class URI
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:62: error: cannot find symbol
+        URI uri = new URI(normalizedUrl);
+                      ^
+  symbol:   class URI
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:68: error: cannot find symbol
+        URL inputUrl = new URL("http://example.com/path?query=hello#fragment");
+        ^
+  symbol:   class URL
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:68: error: cannot find symbol
+        URL inputUrl = new URL("http://example.com/path?query=hello#fragment");
+                           ^
+  symbol:   class URL
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:71: error: cannot find symbol
+        URI uri = new URI(normalizedUrl);
+        ^
+  symbol:   class URI
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:71: error: cannot find symbol
+        URI uri = new URI(normalizedUrl);
+                      ^
+  symbol:   class URI
+  location: class GeneratedTest
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:77: error: constructor KeyVal in class KeyVal cannot be applied to given types;
+        GeneratedTest.KeyVal kv = new GeneratedTest.KeyVal("key", "value");
+                                  ^
+  required: no arguments
+  found: String,String
+  reason: actual and formal argument lists differ in length
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:86: error: constructor KeyVal in class KeyVal cannot be applied to given types;
+        GeneratedTest.KeyVal kv1 = new GeneratedTest.KeyVal("key1", "value1");
+                                   ^
+  required: no arguments
+  found: String,String
+  reason: actual and formal argument lists differ in length
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:87: error: constructor KeyVal in class KeyVal cannot be applied to given types;
+        GeneratedTest.KeyVal kv2 = new GeneratedTest.KeyVal("key2", "value2");
+                                   ^
+  required: no arguments
+  found: String,String
+  reason: actual and formal argument lists differ in length
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:97: error: decodePart(String) has private access in UrlBuilder
+        String decoded = UrlBuilder.decodePart(encoded);
+                                   ^
+31 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+
+
+====================== Iteration #5 ======================
+I cannot compile the tests that you provided. The error is:
+
+```
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:53: error: illegal start of expression
+        public String getKey () {
+        ^
+/home/ubuntu/research-work-2024/evaluation/final/configurations/RQ1/Llama-32-3B-Instruct/config-I/TestSpark/run-44/jsoup-f0eb6bd1cc/org/jsoup/helper/GeneratedTest.java:63: error: class, interface, or enum expected
+}
+^
+2 errors
+
+```
+
+Fix this issue in the provided tests. Generate public classes and public methods.
+Response only a code with tests between ```, DO NOT provide any other text.
+===================================================
+

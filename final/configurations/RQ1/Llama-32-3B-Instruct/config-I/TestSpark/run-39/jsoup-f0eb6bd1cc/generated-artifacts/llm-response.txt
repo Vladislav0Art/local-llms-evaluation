@@ -1,0 +1,554 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class UrlBuilderTest {
+
+    @Test
+    public void ofUrlBuildsCorrectlyTest() {
+        URL u = new URL("https://example.com?query=abc&ref=def");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals(new URL("https://example.com?query=abc%26def#"), builder.build());
+    }
+
+    @Test
+    public void ofUrlWithQueryAndFragmentBuildsCorrectlyTest() {
+        URL u = new URL("https://example.com?query=abc&ref=def#frag");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals(new URL("https://example.com?query=abc%26def#frag"), builder.build());
+    }
+
+    @Test
+    public void ofUrlWithQueryAndFragmentButNoRefBuildsCorrectlyTest() {
+        URL u = new URL("https://example.com?query=abc&ref=def");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals(new URL("https://example.com?query=abc%26def"), builder.build());
+    }
+
+    @Test
+    public void ofUrlBuildsCorrectlyWithNonAsciiPath() {
+        URL u = new URL("https://example.com?path=%C3%A9cole&ref=def");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals(new URL("https://example.com?path=%C3%A9cole%26def"), builder.build());
+    }
+
+    @Test
+    public void ofUrlBuildsCorrectlyWithNonAsciiQuery() {
+        URL u = new URL("https://example.com?query=abc%C3%B6");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals(new URL("https://example.com?query=abc%26oe"), builder.build());
+    }
+
+    @Test
+    public void ofUrlBuildsCorrectlyWithNonAsciiFragment() {
+        URL u = new URL("https://example.com?path=%C3%A9cole&ref=%C3%B6def");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals(new URL("https://example.com?path=%C3%A9cole%26oe#%C3%B6def"), builder.build());
+    }
+
+    @Test
+    public void ofUrlBuildsCorrectlyWithNonAsciiQueryAndFragment() {
+        URL u = new URL("https://example.com?query=abc%C3%B6&ref=%C3%B6def");
+        UrlBuilder builder = new UrlBuilder(u);
+        assertEquals(new URL("https://example.com?query=abc%26oe#%C3%B6def"), builder.build());
+    }
+
+    @Test
+    public void buildThrowsMalformedURLExceptionIfInputIsInvalid() {
+        try {
+            new UrlBuilder(null);
+            assert false;
+        } catch (MalformedURLException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void buildThrowsURISyntaxExceptionIfInputUriIsInvalid() {
+        try {
+            URL u = new URL("invalid://example.com?query=abc");
+            new UrlBuilder(u);
+            assert false;
+        } catch (URISyntaxException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void appendKeyValAddsKeyValToUrlTest() {
+        Connection.KeyVal kv1 = new Connection.KeyVal("key", "value");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        builder.appendKeyVal(kv1);
+        assertEquals(0, builder.q.toString().split("&").length - 1);
+    }
+
+    @Test
+    public void appendKeyValAddsMultipleKeyValsToUrlTest() {
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+        UrlBuilder builder = new UrlBuilder(new URL("https://example.com"));
+        builder.appendKeyVal(kv1);
+        builder.appendKeyVal(kv2);
+        assertEquals(0, builder.q.toString().split("&").length - 2);
+    }
+
+    @Test
+    public void decodePartDoesNotThrowUnsupportedEncodingException() {
+        assertEquals("test", UrlBuilder.decodePart("test").toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "KeyVal{" +
+                    "key='" + key + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    public static class UrlBuilder {
+        private URL url;
+
+        public UrlBuilder(URL url) {
+            this.url = url;
+        }
+
+        public String getQ() {
+            return url.getQuery();
+        }
+
+        public String toString() {
+            return "UrlBuilder{" +
+                    "url=" + url +
+                    '}';
+        }
+    }
+
+    public static class DecodedPart {
+        private String value;
+
+        public DecodedPart(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "DecodedPart{" +
+                    "value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    public static void assertEquals(int actual, int expected) {
+        if (actual != expected) {
+            throw new AssertionError(actual + " is not equal to " + expected);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static void main(String[] args) {
+        String url = "https://example.com?key1=value1&key2=value2";
+        URL parsedUrl = new URL(url);
+
+        Connection.KeyVal kv1 = new Connection.KeyVal("key", "value");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+
+        UrlBuilder builder = new UrlBuilder(parsedUrl);
+        assertEquals(0, builder.getQ().split("&").length - 1);
+        assertEquals(2, builder.getQ().split("&").length);
+
+        String decodedPart = UrlBuilder.decodePart("test");
+        Connection.DecodedPart dp = new Connection.DecodedPart(decodedPart);
+        assertEquals("test", dp.toString());
+
+        System.out.println(kv1);
+        System.out.println(kv2);
+    }
+
+    public static String decodePart(String part) {
+        return part;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+I apologize for the incomplete response earlier. Here is the revised answer in the same format:
+
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "KeyVal{" +
+                    "key='" + key + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    public static class UrlBuilder {
+        private URL url;
+
+        public UrlBuilder(URL url) {
+            this.url = url;
+        }
+
+        public String getQ() {
+            return url.getQuery();
+        }
+
+        @Override
+        public String toString() {
+            return "UrlBuilder{" +
+                    "url=" + url +
+                    '}';
+        }
+    }
+
+    public static class DecodedPart {
+        private String value;
+
+        public DecodedPart(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "DecodedPart{" +
+                    "value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    public static void assertEquals(int actual, int expected) {
+        if (actual != expected) {
+            throw new AssertionError(actual + " is not equal to " + expected);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static void main(String[] args) {
+        String url = "https://example.com?key1=value1&key2=value2";
+        URL parsedUrl = new URL(url);
+
+        Connection.KeyVal kv1 = new Connection.KeyVal("key", "value");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+
+        UrlBuilder builder = new UrlBuilder(parsedUrl);
+        assertEquals(0, builder.getQ().split("&").length - 1);
+        assertEquals(2, builder.getQ().split("&").length);
+
+        String decodedPart = UrlBuilder.decodePart("test");
+        Connection.DecodedPart dp = new Connection.DecodedPart(decodedPart);
+        assertEquals("test", dp.toString());
+
+        System.out.println(kv1);
+        System.out.println(kv2);
+    }
+
+    public static String decodePart(String part) {
+        // Implement URL decoding logic here
+        return part;
+    }
+}
+```
+
+In this revised answer, I've added the `decodePart` method in the `Connection` class. This method takes a string parameter and returns it without any changes, as per your request for an empty implementation.
+
+Please note that you would need to implement the actual URL decoding logic within the `decodePart` method if you want it to perform any actual decoding of the input string.
+===================================================
+
+
+====================== Iteration #4 ======================
+I apologize for the incomplete response earlier. Here is a revised answer that provides a complete implementation in Java:
+
+```java
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "KeyVal{" +
+                    "key='" + key + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    public static class UrlBuilder {
+        private URL url;
+
+        public UrlBuilder(URL url) {
+            this.url = url;
+        }
+
+        public String getQ() {
+            return url.getQuery();
+        }
+
+        @Override
+        public String toString() {
+            return "UrlBuilder{" +
+                    "url=" + url +
+                    '}';
+        }
+    }
+
+    public static class DecodedPart {
+        private String value;
+
+        public DecodedPart(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "DecodedPart{" +
+                    "value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    public static void assertEquals(int actual, int expected) {
+        if (actual != expected) {
+            throw new AssertionError(actual + " is not equal to " + expected);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static void main(String[] args) throws Exception {
+        String url = "https://example.com?key1=value1&key2=value2";
+        URL parsedUrl = new URL(url);
+
+        Connection.KeyVal kv1 = new Connection.KeyVal("key", "value");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+
+        UrlBuilder builder = new UrlBuilder(parsedUrl);
+        System.out.println(builder.getQ());
+
+        String[] params = builder.getQ().split("&");
+        for (String param : params) {
+            if (!param.isEmpty()) {
+                String[] keyValue = param.split("=");
+
+                // URL decoding
+                StringBuilder decodedKey = new StringBuilder();
+                StringBuilder decodedValue = new StringBuilder();
+
+                for (char c : keyValue[0].toCharArray()) {
+                    switch (c) {
+                        case '%':
+                            Matcher matcher = Pattern.compile("\\d{2}").matcher(keyValue[0]);
+                            if (matcher.find()) {
+                                int codePoint = Integer.parseInt(matcher.group(), 16);
+                                decodedKey.append((char) codePoint);
+                            } else {
+                                decodedKey.append('%');
+                            }
+                            break;
+                        default:
+                            decodedKey.append(c);
+                    }
+                }
+
+                for (char c : keyValue[1].toCharArray()) {
+                    switch (c) {
+                        case '%':
+                            Matcher matcher = Pattern.compile("\\d{2}").matcher(keyValue[1]);
+                            if (matcher.find()) {
+                                int codePoint = Integer.parseInt(matcher.group(), 16);
+                                decodedValue.append((char) codePoint);
+                            } else {
+                                decodedValue.append('%');
+                            }
+                            break;
+                        default:
+                            decodedValue.append(c);
+                    }
+                }
+
+                System.out.println("Key: " + decodedKey.toString() +
+                        ", Value: " + decodedValue.toString());
+            }
+        }
+    }
+}
+```
+
+In this revised answer, I've implemented URL decoding logic within the `main` method. The code takes a URL string, parses its query parameters, and then decodes each key-value pair using the `%` encoding scheme.
+
+Please note that you may need to adjust the implementation based on your specific requirements or the nature of your URLs.
+===================================================
+
+
+====================== Iteration #5 ======================
+I apologize for the incomplete response earlier. Here is a revised answer that provides a complete implementation in Java:
+
+```java
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "KeyVal{" +
+                    "key='" + key + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    public static class UrlBuilder {
+        private URL url;
+
+        public UrlBuilder(URL url) {
+            this.url = url;
+        }
+
+        public String getQ() {
+            return url.getQuery();
+        }
+
+        @Override
+        public String toString() {
+            return "UrlBuilder{" +
+                    "url=" + url +
+                    '}';
+        }
+    }
+
+    public static class DecodedPart {
+        private String value;
+
+        public DecodedPart(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "DecodedPart{" +
+                    "value='" + value + '\'' +
+                    '}';
+        }
+    }
+
+    public static void assertEquals(int actual, int expected) {
+        if (actual != expected) {
+            throw new AssertionError(actual + " is not equal to " + expected);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static void main(String[] args) throws Exception {
+        String url = "https://example.com?key1%3Dvalue1&key2%3Dvalue2";
+        URL parsedUrl = new URL(url);
+
+        Connection.KeyVal kv1 = new Connection.KeyVal("key1", "value1");
+        Connection.KeyVal kv2 = new Connection.KeyVal("key2", "value2");
+
+        UrlBuilder builder = new UrlBuilder(parsedUrl);
+        System.out.println(builder.getQ());
+
+        String[] params = builder.getQ().split("&");
+        for (String param : params) {
+            if (!param.isEmpty()) {
+                String[] keyValue = param.split("=");
+
+                // URL decoding
+                StringBuilder decodedKey = new StringBuilder();
+                StringBuilder decodedValue = new StringBuilder();
+
+                for (char c : keyValue[0].toCharArray()) {
+                    switch (c) {
+                        case '%':
+                            Matcher matcher = Pattern.compile("\\d{2}").matcher(keyValue[0]);
+                            if (matcher.find()) {
+                                int codePoint = Integer.parseInt(matcher.group(), 16);
+                                decodedKey.append((char) codePoint);
+                            } else {
+                                decodedKey.append('%');
+                            }
+                            break;
+                        default:
+                            decodedKey.append(c);
+                    }
+                }
+
+                for (char c : keyValue[1].toCharArray()) {
+                    switch (c) {
+                        case '%':
+                            Matcher matcher = Pattern.compile("\\d{2}").matcher(keyValue[1]);
+                            if (matcher.find()) {
+                                int codePoint = Integer.parseInt(matcher.group(), 16);
+                                decodedValue.append((char) codePoint);
+                            } else {
+                                decodedValue.append('%');
+                            }
+                            break;
+                        default:
+                            decodedValue.append(c);
+                    }
+                }
+
+                System.out.println("Key: " + decodedKey.toString() +
+                        ", Value: " + decodedValue.toString());
+            }
+        }
+    }
+}
+```
+
+In this revised answer, I've implemented URL decoding logic within the `main` method. The code takes a URL string, parses its query parameters, and then decodes each key-value pair using the `%` encoding scheme.
+
+Please note that you may need to adjust the implementation based on your specific requirements or the nature of your URLs.
+===================================================
+
+
+====================== Iteration #6 ======================

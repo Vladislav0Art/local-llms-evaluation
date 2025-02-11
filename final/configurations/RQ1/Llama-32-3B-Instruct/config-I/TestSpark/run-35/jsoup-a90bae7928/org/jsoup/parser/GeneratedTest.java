@@ -1,0 +1,107 @@
+package org.jsoup.parser;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.jsoup.nodes.CDataNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.XmlDeclaration;
+import org.jsoup.parser.Parser;
+
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+import static org.jsoup.helper.Validate.validate;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    private XmlTreeBuilder xmlTreeBuilder;
+    @Mock
+    private Parser parser;
+    @Mock
+    private Element currentElement;
+    private List<Node> stack = new ArrayList<>();
+    private Document doc;
+    private ParseSettings settings;
+
+    @Before
+    public void setup() {
+        xmlTreeBuilder = new XmlTreeBuilder();
+        settings = xmlTreeBuilder.defaultSettings();
+        when(parser.settings()).thenReturn(settings);
+        stack.add(doc = new Document());
+        stack.add(new Element("a"));
+        currentElement = stack.get(stack.size() - 1);
+    }
+
+    @Test
+    public void initialisesParse_ReturnsTrue() {
+        xmlTreeBuilder.initialiseParse(null, null, parser);
+        assertTrue(xmlTreeBuilder.initialiseParse(null, null, parser));
+    }
+
+    @Test
+    public void parse_WithReader_SimpleXml_ParsedCorrectly() throws Exception {
+        when(parser.input()).thenReturn(new StringReader("<a></a>"));
+        xmlTreeBuilder.parse(new StringReader("<a></a>"), null);
+        assertEquals(1, doc.childNodes().size());
+    }
+
+    @Test
+    public void parse_WithString_SimpleXml_ParsedCorrectly() throws Exception {
+        when(parser.input()).thenReturn(new StringReader("<a></a>"));
+        xmlTreeBuilder.parse(null, null);
+        assertEquals(1, doc.childNodes().size());
+    }
+
+    @Test
+    public void parse_WithInvalidXml_ReturnsFalse() throws Exception {
+        when(parser.input()).thenReturn(new StringReader("<a>"));
+        xmlTreeBuilder.parse(new StringReader("<a>"), null);
+        assertFalse(xmlTreeBuilder.initialiseParse(null, null, parser));
+    }
+
+    @Test
+    public void process_GeneralTokenProcessingWorksCorrectly() {
+        Token token = new Token();
+        assertTrue(xmlTreeBuilder.process(token));
+    }
+
+    @Test
+    public void insertNode_NodeInsertedIntoDocumentCorrectly() throws Exception {
+        xmlTreeBuilder.insert(new Node());
+        assertEquals(1, currentElement.children().size());
+    }
+
+    @Test
+    public void insertDoctype_DoctypeInsertedIntoDocumentCorrectly() {
+        Token token = new Token();
+        xmlTreeBuilder.insert(token);
+        assertTrue(doc.hasChild("doctype"));
+    }
+
+    @Test
+    public void popStackToClose_EndTagPoppedFromStackCorrectly() throws Exception {
+        Token endTag = new Token();
+        when(parser.input()).thenReturn(new StringReader("<a></a>"));
+        xmlTreeBuilder.parse(new StringReader("<a></a>"), null);
+        assertEquals(0, stack.size());
+    }
+
+    @Test
+    public void parseFragment_ParsedCorrectly() throws Exception {
+        when(parser.input()).thenReturn(new StringReader("<a><b></b></a>"));
+        List<Node> result = xmlTreeBuilder.parseFragment(null, null, parser);
+        assertEquals(2, result.size());
+    }
+
+}

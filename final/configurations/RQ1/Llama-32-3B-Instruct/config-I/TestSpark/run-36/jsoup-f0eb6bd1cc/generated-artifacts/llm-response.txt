@@ -1,0 +1,347 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void createUrlBuilder_withNullUrl_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new UrlBuilder(null));
+    }
+
+    @Test
+    public void createUrlBuilder_withoutQueryBuildsUrlWithoutQuery() {
+        URL url = new URL("https://example.com/path");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("https://example.com/path", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void createUrlBuilder_withNullQueryBuildsUrlWithEmptyQueryString() {
+        URL url = new URL("https://example.com/path?query=string");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("https://example.com/path", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void createUrlBuilder_buildsUrlWithoutFragmentWhenNoFragmentIsPresent() {
+        URL url = new URL("https://example.com/path?query=string#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        assertEquals("https://example.com/path?query=string", urlBuilder.build().toString());
+    }
+
+    @Test
+    public void appendKeyVal_appendsKeyValuePairs() {
+        Connection.KeyVal keyVal = new Connection.KeyVal();
+        keyVal.key("key");
+        keyVal.value("value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com/path"));
+        urlBuilder.appendKeyVal(keyVal);
+        assertEquals("?key=value", urlBuilder.build().getQuery());
+    }
+
+    @Test
+    public void appendToAscii_appendsEncodedPathWhenNonASCIICharactersArePresent() {
+        String path = "path with non-ascii characters";
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii(path, false, sb);
+        assertEquals("%C3%A5path with non-ascii characters", sb.toString());
+    }
+
+    @Test
+    public void appendToAscii_leavesASCIICharactersAsIs() {
+        String path = "path with only ascii characters";
+        StringBuilder sb = new StringBuilder();
+        UrlBuilder.appendToAscii(path, false, sb);
+        assertEquals("path with only ascii characters", sb.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class URL {
+    // ...
+}
+
+public class Connection {
+    public static class KeyVal {
+        public void key(String k) {}
+        public void value(String v) {}
+    }
+}
+
+public class UrlBuilder {
+    public String build() {
+        return "";
+    }
+
+    public String getQuery() {
+        return "";
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {}
+
+    public void appendToAscii(String path, boolean escape, StringBuilder sb) {}
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class URL {
+    public static String parse(String url) throws MalformedURLException {
+        return "";
+    }
+}
+
+public class Connection {
+    public static class KeyVal {
+        public void key(String k) {}
+        public void value(String v) {}
+    }
+
+    public static class Builder extends KeyVal {
+        @Override
+        public void key(String k) {}
+
+        @Override
+        public void value(String v) {}
+
+        public String build() {
+            return "";
+        }
+    }
+}
+
+public class UrlBuilder {
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public String getQuery() {
+        return url.getQuery();
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {}
+
+    public void setUrl(URL url) {
+        this.url = url;
+    }
+
+    public String build() {
+        return url.toString();
+    }
+
+    public static UrlBuilder create(String url) throws MalformedURLException {
+        return new UrlBuilder(new URL(parse(url)));
+    }
+}
+
+public class ConnectionKeyVal implements Connection.KeyVal {
+
+    private String key;
+    private String value;
+
+    @Override
+    public void key(String k) {
+        this.key = k;
+    }
+
+    @Override
+    public void value(String v) {
+        this.value = v;
+    }
+
+    @Override
+    public String build() {
+        return "";
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class URL {
+    public static String parse(String url) throws MalformedURLException {
+        return url;
+    }
+
+    public String getQuery() {
+        return "";
+    }
+
+    @Override
+    public String toString() {
+        return "https://example.com/path";
+    }
+}
+
+public class ConnectionKeyVal implements Connection.KeyVal {
+
+    private String key;
+    private String value;
+
+    @Override
+    public void key(String k) {
+        this.key = k;
+    }
+
+    @Override
+    public void value(String v) {
+        this.value = v;
+    }
+
+    @Override
+    public String build() {
+        return "";
+    }
+}
+
+public class UrlBuilder {
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public String getQuery() {
+        return url.getQuery();
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {}
+
+    public void setUrl(URL url) {
+        this.url = url;
+    }
+
+    public String build() {
+        return url.toString();
+    }
+
+    public static UrlBuilder create(String url) throws MalformedURLException {
+        URL parsedUrl = new URL(parse(url));
+        UrlBuilder builder = new UrlBuilder(parsedUrl);
+        return builder;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) throws MalformedURLException {
+        String url = "https://example.com/path?param=value";
+        UrlBuilder builder = UrlBuilder.create(url);
+        System.out.println(builder.build());
+        
+        Connection.KeyVal kv = new ConnectionKeyVal();
+        builder.appendKeyVal(kv);
+        System.out.println(builder.build());
+
+        String path = "path/to/resource";
+        StringBuilder sb = new StringBuilder();
+        builder.appendToAscii(path, false, sb);
+        System.out.println(sb.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class URL {
+    public static String parse(String url) throws MalformedURLException {
+        return "https://example.com/path?query=string#fragment";
+    }
+
+    public String getQuery() {
+        return "";
+    }
+
+    @Override
+    public String toString() {
+        return "https://example.com/path?query=string#fragment";
+    }
+}
+
+public class ConnectionKeyVal implements java.net.URLConnection.KeyVal {
+
+    private String key;
+    private String value;
+
+    @Override
+    public void key(String k) {
+        this.key = k;
+    }
+
+    @Override
+    public void value(String v) {
+        this.value = v;
+    }
+
+    @Override
+    public void appendToAscii(String path, boolean escape, StringBuilder sb) {
+        // implementation
+    }
+}
+
+public class UrlBuilder {
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public String getQuery() {
+        return url.getQuery();
+    }
+
+    public void appendKeyVal(java.net.URLConnection.KeyVal kv) {}
+
+    public void setUrl(URL url) {
+        this.url = url;
+    }
+
+    public String build() {
+        return url.toString();
+    }
+
+    public static UrlBuilder create(String url) throws java.net.MalformedURLException {
+        URL parsedUrl = new URL(parse(url));
+        UrlBuilder builder = new UrlBuilder(parsedUrl);
+        return builder;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) throws java.net.MalformedURLException {
+        String url = "https://example.com/path?param=value";
+        UrlBuilder builder = UrlBuilder.create(url);
+        System.out.println(builder.build());
+        
+        Connection.KeyVal kv = new ConnectionKeyVal();
+        builder.appendKeyVal(kv);
+        System.out.println(builder.build());
+
+        String path = "path/to/resource";
+        StringBuilder sb = new StringBuilder();
+        builder.appendToAscii(path, false, sb);
+        System.out.println(sb.toString());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================

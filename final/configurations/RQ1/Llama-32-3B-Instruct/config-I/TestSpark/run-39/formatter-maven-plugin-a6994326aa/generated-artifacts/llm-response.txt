@@ -1,0 +1,312 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.io.IOException;
+
+public class CssFormatterTest {
+
+    @Test
+    public void init_EmptyOptions_ThrowsIOException() {
+        assertThrows(IOException.class, () -> new CssFormatter().init(Map.of(), null));
+    }
+
+    @Test
+    public void init_ValidIndent_MatchesExpectedValue() {
+        var formatter = new CssFormatter();
+        formatter.init(Map.of("indent", "4"), null);
+        assertEquals(4, formatter.formatter.getProperties().get("indent"));
+    }
+
+    @Test
+    public void doFormat_EmptyCss_ThrowsIOException() {
+        assertThrows(IOException.class, () -> new CssFormatter().doFormat("", LineEnding.LF));
+    }
+
+    @Test
+    public void doFormat_ValidCss_ReturnsFormattedCode() throws IOException {
+        var formatter = new CssFormatter();
+        formatter.init(Map.of("indent", "4"), null);
+        var source = new InputSource(new StringReader("{ font-size: 16px; }"));
+        var parser = new CSSOMParser(new SACParserCSS3());
+        var sheet = (CSSStyleSheetImpl) parser.parseStyleSheet(source, null, null);
+        var formattedCode = formatter.doFormat(sheet.getCssText(formatter.formatter), LineEnding.LF);
+        assertNotNull(formattedCode);
+    }
+
+    @Test
+    public void doFormat_ValidCss_IeHack_ReturnsFormattedCode() throws IOException {
+        var formatter = new CssFormatter();
+        formatter.init(Map.of("indent", "4"), null);
+        var source = new InputSource(new StringReader("{ font-size: 16px; }"));
+        var parser = new CSSOMParser(new SACParserCSS3());
+        var sheet = (CSSStyleSheetImpl) parser.parseStyleSheet(source, null, null);
+        var formattedCode = formatter.doFormat(sheet.getCssText(formatter.formatter), LineEnding.LF);
+        assertTrue(formattedCode.contains("\\9;"));
+    }
+
+    @Test
+    public void doFormat_InvalidCss_ThrowsIOException() {
+        assertThrows(IOException.class, () -> new CssFormatter().doFormat("{ invalid css }", LineEnding.LF));
+    }
+
+    @Test
+    public void isInitialized_ReturnsTrueWhenFormatterIsNotNull() {
+        var formatter = new CssFormatter();
+        assertTrue(formatter.isInitialized());
+    }
+}
+
+public class CssFormatterBuilderTest {
+
+    @Test
+    public void buildFormatter_ValidOptions_ReturnsFormattedInstance() {
+        var builder = new CssFormatterBuilder();
+        var formatter = builder.build(new Map.of("indent", "4"));
+        assertNotNull(formatter);
+    }
+
+    @Test
+    public void buildFormatter_InvalidIndent_ThrowsIOException() {
+        assertThrows(IOException.class, () -> new CssFormatterBuilder().build(Map.of()));
+    }
+}
+
+class CssFormatterBuilder {
+
+    private int indent;
+
+    public CssFormatterBuilder setIndent(int indent) {
+        this.indent = indent;
+        return this;
+    }
+
+    public CssFormatter build(Map<String, String> options) throws IOException {
+        var formatter = new CssFormatter();
+        formatter.init(options, null);
+        return formatter;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class CssFormatterTest {
+
+    @Test
+    public void init_EmptyOptions_ThrowsIOException() {
+        assertThrows(IOException.class, () -> new CssFormatter().init(Map.of(), null));
+    }
+
+    @Test
+    public void init_ValidIndent_MatchesExpectedValue() {
+        var formatter = new CssFormatter();
+        formatter.init(Map.of("indent", "4"), null);
+        assertEquals(4, formatter.formatter.getProperties().get("indent"));
+    }
+
+    @Test
+    public void doFormat_EmptyCss_ThrowsIOException() {
+        assertThrows(IOException.class, () -> new CssFormatter().doFormat("", LineEnding.LF));
+    }
+
+    @Test
+    public void doFormat_ValidCss_ReturnsFormattedCode() throws IOException {
+        var formatter = new CssFormatter();
+        var options = Map.of("indent", "4");
+        var result = formatter.doFormat(options);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void doFormat_InvalidCss_ThrowsIOException() {
+        assertThrows(IOException.class, () -> new CssFormatter().doFormat("{ invalid css }", LineEnding.LF));
+    }
+}
+
+public class CssFormatterBuilder {
+
+    private int indent;
+
+    public void setIndent(int indent) {
+        this.indent = indent;
+    }
+
+    public CssFormatter build(Map<String, String> options) throws IOException {
+        var formatter = new CssFormatter();
+        if (indent > 0) {
+            throw new IOException("Invalid indent");
+        }
+        return formatter.init(options, null);
+    }
+}
+
+class LineEnding {
+    public static final int LF = 10;
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class CssFormatterTest {
+
+    @Test
+    public void init_EmptyOptions_ThrowsIOException() {
+        CssFormatter formatter = new CssFormatter();
+        assertThrows(IOException.class, () -> formatter.init(Map.of(), null));
+    }
+
+    @Test
+    public void init_ValidIndent_MatchesExpectedValue() {
+        CssFormatter formatter = new CssFormatter();
+        var options = Map.of("indent", "4");
+        formatter.init(options, null);
+        assertEquals(4, ((CssFormatter)formatter.formatter).getProperties().get("indent"));
+    }
+
+    @Test
+    public void doFormat_EmptyCss_ThrowsIOException() {
+        CssFormatter formatter = new CssFormatter();
+        assertThrows(IOException.class, () -> formatter.doFormat("", LineEnding.LF));
+    }
+
+    @Test
+    public void doFormat_ValidCss_ReturnsFormattedCode() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        var options = Map.of("indent", "4");
+        var result = formatter.doFormat(options);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void doFormat_InvalidCss_ThrowsIOException() {
+        CssFormatter formatter = new CssFormatter();
+        assertThrows(IOException.class, () -> formatter.doFormat("{ invalid css }", LineEnding.LF));
+    }
+}
+
+class CssFormatterBuilder {
+
+    private int indent;
+
+    public void setIndent(int indent) {
+        this.indent = indent;
+    }
+
+    public CssFormatter build(Map<String, String> options) throws IOException {
+        if (indent > 0) {
+            throw new IOException("Invalid indent");
+        }
+        return new CssFormatter();
+    }
+}
+
+class LineEnding {
+    public static final int LF = 10;
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class CssFormatter {
+
+    private Map<String, String> properties;
+
+    public void init(Map<String, String> options, Object indent) throws IOException {
+        if (indent instanceof Integer && (Integer)indent > 0) {
+            throw new IOException("Invalid indent");
+        }
+        this.properties = options;
+    }
+
+    public String doFormat(String css) throws IOException {
+        // implementation
+        return "";
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+}
+
+class LineEnding {
+    public static final int LF = 10;
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class CssFormatter {
+
+    private Map<String, String> properties;
+
+    public void init(Map<String, String> options) throws IOException {
+        if (options.containsKey("indent") && (Integer)(Integer)options.get("indent") > 0) {
+            throw new IOException("Invalid indent");
+        }
+        this.properties = options;
+    }
+
+    public String doFormat(String css) throws IOException {
+        // implementation
+        return "";
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+}
+
+class LineEnding {}
+
+public class CssFormatterTest {
+
+    @Test
+    public void init_EmptyOptions_ThrowsIOException() {
+        CssFormatter formatter = new CssFormatter();
+        assertThrows(IOException.class, () -> formatter.init(Map.of()));
+    }
+
+    @Test
+    public void init_ValidIndent_MatchesExpectedValue() {
+        CssFormatter formatter = new CssFormatter();
+        var options = Map.of("indent", "4");
+        formatter.init(options);
+        assertEquals(4, ((CssFormatter)formatter.getProperties()).get("indent"));
+    }
+
+    @Test
+    public void doFormat_EmptyCss_ThrowsIOException() {
+        CssFormatter formatter = new CssFormatter();
+        assertThrows(IOException.class, () -> formatter.doFormat(""));
+    }
+
+    @Test
+    public void doFormat_ValidCss_ReturnsFormattedCode() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        var options = Map.of("indent", "4");
+        var result = formatter.doFormat("");
+        assertNotNull(result);
+    }
+
+    @Test
+    public void doFormat_InvalidCss_ThrowsIOException() {
+        CssFormatter formatter = new CssFormatter();
+        assertThrows(IOException.class, () -> formatter.doFormat("{ invalid css }"));
+    }
+}
+
+public class LineEnding {} 
+```
+===================================================
+

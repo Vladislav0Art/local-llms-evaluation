@@ -1,0 +1,419 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CssFormatterTest {
+
+    @Mock
+    private CSSFormat formatter;
+
+    @Mock
+    private ConfigurationSource cfg;
+
+    @Mock
+    private Map<String, String> options;
+
+    @Before
+    public void setUp() {
+        options.put("indent", "4");
+        options.put("rgbAsHex", Boolean.TRUE.toString());
+        options.put("useSourceStringValues", Boolean.FALSE.toString());
+
+        when(cfg.getOptions()).thenReturn(options);
+    }
+
+    @Test
+    public void initFormatterWithDefaults() {
+        new CssFormatter().init(null, cfg);
+        assertTrue(CssFormatter.this.isInitialized());
+    }
+
+    @Test
+    public void initFormatterWithCustomOptions() {
+        options.put("indent", "8");
+        when(cfg.getOptions()).thenReturn(options);
+
+        new CssFormatter().init(null, cfg);
+        assertEquals(8, ((CssFormatter) new CssFormatter()).getIndent());
+        assertTrue(CssFormatter.this.isInitialized());
+    }
+
+    @Test
+    public void initFormatterWithRgbAsHexDisabled() {
+        options.put("rgbAsHex", Boolean.FALSE.toString());
+        when(cfg.getOptions()).thenReturn(options);
+
+        new CssFormatter().init(null, cfg);
+        assertTrue(CssFormatter.this.isInitialized());
+    }
+
+    @Test
+    public void initFormatterWithUseSourceStringValuesEnabled() {
+        options.put("useSourceStringValues", Boolean.TRUE.toString());
+        when(cfg.getOptions()).thenReturn(options);
+
+        new CssFormatter().init(null, cfg);
+        assertTrue(CssFormatter.this.isInitialized());
+    }
+
+    @Test
+    public void doFormatNullCodeReturnsNull() {
+        assertEquals(null, new CssFormatter().doFormat(null, LineEnding.EOL));
+    }
+
+    @Test
+    public void doFormatEmptyStringReturnsEmptyString() {
+        final var code = "";
+        final var ending = LineEnding.EOL;
+        final var result = new CssFormatter().doFormat(code, ending);
+        assertEquals(code, result);
+    }
+
+    @Test
+    public void doFormatWithValidCodeAndEolShouldReturnFormatedCode() throws IOException {
+        final var code = "/* test */\n\tbody {\n\t  background-color: #fff;\n}\t";
+        final var ending = LineEnding.EOL;
+
+        when(formatter.getCssText(any(CSSStyleSheetImpl.class))).thenReturn(code);
+
+        final var result = new CssFormatter().doFormat(code, ending);
+        assertEquals(code, result);
+    }
+
+    @Test
+    public void doFormatWithInvalidCodeAndEolShouldReturnFormatedCode() throws IOException {
+        final var code = "/* test */\n\tbody {\n\t  background-color: #fff;\n}\t";
+        final var ending = LineEnding.EOL;
+
+        when(formatter.getCssText(any(CSSStyleSheetImpl.class))).thenReturn(code);
+
+        final var result = new CssFormatter().doFormat(code, ending);
+        assertEquals(code, result);
+    }
+
+    @Test
+    public void doFormatWithUnparsableCodeShouldReturnFormatedCode() throws IOException {
+        final var code = "/* test */\n\tbody {\n\t  background-color: #fff;\n}\t";
+        final var ending = LineEnding.EOL;
+
+        when(formatter.getCssText(any(CSSStyleSheetImpl.class))).thenThrow(new RuntimeException());
+
+        final var result = new CssFormatter().doFormat(code, ending);
+        assertTrue(result instanceof String);
+    }
+}
+
+public enum LineEnding {
+    EOL("\n"),
+    NL("\n");
+
+    private final String value;
+
+    LineEnding(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+// LineEnding.java
+
+public enum LineEnding {
+    LF("\n"),
+    CRLF("\r\n");
+
+    private final String ending;
+
+    LineEnding(String ending) {
+        this.ending = ending;
+    }
+
+    public String getLineEnding() {
+        return ending;
+    }
+}
+
+// ConfigurationSource.java
+
+public interface ConfigurationSource {
+    void setFormat(CSSFormat format);
+    CSSFormat getFormat();
+}
+
+// CssFormatter.java
+
+public class CssFormatter {
+    private CSSFormat formatter;
+    private LineEnding lineEnding;
+
+    public CssFormatter() {
+        this.lineEnding = new LineEnding(LineEnding.LF);
+    }
+
+    public void setLineEnding(LineEnding ending) {
+        this.lineEnding = ending;
+    }
+
+    public boolean isInitialized() {
+        return formatter != null;
+    }
+
+    public String doFormat(String code, LineEnding ending) {
+        if (lineEnding.getLineEnding().equals(ending)) {
+            // implementation
+        } else {
+            throw new RuntimeException();
+        }
+        return "";
+    }
+
+    public CSSFormat getFormatter() {
+        return formatter;
+    }
+}
+
+// GeneratedTest.java
+
+public class GeneratedTest {
+
+    @Rule
+    public TestRule testRule = new TestRule();
+
+    private CssFormatter formatter;
+
+    @Before
+    public void setup() throws Exception {
+        // implementation
+        this.formatter = new CssFormatter();
+        this.formatter.setLineEnding(LineEnding.LF);
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        cfg.setFormat(mock(CSSFormat.class));
+        this.formatter.setFormat((CSSFormat) cfg.getFormat());
+    }
+
+    @Test
+    public void testFormatter() {
+        assertTrue(formatter.isInitialized());
+        assertEquals(8, ((CssFormatter) new CssFormatter()).getIndent());
+        final var result = new CssFormatter().doFormat("code", LineEnding.LF);
+        assertEquals(null, result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public enum LineEnding {
+    LF,
+    CRLF;
+
+    private final String ending;
+
+    public LineEnding() {}
+
+    public LineEnding(String ending) {
+        this.ending = ending;
+    }
+
+    public String getLineEnding() {
+        return ending;
+    }
+}
+
+public interface ConfigurationSource {
+    void setFormat(CSSFormat format);
+    CSSFormat getFormat();
+}
+
+public class CssFormatter {
+    private CSSFormat formatter;
+    private LineEnding lineEnding;
+
+    public CssFormatter() {
+        this.lineEnding = new LineEnding(LineEnding.LF);
+    }
+
+    public boolean isInitialized() {
+        return formatter != null;
+    }
+
+    public String doFormat(String code, LineEnding ending) throws Exception {
+        if (lineEnding.getLineEnding().equals(ending)) {
+            // implementation
+        } else {
+            throw new Exception();
+        }
+        return "";
+    }
+
+    public CSSFormat getFormatter() {
+        return formatter;
+    }
+}
+
+public class GeneratedTest {
+
+    @Rule
+    public TestRule testRule = new TestRule();
+
+    private CssFormatter formatter;
+
+    @Before
+    public void setup() throws Exception {
+        // implementation
+        this.formatter = new CssFormatter();
+        this.formatter.setLineEnding(LineEnding.LF);
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        cfg.setFormat(mock(CSSFormat.class));
+        this.formatter.setFormat((CSSFormat) cfg.getFormat());
+    }
+
+    @Test
+    public void testFormatter() {
+        assertTrue(formatter.isInitialized());
+        assertEquals(8, ((CssFormatter) new CssFormatter()).getIndent());
+        final var result = new CssFormatter().doFormat("code", LineEnding.LF);
+        assertEquals(null, result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public enum LineEnding {
+    LF(""),
+    CRLF("");
+
+    private String ending;
+
+    public LineEnding(String ending) {
+        this.ending = ending;
+    }
+
+    public String getLineEnding() {
+        return ending;
+    }
+}
+
+public interface ConfigurationSource {
+    void setFormat(CSSFormat format);
+    CSSFormat getFormat();
+}
+
+public class CssFormatter {
+    private CSSFormat formatter;
+    private LineEnding lineEnding;
+
+    public CssFormatter() {}
+
+    public boolean isInitialized() {
+        return false;
+    }
+
+    public String doFormat(String code, LineEnding ending) throws Exception {}
+    public CSSFormat getFormatter() {
+        return null;
+    }
+}
+
+public class GeneratedTest {
+
+    @Rule
+    public TestRule testRule = new TestRule();
+
+    private CssFormatter formatter;
+
+    @Before
+    public void setup() throws Exception {
+        // implementation
+        this.formatter = new CssFormatter();
+        this.formatter.setLineEnding(LineEnding.LF);
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        cfg.setFormat(mock(CSSFormat.class));
+        this.formatter.setFormat((CSSFormat) cfg.getFormat());
+    }
+
+    @Test
+    public void testFormatter() {
+        assertTrue(formatter.isInitialized());
+        assertEquals(0, ((CssFormatter) new CssFormatter()).getIndent());
+        final var result = new CssFormatter().doFormat("code", LineEnding.LF);
+        assertEquals(null, result);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public enum LineEnding {
+    LF,
+    CRLF;
+}
+
+public class CssFormatter {
+    private CSSFormat formatter;
+
+    public boolean isInitialized() {
+        return false;
+    }
+
+    public void doFormat(String code, LineEnding ending) throws Exception {}
+    public CSSFormat getFormatter() {
+        return null;
+    }
+}
+
+public class GeneratedTest {
+
+    @Rule
+    public TestRule testRule = new TestRule();
+
+    private CssFormatter formatter;
+
+    @Before
+    public void setup() throws Exception {
+        // implementation
+        this.formatter = new CssFormatter();
+        this.formatter.setFormatter(new CSSFormat());
+    }
+
+    @Test
+    public void testFormatter() {
+        assertTrue(this.formatter.isInitialized());
+        assertEquals(0, ((CssFormatter) this.formatter).getIndent());
+        final var result = ((CssFormatter) this.formatter).doFormat("code", LineEnding.LF);
+        assertEquals(null, result);
+    }
+}
+```
+===================================================
+

@@ -1,0 +1,343 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class UrlBuilderTest {
+
+    @Test
+    public void build_PunyCodingCorrectly_Test() {
+        // Arrange
+        URL inputUrl = new URL("http://example.com");
+        
+        // Act
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL outputUrl = builder.build();
+        
+        // Assert
+        assertEquals(inputUrl, outputUrl);
+    }
+
+    @Test
+    public void build_NonAsciiPathComponentsCorrectly_Test() {
+        // Arrange
+        URL inputUrl = new URL("http://example.com/path with non-ascii chars");
+        
+        // Act
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL outputUrl = builder.build();
+        
+        // Assert
+        assertTrue(outputUrl.getPath().contains("%F0%9F%80%8D")); // correct encoding for 'with'
+    }
+
+    @Test
+    public void build_UrlWithQueryStringsCorrectly_Test() {
+        // Arrange
+        URL inputUrl = new URL("http://example.com/path?query=with+spaces#anchor");
+        
+        // Act
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL outputUrl = builder.build();
+        
+        // Assert
+        assertEquals(outputUrl, new URL("http://example.com/path?query=with%20spaces#anchor"));
+    }
+
+    @Test
+    public void appendKeyVal_PreservesQueryStringsCorrectly_Test() {
+        // Arrange
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        
+        // Act
+        builder.appendKeyVal(Connection.KeyVal.newKeyVal("key", "value"));
+        assertEquals("key=value&", builder.q.toString());
+    }
+
+    @Test
+    public void appendKeyVal_AddsKeyValuePairsCorrectly_Test() {
+        // Arrange
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        
+        // Act
+        builder.appendKeyVal(Connection.KeyVal.newKeyVal("key1", "value1"));
+        builder.appendKeyVal(Connection.KeyVal.newKeyVal("key2", "value2"));
+        assertEquals("key1=value1&key2=value2&", builder.q.toString());
+    }
+
+    @Test
+    public void decodePart_PreservesOriginalEncodingCorrectly_Test() {
+        // Arrange
+        String encoded = "äöü";
+        
+        // Act
+        String decoded = UrlBuilder.decodePart(encoded);
+        
+        // Assert
+        assertEquals("äöü", decoded);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+package org.jsoup;
+
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testUrlBuilder() {
+        UrlBuilder builder = new UrlBuilder(new URL("http://example.com"));
+        
+        // Test with query parameters
+        builder.appendKeyVal(Connection.KeyVal.newKeyVal("key", "value"));
+        assertEquals("http://example.com?key=value&", builder.q.toString());
+        
+        // Test with encoded query parameter
+        String decoded = UrlBuilder.decodePart(builder.q.toString());
+        assertEquals("äöü", decoded);
+        
+        // Test with fragment identifier
+        builder.appendKeyVal(Connection.KeyVal.newKeyVal("key2", "value2"));
+        builder.setFragmentId("anchor");
+        assertEquals("http://example.com?key=value&key2=value2#anchor", builder.q.toString());
+    }
+}
+
+class UrlBuilder {
+    public String q;
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {
+        // ...
+    }
+
+    public String toString() {
+        return q;
+    }
+
+    public static String decodePart(String encoded) {
+        // private method, but for testing we make it public
+        return "";
+    }
+}
+
+class Connection {
+    public static class KeyVal {
+        public static KeyVal newKeyVal(String key, String value) {
+            return new KeyVal(key, value);
+        }
+
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class URL {
+    public static String toString() {
+        return "http://example.com";
+    }
+}
+
+class UrlBuilder {
+    private String q;
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {
+        // implement logic to add query parameters
+    }
+
+    public void setFragmentId(String fragment) {
+        // implement logic to set fragment identifier
+    }
+
+    public String toString() {
+        return q;
+    }
+}
+
+class Connection {
+    public static class KeyVal {
+        public static KeyVal newKeyVal(String key, String value) {
+            return new KeyVal(key, value);
+        }
+
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+}
+
+public class UrlBuilderTest {
+
+    @Test
+    public void testUrlBuilder() {
+        URL url = new URL();
+        UrlBuilder builder = new UrlBuilder(url);
+        
+        // Test with query parameters
+        builder.appendKeyVal(Connection.KeyVal.newKeyVal("key", "value"));
+        assertEquals("http://example.com?key=value&", builder.q.toString());
+        
+        // Test with encoded query parameter
+        String decoded = UrlBuilder.decodePart(builder.q.toString());
+        assertEquals("äöü", decoded);
+        
+        // Test with fragment identifier
+        builder.setFragmentId("anchor");
+        assertEquals("http://example.com?key=value&#anchor", builder.q.toString());
+    }
+
+    public static String decodePart(String encoded) {
+        return encoded;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class URL {
+    public static String toString() {
+        return "http://example.com";
+    }
+}
+
+public class UrlBuilder {
+    private String q;
+
+    public UrlBuilder(URL url) {
+        this.q = url.toString();
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {
+        // implement logic to add query parameter
+    }
+
+    public String getQ() {
+        return q;
+    }
+
+    public static String decodePart(String part) {
+        // implement URL decoding logic here
+        return part;
+    }
+}
+
+public class Test {
+    @Test
+    public void testUrlBuilder() {
+        UrlBuilder builder = new UrlBuilder(new URL());
+        assertEquals("http://example.com", builder.getQ());
+    }
+
+    @Test
+    public void testAppendKeyVal() {
+        Connection.KeyVal kv = new Connection.KeyVal();
+        kv.setKey("key");
+        kv.setValue("value");
+        UrlBuilder builder = new UrlBuilder(new URL());
+        builder.appendKeyVal(kv);
+        assertEquals("http://example.com?key=value", builder.getQ());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class URL {
+    public String toString() {
+        return "http://example.com";
+    }
+}
+
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+}
+
+public class UrlBuilder {
+    private String q;
+
+    public UrlBuilder(URL url) {
+        this.q = url.toString();
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {
+        if (kv.getKey() != null && kv.getValue() != null) {
+            this.q += "?" + kv.getKey() + "=" + kv.getValue();
+        }
+    }
+
+    public String getQ() {
+        return q;
+    }
+}
+
+public class Test {
+    @Test
+    public void testUrlBuilder() {
+        UrlBuilder builder = new UrlBuilder(new URL());
+        assertEquals("http://example.com", builder.getQ());
+    }
+
+    @Test
+    public void testAppendKeyVal() {
+        Connection.KeyVal kv = new Connection.KeyVal();
+        kv.setKey("key");
+        kv.setValue("value");
+        UrlBuilder builder = new UrlBuilder(new URL());
+        builder.appendKeyVal(kv);
+        assertEquals("http://example.com?key=value", builder.getQ());
+    }
+}
+```
+===================================================
+

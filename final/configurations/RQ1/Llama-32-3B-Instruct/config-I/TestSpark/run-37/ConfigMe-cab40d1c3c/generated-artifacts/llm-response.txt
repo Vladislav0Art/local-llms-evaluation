@@ -1,0 +1,443 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class PropertyListBuilderTest {
+
+    @Mock
+    private Map<String, Object> rootEntriesMock;
+
+    public void setup() {
+        // No setup needed for this test class
+    }
+
+    @Test
+    public void addValidProperty_test() {
+        Property<?> property = Mockito.mock(Property.class);
+        when(property.getPath()).thenReturn("test");
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(property);
+        verify(rootEntriesMock, times(1)).put(Mockito.anyString(), Mockito.anyObject());
+    }
+
+    @Test
+    public void addInvalidProperty_test() {
+        Property<?> property = Mockito.mock(Property.class);
+        when(property.getPath()).thenReturn("test");
+        try {
+            PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+            propertyListBuilder.add(property);
+            fail("Expected ConfigMeException to be thrown.");
+        } catch (ConfigMeException e) {
+            assertEquals("Path at '" + property.getPath() + "' already exists", e.getMessage());
+        }
+    }
+
+    @Test
+    public void create_test() {
+        Property<?> property1 = Mockito.mock(Property.class);
+        when(property1.getPath()).thenReturn("test");
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(property1);
+
+        Property<?> property2 = Mockito.mock(Property.class);
+        when(property2.getPath()).thenReturn("subtest");
+        propertyListBuilder.add(property2);
+
+        List<Property<?>> result = propertyListBuilder.create();
+        assertNotNull(result);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void createInvalidPath_test() {
+        Property<?> property = Mockito.mock(Property.class);
+        when(property.getPath()).thenReturn("test");
+        try {
+            PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+            propertyListBuilder.add(property);
+            fail("Expected ConfigMeException to be thrown.");
+        } catch (ConfigMeException e) {
+            assertEquals("Path at '" + property.getPath() + "' already exists", e.getMessage());
+        }
+    }
+
+    @Test
+    public void addPropertyWithNullValue_test() {
+        Property<?> property = Mockito.mock(Property.class);
+        when(property.getPath()).thenReturn("test");
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("key", null);
+        when(rootEntriesMock).get("key").thenReturn(map);
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        try {
+            propertyListBuilder.add(property);
+            fail("Expected ConfigMeException to be thrown.");
+        } catch (ConfigMeException e) {
+            assertEquals("Value of unknown type found at '" + "test" + "': null", e.getMessage());
+        }
+    }
+
+    @Test
+    public void addPropertyWithUnexpectedType_test() {
+        Property<?> property = Mockito.mock(Property.class);
+        when(property.getPath()).thenReturn("test");
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("key", 123);
+        when(rootEntriesMock).get("key").thenReturn(map);
+        try {
+            PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+            propertyListBuilder.add(property);
+            fail("Expected ConfigMeException to be thrown.");
+        } catch (ConfigMeException e) {
+            assertEquals("Value of unknown type found at '" + "test" + "': 123", e.getMessage());
+        }
+    }
+
+    @Test
+    public void createAndAddToExistingEntry_test() {
+        Property<?> property = Mockito.mock(Property.class);
+        when(property.getPath()).thenReturn("test");
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("key", null);
+        when(rootEntriesMock).get("key").thenReturn(map);
+
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(property);
+        List<Property<?>> result = propertyListBuilder.create();
+
+        verify(rootEntriesMock, times(1)).put(Mockito.anyString(), Mockito.anyObject());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.put;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
+public class PropertyListBuilderTest {
+
+    @Mock
+    private RootEntries rootEntries;
+
+    @Test
+    public void testPropertyListBuilder() {
+        // Arrange
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder(rootEntries);
+
+        // Act
+        List<Property<?>> result = propertyListBuilder.create();
+
+        // Assert
+        verify(rootEntries, times(1)).put(anyString(), anyObject());
+    }
+
+    @Test
+    public void testCreate() {
+        // Arrange
+        List<Property<?>> expectedProperties = new ArrayList<>();
+        expectedProperties.add(new Property("key", "value"));
+        expectedProperties.add(new Property("key2", "value2"));
+
+        // Act
+        List<Property<?>> result = propertyListBuilder.create();
+
+        // Assert
+        assertEquals(expectedProperties, result);
+    }
+}
+
+class Property {
+    private String key;
+    private String value;
+
+    public Property(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Property property = (Property) o;
+        return Objects.equals(key, property.key);
+    }
+}
+
+class RootEntries {}
+
+class PropertyListBuilder {
+    private final RootEntries rootEntries;
+
+    public PropertyListBuilder(RootEntries rootEntries) {
+        this.rootEntries = rootEntries;
+    }
+
+    public List<Property<?>> create() {
+        // implementation to build the list of properties
+        return new ArrayList<>();
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class RootEntriesMock {
+    private Map<String, Object> map = new HashMap<>();
+
+    @SuppressWarnings("unchecked")
+    public void put(String key, Object value) {
+        this.map.put(key, value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getMap() {
+        return (Map<String, Object>) map;
+    }
+}
+
+public class Property {
+    private String key;
+    private String value;
+
+    public Property(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Property property = (Property) o;
+        return Objects.equals(key, property.key);
+    }
+}
+
+public class ArrayListStub {
+    private List<Object> list;
+
+    public ArrayListStub() {
+        this.list = new ArrayList<>();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void add(Object value) {
+        this.list.add(value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object> get_list() {
+        return (List<Object>) list;
+    }
+}
+
+public class GeneratedTest {
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        @Test
+        public void test_rootEntriesMock_put() throws Exception {
+            RootEntriesMock rootEntriesMock = new RootEntriesMock();
+            Object expectedMap = Collections.singletonMap("key", "value");
+            Map<String, Object> map = new HashMap<>();
+            map.putAll(rootEntriesMock.getMap());
+            assertEquals(expectedMap, map);
+        }
+
+        @Test
+        public void test_property_equals() {
+            Property property1 = new Property("key1", "value1");
+            Property property2 = new Property("key1", "value1");
+            assertTrue(property1.equals(property2));
+        }
+
+        @Test
+        public void test_listStub_add() throws Exception {
+            ArrayListStub listStub = new ArrayListStub();
+            listStub.add(1);
+            assertEquals(1, listStub.get_list().size());
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class RootEntriesMockTest {
+
+    @Test
+    public void test_rootEntriesMock_put() throws Exception {
+        RootEntriesMock rootEntriesMock = new RootEntriesMock();
+        Map<String, Object> expectedMap = Collections.singletonMap("key", "value");
+        Map<String, Object> map = new HashMap<>();
+        map.putAll(rootEntriesMock.getMap());
+        assertEquals(expectedMap, map);
+    }
+
+    @Test
+    public void test_property_equals() {
+        Property property1 = new Property("key1", "value1");
+        Property property2 = new Property("key1", "value1");
+        assertTrue(property1.equals(property2));
+    }
+
+    @Test
+    public void test_listStub_add() throws Exception {
+        ArrayListStub listStub = new ArrayListStub();
+        listStub.add(1);
+        assertEquals(1, listStub.get_list().size());
+    }
+}
+
+public class Property {
+
+    private String key;
+    private String value;
+
+    public Property(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Property property = (Property) o;
+        return Objects.equals(key, property.key);
+    }
+}
+
+public class ArrayListStub {
+
+    private List<Object> list;
+
+    public ArrayListStub() {
+        this.list = new ArrayList<>();
+    }
+
+    public void add(Object value) {
+        this.list.add(value);
+    }
+
+    public List<Object> get_list() {
+        return (List<Object>) list;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class Property {
+    private String key;
+    private String value;
+
+    public Property(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public boolean equals(Property other) {
+        return Objects.equals(key, other.key);
+    }
+}
+
+public class ArrayListStub {
+    private List<Object> list;
+
+    public ArrayListStub() {
+        this.list = new ArrayList<>();
+    }
+
+    public void add(Object value) {
+        this.list.add(value);
+    }
+
+    public List<Object> getList() {
+        return list;
+    }
+}
+
+public class MapUtil {
+    public static <K, V> Map<K, V> singletonMap(K key, V value) {
+        return Collections.singletonMap(key, value);
+    }
+}
+
+public class RootEntriesMock {
+    private Map<String, Object> entries;
+
+    public RootEntriesMock() {
+        this.entries = new HashMap<>();
+    }
+
+    public void addEntry(String key, Object value) {
+        entries.put(key, value);
+    }
+
+    public Map<String, Object> getEntries() {
+        return entries;
+    }
+}
+
+public class GeneratedTest {
+
+    @Test
+    public void testPropertyEquals() {
+        Property property1 = new Property("key", "value");
+        Property property2 = new Property("key", "value");
+        assertTrue(property1.equals(property2));
+    }
+
+    @Test
+    public void testArrayListStubGetList() {
+        ArrayListStub stub = new ArrayListStub();
+        stub.add(1);
+        stub.add(2);
+        assertEquals(2, stub.getList().size());
+    }
+
+    @Test
+    public void testMapUtilSingletonMap() {
+        Map<String, Object> map = MapUtil.singletonMap("key", "value");
+        assertEquals(1, map.size());
+    }
+
+    @Test
+    public void testRootEntriesMockGetEntries() {
+        RootEntriesMock mock = new RootEntriesMock();
+        mock.addEntry("key", "value");
+        assertEquals(1, mock.getEntries().size());
+    }
+}
+```
+===================================================
+

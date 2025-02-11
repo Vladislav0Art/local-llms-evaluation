@@ -1,0 +1,421 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URI;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void build_WithoutQueryOrFragment_ReturnsOriginalUrl() throws MalformedURLException {
+        URL inputUrl = new URL("http://example.com/path?query#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertEquals(inputUrl, urlBuilder.build());
+    }
+
+    @Test
+    public void build_WithQuery_ReturnsNormalizedUrl() throws MalformedURLException {
+        URL inputUrl = new URL("http://example.com/path?query=Hello%2C+World");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertEquals(new URL("http://example.com/path?query=Hello%2C%20World"), urlBuilder.build());
+    }
+
+    @Test
+    public void build_WithQueryAndFragment_ReturnsNormalizedUrl() throws MalformedURLException {
+        URL inputUrl = new URL("http://example.com/path?query=Hello%2C+World#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertEquals(new URL("http://example.com/path?query=Hello%2C%20World#fragment"), urlBuilder.build());
+    }
+
+    @Test
+    public void appendKeyVal_AppendsKeyValuePair() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/path"));
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("http://example.com/path?key=value", new URL("http://example.com/path").toString());
+    }
+
+    @Test
+    public void decodePart_DecodesASCIIStrings() throws UnsupportedEncodingException {
+        String encoded = "Hello%2C+World";
+        String decoded = UrlBuilder.decodePart(encoded);
+        assertEquals("Hello, World", decoded);
+    }
+
+    @Test
+    public void normalizeQuery_ReplacesSpacesWithPlusSigns() {
+        String q = "Hello World";
+        String normalizedQ = UrlBuilder.normalizeQuery(q);
+        assertEquals("Hello+World", normalizedQ);
+    }
+
+    @Test
+    public void normalizeRef-ReplacesSpacesWithPercent20Symbols() {
+        String r = "Hello World";
+        String normalizedR = UrlBuilder.normalizeRef(r);
+        assertEquals("Hello%20World", normalizedR);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URI;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+
+public class UrlBuilderTest {
+
+    @Test
+    public void build_WithoutQueryOrFragment_ReturnsOriginalUrl() throws MalformedURLException {
+        URL inputUrl = new URL("http://example.com/path?query=Hello%2C+World#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertEquals(inputUrl, urlBuilder.build());
+    }
+
+    @Test
+    public void build_WithQuery_ReturnsNormalizedUrl() throws MalformedURLException {
+        URL inputUrl = new URL("http://example.com/path?query=Hello%2C+World");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertEquals(new URL("http://example.com/path?query=Hello%2C%20World"), urlBuilder.build());
+    }
+
+    @Test
+    public void build_WithQueryAndFragment_ReturnsNormalizedUrl() throws MalformedURLException {
+        URL inputUrl = new URL("http://example.com/path?query=Hello%2C+World#fragment");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        assertEquals(new URL("http://example.com/path?query=Hello%2C%20World#fragment"), urlBuilder.build());
+    }
+
+    @Test
+    public void appendKeyVal_AppendsKeyValuePair() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://example.com/path"));
+        urlBuilder.appendKeyVal(kv);
+        assertEquals("http://example.com/path?key=value", new URL("http://example.com/path").toString());
+    }
+
+    @Test
+    public void decodePart_DecodesASCIIStrings() throws UnsupportedEncodingException {
+        String encoded = "Hello%2C+World";
+        String decoded = UrlBuilder.decodePart(encoded);
+        assertEquals("Hello, World", decoded);
+    }
+
+    @Test
+    public void normalizeQuery_ReplacesSpacesWithPlusSigns() {
+        String q = "Hello World";
+        String normalizedQ = UrlBuilder.normalizeQuery(q);
+        assertEquals("Hello+World", normalizedQ);
+    }
+
+    @Test
+    public void normalizeRef_ReplacesSpacesWithPercent20Symbols() {
+        String r = "Hello World";
+        String normalizedR = UrlBuilder.normalizeRef(r);
+        assertEquals("Hello%20World", normalizedR);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+}
+
+public class UrlBuilder {
+
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public URL build() {
+        return url;
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {
+        String query = getUrlQuery();
+        HashMap<String, String> queryParams = new HashMap<>();
+        queryParams.put(kv.key, kv.value);
+        query += "&" + getQueryString(paramsToUrl(queryParams));
+        setUrlQuery(query);
+    }
+
+    private String getUrlQuery() {
+        return url.getQuery();
+    }
+
+    private void setUrlQuery(String query) {
+        url.setQuery(query);
+    }
+
+    private String getQueryString(HashMap<String, String> queryParams) {
+        StringBuilder sb = new StringBuilder();
+        for (String key : queryParams.keySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(key).append("=").append(URLEncoder.encode(queryParams.get(key), "UTF-8"));
+        }
+        return sb.toString();
+    }
+
+    private String paramsToUrl(HashMap<String, String> queryParams) {
+        StringBuilder sb = new StringBuilder();
+        for (String key : queryParams.keySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(key).append("=").append(URLEncoder.encode(queryParams.get(key), "UTF-8"));
+        }
+        return sb.toString();
+    }
+
+    private static final String encoder = "UTF-8";
+
+    public static String URLEncoder(String s) {
+        try {
+            return new String(s.getBytes(encoder), encoder);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String decodePart(String encoded) {
+        try {
+            return new String(encoded.getBytes(encoder), encoder);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String normalizeQuery(String query) {
+        String[] parts = query.split("&");
+        HashMap<String, String> queryParams = new HashMap<>();
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                String[] keyValue = part.split("=");
+                if (keyValue.length == 2) {
+                    queryParams.put(keyValue[0], keyValue[1]);
+                }
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String key : queryParams.keySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(key).append("=").append(URLEncoder.encode(queryParams.get(key), "UTF-8"));
+        }
+        return sb.toString();
+    }
+
+    public static String normalizeRef(String ref) {
+        return ref.replace(" ", "%20");
+    }
+
+    private void setUrlQuery(String query) {
+
+    }
+
+    private URL getURL() {
+        return url;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class Connection {
+    public static class KeyVal {
+        private String key;
+        private String value;
+
+        public KeyVal(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "KeyVal{" +
+                    "key='" + key + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
+    }
+}
+
+public class UrlBuilder {
+
+    private URL url;
+
+    public UrlBuilder(URL url) {
+        this.url = url;
+    }
+
+    public URL build() {
+        return url;
+    }
+
+    public void appendKeyVal(Connection.KeyVal kv) {
+        String query = getUrlQuery();
+        HashMap<String, String> queryParams = new HashMap<>();
+        queryParams.put(kv.key, kv.value);
+        query += "&" + getQueryString(paramsToUrl(queryParams));
+        setUrlQuery(query);
+    }
+
+    private String getUrlQuery() {
+        return url.getQuery();
+    }
+
+    private void setUrlQuery(String query) {
+        url.setQuery(query);
+    }
+
+    private String getQueryString(HashMap<String, String> queryParams) {
+        StringBuilder sb = new StringBuilder();
+        for (String key : queryParams.keySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(key).append("=").append URLEncoder.encode(queryParams.get(key), "UTF-8");
+        }
+        return sb.toString();
+    }
+
+    private String paramsToUrl(HashMap<String, String> queryParams) {
+        StringBuilder sb = new StringBuilder();
+        for (String key : queryParams.keySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(key).append("=").append URLEncoder.encode(queryParams.get(key), "UTF-8");
+        }
+        return sb.toString();
+    }
+
+    private static final String encoder = "UTF-8";
+
+    public static String URLEncoder(String s) {
+        try {
+            return new String(s.getBytes(encoder), encoder);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String decodePart(String encoded) {
+        try {
+            return new String(encoded.getBytes(encoder), encoder);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String normalizeQuery(String query) {
+        String[] parts = query.split("&");
+        HashMap<String, String> queryParams = new HashMap<>();
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                String[] keyValue = part.split("=");
+                if (keyValue.length == 2) {
+                    queryParams.put(keyValue[0], keyValue[1]);
+                }
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String key : queryParams.keySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(key).append("=").append URLEncoder.encode(queryParams.get(key), "UTF-8");
+        }
+        return sb.toString();
+    }
+
+    public static String normalizeRef(String ref) {
+        return ref.replace(" ", "%20");
+    }
+
+    private void setUrlQuery(String query) {
+
+    }
+
+    private URL getURL() {
+        return url;
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class ConnectionKeyValTest {
+
+    @Test
+    public void testConnectionKeyValCreation() {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        assertEquals("key", kv.getKey());
+        assertEquals("value", kv.getValue());
+    }
+
+    @Test
+    public void testUrlBuilderAppendKeyVal() {
+        URL url = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(url);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        builder.appendKeyVal(kv);
+        assertEquals("key=value", builder.getUrlQuery());
+    }
+
+    @Test
+    public void testUrlBuilderDecodePart() {
+        String encoded = "%20Hello World";
+        assertEquals("Hello World", UrlBuilder.decodePart(encoded));
+    }
+
+    @Test
+    public void testUrlBuilderNormalizeQuery() {
+        String query = "key=value&another=parameter";
+        assertEquals("key=value&another%3Dparameter", UrlBuilder.normalizeQuery(query));
+    }
+
+    @Test
+    public void testUrlBuilderNormalizeRef() {
+        String ref = "Hello World!";
+        assertEquals("%20Hello%20World!", UrlBuilder.normalizeRef(ref));
+    }
+}
+```
+===================================================
+

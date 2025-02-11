@@ -1,0 +1,406 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class PropertyListBuilderTest {
+
+    @Test
+    public void addProperty_WithoutConflict_RaisesNoException() {
+        Property<?> property = new Property<>("DataSource", "mysql");
+        new PropertyListBuilder().add(property);
+        assertFalse(new PropertyListBuilder().getRootEntries().containsValue(property));
+    }
+
+    @Test
+    public void addProperty_Conflict_ThrowsConfigMeException() {
+        Property<?> property = new Property<>("DataSource", "mysql");
+        new PropertyListBuilder().add(property);
+        try {
+            new PropertyListBuilder().add(new Property<>("DataSource", "mysql"));
+            fail("Expected ConfigMeException");
+        } catch (ConfigMeException e) {
+            assertEquals("Path at '" + property.getPath() + "' already exists", e.getMessage());
+        }
+    }
+
+    @Test
+    public void createProperties_WithSingleLevelProperties_ReturnsCorrectList() {
+        Property<?> prop1 = new Property<>("prop1", "value1");
+        Property<?> prop2 = new Property<>("prop2", "value2");
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(prop1);
+        builder.add(prop2);
+        List<Property<?>> result = builder.create();
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void createProperties_WithMultiLevelProperties_ReturnsCorrectList() {
+        Property<?> prop1 = new Property<>("DataSource", "mysql");
+        Property<?> prop2 = new Property<>("security", "password");
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(prop1);
+        builder.add(prop2);
+        List<Property<?>> result = builder.create();
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void getRootEntries_ReturnsCorrectMap() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<?> prop1 = new Property<>("prop1", "value1");
+        Property<?> prop2 = new Property<>("prop2", "value2");
+        builder.add(prop1);
+        builder.add(prop2);
+        Map<String, Object> rootEntries = builder.getRootEntries();
+        assertTrue(rootEntries.size() > 0);
+    }
+
+    @Test
+    public void getRootEntries_ReturnsTypedMap() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<?> prop1 = new Property<>("prop1", "value1");
+        Property<?> prop2 = new Property<>("prop2", "value2");
+        builder.add(prop1);
+        builder.add(prop2);
+        Map<String, Object> rootEntries = builder.getRootEntries();
+        assertNotNull(rootEntries.get("prop1"));
+    }
+
+    @Test
+    public void createProperties_WithNestedMap_ThrowsConfigMeException() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Map<String, Object> map = new LinkedHashMap<>();
+        builder.add(new Property<>("a", 1));
+        builder.add(new Property<>("b", 2));
+        map.put("c", 3);
+        try {
+            builder.add(new Property<>("d", 4));
+            fail("Expected ConfigMeException");
+        } catch (ConfigMeException e) {
+            assertEquals("Value of unknown type found at '" + "d" + "': 4", e.getMessage());
+        }
+    }
+
+    @Test
+    public void addProperty_WithoutTypedMap_ThrowsConfigMeException() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        try {
+            builder.add(new Property<>("a", 1));
+            fail("Expected ConfigMeException");
+        } catch (ConfigMeException e) {
+            assertEquals("Value of unknown type found at '" + "a" + "': 1", e.getMessage());
+        }
+    }
+
+    @Test
+    public void addProperty_WithNestedMap_ReturnsCorrectList() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Map<String, Object> map = new LinkedHashMap<>();
+        builder.add(new Property<>("a", 1));
+        builder.add(new Property<>("b", 2));
+        map.put("c", 3);
+        List<Property<?>> result = builder.create();
+        assertEquals(0, result.size());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class Tests {
+    @Test
+    public void test1() throws ConfigMeException {
+        Map<String, Object> map = new LinkedHashMap<>();
+        Property p1 = new Property("a", 1);
+        Property p2 = new Property("b", 2);
+        builder.add(p1);
+        builder.add(p2);
+        map.put("a", 1);
+        map.put("b", 2);
+    }
+
+    @Test
+    public void test2() throws ConfigMeException {
+        Map<String, Object> map = new LinkedHashMap<>();
+        Property p3 = new Property("c", 3);
+        Property p4 = new Property("d", 4);
+        builder.add(p3);
+        builder.add(p4);
+        map.put("c", 3);
+        map.put("d", 4);
+    }
+
+    @Test
+    public void test3() throws ConfigMeException {
+        Map<String, Object> map = new LinkedHashMap<>();
+        Property p5 = new Property("e", 5);
+        builder.add(p5);
+        map.put("e", 5);
+    }
+}
+
+public class TestConfigMeException extends Exception {}
+
+class ConfigMeException extends RuntimeException implements Exception {
+    public ConfigMeException(String message) {
+        super(message);
+    }
+}
+
+class Property {
+    private String key;
+    private Object value;
+
+    public Property(String key, Object value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+}
+
+class Builder {
+    private Map<String, Object> map;
+
+    public Builder add(Property p) {
+        map.put(p.getKey(), p.getValue());
+        return this;
+    }
+
+    public List<Property> create() {
+        return new ArrayList<>(map.values());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class ConfigMeException extends RuntimeException {
+    public ConfigMeException(String message) {
+        super(message);
+    }
+}
+
+public interface ConfigMeException extends Exception {}
+
+public class Property {
+    private String key;
+    private Object value;
+
+    public Property(String key, Object value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+}
+
+public class Builder {
+    private Map<String, Object> map = new LinkedHashMap<>();
+
+    public void add(Property p) {
+        map.put(p.getKey(), p.getValue());
+    }
+
+    public List<Object> create() {
+        return new ArrayList<>(map.values());
+    }
+}
+
+import org.junit.jupiter.api.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testConfigMeException() {
+        try {
+            throw new ConfigMeException("This is a config me exception");
+            assert false;
+        } catch (ConfigMeException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void testBuilder() {
+        Builder builder = new Builder();
+        Property p1 = new Property("key1", "value1");
+        Property p2 = new Property("key2", 123);
+        Property p3 = new Property("key3", true);
+
+        builder.add(p1);
+        builder.add(p2);
+        builder.add(p3);
+
+        List<Object> values = builder.create();
+        assert values.contains("value1");
+        assert values.contains(123);
+        assert values.contains(true);
+    }
+
+    @Test
+    public void testConfigMeExceptionWithValue() {
+        try {
+            throw new ConfigMeException("This is a config me exception with value", 'v');
+            assert false;
+        } catch (ConfigMeException e) {
+            // Expected
+        }
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class ConfigMeException extends RuntimeException {
+    private String message;
+
+    public ConfigMeException(String message) {
+        super(message);
+        this.message = message;
+    }
+}
+
+public class Builder {
+    private Map<String, Object> map = new LinkedHashMap<>();
+
+    public void add(Property p) {
+        map.put(p.getKey(), p.getValue());
+    }
+
+    public List<Object> create() {
+        return new ArrayList<>(map.values());
+    }
+}
+
+import org.junit.jupiter.api.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testConfigMeException() {
+        ConfigMeException e = new ConfigMeException("This is a config me exception");
+        assert e.getMessage().equals("This is a config me exception");
+    }
+
+    @Test
+    public void testBuilder() {
+        Builder builder = new Builder();
+        Property p1 = new Property("key1", "value1");
+        Property p2 = new Property("key2", 123);
+        Property p3 = new Property("key3", true);
+
+        builder.add(p1);
+        builder.add(p2);
+        builder.add(p3);
+
+        List<Object> values = builder.create();
+        assert values.contains("value1");
+        assert values.contains(123);
+        assert values.contains(true);
+    }
+
+    @Test
+    public void testConfigMeExceptionWithValue() {
+        ConfigMeException e = new ConfigMeException("This is a config me exception with value", 'v');
+        assert e.getMessage().equals("This is a config me exception with value");
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class ConfigMeException extends RuntimeException {
+    private String message;
+
+    public ConfigMeException(String message) {
+        super(message);
+        this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return "ConfigMeException{" +
+                "message='" + message + '\'' +
+                '}';
+    }
+}
+
+public class Builder {
+    private Map<String, Object> map = new LinkedHashMap<>();
+
+    public void add(Property p) {
+        map.put(p.getKey(), p.getValue());
+    }
+
+    public List<Object> create() {
+        return new ArrayList<>(map.values());
+    }
+}
+
+import org.junit.jupiter.api.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testConfigMeException() {
+        ConfigMeException e = new ConfigMeException("This is a config me exception");
+        System.out.println(e);
+        assert e.getMessage().equals("This is a config me exception");
+    }
+
+    @Test
+    public void testBuilder() {
+        Builder builder = new Builder();
+        Property p1 = new Property("key1", "value1");
+        Property p2 = new Property("key2", 123);
+        Property p3 = new Property("key3", true);
+
+        builder.add(p1);
+        builder.add(p2);
+        builder.add(p3);
+
+        List<Object> values = builder.create();
+        System.out.println(values);
+        assert values.contains("value1");
+        assert values.contains(123);
+        assert values.contains(true);
+    }
+
+    @Test
+    public void testConfigMeExceptionWithValue() {
+        ConfigMeException e = new ConfigMeException("This is a config me exception with value", 'v');
+        System.out.println(e);
+        assert e.getMessage().equals("This is a config me exception with value");
+    }
+}
+```
+===================================================
+

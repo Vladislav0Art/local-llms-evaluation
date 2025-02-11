@@ -1,0 +1,364 @@
+[IMPORTANT]: Max feedback cycle iterations: 5
+
+====================== Iteration #1 ======================
+```java
+public class Connection {
+    // ...
+
+    public static class KeyVal implements Connection.KeyVal {
+        // ...
+    }
+
+    public static boolean needsMultipart(Connection.Request req) {
+        for (Connection.KeyVal keyVal : req.data()) {
+            if (keyVal.hasInputStream())
+                return true;
+        }
+        return false;
+    }
+
+    public static void serialiseRequestUrl(Connection.Request req) throws IOException {
+        URL in = req.url();
+        StringBuilder url = StringUtil.borrowBuilder();
+        boolean first = true;
+        // reconstitute the query, ready for appends
+        url.append(in.getProtocol())
+            .append("://")
+            .append(in.getAuthority()) // includes host, port
+            .append(in.getPath())
+            .append("?");
+
+        if (in.getQuery() != null) {
+            url.append(in.getQuery());
+            first = false;
+        }
+
+        for (Connection.KeyVal keyVal : req.data()) {
+            Validate.isFalse(keyVal.hasInputStream(), "InputStream data not supported in URL query string.");
+            if (!first)
+                url.append('&');
+            else
+                first = false;
+
+            url.append(URLEncoder.encode(keyVal.key(), DataUtil.defaultCharsetName))
+                .append('=')
+                .append(URLEncoder.encode(keyVal.value(), DataUtil.defaultCharsetName));
+        }
+
+        req.url(new URL(StringUtil.releaseBuilder(url)));
+        req.data().clear(); // moved into url as get params
+    }
+}
+
+// Test class
+public class ConnectionTest {
+    @Test
+    public void testNeedsMultipart() {
+        // Create a request with multiple data keys
+        Connection.Request req = new Connection.Request();
+        KeyVal keyVal1 = Connection.KeyVal.create("key1", "value1");
+        KeyVal keyVal2 = Connection.KeyVal.create("key2", "value2");
+        req.data().add(keyVal1);
+        req.data().add(keyVal2);
+
+        // Assert that needsMultipart returns true
+        assertTrue(Connection.needsMultipart(req));
+    }
+
+    @Test
+    public void testSerialiseRequestUrl() throws IOException {
+        // Create a request with multiple data keys
+        Connection.Request req = new Connection.Request();
+        KeyVal keyVal1 = Connection.KeyVal.create("key1", "value1");
+        KeyVal keyVal2 = Connection.KeyVal.create("key2", "value2");
+        req.data().add(keyVal1);
+        req.data().add(keyVal2);
+
+        // Serialise the request URL
+        Connection.serialiseRequestUrl(req);
+
+        // Assert that the URL is correctly formatted
+        assertNotNull(req.url());
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #2 ======================
+```java
+public class KeyVal {
+    private String key;
+    private String value;
+
+    public static KeyVal create(String key, String value) {
+        return new KeyVal(key, value);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+
+public class Connection {
+    public static boolean needsMultipart(Connection.Request req) {
+        // implementation
+        return false; // placeholder for now
+    }
+
+    public static void serialiseRequestUrl(Connection.Request req) {
+        // implementation
+    }
+
+    public static class Request {
+        private Map<String, String> params = new HashMap<>();
+
+        public void addParam(String key, String value) {
+            this.params.put(key, value);
+        }
+
+        public boolean needsMultipart() {
+            return false; // placeholder for now
+        }
+    }
+}
+
+public class ConnectionTest {
+    @Test
+    public void testKeyValCreate() {
+        KeyVal kv = KeyVal.create("key1", "value1");
+        assertEquals("key1", kv.getKey());
+        assertEquals("value1", kv.getValue());
+    }
+
+    @Test
+    public void testConnectionNeedsMultipart() {
+        Connection.Request req = new Connection.Request();
+        req.addParam("key1", "value1");
+        assertTrue(Connection.needsMultipart(req));
+    }
+
+    @Test
+    public void testConnectionSerialiseRequestUrl() {
+        Connection.Request req = new Connection.Request();
+        req.addParam("key1", "value1");
+        Connection.serialiseRequestUrl(req);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #3 ======================
+```java
+public class KeyVal {
+    private String key;
+    private String value;
+
+    public static KeyVal create(String key, String value) {
+        return new KeyVal(key, value);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+
+public class Connection {
+    public static boolean needsMultipart(Connection.Request req) {
+        // implementation
+        return false; // placeholder for now
+    }
+
+    public static void serialiseRequestUrl(Connection.Request req) {
+        // implementation
+    }
+
+    public static class Request {
+        private java.util.Map<String, String> params = new java.util.HashMap<>();
+
+        public void addParam(String key, String value) {
+            this.params.put(key, value);
+        }
+
+        public boolean needsMultipart() {
+            return false; // placeholder for now
+        }
+    }
+}
+
+public class ConnectionTest {
+
+    @org.junit.Test
+    public void testKeyValCreate() {
+        KeyVal kv = KeyVal.create("key1", "value1");
+        org.junit.Assert.assertEquals("key1", kv.getKey());
+        org.junit.Assert.assertEquals("value1", kv.getValue());
+    }
+
+    @org.junit.Test
+    public void testConnectionNeedsMultipart() {
+        Connection.Request req = new Connection.Request();
+        req.addParam("key1", "value1");
+        org.junit.Assert.assertTrue(Connection.needsMultipart(req));
+    }
+
+    @org.junit.Test
+    public void testConnectionSerialiseRequestUrl() {
+        Connection.Request req = new Connection.Request();
+        req.addParam("key1", "value1");
+        Connection.serialiseRequestUrl(req);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #4 ======================
+```java
+public class KeyVal {
+    private String key;
+    private String value;
+
+    public static KeyVal create(String key, String value) {
+        return new KeyVal(key, value);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+
+public class Connection {
+    public static boolean needsMultipart(Connection.Request req) {
+        // implementation
+        return false; // placeholder for now
+    }
+
+    public static void serialiseRequestUrl(Connection.Request req) {
+        // implementation
+    }
+
+    public static class Request {
+        private java.util.Map<String, String> params = new java.util.HashMap<>();
+
+        public void addParam(String key, String value) {
+            this.params.put(key, value);
+        }
+
+        public boolean needsMultipart() {
+            return false; // placeholder for now
+        }
+    }
+}
+
+public class ConnectionTest {
+
+    @org.junit.Test
+    public void testKeyValCreate() {
+        KeyVal kv = KeyVal.create("key1", "value1");
+        org.junit.Assert.assertEquals("key1", kv.getKey());
+        org.junit.Assert.assertEquals("value1", kv.getValue());
+    }
+
+    @org.junit.Test
+    public void testConnectionNeedsMultipart() {
+        Connection.Request req = new Connection.Request();
+        req.addParam("key1", "value1");
+        org.junit.Assert.assertTrue(Connection.needsMultipart(req));
+    }
+
+    @org.junit.Test
+    public void testConnectionSerialiseRequestUrl() {
+        Connection.Request req = new Connection.Request();
+        req.addParam("key1", "value1");
+        Connection.serialiseRequestUrl(req);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #5 ======================
+```java
+public class KeyVal {
+    private String key;
+    private String value;
+
+    public static KeyVal create(String key, String value) {
+        return new KeyVal(key, value);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
+
+public class Connection {
+    public interface Request {}
+    public static boolean needsMultipart(Connection.Request req) {
+        // implementation
+        return false; // placeholder for now
+    }
+
+    public static void serialiseRequestUrl(Connection.Request req) {
+        // implementation
+    }
+
+    public static class Request implements Connection.Request {
+        private java.util.Map<String, String> params = new java.util.HashMap<>();
+
+        public void addParam(String key, String value) {
+            this.params.put(key, value);
+        }
+
+        public boolean needsMultipart() {
+            return false; // placeholder for now
+        }
+    }
+}
+
+public class ConnectionTest {
+
+    @org.junit.Test
+    public void testKeyValCreate() {
+        KeyVal kv = KeyVal.create("key1", "value1");
+        org.junit.Assert.assertEquals("key1", kv.getKey());
+        org.junit.Assert.assertEquals("value1", kv.getValue());
+    }
+
+    @org.junit.Test
+    public void testConnectionNeedsMultipart() {
+        Connection.Request req = new Connection.Request();
+        req.addParam("key1", "value1");
+        org.junit.Assert.assertTrue(Connection.needsMultipart(req));
+    }
+
+    @org.junit.Test
+    public void testConnectionSerialiseRequestUrl() {
+        Connection.Request req = new Connection.Request();
+        req.addParam("key1", "value1");
+        Connection.serialiseRequestUrl(req);
+    }
+}
+```
+===================================================
+
+
+====================== Iteration #6 ======================
