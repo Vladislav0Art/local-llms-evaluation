@@ -127,3 +127,67 @@ jsoup-9170b1d17b:
 
 
 
+
+=========================
+
+
+Slide 9:
+RQ2-config-I / RQ2-config-II
+METHOD_DECLARATIONS, 5 iterations / 1 iteration
+
+
+Llama 70B:
+ConfigMe-cab40d1c3c:
+	- During feedback-cycle iterations AI did not address the compilation errors (through, there were only two of them) and generated the same test suite with the same error. Although the average compilability for this project was higher by 6%, it is likely not due to the effect of the feedback-cycle.
+
+jsoup-5afef3ecc0:
+	- Got compilation error when trying to instantiate a nested class of an interface `Connection.KeyVal`; during the 2nd feedback-cycle iteration, AI did not address the issue but generated the same test suite. As a response to the subsequent iterations, AI refused to fix the test suite referring to the fact of having no information about the construct `Connection.KeyVal`.
+
+jsoup-a349582236:
+	- On the first iteration, AI tried to instantiate a class by calling its private constructor (`new Tag("div")`); on 2nd iteration, it fixed the instantiation by using the correct method `valueof(String)` present in the prompt (it used `Tag.valueOf("div")` instead).
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 9.250
+		* Avg. number of total test cases: 11.9375
+	2. Without feedback-cycle:
+		* Avg. number of compilable test cases: 2.047619
+		* Avg. number of total test cases: 11.952381
+	This 2nd feedback cycle iterations greatly contributed into the compilability rate and positively impacting the line coverage (0.612864 with feedback cycle, and 0.557039 without).
+
+jsoup-e1880ad73e:
+	- AI made two errors (depending on the iteration of the generation):
+		- Used non-existent `urlBuilder.query()`
+		* Here, AI refused to generated corrected test cases because of confusing the generation with an SQL injection attack (possibly due to calling a non-existent `query` method). However, the definition of the class under test did not suggest any SQL/database relevance:
+
+		```java
+		final class UrlBuilder {
+			UrlBuilder(URL inputUrl) { /* implementation */ }
+
+			URL build() { /* implementation */ }
+
+			void appendKeyVal(Connection.KeyVal kv) throws UnsupportedEncodingException { /* implementation */ }
+
+		}
+		```
+
+		- Tried to instantiate non-existent `Connection.KeyVal` class with a `new` keyword.
+		* On the subsequent iterations, AI refused to fix the test suite because of having no additiona information about `Connection.KeyVal`, hence not being able to generate tests for one of the methods (namely, `appendKeyVal`) of the class under test.
+
+jsoup-f0eb6bd1cc:
+	- AI made the same two mistakes, instantiating `Connection.KeyVal` and calling `query` method. On the subsequent iterations (namely, on the 2nd one), it refused to fix the compilation errors (two of them, one for each mistake) due to incomplete code, i.e., no information about `Connection.KeyVal` and non-existence of `query` method. In other words, AI insisted that the prompt is not correct or the information is not sufficient; it refused to accept its own mistake.
+
+traccar-4722f9b6b6:
+	- Mistake: called a method `decode` that required the declaration of being thrown.
+	- On the subsequent iterations, often refused to generate a fix due to violoation of the ethical and moral norms.
+	- However, few generation iterations allowed AI to fix the compilation error (either 1) by embracing the code with a try-catch block, or 2) writing `throws Exception` on the test case declaration), which made several additional test cases compilable after the 2nd feedback-cycle iteration. It increased the compilability rate and coverage.
+
+
+
+Llama 8B:
+
+
+Llama 3B:
+
+
+
+
+
