@@ -183,11 +183,135 @@ traccar-4722f9b6b6:
 
 
 Llama 8B:
+ConfigMe-cab40d1c3c:
+	- Tried to mock the method `setParent` of the `Property` class, which was used as a parameter of the `PropertyListBuilder.add()` method. In further iteration cycles, AI did not fix the compilation error, continuing to call this `setParent` method.
+	- Feedback cycle iterations were fully exhausted with no positive effect on the metrics; only slightly worsened the compilability rate:
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 3.00
+		* Avg. number of total test cases: 6.00
+	2. Without feedback-cycle:
+		* Avg. number of compilable test cases: 3.037037
+		* Avg. number of total test cases: 5.037037
+
+crowdin-api-client-java-334d414753:
+	- On the first iteration, AI used `getKey()` method of the class under test `JacksonJsonTransformer`, which does not exist. On the 2nd iteration, having this compilation error, AI remove the method's use, making the test case compilable. It is worth mentioning that logically the test case may be considered incorrect, as AI generated an assertion that expected a value of JSON entry, yet tries to retreive the key:
+
+	```java
+    @Test
+    public void parseValidJsonTest() {
+        // Arrange
+        String json = "{\"key\":\"value\"}";
+        Class<Project> clazz = Project.class;
+
+        // Act
+        Project result = jacksonJsonTransformer.parse(json, clazz);
+
+        // Assert
+        assertEquals("value", result.toString()); // <- initially called `result.getKey()`
+    }
+	```
+	- Yet, on other iterations, the non-existent method was replaced with another non-existent method `getCustomKey()` (in some, `getProjectKey()`), and only on the 3rd iteration it was replaced with `toString()`. This may suggest that smaller models, due to their proclivity to hallucination, may require more feedback iterations to solve the compilation errors.
+
+database-engine-403a4c0b3b:
+	- Use of unimported symbol `CsvReader` (tried to both instantiate and declare a variable). Feedback cycle did not allow to fix this error; AI continued attempts to work with this class. AI did not manage to understand the missing import from the following compilation error:
+	```
+	/.../GeneratedTest.java:19: error: cannot find symbol
+    private CsvReader csvReader;
+            ^
+	  symbol:   class CsvReader
+	  location: class GeneratedTest
+	```
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 2.684211
+		* Avg. number of total test cases: 6.105263
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 4.925926
+		* Avg. number of total test cases: 8.00
+
+dataframe-ec-1109752c4e:
+	- On the first iteration, AI tried to instantiate an abstract class `Printer`, on the 2nd iteration if created an implementor `CollectingPrinter`. Notably, there was no information that this class inherits the `Printer`.
+	- Another notable feature is what AI did not generate tests for any methods of the class under test `PrettyPrintVisitor` other than its primary and secondary constructors. Likely, because all other methods required class parameters, information about which was not present in the prompt.
+	- In this particular project, the feedback cycle on average made one more compilable test case that tests the secondary constructor.
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 1.95
+		* Avg. number of total test cases: 2.00
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 1.00
+		* Avg. number of total test cases: 2.00
+
+
+epubcheck-873d4f5dbb:
+	- For this project, feedback cycle did not allow to generate a fully compilable test suite but on every iteration some of the test cases became compilable, which a total result better.
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 5.380952
+		* Avg. number of total test cases: 7.809524
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 3.074074
+		* Avg. number of total test cases: 6.037037
+
+formatter-maven-plugin-a6994326aa:
+
+frigga-6b520bbb2e:
+	- In some generation iterations, AI tried to instantiate the class under test via `new AppVersion()`, however `AppVersion` has a private constructor. Additional feedback cycle iterations did not help to fix this error but generated more compilable test cases along the way.
+	- In other iterations, AI tried to test an additional method `getAppVersionPattern()` of the class under test `AppVersion`, which returns `java.util.regex.Pattern`. On the first attempt, AI forgot to generate an import, which caused `"cannot find symbol"` error. Subsequent iterations allows AI to inset the necessary import and test an additional method.
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 6.571429
+		* Avg. number of total test cases: 6.761905
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 4.307692
+		* Avg. number of total test cases: 7.153846
+
+java-stellar-sdk-06641953c4:
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 4.809524
+		* Avg. number of total test cases: 8.666667
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 5.076923
+		* Avg. number of total test cases: 8.00000
+
+jsoup-a349582236:
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 3.736842
+		* Avg. number of total test cases: 12.000000
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 2.076923
+		* Avg. number of total test cases: 12.846154
+
+jsoup-a90bae7928:
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 4.952381
+		* Avg. number of total test cases: 8.00000
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 4.923077
+		* Avg. number of total test cases: 8.00000
+
+traccar-0ec73ae585:
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 2.857143
+		* Avg. number of total test cases: 4.333333
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 2.00
+		* Avg. number of total test cases: 5.692308
+
+traccar-4722f9b6b6:
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 2.333333
+		* Avg. number of total test cases: 4.238095
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 2.00
+		* Avg. number of total test cases: 5.555556
+
+
+Common problems:
+1. Forgotten imports of the class.
+2. Call of non-existent methods or use of non-existent classes.
+3. Incorrect instantiation:
+	- Use of a private constructor.
+	- Use of a non-existent constructor.
+
 
 
 Llama 3B:
-
-
 
 
 
