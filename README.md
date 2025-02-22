@@ -131,6 +131,7 @@ jsoup-9170b1d17b:
 =========================
 
 
+
 Slide 9:
 RQ2-config-I / RQ2-config-II
 METHOD_DECLARATIONS, 5 iterations / 1 iteration
@@ -350,3 +351,109 @@ Common problems:
 1. On subsequent feedback cycle iterations, AI either tries to write the implementation of the class under test or other relevant class, which causes incorrect generation result (TestSpark cannot parse such outputs).
 1. Use of non-existent methods or classes, or forgotten imports.
 
+
+
+
+Slide 10:
+RQ1-config-II VS RQ2-config-II
+CUT / METHOD_DECLARATIONS, 1 iteration
+
+Llama 70B
+
+ConfigMe-cab40d1c3c:
+
+formatter-maven-plugin-a6994326aa:
+
+jsoup-2f48a617fe:
+
+jsoup-5afef3ecc0:
+
+jsoup-e1880ad73e:
+
+jsoup-f0eb6bd1cc:
+
+Most of the classes under test among the projects in comparison of these two generations are small-size classes, even when the full definition is provided. Potentially, the implementation of the methods of the classes under test gave additional insights to AI, reducing the hallucination and generating more compilable test cases, hence increasing the coverage metrics as well.
+
+
+
+Llama 8B
+
+java-solutions-7a73ea56d0:
+	Only three projects felt into the comparison, and the only project that had a difference in the compilability metric is `OnlineStockSpan`:
+
+	Here is the class' presentation in the `METHOD_DECLARATIONS` prompt type:
+	```java
+	public class OnlineStockSpan {
+		public OnlineStockSpan() { /* implementation */ }
+
+		public int next(int price) { /* implementation */ }
+
+		public int[] calculateSpans(int[] prices) { /* implementation */ }
+	}
+	```
+
+	Here it is in the `CUT` prompt type:
+	```java
+	public class OnlineStockSpan {
+
+	  List<Integer> list;
+
+	  public OnlineStockSpan() {
+	    this.list = new ArrayList<>();
+	  }
+
+	  public int next(int price) {
+	    list.add(price);
+	    int count = 0;
+	    for (int i = list.size() - 1; i >= 0; i--) {
+	      if (list.get(i) > price)
+	        break;
+	      count++;
+	    }
+	    return count;
+	  }
+
+	  public int[] calculateSpans(int[] prices) {
+
+	    int[] spans = new int[prices.length];
+	    spans[0] = 1; // Span of first element is always 1
+
+	    Stack<Integer> indexStack = new Stack<>();
+
+	    // Push the index of first element
+	    indexStack.push(0);
+
+	    for (int i = 1; i < prices.length; i++) {
+	      while (!indexStack.isEmpty()
+	          && prices[indexStack.peek()] <= prices[i])
+	        indexStack.pop();
+
+	      // If index stack is empty, the price at index 'i'
+	      // is greater than all previous values
+	      if (indexStack.isEmpty())
+	        spans[i] = i + 1;
+	      else
+	        spans[i] = i - indexStack.peek();
+
+	      indexStack.push(i);
+	    }
+
+	    return spans;
+	  }
+
+	}
+	```
+
+	Potentially, the reduced prompt allowed AI generate more test cases, and hence, due to the simplicity of the class under test, leading to higher compilability rate and coverage.
+
+	1. With the `CUT` prompt type:
+		* Avg. number of compilable test cases: 2.250
+		* Avg. number of total test cases: 6.9375
+	1. With the `METHOD_DECLARATIONS` prompt type:
+		* Avg. number of compilable test cases: 7.00
+		* Avg. number of total test cases: 7.00
+
+
+Llama 3B
+
+No specifics observed.
