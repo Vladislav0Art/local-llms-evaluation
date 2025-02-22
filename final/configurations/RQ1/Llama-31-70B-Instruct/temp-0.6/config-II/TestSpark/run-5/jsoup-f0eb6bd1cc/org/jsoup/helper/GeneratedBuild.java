@@ -1,0 +1,43 @@
+package org.jsoup.helper;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import javax.annotation.Nullable;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URISyntaxException;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+public class GeneratedBuild {
+
+    private URL url;
+    private UrlBuilder urlBuilder;
+
+    @Before
+    public void setUp() throws MalformedURLException {
+        url = new URL("http://localhost");
+        urlBuilder = spy(new UrlBuilder(url));
+    }
+
+    @Test
+    public void build() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        when(urlBuilder.decodePart(url.getHost())).thenReturn("localhost");
+        when(urlBuilder.appendToAscii(any(), any(), any())).thenReturn(null);
+        URL expectedUrl = new URL("http://localhost");
+        URL actualUrl = urlBuilder.build();
+        Assert.assertEquals(expectedUrl, actualUrl);
+        verify(urlBuilder).decodePart(url.getHost());
+        verify(urlBuilder).appendToAscii(url.getPath(), false, null);
+        verify(urlBuilder).appendToAscii(url.getRef(), false, null);
+    }
+
+}

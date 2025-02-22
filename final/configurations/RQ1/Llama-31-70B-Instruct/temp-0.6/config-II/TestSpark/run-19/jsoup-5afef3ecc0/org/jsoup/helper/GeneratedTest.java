@@ -1,0 +1,56 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    URL url;
+
+    @Test
+    public void buildUrlShouldReturnUrlWithPunyCodedHost() throws MalformedURLException {
+        // Arrange
+        when(url.getProtocol()).thenReturn("http");
+        when(url.getUserInfo()).thenReturn(null);
+        when(url.getHost()).thenReturn("xn--k3ai0a.xn--p1ai");
+        when(url.getPort()).thenReturn(-1);
+        when(url.getPath()).thenReturn("/path");
+
+        UrlBuilder builder = new UrlBuilder(url);
+
+        // Act
+        URL actualUrl = builder.build();
+
+        // Assert
+        assertEquals("http://крф.рф/path", actualUrl.toExternalForm());
+    }
+
+    @Test
+    public void buildUrlShouldReturnUrlWithDecodedPath() throws MalformedURLException {
+        // Arrange
+        when(url.getProtocol()).thenReturn("http");
+        when(url.getUserInfo()).thenReturn(null);
+        when(url.getHost()).thenReturn("host");
+        when(url.getPort()).thenReturn(-1);
+        when(url.getPath()).thenReturn(UrlBuilder.decodePart("/path"));
+
+        UrlBuilder builder = new UrlBuilder(url);
+
+        // Act
+        URL actualUrl = builder.build();
+
+        // Assert
+        assertEquals("http://host/path", actualUrl.toExternalForm());
+    }
+
+}

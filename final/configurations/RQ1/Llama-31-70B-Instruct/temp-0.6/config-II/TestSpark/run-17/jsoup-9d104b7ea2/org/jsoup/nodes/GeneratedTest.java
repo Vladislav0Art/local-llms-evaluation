@@ -1,0 +1,64 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Mock
+    TextNode textNode;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void textTest() {
+        when(textNode.text()).thenReturn("some text");
+        assertEquals("some text", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        when(textNode.getWholeText()).thenReturn("some text");
+        assertEquals("some text", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        when(textNode.isBlank()).thenReturn(false);
+        assertEquals(false, textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode1 = textNode.splitText(0);
+        assertEquals(textNode, textNode1);
+    }
+
+    @Test
+    public void outerHtmlHeadTest() {
+        when(textNode.outerHtmlHead()).thenReturn(0);
+        assertEquals(0, textNode.outerHtmlHead());
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        when(textNode.outerHtmlTail()).thenReturn(0);
+        assertEquals(0, textNode.outerHtmlTail());
+    }
+
+    @Test
+    public void toStringTest() {
+        when(textNode.toString()).thenReturn("some text");
+        assertEquals("some text", textNode.toString());
+    }
+
+}

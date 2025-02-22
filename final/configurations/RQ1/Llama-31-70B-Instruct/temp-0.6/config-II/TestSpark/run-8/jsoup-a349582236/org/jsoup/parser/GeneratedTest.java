@@ -1,0 +1,70 @@
+package org.jsoup.parser;
+
+import org.junit.jupiter.api.Test;
+import org.jsoup.parser.Tag;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void shouldGetTagName() {
+        Tag tag = new Tag("div");
+        assertEquals("div", tag.getName());
+    }
+
+    @Test
+    public void shouldGetNormalizedTagName() {
+        Tag tag = new Tag("div");
+        assertEquals("div", tag.normalName());
+    }
+
+    @Test
+    public void shouldBeBlockTag() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void shouldNotBeBlockTag() {
+        Tag tag = new Tag("span");
+        assertFalse(tag.isBlock());
+    }
+
+    @Test
+    public void shouldBeEmptyTag() {
+        Tag tag = new Tag("br");
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void shouldNotBeEmptyTag() {
+        Tag tag = new Tag("div");
+        assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void shouldBeSelfClosingTag() {
+        Tag tag = new Tag("br");
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void shouldNotBeSelfClosingTag() {
+        Tag tag = new Tag("div");
+        assertFalse(tag.isSelfClosing());
+    }
+
+    @Test
+    public void shouldPreserveWhitespace() {
+        Tag tag = new Tag("pre");
+        assertTrue(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void shouldNotPreserveWhitespace() {
+        Tag tag = new Tag("div");
+        assertFalse(tag.preserveWhitespace());
+    }
+
+}

@@ -1,0 +1,52 @@
+package org.jsoup.helper;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.junit.Before;
+import org.junit.After;
+import org.jsoup.helper.UrlBuilder;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.DataUtil;
+import org.jsoup.internal.StringUtil;
+
+import static org.mockito.Mockito.*;
+
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+public class GeneratedTest {
+
+    @Mock
+    private URL inputUrl;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void buildUrlWithoutQuery() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        when(inputUrl.getProtocol()).thenReturn("http");
+        when(inputUrl.getUserInfo()).thenReturn("user");
+        when(inputUrl.getHost()).thenReturn("www.example.com");
+        when(inputUrl.getPort()).thenReturn(-1);
+        when(inputUrl.getPath()).thenReturn("/path/to/resource");
+        when(inputUrl.toURI()).thenReturn(new URI("http", "user", "www.example.com", -1, "/path/to/resource", null, null));
+
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL builtUrl = urlBuilder.build();
+
+        assertEquals("http://user@www.example.com/path/to/resource", builtUrl.toExternalForm());
+    }
+
+}

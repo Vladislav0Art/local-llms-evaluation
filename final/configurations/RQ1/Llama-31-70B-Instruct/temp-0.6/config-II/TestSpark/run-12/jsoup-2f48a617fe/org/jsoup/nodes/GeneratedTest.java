@@ -1,0 +1,35 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.jsoup.nodes.Comment;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("data");
+        comment.setData("newData");
+        assertEquals("newData", comment.getData());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("data");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("data");
+        assertEquals(null, comment.asXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("data");
+        assertEquals(false, comment.isXmlDeclaration());
+    }
+
+}

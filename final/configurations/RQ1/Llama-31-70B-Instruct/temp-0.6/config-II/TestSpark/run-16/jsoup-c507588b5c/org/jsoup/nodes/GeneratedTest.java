@@ -1,0 +1,66 @@
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNodeName() {
+        TextNode textNode = new TextNode("Text Node");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void testText() {
+        TextNode textNode = new TextNode("Text Node");
+        assertEquals("Text Node", textNode.text());
+    }
+
+    @Test
+    public void testTextWithNull() {
+        TextNode textNode = new TextNode(null);
+        assertEquals("", textNode.text());
+    }
+
+    @Test
+    public void testTextWithBlank() {
+        TextNode textNode = new TextNode(" ");
+        assertEquals("", textNode.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        TextNode textNode = new TextNode("Text Node");
+        assertEquals("Text Node", textNode.getWholeText());
+    }
+
+    @Test
+    public void testGetWholeTextWithNull() {
+        TextNode textNode = new TextNode(null);
+        assertEquals("", textNode.getWholeText());
+    }
+
+    @Test
+    public void testGetWholeTextWithBlank() {
+        TextNode textNode = new TextNode(" ");
+        assertEquals(" ", textNode.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        TextNode textNode = new TextNode("Text Node");
+        assertTrue(!textNode.isBlank());
+    }
+
+}

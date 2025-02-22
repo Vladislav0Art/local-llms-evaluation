@@ -1,0 +1,46 @@
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.parser.Tag;
+import org.jsoup.select.NodeFilter;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTextTest {
+
+    private static final String TEXT_CONTENT = "text content";
+    private static final String WHOLE_TEXT = "whole text";
+    private static final String EMPTY_TEXT = "";
+    private static final String INVALID_TEXT = null;
+    private static final String ENCODED_TEXT = "&lt;";
+    private static final String DECODED_TEXT = "<";
+    private static final String NORMALIZED_TEXT = "normalized text";
+    private static final String TRIMMED_TEXT = "trimmed text";
+
+    @Mock
+    private Node mockNode;
+
+    private TextNode textNode;
+
+    @Before
+    public void setUp() {
+        textNode = new TextNode(TEXT_CONTENT);
+    }
+
+    @Test
+    public void textTest() {
+        assertEquals(TEXT_CONTENT, textNode.text());
+    }
+
+}

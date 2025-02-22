@@ -1,0 +1,57 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNodeName() {
+        Comment comment = new Comment("Some text");
+        String actual = comment.nodeName();
+        assertEquals("#comment", actual);
+    }
+
+    @Test
+    public void testGetData() {
+        Comment comment = new Comment("Some text");
+        String actual = comment.getData();
+        assertEquals("Some text", actual);
+    }
+
+    @Test
+    public void testSetData() {
+        Comment comment = new Comment("Some text");
+        comment.setData("New text");
+        assertEquals("New text", comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        Comment comment = new Comment("Some text");
+        Appendable accum = Mockito.mock(Appendable.class);
+        Comment.OutputSettings out = Mockito.mock(Comment.OutputSettings.class);
+        Mockito.when(out.prettyPrint()).thenReturn(true);
+        Mockito.when(out.outline()).thenReturn(true);
+        comment.outerHtmlHead(accum, 0, out);
+        Mockito.verify(accum).append("<!--Some text-->");
+    }
+
+    @Test
+    public void testOuterHtmlTail() throws IOException {
+        Comment comment = new Comment("Some text");
+        Appendable accum = Mockito.mock(Appendable.class);
+        Comment.OutputSettings out = Mockito.mock(Comment.OutputSettings.class);
+        comment.outerHtmlTail(accum, 0, out);
+    }
+
+    @Test
+    public void testToString() {
+        Comment comment = new Comment("Some text");
+        String actual = comment.toString();
+        assertEquals("<!--Some text-->", actual);
+    }
+
+}

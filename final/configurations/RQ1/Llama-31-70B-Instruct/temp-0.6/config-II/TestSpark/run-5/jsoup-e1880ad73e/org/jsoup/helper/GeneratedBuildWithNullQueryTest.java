@@ -1,0 +1,43 @@
+package org.jsoup.helper;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.jsoup.helper.UrlBuilder;
+import org.jsoup.helper.DataUtil;
+import org.jsoup.Connection;
+
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedBuildWithNullQueryTest {
+
+    private URL inputUrl;
+
+    @Before
+    public void setUp() throws Exception {
+        inputUrl = new URL("http://www.example.com");
+    }
+
+    @Test
+    public void buildWithNullQueryTest() throws URISyntaxException, MalformedURLException, UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL actual = urlBuilder.build();
+
+        assertEquals("http://www.example.com", actual.toString());
+    }
+
+}

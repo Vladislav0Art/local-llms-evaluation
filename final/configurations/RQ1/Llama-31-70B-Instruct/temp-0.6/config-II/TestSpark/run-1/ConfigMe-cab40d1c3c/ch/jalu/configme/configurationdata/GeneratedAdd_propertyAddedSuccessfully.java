@@ -1,0 +1,45 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class GeneratedAdd_propertyAddedSuccessfully {
+
+    private static final String PATH_A = "pathA";
+    private static final String PATH_B = "pathB";
+    private static final String PATH_C = "pathC";
+
+    private static final String PROPERTY_A_NAME = "propertyA";
+    private static final String PROPERTY_B_NAME = "propertyB";
+    private static final String PROPERTY_C_NAME = "propertyC";
+
+    @Test
+    public void add_propertyAddedSuccessfully() {
+        // Arrange
+        PropertyListBuilder builder = new PropertyListBuilder();
+        Property<String> property = mock(Property.class);
+        when(property.getPath()).thenReturn(PATH_A);
+
+        // Act
+        builder.add(property);
+
+        // Assert
+        Map<String, Object> rootEntries = builder.getRootEntries();
+        assertEquals(1, rootEntries.size());
+        assertTrue(rootEntries.containsKey(PATH_A));
+        assertEquals(property, rootEntries.get(PATH_A));
+    }
+
+}

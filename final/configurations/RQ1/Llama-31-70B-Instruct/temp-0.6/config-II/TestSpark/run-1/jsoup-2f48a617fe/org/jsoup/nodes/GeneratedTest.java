@@ -1,0 +1,67 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("data");
+        assertEquals("data", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("data");
+        assertEquals("data", comment.getData());
+
+        comment.setData("newData");
+        assertEquals("newData", comment.getData());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("data");
+        assertEquals("<!--data-->", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("data");
+        Comment clonedComment = (Comment) comment.clone();
+
+        assertNotSame(comment, clonedComment);
+        assertEquals(comment.getData(), clonedComment.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Comment comment = new Comment("!");
+        assertTrue(comment.isXmlDeclaration());
+
+        Comment comment2 = new Comment("?");
+        assertTrue(comment2.isXmlDeclaration());
+
+        Comment comment3 = new Comment("data");
+        assertFalse(comment3.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("!DOCTYPE html");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+
+        assertNotNull(xmlDeclaration);
+        assertEquals("!DOCTYPE html", xmlDeclaration.getData());
+    }
+
+}

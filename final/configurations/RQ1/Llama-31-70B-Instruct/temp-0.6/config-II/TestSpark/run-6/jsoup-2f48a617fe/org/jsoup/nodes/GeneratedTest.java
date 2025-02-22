@@ -1,0 +1,70 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNodeName() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void testGetData() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("Test comment", comment.getData());
+    }
+
+    @Test
+    public void testSetData() {
+        Comment comment = new Comment("Test comment");
+        comment.setData("New comment");
+        assertEquals("New comment", comment.getData());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        Comment comment = new Comment("Test comment");
+        StringBuilder accum = new StringBuilder();
+        comment.outerHtmlHead(accum, 0, null);
+        assertEquals("<!--Test comment-->", accum.toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        Comment comment = new Comment("Test comment");
+        StringBuilder accum = new StringBuilder();
+        comment.outerHtmlTail(accum, 0, null);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void testToString() {
+        Comment comment = new Comment("Test comment");
+        assertEquals("<!--Test comment-->", comment.toString());
+    }
+
+    @Test
+    public void testClone() {
+        Comment comment = new Comment("Test comment");
+        Comment clonedComment = comment.clone();
+        assertTrue(comment.equals(clonedComment));
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        Comment comment = new Comment("Test comment");
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclaration() {
+        Comment comment = new Comment("Test comment");
+        assertNull(comment.asXmlDeclaration());
+    }
+
+}

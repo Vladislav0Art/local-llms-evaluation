@@ -1,0 +1,69 @@
+package org.jsoup.nodes;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Mock
+    private TextNode textNode;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void nodeNameTest() {
+        when(textNode.nodeName()).thenReturn("#text");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        when(textNode.text()).thenReturn("test");
+        assertEquals("test", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        when(textNode.getWholeText()).thenReturn("test");
+        assertEquals("test", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        when(textNode.isBlank()).thenReturn(true);
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        when(textNode.splitText(2)).thenReturn(textNode);
+        assertEquals(textNode, textNode.splitText(2));
+    }
+
+    @Test
+    public void outerHtmlHeadTest() {
+        try {
+            textNode.outerHtmlHead(null, 0, null);
+        } catch (IOException e) {
+            fail("outerHtmlHeadTest failed.");
+        }
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        try {
+            textNode.outerHtmlTail(null, 0, null);
+        } catch (IOException e) {
+            fail("outerHtmlTailTest failed.");
+        }
+    }
+
+}

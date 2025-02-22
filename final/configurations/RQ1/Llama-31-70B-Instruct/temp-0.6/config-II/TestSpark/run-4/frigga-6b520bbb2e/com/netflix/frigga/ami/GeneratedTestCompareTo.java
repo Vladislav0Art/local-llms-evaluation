@@ -1,0 +1,32 @@
+package com.netflix.frigga.ami;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.regex.Pattern;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+public class GeneratedTestCompareTo {
+
+    @Mock
+    private AppVersion appVersion;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void testCompareTo() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        int result = appVersion1.compareTo(appVersion2);
+        assertEquals(0, result);
+    }
+
+}

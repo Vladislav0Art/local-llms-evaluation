@@ -1,0 +1,48 @@
+package org.jsoup.helper;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+public class GeneratedTestBuild {
+
+    @Mock
+    private URL inputUrl;
+
+    private UrlBuilder urlBuilder;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        urlBuilder = new UrlBuilder(inputUrl);
+    }
+
+    @Test
+    public void testBuild() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+        when(inputUrl.getProtocol()).thenReturn("http");
+        when(inputUrl.getUserInfo()).thenReturn("userInfo");
+        when(inputUrl.getHost()).thenReturn("host");
+        when(inputUrl.getPort()).thenReturn(80);
+        when(inputUrl.getPath()).thenReturn("/path");
+        when(inputUrl.getQuery()).thenReturn("query");
+        when(inputUrl.getRef()).thenReturn("ref");
+
+        URL result = urlBuilder.build();
+
+        assertNotNull(result);
+        assertEquals("http://userInfo@host:80/path?query#ref", result.toString());
+    }
+
+}

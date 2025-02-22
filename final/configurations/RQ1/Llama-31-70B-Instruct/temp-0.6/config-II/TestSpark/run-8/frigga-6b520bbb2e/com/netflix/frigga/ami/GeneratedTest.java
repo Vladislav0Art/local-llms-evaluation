@@ -1,0 +1,56 @@
+package com.netflix.frigga.ami;
+
+import com.netflix.frigga.ami.AppVersion;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class GeneratedTest {
+
+    private AppVersion appVersion;
+
+    @Before
+    public void setup() {
+        appVersion = new AppVersion();
+    }
+
+    @Test
+    public void parseNameTest() {
+        String amiName = "subscriberha-1.0.0-586499.h150";
+        AppVersion parsedName = AppVersion.parseName(amiName);
+        assertEquals("subscriberha", parsedName.getPackageName());
+        assertEquals("1.0.0", parsedName.getVersion());
+        assertEquals("586499", parsedName.getBuildNumber());
+        assertEquals("150", parsedName.getCommit());
+    }
+
+    @Test
+    public void parseNameWithNullTest() {
+        AppVersion parsedName = AppVersion.parseName(null);
+        assertNull(parsedName);
+    }
+
+    @Test
+    public void parseNameWithInvalidPatternTest() {
+        AppVersion parsedName = AppVersion.parseName("invalidPattern");
+        assertNull(parsedName);
+    }
+
+    @Test
+    public void compareToTest() {
+        AppVersion appVersion1 = new AppVersion();
+        appVersion1.setPackageName("subscriberha");
+        appVersion1.setVersion("1.0.0");
+        appVersion1.setBuildNumber("1");
+
+        AppVersion appVersion2 = new AppVersion();
+        appVersion2.setPackageName("subscriberha");
+        appVersion2.setVersion("1.0.0");
+        appVersion2.setBuildNumber("2");
+
+        assertEquals(-1, appVersion1.compareTo(appVersion2));
+    }
+
+}

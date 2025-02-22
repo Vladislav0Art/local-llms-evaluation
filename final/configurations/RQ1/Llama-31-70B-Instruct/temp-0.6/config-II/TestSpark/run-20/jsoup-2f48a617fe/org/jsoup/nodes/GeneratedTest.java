@@ -1,0 +1,68 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    private Comment comment;
+
+    @Before
+    public void setUp() {
+        comment = new Comment("testData");
+    }
+
+    @Test
+    public void getData_ShouldReturnCommentData() {
+        String data = comment.getData();
+        assertEquals("testData", data);
+    }
+
+    @Test
+    public void setData_ShouldSetCommentData() {
+        comment.setData("newData");
+        assertEquals("newData", comment.getData());
+    }
+
+    @Test
+    public void nodeName_ShouldReturnCommentNodeName() {
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void outerHtmlHead_ShouldAppendHtmlComment() throws IOException {
+        Appendable accum = new StringBuilder();
+        comment.outerHtmlHead(accum, 0, new Document.OutputSettings());
+
+        assertEquals("<!--testData-->", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTail_ShouldNotAppendHtmlComment() throws IOException {
+        Appendable accum = new StringBuilder();
+        comment.outerHtmlTail(accum, 0, new Document.OutputSettings());
+
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toString_ShouldReturnOuterHtml() {
+        assertEquals("<!---->", comment.toString());
+    }
+
+    @Test
+    public void clone_ShouldReturnClonedComment() {
+        Comment clonedComment = comment.clone();
+        assertNotSame(comment, clonedComment);
+        assertEquals(comment.getData(), clonedComment.getData());
+    }
+
+    @Test
+    public void isXmlDeclaration_ShouldReturnTrueForXmlDeclaration() {
+        Comment comment = new Comment("?xml version=\"1.0\" encoding=\"UTF-8\"?");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void isXmlDeclaration_ShouldReturnFalseForNonXmlDeclaration() {
+        assertFalse(comment.isXmlDeclaration());
+    }
+
+}

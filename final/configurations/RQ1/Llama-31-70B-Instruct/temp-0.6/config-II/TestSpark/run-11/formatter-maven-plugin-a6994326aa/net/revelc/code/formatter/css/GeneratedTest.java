@@ -1,0 +1,64 @@
+package net.revelc.code.formatter.css;
+
+public class GeneratedTest {
+
+    private CssFormatter cssFormatter;
+
+    @Test
+    public void testInit() {
+        // Given
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "4");
+        options.put("rgbAsHex", "True");
+        options.put("useSourceStringValues", "False");
+        ConfigurationSource cfg = null; // TODO: Initialize the cfg object
+
+        // When
+        cssFormatter.init(options, cfg);
+
+        // Then
+        assertNotNull(cssFormatter.formatter);
+        assertEquals(4, cssFormatter.formatter.getPropertiesInSeparateLines());
+        assertTrue(cssFormatter.formatter.isRgbAsHex());
+        assertFalse(cssFormatter.formatter.isUseSourceStringValues());
+    }
+
+    @Test
+    public void testDoFormat() throws IOException {
+        // Given
+        String code = "body { color: #000; }";
+        LineEnding ending = LineEnding.UNIX;
+
+        // When
+        String formattedCode = cssFormatter.doFormat(code, ending);
+
+        // Then
+        assertEquals("body {\n    color: #000;\n}\n", formattedCode);
+    }
+
+    @Test
+    public void testDoFormatWithoutChanges() throws IOException {
+        // Given
+        String code = "body {\n    color: #000;\n}\n";
+        LineEnding ending = LineEnding.UNIX;
+
+        // When
+        String formattedCode = cssFormatter.doFormat(code, ending);
+
+        // Then
+        assertNull(formattedCode);
+    }
+
+    @Test
+    public void testIsInitialized() {
+        // Given
+        // No initialization done
+
+        // When
+        boolean isInitialized = cssFormatter.isInitialized();
+
+        // Then
+        assertFalse(isInitialized);
+    }
+
+}

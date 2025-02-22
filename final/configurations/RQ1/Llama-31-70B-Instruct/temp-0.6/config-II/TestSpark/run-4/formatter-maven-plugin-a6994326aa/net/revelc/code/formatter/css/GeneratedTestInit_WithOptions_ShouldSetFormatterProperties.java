@@ -1,0 +1,42 @@
+package net.revelc.code.formatter.css;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Collections;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+import org.w3c.css.sac.InputSource;
+import com.steadystate.css.dom.CSSStyleSheetImpl;
+import com.steadystate.css.format.CSSFormat;
+import com.steadystate.css.parser.CSSOMParser;
+import com.steadystate.css.parser.SACParserCSS3;
+import net.revelc.code.formatter.ConfigurationSource;
+import net.revelc.code.formatter.Formatter;
+import net.revelc.code.formatter.LineEnding;
+
+public class GeneratedTestInit_WithOptions_ShouldSetFormatterProperties {
+
+    @Test
+    public void testInit_WithOptions_ShouldSetFormatterProperties() {
+        // Arrange
+        var formatter = new CssFormatter();
+        var options = Map.of("indent", "4", "rgbAsHex", "true", "useSourceStringValues", "false");
+        var configurationSource = mock(ConfigurationSource.class);
+
+        // Act
+        formatter.init(options, configurationSource);
+
+        // Assert
+        var cssFormat = (CSSFormat) formatter.formatter;
+        assertEquals(4, cssFormat.getPropertiesInSeparateLines());
+        assertEquals(true, cssFormat.isRgbAsHex());
+        assertEquals(false, cssFormat.isUseSourceStringValues());
+    }
+
+}

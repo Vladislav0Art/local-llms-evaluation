@@ -1,0 +1,70 @@
+package org.jsoup.nodes;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    private TextNode textNode;
+
+    @Before
+    public void setUp() {
+        textNode = new TextNode();
+    }
+
+    @Test
+    public void testNodeName() {
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void testText() {
+        textNode.text("some text");
+        assertEquals("some text", textNode.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        textNode.text("some text");
+        assertEquals("some text", textNode.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        textNode.text("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void testToString() {
+        textNode.text("some text");
+        assertEquals("some text", textNode.toString());
+    }
+
+    @Test
+    public void testClone() {
+        TextNode clonedTextNode = textNode.clone();
+        assertTrue(clonedTextNode instanceof TextNode);
+    }
+
+    @Test
+    public void testCreateFromEncoded() {
+        TextNode textNode = TextNode.createFromEncoded("&lt;");
+        assertEquals("<", textNode.text());
+    }
+
+    @Test
+    public void testNormaliseWhitespace() {
+        assertEquals("some text", TextNode.normaliseWhitespace(" some   text "));
+    }
+
+    @Test
+    public void testStripLeadingWhitespace() {
+        assertEquals("some text", TextNode.stripLeadingWhitespace(" some text"));
+    }
+
+}

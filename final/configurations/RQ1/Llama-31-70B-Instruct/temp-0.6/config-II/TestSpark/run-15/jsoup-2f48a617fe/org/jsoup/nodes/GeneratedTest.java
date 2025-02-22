@@ -1,0 +1,52 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.LeafNode;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void testSetData() {
+        Comment comment = new Comment("test");
+        comment.setData("new data");
+        assertEquals("new data", comment.getData());
+    }
+
+    @Test
+    public void testNodeName() {
+        Comment comment = new Comment("test");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        Comment comment = new Comment("test");
+        Appendable appendable = Mockito.mock(Appendable.class);
+        when(appendable.append(Mockito.anyString())).thenReturn(appendable);
+        comment.outerHtmlHead(appendable, 1, null);
+        Mockito.verify(appendable).append("<!--test-->");
+    }
+
+    @Test
+    public void testIsXmlDeclaration() {
+        Comment comment = new Comment("!");
+        assertTrue(comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void testAsXmlDeclaration() {
+        Comment comment = new Comment("!DOCTYPE html");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertEquals("html", xmlDeclaration.name());
+        assertTrue(xmlDeclaration.isProcessingInstruction());
+    }
+
+}

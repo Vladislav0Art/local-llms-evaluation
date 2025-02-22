@@ -1,0 +1,43 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("Some data");
+        assertEquals("Some data", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("Some data");
+        comment.setData("New data");
+        assertEquals("New data", comment.getData());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("Some data");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("Some data");
+        assertEquals("Some data", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("Some data");
+        Comment clonedComment = (Comment) comment.clone();
+        assertNotSame(comment, clonedComment);
+        assertEquals(comment.getData(), clonedComment.getData());
+    }
+
+}
