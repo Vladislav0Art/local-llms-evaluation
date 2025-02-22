@@ -1,0 +1,32 @@
+package ch.jalu.configme.configurationdata;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import ch.jalu.configme.properties.PropertyBuilder;
+import ch.jalu.configme.properties.types.PrimitivePropertyType;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedAddProperty_validProperty_propertyAdded {
+
+    private PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+
+    @Test
+    public void addProperty_validProperty_propertyAdded() {
+        Property<String> property = PropertyBuilder.create("my.property.path")
+                .withInitialValue("initialValue")
+                .withType(PrimitivePropertyType.StringType)
+                .build();
+
+        propertyListBuilder.add(property);
+
+        assertEquals(1, propertyListBuilder.create().size());
+        assertEquals(property, propertyListBuilder.create().get(0));
+    }
+
+}

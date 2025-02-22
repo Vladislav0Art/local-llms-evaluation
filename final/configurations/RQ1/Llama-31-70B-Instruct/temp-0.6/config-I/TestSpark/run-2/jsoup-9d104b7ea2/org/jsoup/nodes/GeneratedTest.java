@@ -1,0 +1,50 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void testText() {
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        TextNode node = new TextNode("");
+        assertEquals(true, node.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        TextNode node = new TextNode("test");
+        TextNode newNode = node.splitText(2);
+        assertEquals("te", node.text());
+        assertEquals("st", newNode.text());
+    }
+
+    @Test
+    public void testNodeName() {
+        TextNode node = new TextNode("test");
+        assertEquals("#text", node.nodeName());
+    }
+
+    @Test
+    public void testCreateFromEncoded() {
+        TextNode node = TextNode.createFromEncoded("&lt;test&gt;");
+        assertEquals("<test>", node.text());
+    }
+
+}

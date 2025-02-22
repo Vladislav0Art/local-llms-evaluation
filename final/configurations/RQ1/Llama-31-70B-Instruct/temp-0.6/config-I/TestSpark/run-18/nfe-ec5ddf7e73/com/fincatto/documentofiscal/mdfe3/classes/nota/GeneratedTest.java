@@ -1,0 +1,41 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void placaTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setPlaca("AAA1111");
+        assertEquals("AAA1111", reboque.getPlaca());
+    }
+
+    @Test
+    public void renavamTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setRenavam("123456789");
+        assertEquals("123456789", reboque.getRenavam());
+    }
+
+    @Test
+    public void taraTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setTara("1000");
+        assertEquals("1000", reboque.getTara());
+    }
+
+    @Test
+    public void capacidadeKGTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCapacidadeKG("2000");
+        assertEquals("2000", reboque.getCapacidadeKG());
+    }
+
+}

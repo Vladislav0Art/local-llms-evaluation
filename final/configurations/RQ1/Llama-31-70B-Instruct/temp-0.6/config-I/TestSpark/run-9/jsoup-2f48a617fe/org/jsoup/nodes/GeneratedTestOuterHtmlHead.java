@@ -1,0 +1,31 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.XmlDeclaration;
+import org.jsoup.parser.Parser;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+
+public class GeneratedTestOuterHtmlHead {
+
+    private Comment comment;
+
+    @Before
+    public void setup() {
+        comment = new Comment("test");
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlHead(sb, 0, null);
+        Assert.assertEquals("<!--test-->", sb.toString());
+    }
+
+}

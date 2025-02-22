@@ -1,0 +1,69 @@
+package org.jsoup.parser;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    private Tag tag;
+    private static final String TAG_NAME = "div";
+    private static final String NORMAL_NAME = "div";
+
+    @Before
+    public void setUp() {
+        tag = new Tag(TAG_NAME);
+    }
+
+    @Test
+    public void testClone() {
+        Tag clone = tag.clone();
+        assertEquals(TAG_NAME, clone.tagName());
+    }
+
+    @Test
+    public void testValueOf() {
+        Tag tag = Tag.valueOf(TAG_NAME, ParseSettings.preserveCase);
+        assertEquals(NORMAL_NAME, tag.normalName());
+    }
+
+    @Test
+    public void testIsBlock() {
+        assertEquals(true, tag.isBlock());
+    }
+
+    @Test
+    public void testFormatAsBlock() {
+        assertEquals(true, tag.formatAsBlock());
+    }
+
+    @Test
+    public void testIsEmpty() {
+        assertEquals(false, tag.isEmpty());
+    }
+
+    @Test
+    public void testIsSelfClosing() {
+        assertEquals(false, tag.isSelfClosing());
+    }
+
+    @Test
+    public void testIsKnownTag() {
+        assertEquals(false, Tag.isKnownTag(TAG_NAME));
+    }
+
+    @Test
+    public void testPreserveWhitespace() {
+        assertEquals(false, tag.preserveWhitespace());
+    }
+
+}

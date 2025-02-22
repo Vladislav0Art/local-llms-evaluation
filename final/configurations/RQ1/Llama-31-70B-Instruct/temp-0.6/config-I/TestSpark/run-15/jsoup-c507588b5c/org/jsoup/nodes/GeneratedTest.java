@@ -1,0 +1,62 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.jsoup.helper.Validate;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    private TextNode textNode;
+
+    @Before
+    public void setUp() {
+        textNode = new TextNode("some text");
+    }
+
+    @Test
+    public void testNodeName() {
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void testText() {
+        assertEquals("some text", textNode.text());
+    }
+
+    @Test
+    public void testSetText() {
+        textNode.text("new text");
+        assertEquals("new text", textNode.text());
+    }
+
+    @Test
+    public void testIsBlank() {
+        assertEquals(false, textNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        TextNode newTextNode = Mockito.mock(TextNode.class);
+        doReturn(newTextNode).when(textNode).splitText(1);
+        TextNode result = textNode.splitText(1);
+        assertEquals(newTextNode, result);
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws java.io.IOException {
+        Appendable appendable = Mockito.mock(Appendable.class);
+        Document.OutputSettings outputSettings = Mockito.mock(Document.OutputSettings.class);
+        doReturn(true).when(outputSettings).prettyPrint();
+        doReturn(true).when(outputSettings).outline();
+        textNode.outerHtmlHead(appendable, 2, outputSettings);
+    }
+
+}

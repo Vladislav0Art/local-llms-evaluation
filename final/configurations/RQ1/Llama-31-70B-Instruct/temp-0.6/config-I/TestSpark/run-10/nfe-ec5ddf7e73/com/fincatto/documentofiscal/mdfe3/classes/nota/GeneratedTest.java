@@ -1,0 +1,37 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testSetCodigoInterno() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCodigoInterno("1234567890");
+        assertEquals("1234567890", reboque.getCodigoInterno());
+    }
+
+    @Test
+    public void testSetCapacidadeM3() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCapacidadeM3("12");
+        assertEquals("12", reboque.getCapacidadeM3());
+    }
+
+    @Test
+    public void testSetCapacidadeKG() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCapacidadeKG("12345");
+        assertEquals("12345", reboque.getCapacidadeKG());
+    }
+
+    @Test
+    public void testSetPlaca() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setPlaca("AAA1111");
+        assertEquals("AAA1111", reboque.getPlaca());
+    }
+
+}

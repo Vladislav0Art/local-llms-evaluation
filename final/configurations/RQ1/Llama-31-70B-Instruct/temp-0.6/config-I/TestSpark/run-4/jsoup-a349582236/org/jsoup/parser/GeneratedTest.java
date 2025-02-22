@@ -1,0 +1,71 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void testGetName() {
+        Tag tag = new Tag("test");
+        assertEquals("test", tag.getName());
+    }
+
+    @Test
+    public void testNormalName() {
+        Tag tag = new Tag("Test");
+        assertEquals("test", tag.normalName());
+    }
+
+    @Test
+    public void testIsBlock() {
+        Tag tag = new Tag("p");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void testFormatAsBlock() {
+        Tag tag = new Tag("p");
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void testIsEmpty() {
+        Tag tag = new Tag("img");
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void testIsSelfClosing() {
+        Tag tag = new Tag("img");
+        assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void testIsKnownTag() {
+        Tag tag = new Tag("p");
+        assertTrue(tag.isKnownTag());
+    }
+
+    @Test
+    public void testPreserveWhitespace() {
+        Tag tag = new Tag("pre");
+        assertTrue(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void testIsFormListed() {
+        Tag tag = new Tag("input");
+        assertTrue(tag.isFormListed());
+    }
+
+    @Test
+    public void testIsFormSubmittable() {
+        Tag tag = new Tag("input");
+        assertTrue(tag.isFormSubmittable());
+    }
+
+}
