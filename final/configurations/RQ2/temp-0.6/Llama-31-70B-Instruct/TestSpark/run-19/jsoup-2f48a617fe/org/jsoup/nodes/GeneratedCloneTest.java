@@ -1,0 +1,22 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.jsoup.nodes.Comment;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+
+public class GeneratedCloneTest {
+
+    @Test
+    public void cloneTest() throws IOException {
+        Comment comment = new Comment("Data");
+        Comment clonedComment = (Comment) comment.clone();
+        assertEquals(comment, clonedComment);
+    }
+
+}

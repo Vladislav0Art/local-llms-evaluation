@@ -1,0 +1,54 @@
+package leetcode.medium;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void nextGivenEmptyListExpectedZero() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int result = stockSpan.next(10);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void nextGivenListWithOneElementExpectedOne() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(10);
+        int result = stockSpan.next(20);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextGivenListWithTwoElementsExpectedTwo() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(10);
+        stockSpan.next(20);
+        int result = stockSpan.next(30);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void calculateSpansGivenEmptyArrayExpectedEmptyArray() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{});
+        assertArrayEquals(new int[]{}, result);
+    }
+
+    @Test
+    public void calculateSpansGivenOneElementArrayExpectedOne() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{10});
+        assertArrayEquals(new int[]{1}, result);
+    }
+
+    @Test
+    public void calculateSpansGivenTwoElementsArrayExpectedOneAndTwo() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(new int[]{10, 20});
+        assertArrayEquals(new int[]{1, 2}, result);
+    }
+
+}

@@ -1,0 +1,66 @@
+package app;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    private DBApp dbApp;
+
+    @Before
+    public void setup() {
+        dbApp = new DBApp();
+    }
+
+    @Test
+    public void testGetMyTables() {
+        Set<String> expectedTables = new HashSet<>();
+        expectedTables.add("table1");
+        expectedTables.add("table2");
+
+        dbApp.myTables = expectedTables;
+
+        Set<String> actualTables = dbApp.getMyTables();
+
+        assertEquals(expectedTables, actualTables);
+    }
+
+    @Test
+    public void testInit() {
+        try {
+            dbApp.init();
+            assertTrue(true);
+        } catch (Exception e) {
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testCreateTable() {
+        try {
+            dbApp.createTable("table1", "key", new Hashtable<>(), new Hashtable<>(), new Hashtable<>());
+            assertTrue(true);
+        } catch (Exception e) {
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testCreateTable_invalidTableName() {
+        try {
+            dbApp.createTable("", "key", new Hashtable<>(), new Hashtable<>(), new Hashtable<>());
+            assertTrue(false);
+        } catch (Exception e) {
+            assertTrue(true);
+        }
+    }
+
+}

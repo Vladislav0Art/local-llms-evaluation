@@ -1,0 +1,68 @@
+package org.jsoup.nodes;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private TextNode textNode;
+
+    @Before
+    public void setUp() {
+        textNode = new TextNode("mockText");
+    }
+
+    @Test
+    public void nodeNameTest() {
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        assertEquals("mockText", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        assertEquals("mockText", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        assertEquals(false, textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode result = textNode.splitText(1);
+        assertEquals("ockText", result.getWholeText());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() {
+        StringBuilder accum = new StringBuilder();
+        Document.OutputSettings out = new Document.OutputSettings();
+        textNode.outerHtmlHead(accum, 1, out);
+        assertEquals("mockText", accum.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        assertEquals("mockText", textNode.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        TextNode result = textNode.clone();
+        assertEquals("mockText", result.getWholeText());
+    }
+
+}

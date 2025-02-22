@@ -1,0 +1,65 @@
+package org.jsoup.nodes;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private TextNode textNode;
+
+    @Before
+    public void setUp() {
+        textNode = new TextNode("some text");
+    }
+
+    @Test
+    public void shouldGetNodeNameTest() {
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void shouldGetTextTest() {
+        assertEquals("some text", textNode.text());
+    }
+
+    @Test
+    public void shouldSetTextTest() {
+        textNode.text("new text");
+        assertEquals("new text", textNode.text());
+    }
+
+    @Test
+    public void shouldGetWholeTextTest() {
+        assertEquals("some text", textNode.getWholeText());
+    }
+
+    @Test
+    public void shouldCheckIfBlankTest() {
+        assertEquals(false, textNode.isBlank());
+    }
+
+    @Test
+    public void shouldSplitTextTest() {
+        when(textNode.splitText(2)).thenReturn(new TextNode("me text"));
+        assertEquals("me text", textNode.splitText(2).getWholeText());
+    }
+
+    @Test
+    public void shouldOuterHtmlHeadTest() {
+        StringBuilder accum = new StringBuilder();
+        int depth = 1;
+        Document.OutputSettings out = new Document.OutputSettings();
+        out.prettyPrint(false);
+        textNode.outerHtmlHead(accum, depth, out);
+        assertEquals("some text", accum.toString());
+    }
+
+}

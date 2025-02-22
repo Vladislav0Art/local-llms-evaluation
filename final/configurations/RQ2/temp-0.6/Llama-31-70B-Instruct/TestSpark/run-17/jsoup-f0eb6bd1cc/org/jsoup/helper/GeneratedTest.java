@@ -1,0 +1,51 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    @Test
+    public void buildTest() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://www.example.com/path?q=s");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        URL outputUrl = urlBuilder.build();
+
+        assertEquals(outputUrl.getProtocol(), "http");
+        assertEquals(outputUrl.getHost(), "www.example.com");
+        assertEquals(outputUrl.getPath(), "/path");
+        assertEquals(outputUrl.getQuery(), "q=s");
+    }
+
+    @Test
+    public void appendKeyValTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("http://www.example.com/path?q=s");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        urlBuilder.appendKeyVal(kv);
+
+        assertEquals(urlBuilder.q.toString(), "q=s&key=value");
+    }
+
+    @Test
+    public void appendKeyValWithNoQueryTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("http://www.example.com/path");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        urlBuilder.appendKeyVal(kv);
+
+        assertEquals(urlBuilder.q.toString(), "key=value");
+    }
+
+    @Test
+    public void appendKeyValWithNoQueryAndNoValueTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("http://www.example.com/path");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        Connection.KeyVal kv = new Connection.KeyVal("key", "");
+        urlBuilder.appendKeyVal(kv);
+
+        assertEquals(urlBuilder.q.toString(), "key=");
+    }
+
+}

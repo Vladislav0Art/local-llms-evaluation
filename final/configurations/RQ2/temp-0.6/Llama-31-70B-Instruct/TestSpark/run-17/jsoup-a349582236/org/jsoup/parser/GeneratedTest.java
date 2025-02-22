@@ -1,0 +1,72 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+import org.jsoup.parser.Tag;
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+
+import java.util.Map;
+import java.util.HashMap;
+
+public class GeneratedTest {
+
+    @Test
+    public void testGetName() {
+        Tag tag = new Tag("p");
+        assertEquals("p", tag.getName());
+    }
+
+    @Test
+    public void testNormalName() {
+        Tag tag = new Tag("p");
+        assertEquals("p", tag.normalName());
+    }
+
+    @Test
+    public void testIsBlock() {
+        Tag tag = new Tag("p");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void testIsInline() {
+        Tag tag = new Tag("p");
+        assertFalse(tag.isInline());
+    }
+
+    @Test
+    public void testIsEmpty() {
+        Tag tag = new Tag("p");
+        assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void testIsSelfClosing() {
+        Tag tag = new Tag("p");
+        assertFalse(tag.isSelfClosing());
+    }
+
+    @Test
+    public void testFormatAsBlock() {
+        Tag tag = new Tag("p");
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void testPreserveWhitespace() {
+        Tag tag = new Tag("p");
+        assertFalse(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void testIsFormListed() {
+        Tag tag = new Tag("p");
+        assertFalse(tag.isFormListed());
+    }
+
+}

@@ -1,0 +1,43 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Mock
+    private MDFInfoModalRodoviarioVeiculoReboque reboque;
+
+    @Test
+    public void testSetCodigoInterno() {
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCodigoInterno("1234567890");
+        assertEquals("1234567890", reboque.getCodigoInterno());
+    }
+
+    @Test
+    public void testSetPlaca() {
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setPlaca("AAA1234");
+        assertEquals("AAA1234", reboque.getPlaca());
+    }
+
+    @Test
+    public void testSetRenavam() {
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setRenavam("12345678912");
+        assertEquals("12345678912", reboque.getRenavam());
+    }
+
+    @Test
+    public void testSetTara() {
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setTara("12345");
+        assertEquals("12345", reboque.getTara());
+    }
+
+}

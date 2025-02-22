@@ -1,0 +1,59 @@
+package com.netflix.frigga.ami;
+
+public class GeneratedTest {
+
+    @Test
+    public void testParseName() {
+        assertEquals(new AppVersion(), AppVersion.parseName(null));
+    }
+
+    @Test
+    public void testCompareTo() {
+        AppVersion one = new AppVersion();
+        one.packageName = "packageOne";
+        AppVersion two = new AppVersion();
+        two.packageName = "packageTwo";
+        assertTrue(one.compareTo(two) < 0);
+    }
+
+    @Test
+    public void testGetAppVersionPattern() {
+        assertNotNull(AppVersion.getAppVersionPattern());
+    }
+
+    @Test
+    public void testGetPackageName() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.packageName = "packageName";
+        assertEquals("packageName", appVersion.getPackageName());
+    }
+
+    @Test
+    public void testGetVersion() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.version = "version";
+        assertEquals("version", appVersion.getVersion());
+    }
+
+    @Test
+    public void testGetBuildJobName() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.buildJobName = "buildJobName";
+        assertEquals("buildJobName", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void testGetBuildNumber() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.buildNumber = "buildNumber";
+        assertEquals("buildNumber", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void testGetCommit() {
+        AppVersion appVersion = new AppVersion();
+        appVersion.commit = "commit";
+        assertEquals("commit", appVersion.getCommit());
+    }
+
+}
