@@ -313,5 +313,40 @@ Common problems:
 
 Llama 3B:
 
+ConfigMe-7449db4901:
 
+frigga-6b520bbb2e:
+	- Same problem as with the CUT prompt type, the AI starts to implement the class under test and other related classes in its response.
+
+java-solutions-7a73ea56d0:
+	- One of few projects where the feedback cycle possitively impacted the generation with an increase of 11.89% in compilability, yet the coverage remained relatively the same.
+	- Feedback cycle allowed AI to fix an error with incorrect types (Double and Integer) within a single array list (`Arrays.asList(Double.NaN, -100)`), which resulted in more compilable test cases.
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 6.727273
+		* Avg. number of total test cases: 8.318182
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 5.045455
+		* Avg. number of total test cases: 7.727273
+
+java-stellar-sdk-06641953c4:
+
+jsoup-2f48a617fe
+
+jsoup-a349582236
+
+jsoup-c507588b5c
+
+solarpositioning-8faa18c702:
+	- A total increase in compilability rate of +8.82%; the coverage metrics have decrated in not more than 5%, on the other hand.
+	1. With feedback-cycle:
+		* Avg. number of compilable test cases: 3.952381
+		* Avg. number of total test cases: 5.619048
+	1. Without feedback-cycle:
+		* Avg. number of compilable test cases: 3.277778
+		* Avg. number of total test cases: 4.722222
+
+
+Common problems:
+1. On subsequent feedback cycle iterations, AI either tries to write the implementation of the class under test or other relevant class, which causes incorrect generation result (TestSpark cannot parse such outputs).
+1. Use of non-existent methods or classes, or forgotten imports.
 
