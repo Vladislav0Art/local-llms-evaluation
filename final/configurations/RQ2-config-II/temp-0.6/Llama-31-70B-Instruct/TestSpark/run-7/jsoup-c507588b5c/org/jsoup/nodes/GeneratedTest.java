@@ -1,0 +1,59 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("test");
+        String expected = "#text";
+        String actual = textNode.nodeName();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void textTest() {
+        TextNode textNode = new TextNode("test");
+        String expected = "test";
+        String actual = textNode.text();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("test");
+        String expected = "test";
+        String actual = textNode.getWholeText();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("test");
+        boolean expected = false;
+        boolean actual = textNode.isBlank();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode splitTextNode = textNode.splitText(1);
+        String expected = "t";
+        String actual = splitTextNode.getWholeText();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void outerHtmlHeadTest() {
+        TextNode textNode = Mockito.mock(TextNode.class);
+        Mockito.when(textNode.outerHtmlHead(Mockito.any(), Mockito.anyInt(), Mockito.any())).thenReturn(null);
+        textNode.outerHtmlHead(null, 0, null);
+    }
+
+}

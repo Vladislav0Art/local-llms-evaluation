@@ -1,0 +1,63 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    TextNode textNode;
+
+    @Test
+    public void textNodeConstructorTest() {
+        TextNode textNode = new TextNode("Some Text");
+        assertEquals("Some Text", textNode.coreValue());
+    }
+
+    @Test
+    public void textNodeNodeNameTest() {
+        TextNode textNode = new TextNode("Some Text");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textNodeTextTest() {
+        TextNode textNode = new TextNode("Some Text");
+        assertEquals("Some Text", textNode.text());
+    }
+
+    @Test
+    public void textNodeSetTextTest() {
+        TextNode textNode = new TextNode("Some Text");
+        textNode.text("New Text");
+        assertEquals("New Text", textNode.coreValue());
+    }
+
+    @Test
+    public void textNodeGetWholeTextTest() {
+        TextNode textNode = new TextNode("Some Text");
+        assertEquals("Some Text", textNode.getWholeText());
+    }
+
+    @Test
+    public void textNodeIsBlankTest() {
+        TextNode textNode = new TextNode(" ");
+        assertEquals(true, textNode.isBlank());
+    }
+
+    @Test
+    public void textNodeSplitTextTest() {
+        TextNode textNode = new TextNode("Some Text");
+        TextNode textNode2 = textNode.splitText(4);
+        assertEquals("Text", textNode2.coreValue());
+        assertEquals("Some ", textNode.coreValue());
+    }
+
+}

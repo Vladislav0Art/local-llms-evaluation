@@ -1,0 +1,64 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNodeName() {
+        TextNode node = new TextNode("Some text");
+        assertEquals("#text", node.nodeName());
+    }
+
+    @Test
+    public void testText() {
+        TextNode node = new TextNode("Some text");
+        assertEquals("Some text", node.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        TextNode node = new TextNode("Some text");
+        assertEquals("Some text", node.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        TextNode node = new TextNode(" ");
+        assertTrue(node.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        TextNode node = new TextNode("Some text");
+        TextNode tailNode = node.splitText(3);
+        assertEquals("Some", node.getWholeText());
+        assertEquals(" text", tailNode.getWholeText());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        TextNode node = new TextNode("Some text");
+        StringBuilder accum = new StringBuilder();
+        node.outerHtmlHead(accum, 0, new Document.OutputSettings());
+        assertEquals("Some text", accum.toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        TextNode node = new TextNode("Some text");
+        StringBuilder accum = new StringBuilder();
+        node.outerHtmlTail(accum, 0, new Document.OutputSettings());
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void testToString() {
+        TextNode node = new TextNode("Some text");
+        assertEquals("Some text", node.toString());
+    }
+
+}

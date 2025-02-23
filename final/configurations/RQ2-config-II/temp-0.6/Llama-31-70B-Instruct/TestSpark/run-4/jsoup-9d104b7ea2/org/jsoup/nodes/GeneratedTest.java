@@ -1,0 +1,65 @@
+package org.jsoup.nodes;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    private TextNode textNode;
+
+    @Before
+    public void setUp() {
+        textNode = new TextNode("");
+    }
+
+    @Test
+    public void testNodeName() {
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void testText() {
+        textNode.text("test");
+        assertEquals("test", textNode.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        textNode.text("test");
+        assertEquals("test", textNode.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        textNode.text("test");
+        assertEquals(false, textNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        textNode.text("test");
+        TextNode textNode2 = textNode.splitText(2);
+        assertEquals("te", textNode.getWholeText());
+        assertEquals("st", textNode2.getWholeText());
+    }
+
+    @Test
+    public void testOuterHtmlHead() throws IOException {
+        textNode.text("test");
+        Appendable accum = Mockito.mock(Appendable.class);
+        textNode.outerHtmlHead(accum, 0, Document.OutputSettings.create());
+        Mockito.verify(accum).append("test");
+    }
+
+    @Test
+    public void testOuterHtmlTail() throws IOException {
+        textNode.text("test");
+        Appendable accum = Mockito.mock(Appendable.class);
+        textNode.outerHtmlTail(accum, 0, Document.OutputSettings.create());
+        Mockito.verifyNoMoreInteractions(accum);
+    }
+
+}

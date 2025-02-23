@@ -1,0 +1,59 @@
+package net.revelc.code.formatter.css;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void init_WithValidOptions_FormatterInitialized() {
+        Map<String, String> options = new HashMap<>();
+        options.put("indent", "4");
+        options.put("rgbAsHex", "true");
+        options.put("useSourceStringValues", "false");
+
+        CssFormatter formatter = new CssFormatter();
+        formatter.init(options, null);
+
+        assertNotNull(formatter.formatter);
+    }
+
+    @Test
+    public void doFormat_WithValidCode_FormattedCodeReturned() throws IOException {
+        String code = "body { color: red; }";
+        CssFormatter formatter = new CssFormatter();
+        formatter.init(new HashMap<>(), null);
+
+        String formattedCode = formatter.doFormat(code, null);
+
+        assertEquals("body {\n    color: red;\n}\n", formattedCode);
+    }
+
+    @Test
+    public void doFormat_WithSameCode_NullReturned() throws IOException {
+        String code = "body {\n    color: red;\n}\n";
+        CssFormatter formatter = new CssFormatter();
+        formatter.init(new HashMap<>(), null);
+
+        String formattedCode = formatter.doFormat(code, null);
+
+        assertEquals(null, formattedCode);
+    }
+
+    @Test
+    public void isInitialized_AfterInit_ReturnsTrue() {
+        CssFormatter formatter = new CssFormatter();
+        formatter.init(new HashMap<>(), null);
+
+        boolean initialized = formatter.isInitialized();
+
+        assertEquals(true, initialized);
+    }
+
+}

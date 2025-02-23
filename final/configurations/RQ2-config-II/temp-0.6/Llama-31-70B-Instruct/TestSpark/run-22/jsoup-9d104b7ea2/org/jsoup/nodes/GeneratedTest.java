@@ -1,0 +1,55 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    @Test
+    public void textNodeTest() {
+        TextNode textNode = new TextNode("text");
+        assertEquals("#text", textNode.nodeName());
+        assertEquals("text", textNode.text());
+        assertEquals("text", textNode.getWholeText());
+        textNode.text("newText");
+        assertEquals("newText", textNode.text());
+        assertEquals("newText", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode(" ");
+        assertEquals(true, textNode.isBlank());
+        textNode = new TextNode("text");
+        assertEquals(false, textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("text");
+        TextNode splitTextNode = textNode.splitText(2);
+        assertEquals("te", textNode.text());
+        assertEquals("xt", splitTextNode.text());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() {
+        TextNode textNode = new TextNode("text");
+        StringBuilder accum = new StringBuilder();
+        int depth = 2;
+        Document.OutputSettings out = Mockito.mock(Document.OutputSettings.class);
+        Mockito.when(out.prettyPrint()).thenReturn(true);
+        textNode.outerHtmlHead(accum, depth, out);
+        assertEquals("  text", accum.toString());
+    }
+
+    @Test
+    public void createFromEncodedTest() {
+        TextNode textNode = TextNode.createFromEncoded("&lt;");
+        assertEquals("<", textNode.getWholeText());
+    }
+
+}

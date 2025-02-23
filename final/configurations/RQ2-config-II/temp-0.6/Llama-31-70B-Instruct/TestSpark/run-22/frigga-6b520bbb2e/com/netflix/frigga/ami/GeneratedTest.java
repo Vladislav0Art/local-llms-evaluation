@@ -1,0 +1,59 @@
+package com.netflix.frigga.ami;
+
+public class GeneratedTest {
+
+    private static final String APP_VERSION_STRING = "subscriberha-1.0.0-586499.h150/WE-WAPP-subscriberha/150";
+
+    private AppVersion appVersion;
+
+    @Before
+    public void setUp() {
+        appVersion = AppVersion.parseName(APP_VERSION_STRING);
+    }
+
+    @Test
+    public void testPackageName() {
+        assertEquals("subscriberha", appVersion.getPackageName());
+    }
+
+    @Test
+    public void testVersion() {
+        assertEquals("1.0.0", appVersion.getVersion());
+    }
+
+    @Test
+    public void testBuildJobName() {
+        assertEquals("WE-WAPP-subscriberha", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void testBuildNumber() {
+        assertEquals("150", appVersion.getBuildNumber());
+    }
+
+    @Test
+    public void testCommit() {
+        assertEquals("h150", appVersion.getCommit());
+    }
+
+    @Test
+    public void testToString() {
+        assertEquals("AppVersion [packageName=subscriberha, version=1.0.0, buildJobName=WE-WAPP-subscriberha, buildNumber=150, changelist=h150]", appVersion.toString());
+    }
+
+    @Test
+    public void testHashCode() {
+        assertEquals(appVersion.hashCode(), AppVersion.parseName(APP_VERSION_STRING).hashCode());
+    }
+
+    @Test
+    public void testEquals() {
+        assertEquals(appVersion, AppVersion.parseName(APP_VERSION_STRING));
+    }
+
+    @Test
+    public void testCompareTo_Null() {
+        assertEquals(1, appVersion.compareTo(null));
+    }
+
+}

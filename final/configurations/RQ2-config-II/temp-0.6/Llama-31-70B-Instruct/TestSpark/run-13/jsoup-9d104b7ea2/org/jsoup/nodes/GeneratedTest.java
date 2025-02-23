@@ -1,0 +1,62 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void testConstructor() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.coreValue());
+    }
+
+    @Test
+    public void testNodeName() {
+        TextNode textNode = Mockito.mock(TextNode.class);
+        Mockito.when(textNode.nodeName()).thenReturn("#text");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void testText() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.text());
+        textNode.text("new text");
+        assertEquals("new text", textNode.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        TextNode textNode = new TextNode(" ");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        TextNode textNode = new TextNode("test");
+        TextNode newTextNode = textNode.splitText(2);
+        assertEquals("te", textNode.coreValue());
+        assertEquals("st", newTextNode.coreValue());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        TextNode textNode = new TextNode("test");
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = Mockito.mock(Document.OutputSettings.class);
+        Mockito.when(out.prettyPrint()).thenReturn(true);
+        Mockito.when(out.outline()).thenReturn(true);
+        textNode.outerHtmlHead(accum, 1, out);
+    }
+
+}

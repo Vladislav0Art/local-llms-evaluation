@@ -1,0 +1,57 @@
+package org.jsoup.nodes;
+
+public class GeneratedTest {
+
+    @Test
+    public void testNodeName() {
+        TextNode textNode = new TextNode("some text");
+        assertEquals(textNode.nodeName(), "#text");
+    }
+
+    @Test
+    public void testText() {
+        TextNode textNode = new TextNode("some text");
+        assertEquals(textNode.text(), "some text");
+    }
+
+    @Test
+    public void testGetWholeText() {
+        TextNode textNode = new TextNode("some text");
+        assertEquals(textNode.getWholeText(), "some text");
+    }
+
+    @Test
+    public void testIsBlank() {
+        TextNode textNode = new TextNode("some text");
+        assertFalse(textNode.isBlank());
+        textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+        textNode = new TextNode("   ");
+        assertTrue(textNode.isBlank());
+        textNode = new TextNode("\n\t");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        TextNode textNode = new TextNode("some text");
+        TextNode splitNode = textNode.splitText(5);
+        assertEquals(textNode.getWholeText(), "some ");
+        assertEquals(splitNode.getWholeText(), "text");
+    }
+
+    @Test
+    public void testNormaliseWhitespace() {
+        String text = "some    \n\n\t   text";
+        String normalisedText = TextNode.normaliseWhitespace(text);
+        assertEquals(normalisedText, "some text");
+    }
+
+    @Test
+    public void testStripLeadingWhitespace() {
+        String text = "   \t\n   some text";
+        String strippedText = TextNode.stripLeadingWhitespace(text);
+        assertEquals(strippedText, "some text");
+    }
+
+}

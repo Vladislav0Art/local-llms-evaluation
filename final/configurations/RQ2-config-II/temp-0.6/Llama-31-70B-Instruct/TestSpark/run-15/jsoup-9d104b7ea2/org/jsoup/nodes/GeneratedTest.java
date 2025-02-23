@@ -1,0 +1,80 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class GeneratedTest {
+
+    private TextNode node;
+
+    @Before
+    public void setup() {
+        node = new TextNode("test");
+    }
+
+    @Test
+    public void testNodeName() {
+        assertEquals("#text", node.nodeName());
+    }
+
+    @Test
+    public void testText() {
+        assertEquals("test", node.text());
+    }
+
+    @Test
+    public void testTextSetter() {
+        node.text("new text");
+        assertEquals("new text", node.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        assertEquals("test", node.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        assertNotNull(node.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        assertNotNull(node.splitText(1));
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        assertNotNull(node.outerHtmlHead(null, 0, null));
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        assertNotNull(node.outerHtmlTail(null, 0, null));
+    }
+
+    @Test
+    public void testToString() {
+        assertEquals("test", node.toString());
+    }
+
+    @Test
+    public void testClone() {
+        assertNotNull(node.clone());
+    }
+
+    @Test
+    public void testCreateFromEncoded() {
+        assertNotNull(TextNode.createFromEncoded("test"));
+    }
+
+    @Test
+    public void testNormaliseWhitespace() {
+        assertNotNull(TextNode.normaliseWhitespace("test"));
+    }
+
+}

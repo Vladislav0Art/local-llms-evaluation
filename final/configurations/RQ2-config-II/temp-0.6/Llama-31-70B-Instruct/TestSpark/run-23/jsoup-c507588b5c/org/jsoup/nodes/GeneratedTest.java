@@ -1,0 +1,64 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void testTextNode() {
+        TextNode textNode = new TextNode("Hello World!");
+        assertEquals("Hello World!", textNode.getWholeText());
+    }
+
+    @Test
+    public void testText() {
+        TextNode textNode = new TextNode("Hello World!");
+        assertEquals("Hello World!", textNode.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        TextNode textNode = new TextNode("Hello World!");
+        assertEquals("Hello World!", textNode.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        TextNode textNode = new TextNode("Hello World!");
+        TextNode tailNode = textNode.splitText(5);
+        assertEquals("Hello", textNode.getWholeText());
+        assertEquals(" World!", tailNode.getWholeText());
+    }
+
+    @Test
+    public void testOuterHtmlHead() {
+        TextNode textNode = new TextNode("Hello World!");
+        StringBuilder accum = new StringBuilder();
+        textNode.outerHtmlHead(accum, 0, null);
+        assertEquals("Hello World!", accum.toString());
+    }
+
+    @Test
+    public void testOuterHtmlTail() {
+        TextNode textNode = new TextNode("Hello World!");
+        StringBuilder accum = new StringBuilder();
+        textNode.outerHtmlTail(accum, 0, null);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void testToString() {
+        TextNode textNode = new TextNode("Hello World!");
+        assertEquals("Hello World!", textNode.toString());
+    }
+
+}

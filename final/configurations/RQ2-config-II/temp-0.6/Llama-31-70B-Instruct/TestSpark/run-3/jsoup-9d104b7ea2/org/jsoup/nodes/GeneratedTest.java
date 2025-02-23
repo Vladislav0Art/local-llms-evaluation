@@ -1,0 +1,68 @@
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void createTextNodeTest() {
+        String text = "Some text";
+        TextNode textNode = new TextNode(text);
+
+        assertNotNull(textNode);
+        assertEquals(text, textNode.coreValue());
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("Some text");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
+        String text = "Some text";
+        TextNode textNode = new TextNode(text);
+
+        assertEquals(StringUtil.normaliseWhitespace(text), textNode.text());
+    }
+
+    @Test
+    public void textSetterTest() {
+        TextNode textNode = new TextNode("Some text");
+        String text = "New text";
+
+        textNode.text(text);
+
+        assertEquals(StringUtil.normaliseWhitespace(text), textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        String text = "Some text";
+        TextNode textNode = new TextNode(text);
+
+        assertEquals(text, textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("");
+
+        assertTrue(textNode.isBlank());
+    }
+
+}

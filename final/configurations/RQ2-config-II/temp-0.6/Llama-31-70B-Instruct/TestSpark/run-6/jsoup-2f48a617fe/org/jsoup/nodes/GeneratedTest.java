@@ -1,0 +1,66 @@
+package org.jsoup.nodes;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    private Comment comment;
+
+    @Before
+    public void init() {
+        comment = Mockito.mock(Comment.class);
+    }
+
+    @Test
+    public void getDataTest() {
+        Mockito.when(comment.getData()).thenReturn("data");
+        assertEquals("data", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Mockito.when(comment.setData("data")).thenReturn(comment);
+        assertEquals(comment, comment.setData("data"));
+    }
+
+    @Test
+    public void outerHtmlHeadTest() {
+        Mockito.when(comment.outerHtmlHead(null, 0, null)).thenReturn(comment);
+        assertEquals(comment, comment.outerHtmlHead(null, 0, null));
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        Mockito.when(comment.outerHtmlTail(null, 0, null)).thenReturn(comment);
+        assertEquals(comment, comment.outerHtmlTail(null, 0, null));
+    }
+
+    @Test
+    public void toStringTest() {
+        Mockito.when(comment.toString()).thenReturn("toString");
+        assertEquals("toString", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Mockito.when(comment.clone()).thenReturn(comment);
+        assertEquals(comment, comment.clone());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Mockito.when(comment.isXmlDeclaration()).thenReturn(true);
+        assertEquals(true, comment.isXmlDeclaration());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Mockito.when(comment.asXmlDeclaration()).thenReturn(comment);
+        assertEquals(comment, comment.asXmlDeclaration());
+    }
+
+}

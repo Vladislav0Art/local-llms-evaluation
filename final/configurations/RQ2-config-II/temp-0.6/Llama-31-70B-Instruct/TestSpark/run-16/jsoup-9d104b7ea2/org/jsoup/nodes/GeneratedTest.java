@@ -1,0 +1,68 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    private TextNode textNode;
+
+    @Test
+    public void testTextNode() {
+        textNode = new TextNode("test");
+        assertNotNull(textNode);
+    }
+
+    @Test
+    public void testText() {
+        textNode = new TextNode("test");
+        assertEquals("test", textNode.text());
+    }
+
+    @Test
+    public void testTextWithNewline() {
+        textNode = new TextNode("test\n");
+        assertEquals("test", textNode.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        textNode = new TextNode("test");
+        assertEquals("test", textNode.getWholeText());
+    }
+
+    @Test
+    public void testGetWholeTextWithNewline() {
+        textNode = new TextNode("test\n");
+        assertEquals("test\n", textNode.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        textNode = new TextNode(" ");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void testIsBlankWithNewline() {
+        textNode = new TextNode("\n");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void testIsBlankWithText() {
+        textNode = new TextNode("test");
+        assertFalse(textNode.isBlank());
+    }
+
+    @Test
+    public void testSplitText() {
+        textNode = new TextNode("test");
+        TextNode textNode2 = textNode.splitText(2);
+        assertEquals("te", textNode.getWholeText());
+        assertEquals("st", textNode2.getWholeText());
+    }
+
+}
