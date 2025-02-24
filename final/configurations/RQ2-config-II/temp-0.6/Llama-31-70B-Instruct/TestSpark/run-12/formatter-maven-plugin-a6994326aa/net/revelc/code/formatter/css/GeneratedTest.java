@@ -1,41 +1,48 @@
 package net.revelc.code.formatter.css;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
-import com.steadystate.css.dom.CSSStyleSheetImpl;
-import com.steadystate.css.format.CSSFormat;
-import com.steadystate.css.parser.CSSOMParser;
-import com.steadystate.css.parser.SACParserCSS3;
-import net.revelc.code.formatter.AbstractCacheableFormatter;
 import net.revelc.code.formatter.ConfigurationSource;
-import net.revelc.code.formatter.Formatter;
 import net.revelc.code.formatter.LineEnding;
 
 public class GeneratedTest {
 
-    private CssFormatter cssFormatter;
+    private static final String DUMMY_CODE = "dummy code";
+    private static final String DUMMY_CONFIG_KEY = "key";
+    private static final String DUMMY_CONFIG_VALUE = "value";
+    private static final Map<String, String> OPTIONS = new HashMap<>();
+    private static final ConfigurationSource CONFIG_SOURCE = new ConfigurationSource() {
+        @Override
+        public String getConfiguration(String key) {
+            return null;
+        }
+    };
 
     @Test
-    public void init_ValidOptions_FormatterInitialized() {
-        Map<String, String> options = new HashMap<>();
-        options.put("indent", "4");
-        options.put("rgbAsHex", "true");
-        options.put("useSourceStringValues", "false");
+    public void initTest() {
+        CssFormatter formatter = new CssFormatter();
+        formatter.init(OPTIONS, CONFIG_SOURCE);
+        assertNotNull(formatter);
+    }
 
-        ConfigurationSource cfg = mock(ConfigurationSource.class);
+    @Test
+    public void doFormatTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        String formattedCode = formatter.doFormat(DUMMY_CODE, LineEnding.UNIX);
+        assertNotNull(formattedCode);
+    }
 
-        cssFormatter = new CssFormatter();
-        cssFormatter.init(options, cfg);
-
-        assertNotNull(cssFormatter.formatter);
+    @Test
+    public void isInitializedTest() {
+        CssFormatter formatter = new CssFormatter();
+        boolean isInitialized = formatter.isInitialized();
+        assertEquals(false, isInitialized);
     }
 
 }

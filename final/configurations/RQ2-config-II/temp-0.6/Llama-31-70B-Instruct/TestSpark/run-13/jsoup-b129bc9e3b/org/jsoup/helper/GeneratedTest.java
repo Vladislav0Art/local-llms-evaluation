@@ -1,0 +1,75 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.HttpConnection;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.net.URL;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    private HttpConnection httpConnection;
+
+    @Before
+    public void setUp() throws Exception {
+        httpConnection = new HttpConnection();
+    }
+
+    @Test
+    public void testConnectUrl() {
+        URL url = mock(URL.class);
+        Assert.assertNotNull(HttpConnection.connect(url));
+    }
+
+    @Test
+    public void testConnectString() {
+        String url = "https://www.test.com";
+        Assert.assertNotNull(HttpConnection.connect(url));
+    }
+
+    @Test
+    public void testEncodeUrl() {
+        URL url = mock(URL.class);
+        Assert.assertNotNull(HttpConnection.encodeUrl(url));
+    }
+
+    @Test
+    public void testNewRequest() {
+        Assert.assertNotNull(httpConnection.newRequest());
+    }
+
+    @Test
+    public void testUrl() {
+        URL url = mock(URL.class);
+        Assert.assertNotNull(httpConnection.url(url));
+    }
+
+    @Test
+    public void testProxy() {
+        Assert.assertNotNull(httpConnection.proxy(mock(Proxy.class)));
+    }
+
+    @Test
+    public void testUserAgent() {
+        Assert.assertNotNull(httpConnection.userAgent("test"));
+    }
+
+    @Test
+    public void testTimeout() {
+        Assert.assertNotNull(httpConnection.timeout(1000));
+    }
+
+    @Test
+    public void testMaxBodySize() {
+        Assert.assertNotNull(httpConnection.maxBodySize(1000));
+    }
+
+    @Test
+    public void testFollowRedirects() {
+        Assert.assertNotNull(httpConnection.followRedirects(true));
+    }
+
+}

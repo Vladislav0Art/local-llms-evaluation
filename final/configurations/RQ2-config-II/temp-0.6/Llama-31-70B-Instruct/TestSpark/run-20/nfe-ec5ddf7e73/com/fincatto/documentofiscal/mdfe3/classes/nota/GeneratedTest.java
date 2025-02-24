@@ -1,39 +1,29 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
-
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    @Mock
-    MDFInfoModalRodoviarioVeiculoReboque reboque;
+    private static final String VALID_CODE = "12345678901234";
+    private static final String VALID_CAPACITY_KG = "123456";
 
     @Test
-    public void setCodigoInternoTest() {
-        when(reboque.setCodigoInterno("codigoInterno")).thenCallRealMethod();
-        reboque.setCodigoInterno("codigoInterno");
-        assertEquals("codigoInterno", reboque.getCodigoInterno());
+    public void setCodigoInternoWithValidCodeTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setCodigoInterno(VALID_CODE);
+        assertEquals(VALID_CODE, veiculoReboque.getCodigoInterno());
     }
 
     @Test
-    public void setPlacaTest() {
-        when(reboque.setPlaca("placa")).thenCallRealMethod();
-        reboque.setPlaca("placa");
-        assertEquals("placa", reboque.getPlaca());
+    public void setPlacaWithValidCodeTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setPlaca(VALID_CODE);
+        assertEquals(VALID_CODE, veiculoReboque.getPlaca());
     }
 
     @Test
-    public void setRenavamTest() {
-        when(reboque.setRenavam("renavam")).thenCallRealMethod();
-        reboque.setRenavam("renavam");
-        assertEquals("renavam", reboque.getRenavam());
+    public void setRenavamWithValidCodeTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        veiculoReboque.setRenavam(VALID_CODE);
+        assertEquals(VALID_CODE, veiculoReboque.getRenavam());
     }
 
 }

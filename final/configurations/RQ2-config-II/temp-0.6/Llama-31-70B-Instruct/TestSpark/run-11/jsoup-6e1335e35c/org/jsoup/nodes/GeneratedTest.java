@@ -1,0 +1,56 @@
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+public class GeneratedTest {
+
+    // Test for Tag and BaseUri
+
+    @Test
+    public void testConstructorWithTagAndBaseUri() {
+        String tag = "p";
+        String baseUri = "http://example.com/";
+        Element element = new Element(Tag.valueOf(tag), baseUri);
+
+        assertEquals(tag, element.tagName());
+        assertEquals(baseUri, element.baseUri());
+    }
+
+    @Test
+    public void testConstructorWithTagBaseUriAndAttributes() {
+        String tag = "p";
+        String baseUri = "http://example.com/";
+        Attributes attributes = new Attributes();
+        Element element = new Element(Tag.valueOf(tag), baseUri, attributes);
+
+        assertEquals(tag, element.tagName());
+        assertEquals(baseUri, element.baseUri());
+        assertEquals(attributes, element.attributes());
+    }
+
+    @Test
+    public void testHasChildNodes() {
+        Element element = new Element(Tag.valueOf("p"), "http://example.com/");
+        element.appendChild(new Element(Tag.valueOf("span"), "http://example.com/"));
+
+        assertEquals(true, element.hasChildNodes());
+    }
+
+    @Test
+    public void testEnsureChildNodes() {
+        Element element = new Element(Tag.valueOf("p"), "http://example.com/");
+        List<Node> childNodes = element.ensureChildNodes();
+
+        assertEquals(new ArrayList<Node>(), childNodes);
+    }
+
+}

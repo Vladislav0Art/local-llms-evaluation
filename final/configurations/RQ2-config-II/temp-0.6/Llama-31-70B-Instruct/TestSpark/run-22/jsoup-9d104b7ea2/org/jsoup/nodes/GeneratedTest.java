@@ -1,55 +1,50 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.TextNode;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class GeneratedTest {
 
-    @Test
-    public void textNodeTest() {
-        TextNode textNode = new TextNode("text");
-        assertEquals("#text", textNode.nodeName());
-        assertEquals("text", textNode.text());
-        assertEquals("text", textNode.getWholeText());
-        textNode.text("newText");
-        assertEquals("newText", textNode.text());
-        assertEquals("newText", textNode.getWholeText());
-    }
+    private TextNode textNode;
 
     @Test
-    public void isBlankTest() {
-        TextNode textNode = new TextNode(" ");
-        assertEquals(true, textNode.isBlank());
+    public void testConstructor() {
         textNode = new TextNode("text");
-        assertEquals(false, textNode.isBlank());
+        assertEquals("text", textNode.text());
     }
 
     @Test
-    public void splitTextTest() {
-        TextNode textNode = new TextNode("text");
-        TextNode splitTextNode = textNode.splitText(2);
-        assertEquals("te", textNode.text());
-        assertEquals("xt", splitTextNode.text());
+    public void testNodeName() {
+        textNode = new TextNode("");
+        assertEquals("#text", textNode.nodeName());
     }
 
     @Test
-    public void outerHtmlHeadTest() {
-        TextNode textNode = new TextNode("text");
-        StringBuilder accum = new StringBuilder();
-        int depth = 2;
-        Document.OutputSettings out = Mockito.mock(Document.OutputSettings.class);
-        Mockito.when(out.prettyPrint()).thenReturn(true);
-        textNode.outerHtmlHead(accum, depth, out);
-        assertEquals("  text", accum.toString());
+    public void testText() {
+        textNode = new TextNode("text");
+        assertEquals("text", textNode.text());
     }
 
     @Test
-    public void createFromEncodedTest() {
-        TextNode textNode = TextNode.createFromEncoded("&lt;");
-        assertEquals("<", textNode.getWholeText());
+    public void testTextSet() {
+        textNode = new TextNode("");
+        textNode.text("text");
+        assertEquals("text", textNode.text());
+    }
+
+    @Test
+    public void testGetWholeText() {
+        textNode = new TextNode("text");
+        assertEquals("text", textNode.getWholeText());
+    }
+
+    @Test
+    public void testIsBlank() {
+        textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
     }
 
 }

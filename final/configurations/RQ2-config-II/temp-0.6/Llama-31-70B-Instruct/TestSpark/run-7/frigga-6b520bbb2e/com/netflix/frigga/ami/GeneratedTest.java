@@ -1,45 +1,19 @@
 package com.netflix.frigga.ami;
 
-import static org.junit.Assert.*;
-
+import com.netflix.frigga.ami.AppVersion;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-@RunWith(JUnit4.class)
+import static org.junit.Assert.*;
+
 public class GeneratedTest {
 
     @Test
     public void parseNameTest() {
-        String amiName = "subscriberha-1.0.0-586499.h150/WE-WAPP-subscriberha/150";
-        AppVersion appVersion = AppVersion.parseName(amiName);
-        assertEquals("subscriberha", appVersion.getPackageName());
-        assertEquals("1.0.0", appVersion.getVersion());
-        assertEquals("h150", appVersion.getCommit());
-        assertEquals("WE-WAPP-subscriberha", appVersion.getBuildJobName());
-        assertEquals("150", appVersion.getBuildNumber());
-    }
-
-    @Test
-    public void compareToTest() {
-        AppVersion appVersion1 = new AppVersion();
-        appVersion1.packageName = "package1";
-        appVersion1.version = "1.0.0";
-        appVersion1.commit = "150";
-        appVersion1.buildJobName = "WE-WAPP-subscriberha";
-        appVersion1.buildNumber = "150";
-
-        AppVersion appVersion2 = new AppVersion();
-        appVersion2.packageName = "package2";
-        appVersion2.version = "2.0.0";
-        appVersion2.commit = "200";
-        appVersion2.buildJobName = "WE-WAPP-subscriberha";
-        appVersion2.buildNumber = "200";
-
-        assertTrue(appVersion1.compareTo(appVersion2) < 0);
-        assertTrue(appVersion2.compareTo(appVersion1) > 0);
-        assertTrue(appVersion1.compareTo(appVersion1) == 0);
+        String validInput = "validInput";
+        AppVersion appVersion = new AppVersion();
+        AppVersion result = appVersion.parseName(validInput);
+        assertNotNull(result);
     }
 
 }

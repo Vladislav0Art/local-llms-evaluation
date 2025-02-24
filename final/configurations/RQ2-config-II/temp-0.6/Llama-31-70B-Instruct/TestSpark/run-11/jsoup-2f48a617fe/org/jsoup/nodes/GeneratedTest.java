@@ -1,45 +1,74 @@
 package org.jsoup.nodes;
 
 import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.XmlDeclaration;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("Test");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlHead(sb, 0, null);
+        assertEquals("<!--Test-->", sb.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("Test");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlTail(sb, 0, null);
+        assertEquals("", sb.toString());
+    }
+
+    @Test
     public void nodeNameTest() {
-        Comment comment = new Comment("data");
-        String nodeName = comment.nodeName();
-        assertEquals("#comment", nodeName);
+        Comment comment = new Comment("Test");
+        assertEquals("#comment", comment.nodeName());
     }
 
     @Test
     public void getDataTest() {
-        Comment comment = new Comment("data");
-        String data = comment.getData();
-        assertEquals("data", data);
+        Comment comment = new Comment("Test");
+        assertEquals("Test", comment.getData());
     }
 
     @Test
     public void setDataTest() {
-        Comment comment = new Comment("data");
-        comment.setData("newData");
-        assertEquals("newData", comment.getData());
+        Comment comment = new Comment("Test");
+        Comment newComment = comment.setData("New Test");
+        assertEquals("New Test", newComment.getData());
+    }
+
+    @Test
+    public void toStringTest() {
+        Comment comment = new Comment("Test");
+        assertEquals("Comment[Test]", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("Test");
+        Comment newComment = comment.clone();
+        assertEquals(comment, newComment);
     }
 
     @Test
     public void isXmlDeclarationTest() {
-        Comment comment = new Comment("!data");
-        boolean isXmlDeclaration = comment.isXmlDeclaration();
-        assertTrue(isXmlDeclaration);
+        Comment comment = new Comment("Test");
+        assertFalse(comment.isXmlDeclaration());
     }
 
     @Test
     public void asXmlDeclarationTest() {
-        Comment comment = new Comment("!data");
-        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
-        assertNotNull(xmlDeclaration);
+        Comment comment = new Comment("Test");
+        assertNull(comment.asXmlDeclaration());
     }
 
 }

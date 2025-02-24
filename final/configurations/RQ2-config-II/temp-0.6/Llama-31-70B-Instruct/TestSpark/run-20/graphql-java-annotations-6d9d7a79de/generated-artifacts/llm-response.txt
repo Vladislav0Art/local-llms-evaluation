@@ -1,48 +1,55 @@
 [IMPORTANT]: Max feedback cycle iterations: 1
 
 ====================== Iteration #1 ======================
-1. ```java
+1. DO NOT use @Before and @After test methods.
+ 2. Make test cases as atomic as possible.
+ 3. All tests should be written using JUnit 4.
+ 4. When mocking, use Mockito 5. However, DO NOT use mocking for all test cases.
+ 5. Name ALL methods according to the template: `[MethodUnderTest][Scenario]Test`. Use only English letters.
+
+```java
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.schema.GraphQLDirective;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 public class DirectivesBuilderTest {
 
-    private DirectivesBuilder directivesBuilder;
-    private AnnotatedElement object;
-    private ProcessingElementsContainer container;
+    @Mock
+    private AnnotatedElement annotatedElement;
 
-    @Before
-    public void setUp() {
-        object = mock(AnnotatedElement.class);
-        container = mock(ProcessingElementsContainer.class);
-        directivesBuilder = new DirectivesBuilder(object, container);
+    @Mock
+    private ProcessingElementsContainer processingElementsContainer;
+
+    @Test
+    public void buildWithoutDirectivesTest() {
+        when(annotatedElement.isAnnotationPresent(GraphQLDirectives.class)).thenReturn(false);
+
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(annotatedElement, processingElementsContainer);
+        GraphQLDirective[] result = directivesBuilder.build();
+
+        assertEquals(0, result.length);
     }
 
     @Test
-    public void build_withEmptyDirectiveRegistry_shouldThrowException() {
-        when(container.getDirectiveRegistry()).thenReturn(Collections.emptyMap());
-        assertThrows(GraphQLAnnotationsException.class, directivesBuilder::build);
-    }
+    public void buildWithDirectivesTest() {
+        when(annotatedElement.isAnnotationPresent(GraphQLDirectives.class)).thenReturn(true);
 
-    @Test
-    public void build_withDirectiveRegistryContainingDefaultDirective_shouldReturnEmptyArray() {
-        when(container.getDirectiveRegistry()).thenReturn(Collections.singletonMap("directiveName", new GraphQLDirective.Builder().name("directiveName").build()));
-        assertArrayEquals(new GraphQLDirective[0], directivesBuilder.build());
-    }
+        GraphQLDirective[] directives = new GraphQLDirective[] {
+            mock(GraphQLDirective.class),
+            mock(GraphQLDirective.class)
+        };
 
-    @Test
-    public void build_withDirectiveRegistryContainingCustomDirective_shouldReturnArrayWithCustomDirective() {
-        GraphQLDirective customDirective = new GraphQLDirective.Builder().name("customDirective").build();
-        when(container.getDirectiveRegistry()).thenReturn(Collections.singletonMap("customDirective", customDirective));
-
-        GraphQLDirective[] directives = directivesBuilder.build();
-        assertEquals(1, directives.length);
-        assertEquals(customDirective, directives[0]);
-    }
-
-    @Test
-    public void build_withCustomDirectiveAndCustomDirectiveAnnotation_shouldReturnArrayWithCustomDirective() {
-        GraphQLDirective customDirective = new GraphQLDirective.Builder().name("customDirective").build();
-        when(container.getDirectiveRegistry()).thenReturn(Collections.singletonMap("customDirective", customDirective));
-
-        GraphQLDirectives customDirectivesAnnotation = mock(GraphQLDirectives.class);
-        GraphQLDirective.DirectiveArgument[] arguments = new GraphQLDirective.DirectiveArgument[0
+        when(processingElementsContainer.getGraphQLDirectives()).thenReturn(
 ===================================================
 

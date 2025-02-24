@@ -1,53 +1,57 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.Comment;
 import org.jsoup.parser.ParseSettings;
 import org.jsoup.parser.Parser;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    // test for Comment.nodeName()
+    @Mock
+    private XmlDeclaration xmlDeclaration;
+
+    @InjectMocks
+    private Comment comment;
 
     @Test
-    public void nodeNameTest() throws Exception {
-        Comment comment = new Comment("test");
-        assertEquals("#comment", comment.nodeName());
+    public void nodeNameTest() {
+        String expected = "#comment";
+        String actual = comment.nodeName();
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void getDataTest() throws Exception {
-        Comment comment = new Comment("test");
-        assertEquals("test", comment.getData());
+    public void getDataTest() {
+        String expected = "data";
+        Comment comment = new Comment(expected);
+        String actual = comment.getData();
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void setDataTest() throws Exception {
-        Comment comment = new Comment("test");
-        assertEquals("test", comment.getData());
-        comment.setData("test1");
-        assertEquals("test1", comment.getData());
+    public void setDataTest() {
+        String expected = "data";
+        Comment comment = new Comment("");
+        Comment actual = comment.setData(expected);
+        assertEquals(expected, actual.getData());
     }
 
     @Test
-    public void outerHtmlHeadTest() throws Exception {
-        Comment comment = new Comment("test");
-        StringBuilder accum = new StringBuilder();
-        comment.outerHtmlHead(accum, 0, comment.ownerDocument().outputSettings());
-        assertEquals("<!--test-->", accum.toString());
-    }
-
-    @Test
-    public void outerHtmlTailTest() throws Exception {
-        Comment comment = new Comment("test");
-        StringBuilder accum = new StringBuilder();
-        comment.outerHtmlTail(accum, 0, comment.ownerDocument().outputSettings());
-        assertEquals("", accum.toString());
+    public void outerHtmlHeadTest() throws IOException {
+        String expected = "expected";
+        Appendable appendable = mock(Appendable.class);
+        when(appendable.append(expected)).thenReturn(appendable);
+        comment.outerHtmlHead(appendable, 0, new Document.OutputSettings());
+        verify(appendable).append(expected);
     }
 
 }

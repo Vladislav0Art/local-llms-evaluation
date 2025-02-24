@@ -1,16 +1,17 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
 
 public class GeneratedSetTaraTest {
 
     @Test
     public void setTaraTest() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setTara("12345");
-        assertEquals("12345", reboque.getTara());
+        MDFInfoModalRodoviarioVeiculoReboque testObject = Mockito.mock(MDFInfoModalRodoviarioVeiculoReboque.class);
+        testObject.setTara("1000");
+        assertEquals("1000", testObject.getTara());
     }
 
 }

@@ -1,23 +1,25 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedSetPlacaTest {
 
     @Mock
-    MDFInfoModalRodoviarioVeiculoReboque reboque;
+    private MDFInfoModalRodoviarioVeiculoReboque mdfInfoModalRodoviarioVeiculoReboque;
 
     @Test
     public void setPlacaTest() {
-        reboque.setPlaca("ABC1234");
-        assertEquals("ABC1234", reboque.getPlaca());
+        final String placa = "placa";
+        mdfInfoModalRodoviarioVeiculoReboque.setPlaca(placa);
+        assertEquals(placa, mdfInfoModalRodoviarioVeiculoReboque.getPlaca());
     }
 
 }

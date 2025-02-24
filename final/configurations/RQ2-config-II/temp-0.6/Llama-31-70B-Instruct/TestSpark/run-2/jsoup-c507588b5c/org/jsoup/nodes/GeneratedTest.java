@@ -1,73 +1,64 @@
 package org.jsoup.nodes;
 
+import org.jsoup.nodes.TextNode;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 public class GeneratedTest {
-
-    private TextNode textNode;
-
-    @Before
-    public void setup() {
-        textNode = new TextNode("Some text");
-    }
 
     @Test
     public void testNodeName() {
-        assertEquals("#text", textNode.nodeName());
+        TextNode node = new TextNode("test");
+        assertEquals("#text", node.nodeName());
     }
 
     @Test
     public void testText() {
-        assertEquals("Some text", textNode.text());
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.text());
+    }
+
+    @Test
+    public void testTextWithNull() {
+        TextNode node = new TextNode("test");
+        node.text(null);
+        assertEquals("", node.text());
+    }
+
+    @Test
+    public void testTextWithEmptyString() {
+        TextNode node = new TextNode("test");
+        node.text("");
+        assertEquals("", node.text());
+    }
+
+    @Test
+    public void testTextWithNewText() {
+        TextNode node = new TextNode("test");
+        node.text("newText");
+        assertEquals("newText", node.text());
     }
 
     @Test
     public void testGetWholeText() {
-        assertEquals("Some text", textNode.getWholeText());
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.getWholeText());
     }
 
     @Test
     public void testIsBlank() {
-        assertFalse(textNode.isBlank());
+        TextNode node = new TextNode("");
+        assertTrue(node.isBlank());
     }
 
     @Test
-    public void testSplitText() {
-        TextNode splitTextNode = textNode.splitText(5);
-        assertEquals("Some ", textNode.getWholeText());
-        assertEquals("text", splitTextNode.getWholeText());
-    }
-
-    @Test
-    public void testOuterHtmlHead() throws IOException {
-        Appendable accum = mock(Appendable.class);
-
-        textNode.outerHtmlHead(accum, 0, Document.OutputSettings.create());
-
-        verify(accum).append("Some text");
-    }
-
-    @Test
-    public void testOuterHtmlTail() {
-        // no-op
-    }
-
-    @Test
-    public void testToString() {
-        assertEquals("Some text", textNode.toString());
-    }
-
-    @Test
-    public void testClone() {
-        TextNode clone = textNode.clone();
-
-        assertNotSame(textNode, clone);
-        assertEquals(textNode.getWholeText(), clone.getWholeText());
-    }
-
-    @Test
-    public void testCreateFromEncoded() {
-        TextNode encodedTextNode = TextNode.createFromEncoded("&lt;");
-
-        assertEquals("<", encodedTextNode.getWholeText());
+    public void testIsNotBlank() {
+        TextNode node = new TextNode("test");
+        assertFalse(node.isBlank());
     }
 
 }

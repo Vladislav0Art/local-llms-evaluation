@@ -3,15 +3,17 @@ package org.jsoup.nodes;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class GeneratedSetDataTest {
 
     @Test
     public void setDataTest() {
-        Comment comment = new Comment("test");
-        comment.setData("test1");
-        assertEquals("test1", comment.getData());
+        String testData = "test data";
+        Comment comment = new Comment(testData);
+        comment.setData("new data");
+        assertEquals(comment.getData(), "new data");
     }
 
 }

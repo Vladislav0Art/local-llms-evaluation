@@ -1,38 +1,27 @@
 package org.jsoup.helper;
 
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
+import java.net.URISyntaxException;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private static final String TEST_URL = "https://www.example.com/";
-
-    @Mock
-    private URL mockUrl;
-
     @Test
-    public void buildUrlTest() throws IOException {
-        when(mockUrl.getProtocol()).thenReturn("https");
-        when(mockUrl.getHost()).thenReturn("www.example.com");
-        when(mockUrl.getPath()).thenReturn("/");
-
-        UrlBuilder builder = new UrlBuilder(mockUrl);
-        URL builtUrl = builder.build();
-
-        assertEquals("https", builtUrl.getProtocol());
-        assertEquals("www.example.com", builtUrl.getHost());
-        assertEquals("/", builtUrl.getPath());
+    public void testUrlBuilder() throws MalformedURLException, UnsupportedEncodingException, URISyntaxException {
+        URL inputUrl = new URL("https://example.com/test?key=value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("newKey", "newValue", "UTF-8");
+        urlBuilder.appendKeyVal(kv);
+        URL resultUrl = urlBuilder.build();
+        assertEquals("https://example.com/test?key=value&newKey=newValue", resultUrl.toString());
     }
 
 }

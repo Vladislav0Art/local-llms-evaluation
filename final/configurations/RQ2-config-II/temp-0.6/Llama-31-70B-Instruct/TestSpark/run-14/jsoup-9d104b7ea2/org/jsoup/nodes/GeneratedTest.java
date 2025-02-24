@@ -3,13 +3,14 @@ package org.jsoup.nodes;
 import org.jsoup.nodes.TextNode;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedTest {
 
     @Test
     public void nodeNameTest() {
-        TextNode textNode = new TextNode("text");
+        TextNode textNode = new TextNode("");
         assertEquals("#text", textNode.nodeName());
     }
 
@@ -20,46 +21,45 @@ public class GeneratedTest {
     }
 
     @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
     public void getWholeTextTest() {
         TextNode textNode = new TextNode("text");
         assertEquals("text", textNode.getWholeText());
     }
 
     @Test
-    public void isBlankTest() {
-        TextNode textNode = new TextNode(" ");
-        assertEquals(true, textNode.isBlank());
-    }
-
-    @Test
     public void splitTextTest() {
         TextNode textNode = new TextNode("text");
-        TextNode splitTextNode = textNode.splitText(2);
-        assertEquals("xt", splitTextNode.getWholeText());
+        TextNode splitNode = textNode.splitText(2);
+        assertEquals("te", textNode.text());
+        assertEquals("xt", splitNode.text());
     }
 
     @Test
-    public void createFromEncodedTest() {
-        TextNode textNode = TextNode.createFromEncoded("&lt;");
-        assertEquals("<", textNode.getWholeText());
+    public void outerHtmlHeadTest() {
+        TextNode textNode = new TextNode("text");
+        StringBuilder accum = new StringBuilder();
+        textNode.outerHtmlHead(accum, 0, null);
+        assertEquals("text", accum.toString());
     }
 
     @Test
-    public void normaliseWhitespaceTest() {
-        String text = TextNode.normaliseWhitespace("text   text");
-        assertEquals("text text", text);
+    public void outerHtmlTailTest() {
+        TextNode textNode = new TextNode("text");
+        StringBuilder accum = new StringBuilder();
+        textNode.outerHtmlTail(accum, 0, null);
+        assertEquals("", accum.toString());
     }
 
     @Test
-    public void stripLeadingWhitespaceTest() {
-        String text = TextNode.stripLeadingWhitespace("   text");
-        assertEquals("text", text);
-    }
-
-    @Test
-    public void lastCharIsWhitespaceTest() {
-        StringBuilder builder = new StringBuilder("text ");
-        assertEquals(true, TextNode.lastCharIsWhitespace(builder));
+    public void toStringTest() {
+        TextNode textNode = new TextNode("text");
+        assertEquals("text", textNode.toString());
     }
 
 }

@@ -1,43 +1,42 @@
 package ch.jalu.configme.configurationdata;
 
+import ch.jalu.configme.SettingsHolder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    @InjectMocks
-    private CommentsConfiguration commentsConfiguration;
+    @Mock
+    private SettingsHolder settingsHolder;
 
     @Test
-    public void setCommentTest() {
-        commentsConfiguration.setComment("testPath", "testComment1", "testComment2");
-        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
-        assertEquals(1, comments.size());
-        assertEquals(Arrays.asList("testComment1", "testComment2"), comments.get("testPath"));
-    }
+    public void setComment_withValidPathAndCommentLines_setsCommentCorrectly() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "testPath";
+        String commentLine1 = "commentLine1";
+        String commentLine2 = "commentLine2";
+        String[] commentLines = {commentLine1, commentLine2};
 
-    @Test
-    public void setCommentNullTest() {
-        commentsConfiguration.setComment("testPath", (String[]) null);
-        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
-        assertEquals(0, comments.size());
-    }
+        commentsConfiguration.setComment(path, commentLines);
 
-    @Test
-    public void setCommentEmptyTest() {
-        commentsConfiguration.setComment("testPath", new String[]{});
-        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
-        assertEquals(0, comments.size());
+        List<String> expectedCommentLines = Arrays.asList(commentLine1, commentLine2);
+        Map<String, List<String>> expectedComments = new HashMap<>();
+        expectedComments.put(path, expectedCommentLines);
+        assertEquals(expectedComments, commentsConfiguration.getAllComments());
     }
 
 }

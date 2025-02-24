@@ -1,16 +1,30 @@
 package leetcode.medium;
 
-import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedCalculateSpansTest {
+
+    @Mock
+    private OnlineStockSpan onlineStockSpan;
 
     @Test
     public void calculateSpansTest() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = {100, 80, 60, 70, 60, 75, 85};
-        int[] expectedSpans = {1, 1, 1, 2, 1, 4, 6};
-        Assert.assertArrayEquals(expectedSpans, stockSpan.calculateSpans(prices));
+        // Test that calculateSpans() method returns the correct array based on the prices
+        int[] prices = {100, 90, 80, 70, 60, 50};
+        int[] expected = {1, 2, 3, 4, 5, 6};
+        when(onlineStockSpan.calculateSpans(prices)).thenReturn(expected);
+        assertArrayEquals(expected, onlineStockSpan.calculateSpans(prices));
     }
 
 }

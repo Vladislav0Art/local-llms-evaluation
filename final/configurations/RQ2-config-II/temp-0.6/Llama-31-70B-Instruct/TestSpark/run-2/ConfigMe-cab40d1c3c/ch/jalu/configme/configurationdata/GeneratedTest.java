@@ -1,5 +1,7 @@
 package ch.jalu.configme.configurationdata;
 
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -8,44 +10,35 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 public class GeneratedTest {
 
     @Test
-    public void addProperty_uniqueProperty_success() {
-        Property<?> property = Mockito.mock(Property.class);
-        when(property.getPath()).thenReturn("test");
-
+    public void addPropertyTest() {
         PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
-        propertyListBuilder.add(property);
-
-        Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
-        assertEquals(1, rootEntries.size());
-        assertEquals(property, rootEntries.get("test"));
+        Property<String> mockProperty = Mockito.mock(Property.class);
+        propertyListBuilder.add(mockProperty);
     }
 
     @Test
-    public void addProperty_duplicateProperty_throwsException() {
-        Property<?> property = Mockito.mock(Property.class);
-        when(property.getPath()).thenReturn("test");
-
+    public void addNullPropertyTest() {
         PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
-        propertyListBuilder.add(property);
-        propertyListBuilder.add(property);
+        propertyListBuilder.add(null);
     }
 
     @Test
-    public void addProperty_pathAlreadyExists_throwsException() {
-        Property<?> property1 = Mockito.mock(Property.class);
-        when(property1.getPath()).thenReturn("test");
-        Property<?> property2 = Mockito.mock(Property.class);
-        when(property2.getPath()).thenReturn("test");
-
+    public void createEmptyPropertiesTest() {
         PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
-        propertyListBuilder.add(property1);
-        propertyListBuilder.add(property2);
+        List<Property<?>> properties = propertyListBuilder.create();
+        assert (properties.size() == 0);
+    }
+
+    @Test
+    public void createPropertiesTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Property<String> mockProperty = Mockito.mock(Property.class);
+        propertyListBuilder.add(mockProperty);
+        List<Property<?>> properties = propertyListBuilder.create();
+        assert (properties.size() == 1);
     }
 
 }

@@ -1,0 +1,56 @@
+package org.jsoup.helper;
+
+public class GeneratedTest {
+
+    private HttpConnection httpConnection;
+
+    @BeforeEach
+    public void setUp() {
+        httpConnection = new HttpConnection();
+    }
+
+    @Test
+    public void testConnect() throws IOException {
+        String url = "http://www.example.com/";
+        URL expectedUrl = new URL(url);
+        HttpConnection connection = HttpConnection.connect(url);
+        assertEquals(expectedUrl, connection.url());
+    }
+
+    @Test
+    public void testUrl() {
+        String url = "http://www.example.com/";
+        URL expectedUrl = new URL(url);
+        httpConnection.url(url);
+        assertEquals(expectedUrl, httpConnection.url());
+    }
+
+    @Test
+    public void testProxy() {
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 8080));
+        httpConnection.proxy(proxy);
+        assertEquals(proxy, httpConnection.proxy());
+    }
+
+    @Test
+    public void testUserAgent() {
+        String userAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
+        httpConnection.userAgent(userAgent);
+        assertEquals(userAgent, httpConnection.userAgent());
+    }
+
+    @Test
+    public void testTimeout() {
+        int timeout = 10000;
+        httpConnection.timeout(timeout);
+        assertEquals(timeout, httpConnection.timeout());
+    }
+
+    @Test
+    public void testMaxBodySize() {
+        int maxBodySize = 1024;
+        httpConnection.maxBodySize(maxBodySize);
+        assertEquals(maxBodySize, httpConnection.maxBodySize());
+    }
+
+}

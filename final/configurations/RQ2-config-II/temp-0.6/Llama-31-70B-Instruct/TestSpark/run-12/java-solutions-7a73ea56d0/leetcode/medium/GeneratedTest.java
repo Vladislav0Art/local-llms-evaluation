@@ -7,20 +7,20 @@ import static org.junit.Assert.*;
 public class GeneratedTest {
 
     @Test
-    public void nextTest1() {
+    public void nextTest() {
         OnlineStockSpan stockSpan = new OnlineStockSpan();
         assertEquals(1, stockSpan.next(10));
-        assertEquals(1, stockSpan.next(11));
-        assertEquals(2, stockSpan.next(9));
-        assertEquals(1, stockSpan.next(10));
+        assertEquals(1, stockSpan.next(5));
+        assertEquals(4, stockSpan.next(30));
+        assertEquals(1, stockSpan.next(15));
     }
 
     @Test
-    public void calculateSpansTest1() {
+    public void calculateSpansTest() {
         OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = {10, 11, 9, 10};
-        int[] expectedSpans = {1, 2, 1, 1};
-        assertArrayEquals(expectedSpans, stockSpan.calculateSpans(prices));
+        int[] prices = {100, 80, 60, 70, 60, 75, 85};
+        int[] expected = {1, 1, 1, 2, 1, 4, 6};
+        assertArrayEquals(expected, stockSpan.calculateSpans(prices));
     }
 
 }

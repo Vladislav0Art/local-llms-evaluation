@@ -1,43 +1,55 @@
 package leetcode.medium;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import leetcode.medium.OnlineStockSpan;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
     @Test
-    public void nextTestWhenPriceIsAdded() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        assertEquals(1, onlineStockSpan.next(10));
-        assertEquals(1, onlineStockSpan.next(20));
+    public void nextSpan1Test() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(1));
     }
 
     @Test
-    public void nextTestWhenPriceIsNotAdded() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        onlineStockSpan.next(10);
-        assertEquals(0, onlineStockSpan.next(5));
+    public void nextSpan2Test() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(1);
+        assertEquals(2, stockSpan.next(2));
     }
 
     @Test
-    public void calculateSpansTest() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        int[] prices = {10, 20, 30, 40};
-        int[] spans = onlineStockSpan.calculateSpans(prices);
-        assertArrayEquals(new int[]{1, 2, 3, 4}, spans);
+    public void nextSpan3Test() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(1);
+        stockSpan.next(2);
+        assertEquals(1, stockSpan.next(1));
     }
 
     @Test
-    public void calculateSpansTestWhenPricesAreDecreasing() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        int[] prices = {40, 30, 20, 10};
-        int[] spans = onlineStockSpan.calculateSpans(prices);
-        assertArrayEquals(new int[]{1, 1, 1, 1}, spans);
+    public void calculateSpans1Test() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(new int[]{1}, stockSpan.calculateSpans(new int[]{1}));
+    }
+
+    @Test
+    public void calculateSpans2Test() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(new int[]{1, 2}, stockSpan.calculateSpans(new int[]{1, 2}));
+    }
+
+    @Test
+    public void calculateSpans3Test() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(new int[]{1, 2, 1}, stockSpan.calculateSpans(new int[]{1, 2, 1}));
+    }
+
+    @Test
+    public void calculateSpans4Test() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(new int[]{1, 2, 2, 1}, stockSpan.calculateSpans(new int[]{1, 2, 3, 1}));
     }
 
 }

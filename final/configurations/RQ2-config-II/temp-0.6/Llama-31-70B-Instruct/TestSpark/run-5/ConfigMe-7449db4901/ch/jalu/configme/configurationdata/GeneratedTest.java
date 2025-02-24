@@ -4,48 +4,38 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 public class GeneratedTest {
 
     @Test
-    public void testSetComment() {
+    public void commentsConfigurationTest() {
         CommentsConfiguration config = new CommentsConfiguration();
-        config.setComment("path1", "comment1");
-        assertEquals(1, config.getAllComments().size());
-        assertEquals(Collections.singletonList("comment1"), config.getAllComments().get("path1"));
+        assertEquals(Collections.emptyMap(), config.getAllComments());
     }
 
     @Test
-    public void testSetCommentOverride() {
-        CommentsConfiguration config = new CommentsConfiguration();
-        config.setComment("path1", "comment1");
-        config.setComment("path1", "comment2");
-        assertEquals(1, config.getAllComments().size());
-        assertEquals(Collections.singletonList("comment2"), config.getAllComments().get("path1"));
+    public void commentsConfigurationWithMapTest() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("path1", Arrays.asList("line 1", "line 2"));
+        CommentsConfiguration config = new CommentsConfiguration(comments);
+        assertEquals(comments, config.getAllComments());
     }
 
     @Test
-    public void testSetCommentMultipleComments() {
+    public void setCommentTest() {
         CommentsConfiguration config = new CommentsConfiguration();
-        config.setComment("path1", "comment1", "comment2");
-        assertEquals(1, config.getAllComments().size());
-        assertEquals(Arrays.asList("comment1", "comment2"), config.getAllComments().get("path1"));
+        config.setComment("path2", "line 3", "line 4");
+        assertEquals(Collections.singletonMap("path2", Arrays.asList("line 3", "line 4")), config.getAllComments());
     }
 
     @Test
-    public void testSetCommentEmptyLines() {
+    public void setCommentWithEmptyLinesTest() {
         CommentsConfiguration config = new CommentsConfiguration();
-        config.setComment("path1", "\n");
-        assertEquals(1, config.getAllComments().size());
-        assertEquals(Collections.singletonList(""), config.getAllComments().get("path1"));
-    }
-
-    @Test
-    public void testGetAllComments() {
-        CommentsConfiguration config = new CommentsConfiguration();
-        assertTrue(config.getAllComments().isEmpty());
-        config.setComment("path1", "comment1");
-        assertEquals(1, config.getAllComments().size());
-        assertEquals(Collections.singletonList("comment1"), config.getAllComments().get("path1"));
+        config.setComment("path3", "line 5", "");
+        assertEquals(Collections.singletonMap("path3", Arrays.asList("line 5")), config.getAllComments());
     }
 
 }

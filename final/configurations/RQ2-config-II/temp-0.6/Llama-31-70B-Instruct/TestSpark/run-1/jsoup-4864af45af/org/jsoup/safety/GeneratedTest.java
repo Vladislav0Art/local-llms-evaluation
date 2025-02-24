@@ -1,0 +1,59 @@
+package org.jsoup.safety;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.when;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist safelist = Safelist.none();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist safelist = Safelist.simpleText();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist safelist = Safelist.basic();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist safelist = Safelist.basicWithImages();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist safelist = Safelist.relaxed();
+        Assert.assertNotNull(safelist);
+    }
+
+    @Test
+    public void addTagsTest() {
+        Safelist safelist = new Safelist();
+        String[] tags = {"a", "b", "c"};
+        safelist.addTags(tags);
+        Assert.assertNotNull(safelist.tagNames);
+        Assert.assertEquals(3, safelist.tagNames.size());
+    }
+
+    @Test
+    public void removeTagsTest() {
+        Safelist safelist = new Safelist();
+        String[] tags = {"a", "b", "c"};
+        safelist.removeTags(tags);
+        Assert.assertNotNull(safelist.tagNames);
+        Assert.assertEquals(0, safelist.tagNames.size());
+    }
+
+}

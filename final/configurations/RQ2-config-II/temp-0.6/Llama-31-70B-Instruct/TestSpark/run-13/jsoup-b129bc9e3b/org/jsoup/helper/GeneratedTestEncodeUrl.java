@@ -1,0 +1,27 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.HttpConnection;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.net.URL;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTestEncodeUrl {
+
+    private HttpConnection httpConnection;
+
+    @Before
+    public void setUp() throws Exception {
+        httpConnection = new HttpConnection();
+    }
+
+    @Test
+    public void testEncodeUrl() {
+        URL url = mock(URL.class);
+        Assert.assertNotNull(HttpConnection.encodeUrl(url));
+    }
+
+}

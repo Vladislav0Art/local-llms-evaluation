@@ -1,44 +1,45 @@
 package net.revelc.code.formatter.css;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import com.steadystate.css.dom.CSSStyleSheetImpl;
-import com.steadystate.css.format.CSSFormat;
-import com.steadystate.css.parser.CSSOMParser;
-import com.steadystate.css.parser.SACParserCSS3;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Map;
-
-import net.revelc.code.formatter.Formatter;
-import net.revelc.code.formatter.LineEnding;
-import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.css.sac.InputSource;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private final CssFormatter formatter = new CssFormatter();
-
     @Test
-    public void testInit() {
-        final Map<String, String> options = Map.of("indent", "4", "rgbAsHex", "true",
-                "useSourceStringValues", "false");
-        formatter.init(options, null);
-        Assert.assertNotNull(formatter.formatter);
+    public void initTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        cssFormatter.init(options, cfg);
+        assertTrue(cssFormatter.isInitialized());
     }
 
     @Test
-    public void testDoFormatWithInput() throws IOException {
-        final CSSOMParser parser = mock(CSSOMParser.class);
-        final CSSStyleSheetImpl sheet = mock(CSSStyleSheetImpl.class);
-        when(sheet.getCssText(formatter.formatter)).thenReturn("test");
-        when(parser.parseStyleSheet(new InputSource(new StringReader("test")), null, null))
-                .thenReturn(sheet);
-        final String code = formatter.doFormat("test", LineEnding.UNIX);
-        Assert.assertEquals("test\n", code);
+    public void doFormatTest() throws IOException {
+        CssFormatter cssFormatter = new CssFormatter();
+        String code = "body {background-color: red;}";
+        LineEnding ending = LineEnding.UNIX;
+        String formattedCode = cssFormatter.doFormat(code, ending);
+        assertEquals("body {background-color: red;}\n", formattedCode);
+    }
+
+    @Test
+    public void doFormatExceptionTest() throws IOException {
+        CssFormatter cssFormatter = new CssFormatter();
+        String code = "";
+        LineEnding ending = LineEnding.UNIX;
+        assertThrows(IOException.class, () -> cssFormatter.doFormat(code, ending));
+    }
+
+    @Test
+    public void isInitializedTest() {
+        CssFormatter cssFormatter = new CssFormatter();
+        assertFalse(cssFormatter.isInitialized());
     }
 
 }

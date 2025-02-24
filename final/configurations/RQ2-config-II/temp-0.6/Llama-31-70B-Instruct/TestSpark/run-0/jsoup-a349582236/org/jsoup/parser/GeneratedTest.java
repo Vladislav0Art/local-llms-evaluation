@@ -2,67 +2,72 @@ package org.jsoup.parser;
 
 import org.jsoup.helper.Validate;
 import org.jsoup.internal.Normalizer;
-import org.jsoup.parser.ParseSettings;
-import org.jsoup.parser.Tag;
-import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedTest {
 
-    Tag tag;
+    @Test
+    public void getNameTest() {
+        //Arrange
+        Tag tag = new Tag();
+        String expectedName = "div";
 
-    @Before
-    public void setUp() {
-        tag = new Tag("tagName");
+        //Act
+        String actualName = tag.getName();
+
+        //Assert
+        assertEquals(expectedName, actualName);
     }
 
     @Test
-    public void getName() {
-        assertEquals("tagName", tag.getName());
+    public void normalNameTest() {
+        //Arrange
+        Tag tag = new Tag();
+        String expectedNormalName = "DIV";
+
+        //Act
+        String actualNormalName = tag.normalName();
+
+        //Assert
+        assertEquals(expectedNormalName, actualNormalName);
     }
 
     @Test
-    public void normalName() {
-        assertEquals("tagname", tag.normalName());
+    public void valueOfWithSettingsTest() {
+        //Arrange
+        Tag tag = new Tag();
+        String tagName = "div";
+        ParseSettings settings = new ParseSettings();
+        Tag expectedTag = new Tag();
+
+        //Act
+        Tag actualTag = tag.valueOf(tagName, settings);
+
+        //Assert
+        assertEquals(expectedTag, actualTag);
     }
 
     @Test
-    public void valueOf() {
-        Tag tag = Tag.valueOf("tagName");
-        assertEquals("tagName", tag.tagName);
-        assertEquals("tagname", tag.normalName);
-        assertTrue(tag.isBlock);
-        assertTrue(tag.formatAsBlock);
-        assertFalse(tag.empty);
-        assertFalse(tag.selfClosing);
-        assertFalse(tag.preserveWhitespace);
-        assertFalse(tag.formList);
-        assertFalse(tag.formSubmit);
-    }
+    public void valueOfTest() {
+        //Arrange
+        Tag tag = new Tag();
+        String tagName = "div";
+        Tag expectedTag = new Tag();
 
-    @Test
-    public void valueOfWithSettings() {
-        ParseSettings settings = ParseSettings.preserveCase;
-        Tag tag = Tag.valueOf("tagName", settings);
-        assertEquals("tagName", tag.tagName);
-        assertEquals("tagName", tag.normalName);
-        assertTrue(tag.isBlock);
-        assertTrue(tag.formatAsBlock);
-        assertFalse(tag.empty);
-        assertFalse(tag.selfClosing);
-        assertFalse(tag.preserveWhitespace);
-        assertFalse(tag.formList);
-        assertFalse(tag.formSubmit);
-    }
+        //Act
+        Tag actualTag = tag.valueOf(tagName);
 
-    @Test
-    public void isBlock() {
-        assertTrue(tag.isBlock());
+        //Assert
+        assertEquals(expectedTag, actualTag);
     }
 
 }

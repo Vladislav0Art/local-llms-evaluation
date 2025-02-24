@@ -1,31 +1,36 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+import org.mockito.Mock;
+
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GeneratedTest {
 
+    @Mock
+    private MDFInfoModalRodoviarioVeiculoReboque mdfInfoModalRodoviarioVeiculoReboque;
+
+    @Before
+    public void setup() {
+        initMocks(this);
+    }
+
     @Test
     public void setCodigoInternoTest() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = Mockito.mock(MDFInfoModalRodoviarioVeiculoReboque.class);
-        reboque.setCodigoInterno("1234567890");
-        assertEquals("1234567890", reboque.getCodigoInterno());
+        final String codigoInterno = "123456";
+        mdfInfoModalRodoviarioVeiculoReboque.setCodigoInterno(codigoInterno);
+        assertEquals(codigoInterno, mdfInfoModalRodoviarioVeiculoReboque.getCodigoInterno());
     }
 
     @Test
     public void setPlacaTest() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = Mockito.mock(MDFInfoModalRodoviarioVeiculoReboque.class);
-        reboque.setPlaca("AB123456");
-        assertEquals("AB123456", reboque.getPlaca());
-    }
-
-    @Test
-    public void setRenavamTest() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = Mockito.mock(MDFInfoModalRodoviarioVeiculoReboque.class);
-        reboque.setRenavam("12345678901");
-        assertEquals("12345678901", reboque.getRenavam());
+        final String placa = "AAA1111";
+        mdfInfoModalRodoviarioVeiculoReboque.setPlaca(placa);
+        assertEquals(placa, mdfInfoModalRodoviarioVeiculoReboque.getPlaca());
     }
 
 }

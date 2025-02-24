@@ -1,47 +1,54 @@
 package ch.jalu.configme.configurationdata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import ch.jalu.configme.exception.ConfigMeException;
 import ch.jalu.configme.properties.Property;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-
 public class GeneratedTest {
 
-    @Test
-    public void testAdd_validProperty_addsProperty() {
-        // Arrange
-        PropertyListBuilder builder = new PropertyListBuilder();
-        Property<?> property = new Property<>("test.path", "description", String.class);
+    private PropertyListBuilder propertyListBuilder;
 
-        // Act
-        builder.add(property);
-
-        // Assert
-        Map<String, Object> rootEntries = builder.getRootEntries();
-        assertNotNull(rootEntries.get("test"));
-        assertNotNull(((Map<String, Object>) rootEntries.get("test")).get("path"));
-        assertEquals(property, ((Map<String, Object>) rootEntries.get("test")).get("path"));
+    @Before
+    public void setUp() {
+        propertyListBuilder = new PropertyListBuilder();
     }
 
     @Test
-    public void testAdd_propertyAlreadyExists_throwsException() {
-        // Arrange
-        PropertyListBuilder builder = new PropertyListBuilder();
-        Property<?> property = new Property<>("test.path", "description", String.class);
-        builder.add(property);
-
-        // Act
-        Exception exception = null;
-        try {
-            builder.add(property);
-        }
-
+    public void addTest_PropertyIsNull_ExpectConfigMeException() {
+        propertyListBuilder.add(null);
     }
+
+    @Test
+    public void addTest_PropertyIsNotNull_ExpectPropertyAdded() {
+        Property<?> property = Mockito.mock(Property.class);
+        propertyListBuilder.add(property);
+        // TODO: Assert that the property was added
+    }
+
+    @Test
+    public void createTest_PropertiesExist_ExpectListCreated() {
+        Property<?> property = Mockito.mock(Property.class);
+        propertyListBuilder.add(property);
+        List<Property<?>> propertyList = propertyListBuilder.create();
+        assertEquals(1, propertyList.size());
+    }
+
+    @Test
+    public void createTest_PropertiesDoNotExist_ExpectEmptyList() {
+        List<Property<?>> propertyList = propertyListBuilder.create();
+        assertEquals(0, propertyList.size());
+    }
+
+    @Test
+    public void getRootEntriesTest_NoRootEntries_ExpectEmptyMap() {
+        Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
+        assertEquals(0, rootEntries.size());
+    }
+
+}

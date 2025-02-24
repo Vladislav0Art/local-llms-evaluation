@@ -1,19 +1,22 @@
 package org.jsoup.nodes;
 
-import org.jsoup.parser.ParseSettings;
-import org.jsoup.parser.Parser;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedSetDataTest {
 
     @Test
     public void setDataTest() {
         Comment comment = new Comment("data");
-        comment.setData("newData");
-        assertEquals("newData", comment.getData());
+        String expectedData = "new data";
+        comment.setData(expectedData);
+        String actualData = comment.getData();
+        assertEquals(expectedData, actualData);
     }
 
 }

@@ -1,16 +1,66 @@
 package com.netflix.frigga.ami;
 
+import com.netflix.frigga.NameConstants;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 public class GeneratedTest {
 
     @Test
-    public void testParseName() {
-        String amiName = "subscriberha-1.0.0-586499.h150/WE-WAPP-subscriberha/150";
-        AppVersion parsedName = AppVersion.parseName(amiName);
-        assertEquals("subscriberha", parsedName.getPackageName());
-        assertEquals("1.0.0", parsedName.getVersion());
-        assertEquals("h150", parsedName.getBuildNumber());
-        assertEquals("WE-WAPP-subscriberha/150", parsedName.getBuildJobName());
-        assertEquals("586499", parsedName.getCommit());
+    public void parseNameTest() {
+        String amiName = "ami-name";
+        AppVersion appVersion = AppVersion.parseName(amiName);
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void compareToTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        int result = appVersion1.compareTo(appVersion2);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        assertNotNull(pattern);
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String packageName = appVersion.getPackageName();
+        assertNull(packageName);
+    }
+
+    @Test
+    public void getVersionTest() {
+        AppVersion appVersion = new AppVersion();
+        String version = appVersion.getVersion();
+        assertNull(version);
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String buildJobName = appVersion.getBuildJobName();
+        assertNull(buildJobName);
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        AppVersion appVersion = new AppVersion();
+        String buildNumber = appVersion.getBuildNumber();
+        assertNull(buildNumber);
+    }
+
+    @Test
+    public void getCommitTest() {
+        AppVersion appVersion = new AppVersion();
+        String commit = appVersion.getCommit();
+        assertNull(commit);
     }
 
 }

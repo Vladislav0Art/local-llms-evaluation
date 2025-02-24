@@ -1,57 +1,47 @@
 package org.jsoup.nodes;
 
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.mockito.Mockito;
+
 public class GeneratedTest {
 
+    // test constructor with mocked TextNode
+
     @Test
-    public void testNodeName() {
-        TextNode textNode = new TextNode("some text");
-        assertEquals(textNode.nodeName(), "#text");
+    public void constructorTest() {
+        TextNode textNode = Mockito.mock(TextNode.class);
+        assertEquals(textNode, new TextNode("text"));
     }
 
     @Test
-    public void testText() {
-        TextNode textNode = new TextNode("some text");
-        assertEquals(textNode.text(), "some text");
+    public void nodeNameTest() {
+        TextNode textNode = Mockito.mock(TextNode.class);
+        Mockito.when(textNode.nodeName()).thenReturn("text");
+        assertEquals("text", textNode.nodeName());
     }
 
     @Test
-    public void testGetWholeText() {
-        TextNode textNode = new TextNode("some text");
-        assertEquals(textNode.getWholeText(), "some text");
+    public void textTest() {
+        TextNode textNode = Mockito.mock(TextNode.class);
+        Mockito.when(textNode.text()).thenReturn("text");
+        assertEquals("text", textNode.text());
     }
 
     @Test
-    public void testIsBlank() {
-        TextNode textNode = new TextNode("some text");
+    public void getWholeTextTest() {
+        TextNode textNode = Mockito.mock(TextNode.class);
+        Mockito.when(textNode.getWholeText()).thenReturn("text");
+        assertEquals("text", textNode.getWholeText());
+    }
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = Mockito.mock(TextNode.class);
+        Mockito.when(textNode.isBlank()).thenReturn(false);
         assertFalse(textNode.isBlank());
-        textNode = new TextNode("");
-        assertTrue(textNode.isBlank());
-        textNode = new TextNode("   ");
-        assertTrue(textNode.isBlank());
-        textNode = new TextNode("\n\t");
-        assertTrue(textNode.isBlank());
-    }
-
-    @Test
-    public void testSplitText() {
-        TextNode textNode = new TextNode("some text");
-        TextNode splitNode = textNode.splitText(5);
-        assertEquals(textNode.getWholeText(), "some ");
-        assertEquals(splitNode.getWholeText(), "text");
-    }
-
-    @Test
-    public void testNormaliseWhitespace() {
-        String text = "some    \n\n\t   text";
-        String normalisedText = TextNode.normaliseWhitespace(text);
-        assertEquals(normalisedText, "some text");
-    }
-
-    @Test
-    public void testStripLeadingWhitespace() {
-        String text = "   \t\n   some text";
-        String strippedText = TextNode.stripLeadingWhitespace(text);
-        assertEquals(strippedText, "some text");
     }
 
 }

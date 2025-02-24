@@ -1,21 +1,21 @@
 package leetcode.medium;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class GeneratedCalculateSpansTest {
 
     @Test
     public void calculateSpansTest() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = new int[]{10, 5, 3, 20, 25};
-        int[] expectedSpans = new int[]{1, 2, 1, 1, 1};
-        assertArrayEquals(expectedSpans, stockSpan.calculateSpans(prices));
+        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
+        int[] prices = {100, 80, 60, 70, 60, 75, 85};
+        int[] expected = {1, 1, 1, 2, 1, 4, 6};
+        int[] actual = onlineStockSpan.calculateSpans(prices);
+        assertEquals(expected.length, actual.length);
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(expected[i], actual[i]);
+        }
     }
 
 }

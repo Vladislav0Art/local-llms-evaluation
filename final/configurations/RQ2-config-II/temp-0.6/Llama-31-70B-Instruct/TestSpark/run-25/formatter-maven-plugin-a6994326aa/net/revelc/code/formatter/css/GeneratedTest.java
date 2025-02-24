@@ -1,23 +1,31 @@
 package net.revelc.code.formatter.css;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
-import org.junit.Test;
+import java.io.IOException;
+
+import net.revelc.code.formatter.LineEnding;
 import net.revelc.code.formatter.css.CssFormatter;
+import org.junit.Test;
 
 public class GeneratedTest {
 
     @Test
-    public void formatWithIndent4RgbAsHexTrueUseSourceStringValuesFalseTest() throws IOException {
+    public void initTest() {
         CssFormatter formatter = new CssFormatter();
-        Map<String, String> options = new HashMap<>();
-        options.put("indent", "4");
-        options.put("rgbAsHex", "true");
-        options.put("useSourceStringValues", "false");
-        formatter.init(options, null);
-        String code = "p { color: red; }";
-        String formattedCode = formatter.doFormat(code, LineEnding.LF);
-        assertNotEquals(code, formattedCode);
+        assertNotNull(formatter.init(null, null));
+    }
+
+    @Test
+    public void doFormatTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        assertNotNull(formatter.doFormat(null, LineEnding.LF));
+    }
+
+    @Test
+    public void isInitializedTest() {
+        CssFormatter formatter = new CssFormatter();
+        assertNotNull(formatter.isInitialized());
     }
 
 }

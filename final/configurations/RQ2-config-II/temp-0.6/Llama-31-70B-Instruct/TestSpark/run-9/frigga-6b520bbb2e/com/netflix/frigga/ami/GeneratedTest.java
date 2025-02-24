@@ -1,59 +1,63 @@
 package com.netflix.frigga.ami;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+import com.netflix.frigga.ami.AppVersion;
+import com.netflix.frigga.ami.AppVersion.AppVersionParseException;
 
 public class GeneratedTest {
 
-    private AppVersion appVersion;
-
-    @BeforeEach
-    public void setUp() {
-        appVersion = new AppVersion();
+    @Test
+    public void parseNameTest() throws AppVersionParseException {
+        AppVersion appVersion = AppVersion.parseName("test");
+        assertNotNull(appVersion);
     }
 
     @Test
-    public void testParseName() {
-        String amiName = "amiName";
-        AppVersion expected = Mockito.mock(AppVersion.class);
-        when(expected.parseName(amiName)).thenReturn(expected);
-        Assertions.assertEquals(expected, appVersion.parseName(amiName));
+    public void compareToTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        assertEquals(0, appVersion1.compareTo(appVersion2));
     }
 
     @Test
-    public void testCompareTo() {
-        AppVersion other = Mockito.mock(AppVersion.class);
-        when(other.compareTo(appVersion)).thenReturn(0);
-        Assertions.assertEquals(0, appVersion.compareTo(other));
+    public void getAppVersionPatternTest() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        assertNotNull(pattern);
     }
 
     @Test
-    public void testGetAppVersionPattern() {
-        Assertions.assertNotNull(appVersion.getAppVersionPattern());
+    public void getPackageNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String packageName = appVersion.getPackageName();
+        assertNull(packageName);
     }
 
     @Test
-    public void testGetPackageName() {
-        Assertions.assertNull(appVersion.getPackageName());
+    public void getVersionTest() {
+        AppVersion appVersion = new AppVersion();
+        String version = appVersion.getVersion();
+        assertNull(version);
     }
 
     @Test
-    public void testGetVersion() {
-        Assertions.assertNull(appVersion.getVersion());
+    public void getBuildJobNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String buildJobName = appVersion.getBuildJobName();
+        assertNull(buildJobName);
     }
 
     @Test
-    public void testGetBuildJobName() {
-        Assertions.assertNull(appVersion.getBuildJobName());
-    }
-
-    @Test
-    public void testGetBuildNumber() {
-        Assertions.assertNull(appVersion.getBuildNumber());
+    public void getBuildNumberTest() {
+        AppVersion appVersion = new AppVersion();
+        String buildNumber = appVersion.getBuildNumber();
+        assertNull(buildNumber);
     }
 
 }

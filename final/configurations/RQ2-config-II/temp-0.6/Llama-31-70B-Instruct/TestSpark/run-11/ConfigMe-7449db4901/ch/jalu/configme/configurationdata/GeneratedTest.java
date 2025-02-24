@@ -1,8 +1,9 @@
 package ch.jalu.configme.configurationdata;
 
-import ch.jalu.configme.configurationdata.CommentsConfiguration;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+import ch.jalu.configme.SettingsHolder;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,35 +11,50 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
+    @Mock
+    private SettingsHolder settingsHolder;
+
     @Test
-    public void setCommentWithNullPathTest() {
+    public void setCommentWithoutTrailingSpacesTest() {
         CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        String[] commentLines = {"comment1", "comment2"};
-        commentsConfiguration.setComment(null, commentLines);
-        List<String> actual = commentsConfiguration.getAllComments().get(null);
-        assertEquals(Arrays.asList(commentLines), actual);
+        commentsConfiguration.setComment("test", "test comment");
+        assertEquals(1, commentsConfiguration.getAllComments().size());
     }
 
     @Test
-    public void setCommentWithNullCommentLinesTest() {
+    public void setCommentWithTrailingSpacesTest() {
         CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        commentsConfiguration.setComment("path", null);
-        List<String> actual = commentsConfiguration.getAllComments().get("path");
-        assertNotNull(actual);
+        commentsConfiguration.setComment("test", "test comment ");
+        assertEquals(1, commentsConfiguration.getAllComments().size());
     }
 
     @Test
-    public void setCommentWithEmptyPathTest() {
+    public void setCommentWithMultipleCommentsTest() {
         CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        String[] commentLines = {"comment1", "comment2"};
-        commentsConfiguration.setComment("", commentLines);
-        List<String> actual = commentsConfiguration.getAllComments().get("");
-        assertEquals(Arrays.asList(commentLines), actual);
+        commentsConfiguration.setComment("test", "test comment", "test comment 2");
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+    }
+
+    @Test
+    public void setCommentWithEmptyCommentsTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        commentsConfiguration.setComment("test", "");
+        assertEquals(1, commentsConfiguration.getAllComments().size());
+    }
+
+    @Test
+    public void setCommentWithNullCommentsTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        commentsConfiguration.setComment("test", (String[]) null);
+        assertEquals(1, commentsConfiguration.getAllComments().size());
     }
 
 }

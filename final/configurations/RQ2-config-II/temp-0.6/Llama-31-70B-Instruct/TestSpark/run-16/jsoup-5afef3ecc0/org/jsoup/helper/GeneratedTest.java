@@ -1,51 +1,44 @@
 package org.jsoup.helper;
 
+import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.jsoup.Connection;
+import org.jsoup.helper.DataUtil;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class GeneratedTest {
 
-    @Mock
-    private URL inputUrl;
+    private static final String VALID_URL_STRING = "https://www.example.com";
+    private static final String INVALID_URL_STRING = "invalid URL";
+    private static final String VALID_KEY = "key";
+    private static final String VALID_VALUE = "value";
+    private static final String INVALID_KEY = "";
+    private static final String INVALID_VALUE = "";
+    private static final String VALID_ENCODED_STRING = "a%20b";
+    private static final String VALID_DECODED_STRING = "a b";
 
     @Test
-    public void build_withValidInputUrl_shouldReturnNormalizedUrl() throws MalformedURLException {
-        URL expectedUrl = new URL("http://www.example.com");
-        Mockito.when(inputUrl.getProtocol()).thenReturn("http");
-        Mockito.when(inputUrl.getHost()).thenReturn("www.example.com");
-        Mockito.when(inputUrl.getPath()).thenReturn("");
-        Mockito.when(inputUrl.getQuery()).thenReturn(null);
-        Mockito.when(inputUrl.getRef()).thenReturn(null);
-
+    public void buildUrlTest() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL(VALID_URL_STRING);
         UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-        URL normalizedUrl = urlBuilder.build();
-
-        assertEquals(expectedUrl.toString(), normalizedUrl.toString());
+        URL builtUrl = urlBuilder.build();
+        Assert.assertEquals(inputUrl, builtUrl);
     }
 
     @Test
-    public void build_withNullInputUrl_shouldReturnNull() {
-        UrlBuilder urlBuilder = new UrlBuilder(null);
-        URL normalizedUrl = urlBuilder.build();
+    public void appendKeyValTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal(VALID_KEY, VALID_VALUE);
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(VALID_URL_STRING));
+        urlBuilder.appendKeyVal(kv);
 
-        assertNull(normalizedUrl);
-    }
-
-    @Test
-    public void build_withNullInputHost_shouldReturnNull() throws MalformedURLException {
-        Mockito.when(inputUrl.getHost()).thenReturn(null);
-
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-        URL normalizedUrl = urlBuilder.build();
-
-        assertNull(normalizedUrl);
+        String query = urlBuilder.build().toURI().getRawQuery();
+        Assert.assertTrue(query.contains(VALID_KEY));
+        Assert.assertTrue(query.contains(VALID_VALUE));
     }
 
 }

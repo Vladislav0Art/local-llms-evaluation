@@ -1,0 +1,60 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    AppVersion appVersion;
+
+    @Test
+    public void parseNameTest() {
+        when(appVersion.parseName("test")).thenReturn(new AppVersion());
+        assertEquals(new AppVersion(), appVersion.parseName("test"));
+    }
+
+    @Test
+    public void compareToTest() {
+        AppVersion other = new AppVersion();
+        when(appVersion.compareTo(other)).thenReturn(0);
+        assertEquals(0, appVersion.compareTo(other));
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        when(appVersion.getAppVersionPattern()).thenReturn(Pattern.compile("[a-z]"));
+        assertEquals(Pattern.compile("[a-z]"), appVersion.getAppVersionPattern());
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        when(appVersion.getPackageName()).thenReturn("test");
+        assertEquals("test", appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersionTest() {
+        when(appVersion.getVersion()).thenReturn("1.0.0");
+        assertEquals("1.0.0", appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        when(appVersion.getBuildJobName()).thenReturn("test");
+        assertEquals("test", appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        when(appVersion.getBuildNumber()).thenReturn("1");
+        assertEquals("1", appVersion.getBuildNumber());
+    }
+
+}

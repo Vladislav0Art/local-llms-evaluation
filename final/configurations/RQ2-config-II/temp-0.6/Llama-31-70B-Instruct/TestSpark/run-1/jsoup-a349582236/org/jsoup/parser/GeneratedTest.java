@@ -1,63 +1,70 @@
 package org.jsoup.parser;
 
-import org.jsoup.helper.Normalizer;
-import org.jsoup.helper.Validate;
-import org.jsoup.nodes.Element;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.jsoup.parser.Tag;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import org.jsoup.parser.ParseSettings;
+import org.mockito.Mockito;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private static final Map<String, Tag> tags = new HashMap<>();
-
-    @Mock
-    private Element element;
-
     @Test
-    public void testValueOf() {
-        when(element.getTagName()).thenReturn("div");
-        String tagName = element.getTagName();
-        Tag tag = Tag.valueOf(tagName, ParseSettings.preserveCase);
-        assertEquals("div", tag.getName());
+    public void getNameTest() throws Exception {
+        Tag tag = new Tag("P");
+        assertEquals("p", tag.getName());
     }
 
     @Test
-    public void testIsBlock() {
-        assertTrue(Tag.valueOf("div").isBlock());
-        assertFalse(Tag.valueOf("span").isBlock());
+    public void normalNameTest() throws Exception {
+        Tag tag = new Tag("P");
+        assertEquals("p", tag.normalName());
     }
 
     @Test
-    public void testFormatAsBlock() {
-        assertTrue(Tag.valueOf("div").formatAsBlock());
-        assertFalse(Tag.valueOf("span").formatAsBlock());
+    public void valueOfWithSettingsTest() throws Exception {
+        ParseSettings settings = Mockito.mock(ParseSettings.class);
+        Tag tag = Tag.valueOf("P", settings);
+        assertEquals("p", tag.getName());
     }
 
     @Test
-    public void testIsEmpty() {
-        assertTrue(Tag.valueOf("img").isEmpty());
-        assertFalse(Tag.valueOf("div").isEmpty());
+    public void valueOfWithoutSettingsTest() throws Exception {
+        Tag tag = Tag.valueOf("P");
+        assertEquals("p", tag.getName());
     }
 
     @Test
-    public void testIsSelfClosing() {
-        assertTrue(Tag.valueOf("img").isSelfClosing());
-        assertFalse(Tag.valueOf("div").isSelfClosing());
+    public void isBlockTest() throws Exception {
+        Tag tag = new Tag("P");
+        assertTrue(tag.isBlock());
     }
 
     @Test
-    public void testIsKnownTag() {
-        assertTrue(Tag.isKnownTag("div"));
-        assertFalse(Tag.isKnownTag("unknown"));
+    public void formatAsBlockTest() throws Exception {
+        Tag tag = new Tag("P");
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() throws Exception {
+        Tag tag = new Tag("P");
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() throws Exception {
+        Tag tag = new Tag("P");
+        assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() throws Exception {
+        Tag tag = new Tag("P");
+        assertTrue(tag.isSelfClosing());
     }
 
 }

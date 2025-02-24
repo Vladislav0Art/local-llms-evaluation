@@ -1,17 +1,20 @@
 package org.jsoup.nodes;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedTextTest {
 
     @Test
     public void textTest() {
-        TextNode textNode = new TextNode("  foo  ");
-        assertEquals("foo", textNode.text());
+        TextNode node = new TextNode("test");
+
+        String newText = "new text";
+        TextNode newNode = node.text(newText);
+
+        assertEquals(newText, newNode.text());
     }
 
 }

@@ -1,62 +1,59 @@
 package org.jsoup.helper;
 
+import static org.junit.Assert.*;
+
 import org.jsoup.Connection;
-import org.jsoup.helper.DataUtil;
 import org.jsoup.helper.UrlBuilder;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private UrlBuilder urlBuilder;
+    @Test
+    public void build_validInput_validOutputTest() throws Exception {
+        // Arrange
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
 
-    @Before
-    public void setUp() throws MalformedURLException {
-        urlBuilder = new UrlBuilder(new URL("http://www.google.com"));
-    }
+        // Act
+        URL outputUrl = urlBuilder.build();
 
-    @After
-    public void tearDown() {
-        urlBuilder = null;
+        // Assert
+        assertEquals("http://example.com", outputUrl.toString());
     }
 
     @Test
-    public void shouldBuildUrl() throws MalformedURLException {
-        // given
-        urlBuilder = new UrlBuilder(new URL("http://www.google.com"));
+    public void build_invalidInput_throwsExceptionTest() throws Exception {
+        // Arrange
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
 
-        // when
-        URL url = urlBuilder.build();
-
-        // then
-        assertNotNull(url);
+        // Act
+        URL outputUrl = urlBuilder.build();
     }
 
     @Test
-    public void shouldAppendKeyVal() throws UnsupportedEncodingException {
-        // given
-        Connection.KeyVal keyVal = new Connection.KeyVal("key", "value");
+    public void appendKeyVal_validInput_validOutputTest() throws Exception {
+        // Arrange
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
 
-        // when
-        urlBuilder.appendKeyVal(keyVal);
+        // Act
+        urlBuilder.appendKeyVal(kv);
 
-        // then
-        assertNotNull(urlBuilder.q);
+        // Assert
+        assertNotNull(urlBuilder.build());
+    }
+
+    @Test
+    public void appendKeyVal_invalidInput_throwsExceptionTest() throws Exception {
+        // Arrange
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+
+        // Act
+        urlBuilder.appendKeyVal(kv);
     }
 
 }

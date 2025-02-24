@@ -1,0 +1,54 @@
+package app;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertNotNull(tables);
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        CsvReader reader = dbApp.getReader();
+        assertNotNull(reader);
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        CsvWriter writer = dbApp.getWriter();
+        assertNotNull(writer);
+    }
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+    }
+
+    @Test
+    public void createTableTest() {
+        DBApp dbApp = new DBApp();
+        String strTableName = "testTable";
+        String strClusteringKeyColumn = "clusteringKey";
+        Hashtable<String, String> htblColNameType = new Hashtable<>();
+        Hashtable<String, String> htblColNameMin = new Hashtable<>();
+        Hashtable<String, String> htblColNameMax = new Hashtable<>();
+        htblColNameType.put("col1", "String");
+        htblColNameMin.put("col1", "0");
+        htblColNameMax.put("col1", "100");
+        try {
+            dbApp.createTable(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
+        } catch (DBAppException e) {
+            fail(e.getMessage());
+        }
+    }
+
+}

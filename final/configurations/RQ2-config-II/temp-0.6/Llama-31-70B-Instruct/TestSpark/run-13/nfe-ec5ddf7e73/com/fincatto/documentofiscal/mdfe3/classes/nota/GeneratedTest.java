@@ -1,24 +1,41 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
-    public void testCapacidadeKG() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setCapacidadeKG("100");
-        assertEquals("100", reboque.getCapacidadeKG());
+    public void setCodigoInternoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque testObject = new MDFInfoModalRodoviarioVeiculoReboque();
+        String codigoInterno = "Test";
+        testObject.setCodigoInterno(codigoInterno);
+        assertEquals(codigoInterno, testObject.getCodigoInterno());
     }
 
     @Test
-    public void testCapacidadeM3() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setCapacidadeM3("100");
-        assertEquals("100", reboque.getCapacidadeM3());
+    public void setPlacaTest() {
+        MDFInfoModalRodoviarioVeiculoReboque testObject = new MDFInfoModalRodoviarioVeiculoReboque();
+        String placa = "Test";
+        testObject.setPlaca(placa);
+        assertEquals(placa, testObject.getPlaca());
+    }
+
+    @Test
+    public void setRenavamTest() {
+        MDFInfoModalRodoviarioVeiculoReboque testObject = new MDFInfoModalRodoviarioVeiculoReboque();
+        String renavam = "Test";
+        testObject.setRenavam(renavam);
+        assertEquals(renavam, testObject.getRenavam());
+    }
+
+    @Test
+    public void setTaraTest() {
+        MDFInfoModalRodoviarioVeiculoReboque testObject = new MDFInfoModalRodoviarioVeiculoReboque();
+        String tara = "Test";
+        testObject.setTara(tara);
+        assertEquals(tara, testObject.getTara());
     }
 
 }

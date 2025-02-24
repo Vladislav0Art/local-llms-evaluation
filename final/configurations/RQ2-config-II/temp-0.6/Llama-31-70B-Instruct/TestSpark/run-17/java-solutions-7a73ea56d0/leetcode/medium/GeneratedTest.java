@@ -1,25 +1,41 @@
 package leetcode.medium;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 public class GeneratedTest {
 
     @Test
-    public void nextTest() {
-        OnlineStockSpan stock = new OnlineStockSpan();
-        stock.next(10);
-        stock.next(20);
-        stock.next(30);
-        Assert.assertEquals(3, stock.next(40));
+    public void nextWhenPriceHigherThanPrecedingPrices() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(100));
+        assertEquals(2, stockSpan.next(120));
+        assertEquals(3, stockSpan.next(150));
     }
 
     @Test
-    public void calculateSpansTest() {
-        OnlineStockSpan stock = new OnlineStockSpan();
-        int[] prices = {10, 20, 30};
-        int[] expected = {1, 2, 3};
-        Assert.assertArrayEquals(expected, stock.calculateSpans(prices));
+    public void nextWhenPriceLowerThanPrecedingPrices() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(100));
+        assertEquals(1, stockSpan.next(90));
+        assertEquals(1, stockSpan.next(80));
+    }
+
+    @Test
+    public void nextWhenPriceEqualsPrecedingPrices() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(100));
+        assertEquals(2, stockSpan.next(100));
+        assertEquals(3, stockSpan.next(100));
+    }
+
+    @Test
+    public void calculateSpansWhenInputArrayIsEmpty() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(new int[0], stockSpan.calculateSpans(new int[0]));
+    }
+
+    @Test
+    public void calculateSpansWhenInputArrayHasOneElement() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(new int[]{1}, stockSpan.calculateSpans(new int[]{100}));
     }
 
 }

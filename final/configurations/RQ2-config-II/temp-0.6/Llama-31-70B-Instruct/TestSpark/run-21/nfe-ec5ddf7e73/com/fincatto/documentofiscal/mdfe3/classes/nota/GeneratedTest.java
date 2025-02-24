@@ -1,0 +1,42 @@
+package com.fincatto.documentofiscal.mdfe3.classes.nota;
+
+public class GeneratedTest {
+
+    private MDFInfoModalRodoviarioVeiculoReboque reboque;
+
+    @Test
+    public void setCodigoInternoTest() {
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCodigoInterno("0000000");
+        assertNotNull(reboque.getCodigoInterno());
+    }
+
+    @Test
+    public void setPlacaTest() {
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setPlaca("AAA0000");
+        assertNotNull(reboque.getPlaca());
+    }
+
+    @Test
+    public void setRenavamTest() {
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setRenavam("00000000000");
+        assertNotNull(reboque.getRenavam());
+    }
+
+    @Test
+    public void setTaraTest() {
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setTara("1000");
+        assertNotNull(reboque.getTara());
+    }
+
+    @Test
+    public void getCapacidadeKGTest() {
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCapacidadeKG("1000");
+        assertNotNull(reboque.getCapacidadeKG());
+    }
+
+}

@@ -1,52 +1,45 @@
 package org.jsoup.helper;
 
+import org.jsoup.Connection;
+import org.jsoup.helper.DataUtil;
+import org.jsoup.internal.StringUtil;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GeneratedTest {
 
     @Test
-    public void buildReturnsUrlWithDecodedHost() throws Exception {
-        // Arrange
-        URL inputUrl = new URL("http://www.somehost.com/");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-
-        // Act
-        URL result = urlBuilder.build();
-
-        // Assert
-        assertEquals("http://www.somehost.com/", result.toString());
+    public void buildNoKeyValsTest() throws Exception {
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL url = builder.build();
+        Assert.assertEquals("http", url.getProtocol());
+        Assert.assertEquals("example.com", url.getHost());
+        Assert.assertEquals(-1, url.getPort());
     }
 
     @Test
-    public void buildReturnsUrlWithPunyCodedHost() throws Exception {
-        // Arrange
-        URL inputUrl = new URL("http://www.somehost.com/");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-        when(urlBuilder.decodePart(inputUrl.getHost())).thenReturn("www.somehost.com");
-
-        // Act
-        URL result = urlBuilder.build();
-
-        // Assert
-        assertEquals("http://www.somehost.com/", result.toString());
-    }
-
-    @Test
-    public void buildReturnsUrlWithDecodedPath() throws Exception {
-        // Arrange
-        URL inputUrl = new URL("http://www.somehost.com/");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-        when(urlBuilder.decodePart(inputUrl.getPath())).thenReturn("/");
-
-        // Act
-        URL result = urlBuilder.build();
-
-        // Assert
-        assertEquals("http://www.somehost.com/", result.toString());
+    public void buildOneKeyValTest() throws Exception {
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(new Connection.KeyVal("key1", "val1"));
+        URL url = builder.build();
+        Assert.assertEquals("http", url.getProtocol());
+        Assert.assertEquals("example.com", url.getHost());
+        Assert.assertEquals(-1, url.getPort());
+        Assert.assertEquals("key1=val1", url.getQuery());
     }
 
 }

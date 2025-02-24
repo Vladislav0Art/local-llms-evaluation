@@ -1,60 +1,69 @@
 package org.jsoup.nodes;
 
-import org.junit.Test;
-import org.mockito.Mockito;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
-    public void setDataAndGetDataTest() {
-        Comment comment = new Comment("data");
-        assertEquals("data", comment.getData());
+    public void constructorTest() {
+        Comment comment = new Comment("Test");
+        assertEquals("Test", comment.getData());
+    }
 
-        comment.setData("newData");
-        assertEquals("newData", comment.getData());
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("Test");
+        assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("Test");
+        assertEquals("Test", comment.getData());
+    }
+
+    @Test
+    public void setDataTest() {
+        Comment comment = new Comment("Test");
+        comment.setData("New Data");
+        assertEquals("New Data", comment.getData());
     }
 
     @Test
     public void outerHtmlHeadTest() throws IOException {
-        Comment comment = new Comment("data");
-        Document.OutputSettings out = Mockito.mock(Document.OutputSettings.class);
-        when(out.prettyPrint()).thenReturn(true);
-        when(out.outline()).thenReturn(true);
-
+        Comment comment = new Comment("Test");
         Appendable accum = new StringBuilder();
-        comment.outerHtmlHead(accum, 1, out);
-
-        assertEquals("  <!--data-->", accum.toString());
+        comment.outerHtmlHead(accum, 1, new Document.OutputSettings());
+        assertEquals("<!-- Test -->", accum.toString());
     }
 
     @Test
-    public void isXmlDeclarationTest() {
-        Comment comment = new Comment("data");
-        assertEquals(false, comment.isXmlDeclaration());
-
-        comment = new Comment("!data");
-        assertEquals(true, comment.isXmlDeclaration());
-
-        comment = new Comment("?data");
-        assertEquals(true, comment.isXmlDeclaration());
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("Test");
+        Appendable accum = new StringBuilder();
+        comment.outerHtmlTail(accum, 1, new Document.OutputSettings());
+        assertEquals("", accum.toString());
     }
 
     @Test
-    public void asXmlDeclarationTest() {
-        Comment comment = new Comment("data");
-        assertEquals(null, comment.asXmlDeclaration());
+    public void toStringTest() {
+        Comment comment = new Comment("Test");
+        assertEquals("Comment[Comment, data=Test]", comment.toString());
+    }
 
-        comment = new Comment("!data");
-        assertEquals(null, comment.asXmlDeclaration());
-
-        comment = new Comment("?data");
-        assertEquals(null, comment.asXmlDeclaration());
+    @Test
+    public void cloneTest() {
+        Comment comment = new Comment("Test");
+        Comment clonedComment = comment.clone();
+        assertEquals(comment, clonedComment);
     }
 
 }

@@ -1,57 +1,65 @@
 package org.jsoup.parser;
 
-import org.jsoup.helper.Validate;
-import org.jsoup.internal.Normalizer;
-import org.jsoup.parser.ParseSettings;
 import org.jsoup.parser.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+@RunWith(PowerMockRunner.class)
 public class GeneratedTest {
 
-    private static final Tag TAG = mock(Tag.class);
-    private static final ParseSettings SETTINGS = mock(ParseSettings.class);
+    Tag .class
+})
+
+public class TagTest {
 
     @Test
-    public void shouldReturnTag() {
-        when(SETTINGS.normalizeTag("tag")).thenReturn("tag");
-        final Tag tag = Tag.valueOf("tag", SETTINGS);
-        assertNotNull(tag);
+    public void getNameTest() {
+        Tag tag = new Tag("div");
+        assertEquals("div", tag.getName());
     }
 
     @Test
-    public void shouldReturnTagName() {
-        when(TAG.tagName).thenReturn("tag");
-        final String tagName = TAG.getName();
-        assertEquals("tag", tagName);
+    public void normalNameTest() {
+        Tag tag = new Tag("div");
+        assertEquals("div", tag.normalName());
     }
 
     @Test
-    public void shouldReturnNormalName() {
-        when(TAG.tagName).thenReturn("tag");
-        when(TAG.normalName).thenReturn("normal");
-        final String normalName = TAG.normalName();
-        assertEquals("normal", normalName);
+    public void valueOfTest() {
+        Tag tag = Tag.valueOf("div");
+        assertEquals(tag, Tag.valueOf("div"));
     }
 
     @Test
-    public void shouldReturnBlock() {
-        when(TAG.isBlock).thenReturn(true);
-        final boolean block = TAG.isBlock();
-        assertTrue(block);
+    public void isBlockTest() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.isBlock());
     }
 
     @Test
-    public void shouldReturnFormatAsBlock() {
-        when(TAG.formatAsBlock).thenReturn(true);
-        final boolean formatAsBlock = TAG.formatAsBlock();
-        assertTrue(formatAsBlock);
+    public void formatAsBlockTest() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.isEmpty());
     }
 
 }

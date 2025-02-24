@@ -1,0 +1,78 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    Tag tag = new Tag();
+
+    @Test
+    public void getNameTest() {
+        String expected = "div";
+        String actual = tag.getName();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void normalNameTest() {
+        String expected = "div";
+        String actual = tag.normalName();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void valueOfTagTest() {
+        Tag expected = new Tag();
+        Tag actual = Tag.valueOf("div");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void valueOfTagWithParseSettingsTest() {
+        Tag expected = new Tag();
+        ParseSettings settings = new ParseSettings();
+        Tag actual = Tag.valueOf("div", settings);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void isBlockTest() {
+        assertFalse(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlockTest() {
+        assertFalse(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        assertFalse(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        assertFalse(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTagTest() {
+        assertTrue(tag.isKnownTag());
+    }
+
+    @Test
+    public void isKnownTagWithNameTest() {
+        assertTrue(Tag.isKnownTag("div"));
+    }
+
+}

@@ -1,10 +1,8 @@
 package net.revelc.code.formatter.css;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
@@ -12,48 +10,27 @@ import org.junit.Test;
 public class GeneratedTest {
 
     @Test
-    public void init_WithValidOptions_FormatterInitialized() {
-        Map<String, String> options = new HashMap<>();
-        options.put("indent", "4");
-        options.put("rgbAsHex", "true");
-        options.put("useSourceStringValues", "false");
-
+    public void initTest() {
         CssFormatter formatter = new CssFormatter();
-        formatter.init(options, null);
-
-        assertNotNull(formatter.formatter);
+        Map<String, String> options = null;
+        ConfigurationSource cfg = null;
+        formatter.init(options, cfg);
     }
 
     @Test
-    public void doFormat_WithValidCode_FormattedCodeReturned() throws IOException {
-        String code = "body { color: red; }";
+    public void doFormatTest() throws IOException {
         CssFormatter formatter = new CssFormatter();
-        formatter.init(new HashMap<>(), null);
-
-        String formattedCode = formatter.doFormat(code, null);
-
-        assertEquals("body {\n    color: red;\n}\n", formattedCode);
+        String code = "";
+        LineEnding ending = null;
+        String result = formatter.doFormat(code, ending);
+        assertNotNull(result);
     }
 
     @Test
-    public void doFormat_WithSameCode_NullReturned() throws IOException {
-        String code = "body {\n    color: red;\n}\n";
+    public void isInitializedTest() {
         CssFormatter formatter = new CssFormatter();
-        formatter.init(new HashMap<>(), null);
-
-        String formattedCode = formatter.doFormat(code, null);
-
-        assertEquals(null, formattedCode);
-    }
-
-    @Test
-    public void isInitialized_AfterInit_ReturnsTrue() {
-        CssFormatter formatter = new CssFormatter();
-        formatter.init(new HashMap<>(), null);
-
-        boolean initialized = formatter.isInitialized();
-
-        assertEquals(true, initialized);
+        boolean result = formatter.isInitialized();
+        assertTrue(result);
     }
 
 }

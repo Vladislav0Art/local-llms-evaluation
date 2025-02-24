@@ -1,64 +1,59 @@
 package org.jsoup.nodes;
 
+import org.jsoup.nodes.TextNode;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    @Mock
-    private TextNode textNode;
-
     @Test
-    public void testNodeName() {
-        when(textNode.nodeName()).thenReturn("#text");
-
-        String actual = textNode.nodeName();
-
-        assertEquals("#text", actual);
+    public void TextNodeConstructorTest() {
+        String text = "test";
+        TextNode textNode = new TextNode(text);
+        assertEquals(text, textNode.text());
     }
 
     @Test
-    public void testText() {
-        when(textNode.coreValue()).thenReturn("Text");
-
-        String actual = textNode.text();
-
-        assertEquals("Text", actual);
+    public void TextNodeConstructorNullTest() {
+        TextNode textNode = new TextNode(null);
     }
 
     @Test
-    public void testGetWholeText() {
-        when(textNode.coreValue()).thenReturn("Whole Text");
-
-        String actual = textNode.getWholeText();
-
-        assertEquals("Whole Text", actual);
+    public void TextNodeNodeNameTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("#text", textNode.nodeName());
     }
 
     @Test
-    public void testIsBlank() {
-        when(textNode.coreValue()).thenReturn("");
-
-        boolean actual = textNode.isBlank();
-
-        assertTrue(actual);
+    public void TextNodeTextTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.text());
     }
 
     @Test
-    public void testSplitText() {
-        when(textNode.coreValue()).thenReturn("Text");
-        when(textNode.siblingIndex()).thenReturn(1);
-        when(textNode.parentNode()).thenReturn(null);
+    public void TextNodeSplitTextTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode splitTextNode = textNode.splitText(2);
+        assertEquals("st", splitTextNode.text());
+    }
 
-        TextNode actual = textNode.splitText(2);
+    @Test
+    public void TextNodeIsBlankTest() {
+        TextNode textNode = new TextNode("   ");
+        assertTrue(textNode.isBlank());
+    }
 
-        assertEquals("ext", actual.coreValue());
+    @Test
+    public void TextNodeGetWholeTextTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.getWholeText());
+    }
+
+    @Test
+    public void TextNodeOuterHtmlHeadTest() {
+        TextNode textNode = new TextNode("test");
+        StringBuilder sb = new StringBuilder();
+        textNode.outerHtmlHead(sb, 0, null);
+        assertEquals("test", sb.toString());
     }
 
 }

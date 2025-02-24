@@ -1,18 +1,21 @@
 package org.jsoup.nodes;
 
-import org.jsoup.parser.ParseSettings;
-import org.jsoup.parser.Parser;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedGetDataTest {
 
     @Test
     public void getDataTest() {
         Comment comment = new Comment("data");
-        assertEquals("data", comment.getData());
+        String expectedData = "data";
+        String actualData = comment.getData();
+        assertEquals(expectedData, actualData);
     }
 
 }

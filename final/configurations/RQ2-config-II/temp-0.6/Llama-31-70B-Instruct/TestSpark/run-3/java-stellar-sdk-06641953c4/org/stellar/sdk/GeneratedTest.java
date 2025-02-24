@@ -1,0 +1,51 @@
+package org.stellar.sdk;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.stellar.sdk.KeyPair;
+
+public class GeneratedTest {
+
+    @Test
+    public void testCanSign() {
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey(new EdDSAPrivateKey(new EdDSAPrivateKeySpec(new byte[32], EdDSANamedCurveTable.getByName("Ed25519")))));
+        Assert.assertTrue(keyPair.canSign());
+    }
+
+    @Test
+    public void testFromSecretSeed() {
+        KeyPair keyPair = KeyPair.fromSecretSeed("test");
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void testFromAccountId() {
+        KeyPair keyPair = KeyPair.fromAccountId("test");
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void testFromPublicKey() {
+        KeyPair keyPair = KeyPair.fromPublicKey(new byte[32]);
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void testFromBip39Seed() {
+        KeyPair keyPair = KeyPair.fromBip39Seed(new byte[32], 0);
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void testRandom() {
+        KeyPair keyPair = KeyPair.random();
+        Assert.assertNotNull(keyPair);
+    }
+
+    @Test
+    public void testGetAccountId() {
+        KeyPair keyPair = new KeyPair(new EdDSAPublicKey(new EdDSAPrivateKey(new EdDSAPrivateKeySpec(new byte[32], EdDSANamedCurveTable.getByName("Ed25519")))));
+        Assert.assertNotNull(keyPair.getAccountId());
+    }
+
+}

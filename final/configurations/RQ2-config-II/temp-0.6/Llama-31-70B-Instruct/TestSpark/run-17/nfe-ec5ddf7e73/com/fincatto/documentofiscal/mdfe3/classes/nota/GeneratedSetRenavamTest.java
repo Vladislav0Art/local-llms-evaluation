@@ -1,29 +1,19 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.mockito.Mock;
-
-import static org.mockito.Mockito.*;
-
-import org.mockito.MockitoAnnotations;
+import org.junit.Test;
+import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
 
 public class GeneratedSetRenavamTest {
 
-    @Mock
-    MDFInfoModalRodoviarioVeiculoReboque mockedVeiculoReboque;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
+    private MDFInfoModalRodoviarioVeiculoReboque reboque;
 
     @Test
     public void setRenavamTest() {
-        mockedVeiculoReboque.setRenavam("1234567890");
-        assertEquals("1234567890", mockedVeiculoReboque.getRenavam());
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setRenavam("12345678901234");
+        assertEquals("12345678901234", reboque.getRenavam());
     }
 
 }

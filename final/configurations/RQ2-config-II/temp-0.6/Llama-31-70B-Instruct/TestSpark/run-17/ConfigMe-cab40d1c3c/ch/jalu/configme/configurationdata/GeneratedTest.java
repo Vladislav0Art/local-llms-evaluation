@@ -1,49 +1,41 @@
 package ch.jalu.configme.configurationdata;
 
-@RunWith(MockitoJUnitRunner.class)
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 public class GeneratedTest {
 
-    private PropertyListBuilder propertyListBuilder;
-
-    @Before
-    public void setUp() {
-        propertyListBuilder = new PropertyListBuilder();
-    }
-
     @Test
-    public void addProperty_propertyAdded_propertyFoundInMap() {
-        final Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("DataSource.mysql");
-
-        propertyListBuilder.add(property);
-
-        assertTrue(propertyListBuilder.getRootEntries().containsKey("DataSource.mysql"));
-    }
-
-    @Test
-    public void addProperty_propertyAlreadyExists_throwsException() {
-        final Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("DataSource.mysql");
-
-        propertyListBuilder.add(property);
+    public void addTest_PropertyAdded() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Property<String> property = Mockito.mock(Property.class);
         propertyListBuilder.add(property);
     }
 
     @Test
-    public void create_noPropertiesAdded_emptyListReturned() {
-        assertTrue(propertyListBuilder.create().isEmpty());
+    public void addTest_PropertyNull() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(null);
     }
 
     @Test
-    public void create_propertyAdded_listContainsProperty() {
-        final Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("DataSource.mysql");
+    public void createTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        List<Property<?>> propertyList = propertyListBuilder.create();
+    }
 
-        propertyListBuilder.add(property);
-        List<Property<?>> result = propertyListBuilder.create();
-
-        assertEquals(1, result.size());
-        assertEquals(property, result.get(0));
+    @Test
+    public void getRootEntriesTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
     }
 
 }

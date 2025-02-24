@@ -1,49 +1,62 @@
 package com.netflix.frigga.ami;
 
-import com.netflix.frigga.NameConstants;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Test;
-
 import static org.junit.Assert.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private static final Pattern APP_VERSION_PATTERN = Pattern.compile(
-            "([" + NameConstants.NAME_HYPHEN_CHARS
-                    + "]+)-([0-9.a-zA-Z~]+)-(\\w+)(?:[.](\\w+))?(?:\\/([" + NameConstants.NAME_HYPHEN_CHARS + "]+)\\/([0-9]+))?");
+    @Mock
+    private AppVersion appVersion;
 
     @Test
-    public void testGetAppVersionPattern() {
-        Pattern pattern = APP_VERSION_PATTERN;
-        assertNotNull(pattern);
+    public void parseNameTest() {
+        String amiName = "amiName";
+        AppVersion expected = new AppVersion();
+        Mockito.when(appVersion.parseName(amiName)).thenReturn(expected);
+
+        AppVersion actual = appVersion.parseName(amiName);
+
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void testParseName() {
-        String amiName = "app-1.0.0-586499";
-        AppVersion parsedName = AppVersion.parseName(amiName);
-        assertEquals("app", parsedName.getPackageName());
-        assertEquals("1.0.0", parsedName.getVersion());
-        assertEquals("586499", parsedName.getBuildNumber());
+    public void compareToTest() {
+        AppVersion other = new AppVersion();
+        int expected = 0;
+        Mockito.when(appVersion.compareTo(other)).thenReturn(expected);
+
+        int actual = appVersion.compareTo(other);
+
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void testCompareTo() {
-        AppVersion appVersion1 = new AppVersion();
-        appVersion1.packageName = "app";
-        appVersion1.version = "1.0.0";
-        appVersion1.buildNumber = "586499";
+    public void getAppVersionPatternTest() {
+        Pattern expected = Pattern.compile(".*");
+        Mockito.when(appVersion.getAppVersionPattern()).thenReturn(expected);
 
-        AppVersion appVersion2 = new AppVersion();
-        appVersion2.packageName = "app";
-        appVersion2.version = "1.0.0";
-        appVersion2.buildNumber = "586499";
+        Pattern actual = appVersion.getAppVersionPattern();
 
-        int comparison = appVersion1.compareTo(appVersion2);
-        assertEquals(0, comparison);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        String expected = "packageName";
+        Mockito.when(appVersion.getPackageName()).thenReturn(expected);
+
+        String actual = appVersion.getPackageName();
+
+        assertEquals(expected, actual);
     }
 
 }

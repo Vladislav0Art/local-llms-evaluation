@@ -1,41 +1,47 @@
 package org.jsoup.helper;
 
+import org.jsoup.Connection;
+import org.jsoup.helper.DataUtil;
 import org.jsoup.helper.UrlBuilder;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URI;
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
 
 public class GeneratedTest {
 
-    @Test
-    public void buildTest() throws MalformedURLException, URISyntaxException {
-        URL inputUrl = new URL("https://www.example.com/path/to/page?query=string#fragment");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-        URL result = urlBuilder.build();
+    private static final String ENCODED_URL = "http://example.com/path?key=value";
 
-        assertEquals("https", result.getProtocol());
-        assertEquals("www.example.com", result.getHost());
-        assertEquals("/path/to/page", result.getPath());
-        assertEquals("query=string", result.getQuery());
-        assertEquals("fragment", result.getRef());
+    @Test
+    public void buildUrl_withNormalUrl_returnsExpectedUrl() throws MalformedURLException {
+        URL inputUrl = new URL("http://example.com/path?key=value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        URL actualUrl = urlBuilder.build();
+
+        assertEquals(ENCODED_URL, actualUrl.toString());
     }
 
     @Test
-    public void buildTestWithNullQuery() throws MalformedURLException, URISyntaxException {
-        URL inputUrl = new URL("https://www.example.com/path/to/page#fragment");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-        URL result = urlBuilder.build();
+    public void buildUrl_withNullUrl_throwsIllegalArgumentException() {
+        UrlBuilder urlBuilder = new UrlBuilder(null);
 
-        assertEquals("https", result.getProtocol());
-        assertEquals("www.example.com", result.getHost());
-        assertEquals("/path/to/page", result.getPath());
-        assertNull(result.getQuery());
-        assertEquals("fragment", result.getRef());
+        urlBuilder.build();
+    }
+
+    @Test
+    public void appendKeyVal_withValidKeyVal_appendsKeyValToUrl() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("http://example.com/path?key=value");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("newKey", "newValue");
+
+        urlBuilder.appendKeyVal(kv);
+
+        URL actualUrl = urlBuilder.build();
+        assertEquals("http://example.com/path?key=value&newKey=newValue", actualUrl.toString());
     }
 
 }

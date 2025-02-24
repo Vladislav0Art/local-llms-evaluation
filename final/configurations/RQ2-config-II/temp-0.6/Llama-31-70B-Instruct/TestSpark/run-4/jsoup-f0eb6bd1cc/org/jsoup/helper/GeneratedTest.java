@@ -1,47 +1,35 @@
 package org.jsoup.helper;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    @Mock
-    private URL url;
+    private UrlBuilder urlBuilder;
 
     @Test
-    public void testBuild_validUrl() throws MalformedURLException {
-        doNothing().when(url).getQuery();
-        when(url.getProtocol()).thenReturn("http");
-        when(url.getUserInfo()).thenReturn("username:password");
-        when(url.getHost()).thenReturn("www.jsoup.org");
-        when(url.getPort()).thenReturn(80);
-        when(url.getPath()).thenReturn("/path/to/page.html");
-        when(url.getRef()).thenReturn("anchor");
-
-        UrlBuilder urlBuilder = new UrlBuilder(url);
-        URL normalizedUrl = urlBuilder.build();
-
-        assertEquals("http://www.xn--jsoup-o4a.org/path/to/page.html#anchor", normalizedUrl.toString());
+    public void buildUrlTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com/");
+        urlBuilder = new UrlBuilder(inputUrl);
+        URL actualUrl = urlBuilder.build();
+        assertEquals(inputUrl, actualUrl);
     }
 
     @Test
-    public void testBuild_nullUrl() throws MalformedURLException {
-        UrlBuilder urlBuilder = new UrlBuilder(null);
-        URL normalizedUrl = urlBuilder.build();
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com/");
+        urlBuilder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value", "UTF-8");
+        urlBuilder.appendKeyVal(kv);
+        URL actualUrl = urlBuilder.build();
+        assertTrue(actualUrl.getPath().contains("key=value"));
+    }
 
-        assertEquals(null, normalizedUrl);
+    @Test
+    public void appendKeyValExceptionTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com/");
+        urlBuilder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value", "UTF-8");
+        urlBuilder.appendKeyVal(kv);
+        URL actualUrl = urlBuilder.build();
+        assertTrue(actualUrl.getPath().contains("key=value"));
     }
 
 }

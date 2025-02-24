@@ -1,23 +1,21 @@
 package org.jsoup.nodes;
 
-import org.jsoup.parser.ParseSettings;
-import org.jsoup.parser.Parser;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedOuterHtmlHeadTest {
 
     @Test
-    public void outerHtmlHeadTest() {
+    public void outerHtmlHeadTest() throws IOException {
         Comment comment = new Comment("data");
-        StringBuilder accum = new StringBuilder();
-        Document.OutputSettings out = new Document.OutputSettings();
-        out.prettyPrint(true);
-        out.outline(true);
-        comment.outerHtmlHead(accum, 0, out);
-        assertEquals("\n<!--data-->", accum.toString());
+        Appendable mockAppendable = Mockito.mock(Appendable.class);
+        comment.outerHtmlHead(mockAppendable, 1, null);
+        verify(mockAppendable, times(1)).append("<!---->");
     }
 
 }

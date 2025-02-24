@@ -1,66 +1,66 @@
 package org.jsoup.nodes;
 
-import org.junit.Before;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.XmlDeclaration;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedTest {
 
-    private Comment comment;
-
-    @Before
-    public void init() {
-        comment = Mockito.mock(Comment.class);
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("Some comment");
+        assertEquals("#comment", comment.nodeName());
     }
 
     @Test
     public void getDataTest() {
-        Mockito.when(comment.getData()).thenReturn("data");
-        assertEquals("data", comment.getData());
+        Comment comment = new Comment("Some comment");
+        assertEquals("Some comment", comment.getData());
     }
 
     @Test
     public void setDataTest() {
-        Mockito.when(comment.setData("data")).thenReturn(comment);
-        assertEquals(comment, comment.setData("data"));
+        Comment comment = new Comment("Some comment");
+        comment.setData("New comment");
+        assertEquals("New comment", comment.getData());
     }
 
     @Test
-    public void outerHtmlHeadTest() {
-        Mockito.when(comment.outerHtmlHead(null, 0, null)).thenReturn(comment);
-        assertEquals(comment, comment.outerHtmlHead(null, 0, null));
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("Some comment");
+        StringBuilder accum = new StringBuilder();
+        comment.outerHtmlHead(accum, 0, Document.OutputSettings.create());
+        assertEquals("<!--Some comment-->", accum.toString());
     }
 
     @Test
-    public void outerHtmlTailTest() {
-        Mockito.when(comment.outerHtmlTail(null, 0, null)).thenReturn(comment);
-        assertEquals(comment, comment.outerHtmlTail(null, 0, null));
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("Some comment");
+        StringBuilder accum = new StringBuilder();
+        comment.outerHtmlTail(accum, 0, Document.OutputSettings.create());
+        assertEquals("", accum.toString());
     }
 
     @Test
     public void toStringTest() {
-        Mockito.when(comment.toString()).thenReturn("toString");
-        assertEquals("toString", comment.toString());
+        Comment comment = new Comment("Some comment");
+        assertEquals("Comment[Some comment]", comment.toString());
     }
 
     @Test
     public void cloneTest() {
-        Mockito.when(comment.clone()).thenReturn(comment);
-        assertEquals(comment, comment.clone());
-    }
-
-    @Test
-    public void isXmlDeclarationTest() {
-        Mockito.when(comment.isXmlDeclaration()).thenReturn(true);
-        assertEquals(true, comment.isXmlDeclaration());
-    }
-
-    @Test
-    public void asXmlDeclarationTest() {
-        Mockito.when(comment.asXmlDeclaration()).thenReturn(comment);
-        assertEquals(comment, comment.asXmlDeclaration());
+        Comment comment = new Comment("Some comment");
+        Comment clone = comment.clone();
+        assertEquals(comment.getData(), clone.getData());
     }
 
 }

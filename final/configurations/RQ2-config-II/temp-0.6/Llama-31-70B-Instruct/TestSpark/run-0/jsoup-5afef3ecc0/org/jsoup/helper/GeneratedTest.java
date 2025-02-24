@@ -1,61 +1,33 @@
 package org.jsoup.helper;
 
+import static org.jsoup.helper.UrlBuilder.build;
+import static org.jsoup.helper.UrlBuilder.appendKeyVal;
+import static org.junit.Assert.*;
+
+import org.jsoup.helper.UrlBuilder;
+import org.jsoup.Connection;
+import org.jsoup.Connection.KeyVal;
+import org.junit.Test;
+
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.io.UnsupportedEncodingException;
+
 public class GeneratedTest {
 
     @Test
-    public void shouldBuildUrl() throws MalformedURLException {
-        // given
-        URL inputUrl = new URL("http://example.com");
+    public void buildTest() throws MalformedURLException {
+        URL inputUrl = new URL("http://www.example.com");
         UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-
-        // when
-        URL result = urlBuilder.build();
-
-        // then
-        assertNotNull(result);
-        assertEquals("http://example.com", result.toString());
+        URL resultUrl = urlBuilder.build();
+        assertEquals(inputUrl, resultUrl);
     }
 
     @Test
-    public void shouldBuildUrlWithQuery() throws MalformedURLException {
-        // given
-        URL inputUrl = new URL("http://example.com?query=value");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-
-        // when
-        URL result = urlBuilder.build();
-
-        // then
-        assertNotNull(result);
-        assertEquals("http://example.com?query=value", result.toString());
-    }
-
-    @Test
-    public void shouldBuildUrlWithRef() throws MalformedURLException {
-        // given
-        URL inputUrl = new URL("http://example.com#ref");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-
-        // when
-        URL result = urlBuilder.build();
-
-        // then
-        assertNotNull(result);
-        assertEquals("http://example.com#ref", result.toString());
-    }
-
-    @Test
-    public void shouldBuildUrlWithQueryAndRef() throws MalformedURLException {
-        // given
-        URL inputUrl = new URL("http://example.com?query=value#ref");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-
-        // when
-        URL result = urlBuilder.build();
-
-        // then
-        assertNotNull(result);
-        assertEquals("http://example.com?query=value#ref", result.toString());
+    public void appendKeyValTest() throws UnsupportedEncodingException {
+        KeyVal kv = new KeyVal("key", "value");
+        UrlBuilder urlBuilder = new UrlBuilder(null);
+        urlBuilder.appendKeyVal(kv);
     }
 
 }

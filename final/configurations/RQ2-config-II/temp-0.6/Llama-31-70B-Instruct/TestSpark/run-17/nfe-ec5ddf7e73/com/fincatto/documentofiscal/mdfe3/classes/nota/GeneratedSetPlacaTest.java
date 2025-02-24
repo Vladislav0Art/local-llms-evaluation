@@ -1,29 +1,19 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.mockito.Mock;
-
-import static org.mockito.Mockito.*;
-
-import org.mockito.MockitoAnnotations;
+import org.junit.Test;
+import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
 
 public class GeneratedSetPlacaTest {
 
-    @Mock
-    MDFInfoModalRodoviarioVeiculoReboque mockedVeiculoReboque;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
+    private MDFInfoModalRodoviarioVeiculoReboque reboque;
 
     @Test
     public void setPlacaTest() {
-        mockedVeiculoReboque.setPlaca("AAA1111");
-        assertEquals("AAA1111", mockedVeiculoReboque.getPlaca());
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setPlaca("AAA1111");
+        assertEquals("AAA1111", reboque.getPlaca());
     }
 
 }

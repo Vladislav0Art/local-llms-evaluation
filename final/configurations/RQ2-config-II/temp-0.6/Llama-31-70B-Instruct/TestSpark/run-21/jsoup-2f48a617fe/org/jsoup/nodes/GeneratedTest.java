@@ -1,0 +1,67 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Comment;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.IOException;
+
+public class GeneratedTest {
+
+    private static Comment comment;
+
+    @BeforeClass
+    public static void setup() {
+        comment = new Comment("some data");
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Assert.assertEquals("#comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        String data = comment.getData();
+        Assert.assertEquals("some data", data);
+    }
+
+    @Test
+    public void setDataTest() {
+        comment.setData("new data");
+        String data = comment.getData();
+        Assert.assertEquals("new data", data);
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        StringBuilder accum = new StringBuilder();
+        comment.outerHtmlHead(accum, 1, null);
+        Assert.assertEquals("<!---->", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        StringBuilder accum = new StringBuilder();
+        comment.outerHtmlTail(accum, 1, null);
+        Assert.assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void toStringTest() {
+        Assert.assertEquals("<!--some data-->", comment.toString());
+    }
+
+    @Test
+    public void cloneTest() {
+        Comment clone = comment.clone();
+        Assert.assertEquals("some data", clone.getData());
+    }
+
+    @Test
+    public void isXmlDeclarationTest() {
+        Assert.assertFalse(comment.isXmlDeclaration());
+    }
+
+}

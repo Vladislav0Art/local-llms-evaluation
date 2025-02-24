@@ -1,54 +1,45 @@
 package app;
 
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.assertEquals;
+import java.util.HashSet;
+import java.util.Hashtable;
 
 public class GeneratedTest {
 
-    @Before
-    public void setup() {
-        // Setup the test class here (if needed)
+    private DBApp dbApp;
+
+    @Test
+    public void getMyTablesTest() {
+        dbApp = new DBApp();
+        HashSet<String> testSet = new HashSet<>();
+        testSet.add("test");
+
+        Assert.assertEquals(testSet, dbApp.getMyTables());
     }
 
     @Test
-    public void testCreateTable() {
-        // Setup
-        DBApp app = new DBApp();
-        String strTableName = "exampleTable";
-        String strClusteringKeyColumn = "exampleColumn";
-        Hashtable<String, String> htblColNameType = new Hashtable<>();
-        htblColNameType.put("exampleColumn", "exampleType");
-        Hashtable<String, String> htblColNameMin = new Hashtable<>();
-        htblColNameMin.put("exampleColumn", "exampleMin");
-        Hashtable<String, String> htblColNameMax = new Hashtable<>();
-        htblColNameMax.put("exampleColumn", "exampleMax");
+    public void getReaderTest() {
+        dbApp = new DBApp();
+        CsvReader testReader = Mockito.mock(CsvReader.class);
 
-        // Execute
-        app.createTable(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
-
-        // Verify
-        assertEquals(1, app.getMyTables().size());
-        assertTrue(app.getMyTables().contains(strTableName));
+        Assert.assertEquals(testReader, dbApp.getReader());
     }
 
     @Test
-    public void testInsertIntoTable() {
-        // Setup
-        DBApp app = new DBApp();
-        String strTableName = "exampleTable";
-        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
-        htblColNameValue.put("exampleColumn", "exampleValue");
+    public void getWriterTest() {
+        dbApp = new DBApp();
+        CsvWriter testWriter = Mockito.mock(CsvWriter.class);
 
-        // Execute
-        app.insertIntoTable(strTableName, htblColNameValue);
+        Assert.assertEquals(testWriter, dbApp.getWriter());
+    }
 
-        // Verify
-        assertEquals(1, app.getMyTables().size());
-        assertTrue(app.getMyTables().contains(strTableName));
+    @Test
+    public void initTest() throws DBAppException {
+        dbApp = new DBApp();
+        dbApp.init();
     }
 
 }

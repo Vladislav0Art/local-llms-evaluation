@@ -1,51 +1,45 @@
 package ch.jalu.configme.configurationdata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import ch.jalu.configme.configurationdata.CommentsConfiguration;
+import ch.jalu.configme.SettingsHolder;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-
-import org.junit.Test;
+import java.util.Map;
 
 public class GeneratedTest {
 
     @Test
-    public void setCommentTest() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        commentsConfiguration.setComment("path", "line1", "line2");
-        List<String> commentLines = commentsConfiguration.getAllComments().get("path");
-        assertNotNull(commentLines);
-        assertEquals(Arrays.asList("line1", "line2"), commentLines);
+    public void testConstructorWithEmptyMap() {
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+        assert commentsConfiguration != null;
     }
 
     @Test
-    public void setCommentWithNewlineTest() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        commentsConfiguration.setComment("path", "\n", "line1");
-        List<String> commentLines = commentsConfiguration.getAllComments().get("path");
-        assertNotNull(commentLines);
-        assertEquals(Arrays.asList("\n", "line1"), commentLines);
+    public void testConstructorWithFilledMap() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("key1", Arrays.asList("line1", "line2"));
+        comments.put("key2", Arrays.asList("line3", "line4"));
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+        assert commentsConfiguration != null;
     }
 
     @Test
-    public void setCommentWithEmptyPathTest() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        commentsConfiguration.setComment("", "line1");
-        List<String> commentLines = commentsConfiguration.getAllComments().get("");
-        assertNotNull(commentLines);
-        assertEquals(Arrays.asList("line1"), commentLines);
+    public void testConstructorWithNullMap() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(null);
     }
 
     @Test
-    public void setCommentWithNullPathTest() {
+    public void testSetCommentWithEmptyPath() {
         CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        commentsConfiguration.setComment(null, "line1");
-        List<String> commentLines = commentsConfiguration.getAllComments().get(null);
-        assertNotNull(commentLines);
-        assertEquals(Arrays.asList("line1"), commentLines);
+        commentsConfiguration.setComment("", "line1", "line2");
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+        assert allComments.size() == 1;
+        assert allComments.get("").size() == 2;
     }
 
 }

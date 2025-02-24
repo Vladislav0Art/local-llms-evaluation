@@ -1,0 +1,57 @@
+package app;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Hashtable;
+
+public class GeneratedTest {
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> expected = new HashSet<>();
+        expected.add("table1");
+        expected.add("table2");
+        assertEquals(expected, dbApp.getMyTables());
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        CsvReader expected = new CsvReader();
+        assertEquals(expected, dbApp.getReader());
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        CsvWriter expected = new CsvWriter();
+        assertEquals(expected, dbApp.getWriter());
+    }
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+        // assertions for expected changes
+    }
+
+    @Test
+    public void createTableTest() {
+        DBApp dbApp = new DBApp();
+        String strTableName = "table1";
+        String strClusteringKeyColumn = "key1";
+        Hashtable<String, String> htblColNameType = new Hashtable<>();
+        htblColNameType.put("col1", "type1");
+        Hashtable<String, String> htblColNameMin = new Hashtable<>();
+        htblColNameMin.put("col1", "1");
+        Hashtable<String, String> htblColNameMax = new Hashtable<>();
+        htblColNameMax.put("col1", "2");
+        dbApp.createTable(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
+        // assertions for expected changes
+    }
+
+}

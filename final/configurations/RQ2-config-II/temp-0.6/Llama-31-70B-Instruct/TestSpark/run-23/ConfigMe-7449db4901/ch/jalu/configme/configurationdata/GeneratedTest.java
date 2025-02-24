@@ -1,36 +1,47 @@
 package ch.jalu.configme.configurationdata;
 
-import org.junit.Test;
-import org.junit.Assert;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnmodifiableView;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class GeneratedTest {
 
     @Test
-    public void setCommentNoCommentLinesTest() {
+    public void setComment_SingleLineComment_CommentSet() {
+        // Arrange
         CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        commentsConfiguration.setComment("path", (String[]) null);
-        Assert.assertEquals(0, commentsConfiguration.getAllComments().size());
+        String path = "test-path";
+        String commentLine = "This is a comment";
+
+        // Act
+        commentsConfiguration.setComment(path, commentLine);
+
+        // Assert
+        assertEquals(commentLine, commentsConfiguration.getAllComments().get(path).get(0));
     }
 
     @Test
-    public void setCommentOneCommentLineTest() {
+    public void setComment_MultipleLineComments_CommentsSet() {
+        // Arrange
         CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        commentsConfiguration.setComment("path", "comment");
-        Assert.assertEquals(1, commentsConfiguration.getAllComments().size());
-        Assert.assertEquals(1, commentsConfiguration.getAllComments().get("path").size());
-        Assert.assertEquals("comment", commentsConfiguration.getAllComments().get("path").get(0));
+        String path = "test-path";
+        String commentLine1 = "This is a comment";
+        String commentLine2 = "This is another comment";
+
+        // Act
+        commentsConfiguration.setComment(path, commentLine1, commentLine2);
+
+        // Assert
+        assertEquals(Arrays.asList(commentLine1, commentLine2), commentsConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void setComment_NoCommentLines_CommentsEmpty() {
+        // Arrange
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "test-path";
+
+        // Act
+        commentsConfiguration.setComment(path);
+
+        // Assert
+        assertEquals(Collections.emptyList(), commentsConfiguration.getAllComments().get(path));
     }
 
 }

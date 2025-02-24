@@ -1,0 +1,13 @@
+package org.jsoup.parser;
+
+import org.jsoup.parser.Tag;
+import org.junit.Test;
+
+public class GeneratedIsKnownTagStaticTest {
+
+    @Test
+    public void isKnownTagStaticTest() {
+        Assert.assertTrue(Tag.isKnownTag("div"));
+    }
+
+}

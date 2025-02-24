@@ -1,0 +1,60 @@
+package org.jsoup.safety;
+
+import static org.jsoup.safety.Safelist.none;
+import static org.jsoup.safety.Safelist.simpleText;
+import static org.jsoup.safety.Safelist.basic;
+import static org.jsoup.safety.Safelist.basicWithImages;
+import static org.jsoup.safety.Safelist.relaxed;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import org.jsoup.safety.Safelist;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void noneTest() {
+        Safelist safelist = none();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist safelist = simpleText();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist safelist = basic();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist safelist = basicWithImages();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist safelist = relaxed();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void defaultConstructorTest() {
+        Safelist safelist = new Safelist();
+        assertNotNull(safelist);
+    }
+
+    @Test
+    public void copyConstructorTest() {
+        Safelist copy = mock(Safelist.class);
+        Safelist safelist = new Safelist(copy);
+        assertNotNull(safelist);
+    }
+
+}

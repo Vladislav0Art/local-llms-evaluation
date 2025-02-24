@@ -1,22 +1,48 @@
 package org.jsoup.nodes;
 
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.nodes.LeafNode;
 import org.jsoup.nodes.TextNode;
+import org.jsoup.parser.Tag;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedTest {
 
     @Test
+    public void testTextNodeConstructor() {
+        TextNode textNode = new TextNode("");
+        assertNotNull(textNode);
+    }
+
+    @Test
+    public void testNodeName() {
+        TextNode textNode = new TextNode("");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
     public void testText() {
-        TextNode textNode = new TextNode("test");
-        assertEquals("test", textNode.text());
+        TextNode textNode = new TextNode("");
+        assertEquals("", textNode.text());
+    }
+
+    @Test
+    public void testTextSetter() {
+        TextNode textNode = new TextNode("");
+        textNode.text("New Text");
+        assertEquals("New Text", textNode.text());
     }
 
     @Test
     public void testGetWholeText() {
-        TextNode textNode = new TextNode("test");
-        assertEquals("test", textNode.getWholeText());
+        TextNode textNode = new TextNode("");
+        assertEquals("", textNode.getWholeText());
     }
 
     @Test
@@ -27,37 +53,9 @@ public class GeneratedTest {
 
     @Test
     public void testSplitText() {
-        TextNode textNode = new TextNode("test");
-        TextNode splitNode = textNode.splitText(2);
-        assertEquals("te", textNode.getWholeText());
-        assertEquals("st", splitNode.getWholeText());
-    }
-
-    @Test
-    public void testOuterHtmlHead() {
-        TextNode textNode = new TextNode("test");
-        StringBuilder builder = new StringBuilder();
-        textNode.outerHtmlHead(builder, 0, null);
-        assertEquals("test", builder.toString());
-    }
-
-    @Test
-    public void testToString() {
-        TextNode textNode = new TextNode("test");
-        assertEquals("test", textNode.toString());
-    }
-
-    @Test
-    public void testClone() {
-        TextNode textNode = new TextNode("test");
-        TextNode cloneNode = (TextNode) textNode.clone();
-        assertEquals("test", cloneNode.getWholeText());
-    }
-
-    @Test
-    public void testCreateFromEncoded() {
-        TextNode textNode = TextNode.createFromEncoded("&lt;");
-        assertEquals("<", textNode.getWholeText());
+        TextNode textNode = new TextNode("Text");
+        TextNode splitTextNode = textNode.splitText(3);
+        assertEquals("t", splitTextNode.text());
     }
 
 }

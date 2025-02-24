@@ -1,52 +1,51 @@
 package org.jsoup.helper;
 
-import org.jsoup.Connection;
-import org.jsoup.internal.StringUtil;
-import org.junit.Test;
-
-import javax.annotation.Nullable;
-import java.io.UnsupportedEncodingException;
-import java.net.IDN;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
 
 public class GeneratedTest {
 
     @Test
-    public void buildWithoutQueryTest() {
-        URL inputUrl = URLTestUtils.createMockUrl("http", "example.com", "/test", "");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-
-        URL resultUrl = urlBuilder.build();
-
-        assertEquals("http://example.com/test", resultUrl.toExternalForm());
+    public void buildNoInputTest() {
+        URL url = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        URL builtUrl = urlBuilder.build();
+        assertEquals("http://www.example.com", builtUrl.toString());
     }
 
     @Test
-    public void buildWithQueryTest() {
-        URL inputUrl = URLTestUtils.createMockUrl("http", "example.com", "/test", "query=value");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+    public void buildWithInputTest() throws UnsupportedEncodingException {
+        URL url = new URL("http://www.example.com");
+        Connection.KeyVal kv = mock(Connection.KeyVal.class);
+        when(kv.getKey()).thenReturn("key");
+        when(kv.getValue()).thenReturn("value");
 
-        URL resultUrl = urlBuilder.build();
-
-        assertEquals("http://example.com/test?query=value", resultUrl.toExternalForm());
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.appendKeyVal(kv);
+        URL builtUrl = urlBuilder.build();
+        assertEquals("http://www.example.com?key=value", builtUrl.toString());
     }
 
     @Test
-    public void buildWithRefTest() {
-        URL inputUrl = URLTestUtils.createMockUrl("http", "example.com", "/test", null, "ref");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+    public void buildWithMultipleInputTest() throws UnsupportedEncodingException {
+        URL url = new URL("http://www.example.com");
+        Connection.KeyVal kv1 = mock(Connection.KeyVal.class);
+        when(kv1.getKey()).thenReturn("key1");
+        when(kv1.getValue()).thenReturn("value1");
 
-        URL resultUrl = urlBuilder.build();
+        Connection.KeyVal kv2 = mock(Connection.KeyVal.class);
+        when(kv2.getKey()).thenReturn("key2");
+        when(kv2.getValue()).thenReturn("value2");
 
-        assertEquals("http://example.com/test#ref", resultUrl.toExternalForm());
+        UrlBuilder urlBuilder = new UrlBuilder(url);
+        urlBuilder.appendKeyVal(kv1);
+        urlBuilder.appendKeyVal(kv2);
+        URL builtUrl = urlBuilder.build();
+        assertEquals("http://www.example.com?key1=value1&key2=value2", builtUrl.toString());
     }
 
 }

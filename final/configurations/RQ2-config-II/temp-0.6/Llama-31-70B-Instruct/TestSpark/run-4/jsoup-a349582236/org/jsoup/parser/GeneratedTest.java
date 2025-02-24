@@ -1,47 +1,70 @@
 package org.jsoup.parser;
 
-import org.jsoup.helper.Validate;
-import org.jsoup.internal.Normalizer;
-import org.jsoup.nodes.Element;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.jsoup.parser.Tag;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GeneratedTest {
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Test
-    public void testValueOf() {
-        Tag tag = Tag.valueOf("p");
-        assertEquals("p", tag.getName());
+    public void getNameTest() {
+        Tag tag = new Tag("div");
+        Assert.assertEquals("div", tag.getName());
     }
 
     @Test
-    public void testIsBlock() {
-        Tag tag = Tag.valueOf("p");
-        assertEquals(true, tag.isBlock());
+    public void normalNameTest() {
+        Tag tag = new Tag("div");
+        Assert.assertEquals("div", tag.normalName());
     }
 
     @Test
-    public void testFormatAsBlock() {
-        Tag tag = Tag.valueOf("p");
-        assertEquals(true, tag.formatAsBlock());
+    public void valueOfWithSettingsTest() {
+        ParseSettings settings = new ParseSettings("html", "html");
+        Tag tag = Tag.valueOf("div", settings);
+        Assert.assertEquals("div", tag.getName());
     }
 
     @Test
-    public void testIsEmpty() {
-        Tag tag = Tag.valueOf("p");
-        assertEquals(false, tag.isEmpty());
+    public void valueOfWithoutSettingsTest() {
+        Tag tag = Tag.valueOf("div");
+        Assert.assertEquals("div", tag.getName());
     }
 
     @Test
-    public void testIsSelfClosing() {
-        Tag tag = Tag.valueOf("p");
-        assertEquals(false, tag.isSelfClosing());
+    public void isBlockTest() {
+        Tag tag = new Tag("div");
+        Assert.assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlockTest() {
+        Tag tag = new Tag("div");
+        Assert.assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag tag = new Tag("div");
+        Assert.assertFalse(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Tag tag = new Tag("div");
+        Assert.assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        Tag tag = new Tag("div");
+        Assert.assertFalse(tag.isSelfClosing());
     }
 
 }

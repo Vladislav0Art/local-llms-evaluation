@@ -1,69 +1,62 @@
 package org.jsoup.nodes;
 
-import org.junit.Before;
-import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import java.io.IOException;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private TextNode textNode;
-
-    @Before
-    public void setUp() {
-        textNode = new TextNode("Test Text");
+    @Test
+    public void testNodeName() {
+        TextNode textNode = new TextNode("test");
+        Assert.assertEquals("text", textNode.nodeName());
     }
 
     @Test
-    public void shouldCreateTextNode() {
-        assertEquals("Test Text", textNode.coreValue());
+    public void testText() {
+        TextNode textNode = new TextNode("test");
+        Assert.assertEquals("test", textNode.text());
     }
 
     @Test
-    public void shouldReturnNodeName() {
-        assertEquals("#text", textNode.nodeName());
+    public void testTextModification() {
+        TextNode textNode = new TextNode("test");
+        textNode.text("modified");
+        Assert.assertEquals("modified", textNode.text());
     }
 
     @Test
-    public void shouldReturnText() {
-        assertEquals("Test Text", textNode.text());
+    public void testGetWholeText() {
+        TextNode textNode = new TextNode("test");
+        Assert.assertEquals("test", textNode.getWholeText());
     }
 
     @Test
-    public void shouldSetText() {
-        textNode.text("New Text");
-        assertEquals("New Text", textNode.text());
+    public void testIsBlank() {
+        TextNode textNode = new TextNode("test");
+        Assert.assertFalse(textNode.isBlank());
     }
 
     @Test
-    public void shouldReturnWholeText() {
-        assertEquals("Test Text", textNode.getWholeText());
+    public void testIsBlankWithEmptyText() {
+        TextNode textNode = new TextNode("");
+        Assert.assertTrue(textNode.isBlank());
     }
 
     @Test
-    public void shouldCheckIfTextNodeIsBlank() {
-        assertFalse(textNode.isBlank());
-        textNode.text("");
-        assertTrue(textNode.isBlank());
+    public void testSplitText() {
+        TextNode textNode = new TextNode("test");
+        TextNode splitTextNode = textNode.splitText(1);
+        Assert.assertEquals("t", textNode.text());
+        Assert.assertEquals("est", splitTextNode.text());
     }
 
     @Test
-    public void shouldSplitTextNode() {
-        TextNode tailNode = textNode.splitText(3);
-        assertEquals("Tes", textNode.coreValue());
-        assertEquals("t Text", tailNode.coreValue());
-    }
-
-    @Test
-    public void shouldCheckIfLastCharIsWhitespace() {
-        StringBuilder sb = new StringBuilder("Test Text");
-        assertTrue(TextNode.lastCharIsWhitespace(sb));
+    public void testToString() {
+        TextNode textNode = new TextNode("test");
+        Assert.assertEquals("test", textNode.toString());
     }
 
 }

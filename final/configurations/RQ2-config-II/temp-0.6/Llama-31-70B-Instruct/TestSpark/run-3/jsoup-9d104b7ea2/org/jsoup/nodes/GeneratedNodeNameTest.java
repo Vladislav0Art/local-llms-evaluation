@@ -1,25 +1,19 @@
 package org.jsoup.nodes;
 
-import org.jsoup.helper.Validate;
-import org.jsoup.internal.StringUtil;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GeneratedNodeNameTest {
 
     @Test
     public void nodeNameTest() {
-        TextNode textNode = new TextNode("Some text");
+        TextNode textNode = new TextNode("testTextNode");
         assertEquals("#text", textNode.nodeName());
     }
 

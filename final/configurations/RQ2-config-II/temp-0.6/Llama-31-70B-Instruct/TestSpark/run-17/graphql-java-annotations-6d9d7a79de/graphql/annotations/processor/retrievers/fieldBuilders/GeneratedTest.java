@@ -1,31 +1,35 @@
 package graphql.annotations.processor.retrievers.fieldBuilders;
 
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import graphql.schema.GraphQLType;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.Assert.*;
+
 public class GeneratedTest {
 
-    private DirectivesBuilder directivesBuilder;
-
-    @Before
-    public void setUp() {
-        directivesBuilder = new DirectivesBuilder(mock(AnnotatedElement.class), mock(ProcessingElementsContainer.class));
-    }
-
     @Test
-    public void build_whenNoDirectives_shouldReturnEmptyArray() {
-        // given
+    public void buildTest() {
+        AnnotatedElement object = Mockito.mock(AnnotatedElement.class);
+        ProcessingElementsContainer container = Mockito.mock(ProcessingElementsContainer.class);
 
-        // when
-        GraphQLDirective[] result = directivesBuilder.build();
+        DirectivesBuilder builder = new DirectivesBuilder(object, container);
 
-        // then
-        assertEquals(0, result.length);
+        GraphQLDirective[] directives = builder.build();
+
+        // assertions
     }
 
 }

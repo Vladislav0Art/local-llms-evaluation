@@ -1,71 +1,17 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.Comment;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
     @Test
-    public void testNodeName() {
-        Comment comment = mock(Comment.class);
-        Mockito.when(comment.nodeName()).thenReturn("#comment");
-        assertEquals("#comment", comment.nodeName());
-    }
+    public void outerHtmlHeadTest() {
+        Comment comment = new Comment("Hello World!");
+        StringBuilder sb = new StringBuilder();
+        Document.OutputSettings outputSettings = new Document.OutputSettings();
 
-    @Test
-    public void testGetData() {
-        Comment comment = new Comment("test");
-        assertEquals("test", comment.getData());
-    }
+        try {
+            comment.outerHtmlHead(sb, 0, outputSettings);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-    @Test
-    public void testSetData() {
-        Comment comment = new Comment("test");
-        comment.setData("test2");
-        assertEquals("test2", comment.getData());
     }
-
-    @Test
-    public void testOuterHtmlHead() throws Exception {
-        Comment comment = new Comment("test");
-        comment.outerHtmlHead(null, 0, null);
-    }
-
-    @Test
-    public void testOuterHtmlTail() throws Exception {
-        Comment comment = new Comment("test");
-        comment.outerHtmlTail(null, 0, null);
-    }
-
-    @Test
-    public void testToString() {
-        Comment comment = new Comment("test");
-        assertEquals("test", comment.toString());
-    }
-
-    @Test
-    public void testClone() {
-        Comment comment = new Comment("test");
-        assertEquals("test", comment.clone().toString());
-    }
-
-    @Test
-    public void testIsXmlDeclaration() {
-        Comment comment = new Comment("test");
-        assertEquals(false, comment.isXmlDeclaration());
-    }
-
-    @Test
-    public void testAsXmlDeclaration() {
-        Comment comment = new Comment("test");
-        assertEquals(null, comment.asXmlDeclaration());
-    }
-
-}

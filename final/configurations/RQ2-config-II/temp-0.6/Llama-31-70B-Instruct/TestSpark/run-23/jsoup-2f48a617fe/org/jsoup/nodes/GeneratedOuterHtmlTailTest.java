@@ -1,32 +1,21 @@
 package org.jsoup.nodes;
 
+import org.jsoup.nodes.Comment;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedOuterHtmlTailTest {
 
-    @Mock
-    private Appendable appendableMock;
-
-    @Mock
-    private Document.OutputSettings outputSettingsMock;
-
     @Test
-    public void outerHtmlTailTest() {
+    public void outerHtmlTailTest() throws IOException {
         Comment comment = new Comment("data");
-        comment.outerHtmlTail(appendableMock, 0, outputSettingsMock);
-
-        verify(appendableMock, never()).append(anyString());
+        StringWriter stringWriter = new StringWriter();
+        comment.outerHtmlTail(stringWriter, 0, new Document.OutputSettings());
+        assertEquals("", stringWriter.toString());
     }
 
 }

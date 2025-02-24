@@ -1,0 +1,17 @@
+package org.jsoup.helper;
+
+public class GeneratedAppendKeyValTest {
+
+    private UrlBuilder urlBuilder;
+
+    @Test
+    public void appendKeyValTest() throws Exception {
+        URL inputUrl = new URL("https://www.example.com/");
+        urlBuilder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value", "UTF-8");
+        urlBuilder.appendKeyVal(kv);
+        URL actualUrl = urlBuilder.build();
+        assertTrue(actualUrl.getPath().contains("key=value"));
+    }
+
+}

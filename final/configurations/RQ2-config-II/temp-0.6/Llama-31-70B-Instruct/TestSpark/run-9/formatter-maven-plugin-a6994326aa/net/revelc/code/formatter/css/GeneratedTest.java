@@ -1,60 +1,43 @@
 package net.revelc.code.formatter.css;
 
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import net.revelc.code.formatter.css.CssFormatter;
+
+import java.io.IOException;
+import java.util.Map;
+
+import net.revelc.code.formatter.ConfigurationSource;
+import net.revelc.code.formatter.Formatter;
+import net.revelc.code.formatter.LineEnding;
+
 public class GeneratedTest {
 
-    private CssFormatter cssFormatter;
+    // Testing the init method
 
     @Test
-    public void doFormat_validInput_returnsFormattedCode() throws IOException {
-        // Arrange
-        String code = "body { background-color: #0000FF; }";
-        String expectedFormattedCode = "body {\n    background-color: #0000FF;\n}";
-        cssFormatter = new CssFormatter();
-        cssFormatter.init(Map.of("indent", "4", "rgbAsHex", "true"), null);
-
-        // Act
-        String formattedCode = cssFormatter.doFormat(code, LineEnding.UNIX);
-
-        // Assert
-        assertEquals(expectedFormattedCode, formattedCode);
+    public void testInit() {
+        CssFormatter cssFormatter = new CssFormatter();
+        Map<String, String> options = null;
+        ConfigurationSource cfg = null;
+        cssFormatter.init(options, cfg);
     }
 
     @Test
-    public void doFormat_invalidInput_returnsNull() throws IOException {
-        // Arrange
-        String code = "body { background-color: #0000FF; }";
-        cssFormatter = new CssFormatter();
-
-        // Act
-        String formattedCode = cssFormatter.doFormat(code, LineEnding.UNIX);
-
-        // Assert
-        assertNull(formattedCode);
+    public void testDoFormat() throws IOException {
+        CssFormatter cssFormatter = new CssFormatter();
+        String code = "test code";
+        LineEnding ending = LineEnding.UNIX;
+        String result = cssFormatter.doFormat(code, ending);
+        assertNotNull(result);
     }
 
     @Test
-    public void isInitialized_validFormatter_returnsTrue() {
-        // Arrange
-        cssFormatter = new CssFormatter();
-        cssFormatter.init(Map.of("indent", "4", "rgbAsHex", "true"), null);
-
-        // Act
-        boolean isInitialized = cssFormatter.isInitialized();
-
-        // Assert
-        assertTrue(isInitialized);
-    }
-
-    @Test
-    public void isInitialized_invalidFormatter_returnsFalse() {
-        // Arrange
-        cssFormatter = new CssFormatter();
-
-        // Act
-        boolean isInitialized = cssFormatter.isInitialized();
-
-        // Assert
-        assertFalse(isInitialized);
+    public void testIsInitialized() {
+        CssFormatter cssFormatter = new CssFormatter();
+        boolean result = cssFormatter.isInitialized();
+        assertTrue(result);
     }
 
 }

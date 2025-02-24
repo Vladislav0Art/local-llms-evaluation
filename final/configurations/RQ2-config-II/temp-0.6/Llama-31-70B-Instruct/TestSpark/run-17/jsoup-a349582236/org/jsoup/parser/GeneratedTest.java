@@ -1,50 +1,73 @@
 package org.jsoup.parser;
 
-import org.jsoup.parser.Tag;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GeneratedTest {
 
-    private Tag tag;
-
     @Test
-    public void getName_shouldReturnName() {
-        tag = Mockito.mock(Tag.class);
-        when(tag.getName()).thenReturn("name");
-
-        assertEquals("name", tag.getName());
+    public void getNameTest() {
+        Tag tag = new Tag();
+        Assert.assertEquals(tag.getName(), "TagName");
     }
 
     @Test
-    public void normalName_shouldReturnName() {
-        tag = Mockito.mock(Tag.class);
-        when(tag.normalName()).thenReturn("name");
-
-        assertEquals("name", tag.normalName());
+    public void normalNameTest() {
+        Tag tag = new Tag();
+        Assert.assertEquals(tag.normalName(), "TagName");
     }
 
     @Test
-    public void isBlock_shouldReturnTrue() {
-        tag = Mockito.mock(Tag.class);
-        when(tag.isBlock()).thenReturn(true);
-
-        assertTrue(tag.isBlock());
+    public void valueOfTest() {
+        ParseSettings settings = new ParseSettings();
+        Tag tag = new Tag();
+        Assert.assertEquals(tag.valueOf("TagName", settings), tag);
     }
 
     @Test
-    public void isEmpty_shouldReturnTrue() {
-        tag = Mockito.mock(Tag.class);
-        when(tag.isEmpty()).thenReturn(true);
+    public void isBlockTest() {
+        Tag tag = new Tag();
+        Assert.assertTrue(tag.isBlock());
+    }
 
-        assertTrue(tag.isEmpty());
+    @Test
+    public void formatAsBlockTest() {
+        Tag tag = new Tag();
+        Assert.assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag tag = new Tag();
+        Assert.assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Tag tag = new Tag();
+        Assert.assertTrue(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        Tag tag = new Tag();
+        Assert.assertTrue(tag.isSelfClosing());
+    }
+
+    @Test
+    public void isKnownTagTest() {
+        Tag tag = new Tag();
+        Assert.assertTrue(tag.isKnownTag());
+    }
+
+    @Test
+    public void preserveWhitespaceTest() {
+        Tag tag = new Tag();
+        Assert.assertTrue(tag.preserveWhitespace());
     }
 
 }

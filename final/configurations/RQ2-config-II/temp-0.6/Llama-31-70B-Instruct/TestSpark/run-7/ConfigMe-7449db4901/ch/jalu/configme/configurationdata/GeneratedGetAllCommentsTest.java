@@ -1,20 +1,16 @@
 package ch.jalu.configme.configurationdata;
 
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 public class GeneratedGetAllCommentsTest {
 
     @Test
     public void getAllCommentsTest() {
         CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        String path = "testPath";
-        String[] commentLines = {"test1", "test2"};
-        commentsConfiguration.setComment(path, commentLines);
-        assertNotNull(commentsConfiguration.getAllComments());
+        commentsConfiguration.setComment("my_path", "my_comment");
+
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+
+        assertEquals(1, allComments.size());
+        assertEquals("my_comment", allComments.get("my_path").get(0));
     }
 
 }

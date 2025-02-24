@@ -1,27 +1,58 @@
 package leetcode.medium;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
-    public void nextTest() {
+    public void nextEmptyPriceTest() {
         OnlineStockSpan stockSpan = new OnlineStockSpan();
-        assertEquals(1, stockSpan.next(10));
-        assertEquals(2, stockSpan.next(5));
-        assertEquals(1, stockSpan.next(100));
+        int result = stockSpan.next(1);
+        assertEquals(1, result);
     }
 
     @Test
-    public void calculateSpansTest() {
+    public void nextSimplePriceTest() {
         OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = {10, 5, 100};
-        int[] expectedSpans = {1, 2, 1};
-        int[] actualSpans = stockSpan.calculateSpans(prices);
-        assertArrayEquals(expectedSpans, actualSpans);
+        stockSpan.next(1);
+        int result = stockSpan.next(2);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void nextComplexPriceTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        stockSpan.next(1);
+        stockSpan.next(2);
+        stockSpan.next(3);
+        int result = stockSpan.next(4);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void calculateSpansEmptyPriceTest() {
+        int[] prices = new int[]{};
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{}, result);
+    }
+
+    @Test
+    public void calculateSpansSimplePriceTest() {
+        int[] prices = new int[]{1, 2};
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 1}, result);
+    }
+
+    @Test
+    public void calculateSpansComplexPriceTest() {
+        int[] prices = new int[]{1, 2, 3, 4};
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] result = stockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{1, 1, 1, 1}, result);
     }
 
 }

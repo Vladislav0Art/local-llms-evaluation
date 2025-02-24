@@ -1,0 +1,68 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class GeneratedTest {
+
+    @Test
+    public void createElementTest() {
+        Document document = new Document("http://example.com");
+        Element element = document.createElement("div");
+        assert element.nodeName().equals("div");
+    }
+
+    @Test
+    public void formsTest() {
+        Document document = new Document("http://example.com");
+        List<Element> forms = document.forms();
+        assert forms.size() == 0;
+    }
+
+    @Test
+    public void expectFormTest() {
+        Document document = new Document("http://example.com");
+        Element form = document.expectForm("form");
+        assert form == null;
+    }
+
+    @Test
+    public void titleTest() {
+        Document document = new Document("http://example.com");
+        document.title("New Title");
+        assert document.title().equals("New Title");
+    }
+
+    @Test
+    public void outerHtmlTest() {
+        Document document = new Document("http://example.com");
+        assert document.outerHtml().equals("<html></html>");
+    }
+
+    @Test
+    public void textTest() {
+        Document document = new Document("http://example.com");
+        document.text("New Text");
+        assert document.text().equals("New Text");
+    }
+
+    @Test
+    public void nodeNameTest() {
+        Document document = new Document("http://example.com");
+        assert document.nodeName().equals("#document");
+    }
+
+    @Test
+    public void charsetTest() {
+        Document document = new Document("http://example.com");
+        document.charset(Charset.forName("UTF-8"));
+        assert document.charset().equals(Charset.forName("UTF-8"));
+    }
+
+}

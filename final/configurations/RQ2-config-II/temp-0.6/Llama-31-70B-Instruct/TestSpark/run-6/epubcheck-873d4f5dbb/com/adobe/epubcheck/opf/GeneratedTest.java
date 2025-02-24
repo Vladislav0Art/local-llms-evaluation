@@ -1,0 +1,62 @@
+package com.adobe.epubcheck.opf;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import com.adobe.epubcheck.api.EPUBProfile;
+import com.adobe.epubcheck.opf.OPFChecker30;
+
+public class GeneratedTest {
+
+    @InjectMocks
+    private OPFChecker30 opfChecker30;
+
+    @Mock
+    private EPUBProfile epubProfile;
+
+    @Test
+    public void testInitHandler() {
+        opfChecker30.initHandler();
+        assertNotNull(opfChecker30);
+    }
+
+    @Test
+    public void testCheckPackage() {
+        assertTrue(opfChecker30.checkPackage());
+    }
+
+    @Test
+    public void testCheckContent() {
+        assertTrue(opfChecker30.checkContent());
+    }
+
+    @Test
+    public void testCheckItem() {
+        OPFItem item = Mockito.mock(OPFItem.class);
+        OPFHandler opfHandler = Mockito.mock(OPFHandler.class);
+        opfChecker30.checkItem(item, opfHandler);
+    }
+
+    @Test
+    public void testCheckItemAfterResourceValidation() {
+        OPFItem item = Mockito.mock(OPFItem.class);
+        opfChecker30.checkItemAfterResourceValidation(item);
+    }
+
+    @Test
+    public void testCheckSpineItem() {
+        OPFItem item = Mockito.mock(OPFItem.class);
+        OPFHandler opfHandler = Mockito.mock(OPFHandler.class);
+        opfChecker30.checkSpineItem(item, opfHandler);
+    }
+
+    @Test
+    public void testIsAudioType() {
+        assertTrue(OPFChecker30.isAudioType("audio/mpeg"));
+        assertFalse(OPFChecker30.isAudioType("application/json"));
+    }
+
+}

@@ -1,64 +1,65 @@
 package org.jsoup.nodes;
 
-import org.jsoup.internal.StringUtil;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.TextNode;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
-    public void textNodeConstructorTest() {
-        TextNode textNode = new TextNode(" ");
-        assertEquals(" ", textNode.coreValue());
+    public void constructorTest() {
+        TextNode textNode = new TextNode("");
+        assertNotNull(textNode);
     }
 
     @Test
     public void nodeNameTest() {
-        TextNode textNode = new TextNode(" ");
+        TextNode textNode = new TextNode("");
         assertEquals("#text", textNode.nodeName());
     }
 
     @Test
     public void textTest() {
-        TextNode textNode = new TextNode("   ");
-        assertEquals("   ", textNode.text());
+        TextNode textNode = new TextNode("text");
+        assertEquals("text", textNode.text());
     }
 
     @Test
-    public void setTextTest() {
-        TextNode textNode = new TextNode("   ");
-        textNode.text("Hello");
-        assertEquals("Hello", textNode.coreValue());
+    public void textSetterTest() {
+        TextNode textNode = new TextNode("text");
+        textNode.text("new text");
+        assertEquals("new text", textNode.text());
     }
 
     @Test
     public void getWholeTextTest() {
-        TextNode textNode = new TextNode("   ");
-        assertEquals("   ", textNode.getWholeText());
+        TextNode textNode = new TextNode("text");
+        assertEquals("text", textNode.getWholeText());
     }
 
     @Test
     public void isBlankTest() {
-        TextNode textNode = new TextNode("   ");
+        TextNode textNode = new TextNode(" ");
         assertTrue(textNode.isBlank());
     }
 
     @Test
     public void splitTextTest() {
-        TextNode textNode = new TextNode("Hello World");
-        TextNode splitTextNode = textNode.splitText(4);
-        assertEquals("Hello", textNode.coreValue());
-        assertEquals(" World", splitTextNode.coreValue());
+        TextNode textNode = new TextNode("text");
+        TextNode splitTextNode = textNode.splitText(2);
+        assertEquals("te", textNode.text());
+        assertEquals("xt", splitTextNode.text());
     }
 
     @Test
-    public void outerHtmlHeadTest() {
-        TextNode textNode = new TextNode("This is a test");
-        StringBuilder accum = new StringBuilder();
-        textNode.outerHtmlHead(accum, 0, new Document.OutputSettings());
-        assertEquals("This is a test", accum.toString());
+    public void outerHtmlHeadTest() throws Exception {
+        TextNode textNode = new TextNode("text");
+        Appendable accum = Mockito.mock(Appendable.class);
+        textNode.outerHtmlHead(accum, 0, Jsoup.parse("").outputSettings());
+        Mockito.verify(accum).append("text");
     }
 
 }

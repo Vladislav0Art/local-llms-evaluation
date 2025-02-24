@@ -1,0 +1,58 @@
+package org.stellar.sdk;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class GeneratedTest {
+
+    @Mock
+    public KeyPair keyPair;
+
+    @Test
+    public void canSign() {
+        assertFalse(keyPair.canSign());
+    }
+
+    @Test
+    public void fromAccountId() {
+        assertThrows(IllegalArgumentException.class, () -> KeyPair.fromAccountId(null));
+    }
+
+    @Test
+    public void fromPublicKey() {
+        assertThrows(IllegalArgumentException.class, () -> KeyPair.fromPublicKey(null));
+    }
+
+    @Test
+    public void fromBip39Seed() {
+        assertThrows(IllegalArgumentException.class, () -> KeyPair.fromBip39Seed(null, 1));
+    }
+
+    @Test
+    public void getAccountId() {
+        assertEquals("", keyPair.getAccountId());
+    }
+
+    @Test
+    public void getSecretSeed() {
+        assertEquals(new char[0], keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void getPublicKey() {
+        assertEquals(new byte[0], keyPair.getPublicKey());
+    }
+
+    @Test
+    public void getSignatureHint() {
+        assertThrows(IllegalStateException.class, () -> keyPair.getSignatureHint());
+    }
+
+}

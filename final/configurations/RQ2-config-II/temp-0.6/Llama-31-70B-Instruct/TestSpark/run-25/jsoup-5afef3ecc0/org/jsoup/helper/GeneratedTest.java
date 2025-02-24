@@ -1,34 +1,37 @@
 package org.jsoup.helper;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.jsoup.Connection;
+import org.jsoup.helper.DataUtil;
 
-import org.jsoup.helper.UrlBuilder;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GeneratedTest {
 
-    @Test
-    public void buildTest() throws IOException {
-        String encoded = URLEncoder.encode("abc123", StandardCharsets.UTF_8);
-        URL url = new URL("http://www.example.com/search?q=" + encoded);
-        UrlBuilder urlBuilder = new UrlBuilder(url);
-        URL result = urlBuilder.build();
-        assertEquals("http://www.example.com/search?q=abc123", result.toString());
+    private UrlBuilder urlBuilder;
+
+    @Before
+    public void setup() {
+        urlBuilder = new UrlBuilder();
     }
 
     @Test
-    public void appendKeyValTest() throws IOException {
-        String encoded = URLEncoder.encode("abc123", StandardCharsets.UTF_8);
-        URL url = new URL("http://www.example.com/search?q=" + encoded);
-        UrlBuilder urlBuilder = new UrlBuilder(url);
-        urlBuilder.appendKeyVal(new Connection.KeyVal("param1", "value1"));
-        URL result = urlBuilder.build();
-        assertEquals("http://www.example.com/search?q=abc123&param1=value1", result.toString());
+    public void buildUrlTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("http://www.example.com/index.html");
+        urlBuilder.setBaseUrl(inputUrl);
+
+        List<Connection.KeyVal> queryParams = new ArrayList<>();
+        queryParams.add(new Connection.KeyVal("param1", "value1", Connection.KeyVal.ParamType.URL_QUERY_STRING));
+        queryParams.add(new Connection.KeyVal("param2", "value2", Connection.KeyVal.ParamType.URL_QUERY_STRING));
+        urlBuilder.setQueryParams(queryParams);
+
+        URL expectedUrl = new URL("http://www.example.com/index.html?param1=value1&param2=value2");
+        assertEquals(expectedUrl, urlBuilder.build());
     }
 
 }

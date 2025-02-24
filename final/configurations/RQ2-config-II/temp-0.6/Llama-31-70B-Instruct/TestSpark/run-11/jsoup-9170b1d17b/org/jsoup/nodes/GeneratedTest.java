@@ -1,0 +1,62 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Attributes attributes;
+
+    @Test
+    public void indexOfKeyTest_WhenKeyIsNull_ReturnsMinusOne() {
+        int actual = attributes.indexOfKey(null);
+
+        assertEquals(-1, actual);
+    }
+
+    @Test
+    public void checkNotNullTest_WhenValueIsNull_ReturnsEmptyString() {
+        String actual = Attributes.checkNotNull(null);
+
+        assertEquals("", actual);
+    }
+
+    @Test
+    public void getTest_WhenKeyIsNull_ReturnsNull() {
+        String actual = attributes.get(null);
+
+        assertNull(actual);
+    }
+
+    @Test
+    public void getIgnoreCaseTest_WhenKeyIsNull_ReturnsNull() {
+        String actual = attributes.getIgnoreCase(null);
+
+        assertNull(actual);
+    }
+
+    @Test
+    public void getUserDataTest_WhenKeyIsNull_ReturnsNull() {
+        Object actual = attributes.getUserData(null);
+
+        assertNull(actual);
+    }
+
+    @Test
+    public void addTest_WhenKeyIsNull_ThrowsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> attributes.add(null, "value"));
+    }
+
+    @Test
+    public void putTest_WhenKeyIsNull_ThrowsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> attributes.put(null, "value"));
+    }
+
+}

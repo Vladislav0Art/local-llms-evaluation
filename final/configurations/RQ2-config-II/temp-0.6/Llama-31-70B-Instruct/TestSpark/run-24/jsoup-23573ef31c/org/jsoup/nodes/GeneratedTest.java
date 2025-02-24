@@ -1,0 +1,62 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.junit.Assert;
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.FormElement;
+import org.jsoup.Connection;
+import org.jsoup.select.Elements;
+
+import java.util.List;
+import java.nio.charset.Charset;
+
+public class GeneratedTest {
+
+    @Test
+    public void createShellTest() {
+        Document document = Document.createShell("https://example.com");
+        Assert.assertEquals("https://example.com", document.location());
+    }
+
+    @Test
+    public void locationTest() {
+        Document document = new Document("https://example.com");
+        Assert.assertEquals("https://example.com", document.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Connection connection = Mockito.mock(Connection.class);
+        Document document = new Document("https://example.com");
+        document.connection(connection);
+        Assert.assertEquals(connection, document.connection());
+    }
+
+    @Test
+    public void documentTypeTest() {
+        Document document = new Document("https://example.com");
+        DocumentType documentType = Mockito.mock(DocumentType.class);
+        document.documentType(documentType);
+        Assert.assertEquals(documentType, document.documentType());
+    }
+
+    @Test
+    public void headTest() {
+        Document document = new Document("https://example.com");
+        Element head = Mockito.mock(Element.class);
+        document.head(head);
+        Assert.assertEquals(head, document.head());
+    }
+
+    @Test
+    public void bodyTest() {
+        Document document = new Document("https://example.com");
+        Element body = Mockito.mock(Element.class);
+        document.body(body);
+        Assert.assertEquals(body, document.body());
+    }
+
+}

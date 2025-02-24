@@ -1,37 +1,28 @@
 package leetcode.medium;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+import org.junit.Test;
+import org.mockito.Mockito;
+import leetcode.medium.OnlineStockSpan;
+
 public class GeneratedTest {
-
-    OnlineStockSpan onlineStockSpan;
-
-    @Before
-    public void setUp() {
-        onlineStockSpan = new OnlineStockSpan();
-    }
 
     @Test
     public void nextTest() {
-        int price = 10;
-        int expectedCount = 1;
-        int actualCount = onlineStockSpan.next(price);
-        assertEquals(expectedCount, actualCount);
+        OnlineStockSpan stock = new OnlineStockSpan();
+        int price = 100;
+        int result = stock.next(price);
+        assertEquals(1, result);
     }
 
     @Test
     public void calculateSpansTest() {
+        OnlineStockSpan stock = new OnlineStockSpan();
         int[] prices = {100, 80, 60, 70, 60, 75, 85};
-        int[] expectedSpans = {1, 1, 1, 2, 1, 4, 6};
-        int[] actualSpans = onlineStockSpan.calculateSpans(prices);
-        assertArrayEquals(expectedSpans, actualSpans);
+        int[] expected = {1, 1, 1, 2, 1, 4, 6};
+        int[] result = stock.calculateSpans(prices);
+        assertArrayEquals(expected, result);
     }
 
 }

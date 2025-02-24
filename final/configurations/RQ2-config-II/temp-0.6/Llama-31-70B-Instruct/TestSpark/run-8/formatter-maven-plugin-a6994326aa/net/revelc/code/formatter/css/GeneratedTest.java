@@ -1,31 +1,53 @@
 package net.revelc.code.formatter.css;
 
-import org.junit.Test;
-
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Map;
+
+import org.junit.Test;
+import org.w3c.css.sac.InputSource;
+import com.steadystate.css.dom.CSSStyleSheetImpl;
+import com.steadystate.css.format.CSSFormat;
+import com.steadystate.css.parser.CSSOMParser;
+import com.steadystate.css.parser.SACParserCSS3;
+import net.revelc.code.formatter.AbstractCacheableFormatter;
+import net.revelc.code.formatter.ConfigurationSource;
+import net.revelc.code.formatter.Formatter;
+import net.revelc.code.formatter.LineEnding;
 
 public class GeneratedTest {
 
     @Test
-    public void doFormatTest() {
-        CssFormatter cssFormatter = new CssFormatter();
-        Map<String, String> options = mock(Map.class);
+    public void initTestWithoutOptions() {
+        // Arrange
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = null;
         ConfigurationSource cfg = mock(ConfigurationSource.class);
-        cssFormatter.init(options, cfg);
-        String code = "test code";
-        LineEnding ending = mock(LineEnding.class);
-        String formattedCode = cssFormatter.doFormat(code, ending);
-        assertNotNull(formattedCode);
+
+        // Act
+        formatter.init(options, cfg);
+
+        // Assert
+        assertTrue(formatter.isInitialized());
     }
 
     @Test
-    public void isInitializedTest() {
-        CssFormatter cssFormatter = new CssFormatter();
+    public void initTestWithOptions() {
+        // Arrange
+        CssFormatter formatter = new CssFormatter();
         Map<String, String> options = mock(Map.class);
         ConfigurationSource cfg = mock(ConfigurationSource.class);
-        cssFormatter.init(options, cfg);
-        boolean initialized = cssFormatter.isInitialized();
-        assertTrue(initialized);
+
+        // Act
+        formatter.init(options, cfg);
+
+        // Assert
+        assertTrue(formatter.isInitialized());
+        verify(options).get("some_option");
     }
 
 }

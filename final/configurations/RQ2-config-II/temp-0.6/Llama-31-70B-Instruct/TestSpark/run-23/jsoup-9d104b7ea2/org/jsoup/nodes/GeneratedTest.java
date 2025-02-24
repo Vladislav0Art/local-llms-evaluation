@@ -4,49 +4,58 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class GeneratedTest {
 
     @Test
-    public void textNode_CreateFromEncoded_UnencodedData() {
-        TextNode textNode = new TextNode("&lt;");
-        String expected = "<";
-        String actual = textNode.text();
-        assertEquals(expected, actual);
+    public void constructorWithNullArgumentTest() {
+        TextNode textNode = new TextNode(null);
+        assertNotNull(textNode);
+        assertEquals("", textNode.text());
     }
 
     @Test
-    public void textNode_GetWholeText_CompleteText() {
-        TextNode textNode = new TextNode("Hello World");
-        String expected = "Hello World";
-        String actual = textNode.getWholeText();
-        assertEquals(expected, actual);
+    public void constructorWithEmptyStringArgumentTest() {
+        TextNode textNode = new TextNode("");
+        assertNotNull(textNode);
+        assertEquals("", textNode.text());
     }
 
     @Test
-    public void textNode_IsBlank_EmptyOrWhiteSpaceOnly() {
-        TextNode textNode = new TextNode("   ");
-        boolean expected = true;
-        boolean actual = textNode.isBlank();
-        assertEquals(expected, actual);
+    public void constructorWithNonEmptyStringArgumentTest() {
+        TextNode textNode = new TextNode("test");
+        assertNotNull(textNode);
+        assertEquals("test", textNode.text());
     }
 
     @Test
-    public void textNode_SplitText_NewTextNode() {
-        TextNode textNode = new TextNode("Hello World");
-        TextNode expected = new TextNode(" World");
-        TextNode actual = textNode.splitText(5);
-        assertEquals(expected.getWholeText(), actual.getWholeText());
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("#text", textNode.nodeName());
     }
 
     @Test
-    public void textNode_OuterHtmlHead_NoIndent() throws IOException {
-        TextNode textNode = new TextNode("Hello World");
-        Appendable accum = mock(Appendable.class);
-        doNothing().when(accum).append("Hello World");
-        textNode.outerHtmlHead(accum, 0, Document.OutputSettings.create().prettyPrint(false));
-        verify(accum).append("Hello World");
+    public void textWithNullArgumentTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode newTextNode = textNode.text(null);
+        assertNotNull(newTextNode);
+        assertEquals("", newTextNode.text());
+    }
+
+    @Test
+    public void textWithEmptyStringArgumentTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode newTextNode = textNode.text("");
+        assertNotNull(newTextNode);
+        assertEquals("", newTextNode.text());
+    }
+
+    @Test
+    public void textWithNonEmptyStringArgumentTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode newTextNode = textNode.text("new test");
+        assertNotNull(newTextNode);
+        assertEquals("new test", newTextNode.text());
     }
 
 }

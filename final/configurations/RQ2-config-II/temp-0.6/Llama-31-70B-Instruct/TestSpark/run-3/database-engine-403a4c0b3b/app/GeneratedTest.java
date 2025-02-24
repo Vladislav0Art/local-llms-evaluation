@@ -1,0 +1,53 @@
+package app;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
+import org.junit.Test;
+
+import java.util.HashSet;
+
+public class GeneratedTest {
+
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertEquals(0, tables.size());
+    }
+
+    @Test
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        CsvReader reader = dbApp.getReader();
+        assertEquals(null, reader);
+    }
+
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        CsvWriter writer = dbApp.getWriter();
+        assertEquals(null, writer);
+    }
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
+    }
+
+    @Test
+    public void createTableTest() {
+        DBApp dbApp = new DBApp();
+        String strTableName = "test";
+        String strClusteringKeyColumn = "id";
+        Hashtable<String, String> htblColNameType = new Hashtable<>();
+        htblColNameType.put("id", "int");
+        Hashtable<String, String> htblColNameMin = new Hashtable<>();
+        htblColNameMin.put("id", "0");
+        Hashtable<String, String> htblColNameMax = new Hashtable<>();
+        htblColNameMax.put("id", "100");
+        dbApp.createTable(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
+    }
+
+}

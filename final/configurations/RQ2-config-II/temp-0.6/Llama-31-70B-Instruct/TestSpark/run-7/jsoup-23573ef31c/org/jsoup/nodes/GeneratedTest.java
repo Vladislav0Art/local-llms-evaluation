@@ -1,0 +1,67 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void locationTest() {
+        Document document = new Document("http://example.com");
+        assertEquals("http://example.com", document.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Document document = new Document("http://example.com");
+        assertEquals(document.connection(), null);
+    }
+
+    @Test
+    public void documentTypeTest() {
+        Document document = Document.createShell("http://example.com");
+        assertEquals(document.documentType(), null);
+    }
+
+    @Test
+    public void headTest() {
+        Document document = Document.createShell("http://example.com");
+        assertEquals(document.head().tagName(), "head");
+    }
+
+    @Test
+    public void bodyTest() {
+        Document document = Document.createShell("http://example.com");
+        assertEquals(document.body().tagName(), "body");
+    }
+
+    @Test
+    public void formsTest() {
+        Document document = Document.createShell("http://example.com");
+        assertEquals(document.forms().size(), 0);
+    }
+
+    @Test
+    public void expectFormTest() {
+        Document document = Document.createShell("http://example.com");
+        assertEquals(document.expectForm("form").tagName(), "form");
+    }
+
+    @Test
+    public void titleTest() {
+        Document document = Document.createShell("http://example.com");
+        document.title("Example");
+        assertEquals(document.title(), "Example");
+    }
+
+    @Test
+    public void createElementTest() {
+        Document document = Document.createShell("http://example.com");
+        assertEquals(document.createElement("div").tagName(), "div");
+    }
+
+}

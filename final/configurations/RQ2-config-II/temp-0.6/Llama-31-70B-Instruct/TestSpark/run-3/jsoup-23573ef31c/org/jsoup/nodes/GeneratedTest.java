@@ -1,0 +1,73 @@
+package org.jsoup.nodes;
+
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+public class GeneratedTest {
+
+    @Test
+    public void locationTest() {
+        Document doc = new Document("");
+        assertEquals("", doc.location());
+    }
+
+    @Test
+    public void connectionTest() {
+        Document doc = new Document("");
+        assertNull(doc.connection());
+    }
+
+    @Test
+    public void documentTypeTest() {
+        Document doc = new Document("");
+        assertNull(doc.documentType());
+    }
+
+    @Test
+    public void headTest() {
+        Document doc = new Document("");
+        assertNotNull(doc.head());
+    }
+
+    @Test
+    public void bodyTest() {
+        Document doc = new Document("");
+        assertNotNull(doc.body());
+    }
+
+    @Test
+    public void formsTest() {
+        Document doc = new Document("");
+        List<FormElement> forms = doc.forms();
+        assertNotNull(forms);
+        assertEquals(0, forms.size());
+    }
+
+    @Test
+    public void expectFormTest() {
+        Document doc = new Document("");
+        assertNull(doc.expectForm(""));
+    }
+
+    @Test
+    public void titleTest() {
+        Document doc = new Document("");
+        assertEquals("", doc.title());
+        doc.title("test");
+        assertEquals("test", doc.title());
+    }
+
+}

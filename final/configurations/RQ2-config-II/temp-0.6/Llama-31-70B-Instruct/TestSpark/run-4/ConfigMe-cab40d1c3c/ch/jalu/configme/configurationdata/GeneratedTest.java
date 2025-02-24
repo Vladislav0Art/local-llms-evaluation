@@ -1,53 +1,25 @@
 package ch.jalu.configme.configurationdata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import ch.jalu.configme.configurationdata.PropertyListBuilder;
-import ch.jalu.configme.exception.ConfigMeException;
 import ch.jalu.configme.properties.Property;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(JUnit4.class)
+import static org.mockito.Mockito.verify;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private final PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+    @Mock
+    private Property<Object> property;
 
     @Test
-    public void addProperty_validProperty_addsProperty() {
-        Property<?> property = Mockito.mock(Property.class);
-        Mockito.when(property.getPath()).thenReturn("test.path");
-
+    public void add_validProperty_addsPropertyToList() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
         propertyListBuilder.add(property);
 
-        List<Property<?>> properties = propertyListBuilder.create();
-        assertEquals(1, properties.size());
-        assertSame(property, properties.get(0));
-    }
-
-    @Test
-    public void addProperty_duplicateProperty_throwsException() {
-        Property<?> property = Mockito.mock(Property.class);
-        Mockito.when(property.getPath()).thenReturn("test.path");
-        propertyListBuilder.add(property);
-
-        try {
-            propertyListBuilder.add(property);
-            fail("Should throw exception when adding duplicate property");
-        } catch (ConfigMeException e) {
-            assertTrue(e.getMessage().contains("Path at 'test.path' already exists"));
-        }
+        verify(property).addToList(propertyListBuilder);
     }
 
 }

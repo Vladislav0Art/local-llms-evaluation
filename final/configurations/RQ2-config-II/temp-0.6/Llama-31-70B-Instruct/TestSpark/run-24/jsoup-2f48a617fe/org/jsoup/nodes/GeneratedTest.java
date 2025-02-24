@@ -3,58 +3,46 @@ package org.jsoup.nodes;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class GeneratedTest {
 
     @Test
-    public void getDataTest() {
-        Comment comment = new Comment("test");
-        assertEquals("test", comment.getData());
-    }
-
-    @Test
-    public void setDataTest() {
-        Comment comment = new Comment("test");
-        comment.setData("test1");
-        assertEquals("test1", comment.getData());
+    public void CommentConstructorTest() {
+        String testData = "test data";
+        Comment comment = new Comment(testData);
+        assertEquals(comment.getData(), testData);
     }
 
     @Test
     public void nodeNameTest() {
-        Comment comment = new Comment("test");
-        assertEquals("#comment", comment.nodeName());
+        Comment comment = new Comment("test data");
+        assertEquals(comment.nodeName(), "#comment");
     }
 
     @Test
-    public void outerHtmlHeadTest() {
-        Comment comment = Mockito.mock(Comment.class);
-        Mockito.when(comment.getData()).thenReturn("test");
-        Mockito.when(comment.siblingIndex()).thenReturn(0);
-        Mockito.when(comment.parentNode()).thenReturn(new Element("test"));
-        Document.OutputSettings out = Mockito.mock(Document.OutputSettings.class);
-        Mockito.when(out.prettyPrint()).thenReturn(true);
-        Mockito.when(out.outline()).thenReturn(true);
-        try {
-            Appendable accum = Mockito.mock(Appendable.class);
-            comment.outerHtmlHead(accum, 0, out);
-            Mockito.verify(accum).append("<!--");
-            Mockito.verify(accum).append("test");
-            Mockito.verify(accum).append("-->");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void getDataTest() {
+        String testData = "test data";
+        Comment comment = new Comment(testData);
+        assertEquals(comment.getData(), testData);
     }
 
     @Test
-    public void outerHtmlTailTest() {
-        Comment comment = Mockito.mock(Comment.class);
-        try {
-            Appendable accum = Mockito.mock(Appendable.class);
-            comment.outerHtmlTail(accum, 0, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void setDataTest() {
+        String testData = "test data";
+        Comment comment = new Comment(testData);
+        comment.setData("new data");
+        assertEquals(comment.getData(), "new data");
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("test data");
+        Appendable accum = Mockito.mock(Appendable.class);
+        when(accum.append(Mockito.anyString())).thenReturn(accum);
+        comment.outerHtmlHead(accum, 0, new Document.OutputSettings());
+        Mockito.verify(accum).append("<!--test data-->");
     }
 
 }

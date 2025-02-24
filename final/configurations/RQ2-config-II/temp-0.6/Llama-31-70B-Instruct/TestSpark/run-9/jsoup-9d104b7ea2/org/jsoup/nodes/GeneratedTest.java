@@ -1,57 +1,63 @@
 package org.jsoup.nodes;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
     @Test
     public void testNodeName() {
-        TextNode textNode = new TextNode("some text");
-        String nodeName = textNode.nodeName();
-        assertEquals("#text", nodeName);
+        TextNode textNode = new TextNode("testNode");
+        assertEquals("#text", textNode.nodeName());
     }
 
     @Test
     public void testText() {
-        TextNode textNode = new TextNode("some text");
-        String text = textNode.text();
-        assertEquals("some text", text);
+        TextNode textNode = new TextNode("testNode");
+        assertEquals("testNode", textNode.text());
+    }
+
+    @Test
+    public void testTextWhenNull() {
+        TextNode textNode = new TextNode(null);
+        assertEquals("", textNode.text());
     }
 
     @Test
     public void testGetWholeText() {
-        TextNode textNode = new TextNode("some text");
-        String wholeText = textNode.getWholeText();
-        assertEquals("some text", wholeText);
+        TextNode textNode = new TextNode("testNode");
+        assertEquals("testNode", textNode.getWholeText());
     }
 
     @Test
-    public void testIsBlank() {
-        TextNode textNode = new TextNode("some text");
-        boolean isBlank = textNode.isBlank();
-        assertFalse(isBlank);
+    public void testIsBlankWhenNull() {
+        TextNode textNode = new TextNode(null);
+        assertTrue(textNode.isBlank());
     }
 
     @Test
-    public void testSplitText() {
-        TextNode textNode = new TextNode("some text");
-        TextNode splitTextNode = textNode.splitText(5);
-        assertEquals("some ", textNode.getWholeText());
-        assertEquals("text", splitTextNode.getWholeText());
+    public void testIsBlankWhenEmpty() {
+        TextNode textNode = new TextNode("");
+        assertTrue(textNode.isBlank());
     }
 
     @Test
-    public void testOuterHtmlHead() throws IOException {
-        TextNode textNode = new TextNode("some text");
-        StringWriter writer = new StringWriter();
-        textNode.outerHtmlHead(writer, 0, new Document.OutputSettings());
-        assertEquals("some text", writer.toString());
+    public void testIsBlankWhenWhiteSpaces() {
+        TextNode textNode = new TextNode("      ");
+        assertTrue(textNode.isBlank());
     }
 
     @Test
-    public void testOuterHtmlTail() throws IOException {
-        TextNode textNode = new TextNode("some text");
-        StringWriter writer = new StringWriter();
-        textNode.outerHtmlTail(writer, 0, new Document.OutputSettings());
-        assertEquals("", writer.toString());
+    public void testIsBlankWhenNotBlank() {
+        TextNode textNode = new TextNode("testNode");
+        assertFalse(textNode.isBlank());
     }
 
 }

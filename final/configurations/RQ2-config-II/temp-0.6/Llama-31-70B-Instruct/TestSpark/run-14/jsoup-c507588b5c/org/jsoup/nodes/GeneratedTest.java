@@ -1,61 +1,68 @@
 package org.jsoup.nodes;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedTest {
 
     @Test
+    public void constructorTextTest() {
+        // Arrange
+        String text = "test";
+
+        // Act
+        TextNode node = new TextNode(text);
+
+        // Assert
+        assertEquals(text, node.text());
+    }
+
+    @Test
+    public void constructorNullTextTest() {
+        // Arrange
+        String text = null;
+
+        // Act
+        TextNode node = new TextNode(text);
+
+        // Assert
+        assertEquals(text, node.text());
+    }
+
+    @Test
     public void nodeNameTest() {
-        TextNode textNode = new TextNode("");
-        assertEquals("#text", textNode.nodeName());
+        TextNode node = new TextNode("test");
+        assertEquals("#text", node.nodeName());
     }
 
     @Test
     public void textTest() {
-        TextNode textNode = new TextNode("  foo  ");
-        assertEquals("foo", textNode.text());
-    }
+        TextNode node = new TextNode("test");
 
-    @Test
-    public void textWithZeroLengthTest() {
-        TextNode textNode = new TextNode("");
-        assertEquals("", textNode.text());
+        String newText = "new text";
+        TextNode newNode = node.text(newText);
+
+        assertEquals(newText, newNode.text());
     }
 
     @Test
     public void getWholeTextTest() {
-        TextNode textNode = new TextNode("  foo  ");
-        assertEquals("  foo  ", textNode.getWholeText());
+        TextNode node = new TextNode("test");
+        assertEquals("test", node.getWholeText());
     }
 
     @Test
     public void isBlankTest() {
-        TextNode textNode = new TextNode("  ");
-        assertEquals(true, textNode.isBlank());
+        TextNode node = new TextNode("test");
+        assertFalse(node.isBlank());
     }
 
     @Test
-    public void isBlankWithZeroLengthTest() {
-        TextNode textNode = new TextNode("");
-        assertEquals(true, textNode.isBlank());
-    }
-
-    @Test
-    public void isBlankWithNonBlankTest() {
-        TextNode textNode = new TextNode("foo");
-        assertEquals(false, textNode.isBlank());
-    }
-
-    @Test
-    public void splitTextTest() {
-        TextNode textNode = new TextNode("foobar");
-        TextNode newNode = textNode.splitText(3);
-        assertEquals("foo", textNode.getWholeText());
-        assertEquals("bar", newNode.getWholeText());
+    public void isBlankEmptyTest() {
+        TextNode node = new TextNode("");
+        assertTrue(node.isBlank());
     }
 
 }

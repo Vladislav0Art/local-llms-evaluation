@@ -1,17 +1,16 @@
 package org.jsoup.nodes;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedIsBlankTest {
 
     @Test
     public void isBlankTest() {
-        TextNode textNode = new TextNode("  ");
-        assertEquals(true, textNode.isBlank());
+        TextNode node = new TextNode("test");
+        assertFalse(node.isBlank());
     }
 
 }

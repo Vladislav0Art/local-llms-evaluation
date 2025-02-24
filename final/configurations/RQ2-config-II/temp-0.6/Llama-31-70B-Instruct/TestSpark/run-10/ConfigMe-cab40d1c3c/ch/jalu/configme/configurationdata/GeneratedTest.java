@@ -1,49 +1,48 @@
 package ch.jalu.configme.configurationdata;
 
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+
 public class GeneratedTest {
 
+    private PropertyListBuilder propertyListBuilder;
+    private Property<?> property;
+
     @Test
-    public void addPropertyTest() {
-        PropertyListBuilder builder = new PropertyListBuilder();
-        Property<String> property = mock(Property.class);
-        when(property.getPath()).thenReturn("DataSource.mysql");
-        builder.add(property);
-        Map<String, Object> rootEntries = builder.getRootEntries();
-        assertEquals(1, rootEntries.size());
-        assertEquals(property, rootEntries.get("DataSource.mysql"));
+    public void addTest() {
+        propertyListBuilder = new PropertyListBuilder();
+        property = mock(Property.class);
+        propertyListBuilder.add(property);
+        assertNotNull(propertyListBuilder.create());
     }
 
     @Test
-    public void addPropertyWithExistingPathTest() {
-        PropertyListBuilder builder = new PropertyListBuilder();
-        Property<String> property = mock(Property.class);
-        when(property.getPath()).thenReturn("DataSource.mysql");
-        builder.add(property);
-        builder.add(property);
+    public void createTest() {
+        propertyListBuilder = new PropertyListBuilder();
+        List<Property<?>> properties = new ArrayList<>();
+        properties.add(mock(Property.class));
+        when(propertyListBuilder.create()).thenReturn(properties);
+        propertyListBuilder.create();
     }
 
     @Test
-    public void addPropertyWithExistingPropertyTest() {
-        PropertyListBuilder builder = new PropertyListBuilder();
-        Property<String> property1 = mock(Property.class);
-        when(property1.getPath()).thenReturn("DataSource.mysql.host");
-        Property<String> property2 = mock(Property.class);
-        when(property2.getPath()).thenReturn("DataSource.mysql");
-        builder.add(property1);
-        builder.add(property2);
+    public void getRootEntriesTest() {
+        propertyListBuilder = new PropertyListBuilder();
+        Map<String, Object> rootEntries = new LinkedHashMap<>();
+        when(propertyListBuilder.getRootEntries()).thenReturn(rootEntries);
+        assertTrue(propertyListBuilder.getRootEntries().isEmpty());
     }
 
 }

@@ -1,17 +1,17 @@
 package org.jsoup.nodes;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import org.mockito.Mockito;
 
 public class GeneratedGetDataTest {
 
     @Test
     public void getDataTest() {
-        Comment comment = new Comment("hello");
-        assertEquals("hello", comment.getData());
+        Comment comment = new Comment("Test Data");
+        assertEquals("Test Data", comment.getData());
     }
 
 }

@@ -1,80 +1,54 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.TextNode;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private TextNode node;
+    @Mock
+    private TextNode textNode;
 
-    @Before
-    public void setup() {
-        node = new TextNode("test");
+    @Test
+    public void textNodeConstructorTest() {
+        String expectedText = "Some text";
+        TextNode textNode = new TextNode(expectedText);
+        assertEquals(expectedText, textNode.text());
     }
 
     @Test
-    public void testNodeName() {
-        assertEquals("#text", node.nodeName());
+    public void textNodeNodeNameTest() {
+        String expectedNodeName = "#text";
+        TextNode textNode = new TextNode("Some text");
+        assertEquals(expectedNodeName, textNode.nodeName());
     }
 
     @Test
-    public void testText() {
-        assertEquals("test", node.text());
+    public void textNodeTextTest() {
+        TextNode textNode = new TextNode("Some text");
+        String expectedText = "Some other text";
+        textNode.text(expectedText);
+        assertEquals(expectedText, textNode.text());
     }
 
     @Test
-    public void testTextSetter() {
-        node.text("new text");
-        assertEquals("new text", node.text());
+    public void textNodeGetWholeTextTest() {
+        TextNode textNode = new TextNode("Some text");
+        String expectedText = "Some text";
+        assertEquals(expectedText, textNode.getWholeText());
     }
 
     @Test
-    public void testGetWholeText() {
-        assertEquals("test", node.getWholeText());
-    }
-
-    @Test
-    public void testIsBlank() {
-        assertNotNull(node.isBlank());
-    }
-
-    @Test
-    public void testSplitText() {
-        assertNotNull(node.splitText(1));
-    }
-
-    @Test
-    public void testOuterHtmlHead() {
-        assertNotNull(node.outerHtmlHead(null, 0, null));
-    }
-
-    @Test
-    public void testOuterHtmlTail() {
-        assertNotNull(node.outerHtmlTail(null, 0, null));
-    }
-
-    @Test
-    public void testToString() {
-        assertEquals("test", node.toString());
-    }
-
-    @Test
-    public void testClone() {
-        assertNotNull(node.clone());
-    }
-
-    @Test
-    public void testCreateFromEncoded() {
-        assertNotNull(TextNode.createFromEncoded("test"));
-    }
-
-    @Test
-    public void testNormaliseWhitespace() {
-        assertNotNull(TextNode.normaliseWhitespace("test"));
+    public void textNodeIsBlankTest() {
+        TextNode textNode = new TextNode("Some text");
+        assertTrue(!textNode.isBlank());
     }
 
 }

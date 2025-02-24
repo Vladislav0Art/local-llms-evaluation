@@ -1,39 +1,71 @@
 package com.netflix.frigga.ami;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.*;
 
-import com.netflix.frigga.ami.AppVersion;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class GeneratedTest {
 
     @Test
-    public void testParseNameWithNullString() {
-        AppVersion parsedName = AppVersion.parseName(null);
-        assertNull(parsedName);
+    public void parseNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String name = "test";
+        AppVersion result = appVersion.parseName(name);
+        assertNotNull(result);
     }
 
     @Test
-    public void testParseNameWithValidAppversion() {
-        AppVersion parsedName = AppVersion.parseName("subscriberha-1.0.0-586499");
-        assertNotNull(parsedName);
-        assertEquals("subscriberha", parsedName.getPackageName());
-        assertEquals("1.0.0", parsedName.getVersion());
-        assertEquals("586499", parsedName.getBuildNumber());
+    public void parseNameNullTest() {
+        AppVersion appVersion = new AppVersion();
+        String name = null;
+        AppVersion result = appVersion.parseName(name);
+        assertNull(result);
     }
 
     @Test
-    public void testParseNameWithInvalidAppversion() {
-        AppVersion parsedName = AppVersion.parseName("invalid-appversion");
-        assertNull(parsedName);
+    public void parseNameEmptyTest() {
+        AppVersion appVersion = new AppVersion();
+        String name = "";
+        AppVersion result = appVersion.parseName(name);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void compareToTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        int result = appVersion1.compareTo(appVersion2);
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void compareToNullTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = null;
+        int result = appVersion1.compareTo(appVersion2);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        AppVersion appVersion = new AppVersion();
+        Pattern result = appVersion.getAppVersionPattern();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String result = appVersion.getPackageName();
+        assertNull(result);
+    }
+
+    @Test
+    public void getVersionTest() {
+        AppVersion appVersion = new AppVersion();
+        String result = appVersion.getVersion();
+        assertNull(result);
     }
 
 }

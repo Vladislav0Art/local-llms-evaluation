@@ -1,0 +1,22 @@
+package ch.jalu.configme.configurationdata;
+
+import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public class GeneratedAddTest {
+
+    @Test
+    public void addTest() {
+        Property property = Mockito.mock(Property.class);
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(property);
+    }
+
+}

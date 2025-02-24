@@ -1,19 +1,21 @@
 package org.jsoup.nodes;
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
+import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.mockito.Mockito.*;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 public class GeneratedNodeNameTest {
 
     @Test
     public void nodeNameTest() {
-        Comment comment = new Comment("Test data");
-        assertEquals("#comment", comment.nodeName());
+        Comment comment = new Comment("data");
+        assertEquals("comment", comment.nodeName());
     }
 
 }

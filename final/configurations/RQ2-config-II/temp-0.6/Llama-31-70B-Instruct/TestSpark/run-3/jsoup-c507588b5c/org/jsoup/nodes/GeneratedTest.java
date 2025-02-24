@@ -1,56 +1,65 @@
 package org.jsoup.nodes;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import org.jsoup.helper.Validate;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 public class GeneratedTest {
 
-    @Test
-    public void testCreateFromEncoded() {
-        TextNode textNode = TextNode.createFromEncoded("&lt;div&gt;");
-        assertEquals("&lt;div&gt;", textNode.coreValue());
+    private TextNode textNode;
+
+    @Before
+    public void setup() {
+        textNode = new TextNode("test");
     }
 
     @Test
-    public void testNodeName() {
-        TextNode textNode = new TextNode("Test");
+    public void textNodeConstructorTest() {
+        assertNotNull(textNode);
+    }
+
+    @Test
+    public void textNodeNodeNameTest() {
         assertEquals("#text", textNode.nodeName());
     }
 
     @Test
-    public void testText() {
-        TextNode textNode = new TextNode("Test");
-        assertEquals("Test", textNode.text());
+    public void textNodeTextTest() {
+        assertEquals("test", textNode.text());
     }
 
     @Test
-    public void testTextSetText() {
-        TextNode textNode = new TextNode("Test");
-        textNode.text("Test2");
-        assertEquals("Test2", textNode.text());
+    public void textNodeTextSetterTest() {
+        TextNode textNode = new TextNode("test");
+        textNode.text("test2");
+        assertEquals("test2", textNode.text());
     }
 
     @Test
-    public void testGetWholeText() {
-        TextNode textNode = new TextNode("Test");
-        assertEquals("Test", textNode.getWholeText());
+    public void textNodeGetWholeTextTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.getWholeText());
     }
 
     @Test
-    public void testIsBlank() {
-        TextNode textNode = new TextNode("");
+    public void textNodeIsBlankTest() {
+        TextNode textNode = new TextNode(" ");
         assertTrue(textNode.isBlank());
     }
 
     @Test
-    public void testSplitText() {
-        TextNode textNode = new TextNode("Test");
-        TextNode textNode2 = textNode.splitText(1);
-        assertEquals("T", textNode.coreValue());
-        assertEquals("est", textNode2.coreValue());
+    public void textNodeSplitTextTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode splitNode = textNode.splitText(2);
+        assertEquals("st", splitNode.text());
     }
 
 }

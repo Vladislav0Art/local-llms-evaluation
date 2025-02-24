@@ -1,0 +1,59 @@
+package org.jsoup.parser;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void getNameTest() {
+        // Test 1 - Name is null
+        Tag tag = new Tag();
+        tag.name = null;
+        assertNull(tag.getName());
+
+        // Test 2 - Name is empty
+        tag.name = "";
+        assertEquals("", tag.getName());
+
+        // Test 3 - Name is not empty
+        tag.name = "test";
+        assertEquals("test", tag.getName());
+    }
+
+    @Test
+    public void normalNameTest() {
+        // Test 1 - Name is null
+        Tag tag = new Tag();
+        tag.name = null;
+        assertEquals("", tag.normalName());
+
+        // Test 2 - Name is empty
+        tag.name = "";
+        assertEquals("", tag.normalName());
+
+        // Test 3 - Name is not empty
+        tag.name = "test";
+        assertEquals("test", tag.normalName());
+    }
+
+    @Test
+    public void valueOfTest() {
+        // Test 1 - Tag name is null
+        Tag tag = Tag.valueOf(null, null);
+        assertNull(tag);
+
+        // Test 2 - Tag name is empty
+        tag = Tag.valueOf("", null);
+        assertNull(tag);
+
+        // Test 3 - Tag name is not empty
+        tag = Tag.valueOf("test", null);
+        assertNotNull(tag);
+        assertEquals("test", tag.getName());
+    }
+
+}

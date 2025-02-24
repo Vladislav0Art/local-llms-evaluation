@@ -1,50 +1,44 @@
 package org.jsoup.helper;
 
+import org.jsoup.helper.DataUtil;
 import org.jsoup.helper.UrlBuilder;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
-    public void buildUrlTest() throws URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-        //given
-        String url = "http://example.com/test?q=123&p=456";
-        URL inputUrl = new URL(url);
+    public void build_EmptyUrl_EmptyResult() throws MalformedURLException, UnsupportedEncodingException {
+        // Arrange
+        URL inputUrl = new URL("");
         UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
 
-        //when
-        URL resultUrl = urlBuilder.build();
+        // Act
+        URL result = urlBuilder.build();
 
-        //then
-        assertEquals(inputUrl.getProtocol(), resultUrl.getProtocol());
-        assertEquals(inputUrl.getHost(), resultUrl.getHost());
-        assertEquals(inputUrl.getPort(), resultUrl.getPort());
-        assertEquals(inputUrl.getPath(), resultUrl.getPath());
-        assertEquals(inputUrl.getQuery(), resultUrl.getQuery());
+        // Assert
+        assertEquals(inputUrl, result);
     }
 
     @Test
-    public void buildUrlTestWithMalformedURLException() throws URISyntaxException, UnsupportedEncodingException {
-        //given
-        String url = "http://example.com/test?q=123&p=456";
-        URL inputUrl = new URL(url);
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+    public void build_NullUrl_NullResult() throws MalformedURLException, UnsupportedEncodingException {
+        // Arrange
+        UrlBuilder urlBuilder = new UrlBuilder(null);
 
-        //when
-        assertThrows(MalformedURLException.class, urlBuilder.build());
+        // Act
+        URL result = urlBuilder.build();
+
+        // Assert
+        assertNull(result);
     }
 
 }

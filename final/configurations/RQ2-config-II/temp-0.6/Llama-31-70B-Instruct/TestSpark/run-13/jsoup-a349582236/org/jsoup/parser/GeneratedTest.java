@@ -1,73 +1,63 @@
 package org.jsoup.parser;
 
-import org.jsoup.helper.Validate;
-import org.jsoup.internal.Normalizer;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.HashMap;
-import java.util.Map;
-
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private String tagName = "div";
-    private String normalName = Normalizer.lowerCase(tagName);
-    private Tag tag;
+    // Tests for getName()
 
-    @Before
-    public void setUp() {
-        tag = new Tag(tagName);
-        tag.tagName = tagName;
-        tag.normalName = normalName;
+    @Test
+    public void getNameNullTest() {
+        Tag tag = new Tag();
+        String actualName = tag.getName();
+        assertNull("Name should be null", actualName);
     }
 
     @Test
-    public void getNameTest() {
-        Assert.assertEquals(tagName, tag.getName());
+    public void getNameNotNullTest() {
+        Tag tag = new Tag("div");
+        String actualName = tag.getName();
+        assertNotNull("Name should not be null", actualName);
     }
 
     @Test
-    public void normalNameTest() {
-        Assert.assertEquals(normalName, tag.normalName());
+    public void getNameCorrectTest() {
+        Tag tag = new Tag("div");
+        String actualName = tag.getName();
+        String expectedName = "div";
+        assertEquals("Incorrect name", expectedName, actualName);
     }
 
     @Test
-    public void getNameTest_Null() {
-        tag.tagName = null;
-        Assert.assertNull(tag.getName());
+    public void normalNameNullTest() {
+        Tag tag = new Tag();
+        String actualName = tag.normalName();
+        assertNull("Name should be null", actualName);
     }
 
     @Test
-    public void normalNameTest_Null() {
-        tag.tagName = null;
-        Assert.assertNull(tag.normalName());
+    public void normalNameNotNullTest() {
+        Tag tag = new Tag("div");
+        String actualName = tag.normalName();
+        assertNotNull("Name should not be null", actualName);
     }
 
     @Test
-    public void isBlockTest() {
-        Assert.assertTrue(tag.isBlock());
+    public void normalNameCorrectTest() {
+        Tag tag = new Tag("div");
+        String actualName = tag.normalName();
+        String expectedName = "div";
+        assertEquals("Incorrect name", expectedName, actualName);
     }
 
     @Test
-    public void isBlockTest_False() {
-        tag.isBlock = false;
-        Assert.assertFalse(tag.isBlock());
+    public void valueOfNullTest() {
+        Tag tag = Tag.valueOf(null, null);
+        assertNull("Tag should be null", tag);
     }
 
     @Test
-    public void formatAsBlockTest() {
-        Assert.assertTrue(tag.formatAsBlock());
-    }
-
-    @Test
-    public void formatAsBlockTest_False() {
-        tag.formatAsBlock = false;
-        Assert.assertFalse(tag.formatAsBlock());
+    public void valueOfNotNullTest() {
+        Tag tag = Tag.valueOf("div", null);
+        assertNotNull("Tag should not be null", tag);
     }
 
 }

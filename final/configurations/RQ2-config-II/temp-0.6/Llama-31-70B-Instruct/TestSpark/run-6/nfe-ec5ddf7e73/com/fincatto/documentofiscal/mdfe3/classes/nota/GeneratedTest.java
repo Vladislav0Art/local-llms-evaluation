@@ -1,38 +1,51 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
+
+    private MDFInfoModalRodoviarioVeiculoReboque testClass;
+
+    @Before
+    public void setUp() throws Exception {
+        testClass = new MDFInfoModalRodoviarioVeiculoReboque();
+    }
+
+    // Tests for setCodigoInterno method
 
     @Test
     public void setCodigoInternoTest() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setCodigoInterno("1234567890");
-        assertEquals("1234567890", reboque.getCodigoInterno());
+        String codigoInterno = "CodigoInterno";
+        testClass.setCodigoInterno(codigoInterno);
+        Assert.assertEquals(codigoInterno, testClass.getCodigoInterno());
+    }
+
+    @Test
+    public void setCodigoInternoTestWithEmptyString() {
+        testClass.setCodigoInterno("");
     }
 
     @Test
     public void setPlacaTest() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setPlaca("AAA1111");
-        assertEquals("AAA1111", reboque.getPlaca());
+        String placa = "Placa";
+        testClass.setPlaca(placa);
+        Assert.assertEquals(placa, testClass.getPlaca());
+    }
+
+    @Test
+    public void setPlacaTestWithEmptyString() {
+        testClass.setPlaca("");
     }
 
     @Test
     public void setRenavamTest() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setRenavam("12345678901");
-        assertEquals("12345678901", reboque.getRenavam());
+        String renavam = "Renavam";
+        testClass.setRenavam(renavam);
+        Assert.assertEquals(renavam, testClass.getRenavam());
     }
 
     @Test
-    public void setTaraTest() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setTara("12345");
-        assertEquals("12345", reboque.getTara());
+    public void setRenavamTestWithEmptyString() {
+        testClass.setRenavam("");
     }
 
 }

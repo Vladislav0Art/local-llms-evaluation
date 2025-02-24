@@ -1,16 +1,27 @@
 package org.jsoup.nodes;
 
-import static org.junit.Assert.assertEquals;
-
 import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedGetDataTest {
+
+    @Mock
+    private Document.OutputSettings outputSettings;
 
     @Test
     public void getDataTest() {
-        Comment comment = new Comment("Test Data");
-        assertEquals("Test Data", comment.getData());
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
     }
 
 }

@@ -1,55 +1,41 @@
 package graphql.annotations.processor.retrievers.fieldBuilders;
 
-import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
-import org.junit.Before;
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.exceptions.GraphQLAnnotationsException;
+import graphql.annotations.processor.util.DirectiveJavaAnnotationUtil;
+import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLDirective;
+import graphql.schema.GraphQLScalarType;
+import graphql.schema.GraphQLType;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private DirectivesBuilder builder;
     @Mock
-    private AnnotatedElement object;
+    AnnotatedElement mockAnnotatedElement;
     @Mock
-    private ProcessingElementsContainer container;
-
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        builder = new DirectivesBuilder(object, container);
-    }
+    ProcessingElementsContainer mockContainer;
 
     @Test
-    public void testBuild() {
-        when(container.getDirectiveRegistry().containsKey("key")).thenReturn(true);
-        builder.build();
-    }
-
-    @Test
-    public void testTransformArgs() {
-        when(container.getDirectiveRegistry().containsKey("key")).thenReturn(true);
-        Annotation annotation = null;
-        builder.transformArgs("key", annotation);
-    }
-
-    @Test
-    public void testTransformArgs2() {
-        when(container.getDirectiveRegistry().containsKey("key")).thenReturn(true);
-        String[] argumentValues = null;
-        builder.transformArgs("key", argumentValues);
-    }
-
-    @Test
-    public void testTransformArgument() {
-        when(container.getDirectiveRegistry().containsKey("key")).thenReturn(true);
-        Annotation annotation = null;
-        builder.transformArgument(annotation, null, null, 0);
+    public void constructorTest() {
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(mockAnnotatedElement, mockContainer);
+        assertNotNull(directivesBuilder);
     }
 
 }

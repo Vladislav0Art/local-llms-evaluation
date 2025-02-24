@@ -1,29 +1,85 @@
 package com.netflix.frigga.ami;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class GeneratedTest {
 
     @Test
     public void parseNameTest() {
-        String amiName = "subscriberha-1.0.0-586499";
-        AppVersion appVersion = AppVersion.parseName(amiName);
+        // Setup
+        String amiName = "test_name";
+        AppVersion appVersion = new AppVersion();
 
-        assertNotNull(appVersion);
-        assertEquals("subscriberha", appVersion.getPackageName());
-        assertEquals("1.0.0", appVersion.getVersion());
-        assertEquals("586499", appVersion.getBuildNumber());
+        // Call method under test
+        AppVersion actual = appVersion.parseName(amiName);
+
+        // Verify
+        assertNotNull(actual);
     }
 
     @Test
     public void compareToTest() {
-        AppVersion appVersion1 = AppVersion.parseName("subscriberha-1.0.0-586499");
-        AppVersion appVersion2 = AppVersion.parseName("subscriberha-1.0.0-586499");
+        // Setup
+        AppVersion appVersion = new AppVersion();
+        AppVersion other = Mockito.mock(AppVersion.class);
 
-        assertEquals(0, appVersion1.compareTo(appVersion2));
+        // Call method under test
+        int actual = appVersion.compareTo(other);
+
+        // Verify
+        assertTrue(actual >= 0);
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        // Setup
+        AppVersion appVersion = new AppVersion();
+
+        // Call method under test
+        Pattern actual = appVersion.getAppVersionPattern();
+
+        // Verify
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        // Setup
+        AppVersion appVersion = new AppVersion();
+
+        // Call method under test
+        String actual = appVersion.getPackageName();
+
+        // Verify
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getVersionTest() {
+        // Setup
+        AppVersion appVersion = new AppVersion();
+
+        // Call method under test
+        String actual = appVersion.getVersion();
+
+        // Verify
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        // Setup
+        AppVersion appVersion = new AppVersion();
+
+        // Call method under test
+        String actual = appVersion.getBuildJobName();
+
+        // Verify
+        assertNotNull(actual);
     }
 
 }

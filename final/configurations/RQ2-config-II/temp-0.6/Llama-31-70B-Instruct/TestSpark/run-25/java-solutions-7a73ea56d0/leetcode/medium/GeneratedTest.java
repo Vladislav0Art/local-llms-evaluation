@@ -1,25 +1,25 @@
 package leetcode.medium;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
-    public void nextTest_NonZeroCount() {
+    public void nextTest() {
         OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int count = stockSpan.next(10);
-        assertEquals(1, count);
+        assertEquals(1, stockSpan.next(10));
+        assertEquals(2, stockSpan.next(20));
+        assertEquals(1, stockSpan.next(15));
     }
 
     @Test
-    public void calculateSpansTest_NonZeroSpans() {
+    public void calculateSpansTest() {
         OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = {10, 20, 30};
-        int[] spans = stockSpan.calculateSpans(prices);
-        assertArrayEquals(new int[]{1, 2, 3}, spans);
+        int[] prices = {10, 20, 15};
+        int[] expectedSpans = {1, 2, 1};
+        assertArrayEquals(expectedSpans, stockSpan.calculateSpans(prices));
     }
 
 }

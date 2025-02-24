@@ -1,50 +1,31 @@
 package net.revelc.code.formatter.css;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.junit.Test;
+import net.revelc.code.formatter.LineEnding;
 
 public class GeneratedTest {
 
     @Test
-    public void testInit() {
+    public void initTest() {
         CssFormatter formatter = new CssFormatter();
         Map<String, String> options = new HashMap<>();
-        options.put("indent", "4");
-        options.put("rgbAsHex", "true");
-        options.put("useSourceStringValues", "false");
-        formatter.init(options, null);
-        assertNotNull(formatter.formatter);
-    }
-
-    @Test
-    public void testDoFormat() throws IOException {
-        CssFormatter formatter = new CssFormatter();
-        Map<String, String> options = new HashMap<>();
-        options.put("indent", "4");
-        options.put("rgbAsHex", "true");
-        options.put("useSourceStringValues", "false");
-        formatter.init(options, null);
-        String code = ".class { color: red; }";
-        String formattedCode = formatter.doFormat(code, null);
-        assertEquals(code, formattedCode);
-    }
-
-    @Test
-    public void testIsInitialized() {
-        CssFormatter formatter = new CssFormatter();
-        assertFalse(formatter.isInitialized());
-        Map<String, String> options = new HashMap<>();
-        options.put("indent", "4");
-        options.put("rgbAsHex", "true");
-        options.put("useSourceStringValues", "false");
-        formatter.init(options, null);
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        formatter.init(options, cfg);
         assertTrue(formatter.isInitialized());
+    }
+
+    @Test
+    public void doFormatTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
+        String code = "div {color: red;}";
+        LineEnding ending = LineEnding.UNIX;
+        String formattedCode = formatter.doFormat(code, ending);
+        assertEquals("div {\n    color: red;\n}\n", formattedCode);
     }
 
 }

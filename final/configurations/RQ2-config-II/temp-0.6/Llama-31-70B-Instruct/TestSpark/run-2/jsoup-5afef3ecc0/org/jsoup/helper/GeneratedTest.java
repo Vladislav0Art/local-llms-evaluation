@@ -1,22 +1,33 @@
 package org.jsoup.helper;
 
+import org.jsoup.helper.UrlBuilder;
 import org.junit.Test;
+import org.jsoup.Connection.KeyVal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+
+import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
-    public void testBuild() throws Exception {
-        URL initialUrl = new URL("http://example.com");
-        UrlBuilder builder = new UrlBuilder(initialUrl);
+    public void buildTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL actualUrl = builder.build();
+        assertEquals("http://www.example.com", actualUrl.toString());
+    }
 
-        URL builtUrl = builder.build();
-
-        assertNotNull(builtUrl);
-        assertEquals("http", builtUrl.getProtocol());
-        assertEquals("example.com", builtUrl.getHost());
+    @Test
+    public void appendKeyValTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        KeyVal kv = new KeyVal("key", "value");
+        builder.appendKeyVal(kv);
+        URL actualUrl = builder.build();
+        assertEquals("http://www.example.com?key=value", actualUrl.toString());
     }
 
 }

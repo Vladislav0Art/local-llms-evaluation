@@ -1,44 +1,37 @@
 package ch.jalu.configme.configurationdata;
 
-import ch.jalu.configme.exception.ConfigMeException;
 import ch.jalu.configme.properties.Property;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
+    @Mock
+    private Property<?> mockProperty;
+
     @Test
-    public void addProperty() {
-        PropertyListBuilder builder = new PropertyListBuilder();
-        Property<?> property = new Property<>("test.path", String.class);
-
-        builder.add(property);
-
-        assertTrue(builder.getRootEntries().containsValue(property));
+    public void addPropertyTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(mockProperty);
     }
 
     @Test
-    public void addPropertyAlreadyExists() {
-        PropertyListBuilder builder = new PropertyListBuilder();
-        Property<?> property = new Property<>("test.path", String.class);
-
-        builder.add(property);
-        builder.add(property);
-    }
-
-    @Test
-    public void addPropertyWithExistingPath() {
-        PropertyListBuilder builder = new PropertyListBuilder();
-        Property<?> property = new Property<>("test.path", String.class);
-        Property<?> property2 = new Property<>("test.path.other", String.class);
-
-        builder.add(property);
-        builder.add(property2);
+    public void createTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        List<Property<?>> propertyList = new ArrayList<>();
+        propertyList.add(mockProperty);
+        when(propertyListBuilder.create()).thenReturn(propertyList);
+        assertEquals(propertyList, propertyListBuilder.create());
     }
 
 }

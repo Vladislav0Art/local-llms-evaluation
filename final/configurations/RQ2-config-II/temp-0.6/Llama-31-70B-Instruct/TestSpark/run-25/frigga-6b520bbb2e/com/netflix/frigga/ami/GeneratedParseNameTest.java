@@ -1,21 +1,24 @@
 package com.netflix.frigga.ami;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class GeneratedParseNameTest {
 
     @Test
     public void parseNameTest() {
-        String amiName = "subscriberha-1.0.0-586499";
-        AppVersion appVersion = AppVersion.parseName(amiName);
+        // Setup
+        String amiName = "test_name";
+        AppVersion appVersion = new AppVersion();
 
-        assertNotNull(appVersion);
-        assertEquals("subscriberha", appVersion.getPackageName());
-        assertEquals("1.0.0", appVersion.getVersion());
-        assertEquals("586499", appVersion.getBuildNumber());
+        // Call method under test
+        AppVersion actual = appVersion.parseName(amiName);
+
+        // Verify
+        assertNotNull(actual);
     }
 
 }

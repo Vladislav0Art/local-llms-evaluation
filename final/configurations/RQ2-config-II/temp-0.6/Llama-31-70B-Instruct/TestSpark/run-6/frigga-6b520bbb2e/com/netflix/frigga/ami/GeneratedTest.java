@@ -1,0 +1,63 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Test
+    public void parseNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String amiName = "amiName";
+        AppVersion parsedName = appVersion.parseName(amiName);
+        assertNotNull(parsedName);
+    }
+
+    @Test
+    public void compareToTest() {
+        AppVersion appVersion = new AppVersion();
+        AppVersion other = new AppVersion();
+        int result = appVersion.compareTo(other);
+        assertTrue(result == 0);
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        AppVersion appVersion = new AppVersion();
+        Pattern appVersionPattern = appVersion.getAppVersionPattern();
+        assertNotNull(appVersionPattern);
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String packageName = appVersion.getPackageName();
+        assertNotNull(packageName);
+    }
+
+    @Test
+    public void getVersionTest() {
+        AppVersion appVersion = new AppVersion();
+        String version = appVersion.getVersion();
+        assertNotNull(version);
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String buildJobName = appVersion.getBuildJobName();
+        assertNotNull(buildJobName);
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        AppVersion appVersion = new AppVersion();
+        String buildNumber = appVersion.getBuildNumber();
+        assertNotNull(buildNumber);
+    }
+
+}

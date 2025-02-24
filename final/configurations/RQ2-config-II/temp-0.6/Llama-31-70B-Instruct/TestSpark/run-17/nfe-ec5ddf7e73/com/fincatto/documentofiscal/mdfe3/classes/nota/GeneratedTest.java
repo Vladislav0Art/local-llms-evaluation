@@ -1,47 +1,40 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.mockito.Mock;
-
-import static org.mockito.Mockito.*;
-
-import org.mockito.MockitoAnnotations;
+import org.junit.Test;
+import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
 
 public class GeneratedTest {
 
-    @Mock
-    MDFInfoModalRodoviarioVeiculoReboque mockedVeiculoReboque;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
+    private MDFInfoModalRodoviarioVeiculoReboque reboque;
 
     @Test
     public void setCodigoInternoTest() {
-        mockedVeiculoReboque.setCodigoInterno("1234567890");
-        assertEquals("1234567890", mockedVeiculoReboque.getCodigoInterno());
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCodigoInterno("1234567890");
+        assertEquals("1234567890", reboque.getCodigoInterno());
     }
 
     @Test
     public void setPlacaTest() {
-        mockedVeiculoReboque.setPlaca("AAA1111");
-        assertEquals("AAA1111", mockedVeiculoReboque.getPlaca());
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setPlaca("AAA1111");
+        assertEquals("AAA1111", reboque.getPlaca());
     }
 
     @Test
     public void setRenavamTest() {
-        mockedVeiculoReboque.setRenavam("1234567890");
-        assertEquals("1234567890", mockedVeiculoReboque.getRenavam());
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setRenavam("12345678901234");
+        assertEquals("12345678901234", reboque.getRenavam());
     }
 
     @Test
     public void setTaraTest() {
-        mockedVeiculoReboque.setTara("12345");
-        assertEquals("12345", mockedVeiculoReboque.getTara());
+        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setTara("1000");
+        assertEquals("1000", reboque.getTara());
     }
 
 }

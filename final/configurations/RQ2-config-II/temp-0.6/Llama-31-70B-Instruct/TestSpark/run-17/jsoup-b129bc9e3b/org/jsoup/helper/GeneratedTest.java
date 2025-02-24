@@ -1,0 +1,60 @@
+package org.jsoup.helper;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+
+import org.jsoup.Connection;
+import org.jsoup.helper.HttpConnection;
+import org.jsoup.helper.HttpConnection.Request;
+import org.jsoup.helper.HttpConnection.Response;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedTest {
+
+    @Test
+    public void testConnectWithNullUrl() throws MalformedURLException {
+        assertEquals(null, HttpConnection.connect((URL) null));
+    }
+
+    @Test
+    public void testConnectWithNullStringUrl() {
+        assertEquals(null, HttpConnection.connect((String) null));
+    }
+
+    @Test
+    public void testNewRequest() {
+        HttpConnection httpConnection = new HttpConnection();
+        Request request = Mockito.mock(Request.class);
+        httpConnection.request(request);
+        assertEquals(request, httpConnection.request());
+    }
+
+    @Test
+    public void testUrl() throws MalformedURLException {
+        HttpConnection httpConnection = new HttpConnection();
+        URL url = new URL("http://example.com");
+        httpConnection.url(url);
+        assertEquals(url, httpConnection.request().url());
+    }
+
+    @Test
+    public void testProxy() {
+        HttpConnection httpConnection = new HttpConnection();
+        Proxy proxy = Mockito.mock(Proxy.class);
+        httpConnection.proxy(proxy);
+        assertEquals(proxy, httpConnection.request().proxy());
+    }
+
+    @Test
+    public void testUserAgent() {
+        HttpConnection httpConnection = new HttpConnection();
+        httpConnection.userAgent("test-agent");
+        assertEquals("test-agent", httpConnection.request().userAgent());
+    }
+
+}

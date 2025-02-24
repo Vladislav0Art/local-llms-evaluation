@@ -1,66 +1,64 @@
 package com.netflix.frigga.ami;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
     @Test
-    public void compareTo_shouldReturn0WhenBothObjectsAreNull() {
-        // arrange
-        AppVersion appVersion1 = null;
-        AppVersion appVersion2 = null;
-
-        // act
-        int result = appVersion1.compareTo(appVersion2);
-
-        // assert
-        assertEquals(0, result);
+    public void parseNameTest() {
+        AppVersion appVersion = AppVersion.parseName("test");
+        assertNotNull(appVersion);
     }
 
     @Test
-    public void compareTo_shouldReturn1WhenOneObjectIsNull() {
-        // arrange
-        AppVersion appVersion1 = null;
+    public void parseNameNullTest() {
+        AppVersion appVersion = AppVersion.parseName(null);
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void parseNameInvalidTest() {
+        AppVersion appVersion = AppVersion.parseName("invalid");
+        assertNotNull(appVersion);
+    }
+
+    @Test
+    public void compareToTest() {
+        AppVersion appVersion = new AppVersion();
         AppVersion appVersion2 = new AppVersion();
-
-        // act
-        int result = appVersion1.compareTo(appVersion2);
-
-        // assert
-        assertEquals(1, result);
+        assertTrue(appVersion.compareTo(appVersion2) == 0);
     }
 
     @Test
-    public void compareTo_shouldReturnNegative1WhenOneObjectIsNull() {
-        // arrange
-        AppVersion appVersion1 = new AppVersion();
-        AppVersion appVersion2 = null;
-
-        // act
-        int result = appVersion1.compareTo(appVersion2);
-
-        // assert
-        assertEquals(-1, result);
-    }
-
-    @Test
-    public void compareTo_shouldReturn0WhenBothObjectsAreEqual() {
-        // arrange
-        AppVersion appVersion1 = new AppVersion();
+    public void compareToInvalidTest() {
+        AppVersion appVersion = new AppVersion();
         AppVersion appVersion2 = new AppVersion();
+        appVersion.setVersion("invalid");
+        appVersion2.setVersion("invalid");
+        assertTrue(appVersion.compareTo(appVersion2) == 0);
+    }
 
-        // act
-        int result = appVersion1.compareTo(appVersion2);
+    @Test
+    public void getAppVersionPatternTest() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        assertNotNull(pattern);
+    }
 
-        // assert
-        assertEquals(0, result);
+    @Test
+    public void getPackageNameTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNotNull(appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersionTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNotNull(appVersion.getVersion());
     }
 
 }

@@ -1,31 +1,42 @@
 package app;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertEquals;
 
-import java.util.HashSet;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class GeneratedTest {
 
-    private DBApp dbApp;
-
-    @BeforeEach
-    @DisplayName("Initialize DBApp")
-    void init() {
-        dbApp = new DBApp();
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> expected = new HashSet<>();
+        expected.add("table1");
+        expected.add("table2");
+        HashSet<String> actual = dbApp.getMyTables();
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void testInit() {
-        HashSet<String> expectedTables = new HashSet<>();
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        CsvReader expected = new CsvReader();
+        CsvReader actual = dbApp.getReader();
+        assertEquals(expected, actual);
+    }
 
+    @Test
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        CsvWriter expected = new CsvWriter();
+        CsvWriter actual = dbApp.getWriter();
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void initTest() {
+        DBApp dbApp = new DBApp();
         dbApp.init();
-
-        assertEquals(expectedTables, dbApp.getMyTables());
+        // assert here
     }
 
 }

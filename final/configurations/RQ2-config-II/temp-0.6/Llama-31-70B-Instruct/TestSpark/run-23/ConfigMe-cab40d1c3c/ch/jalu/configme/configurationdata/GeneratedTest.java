@@ -1,55 +1,42 @@
 package ch.jalu.configme.configurationdata;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import ch.jalu.configme.configurationdata.Property;
 import ch.jalu.configme.exception.ConfigMeException;
+import ch.jalu.configme.properties.Property;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    @Mock
-    private Property<?> mockProperty;
-    @Mock
-    private Property<?> mockProperty2;
-
-    private PropertyListBuilder propertyListBuilder;
-
-    @Before
-    public void setUp() {
-        propertyListBuilder = new PropertyListBuilder();
+    @Test
+    public void addTest() {
+        Property property = Mockito.mock(Property.class);
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(property);
     }
 
     @Test
-    public void givenPropertyWithPath_whenAdd_thenAdded() {
-        when(mockProperty.getPath()).thenReturn("property.path");
+    public void addNullTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(null);
+    }
 
-        propertyListBuilder.add(mockProperty);
+    @Test
+    public void createTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        List<Property<?>> properties = propertyListBuilder.create();
+        assert properties.size() == 0;
+    }
 
+    @Test
+    public void getRootEntriesTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
         Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
-        assertThat(rootEntries.size(), is(1));
-        assertThat(rootEntries.containsKey("property"), is(true));
-        assertThat(rootEntries.get("property"), is(not(nullValue())));
+        assert rootEntries.size() == 0;
     }
 
 }

@@ -1,0 +1,48 @@
+package org.jsoup.nodes;
+
+import static org.jsoup.nodes.Attributes.checkNotNull;
+import static org.jsoup.nodes.Attributes.internalKey;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.ParseSettings;
+
+public class GeneratedIndexOfKeyTest {
+
+    private Attributes attributes;
+
+    @Before
+    public void setup() {
+        attributes = new Attributes();
+    }
+
+    @Test
+    public void indexOfKeyTest() {
+        attributes.add("key1", "value1");
+        attributes.add("key2", "value2");
+        attributes.add("key3", "value3");
+
+        assertEquals(0, attributes.indexOfKey("key1"));
+        assertEquals(1, attributes.indexOfKey("key2"));
+        assertEquals(2, attributes.indexOfKey("key3"));
+        assertEquals(-1, attributes.indexOfKey("key4"));
+    }
+
+}

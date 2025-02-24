@@ -1,50 +1,54 @@
 package app;
 
-import org.junit.Before;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import app.DBApp;
 
-@RunWith(PowerMockRunner.class)
 public class GeneratedTest {
-
-    DBApp .class
-})
-
-public class DBAppTest {
 
     private DBApp dbApp;
 
-    @Before
-    public void setUp() {
-        dbApp = PowerMockito.spy(new DBApp());
-    }
-
     @Test
-    public void testGetMyTables() {
-        dbApp.getMyTables();
-        Mockito.verify(dbApp, Mockito.times(1)).getMyTables();
-    }
-
-    @Test
-    public void testGetReader() {
-        dbApp.getReader();
-        Mockito.verify(dbApp, Mockito.times(1)).getReader();
-    }
-
-    @Test
-    public void testGetWriter() {
-        dbApp.getWriter();
-        Mockito.verify(dbApp, Mockito.times(1)).getWriter();
-    }
-
-    @Test
-    public void testInit() {
+    public void initTest() throws DBAppException {
+        dbApp = new DBApp();
         dbApp.init();
-        Mockito.verify(dbApp, Mockito.times(1)).init();
+        assertNotNull(dbApp);
+    }
+
+    @Test
+    public void getMyTablesTest() {
+        dbApp = new DBApp();
+        HashSet<String> myTables = dbApp.getMyTables();
+        assertNotNull(myTables);
+    }
+
+    @Test
+    public void getReaderTest() {
+        dbApp = new DBApp();
+        CsvReader reader = dbApp.getReader();
+        assertNotNull(reader);
+    }
+
+    @Test
+    public void getWriterTest() {
+        dbApp = new DBApp();
+        CsvWriter writer = dbApp.getWriter();
+        assertNotNull(writer);
+    }
+
+    @Test
+    public void createTableTest() throws DBAppException {
+        dbApp = new DBApp();
+        String strTableName = "test_table";
+        String strClusteringKeyColumn = "test_column";
+        Hashtable<String, String> htblColNameType = new Hashtable<>();
+        Hashtable<String, String> htblColNameMin = new Hashtable<>();
+        Hashtable<String, String> htblColNameMax = new Hashtable<>();
+        dbApp.createTable(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
+        assertNotNull(dbApp.getMyTables());
     }
 
 }

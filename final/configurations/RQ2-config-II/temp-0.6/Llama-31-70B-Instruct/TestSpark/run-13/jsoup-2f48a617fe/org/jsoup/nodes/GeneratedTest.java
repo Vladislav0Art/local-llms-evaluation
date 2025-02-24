@@ -1,15 +1,53 @@
 package org.jsoup.nodes;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 public class GeneratedTest {
 
     @Test
-    public void testGetData() {
-        Comment comment = new Comment("Test comment");
-        assertEquals("Test comment", comment.getData());
+    public void setDataTest() {
+        Comment comment = new Comment("test");
+        String newData = "new test";
+        comment.setData(newData);
+        assertEquals(newData, comment.getData());
+    }
+
+    @Test
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("test");
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        comment.outerHtmlHead(accum, depth, out);
+        assertEquals("<!--test-->", accum.toString());
+    }
+
+    @Test
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("test");
+        Appendable accum = new StringBuilder();
+        int depth = 0;
+        Document.OutputSettings out = new Document.OutputSettings();
+        comment.outerHtmlTail(accum, depth, out);
+        assertEquals("", accum.toString());
+    }
+
+    @Test
+    public void asXmlDeclarationTest() {
+        Comment comment = new Comment("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNotNull(xmlDeclaration);
+        assertEquals(xmlDeclaration.getVersion(), "1.0");
+        assertEquals(xmlDeclaration.getEncoding(), "UTF-8");
+    }
+
+    @Test
+    public void asXmlDeclarationTest_NoXmlDeclaration() {
+        Comment comment = new Comment("test");
+        XmlDeclaration xmlDeclaration = comment.asXmlDeclaration();
+        assertNull(xmlDeclaration);
     }
 
 }

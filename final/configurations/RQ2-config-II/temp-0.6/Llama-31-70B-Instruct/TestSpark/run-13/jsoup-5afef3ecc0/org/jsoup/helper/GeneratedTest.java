@@ -1,41 +1,38 @@
 package org.jsoup.helper;
 
-import static org.junit.Assert.assertEquals;
-
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
 import org.junit.Test;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 public class GeneratedTest {
 
+    private static final String TEST_URL = "http://example.com/";
+
     @Test
-    public void testBuild() throws Exception {
-        // Given
-        URL inputUrl = new URL("http://example.com");
+    public void buildTest() throws URISyntaxException, MalformedURLException {
+        URL inputUrl = new URL(TEST_URL);
         UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-        // When
-        URL normalizedUrl = urlBuilder.build();
-        // Then
-        assertEquals("http://example.com", normalizedUrl.toString());
+        URL builtUrl = urlBuilder.build();
+
+        assertEquals(builtUrl, inputUrl);
     }
 
     @Test
-    public void testAppendKeyVal() throws Exception {
-        // Given
-        URL inputUrl = new URL("http://example.com");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-        // When
-        urlBuilder.appendKeyVal("key=value");
-        // Then
-        assertEquals("key=value", urlBuilder.q.toString());
-    }
+    public void appendKeyValTest() throws UnsupportedEncodingException {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "val");
+        UrlBuilder urlBuilder = new UrlBuilder(new URL(TEST_URL));
+        urlBuilder.appendKeyVal(kv);
 
-    @Test
-    public void testDecodePart() {
-        // Given
-        String encodedPart = "encoded%20part";
-        // When
-        String decodedPart = UrlBuilder.decodePart(encodedPart);
-        // Then
-        assertEquals("encoded part", decodedPart);
+        assertEquals(kv.key(), "key");
+        assertEquals(kv.val(), "val");
     }
 
 }

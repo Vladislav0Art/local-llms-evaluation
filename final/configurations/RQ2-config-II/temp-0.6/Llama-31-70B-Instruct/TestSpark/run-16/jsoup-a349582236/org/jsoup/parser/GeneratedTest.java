@@ -1,63 +1,73 @@
 package org.jsoup.parser;
 
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import org.mockito.Mockito;
+
 public class GeneratedTest {
 
     @Test
-    public void getName() {
-        Tag tag = new Tag("test");
-        assertEquals("test", tag.getName());
+    public void getNameTest() {
+        Tag tag = new Tag("div");
+        assertEquals("div", tag.getName());
     }
 
     @Test
-    public void normalName() {
-        Tag tag = new Tag("test");
-        assertEquals("test", tag.normalName());
+    public void normalNameTest() {
+        Tag tag = new Tag("div");
+        assertEquals("div", tag.normalName());
     }
 
     @Test
-    public void isBlock() {
-        Tag tag = new Tag("test");
+    public void valueOfTest() {
+        Tag tag = new Tag("div");
+        ParseSettings settings = new ParseSettings(true, true);
+        assertEquals(tag, Tag.valueOf("div", settings));
+    }
+
+    @Test
+    public void isBlockTest() {
+        Tag tag = new Tag("div");
         assertTrue(tag.isBlock());
     }
 
     @Test
-    public void formatAsBlock() {
-        Tag tag = new Tag("test");
+    public void formatAsBlockTest() {
+        Tag tag = new Tag("div");
         assertTrue(tag.formatAsBlock());
     }
 
     @Test
-    public void isEmpty() {
-        Tag tag = new Tag("test");
+    public void isInlineTest() {
+        Tag tag = new Tag("div");
+        assertFalse(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Tag tag = new Tag("div");
         assertFalse(tag.isEmpty());
     }
 
     @Test
-    public void isSelfClosing() {
-        Tag tag = new Tag("test");
+    public void isSelfClosingTest() {
+        Tag tag = new Tag("div");
         assertFalse(tag.isSelfClosing());
     }
 
     @Test
-    public void isKnownTag() {
-        Tag tag = new Tag("test");
-        assertFalse(tag.isKnownTag());
+    public void isKnownTagTest() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.isKnownTag());
     }
 
     @Test
-    public void isKnownTag2() {
-        Tag tag = new Tag("test");
-        assertFalse(tag.isKnownTag("test"));
-    }
-
-    @Test
-    public void preserveWhitespace() {
-        Tag tag = new Tag("test");
-        assertFalse(tag.preserveWhitespace());
+    public void isKnownTagWithStringTest() {
+        assertTrue(Tag.isKnownTag("div"));
     }
 
 }

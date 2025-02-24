@@ -1,48 +1,62 @@
 package org.jsoup.nodes;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertEquals;
-
 import org.jsoup.nodes.Comment;
-import org.jsoup.nodes.XmlDeclaration;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 public class GeneratedTest {
 
     @Test
-    public void shouldGetData() {
-        Comment comment = new Comment("Hello World");
-        assertEquals("Hello World", comment.getData());
+    public void nodeNameTest() {
+        String expected = "comment";
+        String actual = new Comment("comment").nodeName();
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void shouldSetData() {
-        Comment comment = new Comment("Hello World");
-        comment.setData("Hello Universe");
-        assertEquals("Hello Universe", comment.getData());
+    public void getDataTest() {
+        String expected = "data";
+        String actual = new Comment("data").getData();
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void shouldRenderOuterHtmlHeadAsExpected() throws IOException {
-        Comment comment = new Comment("Hello World");
-        Appendable accum = mock(Appendable.class);
-        Document.OutputSettings out = mock(Document.OutputSettings.class);
-        when(out.prettyPrint()).thenReturn(true);
-        when(out.outline()).thenReturn(false);
-        comment.outerHtmlHead(accum, 0, out);
-        assertEquals("<!--Hello World-->", accum.toString());
+    public void setDataTest() {
+        String expected = "new data";
+        String actual = new Comment("data").setData("new data").getData();
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void shouldRenderOuterHtmlHeadWithPrettyPrintAndOutline() throws IOException {
-        Comment comment = new Comment("Hello World");
-        Appendable accum = mock(Appendable.class);
-        Document.OutputSettings out = mock(Document.OutputSettings.class);
-        when(out.prettyPrint()).thenReturn(true);
-        when(out.outline()).thenReturn(true);
-        comment.outerHtmlHead(accum, 0, out);
-        assertEquals("<!--Hello World-->", accum.toString());
+    public void outerHtmlHeadTest() {
+        Comment comment = new Comment("comment");
+        try {
+            comment.outerHtmlHead(null, 0, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        Comment comment = new Comment("comment");
+        try {
+            comment.outerHtmlTail(null, 0, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void toStringTest() {
+        String expected = "Comment[comment]";
+        String actual = new Comment("comment").toString();
+        assertEquals(expected, actual);
     }
 
 }

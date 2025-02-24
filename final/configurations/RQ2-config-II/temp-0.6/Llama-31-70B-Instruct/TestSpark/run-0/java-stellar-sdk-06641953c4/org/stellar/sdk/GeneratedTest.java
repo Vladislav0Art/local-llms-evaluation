@@ -1,0 +1,52 @@
+package org.stellar.sdk;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+import org.stellar.sdk.KeyPair;
+
+public class GeneratedTest {
+
+    @Test
+    public void canSignTest() {
+        KeyPair keyPair = new KeyPair(/* some public key */);
+        assertEquals(true, keyPair.canSign()); // or false, depending on the expected behavior
+    }
+
+    @Test
+    public void getAccountIdTest() {
+        KeyPair keyPair = new KeyPair(/* some public key */);
+        assertEquals("expected account id", keyPair.getAccountId());
+    }
+
+    @Test
+    public void getSecretSeedTest() {
+        KeyPair keyPair = new KeyPair(/* some public key */);
+        assertEquals("expected secret seed", keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void getPublicKeyTest() {
+        KeyPair keyPair = new KeyPair(/* some public key */);
+        assertEquals(new byte[]{/* expected public key */}, keyPair.getPublicKey());
+    }
+
+    @Test
+    public void getSignatureHintTest() {
+        KeyPair keyPair = new KeyPair(/* some public key */);
+        assertEquals(new SignatureHint(/* expected signature hint */), keyPair.getSignatureHint());
+    }
+
+    @Test
+    public void getXdrPublicKeyTest() {
+        KeyPair keyPair = new KeyPair(/* some public key */);
+        assertEquals(new PublicKey(/* expected xdr public key */), keyPair.getXdrPublicKey());
+    }
+
+    @Test
+    public void getXdrSignerKeyTest() {
+        KeyPair keyPair = new KeyPair(/* some public key */);
+        assertEquals(new SignerKey(/* expected xdr signer key */), keyPair.getXdrSignerKey());
+    }
+
+}

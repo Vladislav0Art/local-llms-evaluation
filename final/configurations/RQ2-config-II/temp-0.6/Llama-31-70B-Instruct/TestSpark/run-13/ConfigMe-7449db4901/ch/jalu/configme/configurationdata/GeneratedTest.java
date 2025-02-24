@@ -1,37 +1,44 @@
 package ch.jalu.configme.configurationdata;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import static org.junit.Assert.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-@RunWith(MockitoJUnitRunner.class)
+import org.junit.jupiter.api.Test;
+
 public class GeneratedTest {
 
     @Test
-    public void setCommentForPathTest() {
+    public void constructor_emptyComments_returnsNonNull() {
         CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        String path = "testPath";
-        String[] commentLines = new String[]{"testComment"};
-        commentsConfiguration.setComment(path, commentLines);
 
-        assertEquals(1, commentsConfiguration.getAllComments().size());
-        assertEquals(commentLines.length, commentsConfiguration.getAllComments().get(path).size());
-        assertArrayEquals(commentLines, commentsConfiguration.getAllComments().get(path).toArray());
+        assertThat(commentsConfiguration, notNullValue());
     }
 
     @Test
-    public void getAllCommentsTest() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        String path = "testPath";
-        String[] commentLines = new String[]{"testComment"};
-        commentsConfiguration.setComment(path, commentLines);
+    public void constructor_nonEmptyComments_returnsNonNull() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("pathA", Collections.singletonList("commentA"));
+        comments.put("pathB", Collections.singletonList("commentB"));
 
-        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
-        assertEquals(1, allComments.size());
-        assertEquals(commentLines.length, allComments.get(path).size());
-        assertArrayEquals(commentLines, allComments.get(path).toArray());
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+
+        assertThat(commentsConfiguration, notNullValue());
+    }
+
+    @Test
+    public void setComment_nullPath_throwsNullPointerException() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+
+        assertThrows(NullPointerException.class, () -> commentsConfiguration.setComment(null, "commentA"));
     }
 
 }

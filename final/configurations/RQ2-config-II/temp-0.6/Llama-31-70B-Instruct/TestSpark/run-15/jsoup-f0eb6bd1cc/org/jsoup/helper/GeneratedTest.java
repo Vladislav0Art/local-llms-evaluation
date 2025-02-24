@@ -1,66 +1,44 @@
 package org.jsoup.helper;
 
-import static org.junit.Assert.*;
-
-import org.jsoup.helper.UrlBuilder;
-import org.junit.Test;
-
-import java.net.URL;
-import java.net.MalformedURLException;
-
-import org.jsoup.Connection;
-import org.jsoup.helper.DataUtil;
-import org.jsoup.internal.StringUtil;
-import org.junit.Before;
-import org.junit.After;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-
-import static org.mockito.Mockito.*;
-
-import java.net.URI;
-
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-
 public class GeneratedTest {
 
-    private UrlBuilder urlBuilder;
-    private URL url;
+    private static final String TEST_URL = "http://www.example.com/test";
 
-    @Before
-    public void setup() {
-        urlBuilder = new UrlBuilder(url);
+    @Test
+    public void buildTest() throws MalformedURLException {
+        URL expectedUrl = new URL(TEST_URL);
+        UrlBuilder urlBuilder = new UrlBuilder(expectedUrl);
+        URL actualUrl = urlBuilder.build();
+        assertEquals(expectedUrl, actualUrl);
     }
 
     @Test
-    public void buildTest() {
-        // Arrange
-        urlBuilder.u = new URL("http://www.example.com");
-        // Act
-        URL result = urlBuilder.build();
-        // Assert
-        assertEquals("http://www.example.com", result.toString());
-    }
-
-    @Test
-    public void appendKeyValTest() throws UnsupportedEncodingException {
-        // Arrange
-        Connection.KeyVal keyVal = new Connection.KeyVal("key1", "value1");
-        // Act
+    public void appendKeyValTest() throws UnsupportedEncodingException, MalformedURLException {
+        URL expectedUrl = new URL(TEST_URL);
+        UrlBuilder urlBuilder = new UrlBuilder(expectedUrl);
+        Connection.KeyVal keyVal = new Connection.KeyVal("key", "value");
         urlBuilder.appendKeyVal(keyVal);
-        // Assert
-        assertEquals("key1=value1", urlBuilder.q.toString());
+        URL actualUrl = urlBuilder.build();
+        assertNotEquals(expectedUrl, actualUrl);
     }
 
     @Test
-    public void decodePartTest() {
-        // Arrange
-        String encoded = "abc%20def";
-        // Act
-        String result = UrlBuilder.decodePart(encoded);
-        // Assert
-        assertEquals("abc def", result);
+    public void appendKeyValTest_keyValIsNull() throws UnsupportedEncodingException, MalformedURLException {
+        URL expectedUrl = new URL(TEST_URL);
+        UrlBuilder urlBuilder = new UrlBuilder(expectedUrl);
+        urlBuilder.appendKeyVal(null);
+        URL actualUrl = urlBuilder.build();
+        assertEquals(expectedUrl, actualUrl);
+    }
+
+    @Test
+    public void appendKeyValTest_keyValHasNullKey() throws UnsupportedEncodingException, MalformedURLException {
+        URL expectedUrl = new URL(TEST_URL);
+        UrlBuilder urlBuilder = new UrlBuilder(expectedUrl);
+        Connection.KeyVal keyVal = new Connection.KeyVal(null, "value");
+        urlBuilder.appendKeyVal(keyVal);
+        URL actualUrl = urlBuilder.build();
+        assertNotEquals(expectedUrl, actualUrl);
     }
 
 }

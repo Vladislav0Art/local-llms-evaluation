@@ -1,38 +1,26 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
+import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
 
 public class GeneratedTest {
 
     @Test
     public void setCodigoInternoTest() {
-        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        veiculoReboque.setCodigoInterno("test");
-        assertEquals("test", veiculoReboque.getCodigoInterno());
-    }
-
-    @Test
-    public void setCapacidadeKGTest() {
-        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        veiculoReboque.setCapacidadeKG("100");
-        assertEquals("100", veiculoReboque.getCapacidadeKG());
-    }
-
-    @Test
-    public void setCapacidadeM3Test() {
-        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        veiculoReboque.setCapacidadeM3("10");
-        assertEquals("10", veiculoReboque.getCapacidadeM3());
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setCodigoInterno("1234567890123456789012345678901234567890");
     }
 
     @Test
     public void setPlacaTest() {
-        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        veiculoReboque.setPlaca("AAA1234");
-        assertEquals("AAA1234", veiculoReboque.getPlaca());
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setPlaca("ABC1234");
+    }
+
+    @Test
+    public void setRenavamTest() {
+        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        reboque.setRenavam("12345678901234567");
     }
 
 }

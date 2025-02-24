@@ -1,16 +1,17 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
 
 public class GeneratedSetRenavamTest {
 
     @Test
     public void setRenavamTest() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setRenavam("123456789");
-        assertEquals("123456789", reboque.getRenavam());
+        MDFInfoModalRodoviarioVeiculoReboque testObject = Mockito.mock(MDFInfoModalRodoviarioVeiculoReboque.class);
+        testObject.setRenavam("1234567890");
+        assertEquals("1234567890", testObject.getRenavam());
     }
 
 }

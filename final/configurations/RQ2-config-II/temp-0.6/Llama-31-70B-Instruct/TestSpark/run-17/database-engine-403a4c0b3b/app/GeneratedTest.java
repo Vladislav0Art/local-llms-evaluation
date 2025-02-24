@@ -1,48 +1,42 @@
 package app;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.util.HashSet;
-import java.util.Hashtable;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class GeneratedTest {
 
-    private DBApp dbApp;
-
-    @Before
-    public void setUp() {
-        dbApp = new DBApp();
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> expectedResult = new HashSet<>();
+        expectedResult.add("table1");
+        assertEquals(expectedResult, dbApp.getMyTables());
     }
 
     @Test
-    public void testGetMyTables() {
-        HashSet<String> myTables = dbApp.getMyTables();
-        assertNotNull(myTables);
-        assertEquals(0, myTables.size());
+    public void createTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        String strTableName = "table1";
+        String strClusteringKeyColumn = "column1";
+        Hashtable<String, String> htblColNameType = new Hashtable<>();
+        htblColNameType.put("column1", "type1");
+        Hashtable<String, String> htblColNameMin = new Hashtable<>();
+        htblColNameMin.put("column1", "min1");
+        Hashtable<String, String> htblColNameMax = new Hashtable<>();
+        htblColNameMax.put("column1", "max1");
+        dbApp.createTable(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
     }
 
     @Test
-    public void testGetReader() {
-        CsvReader reader = dbApp.getReader();
-        assertNotNull(reader);
-    }
-
-    @Test
-    public void testGetWriter() {
-        CsvWriter writer = dbApp.getWriter();
-        assertNotNull(writer);
-    }
-
-    @Test
-    public void testInit() {
-        HashSet<String> myTables = dbApp.getMyTables();
-        assertEquals(0, myTables.size());
-        dbApp.init();
-        assertEquals(1, myTables.size());
+    public void insertIntoTableTest() throws DBAppException {
+        DBApp dbApp = new DBApp();
+        String strTableName = "table1";
+        Hashtable<String, Object> htblColNameValue = new Hashtable<>();
+        htblColNameValue.put("column1", "value1");
+        dbApp.insertIntoTable(strTableName, htblColNameValue);
     }
 
 }

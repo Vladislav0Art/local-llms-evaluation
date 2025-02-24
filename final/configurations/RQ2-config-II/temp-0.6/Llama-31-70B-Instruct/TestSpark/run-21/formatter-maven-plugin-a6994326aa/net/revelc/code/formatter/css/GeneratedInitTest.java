@@ -1,32 +1,26 @@
 package net.revelc.code.formatter.css;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import com.steadystate.css.dom.CSSStyleSheetImpl;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.revelc.code.formatter.LineEnding;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class GeneratedInitTest {
-
-    private CssFormatter formatter;
 
     @Test
     public void initTest() {
         Map<String, String> options = new HashMap<>();
-        options.put("indent", "4");
-        options.put("rgbAsHex", Boolean.TRUE.toString());
-        options.put("useSourceStringValues", Boolean.FALSE.toString());
-        formatter = new CssFormatter();
-        formatter.init(options, null);
-        assertEquals(4, formatter.formatter.getIndent());
-        assertEquals(Boolean.TRUE, formatter.formatter.isRgbAsHex());
-        assertEquals(Boolean.FALSE, formatter.formatter.isUseSourceStringValues());
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        CssFormatter cssFormatter = new CssFormatter();
+        cssFormatter.init(options, cfg);
+        assertTrue(cssFormatter.isInitialized());
     }
 
 }

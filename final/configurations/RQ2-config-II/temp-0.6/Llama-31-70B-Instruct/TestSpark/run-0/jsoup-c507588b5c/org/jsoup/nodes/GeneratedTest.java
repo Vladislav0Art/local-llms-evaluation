@@ -1,70 +1,60 @@
 package org.jsoup.nodes;
 
-import org.jsoup.helper.Validate;
-import org.jsoup.internal.StringUtil;
-import org.jsoup.parser.Tag;
-import org.junit.Before;
+import org.jsoup.helper.StringUtil;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private TextNode textNode;
-
-    @Mock
-    private Element parentElement;
-
-    @Mock
-    private Node nextNode;
-
-    @Before
-    public void setup() {
-        textNode = new TextNode("text");
-    }
-
     @Test
-    public void createsTextNodeFromEncodedText() {
-        TextNode textNode = TextNode.createFromEncoded("&amp;lt;");
-
-        assertEquals("&lt;", textNode.coreValue());
-    }
-
-    @Test
-    public void textNodeHasText() {
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("text");
         assertEquals("#text", textNode.nodeName());
     }
 
     @Test
-    public void textNodeHasNormalizedText() {
+    public void textTest() {
+        TextNode textNode = new TextNode("text");
         assertEquals("text", textNode.text());
     }
 
     @Test
-    public void textNodeHasWholeText() {
+    public void isBlankTest() {
+        TextNode textNode = new TextNode(" ");
+        assertTrue(textNode.isBlank());
+    }
+
+    @Test
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("text");
+        TextNode splitTextNode = textNode.splitText(2);
+        assertEquals("te", textNode.text());
+        assertEquals("xt", splitTextNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("text");
         assertEquals("text", textNode.getWholeText());
     }
 
     @Test
-    public void textNodeIsNotBlank() {
-        assertFalse(textNode.isBlank());
+    public void textTest2() {
+        TextNode textNode = new TextNode("text");
+        TextNode newTextNode = textNode.text("new text");
+        assertEquals("new text", newTextNode.text());
     }
 
     @Test
-    public void textNodeIsBlank() {
-        TextNode blankTextNode = new TextNode("");
-
-        assertTrue(blankTextNode.isBlank());
+    public void outerHtmlHeadTest() throws IOException {
+        StringBuilder accum = new StringBuilder();
+        TextNode textNode = new TextNode("text");
+        textNode.outerHtmlHead(accum, 0, null);
+        assertEquals("text", accum.toString());
     }
 
 }

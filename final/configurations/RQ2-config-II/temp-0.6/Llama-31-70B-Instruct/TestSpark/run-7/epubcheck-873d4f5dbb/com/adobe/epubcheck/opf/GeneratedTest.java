@@ -1,0 +1,44 @@
+package com.adobe.epubcheck.opf;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTest {
+
+    @Test
+    public void testCheckPackage() {
+        OPFChecker30 opfChecker30 = new OPFChecker30(new ValidationContext());
+        assertTrue(opfChecker30.checkPackage());
+    }
+
+    @Test
+    public void testCheckContent() {
+        OPFChecker30 opfChecker30 = new OPFChecker30(new ValidationContext());
+        assertTrue(opfChecker30.checkContent());
+    }
+
+    @Test
+    public void testCheckItem() {
+        OPFChecker30 opfChecker30 = new OPFChecker30(new ValidationContext());
+        OPFHandler opfHandler = new OPFHandler(new ValidationContext());
+        OPFItem item = new OPFItem("test", "test", "test", "test", "test");
+        opfChecker30.checkItem(item, opfHandler);
+    }
+
+    @Test
+    public void testCheckItemAfterResourceValidation() {
+        OPFChecker30 opfChecker30 = new OPFChecker30(new ValidationContext());
+        OPFItem item = new OPFItem("test", "test", "test", "test", "test");
+        opfChecker30.checkItemAfterResourceValidation(item);
+    }
+
+    @Test
+    public void testCheckSpineItem() {
+        OPFChecker30 opfChecker30 = new OPFChecker30(new ValidationContext());
+        OPFHandler opfHandler = new OPFHandler(new ValidationContext());
+        OPFItem item = new OPFItem("test", "test", "test", "test", "test");
+        opfChecker30.checkSpineItem(item, opfHandler);
+    }
+
+}

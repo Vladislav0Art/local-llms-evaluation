@@ -1,0 +1,62 @@
+package org.stellar.sdk;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedTest {
+
+    private final EdDSAPublicKey publicKey = new EdDSAPublicKey();
+    private final EdDSAPrivateKey privateKey = new EdDSAPrivateKey();
+
+    @Test
+    public void canSignTest() {
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertFalse(keyPair.canSign());
+    }
+
+    @Test
+    public void getAccountIdTest() {
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.getAccountId());
+    }
+
+    @Test
+    public void getSecretSeedTest() {
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.getSecretSeed());
+    }
+
+    @Test
+    public void getPublicKeyTest() {
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.getPublicKey());
+    }
+
+    @Test
+    public void getSignatureHintTest() {
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.getSignatureHint());
+    }
+
+    @Test
+    public void getXdrPublicKeyTest() {
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.getXdrPublicKey());
+    }
+
+    @Test
+    public void getXdrSignerKeyTest() {
+        KeyPair keyPair = new KeyPair(publicKey);
+        assertNotNull(keyPair.getXdrSignerKey());
+    }
+
+    @Test
+    public void signTest() {
+        KeyPair keyPair = new KeyPair(privateKey);
+        byte[] data = "test".getBytes();
+        byte[] signature = keyPair.sign(data);
+        assertNotNull(signature);
+    }
+
+}

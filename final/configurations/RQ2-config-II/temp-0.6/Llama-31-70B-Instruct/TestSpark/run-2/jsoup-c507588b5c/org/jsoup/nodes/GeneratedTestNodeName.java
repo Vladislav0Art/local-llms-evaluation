@@ -1,17 +1,19 @@
 package org.jsoup.nodes;
 
+import org.jsoup.nodes.TextNode;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 public class GeneratedTestNodeName {
-
-    private TextNode textNode;
-
-    @Before
-    public void setup() {
-        textNode = new TextNode("Some text");
-    }
 
     @Test
     public void testNodeName() {
-        assertEquals("#text", textNode.nodeName());
+        TextNode node = new TextNode("test");
+        assertEquals("#text", node.nodeName());
     }
 
 }

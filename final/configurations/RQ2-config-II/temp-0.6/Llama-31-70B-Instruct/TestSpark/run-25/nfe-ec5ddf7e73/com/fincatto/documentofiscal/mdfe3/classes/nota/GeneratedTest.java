@@ -1,25 +1,26 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class GeneratedTest {
 
-    MDFInfoModalRodoviarioVeiculoReboque mdfInfoModalRodoviarioVeiculoReboque;
-
     @Test
     public void setCodigoInternoTest() {
-        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        mdfInfoModalRodoviarioVeiculoReboque.setCodigoInterno("1234567890");
-        assertEquals(mdfInfoModalRodoviarioVeiculoReboque.getCodigoInterno(), "1234567890");
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String expectedCodigoInterno = "123456";
+        veiculoReboque.setCodigoInterno(expectedCodigoInterno);
+        assertEquals(expectedCodigoInterno, veiculoReboque.getCodigoInterno());
     }
 
     @Test
     public void setPlacaTest() {
-        mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        mdfInfoModalRodoviarioVeiculoReboque.setPlaca("ABC1234");
-        assertEquals(mdfInfoModalRodoviarioVeiculoReboque.getPlaca(), "ABC1234");
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String expectedPlaca = "AAA1234";
+        veiculoReboque.setPlaca(expectedPlaca);
+        assertEquals(expectedPlaca, veiculoReboque.getPlaca());
     }
 
 }
