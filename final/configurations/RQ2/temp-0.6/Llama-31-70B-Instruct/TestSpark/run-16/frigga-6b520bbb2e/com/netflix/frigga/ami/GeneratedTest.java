@@ -1,0 +1,70 @@
+package com.netflix.frigga.ami;
+
+public class GeneratedTest {
+
+    private AppVersion appVersion;
+
+    @Before
+    public void setUp() {
+        appVersion = new AppVersion();
+    }
+
+    @Test
+    public void parseNameTest() {
+        String amiName = "testName";
+        AppVersion expected = new AppVersion();
+        when(appVersion.parseName(amiName)).thenReturn(expected);
+
+        assertEquals(expected, appVersion.parseName(amiName));
+    }
+
+    @Test
+    public void compareToTest() {
+        AppVersion other = new AppVersion();
+        int expected = 0;
+        when(appVersion.compareTo(other)).thenReturn(expected);
+
+        assertEquals(expected, appVersion.compareTo(other));
+    }
+
+    @Test
+    public void getAppVersionPatternTest() {
+        Pattern expected = Pattern.compile("[a-z]+");
+        when(appVersion.getAppVersionPattern()).thenReturn(expected);
+
+        assertEquals(expected, appVersion.getAppVersionPattern());
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        String expected = "testName";
+        when(appVersion.getPackageName()).thenReturn(expected);
+
+        assertEquals(expected, appVersion.getPackageName());
+    }
+
+    @Test
+    public void getVersionTest() {
+        String expected = "testVersion";
+        when(appVersion.getVersion()).thenReturn(expected);
+
+        assertEquals(expected, appVersion.getVersion());
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        String expected = "testJobName";
+        when(appVersion.getBuildJobName()).thenReturn(expected);
+
+        assertEquals(expected, appVersion.getBuildJobName());
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        String expected = "testBuildNumber";
+        when(appVersion.getBuildNumber()).thenReturn(expected);
+
+        assertEquals(expected, appVersion.getBuildNumber());
+    }
+
+}

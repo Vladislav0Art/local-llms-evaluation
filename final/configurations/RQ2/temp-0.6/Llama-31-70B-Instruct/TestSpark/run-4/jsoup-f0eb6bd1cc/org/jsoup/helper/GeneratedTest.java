@@ -1,26 +1,47 @@
 package org.jsoup.helper;
 
-import org.jsoup.helper.UrlBuilder;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
 
 public class GeneratedTest {
 
     @Test
-    public void shouldBuildNormalizedUrl() throws MalformedURLException {
-        // Given
-        URL inputUrl = new URL("http://example.com/path?query=value#fragment");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+    public void buildTest() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://www.example.com/"));
+        URL url = urlBuilder.build();
+        assertEquals("http://www.example.com/", url.toExternalForm());
+    }
 
-        // When
-        URL normalizedUrl = urlBuilder.build();
+    @Test
+    public void buildTest_invalidURL() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("invalid url"));
+        URL url = urlBuilder.build();
+    }
 
-        // Then
-        Assert.assertEquals("http://example.com/path?query=value#fragment", normalizedUrl.toString());
+    @Test
+    public void appendKeyValTest() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://www.example.com/"));
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        URL url = urlBuilder.build();
+        assertEquals("http://www.example.com/?key=value", url.toExternalForm());
+    }
+
+    @Test
+    public void appendKeyValTest_emptyKey() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://www.example.com/"));
+        urlBuilder.appendKeyVal(new Connection.KeyVal("", "value"));
+        URL url = urlBuilder.build();
+        assertEquals("http://www.example.com/?=value", url.toExternalForm());
+    }
+
+    @Test
+    public void appendKeyValTest_emptyValue() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("http://www.example.com/"));
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", ""));
+        URL url = urlBuilder.build();
+        assertEquals("http://www.example.com/?key=", url.toExternalForm());
     }
 
 }

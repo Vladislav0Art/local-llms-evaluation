@@ -1,67 +1,56 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.Comment;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class GeneratedTest {
 
-    public Comment comment;
-
-    @Before
-    public void setUp() {
-        comment = new Comment("Some data");
+    @Test
+    public void DataTest() {
+        Comment comment = new Comment("data");
+        assertEquals("data", comment.getData());
     }
 
     @Test
-    public void getDataTest() {
-        String expected = "Some data";
-        String actual = comment.getData();
-        assertEquals(expected, actual);
+    public void SetDataTest() {
+        Comment comment = new Comment("data");
+        comment.setData("newData");
+        assertEquals("newData", comment.getData());
     }
 
     @Test
-    public void setDataTest() {
-        String expected = "New data";
-        comment.setData("New data");
-        String actual = comment.getData();
-        assertEquals(expected, actual);
+    public void NodeNameTest() {
+        Comment comment = new Comment("data");
+        assertEquals("#comment", comment.nodeName());
     }
 
     @Test
-    public void outerHtmlHeadTest() {
-        String expected = "Some data";
-        String actual = comment.outerHtml();
-        assertEquals(expected, actual);
+    public void OuterHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("data");
+        Appendable appendable = Mockito.mock(Appendable.class);
+        when(appendable.append("<!--data-->")).thenReturn(appendable);
+        comment.outerHtmlHead(appendable, 1, Mockito.mock(Document.OutputSettings.class));
+        Mockito.verify(appendable).append("<!--data-->");
     }
 
     @Test
-    public void toStringTest() {
-        String expected = "Some data";
-        String actual = comment.toString();
-        assertEquals(expected, actual);
+    public void OuterHtmlTailTest() throws IOException {
+        Comment comment = new Comment("data");
+        Appendable appendable = Mockito.mock(Appendable.class);
+        when(appendable.append("<!--data-->")).thenReturn(appendable);
+        comment.outerHtmlTail(appendable, 1, Mockito.mock(Document.OutputSettings.class));
+        Mockito.verify(appendable).append("<!--data-->");
     }
 
     @Test
-    public void cloneTest() {
-        Comment expected = comment;
-        Comment actual = comment.clone();
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void isXmlDeclarationTest() {
-        boolean expected = false;
-        boolean actual = comment.isXmlDeclaration();
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void asXmlDeclarationTest() {
-        XmlDeclaration expected = null;
-        XmlDeclaration actual = comment.asXmlDeclaration();
-        assertEquals(expected, actual);
+    public void ToStringTest() {
+        Comment comment = new Comment("data");
+        assertEquals("Comment[data]", comment.toString());
     }
 
 }

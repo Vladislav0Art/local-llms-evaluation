@@ -1,21 +1,26 @@
 package org.jsoup.parser;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class GeneratedIsBlockTest {
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-    // Test the isBlock() method
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Tag;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GeneratedIsBlockTest {
 
     @Test
     public void isBlockTest() {
-        Tag tag = new Tag("div");
-        assertFalse(tag.isBlock());
-
-        tag.isBlock = true;
-        assertTrue(tag.isBlock());
+        Tag tag = new Tag();
+        boolean result = tag.isBlock();
+        assertTrue(result);
     }
 
 }

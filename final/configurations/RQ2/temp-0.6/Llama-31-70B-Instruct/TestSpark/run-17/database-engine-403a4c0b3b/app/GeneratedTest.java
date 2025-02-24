@@ -1,60 +1,28 @@
 package app;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.*;
+import static org.junit.Assert.*;
 
-import com.opencsv.exceptions.CsvValidationException;
-import exceptions.DBAppException;
-import util.filecontroller.Serializer;
-import storage.*;
-import util.TypeCaster;
-import util.search.*;
-import sql.SQLTerm;
-import datamanipulation.CsvReader;
-import datamanipulation.CsvWriter;
-import util.validation.Validator;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+import app.DBApp;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    @Before
-    public void setUp() throws Exception {
-        // Set up test fixtures, if any.
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        // Tear down test fixtures, if any.
-    }
+    private DBApp dbApp;
 
     @Test
-    public void testInit() {
-        // Setup
-        DBApp dbApp = new DBApp();
+    public void testGetMyTables() {
+        Set<String> expectedTables = new HashSet<>();
+        expectedTables.add("table1");
+        expectedTables.add("table2");
 
-        // Run test
-        dbApp.init();
+        when(dbApp.getMyTables()).thenReturn(expectedTables);
 
-        // Verify results
-        assertEquals(new HashSet<>(), dbApp.getMyTables());
-    }
+        Set<String> actualTables = dbApp.getMyTables();
 
-    @Test
-    public void testCreateTable() throws DBAppException, IOException {
-        // Setup
-        DBApp dbApp = new DBApp();
-        String strTableName = "tableName";
-        String strClusteringKeyColumn = "clusteringKeyColumn";
-        Hashtable<String, String> htblColNameType = new Hashtable<>();
-        Hashtable<String, String> htblColNameMin = new Hashtable<>();
-        Hashtable<String, String> htblColNameMax = new Hashtable<>();
-
-        // Run test
-        dbApp.createTable(strTableName, strClusteringKeyColumn, htblColNameType, htblColNameMin, htblColNameMax);
-
-        // Verify results
-        assertEquals(new HashSet<>(Arrays.asList(strTableName)), dbApp.getMyTables());
-        // TODO: Verify additional results
+        assertEquals(expectedTables, actualTables);
     }
 
 }

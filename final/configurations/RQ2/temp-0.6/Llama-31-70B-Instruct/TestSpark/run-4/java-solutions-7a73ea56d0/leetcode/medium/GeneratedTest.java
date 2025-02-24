@@ -7,35 +7,37 @@ import static org.junit.Assert.*;
 public class GeneratedTest {
 
     @Test
-    public void nextTest1() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        assertEquals(1, onlineStockSpan.next(10));
-        assertEquals(1, onlineStockSpan.next(20));
-        assertEquals(2, onlineStockSpan.next(15));
+    public void nextIsIncreasingTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(10));
+        assertEquals(2, stockSpan.next(15));
+        assertEquals(3, stockSpan.next(20));
     }
 
     @Test
-    public void calculateSpansTest1() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        int[] prices = {10, 20, 15};
-        int[] spans = onlineStockSpan.calculateSpans(prices);
-        assertArrayEquals(new int[]{1, 2, 1}, spans);
+    public void nextIsDecreasingTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(20));
+        assertEquals(1, stockSpan.next(15));
+        assertEquals(1, stockSpan.next(10));
     }
 
     @Test
-    public void calculateSpansTest2() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        int[] prices = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-        int[] spans = onlineStockSpan.calculateSpans(prices);
-        assertArrayEquals(new int[]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, spans);
+    public void nextIsMixedTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(10));
+        assertEquals(1, stockSpan.next(15));
+        assertEquals(2, stockSpan.next(14));
+        assertEquals(1, stockSpan.next(13));
+        assertEquals(1, stockSpan.next(12));
     }
 
     @Test
-    public void calculateSpansTest3() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        int[] prices = {10, 20, 30, 40, 50};
-        int[] spans = onlineStockSpan.calculateSpans(prices);
-        assertArrayEquals(new int[]{1, 2, 3, 4, 5}, spans);
+    public void calculateSpansTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = {10, 15, 20, 15, 10};
+        int[] expected = {1, 2, 3, 1, 1};
+        assertArrayEquals(expected, stockSpan.calculateSpans(prices));
     }
 
 }

@@ -1,43 +1,37 @@
 package ch.jalu.configme.configurationdata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import ch.jalu.configme.properties.Property;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
+import java.util.Map;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
     @Test
-    public void testAdd() {
+    public void addTest() {
         PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
-        Property<String> property = new Property<>("path", String.class, "value");
+        Property property = Mockito.mock(Property.class);
         propertyListBuilder.add(property);
-        assertTrue(propertyListBuilder.getRootEntries().containsKey("path"));
+        assertEquals(1, propertyListBuilder.getRootEntries().size());
     }
 
     @Test
-    public void testAdd_ExistingPath() {
+    public void createTest() {
         PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
-        Property<String> property = new Property<>("path", String.class, "value");
-        propertyListBuilder.add(property);
-        propertyListBuilder.add(property);
+        List<Property<?>> propertyList = propertyListBuilder.create();
+        assertEquals(0, propertyList.size());
     }
 
     @Test
-    public void testAdd_UnknownType() {
+    public void getRootEntriesTest() {
         PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
-        Property<?> property = new Property<>("path", Object.class, new Object());
-        propertyListBuilder.add(property);
-    }
-
-    @Test
-    public void testCreate() {
-        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
-        Property<String> property = new Property<>("path", String.class, "value");
-        propertyListBuilder.add(property);
-        List<Property<?>> properties = propertyListBuilder.create();
-        assertEquals(1, properties.size());
-        assertEquals(property, properties.get(0));
+        Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
+        assertEquals(0, rootEntries.size());
     }
 
 }

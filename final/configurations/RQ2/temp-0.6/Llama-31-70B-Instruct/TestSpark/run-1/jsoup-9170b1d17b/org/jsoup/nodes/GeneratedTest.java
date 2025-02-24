@@ -1,0 +1,68 @@
+package org.jsoup.nodes;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.*;
+
+public class GeneratedTest {
+
+    @Test
+    public void indexOfKeyTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals(0, attributes.indexOfKey("key"));
+    }
+
+    @Test
+    public void checkNotNullTest() {
+        assertEquals("", Attributes.checkNotNull(null));
+    }
+
+    @Test
+    public void getTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals("value", attributes.get("key"));
+    }
+
+    @Test
+    public void getIgnoreCaseTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals("value", attributes.getIgnoreCase("KEY"));
+    }
+
+    @Test
+    public void getUserDataTest() {
+        Attributes attributes = new Attributes();
+        attributes.putUserData("key", "value");
+        assertEquals("value", attributes.getUserData("key"));
+    }
+
+    @Test
+    public void addTest() {
+        Attributes attributes = new Attributes();
+        assertNotNull(attributes.add("key", "value"));
+    }
+
+    @Test
+    public void putTest() {
+        Attributes attributes = new Attributes();
+        assertNotNull(attributes.put("key", "value"));
+    }
+
+}

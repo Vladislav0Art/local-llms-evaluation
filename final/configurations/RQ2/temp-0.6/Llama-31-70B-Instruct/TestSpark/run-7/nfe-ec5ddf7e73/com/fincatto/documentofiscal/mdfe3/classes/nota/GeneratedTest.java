@@ -1,34 +1,35 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.Assert.*;
+
+import org.mockito.Mockito;
+
 public class GeneratedTest {
-
-    @Mock
-    private MDFInfoModalRodoviarioVeiculoReboque mockedMDFInfoModalRodoviarioVeiculoReboque;
 
     @Test
     public void setCodigoInternoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
         String codigoInterno = "codigoInterno";
-        mockedMDFInfoModalRodoviarioVeiculoReboque.setCodigoInterno(codigoInterno);
-        assertEquals(mockedMDFInfoModalRodoviarioVeiculoReboque.getCodigoInterno(), codigoInterno);
+        veiculoReboque.setCodigoInterno(codigoInterno);
+        assertEquals(codigoInterno, veiculoReboque.getCodigoInterno());
     }
 
     @Test
     public void setPlacaTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
         String placa = "placa";
-        when(mockedMDFInfoModalRodoviarioVeiculoReboque.getPlaca()).thenReturn(placa);
-        verify(mockedMDFInfoModalRodoviarioVeiculoReboque, times(1)).getPlaca();
+        veiculoReboque.setPlaca(placa);
+        assertEquals(placa, veiculoReboque.getPlaca());
+    }
+
+    @Test
+    public void setRenavamTest() {
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String renavam = "renavam";
+        veiculoReboque.setRenavam(renavam);
+        assertEquals(renavam, veiculoReboque.getRenavam());
     }
 
 }

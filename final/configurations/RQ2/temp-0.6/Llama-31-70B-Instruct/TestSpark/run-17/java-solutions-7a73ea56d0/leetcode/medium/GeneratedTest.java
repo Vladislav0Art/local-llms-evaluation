@@ -1,54 +1,57 @@
 package leetcode.medium;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
+    @Mock
+    private List<Integer> mockPriceList;
+
+    @InjectMocks
+    private OnlineStockSpan onlineStockSpan;
+
     @Test
-    public void nextGivenEmptyListExpectedZero() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int result = stockSpan.next(10);
-        assertEquals(0, result);
+    public void nextTest() {
+        int price = 10;
+        int expected = 1;
+
+        assertEquals(expected, onlineStockSpan.next(price));
     }
 
     @Test
-    public void nextGivenListWithOneElementExpectedOne() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        stockSpan.next(10);
-        int result = stockSpan.next(20);
-        assertEquals(1, result);
+    public void calculateSpansTest() {
+        int[] prices = {10, 20, 30};
+        int[] expected = {1, 1, 1};
+
+        assertEquals(expected, onlineStockSpan.calculateSpans(prices));
     }
 
     @Test
-    public void nextGivenListWithTwoElementsExpectedTwo() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        stockSpan.next(10);
-        stockSpan.next(20);
-        int result = stockSpan.next(30);
-        assertEquals(2, result);
+    public void calculateSpansEmptyPricesTest() {
+        int[] prices = {};
+        int[] expected = {};
+
+        assertEquals(expected, onlineStockSpan.calculateSpans(prices));
     }
 
     @Test
-    public void calculateSpansGivenEmptyArrayExpectedEmptyArray() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] result = stockSpan.calculateSpans(new int[]{});
-        assertArrayEquals(new int[]{}, result);
-    }
+    public void calculateSpansNullPricesTest() {
+        int[] prices = null;
+        int[] expected = null;
 
-    @Test
-    public void calculateSpansGivenOneElementArrayExpectedOne() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] result = stockSpan.calculateSpans(new int[]{10});
-        assertArrayEquals(new int[]{1}, result);
-    }
-
-    @Test
-    public void calculateSpansGivenTwoElementsArrayExpectedOneAndTwo() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] result = stockSpan.calculateSpans(new int[]{10, 20});
-        assertArrayEquals(new int[]{1, 2}, result);
+        assertEquals(expected, onlineStockSpan.calculateSpans(prices));
     }
 
 }

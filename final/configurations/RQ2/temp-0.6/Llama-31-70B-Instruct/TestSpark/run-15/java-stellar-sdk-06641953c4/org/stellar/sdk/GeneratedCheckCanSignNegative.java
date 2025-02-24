@@ -1,0 +1,26 @@
+package org.stellar.sdk;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+
+import org.junit.Test;
+
+public class GeneratedCheckCanSignNegative {
+
+    @Test
+    public void checkCanSignNegative() {
+        // Arrange
+        KeyPair keyPair = KeyPair.fromAccountId("GBY5H5W5E5JASVQ6V7MJSUB5NCX3OLO2M547QB6N2YU42BMAYQC25HWQ");
+
+        // Act
+        boolean canSign = keyPair.canSign();
+
+        // Assert
+        assertFalse(canSign);
+    }
+
+}

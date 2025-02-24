@@ -1,56 +1,23 @@
 package app;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.text.ParseException;
 import java.util.Hashtable;
+import java.util.HashSet;
+import java.util.Iterator;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import app.DBApp;
+import app.IDatabase;
+import exceptions.DBAppException;
+import sql.SQLTerm;
+import util.filecontroller.Serializer;
+import util.search.Search;
 
 public class GeneratedTest {
-
-    private DBApp app;
-
-    @Before
-    public void setUp() throws Exception {
-        app = new DBApp();
-    }
-
-    @Test
-    public void testInit() {
-        app.init();
-        assertNotNull(app.getMyTables());
-    }
-
-    @Test
-    public void testCreateTable() throws IOException, DBAppException {
-        String tableName = "Table1";
-        String clusteringKeyColumn = "Key1";
-        Hashtable<String, String> colNameType = new Hashtable<>();
-        colNameType.put("Col1", "int");
-        colNameType.put("Col2", "string");
-        Hashtable<String, String> colNameMin = new Hashtable<>();
-        colNameMin.put("Col1", "0");
-        colNameMin.put("Col2", "");
-        Hashtable<String, String> colNameMax = new Hashtable<>();
-        colNameMax.put("Col1", "100");
-        colNameMax.put("Col2", "");
-
-        app.createTable(tableName, clusteringKeyColumn, colNameType, colNameMin, colNameMax);
-
-        assertTrue(app.myTables.contains(tableName));
-    }
-
-    @Test
-    public void testInsertIntoTable() throws DBAppException {
-        String tableName = "Table1";
-        Hashtable<String, Object> colNameValue = new Hashtable<>();
-        colNameValue.put("Col1", 1);
-        colNameValue.put("Col2", "Value1");
-
-        app.insertIntoTable(tableName, colNameValue);
-    }
 
 }

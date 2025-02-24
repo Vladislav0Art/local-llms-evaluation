@@ -1,6 +1,5 @@
 package leetcode.medium;
 
-import leetcode.medium.OnlineStockSpan;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -8,27 +7,28 @@ import static org.junit.Assert.*;
 public class GeneratedTest {
 
     @Test
-    public void nextTestWithoutDuplicates() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        assertEquals(1, stockSpan.next(1));
-        assertEquals(1, stockSpan.next(2));
-        assertEquals(1, stockSpan.next(3));
+    public void nextTest_priceGreaterThanPrevious() {
+        OnlineStockSpan stock = new OnlineStockSpan();
+        stock.next(1);
+        int actual = stock.next(2);
+        assertEquals(2, actual);
     }
 
     @Test
-    public void nextTestWithDuplicates() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        assertEquals(1, stockSpan.next(1));
-        assertEquals(2, stockSpan.next(1));
-        assertEquals(3, stockSpan.next(1));
+    public void nextTest_priceLessThanPrevious() {
+        OnlineStockSpan stock = new OnlineStockSpan();
+        stock.next(2);
+        int actual = stock.next(1);
+        assertEquals(1, actual);
     }
 
     @Test
-    public void calculateSpansTest() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = {1, 2, 3};
-        int[] expectedSpans = {1, 2, 3};
-        assertArrayEquals(expectedSpans, stockSpan.calculateSpans(prices));
+    public void calculateSpansTest_oneElement() {
+        OnlineStockSpan stock = new OnlineStockSpan();
+        int[] prices = {1};
+        int[] actual = stock.calculateSpans(prices);
+        assertEquals(1, actual.length);
+        assertEquals(1, actual[0]);
     }
 
 }

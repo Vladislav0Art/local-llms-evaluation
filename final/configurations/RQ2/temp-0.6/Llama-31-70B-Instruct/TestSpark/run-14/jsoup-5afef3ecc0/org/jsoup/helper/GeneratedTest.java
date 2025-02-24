@@ -1,51 +1,31 @@
 package org.jsoup.helper;
 
-import org.jsoup.Connection;
-import org.jsoup.Connection.KeyVal;
-import org.jsoup.internal.StringUtil;
-import org.jsoup.nodes.Document;
-import org.junit.After;
-import org.junit.Before;
+import org.jsoup.helper.UrlBuilder;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.net.MalformedURLException;
+import java.io.UnsupportedEncodingException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class GeneratedTest {
 
-    private UrlBuilder urlBuilder;
-    private URL inputUrl;
-
-    @Before
-    public void setUp() throws MalformedURLException {
-        inputUrl = new URL("https://www.example.com");
-        urlBuilder = new UrlBuilder(inputUrl);
-    }
-
-    @After
-    public void tearDown() {
-        urlBuilder = null;
+    @Test
+    public void buildTest() throws MalformedURLException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com"));
+        URL url = urlBuilder.build();
+        assertEquals("https", url.getProtocol());
+        assertEquals("example.com", url.getHost());
+        assertEquals(-1, url.getPort());
     }
 
     @Test
-    public void buildWithoutQuery() throws MalformedURLException, URISyntaxException {
-        URL expected = new URL("https://www.example.com");
-        assertEquals(expected, urlBuilder.build());
-    }
-
-    @Test
-    public void buildWithQuery() throws MalformedURLException, URISyntaxException {
-        urlBuilder.q = StringUtil.borrowBuilder().append("key=value");
-        URL expected = new URL("https://www.example.com?key=value");
-        assertEquals(expected, urlBuilder.build());
+    public void appendKeyValTest() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder(new URL("https://example.com"));
+        urlBuilder.appendKeyVal("key=value");
+        URL url = urlBuilder.build();
+        assertEquals("https://example.com?key=value", url.toExternalForm());
     }
 
 }

@@ -1,0 +1,38 @@
+package graphql.annotations.processor.retrievers.fieldBuilders;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+public class GeneratedBuildWhenNoDirectives {
+
+    @Mock
+    private AnnotatedElement annotatedElement;
+
+    @Mock
+    private ProcessingElementsContainer processingElementsContainer;
+
+    @Mock
+    private Method method;
+
+    @Test
+    public void buildWhenNoDirectives() {
+        when(annotatedElement.getAnnotations()).thenReturn(new Annotation[0]);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(annotatedElement, processingElementsContainer);
+        assertNull(directivesBuilder.build());
+    }
+
+}

@@ -1,66 +1,32 @@
 package org.jsoup.helper;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.Normalizer;
+import static org.jsoup.helper.DataUtil.UTF_8;
 
-import org.jsoup.Connection;
-import org.jsoup.helper.DataUtil;
-import org.jsoup.helper.StringUtil;
-import org.junit.Assert;
-import org.junit.Before;
+import org.jsoup.helper.UrlBuilder;
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.junit.Assert;
 
 public class GeneratedTest {
 
-    private UrlBuilder urlBuilder;
-    private URL url;
-
-    @Before
-    public void setUp() throws MalformedURLException {
-        url = new URL("http://example.com");
-        urlBuilder = new UrlBuilder(url);
+    @Test
+    public void buildTest() throws MalformedURLException {
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL actualUrl = urlBuilder.build();
+        Assert.assertEquals(inputUrl, actualUrl);
     }
 
     @Test
-    public void build() throws URISyntaxException, UnsupportedEncodingException {
-        URL url = urlBuilder.build();
-
-        Assert.assertEquals("http://example.com", url.toString());
-    }
-
-    @Test
-    public void appendKeyVal() throws UnsupportedEncodingException {
-        Connection.KeyVal keyVal = Mockito.mock(Connection.KeyVal.class);
-        Mockito.when(keyVal.key()).thenReturn("key");
-        Mockito.when(keyVal.value()).thenReturn("value");
-
-        urlBuilder.appendKeyVal(keyVal);
-
-        Assert.assertEquals("key=value", urlBuilder.q.toString());
-    }
-
-    @Test
-    public void decodePart() {
-        String encoded = "%20";
-
-        String decoded = UrlBuilder.decodePart(encoded);
-
-        Assert.assertEquals(" ", decoded);
-    }
-
-    @Test
-    public void appendToAscii() throws UnsupportedEncodingException {
-        StringBuilder sb = new StringBuilder();
-
-        UrlBuilder.appendToAscii(" ", false, sb);
-
-        Assert.assertEquals("%20", sb.toString());
+    public void appendKeyValTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value", true));
+        Assert.assertEquals("http://www.example.com?key=value", urlBuilder.toString());
     }
 
 }

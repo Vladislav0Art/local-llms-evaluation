@@ -1,22 +1,20 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.Comment;
+import org.junit.Test;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.mockito.Mockito;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 public class GeneratedNodeNameTest {
 
-    private Comment comment;
-
-    @Before
-    public void setUp() {
-        comment = new Comment("This is a comment");
-    }
-
     @Test
     public void nodeNameTest() {
+        Comment comment = new Comment("data");
         assertEquals("#comment", comment.nodeName());
     }
 

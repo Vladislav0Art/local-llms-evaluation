@@ -1,78 +1,65 @@
 package org.jsoup.nodes;
 
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.XmlDeclaration;
+import org.jsoup.parser.Parser;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.lang.Appendable;
+
 public class GeneratedTest {
 
-    private Comment comment;
-    private String data;
-
-    @Before
-    public void setUp() {
-        data = "This is a test.";
-        comment = new Comment(data);
+    @Test
+    public void testCommentConstructor_WhenDataIsNull() {
+        Comment comment = new Comment(null);
+        assertEquals("", comment.getData());
     }
 
     @Test
-    public void testNodeName() {
+    public void testCommentConstructor_WhenDataIsNotNull() {
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
+    }
+
+    @Test
+    public void testNodeName_WhenDataIsNull() {
+        Comment comment = new Comment(null);
         assertEquals("#comment", comment.nodeName());
     }
 
     @Test
-    public void testGetData() {
-        assertEquals(data, comment.getData());
+    public void testNodeName_WhenDataIsNotNull() {
+        Comment comment = new Comment("test");
+        assertEquals("#comment", comment.nodeName());
     }
 
     @Test
-    public void testSetData() {
-        String newData = "New data.";
-        comment.setData(newData);
-        assertEquals(newData, comment.getData());
+    public void testGetData_WhenDataIsNull() {
+        Comment comment = new Comment(null);
+        assertEquals("", comment.getData());
     }
 
     @Test
-    public void testOuterHtmlHead() throws IOException {
-        OutputSettings outputSettings = new OutputSettings();
-        outputSettings.prettyPrint(true);
-        outputSettings.outline(false);
-        Document document = new Document("");
-
-        StringWriter writer = new StringWriter();
-        comment.outerHtmlHead(writer, 0, outputSettings);
-
-        String expected = "<!--" + data + "-->";
-        assertEquals(expected, writer.toString());
+    public void testGetData_WhenDataIsNotNull() {
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
     }
 
     @Test
-    public void testOuterHtmlTail() throws IOException {
-        OutputSettings outputSettings = new OutputSettings();
-        Document document = new Document("");
-
-        StringWriter writer = new StringWriter();
-        comment.outerHtmlTail(writer, 0, outputSettings);
-
-        assertEquals("", writer.toString());
+    public void testSetData_WhenDataIsNull() {
+        Comment comment = new Comment(null);
+        comment.setData("test");
+        assertEquals("test", comment.getData());
     }
 
     @Test
-    public void testToString() {
-        assertEquals("<!--" + data + "-->", comment.toString());
-    }
-
-    @Test
-    public void testClone() {
-        Comment clone = comment.clone();
-        assertNotSame(comment, clone);
-        assertEquals(comment.getData(), clone.getData());
-    }
-
-    @Test
-    public void testIsXmlDeclaration() {
-        assertFalse(comment.isXmlDeclaration());
-    }
-
-    @Test
-    public void testAsXmlDeclaration() {
-        assertNull(comment.asXmlDeclaration());
+    public void testSetData_WhenDataIsNotNull() {
+        Comment comment = new Comment("test");
+        comment.setData("new test");
+        assertEquals("new test", comment.getData());
     }
 
 }

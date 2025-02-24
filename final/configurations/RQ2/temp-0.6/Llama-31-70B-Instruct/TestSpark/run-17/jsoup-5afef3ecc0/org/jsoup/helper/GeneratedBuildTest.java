@@ -1,0 +1,40 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.UrlBuilder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedBuildTest {
+
+    @InjectMocks
+    private UrlBuilder urlBuilder;
+
+    @Test
+    public void buildTest() throws Exception {
+        URL inputUrl = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL actualUrl = urlBuilder.build();
+        assertNotNull(actualUrl);
+        assertEquals("http://www.example.com", actualUrl.toString());
+    }
+
+}

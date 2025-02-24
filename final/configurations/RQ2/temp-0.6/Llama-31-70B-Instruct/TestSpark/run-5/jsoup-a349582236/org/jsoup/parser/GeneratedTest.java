@@ -1,59 +1,60 @@
 package org.jsoup.parser;
 
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Tag;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class GeneratedTest {
 
+    private static Tag tag;
+    private static Document document;
+    private static Element element;
+    private static ParseSettings parseSettings;
+
+    @BeforeClass
+    public static void setUp() {
+        tag = Tag.valueOf("div");
+        document = new Document("");
+        element = document.createElement("div");
+        parseSettings = Mockito.mock(ParseSettings.class);
+    }
+
     @Test
     public void getNameTest() {
-        String tagName = "div";
-        Tag tag = new Tag(tagName);
-
-        assertEquals(tagName, tag.getName());
+        assertEquals("div", tag.getName());
     }
 
     @Test
     public void normalNameTest() {
-        String tagName = "DIV";
-        Tag tag = new Tag(tagName);
-
-        assertEquals("div", tag.normalName());
+        assertEquals("h3", Tag.valueOf("H3").normalName());
     }
 
     @Test
-    public void getNameNormalizedTest() {
-        String tagName = "DIV";
-        Tag tag = new Tag(tagName);
-
-        assertEquals("div", tag.normalName());
+    public void valueOfWithoutParseSettingsTest() {
+        assertFalse(Tag.valueOf("h2").isBlock());
     }
 
     @Test
     public void isBlockTest() {
-        String tagName = "div";
-        Tag tag = new Tag(tagName);
-
-        assertTrue(tag.isBlock());
-    }
-
-    @Test
-    public void isBlockFalseTest() {
-        String tagName = "span";
-        Tag tag = new Tag(tagName);
-
-        assertFalse(tag.isBlock());
+        assertTrue(Tag.valueOf("h3").isBlock());
     }
 
     @Test
     public void formatAsBlockTest() {
-        String tagName = "div";
-        Tag tag = new Tag(tagName);
-
-        assertTrue(tag.formatAsBlock());
+        assertFalse(tag.formatAsBlock());
     }
 
 }

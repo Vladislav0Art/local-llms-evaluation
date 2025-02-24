@@ -1,28 +1,49 @@
 package leetcode.medium;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private OnlineStockSpan onlineStockSpan;
-
-    @Before
-    public void setup() {
-        onlineStockSpan = new OnlineStockSpan();
+    @Test
+    public void calculateSpansTest() {
+        OnlineStockSpan obj = new OnlineStockSpan();
+        int[] result = obj.calculateSpans(new int[]{100, 80, 60, 70, 60, 75, 85});
+        assertEquals(Arrays.asList(1, 1, 1, 2, 1, 4, 6), Arrays.asList(result));
     }
 
     @Test
     public void nextTest() {
-        int price = 10;
-        int expected = 1;
-        int actual = onlineStockSpan.next(price);
-        assertEquals(expected, actual);
+        OnlineStockSpan obj = new OnlineStockSpan();
+        int result = obj.next(100);
+        assertEquals(1, result);
     }
 
     @Test
-    public void calculateSpansTest() {
-        int[] prices = {10, 15, 20, 15, 25, 30};
-        int[] expected = {1, 2, 3, 1, 2, 1};
-        int[] actual = onlineStockSpan.calculateSpans(prices);
-        assertArrayEquals(expected, actual);
+    public void calculateSpansWithTwoPricesTest() {
+        OnlineStockSpan obj = new OnlineStockSpan();
+        int[] result = obj.calculateSpans(new int[]{100, 80});
+        assertEquals(Arrays.asList(1, 1), Arrays.asList(result));
+    }
+
+    @Test
+    public void calculateSpansWithOnePriceTest() {
+        OnlineStockSpan obj = new OnlineStockSpan();
+        int[] result = obj.calculateSpans(new int[]{100});
+        assertEquals(Arrays.asList(1), Arrays.asList(result));
+    }
+
+    @Test
+    public void calculateSpansWithEmptyPricesTest() {
+        OnlineStockSpan obj = new OnlineStockSpan();
+        int[] result = obj.calculateSpans(new int[]{});
+        assertEquals(Arrays.asList(), Arrays.asList(result));
     }
 
 }

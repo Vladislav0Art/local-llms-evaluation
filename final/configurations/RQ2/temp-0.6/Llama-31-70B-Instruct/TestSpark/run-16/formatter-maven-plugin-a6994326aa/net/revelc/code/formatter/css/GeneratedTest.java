@@ -1,54 +1,55 @@
 package net.revelc.code.formatter.css;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.mockito.Mockito;
-import com.steadystate.css.dom.CSSStyleSheetImpl;
-import net.revelc.code.formatter.ConfigurationSource;
-import net.revelc.code.formatter.Formatter;
-import net.revelc.code.formatter.LineEnding;
-import net.revelc.code.formatter.css.CssFormatter;
+import org.w3c.css.sac.InputSource;
 
 public class GeneratedTest {
 
-    @Test
-    public void testInit() {
-        // arrange
-        CssFormatter cssFormatter = new CssFormatter();
-        Map<String, String> options = new HashMap<>();
-        options.put("indent", "4");
-        options.put("rgbAsHex", "true");
-        options.put("useSourceStringValues", "false");
-        ConfigurationSource cfg = Mockito.mock(ConfigurationSource.class);
+    private CssFormatter cssFormatter;
 
-        // act
+    @Test
+    public void initTest() {
+        cssFormatter = spy(new CssFormatter());
+        Map<String, String> options = mock(Map.class);
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+
+        when(options.get("option1")).thenReturn("value1");
+        when(options.get("option2")).thenReturn("value2");
+
         cssFormatter.init(options, cfg);
 
-        // assert
-        assertTrue(cssFormatter.isInitialized());
+        assertNotNull(cssFormatter);
     }
 
     @Test
-    public void testDoFormat() throws IOException {
-        // arrange
-        CssFormatter cssFormatter = new CssFormatter();
-        String code = "h1 {color: red}";
-        LineEnding lineEnding = LineEnding.UNIX;
-        CSSStyleSheetImpl sheet = Mockito.mock(CSSStyleSheetImpl.class);
-        Mockito.when(sheet.getCssText(cssFormatter.formatter)).thenReturn(code);
+    public void doFormatTest() throws IOException {
+        cssFormatter = spy(new CssFormatter());
+        String code = "h1 {color: red;}\nh2 {color: green;}";
+        LineEnding lineEnding = LineEnding.LF;
 
-        // act
-        String formattedCode = cssFormatter.doFormat(code, lineEnding);
+        when(cssFormatter.doFormat(code, lineEnding)).thenReturn("h1 {color: red;}\nh2 {color: green;}");
 
-        // assert
-        assertEquals(code, formattedCode);
+        assertEquals("h1 {color: red;}\nh2 {color: green;}", cssFormatter.doFormat(code, lineEnding));
+    }
+
+    @Test
+    public void isInitializedTest() {
+        cssFormatter = spy(new CssFormatter());
+
+        when(cssFormatter.isInitialized()).thenReturn(true);
+
+        assertEquals(true, cssFormatter.isInitialized());
     }
 
 }

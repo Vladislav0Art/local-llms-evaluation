@@ -1,44 +1,63 @@
 package org.jsoup.parser;
 
 import org.jsoup.helper.Validate;
-import org.jsoup.parser.ParseSettings;
+import org.jsoup.internal.Normalizer;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
-import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
-    public void testGetName() {
-        Tag tag = mock(Tag.class);
-        String tagName = "div";
-        when(tag.getName()).thenReturn(tagName);
-        Assert.assertEquals(tagName, tag.getName());
+    public void getNameTest() {
+        Tag tag = new Tag("name");
+        assertEquals("name", tag.getName());
     }
 
     @Test
-    public void testNormalName() {
-        Tag tag = mock(Tag.class);
-        String normalName = "div";
-        when(tag.normalName()).thenReturn(normalName);
-        Assert.assertEquals(normalName, tag.normalName());
+    public void normalNameTest() {
+        Tag tag = new Tag("name");
+        assertEquals("name", tag.normalName());
     }
 
     @Test
-    public void testIsBlock() {
-        Tag tag = mock(Tag.class);
-        when(tag.isBlock()).thenReturn(true);
-        Assert.assertTrue(tag.isBlock());
+    public void valueOfWithoutSettingsTest() {
+        Tag tag = Tag.valueOf("name");
+        assertEquals("name", tag.getName());
     }
 
     @Test
-    public void testFormatAsBlock() {
-        Tag tag = mock(Tag.class);
-        when(tag.formatAsBlock()).thenReturn(true);
-        Assert.assertTrue(tag.formatAsBlock());
+    public void isBlockTest() {
+        Tag tag = new Tag("name");
+        assertFalse(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlockTest() {
+        Tag tag = new Tag("name");
+        assertFalse(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag tag = new Tag("name");
+        assertFalse(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Tag tag = new Tag("name");
+        assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        Tag tag = new Tag("name");
+        assertFalse(tag.isSelfClosing());
     }
 
 }

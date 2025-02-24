@@ -1,77 +1,61 @@
 package app;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import org.junit.Before;
+import app.DBApp;
+import app.IDatabase;
+import app.exceptions.DBAppException;
+
+import java.util.HashSet;
+import java.util.Hashtable;
+
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class GeneratedTest {
 
-    private DBApp dbApp;
+    @Test
+    public void getMyTablesTest() {
+        // Arrange
+        DBApp dbApp = new DBApp();
+        HashSet<String> expectedResult = new HashSet<>();
 
-    @Before
-    public void setUp() {
-        dbApp = new DBApp();
+        // Act
+        HashSet<String> actualResult = dbApp.getMyTables();
+
+        // Assert
+        assertNotNull(actualResult);
+        assertEquals(expectedResult, actualResult);
     }
 
     @Test
-    public void testInit() {
-        dbApp.init();
-        assertTrue(dbApp.getMyTables().isEmpty());
+    public void getReaderTest() {
+        // Arrange
+        DBApp dbApp = new DBApp();
+        CsvReader expectedResult = mock(CsvReader.class);
+        when(dbApp.getReader()).thenReturn(expectedResult);
+
+        // Act
+        CsvReader actualResult = dbApp.getReader();
+
+        // Assert
+        assertEquals(expectedResult, actualResult);
     }
 
     @Test
-    public void testCreateTable() {
-        dbApp.createTable("tableName", "clusteringKeyColumn", null, null, null);
-        assertTrue(dbApp.getMyTables().contains("tableName"));
-    }
+    public void getWriterTest() {
+        // Arrange
+        DBApp dbApp = new DBApp();
+        CsvWriter expectedResult = mock(CsvWriter.class);
+        when(dbApp.getWriter()).thenReturn(expectedResult);
 
-    @Test
-    public void testInsertIntoTable() {
-        dbApp.insertIntoTable("tableName", null);
-        assertTrue(dbApp.getMyTables().contains("tableName"));
-    }
+        // Act
+        CsvWriter actualResult = dbApp.getWriter();
 
-    @Test
-    public void testUpdateTable() {
-        dbApp.updateTable("tableName", "clusteringKeyValue", null);
-        assertTrue(dbApp.getMyTables().contains("tableName"));
-    }
-
-    @Test
-    public void testDeleteFromTable() {
-        dbApp.deleteFromTable("tableName", null);
-        assertTrue(dbApp.getMyTables().contains("tableName"));
-    }
-
-    @Test
-    public void testSelectFromTable() {
-        dbApp.selectFromTable(null, null);
-        assertTrue(dbApp.getMyTables().isEmpty());
-    }
-
-}
-
-public class SerializerTest {
-
-    private Serializer serializer;
-
-    @Before
-    public void setUp() {
-        serializer = new Serializer();
-    }
-
-    @Test
-    public void testSerializeTable() {
-        // TODO: implement test
-    }
-
-    @Test
-    public void testDeserializeTable() {
-        // TODO: implement test
+        // Assert
+        assertEquals(expectedResult, actualResult);
     }
 
 }

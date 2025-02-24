@@ -1,50 +1,60 @@
 package org.jsoup.parser;
 
-import org.jsoup.helper.Validate;
-import org.jsoup.internal.Normalizer;
 import org.jsoup.parser.ParseSettings;
 import org.jsoup.parser.Tag;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class GeneratedTest {
 
     @Test
-    public void valueOfReturnsTagWhenNameIsDefined() {
-        String definedTagName = "div";
-        Tag actualTag = Tag.valueOf(definedTagName, new ParseSettings());
-
-        assertNotNull(actualTag);
-        assertEquals(definedTagName, actualTag.getName());
+    public void getNameTest() {
+        Tag tag = new Tag("div");
+        assertEquals("div", tag.getName());
     }
 
     @Test
-    public void valueOfReturnsNewTagWhenNameIsUndefinedAndPreserveCaseIsFalse() {
-        String undefinedTagName = "undefinedTag";
-        Tag actualTag = Tag.valueOf(undefinedTagName, new ParseSettings());
-
-        assertNotNull(actualTag);
-        assertEquals(undefinedTagName.toLowerCase(), actualTag.getName());
+    public void normalNameTest() {
+        Tag tag = new Tag("div");
+        assertEquals("div", tag.normalName());
     }
 
     @Test
-    public void valueOfReturnsNewTagWhenNameIsUndefinedAndPreserveCaseIsTrue() {
-        String undefinedTagName = "undefinedTag";
-        Tag actualTag = Tag.valueOf(undefinedTagName, new ParseSettings().preserveCase());
-
-        assertNotNull(actualTag);
-        assertEquals(undefinedTagName, actualTag.getName());
+    public void valueOfWithSettingsTest() {
+        Tag tag = Tag.valueOf("div", new ParseSettings(false, false));
+        assertEquals("div", tag.getName());
     }
 
     @Test
-    public void valueOfReturnsNullWhenNameIsNull() {
-        Tag actualTag = Tag.valueOf(null, new ParseSettings());
-        assertNotNull(actualTag);
+    public void valueOfWithoutSettingsTest() {
+        Tag tag = Tag.valueOf("div");
+        assertEquals("div", tag.getName());
+    }
+
+    @Test
+    public void isBlockTest() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlockTest() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.isInline());
+    }
+
+    @Test
+    public void isEmptyTest() {
+        Tag tag = new Tag("div");
+        assertTrue(tag.isEmpty());
     }
 
 }

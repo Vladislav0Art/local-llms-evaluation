@@ -1,0 +1,15 @@
+package com.netflix.frigga.ami;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedGetPackageNameTest {
+
+    @Test
+    public void getPackageNameTest() {
+        AppVersion appVersion = new AppVersion();
+        assertNotNull(appVersion.getPackageName());
+    }
+
+}

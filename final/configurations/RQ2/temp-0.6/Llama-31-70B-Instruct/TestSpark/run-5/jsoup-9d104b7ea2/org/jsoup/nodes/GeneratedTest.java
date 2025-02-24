@@ -1,72 +1,58 @@
 package org.jsoup.nodes;
 
-@RunWith(MockitoJUnitRunner.class)
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 public class GeneratedTest {
 
-    private TextNode textNode;
-    private String text = "Some text";
-
-    @Before
-    public void setUp() {
-        textNode = new TextNode(text);
-    }
-
     @Test
-    public void testTextNodeConstructor() {
-        TextNode textNode = new TextNode(text);
-        assertEquals(text, textNode.value);
-    }
-
-    @Test
-    public void testNodeName() {
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("Some text");
         assertEquals("#text", textNode.nodeName());
     }
 
     @Test
-    public void testText() {
+    public void textTest() {
+        TextNode textNode = new TextNode("Some text");
         assertEquals("Some text", textNode.text());
     }
 
     @Test
-    public void testTextWithNullValue() {
-        textNode = new TextNode(null);
-        assertEquals("", textNode.text());
+    public void textSetTest() {
+        TextNode textNode = new TextNode("Some text");
+        textNode.text("New text");
+        assertEquals("New text", textNode.text());
     }
 
     @Test
-    public void testGetWholeText() {
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("Some text");
         assertEquals("Some text", textNode.getWholeText());
     }
 
     @Test
-    public void testIsBlank() {
-        assertFalse(textNode.isBlank());
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("");
+        assertEquals(true, textNode.isBlank());
     }
 
     @Test
-    public void testIsBlankWithNullValue() {
-        textNode = new TextNode(null);
-        assertTrue(textNode.isBlank());
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("Some text");
+        TextNode splitText = textNode.splitText(2);
+        assertNotEquals(textNode.text(), splitText.text());
     }
 
     @Test
-    public void testIsBlankWithEmptyValue() {
-        textNode = new TextNode("");
-        assertTrue(textNode.isBlank());
-    }
-
-    @Test
-    public void testSplitText() {
-        TextNode result = textNode.splitText(2);
-        assertEquals("me", textNode.getWholeText());
-        assertEquals(" text", result.getWholeText());
-    }
-
-    @Test
-    public void testSplitTextWithNegativeOffset() {
-        TextNode result = textNode.splitText(-1);
-        assertEquals("Some text", textNode.getWholeText());
-        assertNull(result);
+    public void outerHtmlHeadTest() throws IOException {
+        TextNode textNode = new TextNode("Some text");
+        Appendable accum = Mockito.mock(Appendable.class);
+        Document.OutputSettings out = Mockito.mock(Document.OutputSettings.class);
+        textNode.outerHtmlHead(accum, 0, out);
     }
 
 }

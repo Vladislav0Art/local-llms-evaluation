@@ -1,63 +1,61 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.TextNode;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
-    public void nodeNameTextNodeTest() {
+    public void textNodeConstructorTest() {
         TextNode textNode = new TextNode("text");
-        assertEquals("#text", textNode.nodeName());
+        assertNotNull(textNode);
     }
 
     @Test
-    public void textTextNodeTest() {
+    public void textNodeConstructorNegativeTest() {
+        TextNode textNode = new TextNode(null);
+    }
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("text");
+        assertEquals("text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
         TextNode textNode = new TextNode("text");
         assertEquals("text", textNode.text());
     }
 
     @Test
-    public void getWholeTextTextNodeTest() {
+    public void textSetterTest() {
+        TextNode textNode = new TextNode("text");
+        textNode.text("some other text");
+        assertEquals("some other text", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
         TextNode textNode = new TextNode("text");
         assertEquals("text", textNode.getWholeText());
     }
 
     @Test
-    public void isBlankTextNodeTest() {
+    public void isBlankTest() {
         TextNode textNode = new TextNode("text");
         assertFalse(textNode.isBlank());
     }
 
     @Test
-    public void splitTextTextNodeTest() {
+    public void splitTextTest() {
         TextNode textNode = new TextNode("text");
-        TextNode splitTextNode = textNode.splitText(2);
-        assertEquals("te", textNode.getWholeText());
-        assertEquals("xt", splitTextNode.getWholeText());
-    }
-
-    @Test
-    public void outerHtmlHeadTextNodeTest() {
-        TextNode textNode = new TextNode("text");
-        StringWriter writer = new StringWriter();
-        try {
-            textNode.outerHtmlHead(writer, 0, new Document.OutputSettings());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        assertEquals("text", writer.toString());
-    }
-
-    @Test
-    public void toStringTextNodeTest() {
-        TextNode textNode = new TextNode("text");
-        assertEquals("text", textNode.toString());
+        TextNode splitNode = textNode.splitText(2);
+        assertEquals("text", textNode.text());
+        assertEquals("xt", splitNode.text());
     }
 
 }

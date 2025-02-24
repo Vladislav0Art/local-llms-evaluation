@@ -1,51 +1,49 @@
 package org.jsoup.helper;
 
+import org.jsoup.Connection;
+import org.jsoup.helper.DataUtil;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
+    @Mock
+    private URL inputUrl;
+
     @Test
-    public void buildTest() throws MalformedURLException, URISyntaxException {
-        URL inputUrl = new URL("http://www.example.com/path?q=s");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+    public void buildTest() throws Exception {
+        when(inputUrl.getProtocol()).thenReturn("http");
+        when(inputUrl.getHost()).thenReturn("example.com");
+        when(inputUrl.getPort()).thenReturn(-1);
+        when(inputUrl.getPath()).thenReturn("/");
 
-        URL outputUrl = urlBuilder.build();
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL url = builder.build();
 
-        assertEquals(outputUrl.getProtocol(), "http");
-        assertEquals(outputUrl.getHost(), "www.example.com");
-        assertEquals(outputUrl.getPath(), "/path");
-        assertEquals(outputUrl.getQuery(), "q=s");
+        assertEquals("http://example.com/", url.toString());
     }
 
     @Test
-    public void appendKeyValTest() throws UnsupportedEncodingException {
-        URL inputUrl = new URL("http://www.example.com/path?q=s");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+    public void appendKeyValTest() throws Exception {
+        Connection.KeyVal kv = new Connection.KeyVal("key", "val");
+        String encodedKey = URLEncoder.encode("key", DataUtil.UTF_8);
+        String encodedVal = URLEncoder.encode("val", DataUtil.UTF_8);
 
-        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
-        urlBuilder.appendKeyVal(kv);
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        builder.appendKeyVal(kv);
 
-        assertEquals(urlBuilder.q.toString(), "q=s&key=value");
-    }
-
-    @Test
-    public void appendKeyValWithNoQueryTest() throws UnsupportedEncodingException {
-        URL inputUrl = new URL("http://www.example.com/path");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-
-        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
-        urlBuilder.appendKeyVal(kv);
-
-        assertEquals(urlBuilder.q.toString(), "key=value");
-    }
-
-    @Test
-    public void appendKeyValWithNoQueryAndNoValueTest() throws UnsupportedEncodingException {
-        URL inputUrl = new URL("http://www.example.com/path");
-        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
-
-        Connection.KeyVal kv = new Connection.KeyVal("key", "");
-        urlBuilder.appendKeyVal(kv);
-
-        assertEquals(urlBuilder.q.toString(), "key=");
+        assertEquals("key=val", builder.getQuery());
+        assertEquals(encodedKey + "=" + encodedVal, builder.getEncodedQuery());
     }
 
 }

@@ -1,0 +1,61 @@
+package org.jsoup.nodes;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void indexOfKeyTest() {
+        Attributes attributes = new Attributes();
+        assertEquals(0, attributes.indexOfKey(""));
+        assertEquals(-1, attributes.indexOfKey("key"));
+    }
+
+    @Test
+    public void checkNotNullTest() {
+        Attributes attributes = new Attributes();
+        assertEquals("", attributes.checkNotNull(""));
+        assertEquals("value", attributes.checkNotNull("value"));
+    }
+
+    @Test
+    public void getTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals("value", attributes.get("key"));
+        assertNull(attributes.get("notExistKey"));
+    }
+
+    @Test
+    public void getIgnoreCaseTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals("value", attributes.getIgnoreCase("KEY"));
+        assertNull(attributes.getIgnoreCase("notExistKey"));
+    }
+
+    @Test
+    public void getUserDataTest() {
+        Attributes attributes = new Attributes();
+        attributes.putUserData("key", "value");
+        assertEquals("value", attributes.getUserData("key"));
+        assertNull(attributes.getUserData("notExistKey"));
+    }
+
+    @Test
+    public void addTest() {
+        Attributes attributes = new Attributes();
+        attributes.add("key", "value");
+        assertEquals("value", attributes.get("key"));
+        assertNull(attributes.get("notExistKey"));
+    }
+
+}

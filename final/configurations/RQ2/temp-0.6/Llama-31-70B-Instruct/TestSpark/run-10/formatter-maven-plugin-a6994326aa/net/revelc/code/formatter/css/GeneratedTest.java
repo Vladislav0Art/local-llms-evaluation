@@ -1,43 +1,40 @@
 package net.revelc.code.formatter.css;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-import java.io.IOException;
-import java.util.Map;
-
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import com.steadystate.css.format.CSSFormat;
+import net.revelc.code.formatter.css.CssFormatter;
 
-@RunWith(JUnit4.class)
 public class GeneratedTest {
 
     private CssFormatter cssFormatter;
 
-    @Before
-    public void init() {
+    @Test
+    public void initWithOptionsAndCfgTest() {
+        Map<String, String> options = new HashMap<>();
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
         cssFormatter = new CssFormatter();
-        final Map<String, String> options = Map.of(
-                "indent", "4",
-                "rgbAsHex", Boolean.TRUE.toString(),
-                "useSourceStringValues", Boolean.FALSE.toString()
-        );
-        cssFormatter.init(options, null);
+
+        cssFormatter.init(options, cfg);
+
+        assertTrue(cssFormatter.isInitialized());
     }
 
     @Test
-    public void testSimpleFile() throws IOException {
-        final String code = ".my-class { color: red; }";
-        final String expected = ".my-class {\n    color: red;\n}";
-        final String formattedCode = cssFormatter.doFormat(code, LineEnding.LF);
-        assertEquals(expected, formattedCode);
+    public void doFormatWithCodeAndEndingThrowExceptionTest() throws IOException {
+        cssFormatter = new CssFormatter();
+        String code = "some code";
+        LineEnding ending = mock(LineEnding.class);
+
+        cssFormatter.doFormat(code, ending);
     }
 
     @Test
-    public void testHexAsRgb() throws IOException {
-        final String code = ".my-class { color: rgb(255, 0, 0);
+    public void isInitializedWithoutInitTest() {
+        cssFormatter = new CssFormatter();
+
+        assertFalse(cssFormatter.isInitialized());
     }
 
 }

@@ -1,58 +1,48 @@
 package org.jsoup.helper;
 
-import org.jsoup.helper.UrlBuilder;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
-import java.net.URL;
-
-import static org.mockito.Mockito.when;
 import static org.junit.Assert.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    @Mock
-    private URL url;
-
     @Test
-    public void testBuildWithNullQuery() {
-        when(url.getQuery()).thenReturn(null);
-        UrlBuilder urlBuilder = new UrlBuilder(url);
-        assertNull(urlBuilder.build().getQuery());
+    public void buildTest() {
+        UrlBuilder urlBuilder = new UrlBuilder("http://example.com");
+        URL actual = urlBuilder.build();
+        assertEquals("http://example.com", actual.toString());
     }
 
     @Test
-    public void testBuildWithNormalQuery() {
-        String query = "key=value";
-        when(url.getQuery()).thenReturn(query);
-        UrlBuilder urlBuilder = new UrlBuilder(url);
-        assertEquals(query, urlBuilder.build().getQuery());
+    public void buildWithQueryTest() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder("http://example.com");
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value"));
+        URL actual = urlBuilder.build();
+        assertEquals("http://example.com?key=value", actual.toString());
     }
 
     @Test
-    public void testBuildWithUnencodedQuery() {
-        String query = "key=value&key2=value2";
-        when(url.getQuery()).thenReturn(query);
-        UrlBuilder urlBuilder = new UrlBuilder(url);
-        assertEquals(query.replace(' ', '+'), urlBuilder.build().getQuery());
+    public void buildWithQueryWithSpacesTest() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder("http://example.com");
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value with spaces"));
+        URL actual = urlBuilder.build();
+        assertEquals("http://example.com?key=value+with+spaces", actual.toString());
     }
 
     @Test
-    public void testBuildWithNullRef() {
-        when(url.getRef()).thenReturn(null);
-        UrlBuilder urlBuilder = new UrlBuilder(url);
-        assertNull(urlBuilder.build().getRef());
+    public void buildWithQueryWithPlusTest() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder("http://example.com");
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value+with+plus"));
+        URL actual = urlBuilder.build();
+        assertEquals("http://example.com?key=value%2Bwith%2Bplus", actual.toString());
     }
 
     @Test
-    public void testBuildWithNormalRef() {
-        String ref = "ref";
-        when(url.getRef()).thenReturn(ref);
-        UrlBuilder urlBuilder = new UrlBuilder(url);
-        assertEquals(ref, urlBuilder.build().getRef());
+    public void buildWithQueryWithAmpersandTest() throws UnsupportedEncodingException {
+        UrlBuilder urlBuilder = new UrlBuilder("http://example.com");
+        urlBuilder.appendKeyVal(new Connection.KeyVal("key", "value&with&ampersand"));
+        URL actual = urlBuilder.build();
+        assertEquals("http://example.com?key=value%26with%26ampersand", actual.toString());
     }
 
 }

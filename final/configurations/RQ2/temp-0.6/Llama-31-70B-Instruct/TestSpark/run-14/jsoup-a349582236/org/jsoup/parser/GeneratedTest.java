@@ -1,69 +1,74 @@
 package org.jsoup.parser;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.jsoup.parser.ParseSettings;
-import org.jsoup.parser.Tag;
-import org.jsoup.helper.Validate;
-import org.jsoup.internal.Normalizer;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 public class GeneratedTest {
 
-    private Tag tag;
-
-    @BeforeEach
-    public void setUp() {
-        tag = new Tag("div");
-    }
+    private static final String TAG_NAME = "div";
+    private static final Tag tag = new Tag(TAG_NAME);
+    private static final ParseSettings parseSettings = Mockito.mock(ParseSettings.class);
 
     @Test
     public void getNameTest() {
-        assertEquals(tag.tagName, tag.getName());
+        assertEquals(TAG_NAME, tag.getName());
     }
 
     @Test
-    public void getNameNormalNameTest() {
-        assertEquals(tag.normalName, tag.normalName());
+    public void normalNameTest() {
+        assertEquals(TAG_NAME.toLowerCase(), tag.normalName());
+    }
+
+    @Test
+    public void valueOfWithParseSettingsTest() {
+        assertEquals(TAG_NAME, Tag.valueOf(TAG_NAME, parseSettings).getName());
+    }
+
+    @Test
+    public void valueOfWithoutParseSettingsTest() {
+        assertEquals(TAG_NAME, Tag.valueOf(TAG_NAME).getName());
     }
 
     @Test
     public void isBlockTest() {
-        assertEquals(tag.isBlock, tag.isBlock());
+        assertTrue(tag.isBlock());
     }
 
     @Test
     public void formatAsBlockTest() {
-        assertEquals(tag.formatAsBlock, tag.formatAsBlock());
+        assertTrue(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        assertFalse(tag.isInline());
     }
 
     @Test
     public void isEmptyTest() {
-        assertEquals(tag.empty, tag.isEmpty());
+        assertFalse(tag.isEmpty());
     }
 
     @Test
     public void isSelfClosingTest() {
-        assertEquals(tag.selfClosing, tag.isSelfClosing());
+        assertFalse(tag.isSelfClosing());
     }
 
     @Test
     public void isKnownTagTest() {
-        assertEquals(tag.tags.containsKey(tag.tagName), tag.isKnownTag());
+        assertTrue(tag.isKnownTag());
     }
 
     @Test
-    public void isKnownTagTagNameTest() {
-        assertEquals(tag.tags.containsKey("div"), tag.isKnownTag("div"));
+    public void isKnownTagWithTagNameTest() {
+        assertTrue(Tag.isKnownTag(TAG_NAME));
     }
 
     @Test
     public void preserveWhitespaceTest() {
-        assertEquals(tag.preserveWhitespace, tag.preserveWhitespace());
+        assertTrue(tag.preserveWhitespace());
+    }
+
+    @Test
+    public void isFormListedTest() {
+        assertTrue(tag.isFormListed());
     }
 
 }

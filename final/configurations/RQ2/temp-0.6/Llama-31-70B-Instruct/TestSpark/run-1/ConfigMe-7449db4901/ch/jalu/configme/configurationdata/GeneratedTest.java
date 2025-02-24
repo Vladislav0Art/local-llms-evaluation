@@ -1,32 +1,49 @@
 package ch.jalu.configme.configurationdata;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.Test;
-import org.mockito.Mockito;
-import ch.jalu.configme.configurationdata.CommentsConfiguration;
-
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    @Test
-    public void setCommentAddsCommentLinesToMap() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        String path = "test.path";
-        String[] commentLines = new String[]{"Line 1", "Line 2"};
+    @InjectMocks
+    private CommentsConfiguration commentsConfiguration;
 
+    @Test
+    public void setCommentTest() {
+        // Given
+        String path = "test";
+        String[] commentLines = {"firstLine", "secondLine"};
+
+        // When
         commentsConfiguration.setComment(path, commentLines);
 
-        assertEquals(commentLines, commentsConfiguration.getAllComments().get(path));
+        // Then
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+        assertNotNull(allComments);
+        assertEquals(1, allComments.size());
+        assertEquals(Arrays.asList(commentLines), allComments.get(path));
     }
 
     @Test
-    public void getAllCommentsReturnsUnmodifiableMap() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
+    public void getAllCommentsTest() {
+        // Given
+        String path = "test";
+        String[] commentLines = {"firstLine", "secondLine"};
+        commentsConfiguration.setComment(path, commentLines);
 
-        assertNotNull(comments);
-        assertEquals(comments, commentsConfiguration.getAllComments());
+        // When
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+
+        // Then
+        assertNotNull(allComments);
+        assertEquals(1, allComments.size());
+        assertEquals(Arrays.asList(commentLines), allComments.get(path));
     }
 
 }

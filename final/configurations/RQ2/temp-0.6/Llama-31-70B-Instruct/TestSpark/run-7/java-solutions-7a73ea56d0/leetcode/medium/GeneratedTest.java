@@ -1,38 +1,43 @@
 package leetcode.medium;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
     @Test
-    public void calculateSpansEmptyTest() {
+    public void nextTest() {
+        // Arrange
         OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = new int[0];
-        int[] spans = stockSpan.calculateSpans(prices);
-        assertEquals(0, spans.length);
+        int inputPrice = 10;
+        int expectedResult = 1;
+
+        // Act
+        int actualResult = stockSpan.next(inputPrice);
+
+        // Assert
+        assertEquals(expectedResult, actualResult);
     }
 
     @Test
-    public void calculateSpansOddLengthTest() {
+    public void calculateSpansTest() {
+        // Arrange
         OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = new int[]{1, 2, 3};
-        int[] spans = stockSpan.calculateSpans(prices);
-        assertEquals(1, spans[0]);
-        assertEquals(2, spans[1]);
-        assertEquals(3, spans[2]);
-    }
+        int[] inputPrices = new int[]{1, 2, 3, 4, 5};
+        int[] expectedResult = new int[]{1, 2, 3, 4, 5};
 
-    @Test
-    public void calculateSpansEvenLengthTest() {
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = new int[]{1, 2, 3, 4};
-        int[] spans = stockSpan.calculateSpans(prices);
-        assertEquals(1, spans[0]);
-        assertEquals(2, spans[1]);
-        assertEquals(3, spans[2]);
-        assertEquals(4, spans[3]);
+        // Act
+        int[] actualResult = stockSpan.calculateSpans(inputPrices);
+
+        // Assert
+        assertEquals(expectedResult.length, actualResult.length);
+        for (int i = 0; i < expectedResult.length; i++) {
+            assertEquals(expectedResult[i], actualResult[i]);
+        }
     }
 
 }

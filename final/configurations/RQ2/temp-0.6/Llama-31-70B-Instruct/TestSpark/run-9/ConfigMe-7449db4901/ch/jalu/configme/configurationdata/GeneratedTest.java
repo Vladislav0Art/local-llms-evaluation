@@ -1,31 +1,37 @@
 package ch.jalu.configme.configurationdata;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-
 public class GeneratedTest {
 
     @Test
-    public void setCommentValidPathTest() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        commentsConfiguration.setComment("path", "line1", "line2");
-
-        Map<String, List<String>> expectedComments = new HashMap<>();
-        expectedComments.put("path", Arrays.asList("line1", "line2"));
-        assertEquals(expectedComments, commentsConfiguration.getAllComments());
+    public void setComment_validPathAndCommentLines_setsCorrectComments() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        String path = "some.path";
+        String[] commentLines = new String[]{"comment1", "comment2"};
+        config.setComment(path, commentLines);
+        Map<String, List<String>> comments = config.getAllComments();
+        assertEquals(1, comments.size());
+        assertEquals(Arrays.asList(commentLines), comments.get(path));
     }
 
     @Test
-    public void setCommentInvalidPathTest() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        commentsConfiguration.setComment(null, "line1", "line2");
+    public void setComment_nullPath_throwsNullPointerException() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        String[] commentLines = new String[]{"comment1", "comment2"};
+        config.setComment(null, commentLines);
     }
 
     @Test
-    public void setCommentInvalidCommentLinesTest() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        commentsConfiguration.setComment("path", (String[]) null);
+    public void setComment_nullCommentLines_throwsNullPointerException() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        String path = "some.path";
+        config.setComment(path, (String[]) null);
+    }
+
+    @Test
+    public void getAllComments_emptyComments_returnsEmptyMap() {
+        CommentsConfiguration config = new CommentsConfiguration();
+        Map<String, List<String>> comments = config.getAllComments();
+        assertTrue(comments.isEmpty());
     }
 
 }

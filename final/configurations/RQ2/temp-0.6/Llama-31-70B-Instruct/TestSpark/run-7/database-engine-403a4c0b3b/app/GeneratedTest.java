@@ -1,55 +1,40 @@
 package app;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import app.DBApp;
-import app.DBAppException;
-import app.IDatabase;
-import app.SearchResult;
-import app.Serializer;
-import app.Table;
-import app.TypeCaster;
-import app.Validator;
-import app.datamanipulation.CsvReader;
-import app.datamanipulation.CsvWriter;
-import app.search.Selector;
-import app.search.SQLTerm;
-import app.storage.ClusteringKey;
-import app.util.exceptions.CsvValidationException;
-import app.util.filecontroller.Serializer;
-import app.util.search.SearchResult;
-import app.util.search.Selector;
-import app.util.validation.Validator;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import com.opencsv.exceptions.CsvValidationException;
+import exceptions.DBAppException;
 
 public class GeneratedTest {
 
-    private DBApp app;
-    private Hashtable<String, Object> htblColNameValue;
+    private static final String TABLE_NAME = "testTable";
+    private static final String CLUSTERING_KEY_COLUMN_NAME = "testClusteringKeyColumn";
+    private static final String CLUSTERING_KEY_VALUE = "123";
+    private static final String COLUMN_NAME = "testColumn";
+    private static final String COLUMN_TYPE = "String";
+    private static final String COLUMN_MIN = "1";
+    private static final String COLUMN_MAX = "10";
+    private static final String COLUMN_VALUE = "testValue";
 
-    @Before
-    public void setUp() {
-        app = new DBApp();
-        htblColNameValue = new Hashtable<>();
-    }
+    private static final DBApp dbApp = new DBApp();
 
     @Test
-    public void testInit() {
-        app.init();
-        assertTrue(app.getMyTables().isEmpty());
+    public void getMyTablesTest() {
+        HashSet<String> expectedTables = new HashSet<>();
+        expectedTables.add(TABLE_NAME);
+
+        HashSet<String> actualTables = dbApp.getMyTables();
+
+        assertEquals(expectedTables, actualTables);
     }
 
 }

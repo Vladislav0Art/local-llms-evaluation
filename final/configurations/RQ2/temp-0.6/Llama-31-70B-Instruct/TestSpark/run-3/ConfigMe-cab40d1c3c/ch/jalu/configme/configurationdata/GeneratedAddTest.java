@@ -1,20 +1,19 @@
 package ch.jalu.configme.configurationdata;
 
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+import ch.jalu.configme.properties.Property;
+
 public class GeneratedAddTest {
-
-    private PropertyListBuilder propertyListBuilder;
-
-    @Before
-    public void setup() {
-        propertyListBuilder = new PropertyListBuilder();
-    }
 
     @Test
     public void addTest() {
-        Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("testPath");
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Property<?> property = Mockito.mock(Property.class);
         propertyListBuilder.add(property);
-        assertEquals(1, propertyListBuilder.getRootEntries().size());
+        assertNotNull(propertyListBuilder.create());
     }
 
 }

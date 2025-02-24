@@ -1,24 +1,22 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.Comment;
+import org.junit.Test;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.mockito.Mockito;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 public class GeneratedSetDataTest {
 
-    private Comment comment;
-
-    @Before
-    public void setUp() {
-        comment = new Comment("This is a comment");
-    }
-
     @Test
     public void setDataTest() {
-        comment.setData("This is a new comment");
-        assertEquals("This is a new comment", comment.getData());
+        Comment comment = new Comment("data");
+        Comment comment2 = comment.setData("data2");
+        assertEquals("data2", comment2.getData());
     }
 
 }

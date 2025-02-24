@@ -1,66 +1,64 @@
 package org.jsoup.parser;
 
-import org.junit.jupiter.api.Test;
 import org.jsoup.parser.Tag;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GeneratedTest {
 
     @Test
-    public void shouldReturnCorrectTag() {
-        String tagName = "p";
-        Tag tag = Tag.valueOf(tagName);
-        assertEquals(tagName, tag.getName());
+    public void getNameTest() {
+        Tag tag = Tag.valueOf("div");
+        assertEquals("div", tag.getName());
     }
 
     @Test
-    public void shouldReturnCorrectTagWithCaseSensitivity() {
-        String tagName = "P";
-        Tag tag = Tag.valueOf(tagName, ParseSettings.preserveCase);
-        assertEquals(tagName, tag.getName());
+    public void normalNameTest() {
+        Tag tag = Tag.valueOf("div");
+        assertEquals("div", tag.normalName());
     }
 
     @Test
-    public void shouldBeABlockTag() {
-        String tagName = "div";
-        Tag tag = Tag.valueOf(tagName);
+    public void valueOfWithSettingsTest() {
+        Tag tag = Tag.valueOf("div");
+        assertEquals("div", tag.getName());
+    }
+
+    @Test
+    public void valueOfWithoutSettingsTest() {
+        Tag tag = Tag.valueOf("div");
+        assertEquals("div", tag.getName());
+    }
+
+    @Test
+    public void isBlockTest() {
+        Tag tag = Tag.valueOf("div");
         assertTrue(tag.isBlock());
     }
 
     @Test
-    public void shouldBeAnInlineTag() {
-        String tagName = "span";
-        Tag tag = Tag.valueOf(tagName);
-        assertFalse(tag.isBlock());
-    }
-
-    @Test
-    public void shouldBeAnEmptyTag() {
-        String tagName = "br";
-        Tag tag = Tag.valueOf(tagName);
-        assertTrue(tag.isEmpty());
-    }
-
-    @Test
-    public void shouldFormatAsBlock() {
-        String tagName = "p";
-        Tag tag = Tag.valueOf(tagName);
+    public void formatAsBlockTest() {
+        Tag tag = Tag.valueOf("div");
         assertTrue(tag.formatAsBlock());
     }
 
     @Test
-    public void shouldNotFormatAsBlock() {
-        String tagName = "span";
-        Tag tag = Tag.valueOf(tagName);
-        assertFalse(tag.formatAsBlock());
+    public void isInlineTest() {
+        Tag tag = Tag.valueOf("div");
+        assertFalse(tag.isInline());
     }
 
     @Test
-    public void shouldPreserveWhitespace() {
-        String tagName = "pre";
-        Tag tag = Tag.valueOf(tagName);
-        assertTrue(tag.preserveWhitespace());
+    public void isEmptyTest() {
+        Tag tag = Tag.valueOf("div");
+        assertFalse(tag.isEmpty());
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        Tag tag = Tag.valueOf("div");
+        assertFalse(tag.isSelfClosing());
     }
 
 }

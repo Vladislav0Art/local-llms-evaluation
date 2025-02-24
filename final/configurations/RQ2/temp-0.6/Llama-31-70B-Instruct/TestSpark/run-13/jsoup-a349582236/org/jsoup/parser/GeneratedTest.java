@@ -1,48 +1,32 @@
 package org.jsoup.parser;
 
-import static org.jsoup.parser.Tag.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.jsoup.helper.Validate;
-import org.jsoup.internal.Normalizer;
-import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Tag;
+import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class GeneratedTest {
 
+    private static final String TAG_NAME = "div";
+    private static final ParseSettings PARSE_SETTINGS = new ParseSettings(false, false);
+    private static final Tag TAG_VALUE = new Tag(TAG_NAME);
+    private static final Tag TAG_VALUE_WITH_SETTINGS = new Tag(TAG_NAME, PARSE_SETTINGS);
+
     @Test
-    public void valueOfTagTest() {
-        // Arrange
-        String tagName = "p";
-        ParseSettings settings = ParseSettings.preserveCase;
-        Tag tag = new Tag(tagName);
-        tags.put(tagName, tag);
-
-        // Act
-        Tag actual = valueOf(tagName, settings);
-
-        // Assert
-        assertEquals(tag, actual);
+    public void getNameTest() {
+        Tag tag = new Tag(TAG_NAME);
+        Assert.assertEquals(TAG_NAME, tag.getName());
     }
 
     @Test
-    public void valueOfTagUpperCaseTest() {
-        // Arrange
-        String tagName = "P";
-        ParseSettings settings = ParseSettings.preserveCase;
-        Tag tag = new Tag(tagName);
-        tags.put(tagName, tag);
+    public void normalNameTest() {
+        Tag tag = new Tag(TAG_NAME);
+        Assert.assertEquals(TAG_NAME, tag.normalName());
+    }
 
-        // Act
-        Tag actual = valueOf(tagName, settings);
-
-        // Assert
-        assertEquals(tag, actual);
+    @Test
+    public void valueOfTest() {
+        Assert.assertEquals(TAG_VALUE, Tag.valueOf(TAG_NAME));
+        Assert.assertEquals(TAG_VALUE_WITH_SETTINGS, Tag.valueOf(TAG_NAME, PARSE_SETTINGS));
     }
 
 }

@@ -5,20 +5,22 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 public class GeneratedCalculateSpansTest {
+
+    @Mock
+    private OnlineStockSpan onlineStockSpan;
 
     @Test
     public void calculateSpansTest() {
-        // Arrange
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = new int[]{1, 3, 2, 4};
-        int[] expected = new int[]{1, 2, 1, 4};
-
-        // Act
-        int[] actual = stockSpan.calculateSpans(prices);
-
-        // Assert
-        assertArrayEquals(expected, actual);
+        MockitoAnnotations.initMocks(this);
+        int[] prices = {1, 2, 3};
+        int[] expected = {1, 2, 3};
+        when(onlineStockSpan.calculateSpans(prices)).thenReturn(expected);
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, result);
     }
 
 }

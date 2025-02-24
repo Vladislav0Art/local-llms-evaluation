@@ -1,37 +1,38 @@
 package ch.jalu.configme.configurationdata;
 
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+import ch.jalu.configme.properties.Property;
+
 public class GeneratedTest {
-
-    private PropertyListBuilder propertyListBuilder;
-
-    @Before
-    public void setup() {
-        propertyListBuilder = new PropertyListBuilder();
-    }
 
     @Test
     public void addTest() {
-        Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("testPath");
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Property<?> property = Mockito.mock(Property.class);
         propertyListBuilder.add(property);
-        assertEquals(1, propertyListBuilder.getRootEntries().size());
+        assertNotNull(propertyListBuilder.create());
     }
 
     @Test
-    public void addPathAlreadyExistsTest() {
-        Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("testPath");
-        propertyListBuilder.add(property);
-        assertThrows(ConfigMeException.class, () -> propertyListBuilder.add(property));
+    public void addTest_nullProperty() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(null);
     }
 
     @Test
     public void createTest() {
-        Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("testPath");
-        propertyListBuilder.add(property);
-        List<Property<?>> result = propertyListBuilder.create();
-        assertEquals(1, result.size());
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        assertNotNull(propertyListBuilder.create());
+    }
+
+    @Test
+    public void getRootEntriesTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
+        assertNotNull(rootEntries);
     }
 
 }

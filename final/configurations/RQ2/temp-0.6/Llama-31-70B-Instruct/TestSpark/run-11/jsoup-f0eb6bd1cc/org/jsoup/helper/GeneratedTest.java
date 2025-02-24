@@ -2,40 +2,49 @@ package org.jsoup.helper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import org.jsoup.helper.UrlBuilder;
-import org.junit.Test;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
-import java.net.URISyntaxException;
+import java.net.URLEncoder;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class GeneratedTest {
 
+    private final static String URL_STRING = "http://hostname.com";
+
     @Test
-    public void buildTest() throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
-        URL url = new URL("http://www.example.com/test");
-        UrlBuilder urlBuilder = new UrlBuilder(url);
-        URL builtUrl = urlBuilder.build();
-        assertEquals("http://www.example.com/test", builtUrl.toString());
+    public void buildWithValidUrlTest() throws MalformedURLException {
+        // Arrange
+        URL inputUrl = new URL(URL_STRING);
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        // Act
+        URL result = urlBuilder.build();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(URL_STRING, result.toString());
     }
 
     @Test
-    public void appendKeyValTest() throws UnsupportedEncodingException {
-        URL url = new URL("http://www.example.com/test");
-        UrlBuilder urlBuilder = new UrlBuilder(url);
-        urlBuilder.appendKeyVal(new Connection.KeyVal("test", "value"));
-        assertNotNull(urlBuilder.q);
-        assertTrue(urlBuilder.q.toString().contains("test=value"));
-    }
+    public void buildWithNullUrlTest() {
+        // Arrange
+        URL inputUrl = null;
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
 
-    @Test
-    public void appendToAsciiTest() throws UnsupportedEncodingException {
-        StringBuilder sb = new StringBuilder();
-        UrlBuilder.appendToAscii("test value", true, sb);
-        assertEquals("test+value", sb.toString());
+        // Act
+        MalformedURLException exception = assertThrows(MalformedURLException.class, () -> urlBuilder.build());
+
+        // Assert
+        assertNotNull(exception);
     }
 
 }

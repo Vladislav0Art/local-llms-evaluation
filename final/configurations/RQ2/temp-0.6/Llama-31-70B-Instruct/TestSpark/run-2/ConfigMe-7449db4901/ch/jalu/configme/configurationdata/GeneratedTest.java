@@ -1,49 +1,51 @@
 package ch.jalu.configme.configurationdata;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class GeneratedTest {
 
+    private CommentsConfiguration commentsConfiguration;
+
     @Test
-    public void setCommentWithNullPath() {
-        CommentsConfiguration comments = new CommentsConfiguration();
-        comments.setComment(null, new String[]{"comment 1", "comment 2"});
-        assertEquals(0, comments.getAllComments().size());
+    public void setCommentWithNullPathTest() {
+        assertThrows(NullPointerException.class, () -> commentsConfiguration.setComment(null, ""));
     }
 
     @Test
-    public void setCommentWithNullCommentLines() {
-        CommentsConfiguration comments = new CommentsConfiguration();
-        comments.setComment("path", null);
-        assertEquals(0, comments.getAllComments().size());
+    public void setCommentWithNullCommentLinesTest() {
+        assertThrows(NullPointerException.class, () -> commentsConfiguration.setComment("path", (String[]) null));
     }
 
     @Test
-    public void setCommentWithValidInput() {
-        CommentsConfiguration comments = new CommentsConfiguration();
-        comments.setComment("path", new String[]{"comment 1", "comment 2"});
-        assertEquals(1, comments.getAllComments().size());
-        assertEquals(2, comments.getAllComments().get("path").size());
-        assertEquals("comment 1", comments.getAllComments().get("path").get(0));
-        assertEquals("comment 2", comments.getAllComments().get("path").get(1));
+    public void setCommentWithNullCommentLineTest() {
+        assertThrows(NullPointerException.class, () -> commentsConfiguration.setComment("path", (String) null));
     }
 
     @Test
-    public void getAllCommentsEmpty() {
-        CommentsConfiguration comments = new CommentsConfiguration();
-        assertEquals(0, comments.getAllComments().size());
+    public void setCommentWithEmptyPathTest() {
+        commentsConfiguration.setComment("", "comment");
     }
 
     @Test
-    public void getAllCommentsNonEmpty() {
-        CommentsConfiguration comments = new CommentsConfiguration();
-        comments.setComment("path", new String[]{"comment 1", "comment 2"});
-        assertEquals(1, comments.getAllComments().size());
-        assertEquals(2, comments.getAllComments().get("path").size());
-        assertEquals("comment 1", comments.getAllComments().get("path").get(0));
-        assertEquals("comment 2", comments.getAllComments().get("path").get(1));
+    public void setCommentWithEmptyCommentLinesTest() {
+        String[] commentLines = new String[0];
+        commentsConfiguration.setComment("path", commentLines);
+    }
+
+    @Test
+    public void setCommentWithEmptyCommentLineTest() {
+        String[] commentLines = new String[]{""};
+        commentsConfiguration.setComment("path", commentLines);
+    }
+
+    @Test
+    public void setCommentWithNormalParametersTest() {
+        String[] commentLines = new String[]{"comment"};
+        commentsConfiguration.setComment("path", commentLines);
+    }
+
+    @Test
+    public void getAllCommentsTest() {
+        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
+        assertNotNull(comments);
     }
 
 }

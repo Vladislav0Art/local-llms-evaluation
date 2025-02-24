@@ -1,65 +1,50 @@
 package app;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
+
+import org.junit.Test;
+import app.DBApp;
+import app.IDatabase;
+import com.opencsv.exceptions.CsvValidationException;
+import exceptions.DBAppException;
+import util.filecontroller.Serializer;
+import storage.CsvReader;
+import storage.CsvWriter;
+import util.search.SQLTerm;
+import util.validation.Validator;
 
 public class GeneratedTest {
 
-    private DBApp app;
-
-    @Before
-    public void setUp() {
-        app = new DBApp();
+    @Test
+    public void getMyTablesTest() {
+        DBApp dbApp = new DBApp();
+        HashSet<String> tables = dbApp.getMyTables();
+        assertNotNull(tables);
     }
 
     @Test
-    public void testGetMyTables() {
-        HashSet<String> expected = new HashSet<>(Arrays.asList("table1", "table2"));
-        app.myTables = expected;
-
-        HashSet<String> actual = app.getMyTables();
-
-        assertEquals(expected, actual);
+    public void getReaderTest() {
+        DBApp dbApp = new DBApp();
+        CsvReader reader = dbApp.getReader();
+        assertNotNull(reader);
     }
 
     @Test
-    public void testGetReader() {
-        CsvReader expected = new CsvReader();
-        app.reader = expected;
-
-        CsvReader actual = app.getReader();
-
-        assertEquals(expected, actual);
+    public void getWriterTest() {
+        DBApp dbApp = new DBApp();
+        CsvWriter writer = dbApp.getWriter();
+        assertNotNull(writer);
     }
 
     @Test
-    public void testGetWriter() {
-        CsvWriter expected = new CsvWriter();
-        app.writer = expected;
-
-        CsvWriter actual = app.getWriter();
-
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testInit() {
-        HashSet<String> expected = new HashSet<>(Arrays.asList("table1", "table2"));
-        app.myTables = expected;
-        app.reader = Mockito.mock(CsvReader.class);
-        Mockito.when(app.reader.readAllTables()).thenReturn(expected);
-
-        app.init();
-
-        assertEquals(expected, app.myTables);
+    public void initTest() {
+        DBApp dbApp = new DBApp();
+        dbApp.init();
     }
 
 }

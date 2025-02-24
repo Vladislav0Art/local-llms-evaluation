@@ -1,39 +1,53 @@
 package org.jsoup.helper;
 
 import org.jsoup.helper.UrlBuilder;
-import org.jsoup.Connection;
 import org.junit.Test;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.*;
 
-@RunWith(JUnit4.class)
 public class GeneratedTest {
 
-    private UrlBuilder urlBuilder;
+    @Test
+    public void build() throws Exception {
+        // Arrange
+        URL inputUrl = new URL("http://www.google.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
 
-    @Before
-    public void setUp() {
-        urlBuilder = new UrlBuilder(/* URL input */);
+        // Act
+        URL result = urlBuilder.build();
+
+        // Assert
+        assertEquals(inputUrl, result);
     }
 
     @Test
-    public void buildTest() {
-        URL url = urlBuilder.build();
-        // assertions
+    public void buildMalformedURLException() throws Exception {
+        // Arrange
+        URL inputUrl = new URL("invalid url");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        // Act
+        urlBuilder.build();
     }
 
     @Test
-    public void appendKeyValTest() throws UnsupportedEncodingException {
-        Connection.KeyVal keyVal = /* KeyVal input */;
-        urlBuilder.appendKeyVal(keyVal);
-        // assertions
+    public void buildURISyntaxException() throws Exception {
+        // Arrange
+        URL inputUrl = new URL("http://www.google.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        // Act
+        urlBuilder.build();
+    }
+
+    @Test
+    public void appendKeyValUnsupportedEncodingException() throws Exception {
+        // Arrange
+        URL inputUrl = new URL("http://www.google.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        // Act
+        urlBuilder.appendKeyVal(null);
     }
 
 }

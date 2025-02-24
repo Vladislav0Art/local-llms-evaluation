@@ -1,33 +1,68 @@
 package com.netflix.frigga.ami;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
 public class GeneratedTest {
 
-    @Test
-    public void testGetAppVersionPattern() {
-        Pattern pattern = AppVersion.getAppVersionPattern();
-        assertNotNull(pattern);
+    private AppVersion appVersion;
 
-        String testString = "subscriberha-1.0.0-586499.h150/WE-WAPP-subscriberha/150";
-        Matcher matcher = pattern.matcher(testString);
-        assertTrue(matcher.find());
+    @Test
+    public void parseNameTest() {
+        String amiName = "ami-name";
+        AppVersion expectedAppVersion = new AppVersion();
+
+        AppVersion actualAppVersion = AppVersion.parseName(amiName);
+
+        assertEquals(expectedAppVersion, actualAppVersion);
     }
 
     @Test
-    public void testParseName() {
-        String testString = "subscriberha-1.0.0-586499.h150/WE-WAPP-subscriberha/150";
-        AppVersion appVersion = AppVersion.parseName(testString);
-        assertNotNull(appVersion);
+    public void compareToTest() {
+        AppVersion other = new AppVersion();
 
-        assertEquals("subscriberha", appVersion.getPackageName());
-        assertEquals("1.0.0", appVersion.getVersion());
-        assertEquals("586499", appVersion.getBuildNumber());
-        assertEquals("h150", appVersion.getCommit());
+        int result = appVersion.compareTo(other);
+
+        assertEquals(0, result);
     }
 
     @Test
-    public void testParseNameNullInput() {
-        AppVersion appVersion = AppVersion.parseName(null);
-        assertNull(appVersion);
+    public void getAppVersionPatternTest() {
+        Pattern expectedPattern = Pattern.compile("");
+
+        Pattern actualPattern = AppVersion.getAppVersionPattern();
+
+        assertEquals(expectedPattern, actualPattern);
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        String expectedPackageName = "package-name";
+
+        String actualPackageName = appVersion.getPackageName();
+
+        assertEquals(expectedPackageName, actualPackageName);
+    }
+
+    @Test
+    public void getVersionTest() {
+        String expectedVersion = "version";
+
+        String actualVersion = appVersion.getVersion();
+
+        assertEquals(expectedVersion, actualVersion);
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        String expectedBuildJobName = "build-job-name";
+
+        String actualBuildJobName = appVersion.getBuildJobName();
+
+        assertEquals(expectedBuildJobName, actualBuildJobName);
     }
 
 }

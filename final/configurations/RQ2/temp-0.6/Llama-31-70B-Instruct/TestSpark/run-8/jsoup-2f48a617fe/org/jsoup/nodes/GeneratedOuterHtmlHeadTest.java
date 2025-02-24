@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
@@ -16,18 +17,17 @@ import static org.mockito.Mockito.when;
 public class GeneratedOuterHtmlHeadTest {
 
     @Mock
-    private Document.OutputSettings outputSettings;
+    ParseSettings parseSettings;
+
     @Mock
-    private Parser parser;
+    Parser parser;
 
     @Test
     public void outerHtmlHeadTest() throws IOException {
-        Comment comment = new Comment("Hello, World!");
-
-        when(outputSettings.prettyPrint()).thenReturn(true);
-        when(outputSettings.outline()).thenReturn(true);
-
-        assertEquals("<!--Hello, World!-->", comment.outerHtml());
+        Comment comment = new Comment("comment");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlHead(sb, 0, parseSettings);
+        assertEquals("<!--comment-->", sb.toString());
     }
 
 }

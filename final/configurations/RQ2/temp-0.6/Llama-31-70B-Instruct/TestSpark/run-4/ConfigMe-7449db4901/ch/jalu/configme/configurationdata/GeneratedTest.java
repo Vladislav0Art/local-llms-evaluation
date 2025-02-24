@@ -1,0 +1,55 @@
+package ch.jalu.configme.configurationdata;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import ch.jalu.configme.SettingsHolder;
+import ch.jalu.configme.configurationdata.CommentsConfiguration;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void setCommentTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "testPath";
+        String comment1 = "comment1";
+        String comment2 = "comment2";
+        commentsConfiguration.setComment(path, comment1, comment2);
+        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
+        assertNotNull(comments);
+        assertEquals(1, comments.size());
+        assertEquals(Arrays.asList(comment1, comment2), comments.get(path));
+    }
+
+    @Test
+    public void setCommentNoCommentsTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "testPath";
+        commentsConfiguration.setComment(path);
+        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
+        assertNotNull(comments);
+        assertEquals(1, comments.size());
+        assertEquals(Collections.emptyList(), comments.get(path));
+    }
+
+    @Test
+    public void setCommentEmptyCommentTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "testPath";
+        String comment1 = "";
+        commentsConfiguration.setComment(path, comment1);
+        Map<String, List<String>> comments = commentsConfiguration.getAllComments();
+        assertNotNull(comments);
+        assertEquals(1, comments.size());
+        assertEquals(Arrays.asList(""), comments.get(path));
+    }
+
+}

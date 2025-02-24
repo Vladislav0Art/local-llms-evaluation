@@ -1,28 +1,27 @@
 package org.jsoup.helper;
 
-import org.jsoup.helper.UrlBuilder;
-
-import static org.junit.Assert.*;
-
-import org.junit.Before;
+import org.jsoup.Connection;
 import org.junit.Test;
-import org.mockito.Mockito;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
 
 public class GeneratedAppendKeyValTest {
 
-    private UrlBuilder urlBuilder;
-
-    @Before
-    public void setUp() {
-        urlBuilder = new UrlBuilder(Mockito.mock(URL.class));
-    }
-
     @Test
-    public void appendKeyValTest() throws Exception {
-        Connection.KeyVal kv = Mockito.mock(Connection.KeyVal.class);
+    public void appendKeyValTest() throws UnsupportedEncodingException {
+        // Arrange
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+
+        // Act
         urlBuilder.appendKeyVal(kv);
+
+        // Assert
+        assertEquals("key=value", urlBuilder.toString());
     }
 
 }

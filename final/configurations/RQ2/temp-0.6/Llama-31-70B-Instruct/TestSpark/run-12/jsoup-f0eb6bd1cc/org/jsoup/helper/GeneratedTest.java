@@ -1,51 +1,26 @@
 package org.jsoup.helper;
 
-import org.jsoup.helper.UrlBuilder;
-
-import static org.junit.Assert.*;
-
-import org.junit.Before;
+import org.jsoup.Connection;
 import org.junit.Test;
-import org.mockito.Mockito;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
 
 public class GeneratedTest {
 
-    private UrlBuilder urlBuilder;
-
-    @Before
-    public void setUp() {
-        urlBuilder = new UrlBuilder(Mockito.mock(URL.class));
-    }
-
     @Test
-    public void buildTest() {
-        URL expectedUrl = Mockito.mock(URL.class);
-        Mockito.when(urlBuilder.build()).thenReturn(expectedUrl);
-        URL actualUrl = urlBuilder.build();
-        assertEquals(expectedUrl, actualUrl);
-    }
+    public void buildTest() throws Exception {
+        // Arrange
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
 
-    @Test
-    public void appendKeyValTest() throws Exception {
-        Connection.KeyVal kv = Mockito.mock(Connection.KeyVal.class);
-        urlBuilder.appendKeyVal(kv);
-    }
+        // Act
+        URL result = urlBuilder.build();
 
-    @Test
-    public void decodePartTest() {
-        String expectedDecoded = "decoded";
-        String encoded = "encoded";
-        assertEquals(expectedDecoded, UrlBuilder.decodePart(encoded));
-    }
-
-    @Test
-    public void appendToAsciiTest() throws Exception {
-        StringBuilder sb = new StringBuilder();
-        String s = "s";
-        boolean spaceAsPlus = true;
-        UrlBuilder.appendToAscii(s, spaceAsPlus, sb);
+        // Assert
+        assertEquals(inputUrl, result);
     }
 
 }

@@ -1,0 +1,17 @@
+package leetcode.medium;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class GeneratedNextIsIncreasingTest {
+
+    @Test
+    public void nextIsIncreasingTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(10));
+        assertEquals(2, stockSpan.next(15));
+        assertEquals(3, stockSpan.next(20));
+    }
+
+}

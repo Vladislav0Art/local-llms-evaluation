@@ -5,32 +5,52 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 public class GeneratedTest {
 
-    @Test
-    public void nextTest() {
-        // Arrange
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-
-        // Act
-        int actual = stockSpan.next(10);
-
-        // Assert
-        assertEquals(1, actual);
-    }
+    @Mock
+    private OnlineStockSpan onlineStockSpan;
 
     @Test
     public void calculateSpansTest() {
-        // Arrange
-        OnlineStockSpan stockSpan = new OnlineStockSpan();
-        int[] prices = new int[]{1, 3, 2, 4};
-        int[] expected = new int[]{1, 2, 1, 4};
+        MockitoAnnotations.initMocks(this);
+        int[] prices = {1, 2, 3};
+        int[] expected = {1, 2, 3};
+        when(onlineStockSpan.calculateSpans(prices)).thenReturn(expected);
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, result);
+    }
 
-        // Act
-        int[] actual = stockSpan.calculateSpans(prices);
+    @Test
+    public void calculateSpansNullTest() {
+        MockitoAnnotations.initMocks(this);
+        int[] prices = null;
+        int[] expected = null;
+        when(onlineStockSpan.calculateSpans(prices)).thenReturn(expected);
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, result);
+    }
 
-        // Assert
-        assertArrayEquals(expected, actual);
+    @Test
+    public void calculateSpansEmptyTest() {
+        MockitoAnnotations.initMocks(this);
+        int[] prices = new int[0];
+        int[] expected = new int[0];
+        when(onlineStockSpan.calculateSpans(prices)).thenReturn(expected);
+        int[] result = onlineStockSpan.calculateSpans(prices);
+        assertArrayEquals(expected, result);
+    }
+
+    @Test
+    public void nextTest() {
+        MockitoAnnotations.initMocks(this);
+        int price = 10;
+        int expected = 1;
+        when(onlineStockSpan.next(price)).thenReturn(expected);
+        int result = onlineStockSpan.next(price);
+        assertEquals(expected, result);
     }
 
 }

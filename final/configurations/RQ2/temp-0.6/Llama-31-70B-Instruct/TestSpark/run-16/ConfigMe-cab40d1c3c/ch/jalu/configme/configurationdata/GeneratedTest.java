@@ -1,38 +1,51 @@
 package ch.jalu.configme.configurationdata;
 
+import ch.jalu.configme.properties.Property;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
     @Test
-    public void testAdd() {
-        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
-        Property<?> property = Mockito.mock(Property.class);
-        Mockito.when(property.getPath()).thenReturn("DataSource.mysql");
-        propertyListBuilder.add(property);
-        Map<String, Object> rootEntries = propertyListBuilder.getRootEntries();
+    public void addTest_WithValidProperty_PropertyAdded() {
+        PropertyListBuilder builder = new PropertyListBuilder();
 
-        assertEquals(1, rootEntries.size());
-        assertTrue(rootEntries.containsKey("DataSource"));
-        assertTrue(rootEntries.get("DataSource") instanceof Map);
-        Map<?, ?> dataSourceMap = (Map<?, ?>) rootEntries.get("DataSource");
-        assertEquals(1, dataSourceMap.size());
-        assertTrue(dataSourceMap.containsKey("mysql"));
-        assertEquals(property, dataSourceMap.get("mysql"));
+        Property<?> property = new Property<>(String.class, "key", "default");
+        builder.add(property);
+
+        List<Property<?>> properties = builder.create();
+        assertEquals(1, properties.size());
+        assertTrue(properties.contains(property));
     }
 
     @Test
-    public void testAdd_WithDuplicatePath() {
-        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
-        Property<?> property = Mockito.mock(Property.class);
-        Mockito.when(property.getPath()).thenReturn("DataSource.mysql");
-        propertyListBuilder.add(property);
-        propertyListBuilder.add(property);
+    public void addTest_WithNullProperty_ThrowsException() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+        builder.add(null);
+    }
+
+    @Test
+    public void createTest_WithoutProperties_EmptyListReturned() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        List<Property<?>> properties = builder.create();
+        assertEquals(0, properties.size());
+    }
+
+    @Test
+    public void getRootEntriesTest_WithoutProperties_EmptyMapReturned() {
+        PropertyListBuilder builder = new PropertyListBuilder();
+
+        ArrayList<Property<?>> properties = (ArrayList<Property<?>>) builder.create();
+        assertEquals(0, properties.size());
     }
 
 }

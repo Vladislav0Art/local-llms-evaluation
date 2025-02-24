@@ -1,0 +1,60 @@
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Attributes attributes;
+
+    @Test
+    public void getIndexOfKeyTest() {
+        when(attributes.indexOfKey("key")).thenReturn(2);
+        assertEquals(attributes.indexOfKey("key"), 2);
+    }
+
+    @Test
+    public void checkNotNullTest() {
+        when(attributes.checkNotNull("value")).thenReturn("value");
+        assertEquals(attributes.checkNotNull("value"), "value");
+    }
+
+    @Test
+    public void getTest() {
+        when(attributes.get("key")).thenReturn("value");
+        assertEquals(attributes.get("key"), "value");
+    }
+
+    @Test
+    public void getIgnoreCaseTest() {
+        when(attributes.getIgnoreCase("key")).thenReturn("value");
+        assertEquals(attributes.getIgnoreCase("key"), "value");
+    }
+
+    @Test
+    public void getUserDataTest() {
+        when(attributes.getUserData("key")).thenReturn(new Object());
+        assertNotNull(attributes.getUserData("key"));
+    }
+
+}

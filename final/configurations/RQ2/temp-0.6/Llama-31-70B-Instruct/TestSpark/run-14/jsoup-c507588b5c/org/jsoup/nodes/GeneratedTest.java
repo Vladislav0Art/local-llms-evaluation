@@ -1,57 +1,50 @@
 package org.jsoup.nodes;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-
 public class GeneratedTest {
 
-    private TextNode textNode;
+`
+        9.
+        10.    `
 
-    @Before
-    public void setUp() {
-        textNode = new TextNode("example text");
+    @Test
+    public void testNodeName() {
+		`
+        12. TextNode textNode = new TextNode("Some Text");`
+        13. assertEquals("Some Text", textNode.nodeName());`
+        14.
     }
 
     @Test
-    public void shouldGetNodeName() {
-        String nodeName = textNode.nodeName();
-        assertEquals("#text", nodeName);
+    public void testText() {
+		`
+        18. TextNode textNode = new TextNode("Some Text");`
+        19. assertEquals("Some Text", textNode.text());`
+        20.
     }
 
     @Test
-    public void shouldGetTextContent() {
-        String textContent = textNode.text();
-        assertEquals("example text", textContent);
+    public void testIsBlank() {
+		`
+        24. TextNode textNode = new TextNode("");`
+        25. assertTrue(textNode.isBlank());`
+        26.
     }
 
     @Test
-    public void shouldSetTextContent() {
-        String newText = "new text";
-        textNode.text(newText);
-        assertEquals(newText, textNode.text());
+    public void testSplitText() {
+		`
+        30. TextNode textNode = new TextNode("Some Text");`
+        31. TextNode splitTextNode = textNode.splitText(5);`
+        32. assertEquals("Text", splitTextNode.text());`
+        33.
     }
 
     @Test
-    public void shouldGetWholeText() {
-        String wholeText = textNode.getWholeText();
-        assertEquals("example text", wholeText);
-    }
-
-    @Test
-    public void shouldCheckIfNodeIsBlank() {
-        boolean isBlank = textNode.isBlank();
-        assertEquals(false, isBlank);
-    }
-
-    @Test
-    public void shouldSplitTextNode() {
-        TextNode splitNode = textNode.splitText(2);
-        assertEquals("ex", textNode.getWholeText());
-        assertEquals("ample text", splitNode.getWholeText());
+    public void testToString() {
+		`
+        37. TextNode textNode = new TextNode("Some Text");`
+        38. assertEquals("Some Text", textNode.toString());`
+        39.
     }
 
 }

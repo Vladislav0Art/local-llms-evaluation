@@ -1,21 +1,38 @@
 package org.jsoup.nodes;
 
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.XmlDeclaration;
 import org.junit.Test;
-import org.jsoup.nodes.Comment;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+import java.io.StringWriter;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GeneratedSetDataTest {
 
+    @Mock
+    private Document document;
+
+    @Mock
+    private XmlDeclaration xmlDeclaration;
+
     @Test
     public void setDataTest() {
-        Comment comment = Mockito.mock(Comment.class);
-        Mockito.when(comment.setData("Comment data")).thenReturn(comment);
-        assertEquals("Comment data", comment.setData("Comment data").getData());
+        Comment comment = new Comment("test");
+        Comment newComment = comment.setData("new test");
+        assertEquals("new test", newComment.getData());
     }
 
 }

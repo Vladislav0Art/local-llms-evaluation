@@ -1,67 +1,55 @@
 package org.jsoup.nodes;
 
-import org.jsoup.helper.Validate;
-import org.jsoup.internal.StringUtil;
-import org.jsoup.parser.Tag;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.io.StringWriter;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class GeneratedTest {
 
-    private TextNode textNode;
-
-    @Before
-    public void setUp() {
-        textNode = new TextNode("");
+    @Test
+    public void constructorTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.nodeName());
+        assertEquals("test", textNode.text());
     }
 
     @Test
-    public void testNodeName() {
-        assertEquals("#text", textNode.nodeName());
+    public void textTest() {
+        TextNode textNode = new TextNode("test");
+        textNode.text("new text");
+        assertEquals("new text", textNode.text());
     }
 
     @Test
-    public void testText() {
-        textNode.coreValue("#text");
-        assertEquals("#text", textNode.text());
+    public void getWholeTextTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.getWholeText());
     }
 
     @Test
-    public void testGetWholeText() {
-        textNode.coreValue("Whole text");
-        assertEquals("Whole text", textNode.getWholeText());
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("test");
+        assertFalse(textNode.isBlank());
     }
 
     @Test
-    public void testIsBlank() {
-        textNode.coreValue("");
-        assertTrue(textNode.isBlank());
+    public void splitTextTest() {
+        TextNode textNode = new TextNode("test");
+        TextNode splitTextNode = textNode.splitText(2);
+        assertEquals("te", textNode.text());
+        assertEquals("st", splitTextNode.text());
     }
 
     @Test
-    public void testSplitText() {
-        textNode.coreValue("Split text");
-        TextNode tailNode = textNode.splitText(4);
-        assertEquals("Split", textNode.coreValue());
-        assertEquals(" text", tailNode.coreValue());
-    }
-
-    @Test
-    public void testSplitTextWithNegativeOffset() {
-        textNode.splitText(-1);
-    }
-
-    @Test
-    public void testSplitTextWithGreaterOffset() {
-        textNode.coreValue("Split text");
-        textNode.splitText(11);
+    public void outerHtmlHeadTest() throws IOException {
+        TextNode textNode = new TextNode("test");
+        StringWriter stringWriter = new StringWriter();
+        textNode.outerHtmlHead(stringWriter, 0, Mockito.mock(Document.OutputSettings.class));
+        assertEquals("test", stringWriter.toString());
     }
 
 }

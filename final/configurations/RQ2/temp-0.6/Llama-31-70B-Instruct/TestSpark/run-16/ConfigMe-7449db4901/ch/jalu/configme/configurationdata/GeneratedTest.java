@@ -1,46 +1,39 @@
 package ch.jalu.configme.configurationdata;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    @Mock
-    private Map<String, List<String>> comments;
-
     @Test
-    public void setCommentShouldAddComment() {
-        // Given
-        CommentsConfiguration config = new CommentsConfiguration(comments);
-        String path = "testPath";
-        String[] commentLines = {"line1", "line2"};
-
-        // When
-        config.setComment(path, commentLines);
-
-        // Then
-        assertTrue(config.getAllComments().containsKey(path));
-        assertEquals(Arrays.asList(commentLines), config.getAllComments().get(path));
+    public void testConstructorWithNoArguments() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertNotNull(commentsConfiguration);
     }
 
     @Test
-    public void setCommentShouldOverrideExistingComment() {
-        // Given
-        CommentsConfiguration config = new CommentsConfiguration(comments);
-        String path = "testPath";
-        String[] commentLines1 = {"line1", "line2"
-        }
-
+    public void testConstructorWithMapArgument() {
+        Map<String, List<String>> comments = new HashMap<>();
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+        assertNotNull(commentsConfiguration);
     }
+
+    @Test
+    public void testSetComment() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        String path = "test";
+        String[] commentLines = new String[]{"line1", "line2"};
+        commentsConfiguration.setComment(path, commentLines);
+        assertEquals(Arrays.asList(commentLines), commentsConfiguration.getAllComments().get(path));
+    }
+
+    @Test
+    public void testGetAllComments() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertEquals(Collections.emptyMap(), commentsConfiguration.getAllComments());
+    }
+
+}

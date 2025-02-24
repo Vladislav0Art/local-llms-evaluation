@@ -2,50 +2,51 @@ package ch.jalu.configme.configurationdata;
 
 public class GeneratedTest {
 
-    private PropertyListBuilder builder;
+    private PropertyListBuilder propertyListBuilder;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() {
-        builder = new PropertyListBuilder();
+        propertyListBuilder = new PropertyListBuilder();
     }
 
     @Test
-    public void testAddProperty_valid() {
-        Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("DataSource.mysql");
+    public void addNullPropertyTest() {
+        expectedException.expect(NullPointerException.class);
+        expectedException.expectMessage("Property cannot be null");
 
-        builder.add(property);
-
-        assertTrue(builder.getRootEntries().containsKey("DataSource"));
+        propertyListBuilder.add(null);
     }
 
     @Test
-    public void testAddProperty_duplicate() {
-        Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("DataSource.mysql");
+    public void addNormalPropertyTest() {
+        Property property = mock(Property.class);
 
-        builder.add(property);
-        builder.add(property); // Should throw exception
+        propertyListBuilder.add(property);
+
+        verify(property).setConfigurable(true);
     }
 
     @Test
-    public void testAddProperty_invalidPath() {
-        Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("DataSource.mysql.password");
+    public void createEmptyListTest() {
+        List<Property<?>> propertyList = propertyListBuilder.create();
 
-        builder.add(property); // Should throw exception
+        assertThat(propertyList, notNullValue());
+        assertThat(propertyList, empty());
     }
 
     @Test
-    public void testCreate_valid() {
-        Property<?> property = mock(Property.class);
-        when(property.getPath()).thenReturn("DataSource.mysql");
+    public void createListWithOnePropertyTest() {
+        Property property = mock(Property.class);
+        propertyListBuilder.add(property);
 
-        builder.add(property);
+        List<Property<?>> propertyList = propertyListBuilder.create();
 
-        List<Property<?>> result = builder.create();
-        assertEquals(1, result.size());
-        assertEquals(property, result.get(0));
+        assertThat(propertyList, notNullValue());
+        assertThat(propertyList.size(), is(1));
+        assertThat(propertyList.get(0), equalTo(property));
     }
 
 }

@@ -1,0 +1,11 @@
+package org.jsoup.nodes;
+
+public class GeneratedIsBlankTest {
+
+    @Test
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("  ");
+        assertTrue(textNode.isBlank());
+    }
+
+}

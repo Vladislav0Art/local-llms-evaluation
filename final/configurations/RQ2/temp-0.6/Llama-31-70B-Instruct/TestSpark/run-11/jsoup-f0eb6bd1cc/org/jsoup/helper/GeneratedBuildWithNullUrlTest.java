@@ -1,0 +1,36 @@
+package org.jsoup.helper;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+
+import org.jsoup.Connection;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class GeneratedBuildWithNullUrlTest {
+
+    private final static String URL_STRING = "http://hostname.com";
+
+    @Test
+    public void buildWithNullUrlTest() {
+        // Arrange
+        URL inputUrl = null;
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+
+        // Act
+        MalformedURLException exception = assertThrows(MalformedURLException.class, () -> urlBuilder.build());
+
+        // Assert
+        assertNotNull(exception);
+    }
+
+}

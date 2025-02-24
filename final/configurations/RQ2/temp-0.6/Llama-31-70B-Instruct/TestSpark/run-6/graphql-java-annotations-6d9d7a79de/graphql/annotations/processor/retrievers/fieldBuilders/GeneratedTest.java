@@ -1,25 +1,46 @@
 package graphql.annotations.processor.retrievers.fieldBuilders;
 
-import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.schema.GraphQLDirective;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
-
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
     @Test
-    public void testBuild() throws Exception {
-        AnnotatedElement annotatedElement = mock(AnnotatedElement.class);
-        ProcessingElementsContainer processingElementsContainer = mock(ProcessingElementsContainer.class);
-        DirectivesBuilder directivesBuilder = new DirectivesBuilder(annotatedElement, processingElementsContainer);
-        GraphQLDirective[] graphQLDirectives = directivesBuilder.build();
-        assertEquals(graphQLDirective.length, graphQLDirectives.length);
-        assertTrue(graphQLDirectives.length > 0);
+    public void buildNoDirectivesTest() {
+        // Arrange
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(null, null);
+
+        // Act
+        GraphQLDirective[] directives = directivesBuilder.build();
+
+        // Assert
+        assertNull(directives);
+    }
+
+    @Test
+    public void buildWithDirectivesTest() {
+        // Arrange
+        AnnotatedElement annotatedElement = Mockito.mock(AnnotatedElement.class);
+        GraphQLDirectives graphQLDirectives = Mockito.mock(GraphQLDirectives.class);
+        Mockito.when(annotatedElement.isAnnotationPresent(GraphQLDirectives.class)).thenReturn(true);
+        Mockito.when(annotatedElement.getAnnotation(GraphQLDirectives.class)).thenReturn(graphQLDirectives);
+
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(annotatedElement, null);
+
+        // Act
+        GraphQLDirective[] directives = directivesBuilder.build();
+
+        // Assert
+        assertNotNull(directives);
     }
 
 }

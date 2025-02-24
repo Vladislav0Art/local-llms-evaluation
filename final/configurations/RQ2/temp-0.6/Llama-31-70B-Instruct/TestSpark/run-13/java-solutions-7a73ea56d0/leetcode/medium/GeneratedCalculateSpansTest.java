@@ -1,17 +1,20 @@
 package leetcode.medium;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import static org.junit.Assert.*;
 
+@RunWith(JUnit4.class)
 public class GeneratedCalculateSpansTest {
 
     @Test
     public void calculateSpansTest() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        assertArrayEquals(new int[]{1, 1, 1, 1, 1}, onlineStockSpan.calculateSpans(new int[]{1, 2, 3, 4, 5}));
-        assertArrayEquals(new int[]{1, 2, 3, 4, 5}, onlineStockSpan.calculateSpans(new int[]{5, 4, 3, 2, 1}));
-        assertArrayEquals(new int[]{1, 2, 1, 4, 1}, onlineStockSpan.calculateSpans(new int[]{100, 80, 60, 70, 60}));
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = {10, 20, 30};
+        int[] spans = stockSpan.calculateSpans(prices);
+        assertArrayEquals(new int[]{0, 1, 1}, spans);
     }
 
 }

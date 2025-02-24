@@ -1,65 +1,45 @@
 package net.revelc.code.formatter.css;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+
+import java.io.IOException;
+import java.util.Map;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.w3c.css.sac.InputSource;
+import com.steadystate.css.dom.CSSStyleSheetImpl;
+import com.steadystate.css.format.CSSFormat;
+import com.steadystate.css.parser.CSSOMParser;
+import com.steadystate.css.parser.SACParserCSS3;
+import net.revelc.code.formatter.AbstractCacheableFormatter;
+import net.revelc.code.formatter.ConfigurationSource;
+import net.revelc.code.formatter.Formatter;
+import net.revelc.code.formatter.LineEnding;
+
 public class GeneratedTest {
 
-    private CssFormatter cssFormatter;
-
-    @BeforeEach
-    void init() {
-        cssFormatter = new CssFormatter();
+    @Test
+    public void initWithOptionsAndCfgTest() {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = mock(Map.class);
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        formatter.init(options, cfg);
+        assertTrue(formatter.isInitialized());
     }
 
     @Test
-    public void init_validOptions_shouldCreateFormatter() {
-        Map<String, String> options = new HashMap<>();
-        options.put("indent", "4");
-        options.put("rgbAsHex", "true");
-        options.put("useSourceStringValues", "false");
-        cssFormatter.init(options, null);
-
-        assertNotNull(cssFormatter.getFormatter());
-    }
-
-    @Test
-    public void doFormat_validCodeAndEnding_shouldFormatCode() throws IOException {
+    public void doFormatWithCodeAndLineEndingTest() throws IOException {
+        CssFormatter formatter = new CssFormatter();
         String code = "h1 {color: red;}";
-        String expectedFormattedCode = "h1 {\n    color: red;\n}";
-        String formattedCode = cssFormatter.doFormat(code, null);
-
-        assertEquals(expectedFormattedCode, formattedCode);
-    }
-
-    @Test
-    public void doFormat_sameCode_shouldReturnNull() throws IOException {
-        String code = "h1 {\n    color: red;\n}";
-        String formattedCode = cssFormatter.doFormat(code, null);
-
-        assertNull(formattedCode);
-    }
-
-    @Test
-    public void isInitialized_afterInit_shouldReturnTrue() {
-        Map<String, String> options = new HashMap<>();
-        options.put("indent", "4");
-        options.put("rgbAsHex", "true");
-        options.put("useSourceStringValues", "false");
-        cssFormatter.init(options, null);
-
-        assertTrue(cssFormatter.isInitialized());
-    }
-
-    @Test
-    public void isInitialized_withoutInit_shouldReturnFalse() {
-        assertFalse(cssFormatter.isInitialized());
-    }
-}
-
-class AbstractCacheableFormatterTest {
-    private AbstractCacheableFormatter abstractCacheableFormatter;
-
-    @BeforeEach
-    void init() {
-        abstractCacheableFormatter = new AbstractCacheableFormatter();
+        LineEnding lineEnding = LineEnding.UNIX;
+        String formattedCode = formatter.doFormat(code, lineEnding);
+        assertEquals(formattedCode, "h1 {\n\tcolor: red;\n}");
     }
 
 }

@@ -1,24 +1,19 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.Comment;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class GeneratedToStringTest {
 
-    public Comment comment;
-
-    @Before
-    public void setUp() {
-        comment = new Comment("Some data");
-    }
-
     @Test
-    public void toStringTest() {
-        String expected = "Some data";
-        String actual = comment.toString();
-        assertEquals(expected, actual);
+    public void ToStringTest() {
+        Comment comment = new Comment("data");
+        assertEquals("Comment[data]", comment.toString());
     }
 
 }

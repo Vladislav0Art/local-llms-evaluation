@@ -1,70 +1,66 @@
 package org.jsoup.nodes;
 
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.XmlDeclaration;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import java.io.IOException;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
 public class GeneratedTest {
 
-    @Mock
-    private Comment comment;
+    @Test
+    public void constructorTest() {
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
+        assertEquals("comment", comment.nodeName());
+    }
+
+    @Test
+    public void getDataTest() {
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
+    }
 
     @Test
     public void setDataTest() {
-        comment.setData("Data");
-        assertEquals("Data", comment.getData());
+        Comment comment = new Comment("test");
+        comment.setData("new data");
+        assertEquals("new data", comment.getData());
     }
 
     @Test
     public void outerHtmlHeadTest() throws IOException {
-        StringBuilder accum = new StringBuilder();
-        Document.OutputSettings out = new Document.OutputSettings();
-        out.prettyPrint(true);
-        out.outline(true);
-        comment.setData("Data");
-
-        comment.outerHtmlHead(accum, 0, out);
-        assertEquals("<!--Data-->", accum.toString());
+        Comment comment = new Comment("test");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlHead(sb, 0, null);
+        assertEquals("<!--test-->", sb.toString());
     }
 
     @Test
-    public void outerHtmlTailTest() {
-        StringBuilder accum = new StringBuilder();
-        Document.OutputSettings out = new Document.OutputSettings();
-        out.prettyPrint(true);
-        out.outline(true);
-        comment.setData("Data");
-
-        comment.outerHtmlTail(accum, 0, out);
-        assertEquals("", accum.toString());
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("test");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlTail(sb, 0, null);
+        assertEquals("", sb.toString());
     }
 
     @Test
     public void toStringTest() {
-        comment.setData("Data");
-        assertEquals("<!--Data-->", comment.toString());
+        Comment comment = new Comment("test");
+        assertEquals("<!--test-->", comment.toString());
     }
 
     @Test
     public void cloneTest() {
-        Comment cloneComment = comment.clone();
-        assertEquals(comment, cloneComment);
-    }
-
-    @Test
-    public void isXmlDeclarationTest() {
-        comment.setData("Data");
-        assertEquals(false, comment.isXmlDeclaration());
-    }
-
-    @Test
-    public void asXmlDeclarationTest() {
-        comment.setData("Data");
-        assertEquals(null, comment.asXmlDeclaration());
+        Comment comment = new Comment("test");
+        Comment clone = (Comment) comment.clone();
+        assertEquals("test", clone.getData());
+        assertEquals("comment", clone.nodeName());
     }
 
 }

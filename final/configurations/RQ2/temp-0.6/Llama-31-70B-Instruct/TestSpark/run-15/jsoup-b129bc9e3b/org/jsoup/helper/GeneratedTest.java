@@ -1,0 +1,47 @@
+package org.jsoup.helper;
+
+import org.jsoup.helper.HttpConnection;
+import org.junit.Test;
+
+public class GeneratedTest {
+
+    @Test
+    public void testConnect_stringUrl() {
+        HttpConnection connection = HttpConnection.connect("https://www.google.com");
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void testConnect_url() {
+        HttpConnection connection = HttpConnection.connect(new URL("https://www.google.com"));
+        assertNotNull(connection);
+    }
+
+    @Test
+    public void testNewRequest() {
+        HttpConnection connection = new HttpConnection();
+        assertNotNull(connection.newRequest());
+    }
+
+    @Test
+    public void testUrl() {
+        HttpConnection connection = new HttpConnection();
+        connection.url("https://www.google.com");
+        assertEquals("https://www.google.com", connection.url());
+    }
+
+    @Test
+    public void testProxy() {
+        HttpConnection connection = new HttpConnection();
+        connection.proxy("192.168.1.1", 8080);
+        assertEquals(new InetSocketAddress("192.168.1.1", 8080), connection.proxy());
+    }
+
+    @Test
+    public void testUserAgent() {
+        HttpConnection connection = new HttpConnection();
+        connection.userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36");
+        assertEquals("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36", connection.userAgent());
+    }
+
+}

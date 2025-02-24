@@ -1,48 +1,50 @@
 package graphql.annotations.processor.retrievers.fieldBuilders;
 
-import graphql.annotations.processor.util.DirectiveJavaAnnotationUtil;
-import graphql.schema.GraphQLDirective;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+import graphql.annotations.annotationTypes.directives.activation.GraphQLDirectives;
+import graphql.annotations.processor.ProcessingElementsContainer;
+import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 public class GeneratedTest {
 
     @Mock
-    private AnnotatedElement object;
+    private AnnotatedElement annotatedElement;
 
     @Mock
-    private ProcessingElementsContainer container;
+    private ProcessingElementsContainer processingElementsContainer;
 
-    private DirectivesBuilder directivesBuilder;
+    @Mock
+    private Method method;
 
-    @Before
-    public void setUp() {
-        directivesBuilder = new DirectivesBuilder(object, container);
+    @Test
+    public void buildWhenNoDirectives() {
+        when(annotatedElement.getAnnotations()).thenReturn(new Annotation[0]);
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(annotatedElement, processingElementsContainer);
+        assertNull(directivesBuilder.build());
     }
 
     @Test
-    public void buildWithoutDirectives() {
-        when(container.getDirectiveRegistry().containsKey("directiveName")).thenReturn(false);
-        GraphQLDirective[] directives = directivesBuilder.build();
-        assertEquals(0, directives.length);
-    }
-
-    @Test
-    public void buildWithDirectives() {
-        when(container.getDirectiveRegistry().containsKey("directiveName")).thenReturn(true);
-        List<GraphQLDirective> directives = DirectiveJavaAnnotationUtil.getDirectiveAnnotations(object);
-        when(container.getDirectiveRegistry().get("directiveName").getDirective()).thenReturn(directives.get(0));
-        GraphQLDirective[] directives1 = directivesBuilder.build();
-        assertEquals(1, directives1.length);
+    public void buildWhenDirectives() {
+        when(annotatedElement.getAnnotations()).thenReturn(new Annotation[]{new GraphQLDirectives() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return GraphQLDirectives.class;
+            }
+        }});
+        DirectivesBuilder directivesBuilder = new DirectivesBuilder(annotatedElement, processingElementsContainer);
+        assertEquals(1, directivesBuilder.build().length);
     }
 
 }

@@ -2,40 +2,26 @@ package org.jsoup.helper;
 
 import org.junit.Test;
 import org.jsoup.helper.UrlBuilder;
+import org.jsoup.helper.Connection;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GeneratedTest {
 
     @Test
-    public void buildWithoutQueryTest() throws URISyntaxException {
-        URL url = new URL("http://www.example.com/test");
-        UrlBuilder builder = new UrlBuilder(url);
-        URL result = builder.build();
-        assertEquals("http://www.example.com/test", result.toString());
+    public void build_NullInput_ThrowsNullPointerException() throws Exception {
+        UrlBuilder urlBuilder = new UrlBuilder(null);
+        assertThrows(NullPointerException.class, urlBuilder::build);
     }
 
     @Test
-    public void buildWithQueryTest() throws URISyntaxException {
-        URL url = new URL("http://www.example.com/test?key=value&key2=value2");
-        UrlBuilder builder = new UrlBuilder(url);
-        URL result = builder.build();
-        assertEquals("http://www.example.com/test?key=value&key2=value2", result.toString());
-    }
-
-    @Test
-    public void buildWithQueryAndFragmentTest() throws URISyntaxException {
-        URL url = new URL("http://www.example.com/test?key=value&key2=value2#fragment");
-        UrlBuilder builder = new UrlBuilder(url);
-        URL result = builder.build();
-        assertEquals("http://www.example.com/test?key=value&key2=value2#fragment", result.toString());
+    public void build_ValidInput_ReturnsCorrectUrl() throws Exception {
+        URL inputUrl = new URL("https://example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL actualUrl = urlBuilder.build();
+        assertEquals(inputUrl, actualUrl);
     }
 
 }

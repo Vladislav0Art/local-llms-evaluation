@@ -1,0 +1,72 @@
+package org.jsoup.nodes;
+
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.parser.ParseSettings;
+import org.junit.Test;
+import org.junit.Before;
+import org.junit.After;
+
+import static org.junit.Assert.assertEquals;
+
+public class GeneratedTest {
+
+    private Attributes attributes;
+
+    @Before
+    public void setup() {
+        // Initialize the Attributes instance
+        attributes = new Attributes();
+    }
+
+    @Test
+    public void indexOfKeyTest() {
+        // Test indexOfKey method
+        assertEquals(-1, attributes.indexOfKey("key"));
+    }
+
+    @Test
+    public void checkNotNullTest() {
+        // Test checkNotNull method
+        assertEquals("", Attributes.checkNotNull("value"));
+    }
+
+    @Test
+    public void getTest() {
+        // Test get method
+        assertEquals(null, attributes.get("key"));
+    }
+
+    @Test
+    public void getIgnoreCaseTest() {
+        // Test getIgnoreCase method
+        assertEquals(null, attributes.getIgnoreCase("key"));
+    }
+
+    @Test
+    public void getUserDataTest() {
+        // Test getUserData method
+        assertEquals(null, attributes.getUserData("key"));
+    }
+
+    @Test
+    public void addTest() {
+        // Test add method
+        assertEquals(attributes, attributes.add("key", "value"));
+    }
+
+    @Test
+    public void putTest() {
+        // Test put method
+        assertEquals(attributes, attributes.put("key", "value"));
+    }
+
+    @Test
+    public void putUserDataTest() {
+        // Test putUserData method
+        assertEquals(attributes, attributes.putUserData("key", "value"));
+    }
+
+}

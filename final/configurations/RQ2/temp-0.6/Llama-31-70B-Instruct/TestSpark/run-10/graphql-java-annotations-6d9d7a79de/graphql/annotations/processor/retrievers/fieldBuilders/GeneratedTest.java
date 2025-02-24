@@ -1,46 +1,23 @@
 package graphql.annotations.processor.retrievers.fieldBuilders;
 
 import org.junit.Test;
-import graphql.annotations.processor.retrievers.fieldBuilders.DirectivesBuilder;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
     @Test
-    public void testBuild() {
-        // Arrange
-        DirectivesBuilder directivesBuilder = new DirectivesBuilder(null, null);
-
-        // Act
-        GraphQLDirective[] result = directivesBuilder.build();
-
-        // Assert
-        assertEquals(0, result.length);
-    }
-
-    @Test
-    public void testTransformArgsAnnotation() {
-        // Arrange
-        DirectivesBuilder directivesBuilder = new DirectivesBuilder(null, null);
-
-        // Act
-        GraphQLDirective result = directivesBuilder.transformArgs(null, null);
-
-        // Assert
-        assertEquals(null, result);
-    }
-
-    @Test
-    public void testTransformArgsString() {
-        // Arrange
-        DirectivesBuilder directivesBuilder = new DirectivesBuilder(null, null);
-
-        // Act
-        GraphQLDirective result = directivesBuilder.transformArgs(null, null);
-
-        // Assert
-        assertEquals(null, result);
+    public void buildDirectivesTest() {
+        AnnotatedElement mockObject = mock(AnnotatedElement.class);
+        ProcessingElementsContainer mockContainer = mock(ProcessingElementsContainer.class);
+        DirectivesBuilder testObject = new DirectivesBuilder(mockObject, mockContainer);
+        GraphQLDirective[] actual = testObject.build();
+        GraphQLDirective[] expected = new GraphQLDirective[]{};
+        assertEquals(expected, actual);
     }
 
 }

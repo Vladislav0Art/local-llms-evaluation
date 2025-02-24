@@ -1,50 +1,39 @@
 package org.jsoup.helper;
 
-import org.jsoup.Connection;
-import org.jsoup.helper.DataUtil;
-import org.jsoup.internal.StringUtil;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import javax.annotation.Nullable;
-import java.io.UnsupportedEncodingException;
-import java.net.IDN;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private UrlBuilder urlBuilder;
-    private URL inputUrl;
+    @Test
+    public void buildTest() {
+        // Arrange
+        URL inputUrl = new URL("https://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
 
-    @Before
-    public void setUp() throws Exception {
-        inputUrl = mock(URL.class);
-        urlBuilder = new UrlBuilder(inputUrl);
+        // Act
+        URL result = urlBuilder.build();
+
+        // Assert
+        assertEquals("https", result.getProtocol());
+        assertEquals("www.example.com", result.getHost());
+        assertEquals(443, result.getPort());
     }
 
     @Test
-    public void build_shouldReturnNormalizedUrl() throws URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-        //given
-        String expectedNormalizedUrl = "http://example.com";
+    public void appendKeyValTest() {
+        // Arrange
+        Connection.KeyVal kv = new Connection.KeyVal("key", "value");
+        UrlBuilder urlBuilder = mock(UrlBuilder.class);
 
-        //when
-        URL normalizedUrl = urlBuilder.build();
+        // Act
+        urlBuilder.appendKeyVal(kv);
 
-        //then
-        assertEquals(expectedNormalizedUrl, normalizedUrl.toString());
+        // Assert
+        verify(urlBuilder).appendKeyVal(kv);
     }
 
 }

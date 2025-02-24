@@ -1,0 +1,68 @@
+package org.jsoup.safety;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedTest {
+
+    @Mock
+    private Safelist safelist;
+
+    @Test
+    public void noneTest() {
+        Safelist actual = Safelist.none();
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void simpleTextTest() {
+        Safelist actual = Safelist.simpleText();
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void basicTest() {
+        Safelist actual = Safelist.basic();
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void basicWithImagesTest() {
+        Safelist actual = Safelist.basicWithImages();
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void relaxedTest() {
+        Safelist actual = Safelist.relaxed();
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void addTagsTest() {
+        String[] tags = new String[]{"div", "p"};
+        Safelist actual = safelist.addTags(tags);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void removeTagsTest() {
+        String[] tags = new String[]{"div", "p"};
+        Safelist actual = safelist.removeTags(tags);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void addAttributesTest() {
+        String tag = "div";
+        String[] attributes = new String[]{"id", "class"};
+        Safelist actual = safelist.addAttributes(tag, attributes);
+        assertNotNull(actual);
+    }
+
+}

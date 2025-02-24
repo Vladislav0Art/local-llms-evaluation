@@ -1,33 +1,31 @@
 package app;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Set;
+import java.util.Iterator;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import com.opencsv.exceptions.CsvValidationException;
+import exceptions.DBAppException;
+import storage.IDatabase;
+import util.TypeCaster;
+import util.filecontroller.Serializer;
+import util.search.SQLTerm;
+import util.validation.Validator;
 
 public class GeneratedTestInit {
 
-    private DBApp dbApp;
-
-    @Before
-    public void setup() {
-        dbApp = new DBApp();
-    }
-
     @Test
-    public void testInit() {
-        try {
-            dbApp.init();
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+    public void testInit() throws Exception {
+        IDatabase dbApp = new DBApp();
+        dbApp.init();
+        assertNotNull(dbApp);
     }
 
 }

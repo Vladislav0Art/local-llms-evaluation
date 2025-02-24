@@ -1,28 +1,24 @@
 package org.jsoup.nodes;
 
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.XmlDeclaration;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import java.io.IOException;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
 public class GeneratedOuterHtmlTailTest {
 
-    @Mock
-    private Comment comment;
-
     @Test
-    public void outerHtmlTailTest() {
-        StringBuilder accum = new StringBuilder();
-        Document.OutputSettings out = new Document.OutputSettings();
-        out.prettyPrint(true);
-        out.outline(true);
-        comment.setData("Data");
-
-        comment.outerHtmlTail(accum, 0, out);
-        assertEquals("", accum.toString());
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("test");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlTail(sb, 0, null);
+        assertEquals("", sb.toString());
     }
 
 }

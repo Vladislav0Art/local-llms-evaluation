@@ -1,0 +1,17 @@
+package org.jsoup.nodes;
+
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+
+public class GeneratedNodeNameTest {
+
+    @Test
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("text");
+        assertEquals("text", textNode.nodeName());
+    }
+
+}

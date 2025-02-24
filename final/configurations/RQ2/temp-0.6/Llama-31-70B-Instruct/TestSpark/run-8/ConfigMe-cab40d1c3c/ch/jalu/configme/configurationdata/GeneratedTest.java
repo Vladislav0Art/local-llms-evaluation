@@ -1,31 +1,59 @@
 package ch.jalu.configme.configurationdata;
 
-import ch.jalu.configme.configurationdata.PropertyListBuilder;
+import ch.jalu.configme.exception.ConfigMeException;
 import ch.jalu.configme.properties.Property;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class GeneratedTest {
 
+    private PropertyListBuilder propertyListBuilder;
+
     @Test
-    public void addPropertyTest() {
-        PropertyListBuilder builder = new PropertyListBuilder();
+    public void AddTest() {
+        Property property = mock(Property.class);
+        propertyListBuilder = new PropertyListBuilder();
 
-        // Create a property to add
-        Property<String> property = new Property<>("test", String.class, "default");
+        propertyListBuilder.add(property);
+        assertNotNull(propertyListBuilder.getRootEntries());
+    }
 
-        // Add the property
-        builder.add(property);
+    @Test
+    public void AddTest_NullProperty() {
+        propertyListBuilder = new PropertyListBuilder();
 
-        // Verify that the property was added
-        List<Property<?>> properties = builder.create();
+        assertThrows(ConfigMeException.class, () -> propertyListBuilder.add(null));
+    }
+
+    @Test
+    public void CreateTest() {
+        Property property = mock(Property.class);
+        propertyListBuilder = new PropertyListBuilder();
+
+        propertyListBuilder.add(property);
+        List<Property<?>> properties = propertyListBuilder.create();
+
         assertEquals(1, properties.size());
         assertEquals(property, properties.get(0));
+    }
+
+    @Test
+    public void CreateTest_NoProperties() {
+        propertyListBuilder = new PropertyListBuilder();
+
+        List<Property<?>> properties = propertyListBuilder.create();
+        assertEquals(0, properties.size());
     }
 
 }

@@ -1,29 +1,44 @@
 package org.jsoup.helper;
 
+import org.junit.Test;
 import org.jsoup.helper.UrlBuilder;
 import org.jsoup.Connection;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.helper.DataUtil;
 import org.mockito.Mockito;
-import org.junit.runners.JUnit4;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URISyntaxException;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-@RunWith(JUnit4.class)
 public class GeneratedTest {
 
+    @Mock
+    private Connection.KeyVal mockKeyVal;
+
     @Test
-    public void testBuild() throws URISyntaxException, MalformedURLException {
-        URL inputUrl = new URL("https://www.example.com/test/path");
-        UrlBuilder builder = new UrlBuilder(inputUrl);
-        URL expectedUrl = new URL("https://www.example.com/test/path");
-        URL actualUrl = builder.build();
-        assertEquals(expectedUrl, actualUrl);
+    public void buildUrlBuilderTest() throws MalformedURLException {
+        URL testUrl = new URL("http://www.example.com");
+        UrlBuilder urlBuilder = new UrlBuilder(testUrl);
+        assertNotNull(urlBuilder);
+    }
+
+    @Test
+    public void buildUrlBuilderInvalidUrlTest() throws MalformedURLException {
+        URL testUrl = new URL("invalid url");
+        UrlBuilder urlBuilder = new UrlBuilder(testUrl);
+        fail();
     }
 
 }

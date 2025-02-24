@@ -1,24 +1,22 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.Comment;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class GeneratedOuterHtmlHeadTest {
 
-    public Comment comment;
-
-    @Before
-    public void setUp() {
-        comment = new Comment("Some data");
-    }
-
     @Test
-    public void outerHtmlHeadTest() {
-        String expected = "Some data";
-        String actual = comment.outerHtml();
-        assertEquals(expected, actual);
+    public void OuterHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("data");
+        Appendable appendable = Mockito.mock(Appendable.class);
+        when(appendable.append("<!--data-->")).thenReturn(appendable);
+        comment.outerHtmlHead(appendable, 1, Mockito.mock(Document.OutputSettings.class));
+        Mockito.verify(appendable).append("<!--data-->");
     }
 
 }

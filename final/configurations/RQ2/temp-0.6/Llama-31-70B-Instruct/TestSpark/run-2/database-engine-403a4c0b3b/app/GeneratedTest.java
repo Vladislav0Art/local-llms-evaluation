@@ -1,66 +1,55 @@
 package app;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Set;
+import java.util.Iterator;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import com.opencsv.exceptions.CsvValidationException;
+import exceptions.DBAppException;
+import storage.IDatabase;
+import util.TypeCaster;
+import util.filecontroller.Serializer;
+import util.search.SQLTerm;
+import util.validation.Validator;
 
 public class GeneratedTest {
 
-    private DBApp dbApp;
-
-    @Before
-    public void setup() {
-        dbApp = new DBApp();
+    @Test
+    public void testInit() throws Exception {
+        IDatabase dbApp = new DBApp();
+        dbApp.init();
+        assertNotNull(dbApp);
     }
 
     @Test
-    public void testGetMyTables() {
-        Set<String> expectedTables = new HashSet<>();
-        expectedTables.add("table1");
-        expectedTables.add("table2");
-
-        dbApp.myTables = expectedTables;
-
-        Set<String> actualTables = dbApp.getMyTables();
-
-        assertEquals(expectedTables, actualTables);
+    public void testCreateTableWithInvalidClusteringKeyColumn() throws Exception {
+        IDatabase dbApp = new DBApp();
+        dbApp.createTable("testTable", "", new Hashtable<>(), new Hashtable<>(), new Hashtable<>());
     }
 
     @Test
-    public void testInit() {
-        try {
-            dbApp.init();
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+    public void testCreateTableWithInvalidColNameType() throws Exception {
+        IDatabase dbApp = new DBApp();
+        dbApp.createTable("testTable", "testColumn", null, new Hashtable<>(), new Hashtable<>());
     }
 
     @Test
-    public void testCreateTable() {
-        try {
-            dbApp.createTable("table1", "key", new Hashtable<>(), new Hashtable<>(), new Hashtable<>());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+    public void testInsertIntoTableWithInvalidTableName() throws Exception {
+        IDatabase dbApp = new DBApp();
+        dbApp.insertIntoTable("", new Hashtable<>());
     }
 
     @Test
-    public void testCreateTable_invalidTableName() {
-        try {
-            dbApp.createTable("", "key", new Hashtable<>(), new Hashtable<>(), new Hashtable<>());
-            assertTrue(false);
-        } catch (Exception e) {
-            assertTrue(true);
-        }
+    public void testInsertIntoTableWithInvalidColNameValue() throws Exception {
+        IDatabase dbApp = new DBApp();
+        dbApp.insertIntoTable("testTable", null);
     }
 
 }

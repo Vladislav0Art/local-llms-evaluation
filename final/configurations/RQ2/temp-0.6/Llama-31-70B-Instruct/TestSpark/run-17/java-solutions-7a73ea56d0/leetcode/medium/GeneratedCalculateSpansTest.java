@@ -1,0 +1,33 @@
+package leetcode.medium;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GeneratedCalculateSpansTest {
+
+    @Mock
+    private List<Integer> mockPriceList;
+
+    @InjectMocks
+    private OnlineStockSpan onlineStockSpan;
+
+    @Test
+    public void calculateSpansTest() {
+        int[] prices = {10, 20, 30};
+        int[] expected = {1, 1, 1};
+
+        assertEquals(expected, onlineStockSpan.calculateSpans(prices));
+    }
+
+}

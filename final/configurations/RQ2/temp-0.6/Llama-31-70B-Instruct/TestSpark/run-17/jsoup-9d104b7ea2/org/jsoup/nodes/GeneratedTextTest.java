@@ -1,28 +1,17 @@
 package org.jsoup.nodes;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
 
-@RunWith(MockitoJUnitRunner.class)
+import org.mockito.Mockito;
+
 public class GeneratedTextTest {
-
-    @Mock
-    private TextNode textNode;
-
-    @Before
-    public void setUp() {
-        textNode = new TextNode("mockText");
-    }
 
     @Test
     public void textTest() {
-        assertEquals("mockText", textNode.text());
+        TextNode textNode = new TextNode("test text");
+        assertEquals("test text", textNode.text());
     }
 
 }

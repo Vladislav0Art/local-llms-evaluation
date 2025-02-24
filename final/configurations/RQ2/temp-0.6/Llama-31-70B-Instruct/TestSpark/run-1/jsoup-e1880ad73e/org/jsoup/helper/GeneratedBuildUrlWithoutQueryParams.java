@@ -1,0 +1,27 @@
+package org.jsoup.helper;
+
+import org.junit.Test;
+import org.jsoup.Connection;
+import org.jsoup.helper.UrlBuilder;
+import org.jsoup.internal.StringUtil;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+
+import static org.junit.Assert.*;
+
+public class GeneratedBuildUrlWithoutQueryParams {
+
+    @Test
+    public void buildUrlWithoutQueryParams() throws MalformedURLException, URISyntaxException {
+        URL inputUrl = new URL("http://example.com");
+        UrlBuilder builder = new UrlBuilder(inputUrl);
+        URL buildUrl = builder.build();
+        assertEquals(inputUrl.getProtocol(), buildUrl.getProtocol());
+        assertEquals(inputUrl.getHost(), buildUrl.getHost());
+    }
+
+}

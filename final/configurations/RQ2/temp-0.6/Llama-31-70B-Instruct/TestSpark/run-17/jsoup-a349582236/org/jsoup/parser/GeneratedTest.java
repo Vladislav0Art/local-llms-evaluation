@@ -2,71 +2,71 @@ package org.jsoup.parser;
 
 import org.junit.Test;
 import org.jsoup.parser.Tag;
-import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.ParseSettings;
-import org.jsoup.parser.Parser;
-import org.jsoup.select.Elements;
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.Normalizer;
 
-import java.util.Map;
-import java.util.HashMap;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class GeneratedTest {
 
     @Test
-    public void testGetName() {
-        Tag tag = new Tag("p");
-        assertEquals("p", tag.getName());
+    public void getNameTest() {
+        Tag tag = new Tag();
+        String name = tag.getName();
+        assertEquals("tag", name);
     }
 
     @Test
-    public void testNormalName() {
-        Tag tag = new Tag("p");
-        assertEquals("p", tag.normalName());
+    public void normalNameTest() {
+        Tag tag = new Tag();
+        String normalName = tag.normalName();
+        assertEquals("tag", normalName);
     }
 
     @Test
-    public void testIsBlock() {
-        Tag tag = new Tag("p");
-        assertTrue(tag.isBlock());
+    public void valueOfTest() {
+        Tag tag = new Tag();
+        String tagName = "a";
+        ParseSettings settings = mock(ParseSettings.class);
+        Tag valueOf = tag.valueOf(tagName, settings);
+        assertEquals(tagName, valueOf.getName());
     }
 
     @Test
-    public void testIsInline() {
-        Tag tag = new Tag("p");
+    public void valueOfTest2() {
+        Tag tag = new Tag();
+        String tagName = "a";
+        Tag valueOf = tag.valueOf(tagName);
+        assertEquals(tagName, valueOf.getName());
+    }
+
+    @Test
+    public void isBlockTest() {
+        Tag tag = new Tag();
+        assertFalse(tag.isBlock());
+    }
+
+    @Test
+    public void formatAsBlockTest() {
+        Tag tag = new Tag();
+        assertFalse(tag.formatAsBlock());
+    }
+
+    @Test
+    public void isInlineTest() {
+        Tag tag = new Tag();
         assertFalse(tag.isInline());
     }
 
     @Test
-    public void testIsEmpty() {
-        Tag tag = new Tag("p");
+    public void isEmptyTest() {
+        Tag tag = new Tag();
         assertFalse(tag.isEmpty());
-    }
-
-    @Test
-    public void testIsSelfClosing() {
-        Tag tag = new Tag("p");
-        assertFalse(tag.isSelfClosing());
-    }
-
-    @Test
-    public void testFormatAsBlock() {
-        Tag tag = new Tag("p");
-        assertTrue(tag.formatAsBlock());
-    }
-
-    @Test
-    public void testPreserveWhitespace() {
-        Tag tag = new Tag("p");
-        assertFalse(tag.preserveWhitespace());
-    }
-
-    @Test
-    public void testIsFormListed() {
-        Tag tag = new Tag("p");
-        assertFalse(tag.isFormListed());
     }
 
 }

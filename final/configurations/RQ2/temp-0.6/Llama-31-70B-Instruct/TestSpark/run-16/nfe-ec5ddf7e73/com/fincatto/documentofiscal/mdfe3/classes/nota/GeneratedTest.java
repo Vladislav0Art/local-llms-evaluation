@@ -1,65 +1,46 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
-
 public class GeneratedTest {
 
-    private MDFInfoModalRodoviarioVeiculoReboque reboque;
-
-    @Before
-    public void setUp() {
-        reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-    }
+    private final MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
 
     @Test
-    public void shouldSetCapacidadeKG() {
-        //arrange
-        String capacidade = "12345";
-
-        //act
-        reboque.setCapacidadeKG(capacidade);
-
-        //assert
-        assertEquals(capacidade, reboque.getCapacidadeKG());
-    }
-
-    @Test
-    public void shouldSetCapacidadeM3() {
-        //arrange
-        String capacidade = "12";
-
-        //act
-        reboque.setCapacidadeM3(capacidade);
-
-        //assert
-        assertEquals(capacidade, reboque.getCapacidadeM3());
-    }
-
-    @Test
-    public void shouldSetCodigoInterno() {
-        //arrange
+    public void setCodigoInternoTest() {
         String codigoInterno = "codigoInterno";
-
-        //act
         reboque.setCodigoInterno(codigoInterno);
-
-        //assert
-        assertEquals(codigoInterno, reboque.getCodigoInterno());
+        Assert.assertEquals(codigoInterno, reboque.getCodigoInterno());
     }
 
     @Test
-    public void shouldSetPlaca() {
-        //arrange
+    public void setPlacaTest() {
         String placa = "placa";
-
-        //act
         reboque.setPlaca(placa);
+        Assert.assertEquals(placa, reboque.getPlaca());
+    }
 
-        //assert
-        assertEquals(placa, reboque.getPlaca());
+    @Test
+    public void setRenavamTest() {
+        String renavam = "renavam";
+        reboque.setRenavam(renavam);
+        Assert.assertEquals(renavam, reboque.getRenavam());
+    }
+
+    @Test
+    public void setTaraTest() {
+        String tara = "tara";
+        reboque.setTara(tara);
+        Assert.assertEquals(tara, reboque.getTara());
+    }
+
+    @Test
+    public void getCapacidadeKGTest() {
+        String capacidadeKG = "capacidadeKG";
+        reboque.setCapacidadeKG(capacidadeKG);
+        Assert.assertEquals(capacidadeKG, reboque.getCapacidadeKG());
     }
 
 }

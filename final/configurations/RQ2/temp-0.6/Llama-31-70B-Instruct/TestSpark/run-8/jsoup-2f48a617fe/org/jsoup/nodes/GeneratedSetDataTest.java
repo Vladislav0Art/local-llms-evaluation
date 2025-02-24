@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
@@ -16,15 +17,16 @@ import static org.mockito.Mockito.when;
 public class GeneratedSetDataTest {
 
     @Mock
-    private Document.OutputSettings outputSettings;
+    ParseSettings parseSettings;
+
     @Mock
-    private Parser parser;
+    Parser parser;
 
     @Test
     public void setDataTest() {
-        Comment comment = new Comment("Hello, World!");
-        comment.setData("Goodbye, World!");
-        assertEquals("Goodbye, World!", comment.getData());
+        Comment comment = new Comment("comment");
+        comment.setData("new comment");
+        assertEquals("new comment", comment.getData());
     }
 
 }

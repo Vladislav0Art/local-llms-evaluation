@@ -1,28 +1,31 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import com.fincatto.documentofiscal.validadores.DFStringValidador;
-import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+
 public class GeneratedTest {
 
-    @Mock
-    DFStringValidador mockedStringValidador;
+    @Test
+    public void setCodigoInternoTest() {
+        MDFInfoModalRodoviarioVeiculoReboque mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        mdfInfoModalRodoviarioVeiculoReboque.setCodigoInterno("codigoInterno");
+        assertEquals("codigoInterno", mdfInfoModalRodoviarioVeiculoReboque.getCodigoInterno());
+    }
 
     @Test
-    public void testSetCodigoInterno() {
-        final MDFInfoModalRodoviarioVeiculoReboque tested = new MDFInfoModalRodoviarioVeiculoReboque();
-        final String codigoInterno = "1234567890";
-        when(mockedStringValidador.validador(codigoInterno, "Codigo interno Veiculo Reboque", 10, false, false)).thenReturn(codigoInterno);
-        tested.setCodigoInterno(codigoInterno);
-        assertEquals(codigoInterno, tested.getCodigoInterno());
+    public void setPlacaTest() {
+        MDFInfoModalRodoviarioVeiculoReboque mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        mdfInfoModalRodoviarioVeiculoReboque.setPlaca("placa");
+        assertEquals("placa", mdfInfoModalRodoviarioVeiculoReboque.getPlaca());
+    }
+
+    @Test
+    public void setRenavamTest() {
+        MDFInfoModalRodoviarioVeiculoReboque mdfInfoModalRodoviarioVeiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        mdfInfoModalRodoviarioVeiculoReboque.setRenavam("renavam");
+        assertEquals("renavam", mdfInfoModalRodoviarioVeiculoReboque.getRenavam());
     }
 
 }

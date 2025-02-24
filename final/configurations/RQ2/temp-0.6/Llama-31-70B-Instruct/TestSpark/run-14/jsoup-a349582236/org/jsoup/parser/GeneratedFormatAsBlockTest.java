@@ -1,29 +1,14 @@
 package org.jsoup.parser;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.jsoup.parser.ParseSettings;
-import org.jsoup.parser.Tag;
-import org.jsoup.helper.Validate;
-import org.jsoup.internal.Normalizer;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 public class GeneratedFormatAsBlockTest {
 
-    private Tag tag;
-
-    @BeforeEach
-    public void setUp() {
-        tag = new Tag("div");
-    }
+    private static final String TAG_NAME = "div";
+    private static final Tag tag = new Tag(TAG_NAME);
+    private static final ParseSettings parseSettings = Mockito.mock(ParseSettings.class);
 
     @Test
     public void formatAsBlockTest() {
-        assertEquals(tag.formatAsBlock, tag.formatAsBlock());
+        assertTrue(tag.formatAsBlock());
     }
 
 }

@@ -1,0 +1,22 @@
+package org.jsoup.nodes;
+
+import org.jsoup.helper.Validate;
+import org.jsoup.internal.StringUtil;
+import org.jsoup.nodes.TextNode;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+public class GeneratedTextNodeTextSetterTest {
+
+    @Test
+    public void textNodeTextSetterTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.text());
+        textNode.text("new test");
+        assertEquals("new test", textNode.text());
+    }
+
+}

@@ -1,50 +1,67 @@
 package org.jsoup.nodes;
 
-import org.jsoup.nodes.TextNode;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class GeneratedTest {
 
     @Test
-    public void textNodeConstructorTest() {
+    public void constructorTest() {
         TextNode textNode = new TextNode("test");
-        assertEquals("test", textNode.getWholeText());
+        assertNotNull(textNode);
     }
 
     @Test
-    public void textNodeTextTest() {
+    public void nodeNameTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("#text", textNode.nodeName());
+    }
+
+    @Test
+    public void textTest() {
         TextNode textNode = new TextNode("test");
         assertEquals("test", textNode.text());
     }
 
     @Test
-    public void textNodeGetWholeTextTest() {
+    public void textModifyTest() {
+        TextNode textNode = new TextNode("test");
+        textNode.text("modified");
+        assertEquals("modified", textNode.text());
+    }
+
+    @Test
+    public void getWholeTextTest() {
         TextNode textNode = new TextNode("test");
         assertEquals("test", textNode.getWholeText());
     }
 
     @Test
-    public void textNodeIsBlankTest() {
-        TextNode textNode = new TextNode("");
-        assertTrue(textNode.isBlank());
+    public void isBlankTest() {
+        TextNode textNode = new TextNode("test");
+        assertFalse(textNode.isBlank());
     }
 
     @Test
-    public void textNodeSplitTextTest() {
+    public void splitTextTest() {
         TextNode textNode = new TextNode("test");
-        TextNode splitNode = textNode.splitText(2);
-        assertEquals("te", textNode.getWholeText());
-        assertEquals("st", splitNode.getWholeText());
+        TextNode splitText = textNode.splitText(2);
+        assertNotNull(splitText);
     }
 
     @Test
-    public void textNodeOuterHtmlHeadTest() {
+    public void outerHtmlHeadTest() {
         TextNode textNode = new TextNode("test");
-        StringBuilder accum = new StringBuilder();
-        textNode.outerHtmlHead(accum, 0, null);
-        assertEquals("test", accum.toString());
+        assertEquals("test", textNode.outerHtmlHead(null, 0, null));
+    }
+
+    @Test
+    public void outerHtmlTailTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.outerHtmlTail(null, 0, null));
+    }
+
+    @Test
+    public void toStringTest() {
+        TextNode textNode = new TextNode("test");
+        assertEquals("test", textNode.toString());
     }
 
 }

@@ -1,58 +1,54 @@
 package ch.jalu.configme.configurationdata;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import ch.jalu.configme.configurationdata.PropertyListBuilder;
 import ch.jalu.configme.exception.ConfigMeException;
 import ch.jalu.configme.properties.Property;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Mock;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class GeneratedTest {
 
-    private PropertyListBuilder propertyListBuilder;
-
-    @BeforeEach
-    public void setup() {
-        propertyListBuilder = new PropertyListBuilder();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        propertyListBuilder = null;
-    }
-
     @Test
-    public void addProperty_PropertyIsAdded() {
-        Property property = Mockito.mock(Property.class);
-        Mockito.when(property.getPath()).thenReturn("property.path");
-
+    public void addTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Property property = mock(Property.class);
         propertyListBuilder.add(property);
-
-        assertEquals(1, propertyListBuilder.getRootEntries().size());
-        assertEquals(property, propertyListBuilder.getRootEntries().get("property"));
+        assertTrue(propertyListBuilder.getRootEntries().containsKey(property));
     }
 
     @Test
-    public void addProperty_PropertyAlreadyExists_ThrowsException() {
-        Property property = Mockito.mock(Property.class);
-        Mockito.when(property.getPath()).thenReturn("property.path");
+    public void addTestWithNullProperty() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(null);
+        assertFalse(propertyListBuilder.getRootEntries().containsValue(null));
+    }
 
+    @Test
+    public void createTest() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        Property property = mock(Property.class);
         propertyListBuilder.add(property);
-
-        assertThrows(ConfigMeException.class, () -> propertyListBuilder.add(property));
+        List<Property<?>> properties = propertyListBuilder.create();
+        assertEquals(1, properties.size());
+        assertEquals(property, properties.get(0));
     }
 
     @Test
-    public void addProperty_PathDoesNotExist_ThrowsException() {
-        Property property = Mockito.mock(Property.class);
-        Mockito.when(property.getPath()).thenReturn("property.path");
-
-        assertThrows(ConfigMeException.class, () -> propertyListBuilder.add(property));
+    public void createTestWithNullProperty() {
+        PropertyListBuilder propertyListBuilder = new PropertyListBuilder();
+        propertyListBuilder.add(null);
+        List<Property<?>> properties = propertyListBuilder.create();
+        assertEquals(0, properties.size());
     }
 
 }

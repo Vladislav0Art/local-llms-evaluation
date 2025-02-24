@@ -1,18 +1,18 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import static org.mockito.Mockito.*;
+import org.junit.Test;
 
 public class GeneratedSetCodigoInternoTest {
 
     @Test
     public void setCodigoInternoTest() {
-        MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setCodigoInterno("AB12345678");
-        Assert.assertEquals("AB12345678", reboque.getCodigoInterno());
+        MDFInfoModalRodoviarioVeiculoReboque veiculoReboque = new MDFInfoModalRodoviarioVeiculoReboque();
+        String codigoInterno = "12345";
+        veiculoReboque.setCodigoInterno(codigoInterno);
+        assertEquals(codigoInterno, veiculoReboque.getCodigoInterno());
     }
 
 }

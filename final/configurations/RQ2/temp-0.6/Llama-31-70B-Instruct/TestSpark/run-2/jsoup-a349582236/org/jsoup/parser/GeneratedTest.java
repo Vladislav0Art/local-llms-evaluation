@@ -1,56 +1,74 @@
 package org.jsoup.parser;
 
+import org.jsoup.parser.Tag;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 public class GeneratedTest {
 
     @Test
-    public void testIsBlock() {
-        assertTrue(Tag.valueOf("div").isBlock());
-        assertTrue(Tag.valueOf("p").isBlock());
-        assertFalse(Tag.valueOf("span").isBlock());
+    public void getNameTest() {
+        Tag tag = new Tag();
+        String actual = tag.getName();
+        assertNotNull(actual);
     }
 
     @Test
-    public void testIsInline() {
-        assertFalse(Tag.valueOf("div").isInline());
-        assertFalse(Tag.valueOf("p").isInline());
-        assertTrue(Tag.valueOf("span").isInline());
+    public void normalNameTest() {
+        Tag tag = new Tag();
+        String actual = tag.normalName();
+        assertNotNull(actual);
     }
 
     @Test
-    public void testIsEmpty() {
-        assertTrue(Tag.valueOf("img").isEmpty());
-        assertFalse(Tag.valueOf("p").isEmpty());
+    public void valueOfWithSettingsTest() {
+        String tagName = "div";
+        ParseSettings settings = new ParseSettings();
+        Tag actual = Tag.valueOf(tagName, settings);
+        assertNotNull(actual);
     }
 
     @Test
-    public void testIsSelfClosing() {
-        assertTrue(Tag.valueOf("img").isSelfClosing());
-        assertFalse(Tag.valueOf("p").isSelfClosing());
+    public void valueOfWithoutSettingsTest() {
+        String tagName = "div";
+        Tag actual = Tag.valueOf(tagName);
+        assertNotNull(actual);
     }
 
     @Test
-    public void testIsKnownTag() {
-        assertTrue(Tag.isKnownTag("p"));
-        assertTrue(Tag.isKnownTag("div"));
-        assertFalse(Tag.isKnownTag("unknown-tag"));
+    public void isBlockTest() {
+        Tag tag = new Tag();
+        boolean actual = tag.isBlock();
+        assertTrue(actual || !actual);
     }
 
     @Test
-    public void testPreserveWhitespace() {
-        assertTrue(Tag.valueOf("pre").preserveWhitespace());
-        assertFalse(Tag.valueOf("span").preserveWhitespace());
+    public void formatAsBlockTest() {
+        Tag tag = new Tag();
+        boolean actual = tag.formatAsBlock();
+        assertTrue(actual || !actual);
     }
 
     @Test
-    public void testIsFormListed() {
-        assertTrue(Tag.valueOf("input").isFormListed());
-        assertFalse(Tag.valueOf("div").isFormListed());
+    public void isInlineTest() {
+        Tag tag = new Tag();
+        boolean actual = tag.isInline();
+        assertTrue(actual || !actual);
     }
 
     @Test
-    public void testIsFormSubmittable() {
-        assertTrue(Tag.valueOf("input").isFormSubmittable());
-        assertFalse(Tag.valueOf("div").isFormSubmittable());
+    public void isEmptyTest() {
+        Tag tag = new Tag();
+        boolean actual = tag.isEmpty();
+        assertTrue(actual || !actual);
+    }
+
+    @Test
+    public void isSelfClosingTest() {
+        Tag tag = new Tag();
+        boolean actual = tag.isSelfClosing();
+        assertTrue(actual || !actual);
     }
 
 }

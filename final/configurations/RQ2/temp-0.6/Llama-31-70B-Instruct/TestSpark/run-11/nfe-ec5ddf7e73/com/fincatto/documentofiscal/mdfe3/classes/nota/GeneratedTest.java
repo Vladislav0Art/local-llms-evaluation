@@ -1,37 +1,38 @@
 package com.fincatto.documentofiscal.mdfe3.classes.nota;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import com.fincatto.documentofiscal.mdfe3.classes.nota.MDFInfoModalRodoviarioVeiculoReboque;
 
 public class GeneratedTest {
 
     @Test
-    public void setCodigoInternoTest() {
+    public void testSetCodigoInterno() {
         MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setCodigoInterno("1234567890");
-        assertEquals("1234567890", reboque.getCodigoInterno());
+        reboque.setCodigoInterno("123456");
+        assertEquals("123456", reboque.getCodigoInterno());
     }
 
     @Test
-    public void setPlacaTest() {
+    public void testSetPlaca() {
         MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setPlaca("ABC1234");
-        assertEquals("ABC1234", reboque.getPlaca());
+        reboque.setPlaca("AAA1234");
+        assertEquals("AAA1234", reboque.getPlaca());
     }
 
     @Test
-    public void setRenavamTest() {
+    public void testSetRenavam() {
         MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setRenavam("12345678901");
-        assertEquals("12345678901", reboque.getRenavam());
+        reboque.setRenavam("12345678901234");
+        assertEquals("12345678901234", reboque.getRenavam());
     }
 
     @Test
-    public void setTaraTest() {
+    public void testSetTara() {
         MDFInfoModalRodoviarioVeiculoReboque reboque = new MDFInfoModalRodoviarioVeiculoReboque();
-        reboque.setTara("12345");
-        assertEquals("12345", reboque.getTara());
+        reboque.setTara("1000");
+        assertEquals("1000", reboque.getTara());
     }
 
 }

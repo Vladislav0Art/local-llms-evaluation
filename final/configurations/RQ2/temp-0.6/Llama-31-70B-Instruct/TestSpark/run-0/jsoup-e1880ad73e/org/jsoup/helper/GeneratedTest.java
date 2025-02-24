@@ -1,60 +1,46 @@
 package org.jsoup.helper;
 
-import org.jsoup.helper.UrlBuilder;
-import org.junit.After;
-import org.junit.Before;
+import org.jsoup.Connection;
+import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import static org.junit.Assert.*;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import static org.mockito.Mockito.mock;
 
 public class GeneratedTest {
 
-    UrlBuilder urlBuilder;
-    URL url;
+    private static final String URL_STRING = "https://www.example.com";
+    private static final String KEY = "key";
+    private static final String VALUE = "value";
 
-    @Before
-    public void setUp() throws MalformedURLException {
-        url = new URL("https://www.jsoup.org");
-        urlBuilder = new UrlBuilder(url);
-    }
-
-    @After
-    public void tearDown() {
-        urlBuilder = null;
-        url = null;
+    @Test
+    public void buildWithValidUrlTest() throws MalformedURLException {
+        URL inputUrl = new URL(URL_STRING);
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        URL resultUrl = urlBuilder.build();
+        Assert.assertEquals(inputUrl.toExternalForm(), resultUrl.toExternalForm());
     }
 
     @Test
-    public void buildTest() {
-        URL actualUrl = urlBuilder.build();
-        assertEquals(url, actualUrl);
+    public void buildWithInvalidUrlTest() throws MalformedURLException {
+        URL inputUrl = new URL("invalid url");
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        urlBuilder.build();
     }
 
     @Test
-    public void appendKeyValTest() throws UnsupportedEncodingException {
-        Connection.KeyVal keyVal = mock(Connection.KeyVal.class);
-        Mockito.when(keyVal.key()).thenReturn("key");
-        Mockito.when(keyVal.value()).thenReturn("value");
-        urlBuilder.appendKeyVal(keyVal);
-        assertEquals(urlBuilder.q.toString(), "key=value");
+    public void appendKeyValWithValidKeyValTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL(URL_STRING);
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal(KEY, VALUE);
+        urlBuilder.appendKeyVal(kv);
+        Assert.assertTrue(urlBuilder.toString().contains(KEY));
+        Assert.assertTrue(urlBuilder.toString().contains(VALUE));
     }
 
     @Test
-    public void decodePartTest() {
-        assertEquals(urlBuilder.decodePart("encoded"), "encoded");
-    }
-
-    @Test
-    public void appendToAsciiTest() throws UnsupportedEncodingException {
-        StringBuilder sb = new StringBuilder();
-        urlBuilder.appendToAscii("space", true, sb);
-        assertEquals(sb.toString(), "+");
+    public void appendKeyValWithInvalidKeyValTest() throws UnsupportedEncodingException {
+        URL inputUrl = new URL(URL_STRING);
+        UrlBuilder urlBuilder = new UrlBuilder(inputUrl);
+        Connection.KeyVal kv = new Connection.KeyVal("invalid key", "invalid value");
+        urlBuilder.appendKeyVal(kv);
     }
 
 }

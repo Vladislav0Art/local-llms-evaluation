@@ -1,22 +1,22 @@
 package org.jsoup.nodes;
 
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.XmlDeclaration;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import java.io.IOException;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
 public class GeneratedToStringTest {
-
-    @Mock
-    private Comment comment;
 
     @Test
     public void toStringTest() {
-        comment.setData("Data");
-        assertEquals("<!--Data-->", comment.toString());
+        Comment comment = new Comment("test");
+        assertEquals("<!--test-->", comment.toString());
     }
 
 }

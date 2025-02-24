@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
@@ -16,43 +17,50 @@ import static org.mockito.Mockito.when;
 public class GeneratedTest {
 
     @Mock
-    private Document.OutputSettings outputSettings;
+    ParseSettings parseSettings;
+
     @Mock
-    private Parser parser;
+    Parser parser;
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("comment");
+        assertEquals("#comment", comment.nodeName());
+    }
 
     @Test
     public void getDataTest() {
-        Comment comment = new Comment("Hello, World!");
-        assertEquals("Hello, World!", comment.getData());
+        Comment comment = new Comment("comment");
+        assertEquals("comment", comment.getData());
     }
 
     @Test
     public void setDataTest() {
-        Comment comment = new Comment("Hello, World!");
-        comment.setData("Goodbye, World!");
-        assertEquals("Goodbye, World!", comment.getData());
+        Comment comment = new Comment("comment");
+        comment.setData("new comment");
+        assertEquals("new comment", comment.getData());
     }
 
     @Test
     public void outerHtmlHeadTest() throws IOException {
-        Comment comment = new Comment("Hello, World!");
-
-        when(outputSettings.prettyPrint()).thenReturn(true);
-        when(outputSettings.outline()).thenReturn(true);
-
-        assertEquals("<!--Hello, World!-->", comment.outerHtml());
+        Comment comment = new Comment("comment");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlHead(sb, 0, parseSettings);
+        assertEquals("<!--comment-->", sb.toString());
     }
 
     @Test
-    public void isXmlDeclarationTest() {
-        Comment comment = new Comment("Hello, World!");
-        assertEquals(false, comment.isXmlDeclaration());
+    public void outerHtmlTailTest() throws IOException {
+        Comment comment = new Comment("comment");
+        StringBuilder sb = new StringBuilder();
+        comment.outerHtmlTail(sb, 0, parseSettings);
+        assertEquals("", sb.toString());
     }
 
     @Test
-    public void asXmlDeclarationTest() {
-        Comment comment = new Comment("Hello, World!");
-        assertEquals(null, comment.asXmlDeclaration());
+    public void toStringTest() {
+        Comment comment = new Comment("comment");
+        assertEquals("Comment[comment]", comment.toString());
     }
 
 }

@@ -1,36 +1,29 @@
 package leetcode.medium;
 
-import org.junit.Test;
-
 import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 public class GeneratedTest {
 
     @Test
-    public void nextTest1() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        assertEquals(1, onlineStockSpan.next(5));
-        assertEquals(2, onlineStockSpan.next(4));
-        assertEquals(1, onlineStockSpan.next(1));
-        assertEquals(1, onlineStockSpan.next(3));
-        assertEquals(2, onlineStockSpan.next(6));
-        assertEquals(1, onlineStockSpan.next(2));
+    public void nextTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        assertEquals(1, stockSpan.next(1));
+        assertEquals(1, stockSpan.next(2));
+        assertEquals(1, stockSpan.next(3));
+        assertEquals(2, stockSpan.next(1));
+        assertEquals(1, stockSpan.next(1));
+        assertEquals(2, stockSpan.next(2));
     }
 
     @Test
-    public void calculateSpansTest1() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        int[] prices = new int[]{100, 80, 60, 70, 60, 75, 85};
-        int[] expected = new int[]{1, 1, 1, 2, 1, 4, 6};
-        assertArrayEquals(expected, onlineStockSpan.calculateSpans(prices));
-    }
-
-    @Test
-    public void calculateSpansTest2() {
-        OnlineStockSpan onlineStockSpan = new OnlineStockSpan();
-        int[] prices = new int[]{100, 80, 60, 70, 60, 75, 85};
-        int[] expected = new int[]{1, 1, 1, 2, 1, 4, 6};
-        assertArrayEquals(expected, onlineStockSpan.calculateSpans(prices));
+    public void calculateSpansTest() {
+        OnlineStockSpan stockSpan = new OnlineStockSpan();
+        int[] prices = {1, 2, 3, 1, 1, 2};
+        int[] actualSpans = stockSpan.calculateSpans(prices);
+        int[] expectedSpans = {1, 1, 1, 2, 1, 2};
+        assertArrayEquals(expectedSpans, actualSpans);
     }
 
 }

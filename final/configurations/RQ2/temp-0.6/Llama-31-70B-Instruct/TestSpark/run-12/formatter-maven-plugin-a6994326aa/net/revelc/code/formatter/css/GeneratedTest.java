@@ -1,39 +1,39 @@
 package net.revelc.code.formatter.css;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+import org.w3c.css.sac.InputSource;
+import com.steadystate.css.dom.CSSStyleSheetImpl;
+import com.steadystate.css.format.CSSFormat;
+import com.steadystate.css.parser.CSSOMParser;
+import com.steadystate.css.parser.SACParserCSS3;
+import net.revelc.code.formatter.ConfigurationSource;
 
 public class GeneratedTest {
 
-    private CssFormatter cssFormatter;
-
     @Test
-    public void testInit() {
-        Map<String, String> options = Map.of("indent", "4", "rgbAsHex", "true", "useSourceStringValues", "false");
-        ConfigurationSource cfg = null;
-        cssFormatter = new CssFormatter();
-        cssFormatter.init(options, cfg);
-        assertNotEquals(null, cssFormatter.getFormatter());
+    public void initTest() {
+        CssFormatter formatter = new CssFormatter();
+        Map<String, String> options = new HashMap<>();
+        options.put("key", "value");
+        ConfigurationSource cfg = mock(ConfigurationSource.class);
+        formatter.init(options, cfg);
+        assertTrue(formatter.isInitialized());
     }
 
     @Test
-    public void testDoFormat() throws IOException {
-        cssFormatter = new CssFormatter();
-        String code = "div {color: red;}";
-        LineEnding ending = LineEnding.NONE;
-        String formattedCode = cssFormatter.doFormat(code, ending);
-        assertEquals(code, formattedCode);
-    }
-
-    @Test
-    public void testIsInitialized() {
-        cssFormatter = new CssFormatter();
-        assertEquals(true, cssFormatter.isInitialized());
+    public void doFormatTest() throws IOException {
+        String code = "input code";
+        CssFormatter formatter = new CssFormatter();
+        formatter.init(new HashMap<>(), null);
+        String formattedCode = formatter.doFormat(code, LineEnding.LF);
+        assertTrue(formattedCode.length() > 0);
     }
 
 }

@@ -1,52 +1,60 @@
 package com.netflix.frigga.ami;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.when;
-
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.junit.Assert.assertEquals;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
-    private AppVersion appVersion;
-
-    @Before
-    public void setup() {
-        appVersion = new AppVersion();
+    @Test
+    public void parseNameTest() {
+        AppVersion appVersion = AppVersion.parseName("amiName");
+        assertEquals(appVersion.getVersion(), "1.0.0");
     }
 
     @Test
-    public void testGetAppVersionPattern() {
-        Pattern pattern = appVersion.getAppVersionPattern();
-        assertEquals("([" + NameConstants.NAME_HYPHEN_CHARS
-                + "]+)-([0-9.a-zA-Z~]+)-(\\w+)(?:[.](\\w+))?(?:\\/([" + NameConstants.NAME_HYPHEN_CHARS + "]+)\\/([0-9]+))?", pattern.pattern());
+    public void compareToTest() {
+        AppVersion appVersion1 = new AppVersion();
+        AppVersion appVersion2 = new AppVersion();
+        int result = appVersion1.compareTo(appVersion2);
+        assertEquals(result, 0);
     }
 
     @Test
-    public void testParseName_null() {
-        assertNull(AppVersion.parseName(null));
+    public void getAppVersionPatternTest() {
+        Pattern pattern = AppVersion.getAppVersionPattern();
+        assertEquals(pattern.toString(), "pattern");
     }
 
     @Test
-    public void testParseName_invalid() {
-        assertNull(AppVersion.parseName("invalid"));
+    public void getPackageNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String packageName = appVersion.getPackageName();
+        assertEquals(packageName, "packageName");
     }
 
     @Test
-    public void testParseName_valid() {
-        String name = "subscriberha-1.0.0-586499.h150";
-        AppVersion parsedName = AppVersion.parseName(name);
-        assertEquals("subscriberha", parsedName.getPackageName());
-        assertEquals("1.0.0", parsedName.getVersion());
-        assertEquals("586499", parsedName.getBuildNumber());
-        assertEquals("h150", parsedName.getCommit());
+    public void getVersionTest() {
+        AppVersion appVersion = new AppVersion();
+        String version = appVersion.getVersion();
+        assertEquals(version, "1.0.0");
     }
 
     @Test
-    public void testCompareTo_null() {
-        assertEquals(1, appVersion.compareTo(null));
+    public void getBuildJobNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String buildJobName = appVersion.getBuildJobName();
+        assertEquals(buildJobName, "buildJobName");
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        AppVersion appVersion = new AppVersion();
+        String buildNumber = appVersion.getBuildNumber();
+        assertEquals(buildNumber, "1");
     }
 
 }

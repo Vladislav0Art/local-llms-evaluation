@@ -1,42 +1,58 @@
 package org.jsoup.nodes;
 
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
+import org.jsoup.nodes.LeafNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.XmlDeclaration;
 import org.junit.Test;
-import org.jsoup.nodes.Comment;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+import java.io.StringWriter;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
+    @Mock
+    private Document document;
+
+    @Mock
+    private XmlDeclaration xmlDeclaration;
+
+    @Test
+    public void nodeNameTest() {
+        Comment comment = new Comment("test");
+        assertEquals("#comment", comment.nodeName());
+    }
+
     @Test
     public void getDataTest() {
-        Comment comment = Mockito.mock(Comment.class);
-        Mockito.when(comment.getData()).thenReturn("Comment data");
-        assertEquals("Comment data", comment.getData());
+        Comment comment = new Comment("test");
+        assertEquals("test", comment.getData());
     }
 
     @Test
     public void setDataTest() {
-        Comment comment = Mockito.mock(Comment.class);
-        Mockito.when(comment.setData("Comment data")).thenReturn(comment);
-        assertEquals("Comment data", comment.setData("Comment data").getData());
+        Comment comment = new Comment("test");
+        Comment newComment = comment.setData("new test");
+        assertEquals("new test", newComment.getData());
     }
 
     @Test
-    public void isXmlDeclarationTest() {
-        Comment comment = Mockito.mock(Comment.class);
-        Mockito.when(comment.getData()).thenReturn("<?xml version='1.0' encoding='UTF-8'?>");
-        assertTrue(comment.isXmlDeclaration());
-    }
-
-    @Test
-    public void asXmlDeclarationTest() {
-        Comment comment = Mockito.mock(Comment.class);
-        Mockito.when(comment.asXmlDeclaration()).thenReturn(null);
-        assertNull(comment.asXmlDeclaration());
+    public void outerHtmlHeadTest() throws IOException {
+        Comment comment = new Comment("test");
+        StringWriter writer = new StringWriter();
+        comment.outerHtmlHead(writer, 0, new Document.OutputSettings());
+        assertEquals("<!--test-->", writer.toString());
     }
 
 }

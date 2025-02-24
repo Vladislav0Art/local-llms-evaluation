@@ -1,37 +1,53 @@
 package ch.jalu.configme.configurationdata;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
+import org.junit.Test;
+import ch.jalu.configme.SettingsHolder;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.Assert.*;
+
 public class GeneratedTest {
 
-    @Mock
-    private CommentsConfiguration commentsConfiguration;
-
     @Test
-    public void setCommentTest() {
-        when(commentsConfiguration.setComment(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+    public void constructorWithoutParametersTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
     }
 
     @Test
-    public void getAllCommentsTest() {
-        HashMap<String, List<String>> comments = new HashMap<>();
-        comments.put("path", Arrays.asList("comment1", "comment2"));
-        when(commentsConfiguration.getAllComments()).thenReturn(comments);
-        assertNotNull(commentsConfiguration.getAllComments());
-        assertEquals(1, commentsConfiguration.getAllComments().size());
+    public void constructorWithNullCommentsTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(null);
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void constructorWithEmptyCommentsTest() {
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(Collections.emptyMap());
+        assertTrue(commentsConfiguration.getAllComments().isEmpty());
+    }
+
+    @Test
+    public void constructorWithNonEmptyCommentsTest() {
+        Map<String, List<String>> comments = new HashMap<>();
+        comments.put("key1", Arrays.asList("comment1", "comment2"));
+        comments.put("key2", Arrays.asList("comment3", "comment4"));
+
+        CommentsConfiguration commentsConfiguration = new CommentsConfiguration(comments);
+        Map<String, List<String>> allComments = commentsConfiguration.getAllComments();
+
+        assertEquals(2, allComments.size());
+        assertTrue(allComments.containsKey("key1"));
+        assertTrue(allComments.containsKey("key2"));
+        assertEquals(Arrays.asList("comment1", "comment2"), allComments.get("key1"));
+        assertEquals(Arrays.asList("comment3", "comment4"), allComments.get("key2"));
     }
 
 }

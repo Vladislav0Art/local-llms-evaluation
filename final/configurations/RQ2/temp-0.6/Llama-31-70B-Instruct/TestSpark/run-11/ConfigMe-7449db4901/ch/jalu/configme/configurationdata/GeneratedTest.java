@@ -2,28 +2,15 @@ package ch.jalu.configme.configurationdata;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.mockito.Mockito;
-
-import static org.mockito.Mockito.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class GeneratedTest {
-
-    @Test
-    public void setCommentPathCommentLinesTest() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        String path = "testPath";
-        String[] commentLines = new String[]{"line1", "line2"};
-        commentsConfiguration.setComment(path, commentLines);
-        assertEquals(commentLines.length, commentsConfiguration.getAllComments().get(path).size());
-    }
-
-    @Test
-    public void getAllCommentsTest() {
-        CommentsConfiguration commentsConfiguration = new CommentsConfiguration();
-        assertNotNull(commentsConfiguration.getAllComments());
-    }
 
 }

@@ -1,46 +1,69 @@
 package com.netflix.frigga.ami;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GeneratedTest {
 
     @Test
-    public void testParseName() {
-        String amiName = "subscriberha-1.0.0-586499.h150";
-        AppVersion parsedName = AppVersion.parseName(amiName);
-
-        assertNotNull(parsedName);
-        assertEquals("subscriberha", parsedName.getPackageName());
-        assertEquals("1.0.0", parsedName.getVersion());
-        assertEquals("h150", parsedName.getCommit());
+    public void parseNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String amiName = "testAmiName";
+        AppVersion result = appVersion.parseName(amiName);
+        assertNotNull(result);
     }
 
     @Test
-    public void testCompareTo() {
-        AppVersion appVersion1 = new AppVersion();
-        appVersion1.setPackageName("subscriberha");
-        appVersion1.setVersion("1.0.0");
-        appVersion1.setCommit("h150");
-
-        AppVersion appVersion2 = new AppVersion();
-        appVersion2.setPackageName("subscriberha");
-        appVersion2.setVersion("1.0.1");
-        appVersion2.setCommit("h150");
-
-        assertTrue(appVersion1.compareTo(appVersion2) < 0);
+    public void compareToTest() {
+        AppVersion appVersion = new AppVersion();
+        AppVersion other = Mockito.mock(AppVersion.class);
+        int result = appVersion.compareTo(other);
+        assertNotEquals(0, result);
     }
 
     @Test
-    public void testGetAppVersionPattern() {
-        Pattern pattern = AppVersion.getAppVersionPattern();
-        assertNotNull(pattern);
+    public void getAppVersionPatternTest() {
+        AppVersion appVersion = new AppVersion();
+        Pattern result = appVersion.getAppVersionPattern();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void getPackageNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String result = appVersion.getPackageName();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void getVersionTest() {
+        AppVersion appVersion = new AppVersion();
+        String result = appVersion.getVersion();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void getBuildJobNameTest() {
+        AppVersion appVersion = new AppVersion();
+        String result = appVersion.getBuildJobName();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void getBuildNumberTest() {
+        AppVersion appVersion = new AppVersion();
+        String result = appVersion.getBuildNumber();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void getCommitTest() {
+        AppVersion appVersion = new AppVersion();
+        String result = appVersion.getCommit();
+        assertNotNull(result);
     }
 
 }
